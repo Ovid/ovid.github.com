@@ -962,11 +962,11 @@ function add_event_handlers() {
     Event.observe($('starmap'), 'click', function (event) {
         map.select_star(event);
     });
-    Event.observe(map.renderer.canvas,     'mouseover', function(event) {
+    Event.observe($('starmap'), 'mouseover', function(event) {
         map.stop_rotation();
         $('toggle_rotation').checked = false;
     });
-    Event.observe(map.renderer.canvas,     'mouseout', function(event) {
+    Event.observe($('starmap'), 'mouseout', function(event) {
         map.restart_rotation();
         $('toggle_rotation').checked = map.is_moving;
     });
