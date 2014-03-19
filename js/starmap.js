@@ -959,7 +959,7 @@ function add_event_handlers() {
     Event.observe($('toggle_unreachable'), 'click', function () {
         map.toggle_unreachable();
     });
-    Event.observe(map.renderer.canvas, 'click', function (event) {
+    Event.observe($('starmap'), 'click', function (event) {
         map.select_star(event);
     });
     Event.observe(map.renderer.canvas,     'mouseover', function(event) {
