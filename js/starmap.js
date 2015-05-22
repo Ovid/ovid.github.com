@@ -95,6 +95,10 @@ var map = {
         this.rotate_stars(2);
     },
     draw: function(redraw) {
+        var that = this;
+        window.requestAnimationFrame(function() { that.doDraw(redraw); }, this.renderer.canvas);
+    },
+    doDraw: function(redraw) {
         if (!this.is_moving && !redraw)
             return;
         this.renderer.clear_canvas();
