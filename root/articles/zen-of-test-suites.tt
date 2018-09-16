@@ -44,15 +44,15 @@
         you'd see the following tests:</p>
 
         <pre><code>00-load.t
-        basic.t
-        definitions.t
-        groups.t
-        load_multiple_fixtures.t
-        many_to_many.t
-        no_transactions.t
-        one_to_many.t
-        one_to_one.t
-        </code></pre>
+basic.t
+definitions.t
+groups.t
+load_multiple_fixtures.t
+many_to_many.t
+no_transactions.t
+one_to_many.t
+one_to_one.t
+</code></pre>
 
         <p>These tests were added one by one, as I added new features to
         <code>DBIx::Class::EasyFixture</code> and each <code>*.t</code> file
@@ -65,8 +65,8 @@
         of files from one of my customer's test suites:</p>
 
         <pre><code>$ find t -type f | wc -l
-        288
-        </code></pre>
+288
+</code></pre>
 
         <p>That's actually fairly small. One codebase I worked on had close to
         a million lines of code with thousands of test scripts. You couldn't
@@ -215,21 +215,21 @@
         like this:</p>
 
         <pre><code>lib/
-        └── HTML
-            └── TokeParser
-                ├── Simple
-                │   ├── Token
-                │   │   ├── Comment.pm
-                │   │   ├── Declaration.pm
-                │   │   ├── ProcessInstruction.pm
-                │   │   ├── Tag
-                │   │   │   ├── End.pm
-                │   │   │   └── Start.pm
-                │   │   ├── Tag.pm
-                │   │   └── Text.pm
-                │   └── Token.pm
-                └── Simple.pm
-        </code></pre>
+└── HTML
+    └── TokeParser
+        ├── Simple
+        │   ├── Token
+        │   │   ├── Comment.pm
+        │   │   ├── Declaration.pm
+        │   │   ├── ProcessInstruction.pm
+        │   │   ├── Tag
+        │   │   │   ├── End.pm
+        │   │   │   └── Start.pm
+        │   │   ├── Tag.pm
+        │   │   └── Text.pm
+        │   └── Token.pm
+        └── Simple.pm
+</code></pre>
 
         <p>There's a class in there named
         <code>HTML::TokeParser::Simple::Token::ProcessInstruction</code>.
@@ -237,12 +237,12 @@
         instructions?</p>
 
         <pre><code>t
-        ├── constructor.t
-        ├── get_tag.t
-        ├── get_token.t
-        ├── internals.t
-        └── munge_html.t
-        </code></pre>
+├── constructor.t
+├── get_tag.t
+├── get_token.t
+├── internals.t
+└── munge_html.t
+</code></pre>
 
         <p>You might think it's in the <code>get_token.t</code> test, but are
         you sure? And what's that strange <code>munge_html.t</code> test? Or
@@ -251,21 +251,21 @@
         to reflect our library hierarchy?</p>
 
         <pre><code>t/
-        └── tests/
-            └── html/
-                └── tokeparser/
-                    ├── simple/
-                    │   ├── token/
-                    │   │   ├── comment.t
-                    │   │   ├── declaration.t
-                    │   │   ├── tag/
-                    │   │   │   ├── end.t
-                    │   │   │   └── start.t
-                    │   │   ├── tag.t
-                    │   │   └── text.t
-                    │   └── token.t
-                    └── simple.t 
-        </code></pre>
+└── tests/
+    └── html/
+        └── tokeparser/
+            ├── simple/
+            │   ├── token/
+            │   │   ├── comment.t
+            │   │   ├── declaration.t
+            │   │   ├── tag/
+            │   │   │   ├── end.t
+            │   │   │   └── start.t
+            │   │   ├── tag.t
+            │   │   └── text.t
+            │   └── token.t
+            └── simple.t 
+</code></pre>
 
         <p>It's clear that the tests for
         <code>HTML::TokeParser::Simple::Token::Tag::Start</code> are in
@@ -290,11 +290,11 @@
         structured differently:</p>
 
         <pre><code>t
-        ├── unit/
-        ├── integration/
-        ├── api/
-        └── web/
-        </code></pre>
+├── unit/
+├── integration/
+├── api/
+└── web/
+</code></pre>
 
         <p><strong>Recommendation</strong>: Organize your test files to have a
         predictable, discoverable structure. The test suite should be much
@@ -316,18 +316,17 @@
         popular testing modules and that allowed me to change this:</p>
 
         <pre><code>use strict;
-        use warnings;
-        use Test::Exception;
-        use Test::Differences;
-        use Test::Deep;
-        use Test::Warn;
-        use Test::More tests =&gt; 42;
+use warnings;
+use Test::Exception;
+use Test::Differences;
+use Test::Deep;
+use Test::Warn;
+use Test::More tests =&gt; 42;
         </code></pre>
 
         <p>To this:</p>
 
-        <pre><code>use Test::Most tests =&gt; 42;
-        </code></pre>
+        <pre><code>use Test::Most tests =&gt; 42;</code></pre>
 
         <p>You can easily use similar strategies to bundle up common testing
         modules into a single testing module that all of your tests use. Less
@@ -337,26 +336,26 @@
         silly example just for illustration purposes):</p>
 
         <pre><code>set_up_some_data($id);
-        my $object = Object-&gt;new($id);
+my $object = Object-&gt;new($id);
 
-        is $object-&gt;attr1, $expected1, 'attr1 works';
-        is $object-&gt;attr2, $expected2, 'attr2 works';
-        is $object-&gt;attr3, $expected3, 'attr3 works';
-        is $object-&gt;attr4, $expected4, 'attr4 works';
-        is $object-&gt;attr5, $expected5, 'attr5 works';
-        </code></pre>
+is $object-&gt;attr1, $expected1, 'attr1 works';
+is $object-&gt;attr2, $expected2, 'attr2 works';
+is $object-&gt;attr3, $expected3, 'attr3 works';
+is $object-&gt;attr4, $expected4, 'attr4 works';
+is $object-&gt;attr5, $expected5, 'attr5 works';
+</code></pre>
 
         <p>And then a few lines later:</p>
 
         <pre><code>set_up_some_data($new_id);
-        $object = Object-&gt;new($new_id);
+$object = Object-&gt;new($new_id);
 
-        is $object-&gt;attr1, $new_expected1, 'attr1 works';
-        is $object-&gt;attr2, $new_expected2, 'attr2 works';
-        is $object-&gt;attr3, $new_expected3, 'attr3 works';
-        is $object-&gt;attr4, $new_expected4, 'attr4 works';
-        is $object-&gt;attr5, $new_expected5, 'attr5 works';
-        </code></pre>
+is $object-&gt;attr1, $new_expected1, 'attr1 works';
+is $object-&gt;attr2, $new_expected2, 'attr2 works';
+is $object-&gt;attr3, $new_expected3, 'attr3 works';
+is $object-&gt;attr4, $new_expected4, 'attr4 works';
+is $object-&gt;attr5, $new_expected5, 'attr5 works';
+</code></pre>
 
         <p>And then a few lines later, the same thing ...</p>
 
@@ -366,45 +365,44 @@
         a loop. If this pattern is repeated in different test files, put it in
         a custom test library:</p>
 
-        <pre><code>sub test_fetching_by_id {
-            my ( $class, $id, $tests ) = @_;
-            my $object = $class-&gt;new($id);
+        <pre><code>sub test_fetching_by_id ( $class, $id, $tests ) {
+    my $object = $class-&gt;new($id);
 
-            # this causes diagnostics to display the file and line number of the
-            # caller on failure, rather than reporting *this* file and line number
-            local $Test::Builder::Level = $Test::Builder::Level + 1;
+    # this causes diagnostics to display the file and line number of the
+    # caller on failure, rather than reporting *this* file and line number
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-            foreach my $test (@$tests) {
-                my ( $attribute, $expected ) = @$test;
-                is $object-&gt;$attribute, $expected, "$attribute works for $class $id";
-            }
-        }
-        </code></pre>
+    foreach my $test (@$tests) {
+        my ( $attribute, $expected ) = @$test;
+        is $object-&gt;$attribute, $expected, "$attribute works for $class $id";
+    }
+}
+</code></pre>
 
         <p>And then you call it like this:</p>
         <pre><code>my @id_tests = (
-            { id =&gt; $id,
-            tests =&gt; [
-                [ attr1 =&gt; $expected1 ],
-                [ attr2 =&gt; $expected2 ],
-                [ attr3 =&gt; $expected3 ],
-                [ attr4 =&gt; $expected4 ],
-                [ attr5 =&gt; $expected5 ],
-            ]},
-            { id =&gt; $new_id,
-            tests  =&gt; [
-                [ attr1 =&gt; $new_expected1 ],
-                [ attr2 =&gt; $new_expected2 ],
-                [ attr3 =&gt; $new_expected3 ],
-                [ attr4 =&gt; $new_expected4 ],
-                [ attr5 =&gt; $new_expected5 ],
-            ]},
-        );
+    { id =&gt; $id,
+    tests =&gt; [
+        [ attr1 =&gt; $expected1 ],
+        [ attr2 =&gt; $expected2 ],
+        [ attr3 =&gt; $expected3 ],
+        [ attr4 =&gt; $expected4 ],
+        [ attr5 =&gt; $expected5 ],
+    ]},
+    { id =&gt; $new_id,
+    tests  =&gt; [
+        [ attr1 =&gt; $new_expected1 ],
+        [ attr2 =&gt; $new_expected2 ],
+        [ attr3 =&gt; $new_expected3 ],
+        [ attr4 =&gt; $new_expected4 ],
+        [ attr5 =&gt; $new_expected5 ],
+    ]},
+);
 
-        for my $test ( @id_tests ){
-            test_fetching_by_id( 'Object', $test-&gt;{id}, $tests-&gt;{test} );
-        }
-        </code></pre>
+for my $test ( @id_tests ){
+    test_fetching_by_id( 'Object', $test-&gt;{id}, $tests-&gt;{test} );
+}
+</code></pre>
 
         <p>This is a cleanly refactored data-driven approach. By not repeating
         yourself, if you need to test new attributes, you can just add an
@@ -459,11 +457,11 @@
         area.</p>
 
         <pre><code>load_fixture(
-            database =&gt; 'sales',
-            client   =&gt; $client_id,
-            datasets =&gt; [qw/ customers orders items order_items referrals /],
-        );
-        </code></pre>
+    database =&gt; 'sales',
+    client   =&gt; $client_id,
+    datasets =&gt; [qw/ customers orders items order_items referrals /],
+);
+</code></pre>
 
         <p>This had several problems, all of which could be easily corrected
         <em>as code</em>, but they built a test suite around these problems
@@ -521,12 +519,12 @@
         <p>Using them is very simple:</p>
 
         <pre><code>my $fixtures = DBIx::Class::EasyFixture-&gt;new(schema =&gt; $schema);
-        $fixtures-&gt;load('customer_with_order_without_items');
+$fixtures-&gt;load('customer_with_order_without_items');
 
-        # run your tests
+# run your tests
 
-        $fixtures-&gt;unload; # also unloads when out of scope
-        </code></pre>
+$fixtures-&gt;unload; # also unloads when out of scope
+</code></pre>
 
         <p>For the customer's code, we could satisfy the different database
         requirements by passing in different schemas. Other (well-documented)
@@ -540,13 +538,13 @@
 
         <p>Consider the following code:</p>
         <pre><code>float recip(float number) {
-            return 1.0 / number;
-        }
-        </code></pre>
+    return 1.0 / number;
+}
+</code></pre>
 
         <p>And a sample test:</p>
-        <pre><code>assert recip(2.0) returns .5;
-        </code></pre>
+
+        <pre><code>assert recip(2.0) returns .5;</code></pre>
 
         <p>Congratulations! You now have 100% code coverage of that function.</p>
 
@@ -574,18 +572,17 @@
         together.</p>
 
         <p>Or consider the following test case:</p>
-        <pre><code>sub forum : Tests(1) {
-            my $self = shift;
-            my $site = $self-&gt;test_website;
-            $site-&gt;login($user, $pass);
-            $site-&gt;get('/forum');
-            $site-&gt;follow_link( text =&gt; 'Off Topic' );
-            $site-&gt;post_ok({
-                title =&gt; 'What is this?',
-                body  =&gt; 'This is a test'.
-            }, 'We should be able to post to the forum');
-        }
-        </code></pre>
+        <pre><code>sub test_forum : Tests(1) ($self) {
+    my $site = $self-&gt;test_website;
+    $site-&gt;login($user, $pass);
+    $site-&gt;get('/forum');
+    $site-&gt;follow_link( text =&gt; 'Off Topic' );
+    $site-&gt;post_ok({
+        title =&gt; 'What is this?',
+        body  =&gt; 'This is a test'.
+    }, 'We should be able to post to the forum');
+}
+</code></pre>
 
         <p><code>Devel::Cover</code> doesn't know which code is test code and
         which is not.  <code>Devel::Cover</code> merely tells you if your
@@ -606,19 +603,19 @@
 
         <p>You can do this by grouping your tests into subdirectories:</p>
         <pre><code>t/
-        |--api/
-        |--integration/
-        `--unit/
-        </code></pre>
+|--api/
+|--integration/
+`--unit/
+</code></pre>
 
         <p>Alternatively, if you use <code>Test::Class::Moose</code>, you can
         tag your tests and only run coverage over tests including the tags you
         wish to test:</p>
 
         <pre><code>My::Test::Class::Moose-&gt;new({
-        include_tags =&gt; [qw/api/],
-        })-&gt;runtests;
-        </code></pre>
+    include_tags =&gt; [qw/api/],
+})-&gt;runtests;
+</code></pre>
 
         <p>If you start tagging your tests by the subsystems they are testing,
         you can then start running code coverage on specific subsystems to
@@ -752,45 +749,45 @@
 
         <pre><code>#!/usr/bin/env perl
 
-        use strict;
-        use warnings;
-        no warnings 'recursion';
+use strict;
+use warnings;
+no warnings 'recursion';
 
-        for my $i ( 1 .. 40 ) {
-            for my $j ( 1 .. $i**2 ) {
-                my $y = factorial($j);
-            }
-        }
+for my $i ( 1 .. 40 ) {
+    for my $j ( 1 .. $i**2 ) {
+        my $y = factorial($j);
+    }
+}
 
-        sub factorial {
-            my $num = shift;
-            return 1 if $num &lt;= 1;
-            return $num * factorial($num - 1);
-        }
-        </code></pre>
+sub factorial {
+    my $num = shift;
+    return 1 if $num &lt;= 1;
+    return $num * factorial($num - 1);
+}
+</code></pre>
 
         <p>By rewriting the recursive function as a loop, the code takes about
         .87 seconds:</p>
 
         <pre><code>sub factorial {
-            my $num = shift;
-            return 1 if $num &lt;= 1;
-            $num *= $_ for 2 .. $num - 1;
-            return $num;
-        }
-        </code></pre>
+    my $num = shift;
+    return 1 if $num &lt;= 1;
+    $num *= $_ for 2 .. $num - 1;
+    return $num;
+}
+</code></pre>
 
         <p>By inlining the calculation, the code completes in .69 seconds:</p>
 
         <pre><code>for my $i ( 1 .. 40 ) {
-            for my $j ( 1 .. $i**2 ) {
-                my $y = $j;
-                if ( $y &gt; 1 ) {
-                    $y *= $_ for 2 .. $y - 1;
-                }
-            }
+    for my $j ( 1 .. $i**2 ) {
+        my $y = $j;
+        if ( $y &gt; 1 ) {
+            $y *= $_ for 2 .. $y - 1;
         }
-        </code></pre>
+    }
+}
+</code></pre>
 
         <p>In other words, in our trivial example, the inlined behavior is roughly 20%
         faster than the iterative function and 80% faster than the recursive function.</p>
