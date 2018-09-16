@@ -1,73 +1,30 @@
-<html>
-    <head>
-        <title>3D rotating star map on canvas</title>
-
-        <!-- http://www.getskeleton.com/ -->
-        <link rel="stylesheet" type="text/css" href="css/base.css">
-        <link rel="stylesheet" type="text/css" href="css/skeleton.css">
-        <link rel="stylesheet" type="text/css" href="css/layout.css">
-
-        <!-- starmap controls -->
-        <link rel="stylesheet" type="text/css" href="css/starmap.css"/> 
-
-        <!-- I can almost get rid of this now, thanks to refactoring -->
-        <script type="text/javascript" src="js/prototype.js"></script>
-
-        <!-- this is the starmap renderer -->
-        <script type="text/javascript" src="js/starmap.js"></script>
-
-        <!-- this is the data for the current starmap -->
-        <script type="text/javascript" src="js/sol.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="sixteen columns">
-                <p><a href="index.html">Back to Curtis "Ovid" Poe's
-                Information.</a></p>
-            </div>
-            <div class="sixteen columns">
-                <div class="eight columns">
-                    <canvas id="starmap" width="650" height="650"></canvas>
-                </div>
-                <div class="four columns">
-                    <div id="starmap_controls">
-                        <input type="checkbox" name="toggle_wormholes" id="toggle_wormholes" value="0">Show Wormholes
-                        <br />
-                        <input type="checkbox" name="toggle_rotation" id="toggle_rotation" value="0">Rotate
-                        <br />
-                        <input type="checkbox" name="toggle_names" id="toggle_names" value="0">Star Names
-                        <br />
-                        <input type="checkbox" name="toggle_unreachable" id="toggle_unreachable" value="0">Show Unreachable
-                        <br />
-                    </div>
-                    <div id="star_id">No star selected</div>
-                </div>
-            </div>
-            <div class="sixteen columns">
-                <hr />
-                <div class="eight columns">
-                    <p>This was for a game that, sadly, I've never had the
-                    time to finish. However, so many people look for how to
-                    build a 3-D rotating star map in Javascript that I thought
-                    I'd show my solution. I'm more of a back-end guy and
-                    feedback on this is very welcome.</p>
-
-                    <p>The map shows all of the stars within 20 light years of
-                    Sol. The green circle (sorry, color-blind folks!) is where
-                    the "player" in the game is currently located. The lines
-                    are wormholes between star systems and yes, some are
-                    deliberaty disconnected. The white lines are the wormholes
-                    directly connected to the player's current position.</p>
-                </div>
-                <div class="four columns"</div>
-                    <p><strong>Author:</strong></p>
-                    <ul class="circle">
-                      <li><a href="http://www.linkedin.com/in/curtispoe">Curtis "Ovid" Poe</a></li>
-                      <li><a href="https://github.com/Ovid">github account</a></li>
-                      <li><a href="https://metacpan.org/author/OVID">CPAN account</a></li>
-                    </ul>
-                </div>
-            </div>
+[% INCLUDE include/header.tt %]
+    <div class="row">
+[% INCLUDE include/links.tt %]
+    <div class="nine columns verticalLine">
+        <canvas id="starmap" width="650" height="650"></canvas>
+        <hr>
+        <div id="starmap_controls">
+            <input type="checkbox" name="toggle_wormholes" id="toggle_wormholes" value="0"> Show Wormholes
+            <br />
+            <input type="checkbox" name="toggle_rotation" id="toggle_rotation" value="0"> Rotate
+            <br />
+            <input type="checkbox" name="toggle_names" id="toggle_names" value="0"> Star Names
+            <br />
+            <input type="checkbox" name="toggle_unreachable" id="toggle_unreachable" value="0"> Show Unreachable
+            <br />
         </div>
-    </body>
-</html>
+        <div id="star_id">No star selected</div>
+        <hr />
+
+        <p>This is the starmap for <a href="https://taustation.space/">Tau
+        Station</a>, a narrative sci-fi MMORPG. It never made it into the
+        game, but so many people look for how to build a 3-D rotating star map
+        in Javascript that I thought I'd show my solution. I'm more of a
+        back-end developer and the code reflects this.</p>
+
+        <p>The map shows all of the stars within 20 light years of Sol. The
+        green circle (sorry, color-blind folks!) is where the "player" in the
+        game is currently located. The lines are wormholes between star
+        systems and yes, some are deliberaty disconnected. The white lines are
+        the wormholes directly connected to the player's current position.</p>
