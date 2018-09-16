@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>A Simple Way to Fix Legacy Code</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+        <div class="twelve columns header">
+			<ul>
+			<li><img class="book" src="/static/images/profile.jpg"></li>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg" class="book"></a></li>
+			</ul>
+        </div>
+    </div>
+
+<div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/index.html">Home</li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/articles.html">Articles</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="mailto:curtis.poe@gmail.com">Drop me a line</a></li>
+        </ul>
+      </div>
+
+    <div class="nine columns verticalLine">
+		<h1>A Simple Way to Fix Legacy Code</h1>
+
+        <p>If you've been in this business long enough, sooner or later you're
+        going to be faced with a terrible problem: fixing the legacy codebase.
+        What follows isn't the only way to proceed, but it's a tried-and-true
+        strategy that unfortunately doesn't appear to be well-known. The core
+        of what follows is risk minimization. Assuming you're facing the
+        problem of fixing a legacy application, you already have risk and you
+        don't need more added to it. What follows is lower risk and lower cost
+        than rewriting the system from scratch.</p>
+
+        <p>If you like what you read here and you need help, especially with
+        Perl, get in touch with me and see how our company can help out.</p>
+
+        <h2>Why You (Probably) Don't Rewrite The Code</h2>
+
+        <p>Before we start, there are a few things you should know. First, <a
+        href="https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/"
+        target="_blank">read this now-famous Joel Spolsky article about why
+        you should never rewrite your code</a> (trust me, read it, but don't
+        forget to come back). In that article, Spolsky makes a strong case
+        about why you should refactor your codebase instead of rewriting it.
+        Refactoring, if you're not familiar with the term, is the process of
+        making a series of gradual improvements to code quality without
+        changing the behavior. When you're trying to fix code, trying to
+        change its structure and behavior at the same time is begging for
+        trouble.</p>
+
+        <p>That being said, I don't believe in the word "never". If your code
+        is written in UniBasic, rewriting might be your only option since you
+        can't find developers who know the language (or are willing to learn
+        it). Heck, I used to program in UniBasic and I've forgotten the
+        language entirely.</p>
+
+        <p>Or if you're working with a relatively small piece of software with
+        low impact, rewriting may not be that dangerous.</p>
+
+        <p>But let's say you can find or train developers for the language
+        your software is written in, the software is mission-critical, and
+        it's a very large codebase. Rewriting begins to make much less sense.
+        Refactoring it means that you always have working code, you're not
+        throwing away business knowledge or obscure bug-fixes, and your
+        developers aren't starting from scratch, hoping they can make
+        something work. In other words, you're minimizing your risk.</p>
+
+        <p>That being said, many companies (and developers) still opt for the
+        rewrite. New code is exciting. New code promises new opportunities.
+        New code is fun but fixing old code is often seen as drudgery.
+        However, if you have a large, legacy codebase, the new code you're
+        writing is, by definition, a large project and <a
+        href="https://www.informationweek.com/strategic-cio/executive-insights-and-innovation/why-do-big-it-projects-fail-so-often/d/d-id/1112087"
+        target="_blank">large projects are very high risk</a> (emphasis
+        mine):</p>
+
+        <blockquote>In a landmark 1995 study, the Standish Group established
+        that only about 17% of IT projects could be considered "fully
+        successful," another 52% were "challenged" (they didn't meet budget,
+        quality or time goals) and 30% were "impaired or failed." In a recent
+        update of that study conducted for ComputerWorld, Standish examined
+        3,555 IT projects between 2003 and 2012 that had labor costs of at
+        least $10 million and found that <strong>only 6.4% of [IT projects]
+        were successful</strong>.</blockquote>
+
+        <p>That's an old study, but there's still plenty of newer work which
+        bears this out. The larger the project, the larger the risk. In fact,
+        of the large projects I have been involved with for various companies,
+        few were both on time and on budget. Some were cancelled outright and
+        still others dragged on, long after it was clear they were a disaster,
+        simply because no one wanted to take the blame for failure. One of
+        them today is approaching its fourth year of a one-year schedule and
+        is riddled with bugs and design flaws, but the company made the new
+        software backwards-incompatible, switched over their clients and now
+        have no way out. The only reason the company is still in business is
+        that they bought another company that is very profitable and is paying
+        for the company's mistake.</p>
+
+        <p>That last examples alludes to a dirty little secret that's often
+        not talked about in our industry: large-scale rewrites often exchange
+        one pile of spaghetti code for another. Rather than truly solve the
+        underlying problems, the companies have traded a known set of problems
+        for an unknown set of problems. If you need to fix your legacy code
+        it's because you need to minimize your risk; why on earth would you
+        knowingly adopt unquantifiable risk?</p>
+
+        <h2>How to Refactor Your Legacy Code</h2>
+
+        <p>Assuming you've decided that you don't want to face the cost and
+        risk of a large-scale rewrite, how do you refactor your code?</p>
+
+        <p>First, you need to assess where you are. At a bare minimum:</p>
+
+		<ul>
+			<li>What are the functional requirements of the code? (very high-level here)</li>
+			<li>What documentation exists, if any?</li>
+			<li>What areas of the code are more fragile? (Check your bug tracker)</li>
+			<li>What external resources does it require?</li>
+			<li>What tests exist, if any?</li>
+		</ul>
+
+        <p>All of these things need to be written down so that anyone can
+        consult this information at a glance. This information represents the
+        bare necessities for the expert you're going to hire to fix the mess.
+        If the above list seems simplistic, that's because we're refactoring,
+        not rewriting.</p>
+
+        <p>And yes, you're probably going to hire an outside expert. Not only
+        will they see things that you didn't, but while your current
+        developers may be good, if they can't clearly lay down a solid plan to
+        fix the legacy codebase while simultaneously minimizing risk, you need
+        to bring in someone with experience with this area. What follows is
+        not always intuitive and the expert's experience will help you
+        navigate the rough waters you're already in. At a minimum, your expert
+        needs to have the following:</p>
+
+		<li>
+			<li>Expert in the primary language(s) of your codebase</li>
+			<li>A strong automated testing background</li>
+			<li>Very comfortable with <a
+            href="https://en.wikipedia.org/wiki/Code_coverage"
+            target="_blank">code coverage</a> tools</li>
+			<li>A strong database background (probably)</li>
+			<li>An expert in system design/architecture</li>
+			<li>Ability to admit when they're wrong</li>
+			<li>Understanding of business needs</li>
+			<li>A persuasive personality</li>
+		</ul>
+
+        <p>The last points seems strange, but hard choices will need to be
+        made and there will be strong disagreements about how to make them.
+        It's hard to find this mix in top-notch developers, but it will
+        definitely pay off.</p>
+
+		<h2>Getting Started</h2>
+
+        <p>The first thing you'll want to do is get a rough idea of how you
+        want your new application laid out. Call this your architecture
+        roadmap, but keep in mind that your landscape will change over time
+        and this roadmap should be flexible. This is where your expert's
+        architecture skills will come in. Various functional parts of your
+        application will be decoupled and put into separate areas to ensure
+        that each part of your application has a "specialty" that it focuses
+        on. When each part of your application has one area it focuses on,
+        it's easier to maintain, extend, and reuse, and that's primarily why
+        we want to fix our legacy codebase. However, don't make detailed plans
+        at this time; no battle plan survives first contact with the enemy.
+        Instead, just ensure that you have a rough sense of where you're going
+        to go.</p>
+
+        <p>Next, you're going to refactor your application the same way you
+        eat an elephant: one bite (byte?) at a time. You'll pick a small
+        initial target to get familiar with your new tools. Over time, it will
+        get easier, but you don't want to bite off too big a chunk when you
+        get started.</p>
+
+        <p>Refactoring a large application means writing tests, but unless you
+        know what you're doing, you're probably going to get it wrong. There's
+        often little TDD here — the code is already written — and you can't
+        write tests for everything — you'll never finish. Instead, you'll be
+        tactically applying integration tests piece by piece.</p>
+
+        <p>The first thing you need to do is understand what won't change in
+        your application. By "won't change" I mean whatever it is that uses
+        your application's output, whether it be through a JSON API, a Web
+        site, a SOAP interface or what have you. Since something has to use
+        the software, that something is what is going to make everything work.
+        You're going to be writing integration tests against whatever that
+        something is. For the sake of argument, we'll assume we're refactoring
+        a Web application. You've decided that you'll start by writing tests
+        to verify that you can list users on your admin page.</p>
+
+        <p>Inside those tests, you'll create a browser object, log in as an
+        admin user, fetch the users page and write tests to assert that the
+        expected users show up on that page. Just getting to this point can
+        often take a huge amount of work. For example, how do you get code to
+        connect to a test database? How do you ensure data isolation between
+        tests (in other words, the order in which tests are run should not
+        matter)? Heck, how do you create that browser object (hint: Selenium
+        is a good choice here)? These and many more questions need to be
+        answered when you're first starting out.</p>
+
+        <p>Getting to to this point may be easy if you already have some
+        tests, or it may be very hard if you don't, but it's the important
+        first step in the refactoring.</p>
+
+        <p>Once you have that first integration test targeting a small and
+        (relatively) unchanging part of your interface, run your code coverage
+        tools over the test(s) to see what code is covered with these
+        high-level integration tests. Code which is covered is code which is
+        generally safe to refactor (there are plenty of exceptions, but that's
+        another article entirely).</p>
+
+        <p>Now you can start looking at which functional parts of the
+        application are embedded in that tested code and make a plan for
+        moving those sections into your architecture roadmap. At this point,
+        it's tempting to rip everything apart, but don't give in to that
+        temptation. Instead, focus on one piece at a time. For example, if you
+        have SQL scattered throughout the code, start pulling that out into
+        your architecture roadmap so that you have a clean API to work with
+        the data you need. Or perhaps you have a Web application and you have
+        been printing the HTML directly: look at using a templating system and
+        start pulling the HTML out into templates. Don't fix everything at
+        once or you'll be trying to do too much. Instead, focus on one area of
+        responsibility and understand it well.</p>
+
+		<h2>Don't Do Unit Testing (Yet)</h2>
+
+        <p>Note that we've been talking about integration testing but not unit
+        testing. There's a very good reason for that: with heavy refactoring
+        of a legacy system, your units will change quite heavily when you
+        first start, but the integration tests focusing on the rather static
+        interfaces will not. You want to spend time refactoring your
+        application, not your tests, so until you've stabilized how the code
+        works internally, unit tests can actually be a distraction.
+        Integration testing has the advantage that you can cover (if not
+        actually test) huge portions of your code at once and if done
+        correctly, can be very fast to write. Further, with poorly structured
+        applications, unit testing may be very difficult, if not impossible.
+        Integration testing will also help uncover bugs that unit testing
+        cannot: bugs where different components have different expectations
+        when talking to one another. However, there are some downsides to
+        integration testing:</p>
+
+		<ul>
+			<li>Integration tests run slower than unit tests</li>
+			<li>Bugs are harder to track down</li>
+			<li>It's easier to break real things if you've not isolated your code well enough</li>
+		</ul>
+
+        <p>That being said, the advantage of integration testing at this stage
+        is clear: refactoring is much easier when you have some basic tests to
+        protect against the worst errors. It's also worth keeping in mind that
+        if you've done little to no testing before this, you're not
+        significantly worse off if you have some solid tests than if you have
+        none. Don't obsess too much on this point: you don't want perfect to
+        be the enemy of the good.</p>
+
+        <p>If you haven't already implemented a continuous integration (CI)
+        system, this is the time to start. Even if your developers forget to
+        run the tests, your CI system shouldn't. You want to find out fast if
+        tests are failing.</p>
+
+		<h2>Pushing Forward</h2>
+
+        <p>After you've started refactoring one functional piece of a small
+        part of your system, you'll probably quickly uncover some bad
+        assumptions made in the original plan. That's OK. You've started small
+        to minimize your risk. Correct those bad assumptions and then start
+        integration tests with code coverage for another small part of your
+        system, pulling out the functional portions (database calls, HTML, or
+        whatever) that you've already been working on. When you feel
+        comfortable that you've shaken out some of the worst issues, start
+        looking at another functional bit of the system that your currently
+        tested code shares and see if you can pull that out.</p>
+
+        <p>Note that this is where your expert's architectural skills are
+        going to shine. They'll understand the importance of decoupling
+        different functional portions of the application. They'll understand
+        how to write robust, flexible interfaces. They'll learn to recognize
+        patterns in your business logic which can be abstracted out. Do not
+        hand this responsibility over to an existing programmer unless you are
+        absolutely confident they have the skills and experience necessary to
+        get this done.</p>
+
+        <p>At this point, what follows is a wash/rinse/repeat cycle which in
+        worst case scenarios can take years to finish. It takes a long time,
+        but it has some significant advantages:</p>
+
+		<ul>
+			<li>The code is always working</li>
+			<li>You're not paying to maintain two systems at the same time</li>
+			<li>Business knowledge is not lost</li>
+			<li>New features can still be added</li>
+			<li>Tests can now be easily written to target existing bugs (even if you don't refactor that code yet)</li>
+			<li>You can always stop if you've made your codebase "good enough"</li>
+		</ul>
+
+        <p>Why does this approach work? Any large project can seem daunting,
+        but by breaking it down into smaller, manageable pieces, you can at
+        least know where to start and get a sense of where you are going
+        without the nail-biting worry about whether or not a huge project is
+        going to fail.</p>
+
+        <p>When I've used this technique before, I've often found that it's a
+        pleasure to finally have a cleaner sense of how the code is evolving
+        and the current experienced team doesn't face the demoralizing
+        prospect of watching their jobs disappear. The downside of this
+        technique is that while code quality improves tremendously, there's
+        always a feeling that it's not good enough. However, as I previously
+        alluded to, many rewritten systems merely create new design flaws to
+        replace old ones. This is far too common of a problem and it means
+        swapping known problems for unknown ones.</p>
+
+		<h2>Conclusion</h2>
+
+        <p>The above strategy isn't appealing to many people and it can be a
+        hard sell to those who are convinced that newer is better. In fact, in
+        many respects it can be viewed as boring (though I love refactoring
+        code), but I've successfully used this approach on multiple legacy
+        codebases. However, if you're still trying to decide between a rewrite
+        and a refactor, keep in mind that this approach is a relatively
+        low-cost, low-risk approach. If it proves unworkable, you've likely
+        risked very little. If the rewrite proves unworkable, you could cost
+        the company a ton of money.</p>
+
+        <p>So the final question to ask yourself is when you should consider
+        fixing your legacy codebase. The only advice I can offer is to suggest
+        that you not wait until the storm before you fix your roof. Fixing a
+        legacy code base isn't rocket science, but it does require a degree of
+        expert knowledge in how to transform an existing codebase. Sadly, it's
+        not a skill most developers seem interested in acquiring, but then,
+        most don't seem interested in working on legacy codebases in the first
+        place.</p>
+
+    </div>
+</div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/a-simple-way-to-fix-legacy-code.html";
+            this.page.identifier = "articles/a-simple-way-to-fix-legacy-code";
+            this.page.title      = "A Simple Way to Fix Legacy Code";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+</body>
+</html>
+
