@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>How the Database Can Hurt Your Startup</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+        <div class="twelve columns header">
+			<ul>
+			<li><img class="book" src="/static/images/profile.jpg"></li>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg" class="book"></a></li>
+			</ul>
+        </div>
+    </div>
+
+<div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/index.html">Home</li>
+          <li><a href="/articles.html">Articles</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="mailto:curtis.poe@gmail.com">Drop me a line</a></li>
+        </ul>
+      </div>
+
+    <div class="nine columns verticalLine">
+    
+    <p>Note: the following details a serious, expensive class of bugs that
+    your project may have, but that many don't know about. Out of necessity,
+    I'll lightly touch on technical details.</p>
+
+    <p>I was hiring developers for a large, complicated application. I
+    happened to mention to one of the more promising candidates that the
+    application was fairly write-heavy and we might experience some
+    performance concerns later. This developer, with years of experience and
+    skills across multiple technologies that might have been of use to us,
+    replied "you're going to either need to shard your database or switch to
+    NoSQL."</p>
+
+    <p>That was enough to guarantee they didn't get the job.</p>
+
+    <p>It's a distressingly common problem: with absolutely no understanding
+    of how the database was designed or what the application did, an
+    experienced developer made a strong declaration about how to fix a problem
+    we didn't yet have. In fact, when companies hire allaroundtheworld.fr for
+    consulting, one of the first things I do is examine the data storage
+    layer. It's often in pretty bad shape and a constant source of bugs
+    because developers learn SQL and think they understand databases.</p>
+
+	<h2>Data Quality Woes</h2>
+
+    <p>In many startups, there's not a lot of up front money, so a qualified
+    DBA is viewed as a luxury rather than a necessity. As a result, the devs
+    choose a data storage tool based on what they're comfortable with instead
+    of what the project actually requires. MySQL is so popular and easy to use
+    that many developers choose it out of habit, tune a few parameters for
+    performance, and start developing.</p>
+
+    <p>As the project grows, data issues are noticed and get fixed on an ad
+    hoc basis. Variants of the following bug abound:</p>
+
+	<pre>mysql&gt; create table example (tooshort varchar(3));
+	Query OK, 0 rows affected (0.00 sec)
+
+	mysql> insert into example (tooshort) values ("12345");
+	Query OK, 1 row affected, 1 warning (0.00 sec)
+
+	mysql&gt; select tooshort from example;
+	+----------+
+	| tooshort |
+	+----------+
+	| 123      |
+	+----------+</pre>
+
+    <p>As you can see from the above, MySQL happily truncated the data,
+    throwing away valuable information. It issued a warning, but most
+    applications ignore database warnings. For one of our clients, we found
+    two years of analytic data had to be thrown away because of this bug, even
+    though this warning was issued on every insert.</p>
+
+    <p>Once developers learn about MySQL's strict mode, they often try to
+    enable it, only to watch the application crash and burn because it was
+    written with the assumption that division by zero produces NULL values
+    instead of errors, "0000-00-00" is a real date, and many other tiny
+    problems. These same applications usually lack foreign key constraints, or
+    use them inconsistently. And more than one developer has solved deadlock
+    issues by not using database transactions.</p>
+
+    <p>By the time strict mode is finally enabled, there's a layer of bugs in
+    the database and a layer of related "strict mode workarounds" in the
+    application level. It becomes expensive to maintain and much development
+    effort is spent on correcting existing problems rather than build new
+    features that could earn new business.</p>
+
+    <p>Those who use Oracle or SQL Server often have databases just as bad, so
+    this isn't just a "MySQL thing." Curiously, we've noticed that our clients
+    who use PostgreSQL tend to have better quality databases, possibly
+    stemming from a database community which is obsessed with data
+    quality.</p>
+
+	<h2>Performance Woes</h2>
+
+    <p>For one company, a domain name registrar, I was helping them work on
+    fraud prevention tools when a project manager mentioned that a particular
+    query took 15 minutes to return. The team lead explained that there was
+    "too much data" to query efficiently. That "too much data" was only three
+    million records. After running explain on the query, I discovered they
+    weren't using indexes. A few minutes later, that 15 minute query took
+    under two seconds to run. Were it not for the accident of my being there,
+    they would have concluded the database was "too slow" and reached for a
+    NoSQL solution.</p>
+
+    <p>Another common issue, endemic with ORMs, is fetching multiple columns,
+    only to use two or three of them. Or discovering that MySQL often forces a
+    disk sort when fetching rows with text or blob fields, even if you're not
+    sorting on those fields. Or constantly updating only one column in a table
+    when 20 other columns that never change, causing a lot of unexpected disk
+    I/O. For these and many other issues, most of which are easy to solve,
+    devs who are unfamiliar with databases often reach for NoSQL solutions
+    without understanding why they had a problem in the first place. Quite
+    often they've traded a set of known problems for a set of unknown
+    problems. This is not a good business decision.</p>
+
+    <p>More to the point: before relational databases, all databases were
+    NoSQL. That's why we have relational databases.</p>
+
+	<h2>Data is King</h2>
+
+    <p>So why is this a big deal? Well, the term "information economy" isn't
+    bandied about for nothing. Consider that most applications have four
+    phases, though their structure might obscure this.</p>
+
+	<ol>
+		<li>Initialization</li>
+		<li>Input</li>
+		<li>Calculation</li>
+		<li>Output</li>
+	</ol>
+
+    <p>Virtually every application has those phases, but what do they mean?
+    Simply put:</p>
+
+	<ol>
+		<li>Initialization of <em>data</em></li>
+		<li>Input of <em>data</em></li>
+		<li>Calculation of <em>data</em></li>
+		<li>Output of <em>data</em></li>
+	</ol>
+
+    <p>Your application is all about data. For many people in management, they
+    see the app or the web page, but they don't see the database hidden
+    underneath. They understand that without their data the company is
+    probably in serious trouble, but they don't give much thought to it. In
+    fact, while total data loss will probably bankrupt your company, few give
+    much thought to the the standard data quality issues that are a constant
+    financial drain because it's assumed to be part of the cost of doing
+    business. And the developers who don't understand how to use databases
+    often tell management "that's just the way this technology works."</p>
+
+    <p>If there is one thing to take away from this article, it's to know that
+    a properly designed database will still allow you to add incorrect data
+    such as a misspelled first name, but it makes it hard to add invalid data,
+    such as an order which references a non-existant customer, or a negative
+    price for a product. Data maintenance costs drop significantly when you
+    have a great database.</p>
+
+    <p>Even the barest minimum of work understanding how to design databases
+    can tremendously improve quality. One of my most popular talks—rated 5 out
+    of 5 stars at OSCON—is "How to Fake a Database Design."</p>
+
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+    <p>You don't need to be an expert in databases to do a much better job of
+    using them. First, learn the basics of database design. Understand that
+    foreign key constraints, check constraints, and other tools are part of
+    that design, and not just "nice to have" features. Once you have your data
+    quality ensured, then you can worry about performance. As the old adage
+    goes "first make it work, then make it fast."</p>
+
+    <p>NoSQL, sharding, and other techniques to get performance wins can wind
+    up costing you a lot of money in the long run. Until you really understand
+    why your current database isn't fast enough, don't reach for the shiny
+    tools. You'll thank me later.</p>
+
+    <p>As an aside: I use and recommend NoSQL solutions from time to time (a
+    shout-out to Redis: I love Redis). I am not "anti-NoSQL." I simply find
+    that by properly designing databases and understanding the underlying
+    causes of database issues, NoSQL solutions often offer us little
+    value.</p>
+
+    </div>
+</div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/how-databases-can-hurt-your-startup.html";
+            this.page.identifier = "articles/how-databases-can-hurt-your-startup";
+            this.page.title      = "How the Database Can Hurt Your Startup";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+</body>
+</html>
+
