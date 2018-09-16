@@ -1,72 +1,127 @@
-<html>
-    <head>
-        <title>3D rotating star map on canvas</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-        <!-- http://www.getskeleton.com/ -->
-        <link rel="stylesheet" type="text/css" href="css/base.css">
-        <link rel="stylesheet" type="text/css" href="css/skeleton.css">
-        <link rel="stylesheet" type="text/css" href="css/layout.css">
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>WildAgile</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-        <!-- starmap controls -->
-        <link rel="stylesheet" type="text/css" href="css/starmap.css"/> 
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- I can almost get rid of this now, thanks to refactoring -->
-        <script type="text/javascript" src="js/prototype.js"></script>
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-        <!-- this is the starmap renderer -->
-        <script type="text/javascript" src="js/starmap.js"></script>
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="static/css/normalize.css">
+  <link rel="stylesheet" href="static/css/skeleton.css">
+  <link rel="stylesheet" href="static/css/main.css">
 
-        <!-- this is the data for the current starmap -->
-        <script type="text/javascript" src="js/sol.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="sixteen columns">
-                <p><a href="https://github.com/Ovid/ovid.github.com">Clone the github repo.</a></p>
-            </div>
-            <div class="sixteen columns">
-                <div class="eight columns">
-                    <canvas id="starmap" width="650" height="650"></canvas>
-                </div>
-                <div class="four columns">
-                    <div id="starmap_controls">
-                        <input type="checkbox" name="toggle_wormholes" id="toggle_wormholes" value="0">Show Wormholes
-                        <br />
-                        <input type="checkbox" name="toggle_rotation" id="toggle_rotation" value="0">Rotate
-                        <br />
-                        <input type="checkbox" name="toggle_names" id="toggle_names" value="0">Star Names
-                        <br />
-                        <input type="checkbox" name="toggle_unreachable" id="toggle_unreachable" value="0">Show Unreachable
-                        <br />
-                    </div>
-                    <div id="star_id">No star selected</div>
-                </div>
-            </div>
-            <div class="sixteen columns">
-                <hr />
-                <div class="eight columns">
-                    <p>This was for a game that, sadly, I've never had the
-                    time to finish. However, so many people look for how to
-                    build a 3-D rotating star map in Javascript that I thought
-                    I'd show my solution. I'm more of a back-end guy and
-                    feedback on this is very welcome.</p>
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
 
-                    <p>The map shows all of the stars within 20 light years of
-                    Sol. The green circle (sorry, color-blind folks!) is where
-                    the "player" in the game is currently located. The lines
-                    are wormholes between star systems and yes, some are
-                    deliberaty disconnected. The white lines are the wormholes
-                    directly connected to the player's current position.</p>
-                </div>
-                <div class="four columns"</div>
-                    <p><strong>Author:</strong></p>
-                    <ul class="circle">
-                      <li><a href="http://www.linkedin.com/in/curtispoe">Curtis "Ovid" Poe</a></li>
-                      <li><a href="https://github.com/Ovid">github account</a></li>
-                      <li><a href="https://metacpan.org/author/OVID">CPAN account</a></li>
-                    </ul>
-                </div>
-            </div>
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+        <div class="twelve columns header">
+			<ul>
+			<li><img class="book" src="static/images/profile.jpg"></li>
+			<li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="static/images/perl-hacks.jpg" class="book"></a></li>
+			<li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="static/images/beginning-perl.jpg" class="book"></a></li>
+			</ul>
         </div>
-    </body>
+    </div>
+
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="index.html">About Me</a></li>
+          <li><a href="publicspeaking.html">Public Speaking</a></li>
+          <li><a href="wildagile.html">WildAgile</a></li>
+          <li><a href="starmap.html">Starmap</a></li>
+          <li><a href="mailto:curtis.poe@gmail.com">Drop me a line</a></li>
+        </ul>
+      </div>
+
+    <div class="nine columns verticalLine">
+        <h1>About Me</h1>
+
+        <p>I'm Curtis "Ovid" Poe. I've been building software for two decades.
+        I've worked on systems ranging from COBOL financial applications,
+        pharmaceutical ETL systems, to large-scale websites written in
+        Perl.</p>
+
+        <p>I specialize in building database-driven Web sites and teach
+        developers how to design and use databases. I also specialize heavily
+        in the Perl programming language and <a
+        href="http://news.perlfoundation.org/2009/09/new-board-member.html"
+        target="_blank">joined The Perl Foundation board of directors in
+        2009.</a></p>
+
+        <h2>Hire Me</h2>
+
+        <p><a href="mailto:curtis.poe@gmail.com">Drop me a line</a> and let's
+        discuss how I can help your company. Naturally, I do a lot of bespoke
+        development on large, database-driven websites using Perl, but there
+        are many other areas I can help you with. I can help <a
+        href="https://www.linkedin.com/pulse/20141021204218-4973136-a-simple-way-to-fix-legacy-code/"
+        target="_blank">get your legacy codebase back on its feet</a> or <a
+        href="https://www.linkedin.com/pulse/how-database-hurt-your-startup-curtis-poe/"
+        target="_blank">fix
+        your database issues</a>. I also do agile consulting and can help you
+        understand <a
+        href="https://techbeacon.com/when-agile-wrong-choice-your-organization"
+        target="_blank">when to choose Agile</a>. In fact, I've been working
+        in Agile (mostly Scrum and XP) for so long and consulted with so many
+        company that <a href="wildagile.html">I've created "WildAgile", an
+        agile system that maps to how your developers actually work</a>,
+        rather than imposing an artificial, monolithic structure.</p>
+
+        <h3>Public Speaking</h3>
+
+        <p><a href="publicspeaking.html">I also speak at private corporate
+        events and technical conferences</a> across Europe and the US and am
+        frequently the keynote speaker. Here's a video of one of my talks at a
+        Perl conference, <a
+        href="https://conferences.oreilly.com/oscon/oscon2014/public/schedule/detail/33557"
+        target="_blank">but was also rated 5 out of 5 stars at OSCON</a>:</p>
+
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+        <h2>Useful Links</h2>
+
+        <ul>
+            <li><a href="https://www.linkedin.com/in/curtispoe/" target="_blank">LinkedIn profile</a></li>
+            <li><a href="https://github.com/Ovid/" target="_blank">Github</a></li>
+        </ul>
+      </div>
+    </div>
+
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018 by Curtis "Ovid" Poe.</p>
+      </div>
+    </iv>
+  </div>
+</body>
 </html>
+
