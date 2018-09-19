@@ -48,8 +48,7 @@
 			</ul>
         </div>
     </div>
-
-<div class="row">
+    <div class="row">
       <div class="three columns">
         <h1>Links</h1>
         <ul>
@@ -62,97 +61,96 @@
         </ul>
       </div>
 
-    <div class="nine columns verticalLine">
-        <h1>Death By Database</h1>
+        <div class="nine columns verticalLine">
+            <h1>Death By Database</h1>
 
-        <p>The following is a true story, but with names changed.</p>
 
-        <p>When I work with clients to build software, I take the usual steps
-        of understanding their needs, gathering requirements, learning about
-        their customers, and so on. At this point I have a model on paper of
-        roughly what the software is intended to do, so they get surprised
-        when I immediately turn to database design.</p>
+<p>The following is a true story, but with names changed.</p>
 
-        <p>"Who care about database design? What about mockups? What about
-        workflows?"</p>
+<p>When I work with clients to build software, I take the usual steps
+of understanding their needs, gathering requirements, learning about
+their customers, and so on. At this point I have a model on paper of
+roughly what the software is intended to do, so they get surprised
+when I immediately turn to database design.</p>
 
-        <p>Let me tell you about "Bob's Luxury Goods." I worked for this
-        company many years ago and they had a retail store selling ... you
-        guessed it ...  luxury goods. They'd ask all customers for a billing
-        address and if they had a different delivery address. At the database
-        level, they had a "one-to-many" relationship between customers and
-        addresses.</p>
-        
-        <p>That was their first problem. A customer's partner might come into
-        Bob's and order something and if the address was entered correctly it
-        would be flagged as "in use" and we had to use a different address or
-        <em>deliberately</em> enter a typo. Fortunately, addresses were
-        case-sensitive, so many people had UPPER-CASE ADDRESSES.</p>
-        
-        <p>We should have had a many-to-many relationship between customers
-        and addresses so we could handle the case where more than one person
-        would share the same address, but we didn't. Further, I was never
-        allocated the time to fix the database because it was "cheaper" to
-        remove the restriction on "flagged" addresses and allow a
-        <em>duplicate</em> address to be used.</p>
+<p>"Who care about database design? What about mockups? What about
+workflows?"</p>
 
-        <p>Naturally, being a luxury goods company, we had many repeat
-        customers and sometimes they would move and if we didn't find the
-        duplicate address, or the address with the "typo", we might update the
-        address for one partner, but not the other. That was a headache, but
-        it didn't happen frequently enough for management to worry about
-        it.</p>
+<p>Let me tell you about "Bob's Luxury Goods." I worked for this
+company many years ago and they had a retail store selling ... you
+guessed it ...  luxury goods. They'd ask all customers for a billing
+address and if they had a different delivery address. At the database
+level, they had a "one-to-many" relationship between customers and
+addresses.</p>
 
-        <p>That's when the marketing department had a brilliant, inexpensive
-        idea. You see, we periodically did mass mailings of special events to
-        our customers. Since we had the software to do mass mailings, why not
-        import a mailing list of all addresses in high net worth areas and
-        mail <em>everyone</em> about upcoming special events?</p>
+<p>That was their first problem. A customer's partner might come into
+Bob's and order something and if the address was entered correctly it
+would be flagged as "in use" and we had to use a different address or
+<em>deliberately</em> enter a typo. Fortunately, addresses were
+case-sensitive, so many people had UPPER-CASE ADDRESSES.</p>
 
-        <p>Except that every address record had the customer id embedded in
-        it, so we couldn't enter an address without a customer.</p>
+<p>We should have had a many-to-many relationship between customers
+and addresses so we could handle the case where more than one person
+would share the same address, but we didn't. Further, I was never
+allocated the time to fix the database because it was "cheaper" to
+remove the restriction on "flagged" addresses and allow a
+<em>duplicate</em> address to be used.</p>
 
-        <p>"Curtis," they said, "just enter a dummy customer called
-        'Occupant' and attach all addresses to that."</p>
+<p>Naturally, being a luxury goods company, we had many repeat
+customers and sometimes they would move and if we didn't find the
+duplicate address, or the address with the "typo", we might update the
+address for one partner, but not the other. That was a headache, but
+it didn't happen frequently enough for management to worry about
+it.</p>
 
-        <p>Except you couldn't enter a customer without an order.</p>
+<p>That's when the marketing department had a brilliant, inexpensive
+idea. You see, we periodically did mass mailings of special events to
+our customers. Since we had the software to do mass mailings, why not
+import a mailing list of all addresses in high net worth areas and
+mail <em>everyone</em> about upcoming special events?</p>
 
-        <p>Except you couldn't enter an order without at least one item on
-        it.</p>
+<p>Except that every address record had the customer id embedded in
+it, so we couldn't enter an address without a customer.</p>
 
-        <p>Except you couldn't enter an item unless it was listed in
-        inventory.</p>
+<p>"Curtis," they said, "just enter a dummy customer called
+'Occupant' and attach all addresses to that."</p>
 
-        <p>Except that reserved the "inventory" item and made it
-        unavailable.</p>
+<p>Except you couldn't enter a customer without an order.</p>
 
-        <p>Except, except, except ...</p>
+<p>Except you couldn't enter an order without at least one item on
+it.</p>
 
-        <p>It came down to trying to create a fake customer, with a fake
-        order, with a fake item, with a fake item category, with a "paid"
-        invoice, with exceptions sprinkled throughout the codebase to handle
-        all of these special cases and probably more that I no longer
-        remember.</p>
+<p>Except you couldn't enter an item unless it was listed in
+inventory.</p>
 
-        <p>Then, and only then, could I write the code to provide "generic"
-        mass mailings. Management decided it was easier to hire an outside
-        company to handle the mailing list for them.</p>
+<p>Except that reserved the "inventory" item and made it
+unavailable.</p>
 
-        <p>If they had simply had a proper database design up front, they
-        could have reused their existing system with little trouble.</p>
+<p>Except, except, except ...</p>
 
-        <p>That's what bad database design costs you and why I usually start
-        with that before writing my software.</p>
+<p>It came down to trying to create a fake customer, with a fake
+order, with a fake item, with a fake item category, with a "paid"
+invoice, with exceptions sprinkled throughout the codebase to handle
+all of these special cases and probably more that I no longer
+remember.</p>
 
-        <p>Note: if you're not familiar with database design, here's a talk I
-        give where I make it fairly simple to understand. I mostly avoid big
-        words.</p>
+<p>Then, and only then, could I write the code to provide "generic"
+mass mailings. Management decided it was easier to hire an outside
+company to handle the mailing list for them.</p>
 
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>If they had simply had a proper database design up front, they
+could have reused their existing system with little trouble.</p>
 
+<p>That's what bad database design costs you and why I usually start
+with that before writing my software.</p>
+
+<p>Note: if you're not familiar with database design, here's a talk I
+give where I make it fairly simple to understand. I mostly avoid big
+words.</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
     </div>
-</div>
-
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <div class="row">
