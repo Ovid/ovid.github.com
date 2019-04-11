@@ -22,7 +22,8 @@ Use the `bin/article` program to start writing an article:
     perl bin/article Name of Article
 
 After writing the article, run `ttree` from this directory to rebuild the
-html docs.
+html docs. If you've altered the header or footer, you may need to run 
+`ttree -a` to rebuild all of your documents.
 
 You may find installing
 [App::HTTPThis](https://metacpan.org/pod/App::HTTPThis) to be useful for local
