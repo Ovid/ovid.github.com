@@ -1,0 +1,79 @@
+#!/usr/bin/env perl
+
+# vim ft=perl
+
+use lib 'lib';
+use Less::Boilerplate;
+use Text::Unidecode;
+use String::Util 'trim';
+use Getopt::Long;
+use File::Spec::Functions qw(catfile);
+
+GetOptions( \my %opt_for, 'nocomments' )
+  or die "Bad options";
+
+my $comments = $opt_for{nocomments} ? 0 : 1;
+my $title    = join( ' ' => @ARGV ) || croak( usage() );
+my $slug     = make_slug($title);
+my $contents = template( $title, "articles/$slug", $comments );
+
+my $template = catfile( 'root', 'articles', "$slug.tt" );
+
+if ( -e $template ) {
+    say "Refusing to overwrite the existing file at $template. Exiting.";
+    exit 1;
+}
+
+open my $fh, '>', $template;
+print {$fh} $contents;
+close $fh;
+
+my $editor = $ENV{EDITOR} || 'vim';
+system $editor => $template;
+
+sub template ( $title, $identifier, $comments = 1 ) {
+    return sprintf <<'END' => $title, $identifier, $comments;
+[%%
+    title            = '%s';
+    identifier       = '%s';
+    include_comments = %d;
+%%]
+[%% INCLUDE include/header.tt %%]
+
+<!-- add HTML content here -->
+
+[%% INCLUDE include/footer.tt %%]
+END
+}
+
+sub make_slug ($name) {
+
+    # XXX bugs waiting to happen
+    $name = trim( lc( unidecode($name) ) );
+    $name =~ s/\s+/_/g;
+    $name =~ tr/-/_/;
+    $name =~ s/__*/_/g;
+    $name =~ s/\W//g;
+    $name =~ tr/_/-/;
+    $name =~ s/--/-/g;
+    return $name;
+}
+
+sub usage {
+    return "$0 --title 'My Awesome Title' --comments";
+}
+
+__END__
+
+=head1 NAME
+
+article - Write an article
+
+=head1 SYNOPSIS
+
+    perl bin/article My Awesome Article
+    perl bin/article My Awesome Article --nocomments
+
+=head1 OPTIONS
+
+    nocomments        If passed, comments are disabled for this article
