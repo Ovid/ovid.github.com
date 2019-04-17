@@ -1,0 +1,212 @@
+[%
+    title            = 'Fixing MVC in Web Applications';
+    identifier       = 'articles/fixing-mvc-in-web-applications';
+    include_comments = 1;
+%]
+[% INCLUDE include/header.tt %]
+
+<blockquote><em>Note: The Model, View, Controller pattern, or "MVC", actually
+comes in many flavors, but for the purposes of this article, I'm referring to
+MVC for the Web. Feel free to comment below, but keep in mind that we have a
+particular viewpoint here.</em></blockquote>
+
+<p>The Problem: getting MVC wrong is expensive and costs you a lot of
+money.</p>
+
+<p>I often start working with a new client as a manager or developer and find
+a Web app with <a
+href="/articles/avoid-common-software-project-mistakes.html">a common set of
+mistakes</a>. On one hand, I would like to see software developers learn from
+past mistakes. On the other hand, this pays my bills. In particular,
+MVC&mdash;<a href="https://www.google.com/search?q=why+mvc+is+bad"
+target="_blank">which has unfairly been getting a bad rap</a>&mdash;is
+thoroughly misunderstood and much of this can be blamed on rubbish examples
+and tutorials.</p>
+
+<p>Here's a perfect "bad" example from <a
+href="https://realpython.com/the-model-view-controller-mvc-paradigm-summarized-with-legos/"
+target="_blank">an MVC explanation using Python and Flask</a>:</p>
+
+<pre><code>@app.route('/')
+def main_page():
+    """Searches the database for entries, then displays them."""
+    db = get_db()
+    cur = db.execute('select * from entries order by id desc')
+    entries = cur.fetchall()
+    return render_template('index.html', entries=entries)</code></pre>
+
+<p>In this example, we have a page which finds "entries" and displays them on
+a Web page. It's entirely possible that you see no problem with this, but it
+perfectly demonstrates what's wrong with people's understanding of MVC: you've
+pushed knowledge of your database, your business logic, and your HTML into the
+controller.</p>
+
+<p>That's what our examples and tutorials are teaching developers. Because of
+this, when I work with a new client using "MVC", what I really see is
+this:</p>
+
+<pre><code>def some_controller_method():
+    """begin hundreds of lines of code"""</code></pre>
+
+<p>How do I hate thee? Let me count the ways. (with apologies to <a
+href="https://www.poets.org/poetsorg/poem/how-do-i-love-thee-sonnet-43"
+target="_blank">Elizabeth Barrett Browning</a>). The following comes from
+years of experience seeing this over and over again.</p>
+
+<ul>
+  <li>The database or ORM is exposed at the controller level (nooooo!!!!!)</li>
+  <li>You can't reuse that logic outside of the controller</li>
+  <li>You probably can't test that logic outside of a Web context</li>
+  <li>Tests are much slower because of the web context</li>
+  <li>Test coverage suffers because it's hard to test  conditional logic in the controller</li>
+  <li>Many parts of that logic get duplicated in other controller methods</li>
+  <li>Different behaviors become tightly coupled, making it hard to develop</li>
+  <li>Performance suffers because you can't cleanly target a layer</li>
+  <li>Integrating new technologies is harder because the layers are tightly coupled</li>
+  <li>... and so on</li>
+</ul>
+
+<p>But what does this mean in practive? Let's consider a real example I
+encountered a few years ago.</p>
+
+<p>One company I worked with had all of the above problems. In particular,
+they had a <em>3,000</em> line "method" for searching for products.  It
+conflated many things, including searching for products and filtering the
+search results. Thus, even though I was tasked with working on it, every time
+I touched search, it would break filtering. Every time I touched filtering, it
+would break search. It was slow and tedious to get anything done. It took me
+some time to separate search and filtering and when I was done, I had a
+surprise visit from one of the developers of the mobile side. It seems they
+wanted a proper search engine for ages but never added it because they
+couldn't separate the searching (which they needed) from the filtering (which
+they didn't). They thanked me because, after my work, it took them 15 minutes
+to implement a search engine.</p>
+
+<p>Not getting this right <strong>flushes money down the toilet</strong>.
+Often we hear that a new feature will take a lot of time to implement "because
+the application wasn't designed for this use case" when what is really meant
+is "because we didn't understand separation of concerns and thus a one week
+feature will take months."</p>
+
+<p><strong>Note:</strong> <a
+href="/articles/a-simple-way-to-fix-legacy-code.html">you can fix this mess,
+but it takes time</a> and you have to understand what MVC should look like.</p>
+
+<h1>A Proper Controller Method</h1>
+
+<p>To contrast this, let's look at a the controller for an extremely complex
+bit of logic from the free MMORPG, <a href="https://taustation.space/"
+target="_blank">Tau Station</a>, using Perl and the <a
+href="http://www.catalystframework.org/" target="_blank">Catalyst MVC
+framework</a>:</p>
+
+<pre><code>sub station ( $self, $c, $station ) : Local Args(1) {
+    $c-&gt;character-&gt;travel_to_station($station);
+}</code></pre>
+
+<P>Without going into detail about what <tt>travel_to_station</tt> does (trust
+me, it's complex), all we see is a request for a particularly complex action
+to be performed. In the controller we can see:</p>
+
+<ul>
+  <li>No knowledge of how the model is constructed</li>
+  <li>No knowledge of how the data will be used</li>
+  <li>Knowledge of the route to this controller method (the <tt>Local</tt> attribute)</li>
+</ul>
+
+<p>Having the route information hard-coded is a bit unfortunate, but that's
+easy to work around. However, this controller method merely connects the model
+to the view, and that's all. That's what you're looking for in MVC.  MVC, when
+appropriate, takes an application with a UI (user interface), and decouples
+the responsibilities into reasonable layers.</p>
+
+<p>It's now easy to test the logic (you're testing the model, not the
+controller layer and all of its web context). It's easy to reuse this code.
+And, if the model is properly built, you have a great separation of concerns
+that makes it easy to extend, maintain, and repair the application.</p>
+
+<dl>
+  <dt>Model</dt>
+  <dd>The application.</dd>
+  <dt>View</dt>
+  <dd>What the consumer (user) sees. Often HTML, JSON, or XML.</dd>
+  <dt>Controller</dt>
+  <dd>A <strong>thin</strong> layer connecting the View and the Model.</dd>
+</dl>
+
+<p>And that's it! There's nothing fancy, but it often requires explanation.
+The controller, as shown above, should be as thin as possible. The view should only
+have display logic and the model is ... what, exactly?</p>
+
+<h1>The Model</h1>
+
+<p>I'll write more about this another time, but the model is the part where
+everything breaks down. Almost every MVC tutorial that I see confuses the
+<em>data model</em> with the Model. This is what we get (pseudocode):</p>
+
+<pre><code>method neighbors():
+    model     = this.get_orm();
+    neighbors = model.table('Characters')
+                     .search( location: this.character.location );
+    this.template("people", people=neighbors);</pre></code>
+
+<p>Now that looks reasonable. In fact, it seems so sensible that I did
+something very similar in the Tau Station MMORPG a long time ago. But it was
+deeply flawed. It turns out there are many cases where you need to know the
+other characters in your vicinity and this logic should be encapsulated. But
+it's just one method call, so factoring it out is silly, right?</p>
+
+<p>Wrong. As it turns out, you didn't want to show any characters who hadn't
+been active in the past day. Well, unless they were NPCs. Or the other
+characters have something else which makes them "non-visible". Any time we
+discover a new case of when characters are or are not visible, we can visit
+this logic in every controller method, or we can abstract it out into a single
+method:</p>
+
+<p>So let's try it again:</p>
+
+<pre><code>method neighbors():
+    model     = this.get_orm();
+    neighbors = model.table('Characters').visible_to(this.character);
+    this.template("people", people=neighbors);
+</pre></code>
+
+<p>Ah, that's much better. Except we have exposed our ORM (and thus, our
+database). We have many data sources which have data in Redis, or
+configuration files, or a custom cache, or from all sorts of locations that
+the controller should never, ever know about. Some of my clients with this
+anti-pattern have worked around this by trying to implant those other data
+sources directly in their ORM, which simply shuffles the coupling around.  The
+controller should <em>never</em> care about the source of data. The controller
+should only be asking for the data. Instead:</p>
+
+<pre><code>method neighbors():
+    neighbors = this.model('Characters').visible_to(this.character);
+    this.template("people", people=neighbors);
+</pre></code>
+
+<p>Where do the "visible" characters come from? You don't care. By hiding all
+of these details from the controller, the developers are free to implement the
+fetching of this data any way they want, so long as they respect the contract
+originally specified when this method was created.</p>
+
+<p>The model is your business logic. And I'll go a step further and say a good
+design choice is to make the model a <a
+href="https://en.wikipedia.org/wiki/Headless_software"
+target="_blank">headless application</a>. By creating a headless application,
+you can layer a controller and HTML view on it. If you're careful, you can
+have your controller target multiple views and build a native mobile
+application on top of it, only requiring a new view. You could create a native
+client/server desktop application, too. If the controllers are too inflexible,
+that's OK.  They're tiny and easy to skip. Write thin controllers specifically
+for your mobile and desktop apps, secure in the knowledge that the application
+logic is all in your headless application.</p>
+
+<p>There any many benefits to this architecture and I'll cover them in a later
+article. Further, the headless application needs its own architecture. When is
+the last time you saw an MVC explanation go into detail about the architecture
+of the model? That's a rare beast indeed and it's why so many companies have
+themselves mired in technical debt: they get a partial explanation of a
+complex concept and start building from there..</p>
+
+[% INCLUDE include/footer.tt %]
