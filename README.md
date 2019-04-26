@@ -11,7 +11,7 @@ Skeleton for the CSS.
 
 Run this from the current directory to install necessary modules:
 
- cpanm --installdeps . --with-configure --with-develop --with-all-features
+    cpanm --installdeps . --with-configure --with-develop --with-all-features
 
 You may need to install
 [App-cpanminus](https://metacpan.org/pod/App::cpanminus) for the `cpanm`
@@ -36,9 +36,9 @@ testing. After installation, simply run this from the root directory:
 You can then navigate to `http://127.0.0.1:7007/` in your browser to see the
 results. See `perldoc http_this` for more details.
 
-=head1 CONFIGURATION
+# CONFIGURATION
 
-This is in my `~/./ttreerc` file:
+This is in my `~/.ttreerc` file:
 
     verbose 
     recurse
@@ -58,7 +58,8 @@ You will also want to edit the following files:
 
 The header has Google tracking code and various bits about the author. The
 footer has the author's Disqus code. If you'd like comments on your site and
-wish to use Disqus, see `https://disqus.com/`.
+wish to use Disqus, see [the Disqus website](https://disqus.com/) for more
+information..
 
 # LICENSE
 
