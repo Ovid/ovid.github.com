@@ -21,9 +21,12 @@ Use the `bin/article` program to start writing an article:
 
     perl bin/article Name of Article
 
-After writing the article, run `ttree` from this directory to rebuild the
-html docs. If you've altered the header or footer, you may need to run 
-`ttree -a` to rebuild all of your documents.
+After writing the article, run `bin/rebuild` from this directory to rebuild
+the html docs.
+
+Note: If you need a table of contents for a TT doc, include the string `TOC`
+on a blank line by itself. We try to build the TOC automatically from the "H"
+tags in the HTML (`<h1>`, `<h2>`, up to `<h6>`).
 
 You may find installing
 [App::HTTPThis](https://metacpan.org/pod/App::HTTPThis) to be useful for local

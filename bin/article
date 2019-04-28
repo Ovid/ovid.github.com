@@ -3,10 +3,7 @@
 # vim ft=perl
 
 use lib 'lib';
-use Less::Boilerplate;
-use Text::Unidecode;
-use String::Util 'trim';
-use Getopt::Long;
+use Less::Script;
 use File::Spec::Functions qw(catfile);
 
 GetOptions( \my %opt_for, 'nocomments' )
@@ -67,19 +64,6 @@ sub template ( $title, $identifier, $comments = 1 ) {
 
 [%% INCLUDE include/footer.tt %%]
 END
-}
-
-sub make_slug ($name) {
-
-    # XXX bugs waiting to happen
-    $name = trim( lc( unidecode($name) ) );
-    $name =~ s/\s+/_/g;
-    $name =~ tr/-/_/;
-    $name =~ s/__*/_/g;
-    $name =~ s/\W//g;
-    $name =~ tr/_/-/;
-    $name =~ s/--/-/g;
-    return $name;
 }
 
 sub usage {

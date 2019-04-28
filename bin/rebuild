@@ -1,0 +1,99 @@
+#!/usr/bin/env perl
+
+# vim: ft=perl
+use lib 'lib';
+use Less::Script;
+use HTML::TokeParser::Simple;
+
+use File::Find::Rule;
+use File::Spec::Functions qw(catfile catdir);
+use File::Basename qw(dirname basename);
+use File::Path qw(mkpath);
+use File::Copy;
+
+my @files = File::Find::Rule->file->in('root');
+
+FILE: foreach my $file (@files) {
+    next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
+    $DB::single = $file =~ /facebook/;
+    my $is_tt_file = $file =~ /\.tt$/;
+
+    my $dir  = dirname($file);
+    my $name = basename($file);
+
+    if ( $dir !~ /static/ && !$is_tt_file ) {
+        next FILE;
+    }
+
+    # make sure we have our destination directory
+    my $destdir = $dir;
+    $destdir =~ s/^root/tmp/;
+    unless ( -d $destdir ) {
+        mkpath($destdir);
+    }
+
+    my $destfile = catfile( $destdir, $name );
+
+    if ( !$is_tt_file ) {
+
+        # not a template toolkit file? Copy it over directly
+        copy( $file, $destfile )
+          or croak("Could not copy $file to $destfile: $!");
+    }
+    else {
+        # ah, crap. We need to pre-process it.
+        my $contents = slurp($file);
+
+        if ( $is_tt_file && $contents =~ /^\s*TOC\s*$/m ) {
+            $contents = build_toc( $file, $contents );
+        }
+
+        splat( $destfile, $contents );
+    }
+}
+
+system(
+    'ttree', '-a',     # process all files
+    '-s',    'tmp',    # use tmp/ as a source
+    '-d',    '.',      # use . as the target
+);
+
+sub build_toc ( $file, $contents ) {
+    my $p = HTML::TokeParser::Simple->new( string => $contents );
+
+    state $seen = {};
+
+    my $rewritten = '';
+    my @links;
+    while ( my $token = $p->get_token ) {
+        if ( $token->is_start_tag(qr/^h[1-6]$/i) ) {
+            $rewritten .= $token->as_is;
+            say $token->as_is;
+            my $tag = $token->get_tag;
+            $tag =~ /^h([1-6])$/i or croak("Bad 'h' tag in $file: $tag");
+            my $level = $1;
+            my $title = $p->peek(1);
+            my $slug  = make_slug($title);
+            if ( $seen->{$slug}++ ) {
+                croak("Already seen $title/$slug in $file");
+            }
+            $rewritten .= qq{<a name="$slug"></a>};
+            my $leader = '&nbsp;' x ( 4 * ( $level - 1 ) );
+            push @links => qq{    <li><a href="#$slug">$leader $title</a></li>};
+        }
+        else {
+            $rewritten .= $token->as_is;
+        }
+    }
+    my $links = join "\n" => @links;
+    my $toc   = <<"TOC";
+<nav role="navigation" class="table-of-contents">
+    <ul>
+$links
+    </ul>
+</nav>
+<hr>
+TOC
+    $rewritten =~ s/^s*TOC\s*$/$toc/m;
+    return $rewritten;
+}
