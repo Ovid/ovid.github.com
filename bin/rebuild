@@ -15,7 +15,6 @@ my @files = File::Find::Rule->file->in('root');
 
 FILE: foreach my $file (@files) {
     next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
-    $DB::single = $file =~ /facebook/;
     my $is_tt_file = $file =~ /\.tt$/;
 
     my $dir  = dirname($file);
@@ -44,7 +43,7 @@ FILE: foreach my $file (@files) {
         # ah, crap. We need to pre-process it.
         my $contents = slurp($file);
 
-        if ( $is_tt_file && $contents =~ /^\s*TOC\s*$/m ) {
+        if ( $is_tt_file && $contents =~ /^\s*{TOC}\s*$/m ) {
             $contents = build_toc( $file, $contents );
         }
 
@@ -68,7 +67,6 @@ sub build_toc ( $file, $contents ) {
     while ( my $token = $p->get_token ) {
         if ( $token->is_start_tag(qr/^h[1-6]$/i) ) {
             $rewritten .= $token->as_is;
-            say $token->as_is;
             my $tag = $token->get_tag;
             $tag =~ /^h([1-6])$/i or croak("Bad 'h' tag in $file: $tag");
             my $level = $1;
@@ -79,7 +77,7 @@ sub build_toc ( $file, $contents ) {
             }
             $rewritten .= qq{<a name="$slug"></a>};
             my $leader = '&nbsp;' x ( 4 * ( $level - 1 ) );
-            push @links => qq{    <li><a href="#$slug">$leader $title</a></li>};
+            push @links => qq{    <li><a href="#$slug">$leader$title</a></li>};
         }
         else {
             $rewritten .= $token->as_is;
@@ -94,6 +92,6 @@ $links
 </nav>
 <hr>
 TOC
-    $rewritten =~ s/^s*TOC\s*$/$toc/m;
+    $rewritten =~ s/^s*{TOC}\s*$/$toc/m;
     return $rewritten;
 }

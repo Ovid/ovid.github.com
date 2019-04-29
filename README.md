@@ -24,9 +24,9 @@ Use the `bin/article` program to start writing an article:
 After writing the article, run `bin/rebuild` from this directory to rebuild
 the html docs.
 
-Note: If you need a table of contents for a TT doc, include the string `TOC`
-on a blank line by itself. We try to build the TOC automatically from the "H"
-tags in the HTML (`<h1>`, `<h2>`, up to `<h6>`).
+Note: If you need a table of contents for a TT doc, include the string `{TOC}`
+on a blank line by itself. We try to build the table of contents automatically
+from the "H" tags in the HTML (`<h1>`, `<h2>`, up to `<h6>`).
 
 You may find installing
 [App::HTTPThis](https://metacpan.org/pod/App::HTTPThis) to be useful for local
@@ -41,7 +41,8 @@ results. See `perldoc http_this` for more details.
 
 # CONFIGURATION
 
-This is in my `~/.ttreerc` file:
+This is in my `~/.ttreerc` file (though the `src` and `dst` are now overridden
+by the `bin/rebuild` script):
 
     verbose 
     recurse
