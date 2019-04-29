@@ -21,7 +21,6 @@ sub import ( $class, %arg_for ) {
 }
 
 sub slurp($filename) {
-warn $filename;
     open my $fh, '<', $filename;
     my $contents = do { local $/; <$fh> };
     return $contents;
