@@ -4,19 +4,43 @@ use Less::Boilerplate;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
-    bless { _CONTEXT => $context, }, $class;
+    bless {
+        _CONTEXT        => $context,
+        footnote_number => 1,
+        footnote_names  => {},
+        footnotes       => [],
+    }, $class;
 }
 
 sub cite ( $self, $path, $name ) {
     return
       sprintf
-      '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link"></span>' =>
-      $path,
+'<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link"></span>'
+      => $path,
       $name;
+}
+
+sub add_footnote ( $self, $note, $name = $self->{footnote_number} ) {
+    my $number = $self->{footnote_number}++;
+    if ( exists $self->{footnote_names}{$name} ) {
+        croak("Footnote '$name' already used");
+    }
+    $self->{footnote_names}{$name} = 1;
+    my $href = qq{<sup><a href="#$name">$number</a></sup>};
+    push $self->{footnotes}->@* => qq{<p id="$name">[$number] $note</p>};
+    return $href;
 }
 
 sub link ( $self, $path, $name ) {
     return sprintf '<a href="%s">%s</a>' => $path, $name;
+}
+
+sub get_footnotes($self) {
+    return $self->{footnotes};
+}
+
+sub has_footnotes($self) {
+    return scalar $self->{footnotes}->@*;
 }
 
 1;
