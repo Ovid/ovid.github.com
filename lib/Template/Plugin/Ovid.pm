@@ -4,18 +4,15 @@ use Less::Boilerplate;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
-    bless {
-        _CONTEXT   => $context,
-        cite_count => 0,
-    }, $class;
+    bless { _CONTEXT => $context, }, $class;
 }
 
 sub cite ( $self, $path, $name ) {
-    my $count = ++$self->{cite_count};
     return
-      sprintf '%s<sup><a href="%s" target="_blank">%d</a></sup>' =>
-      $name,
-      $path, $count;
+      sprintf
+      '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link"></span>' =>
+      $path,
+      $name;
 }
 
 sub link ( $self, $path, $name ) {
