@@ -15,7 +15,8 @@ it wasn't <em>hugely</em> successful, but periodically I get an email from
 Quora letting me know that it's been found by software developers, yet again,
 and given a spate of upvotes. Unfortunately, I didn't take much time to
 explain the solution to this problem, so that's what this little article is
-about.</p>
+about. Unfortunately, I need to lay some groundwork, so it will be a touch
+longer than most.</p>
 
 <p>I won't belabor my points about inheritance because I covered them in the
 Quora answer and, if you've been working with OO code long enough, you should
@@ -32,6 +33,178 @@ underlying problem of classes.</p>
 
 <h1>The Problem with Classes</h1>
 
-<p>Classes are great tools for code reuse.</p>
+<p>Classes are great tools for code reuse, but people tend to get tripped up
+about what they <em>are</em>. We talk about "blueprints" or "behavior with
+data attached" or "data with behavior attached" or all sorts of things that
+might make sense to a programmer, but do precious little to really convey what
+objects are. So let's fix that.</p>
+
+<blockquote><em>Objects are merely experts about a particular
+problem.</em></blockquote>
+
+<p>To really explain this, I'll be a bit cheeky and quote from my book [%
+Ovid.cite('https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/',
+'Beginning Perl') %],</p>
+
+<hr>
+
+<blockquote><em> <h2>ÆVAR THE PERSONAL SHOPPER</h2>
+
+<p>Many books have been written about OOP and even among experts, there is
+often disagreement about what OOP is. Many programmers have tried to explain
+OOP and leave the programmer confused. A case in point is the classic “An
+object is a data structure with behaviors attached to it.” Although that’s
+correct, that’s also an awful description and tells you almost nothing you need
+to know, so instead of giving you a textbook definition, we’re going to tell
+you a story.</p>
+
+<p>You’re an awfully busy person and have little free time but plenty of
+disposable income, so you’ve decided to hire a personal shopper. His name is
+Ævar (any resemblance to reviewers of this book, living or dead, is purely
+coincidental) and he’s friendly, flamboyant, and most of all, cheap.</p>
+
+<p>Because Ævar is new to both your city and the job, you have to tell him
+carefully how much money he can spend, exactly what quality of products you
+want, and where to buy them. You may even have to tell him which route to drive
+to pick up the goods and how to invoice you.</p>
+
+<p>That, in essence, is procedural code and that’s what you’ve been doing up to
+now. You’ve been carefully telling the computer every step of the way what to
+do.</p>
+
+<p>After a few months of explaining every little detail, Ævar gets upset and
+says, “þegiðu maður, ég veit alveg hvað ég er að gera” (Icelandic for “Shut up
+dude; I know what I’m doing”). And he does. He knows what you like and where to
+get it. He’s become an expert. In OO terms, you might now be doing this:</p>
+
+<pre><code class="language-perl">my $aevar = Shopper::Personal->new({
+	name   => 'Ævar',
+	budget => 100
+});
+$aevar->buy(@list_of_things_to_buy);
+my $invoice = $aevar->get_invoice;</code></pre>
+
+<p>You’re no longer telling Ævar every little step he needs to take to get your
+shopping done. He’s an expert, and he has all the knowledge needed to do your
+shopping for you and present you with the bill.</p></em></blockquote>
+
+<hr>
+
+<p>And that's it. Objects are simply experts. You tell them what you need and
+they get it done. Forget all of the handwaving about blueprints or "data with
+behaviors." Those are implementation details. We need to understand that
+objects are experts to really get to the core of the issue.</p>
+
+<h2>Single Responsibility Principle</h2>
+
+<p>But then [%
+Ovid.cite('https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html',
+'developers get tripped up on the single responsibility principle.') %]
+Many people take it to mean that the class should do only one thing and do it
+well, while Robert "Uncle Bob" Martin, the person who coined the term, argues
+that it actually means that if a class is going to be changed, there needs to
+be only one person with the responsilibility for dictating that change. This
+sounds odd, but it simply means "separation of concerns." Today, competent
+developers don't build Web sites by concatenating strings of HTML inside of
+their Ruby code, or hard-codes large chunks of SQL inside their controller
+methods. We <em>know</em> that we should separate those things.</p>
+
+<p>Thus, if a class should be an expert with a single area of responsibility
+[% Ovid.add_footnote( 'This might sound silly, but think about a restuarant
+which specializes in the finest French cuisine you can find.  Now think about
+a restaurant which serves Italian, Mexican, Chinese, and Japanese food and
+also offers a shop with a wide variety of cleaning products. You already know
+which one offers better quality.') %] (which is not, as noted, a single
+"thing" that it does), this tends to suggests that class sizes are smaller
+because you're not trying to do too many things.</p>
+
+<p>But honestly, we're <em>programmers</em>! We've been doing this for a long,
+long time and when you're thrown into the Beast you often find massive classes
+because people keep on tacking on little bits and pieces here and there. It's
+the difference between:
+
+<pre><code class="language-python">MySerializer.to_json(some_object)</code></pre>
+
+<p>Versus:</p>
+
+<pre><code class="language-python">some_object.to_json()</code></pre>
+
+<p>Honestly, the latter is often easier to implement because the object knows
+a hell of a lot more about itself than some external code. For example, the
+"employee" object might know which data should be private and which should
+not. Much of the data might have to be respresented by complex data structures
+which the serializer might struggle with. There are all sorts of hoops to jump
+through if the object can't just do it itself, so you bite the bullet and
+implement a <tt>to_json()</tt> method on the object itself. And later you
+implement a <tt>from_json()</tt> method on the object. The "small" class is
+growing larger and larger because our business needs grow.</p>
+
+<p>So classes have an interesting tension: classes need to be smaller because
+we don't want to pack too much into a them because [%
+Ovid.cite('https://en.wikipedia.org/wiki/God_object', 'god objects are a
+nightmare' ) %]. But classes need to be larger because as our business grows,
+they simply need to do more things.</p>
+
+<p>At this point, I imagine many developers thinking this is ridiculous! After
+all, just becaue developers implement bad designs doesn't mean the fundamental
+tools are broken! But we don't want to focus on what developers
+<em>should</em> do; we want to focus on what they <em>actually</em> do. [%
+Ovid.add_footnote('If your argument is "developers should do the right thing",
+you&lsquo;ve lost. We already know they don&lsquo;t and they won&lsquo;t.
+When the discussion becomes "how can we encourage people to do the right
+thing?", I&lsquo;m willing to listen.') %] I suppose I could pull out my
+decades of software experience and argue that anyone who's spent more than a
+couple of weeks programming sees what a disaster the field often is and we
+can't expect people to magically do the right thing. Or I can quote Nathanael
+Scharli, St ¨ ephane Ducasse, Oscar Nierstrasz, and Andrew Black, the authors
+of [% Ovid.cite('http://scg.unibe.ch/archive/papers/Scha02bTraits.pdf',
+'Traits: Composable Units of Behavior' ) %], whose work I've drawn on heavily
+here:[% Ovid.footnote('The paper discuss multiple inheritance (MI) in this
+paragraph, but once you read and understand the entire paper, it becomes clear
+this problem extends far beyond MI.') %]</p>
+
+<blockquote><em>Although multiple inheritance makes it possible to reuse any
+desired set of classes, a class is frequently not an appropriate element to
+reuse. This is because classes play two contradictory roles. A class has a
+primary role as a generator of instances: it must therefore be complete. But
+as a unit of reuse, a class should be small. These properties often conflict.
+Furthermore, the role of classes as instance generators requires that each
+class have a unique place in the class hierarchy, whereas units of reuse
+should be applicable at arbitrary places.</em></blockquote>
+
+<p>So if a class needs to have plenty of behavior—and let's be honest, it's
+seductively easy to just slap a new method onto a class instead of "doing the
+right thing"—how do we cleanly provide this behavior if we're going to avoid
+inheritance, particularly multiple inheritance?</p>
+
+<p>There are many popular approaches, most of which have proven to be broken
+in some way. Let's cover some of them now.</p>
+
+<h2>Interfaces</h2>
+
+<p>Let's take the <code>to_json()</code> example from earlier and see how this
+might look in Java. They're currently one of the best solutions to this
+problem, but only if you use Java 8. Prior to Java 8, interfaces were
+crap. Let's stare at some crap.</p>
+
+<pre><code class="language-java">public interface MySerializer {
+    String toJson();
+}
+
+class SomeClass implements MySerializer {
+    public String toJson() {
+        // json serialization code here
+    }
+}</code></pre>
+
+<p>The above is a minimal template showing the core issue with Java
+interfaces: <strong>there is no code reuse</strong>! Many a Java developer has
+grumped about the need to cut-n-drool methods across classes implementing the
+same interface, or having to write a bunch of scaffolding code connecting
+various classes via delegation just to avoid this.</p>
+
+<p>Fortunately, in Java 8, released in 2014, <em>default methods</em> were added
+which allow an interface to specify a default implementation of a method. This
+<em>almost</em> gets us where we need to be, but there ar.</p>
 
 [% INCLUDE include/footer.tt %]
