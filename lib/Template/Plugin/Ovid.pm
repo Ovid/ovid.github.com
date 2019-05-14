@@ -21,13 +21,14 @@ sub cite ( $self, $path, $name ) {
 }
 
 sub add_footnote ( $self, $note, $name = $self->{footnote_number} ) {
+    my $return = "$name-return";
     my $number = $self->{footnote_number}++;
     if ( exists $self->{footnote_names}{$name} ) {
         croak("Footnote '$name' already used");
     }
     $self->{footnote_names}{$name} = 1;
-    my $href = qq{<sup><a href="#$name">$number</a></sup>};
-    push $self->{footnotes}->@* => qq{<p id="$name">[$number] $note</p>};
+    my $href = qq{<sup id="$return"><a href="#$name">$number</a></sup>};
+    push $self->{footnotes}->@* => qq{<p id="$name"><a href="#$return">[$number]</a> $note</p>};
     return $href;
 }
 
