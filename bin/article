@@ -22,7 +22,9 @@ edit_article($template);    # exits this program
 sub add_to_article_list ( $title, $slug ) {
     open my $fh, '+<', 'root/articles.tt';
     my $contents = do { local $/; <$fh> };
-    my $link     = qq{<li><a href="/articles/$slug.html">$title</a></li>};
+
+    # We're just going to pretend you didn't see this.
+    my $link = qq{<li><a href="/articles/$slug.html">$title</a></li>};
     $contents =~ s/(<ul id="articles">)/$1\n    $link/;
     seek $fh, 0, 0;
     print {$fh} $contents;
