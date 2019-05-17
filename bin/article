@@ -15,21 +15,40 @@ GetOptions( \my %opt_for, 'nocomments' )
 my $comments = $opt_for{nocomments} ? 0 : 1;
 my $title    = join( ' ' => @ARGV ) || croak( usage() );
 my $slug     = make_slug($title);
-my $contents = template( $title, "articles/$slug", $comments );
+my $template = write_article_stub( $title, $slug, $comments );
+add_to_article_list( $title, $slug );
+edit_article($template);    # exits this program
 
-my $template = catfile( 'root', 'articles', "$slug.tt" );
-
-if ( -e $template ) {
-    say "Refusing to overwrite the existing file at $template. Exiting.";
-    exit 1;
+sub add_to_article_list ( $title, $slug ) {
+    open my $fh, '+<', 'root/articles.tt';
+    my $contents = do { local $/; <$fh> };
+    my $link     = qq{<li><a href="/articles/$slug.html">$title</a></li>};
+    $contents =~ s/(<ul id="articles">)/$1\n    $link/;
+    seek $fh, 0, 0;
+    print {$fh} $contents;
+    close $fh;
 }
 
-open my $fh, '>', $template;
-print {$fh} $contents;
-close $fh;
+sub write_article_stub ( $title, $slug, $comments ) {
+    my $contents = template( $title, "articles/$slug", $comments );
 
-my $editor = $ENV{EDITOR} || 'vim';
-system $editor => $template;
+    my $template = catfile( 'root', 'articles', "$slug.tt" );
+
+    if ( -e $template ) {
+        say "Refusing to overwrite the existing file at $template. Exiting.";
+        exit 1;
+    }
+
+    open my $fh, '>', $template;
+    print {$fh} $contents;
+    close $fh;
+    return $template;
+}
+
+sub edit_article ($template) {
+    my $editor = $ENV{EDITOR} || 'vim';
+    system $editor => $template;
+}
 
 sub template ( $title, $identifier, $comments = 1 ) {
     return sprintf <<'END' => $title, $identifier, $comments;
