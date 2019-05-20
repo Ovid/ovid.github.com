@@ -145,25 +145,28 @@ batch process has failed ... because you might have encapsulation, but not
 isolation. Oops.[% Ovid.add_footnote('Perl, like many other dynamic languages,
 has features which allow the code for that method to be handled at runtime.
 <code>AUTOLOAD</code> magic can handle this case, but that is an article for
-another day' ) %]. This is "extreme" late binding in that virtually <em>no</em> checks
-(other than syntax) are performed until runtime.</p>
+another day' ) %]. This is "extreme" late binding with virtually <em>no</em> checks
+(other than syntax) performed until runtime.</p>
 
 <P>Binding can also refer to binding a variable type to data.[%
 Ovid.add_footnote('This discussion conveniently ignores a large area of
 comp-sci which asks why data and functions are different. Sue me.') %]. While
 this is a grotesque oversimplification of a complex argument, one way of
-looking at the difference between statis and dynamic languages is that static
-languages such as Java often bind the data type to the variable, meaning that
-you can never assign a different type to that variable, while dynamic
-languages such as Perl bind the data type to the data itself, meaning that the
-data knows about its type, but the variable often does not. The latter is late
-binding because you often cannot infer, from static analysis, the data types
-at compile time.[% Ovid.add_footnote('Dynamic languages have static components
-and static languages have dynamic components. The two are not mutually
-exclusive, but I cannot possibly begin to cover that here.' ) %]</p>
+looking at the difference between static and dynamic languages is that static
+languages such as Java often bind the data type to the variable (in other
+words, the named container of the data), meaning that you can never assign a
+different type to that variable, while dynamic languages such as Perl bind the
+data type to the data itself, meaning that the data knows about its type, but
+the variable often does not.[% Ovid.add_footnote('You can <code>bless</code> a
+reference in Perl, so that the variable is aware of its type. This is how OO
+is done in Perl.') %]  The latter is late binding because you often
+cannot infer, from static analysis, the data types at compile time.[%
+Ovid.add_footnote('Dynamic languages have static components and static
+languages have dynamic components. The two are not mutually exclusive, but I
+cannot possibly begin to cover that here.' ) %]</p>
 
 <p>Extreme late-binding is important because Kay argues that it permits you to
-not commit to early to the "one true way" of solving an issue (and thus makes
+not commit too early to the "one true way" of solving an issue (and thus makes
 it easier to change those decisions), but can also allow you to build systems
 that you can change <em>while they are still running</em>! When was the last
 time you changed the behavior of a program and didn't have to stop it and
