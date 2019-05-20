@@ -40,6 +40,8 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/css/layout.css">
   
+  <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
   
@@ -106,10 +108,288 @@ src="https://www.youtube.com/embed/oKg1hTOQXoY" frameborder="0"
 allow="accelerometer; autoplay; encrypted-media; gyroscope;
 picture-in-picture" allowfullscreen></iframe>
 
-<p>There's much more in that thread, and while many understood what Kay was
+<p>There's much more in that thread, and while some understood what Kay was
 trying to say, many others seemed unaware of Kay's background and acted as if
 he was some grumpy old dude who just graduated from a Rails Bootcamp.</p>
 
+<p>This is <em>Dr. Alan Kay</em> we're talking about! He doesn't have random
+opinions about "objects", <a href="http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html" target="_blank">he <em>invented</em> the word back in the 60s</a> <span class="fa fa-external-link"></span>. He saw what was happening in the
+programming world and was helping to craft many of these ideas, so he created
+a word to make these ideas easier to talk about.</p>
+
+<p>And he's still bitter about choosing that word. It made people focus on the
+implementation rather than the behavior and it's all been downhill from there.
+Or as Dr. Kay put it "I invented the term Object-Oriented, and I can tell you
+I did not have C++ in mind."</p>
+
+<p>Today, most developers think OOP is about classes and inheritance. Some of
+the bright ones pipe up about encapsulation and polymorphism, but that's about
+it. <code>class Dog isa Mammal {...}</code> has won.</p>
+
+<p>But for Dr. Kay, he states that <a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank">OOP
+to me means only messaging, local retention and protection and hiding of
+state-process, and extreme late-binding of all things.</a> <span class="fa fa-external-link"></span> Why? Well, part of
+his background was cell biology and when he did the math on their
+computational power, he realized that while software routinely has trouble
+scaling, cells can easily coordinate and scale by a factor over over a
+trillion, creating some of the most fantastically complex things in existence,
+capable of correcting their own errors. By comparison, the most sophisticated
+computer software programs are slow, tiny, bugfests. <em>Kay's</em> conception
+of OOP starts with a single question: how can we get our software to match
+this scalability?</p>
+
+<h2>Isolation</h2>
+
+<p>First, let's discuss isolation. This is a shorter term than "local
+retention and protection and hiding of state-process".</p>
+
+<p>The interior of a cell is messy and confusing, but the cell membrance wraps
+this up in a tidy package, hiding the internal details. It's estimated that
+around 50 to 70 <em>billion</em> cells die in your body every day. But you
+don't. Could your software keep running if you had millions of exceptions
+being thrown every minute? I doubt it.</p>
+
+
+<p>You not dying when your cells die isn't encapsulation; it's isolation.
+Consider the following (awful) example:</p>
+
+<pre><code class="language-python">class MyExample:
+    def reciprocal(self, num):
+        return  1.0/num
+
+example = MyExample()
+print example.reciprocal(4);
+print example.reciprocal(0);</code></pre>
+
+<p>In the above code, we've encapsulated the reciprocal equation in the class, but
+then ...</p>
+
+<pre><code>0.25
+Traceback (most recent call last):
+  File "class.py", line 7, in <module>
+    print example.reciprocal(0);
+  File "class.py", line 3, in reciprocal
+    return  1.0/num
+ZeroDivisionError: float division by zero</code></pre>
+
+<p>The object dies, as does the code which contained it. This is the
+antithesis of what Dr. Kay is trying to get us to understand.</p>
+
+<p>If you think of Web browsers and servers as objects, however, we see
+something closer to his vision.<sup id="1-return"><a href="#1">1</a></sup> If your browser crashed every
+time a web server crashed or was otherwise unavailable, Microsoft IIS would
+never have reached 2.0.</p>
+
+<p>Now that we sort of understand a core idea of Kay's, Lets take it further.
+Kay points out that from the early days of Arpanet in the 60s, to the time of
+his OOPSLA keynote in 1997, Arpanet had grown roughly 100 million times the
+size of what it was.<sup id="2-return"><a href="#2">2</a></sup> And it didn't have to be repeatedly taken down for
+maintenance every time we wanted to extend it. The internet, today, is
+sometimes cited by Kay as the only working example of his OO model.<sup id="3-return"><a href="#3">3</a></sup></p>
+
+<h2>Extreme Late Binding</h2>
+
+<p>Another key point is his arguing for extreme late-binding. What does that
+mean? Well, consider this code:</p>
+
+<pre><code class="language-perl">my $order = OrderFactory->fetch(%order_args);
+my $invoice = $order->invoice;</code></pre>
+
+<p>If you have multiple "order" classes, you may not know which class you are
+dealing with, so you can't know, at compile time which <code>invoice</code>
+method you're calling. OOP languages generally don't select (bind) the method
+(<code>invoice</code>) for the invocant (<code>$order</code>) until run time.
+Otherwise, polymorphism can't work.</p>
+
+<p>But what's <em>extreme</em> late binding? Does the <code>invoice</code>
+method exist? In a language like Java, that code won't even compile if the
+method doesn't exist. It might even be dead code that is never called, but you
+can't compile if it that method isn't there. That's because Java binds the
+methods as early as possible to ensure that they exist.</p>
+
+<p>For many dynamic languages, such as Perl (I &#9829; Perl), there's no
+compilation problem at all because we don't bind the method to the invocant
+until that code is executed, but you might get a panicked 2AM call that your
+batch process has failed ... because you might have encapsulation, but not
+isolation. Oops.<sup id="4-return"><a href="#4">4</a></sup>. This is "extreme" late binding in that virtually <em>no</em> checks
+(other than syntax) are performed until runtime.</p>
+
+<P>Binding can also refer to binding a variable type to data.<sup id="5-return"><a href="#5">5</a></sup>. While
+this is a grotesque oversimplification of a complex argument, one way of
+looking at the difference between statis and dynamic languages is that static
+languages such as Java often bind the data type to the variable, meaning that
+you can never assign a different type to that variable, while dynamic
+languages such as Perl bind the data type to the data itself, meaning that the
+data knows about its type, but the variable often does not. The latter is late
+binding because you often cannot infer, from static analysis, the data types
+at compile time.<sup id="6-return"><a href="#6">6</a></sup></p>
+
+<p>Extreme late-binding is important because Kay argues that it permits you to
+not commit to early to the "one true way" of solving an issue (and thus makes
+it easier to change those decisions), but can also allow you to build systems
+that you can change <em>while they are still running</em>! When was the last
+time you changed the behavior of a program and didn't have to stop it and
+restart it, often waiting hours for a complex recompilation?  If you've worked
+with Smalltalk or Erlang you've probably had this pleasure, but most of the
+rest of us are still struggling with the hell of Makefiles and scheduled
+downtimes.</p>
+
+<h2>Messaging</h2>
+
+<p>We can kind of see the isolation and late-binding, but it's messaging where
+Kay's message seems to fall down for most, even though he's quite insistent
+that it's the most important thing there is in OOP. In essence, objects should
+be able to announce that they did things and other objects can ignore them or
+say "hey, that's cool. Here's what I did in response."</p>
+
+<p>But that doesn't really get to the core concept of messaging and frankly,
+this is the one area where I think Kay has been a touch vague, largely because
+many developers think that ideas are nice, but they want to see an
+<em>implementation</em> or proof of concept. In Kay's world. every object is
+almost like an entire computer, not just a unique area of responsibility, and
+each object can receive messages and figure out whether or not it knows how to
+deal with them.</p>
+
+<p>In other words, you don't execute code by calling it by name: you send some
+data (a message) to an object and it figures out which code, if any, to
+execute in response. In fact, this can improve your isolation because the
+receiver is free to ignore any messages it doesn't understand. It's a paradigm
+most are not familiar with, but it's powerful.</p>
+
+<p>There's a lot more to be said about this, but I'll stop and instead direct
+you to this article, written by Alan Kay, about <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/" target="_blank">The Early History
+of Smalltalk</a> <span class="fa fa-external-link"></span>. I actually found myself giddy reading that, getting a
+glimpse into the <a href="https://en.wikipedia.org/wiki/Cambrian_explosion" target="_blank">Cambrian
+explosion</a> <span class="fa fa-external-link"></span> of computing ideas which happened during the 60s and 70s.
+Sadly, computing, as with evolution, left that explosive era with powerful
+tools, but fewer ideas. Functional programming is slowly gaining more
+converts, logic programming is largely ignored<sup id="7-return"><a href="#7">7</a></sup>, but most programming
+today is procedural or class-based OOP. But Kay's idea of what he intended
+for OOP are still with us. You can check out <a href="http://www.erlang.org/" target="_blank">Erlang</a> <span class="fa fa-external-link"></span> and discover a marvelous
+programming language where code is isolated, late-binding, and
+passes messages around. And what do you get for that?</p>
+
+<ul>
+  <li>Extremely fault-tolerant code</li>
+  <li>High availability</li>
+  <li>Code whose behavior can be changed <em>while the software is still
+  running</em></li>
+</ul>
+
+<p>That last point is a killer feature for many companies. The Erlang syntax
+and behavior is strange for many developers (it looks a lot like Prolog with
+the solver removed), if you have millions of customers counting on your to
+<em>always</em> be there, Erlang is a powerful option.</p>
+
+<h2>OOP Today</h2>
+
+<P>Kay argues (correctly, IMHO), that the computer revolution hasn't happened
+yet because while our bodies are massively scalable meat computers, our
+silicon computers generally don't scale in the slightest. This isn't just
+because silicon is slow; it's because of things like <code>print
+customers.fetch(customer_id).last_name</code> not actually having a
+<code>last_name</code> method, throwing an exception (assuming it compiled in
+the first place) and programmers getting frantic late-night calls to bring the
+batch system back up. The only real upside is that it offers job security.</p>
+
+<p>Sadly, this is where most of us are today. And would-be programmers get
+silly lectures telling them that <code>class Motorcycle extends
+Vehicle</code>, the instructor (<code>isa Person</code>) gets flustered
+explaining for the n<sup>th</sup> time the difference between a class and an
+instance, while a student (<code>isa Person</code>) in the back is noticing
+that a bicycle looks an awful lot like a motorcycle and the code she's looking
+at doesn't seem to account for this.</p>
+
+<p>So class-based OO has won, <sup id="8-return"><a href="#8">8</a></sup> even with its limitations, arguments over
+inheritance versus composition, static versus dynamic typing,<sup id="9-return"><a href="#9">9</a></sup> and programmers
+arguing whether "objects" are data with behaviors attached or vice versa. So
+this sometimes puts me in an awkward situation when someone asks me what
+objects are since the myriad disagreements are strong, and valid.</p>
+
+<p>I sort of punt on this, taking a "meta view" of what we're trying to
+accomplish when we write software. So I'll finish up by offering my view on
+objects, with an extended quote from my book <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank">Beginning
+Perl</a> <span class="fa fa-external-link"></span>.</p>
+
+<hr>
+
+<blockquote><em> <h2>ÆVAR THE PERSONAL SHOPPER</h2>
+
+<p>Many books have been written about OOP and even among experts, there is
+often disagreement about what OOP is. Many programmers have tried to explain
+OOP and leave the programmer confused. A case in point is the classic “An
+object is a data structure with behaviors attached to it.” Although that’s
+correct, that’s also an awful description and tells you almost nothing you need
+to know, so instead of giving you a textbook definition, we’re going to tell
+you a story.</p>
+
+<p>You’re an awfully busy person and have little free time but plenty of
+disposable income, so you’ve decided to hire a personal shopper. His name is
+Ævar (any resemblance to reviewers of this book, living or dead, is purely
+coincidental) and he’s friendly, flamboyant, and most of all, cheap.</p>
+
+<p>Because Ævar is new to both your city and the job, you have to tell him
+carefully how much money he can spend, exactly what quality of products you
+want, and where to buy them. You may even have to tell him which route to drive
+to pick up the goods and how to invoice you.</p>
+
+<p>That, in essence, is procedural code and that’s what you’ve been doing up to
+now. You’ve been carefully telling the computer every step of the way what to
+do.</p>
+
+<p>After a few months of explaining every little detail, Ævar gets upset and
+says, “þegiðu maður, ég veit alveg hvað ég er að gera” (Icelandic for “Shut up
+dude; I know what I’m doing”). And he does. He knows what you like and where to
+get it. He’s become an expert. In OO terms, you might now be doing this:</p>
+
+<pre><code class="language-perl">my $aevar = Shopper::Personal->new({
+    name   => 'Ævar',
+    budget => 100
+});
+$aevar->buy(@list_of_things_to_buy);
+my $invoice = $aevar->get_invoice;</code></pre>
+
+<p>You’re no longer telling Ævar every little step he needs to take to get your
+shopping done. He’s an expert, and he has all the knowledge needed to do your
+shopping for you and present you with the bill.</p></em></blockquote>
+
+<hr>
+
+<p>And that's it. Objects are simply experts. You tell them what you need and
+they get it done. Forget all of the handwaving about blueprints or "data with
+behaviors." Those are implementation details. And once you start thinking
+about objects as simply experts about a particular problem domain, OOP becomes
+much easier.</p>
+
+
+
+    <hr>
+
+    <p><strong>Footnotes</strong></p>
+
+    <div class="footnotes">
+<p id="1"><a href="#1-return">[1]</a> Dr. Kay would likely take
+exception (ha!) to this because to a large extent, servers send out HTML,
+along with CSS and JavaScript and the browser needs to understand, not data
+and metadata, but a very limited structure.</p><p id="2"><a href="#2-return">[2]</a> And in the early days of the
+Internet, no less!</p><p id="3"><a href="#3-return">[3]</a> For kids today: the Web is a small subset of the internet and <a href=
+"http://www.drdobbs.com/architecture-and-design/interview-with-alan-kay/240003442">is
+described by Kay as "a joke...done by amateurs"</a></p><p id="4"><a href="#4-return">[4]</a> Perl, like many other dynamic languages,
+has features which allow the code for that method to be handled at runtime.
+<code>AUTOLOAD</code> magic can handle this case, but that is an article for
+another day</p><p id="5"><a href="#5-return">[5]</a> This discussion conveniently ignores a large area of
+comp-sci which asks why data and functions are different. Sue me.</p><p id="6"><a href="#6-return">[6]</a> Dynamic languages have static components
+and static languages have dynamic components. The two are not mutually
+exclusive, but I cannot possibly begin to cover that here.</p><p id="7"><a href="#7-return">[7]</a> I enjoyed
+Prolog so much that I wrote <a
+href="https://metacpan.org/pod/AI::Prolog#AUTHOR">a Prolog interpreter in
+Perl</a>. I also started a <a
+href="https://github.com/Ovid/AI-Logic">continuation-based logic programming
+system, but never got around to finishing it</a>.</p><p id="8"><a href="#8-return">[8]</a> Er ... except for the
+prototype-based OO in Javascript, though if you squint, it looks an awful lot
+like single inheritance.</p><p id="9"><a href="#9-return">[9]</a> There is a delightful irony of class-based OO proponents
+who sneer at dynamic typing, but let's not go there.</p>
+    </div>
           <hr>
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
@@ -149,6 +429,8 @@ he was some grumpy old dude who just graduated from a Rails Bootcamp.</p>
       
         </div>
     </div>
+
+<script src="/static/js/prism.js"></script>
 
 </body>
 </html>
