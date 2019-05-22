@@ -61,6 +61,11 @@ footer has the author's Disqus code. If you'd like comments on your site and
 wish to use Disqus, see [the Disqus website](https://disqus.com/) for more
 information..
 
+# STOCK PHOTOS
+
+Many photos from are from the free stock photo sites
+[Unsplash](https://unsplash.com/) or [Pexels](https://www.pexels.com/).
+
 # LICENSE
 
 Copyright 2018-2019, Curtis "Ovid" Poe. Released under [The MIT
