@@ -1,0 +1,212 @@
+[%
+    title            = 'Alan Kay and Missing Messages';
+    identifier       = 'articles/alan-kay-and-missing-messages';
+    include_comments = 1;
+    syntax_highlight = 1;
+    USE Ovid;
+    INCLUDE include/header.tt;
+%]
+
+<p>[% Ovid.link('/articles/alan-kay-and-oo-programming.html', "My discussion
+of Alan Kay's ideas behind OO programming") %] made the rounds, getting about
+13,000 pages views (as of this writing) from various sources, including [%
+Ovid.cite('https://news.ycombinator.com/item?id=19968496#19969047', 'Hacker
+News' ) %] and [%
+Ovid.cite('https://www.reddit.com/r/programming/comments/bqu8td/a_simple_explanation_of_what_alan_kay_meant_when/',
+'Reddit')%]. There was quite a bit of discussion, most of which I'll
+cheerfully let people decide for themselves, but there's one perennial
+question, as exemplified by [%
+Ovid.cite('https://ovid.github.io/articles/alan-kay-and-oo-programming.html#comment-4471360685',
+'this response') %], which I really need to address.</p>
+
+<blockquote>So, what exactly should happen when you request last_name on an
+object that doesn't respond to that message?  ... It tells me you haven't been
+the one receiving those 4AM phone calls, angry dictates from C-levels, and
+responsible for hundreds of thousands of dollars (or even millions) of lost
+revenue per minute of down-time.</blockquote>
+
+<p>There was a lot of vitriol in the comment and I didn't want to respond to
+that, but in this case, that vitriol actually strikes to the heart of this
+issue. Specifically, I <em>have</em> been on pager duty for several companies,
+getting those frantic early morning phone calls and that's helped to guide my
+thoughts on what robust computing should be, and how you might handle objects
+that don't respond to messages.</p>
+
+<figure class="image">
+    <img src="/static/images/messages-poorly-received.jpg" width="600">
+    <figcaption>When you don't handle messages gracefully. <a
+    href="https://www.pexels.com/photo/man-using-smartphone-while-sitting-at-the-table-2222383/"
+    target-"_blank">Source</a></figcaption>
+</figure>
+
+<p>Back in the 90s, when I was a COBOL programmer for a huge insurance
+company, I was responsible for writing software that would integrate
+third-party data into our accounting system. Whenever I would write new
+software, I would send that to our "operators", along with a series of steps
+on how to restart the software if any step in our [%
+Ovid.cite('https://en.wikipedia.org/wiki/Job_Control_Language', 'JCL') %]
+failed. I <em>really</em> didn't want to get a late-night call, so I tried
+very hard to ensure those instructions were clear, and even took the naughty
+step of allocating more disk space than my software needed to guarantee that
+<em>this</em> would never be a problem with my software. I knew the
+main accounting software ran out of disk space every couple of weeks,
+requiring costly work on the part of the developers and operators to
+coordinate on resurrecting a batch job.[% Ovid.add_footnote('When I first
+started, I only learned about this because we had a brand-new senior developer
+on the team. After a couple of weeks of pager duty, she sat down one day to
+fix the JCL to allocate enough disk space for all steps. When the lead
+programmer found out, she tried to stop her, saying "but if the jobs
+don&lsquo;t fail, they won&lsquo;t need us!" I never got along with that lead
+programmer.<br><br>It&lsquo;s also interesting to note that the above story
+refers to two female senior programmers. Our large mainframe staff had tons of
+female programmers. It&lsquo;s a damned shame this is no longer true of most
+shops.') %]</p>
+
+<p>Obviously, that was much earlier in my programming career. I didn't know
+anything about OOP, had never heard of Alan Kay, and couldn't possibly
+understand the core issues he was discussing, but I had done one thing right:
+I wrote down very, very complete documentation that intelligent people could
+use to restart my software if it failed. Keep that in mind: I gave a lot of
+thought about how to respond if my software didn't perform as expected.</p>
+
+<p>Fast forward a couple of decades to when I was hired to fix the ETL system
+of a company working to reduce the costs of [%
+Ovid.cite('https://www.cancerresearchuk.org/about-cancer/find-a-clinical-trial/what-clinical-trials-are/phases-of-clinical-trials#phase3',
+'Phase III clinical trials.') %].[% Ovid.add_footnote('To this day
+that&lsquo;s some of my proudest work, not because of the quality of my work,
+but because it involved potentially saving lives. I wish I had more work like
+that.') %] It was a large project, with many parts, but the ETL system had
+been written a couple of years earlier by a doctor! I was rather surprised. It
+was clear that he wasn't an experienced developer, but his work showed a lot
+of brilliance because he deeply understood the problem space.</p>
+
+<p>The ETL system was a bottleneck for this startup and honestly, no one
+wanted to touch it. A new dataset would arrive from a pharmaceutical company
+and it would take two days manual effort from a programmer to get the dataset
+into shape where it could be run through the "ETL" system. I say "ETL" in
+scare quotes because obviously you don't want to take a highly-paid software
+developer off of their work for several days of manual data cleanup just so
+you can process an Excel document. But this work was critical to the startup
+and while they dreaded getting new data, they had to handle it.  So they
+offered me a contract and the other developers wished me luck, happy to be
+washing their hands of the mess.</p>
+
+<p>After a few months, I had rewritten the ETL system to be a fault-tolerant,
+rules-driven system that could handle the radically different data formats
+that pharmaceutical companies kept sending us.[% Ovid.add_footnote('In fact,
+this work led to <a
+href="https://www.quora.com/What-is-the-most-interesting-bug-you-have-ever-solved-in-a-computer-program/answer/Curtis-Poe?ch=10&share=b49c1dd9&srid=OB5p"
+target="_blank">one of the most interesting sofware bugs I&lsquo;ve had the
+pleasure of fixing</a>.') %] More importatnly, instead of two days of hands-on
+work from one of our developers, it turned into two hours of automated work,
+leaving the developers free to do other tasks. So given that the data quality
+was rubbish, how did I get there?</p>
+
+<p> I had to jump through a lot of strange hoops, but here's an interesting
+key: the pharmaceutical companies were astonished that we could get a year's
+worth of work done in a month. They simply were not able to change their
+processes and asking them to "fix" the data they sent us failed. So my job was
+to fix it for them. And that brings me back to the main issue with Alan Kay's
+idea about messaging. What do you do if you send a message and don't get a
+response? Here's how we programmers <em>tend</em> to think of that:</p>
+
+<pre><code class="language-java">try {
+    // This rubbish method names helps to illustrate that we
+    // might have an unreliable source
+	result = someObject.fetchDataFromServer(orderId);
+}
+catch(UnknownOrder uo) {
+   System.out.println("Unknown order id: " + uo);
+}
+catch(ExistentialCrisis ex) {
+   System.out.println("Server is sitting in the corner, crying.");
+}
+catch(Exception e) {
+   System.out.println("Yeah, this blew chunks.");
+   e.printStackTrace(new java.io.PrintStream(outputStream));
+}</code></pre>
+
+<p>This is the software equivalent of "Not My Problem." After all, the
+<code>fetchDataFromServer()</code> method should return data! It's not
+<em>my</em> fault if the other team's server sucks!</p>
+
+<p>But I had no way of telling a bunch of multi-billion dollar pharmaceutical
+companies to get their act together.  Making the ETL system work very much
+<em>was</em> my problem. And by taking responsibility for that problem, I
+wrote a much more robust system. So what do you when
+<code>fetchDataFromServer()</code> fails? You do the same thing I did at the
+insurance company when I sent instructions to the operators explaining how to
+"fix" things when the software failed. Except that I'm sending that to my
+software, telling it how to fix itself.  This requires teaching developers a
+different way of thinking about software, something that goes beyond
+<code>try/catch</code>, "not my problem."</p>
+
+<p>So when <code>fetchDataFromServer()</code> fails, or when an object doesn't
+respond to the message you sent, what do you? There's a simple way to approach
+this: ask yourself what you would do in real life. What if you deleted your
+partner's phone number by accident and you need to call him. Do you just give
+up and say "not my problem?" Of course not. If he's ever sent you a text, you
+probably have his number on the text. Maybe he sent you an email containing
+his number.  Maybe your friend has his number and you can ask them. Or maybe
+you can find a different way of contacting your partner. The choice is yours:
+give up, or take responsibility for finding a solution.</p>
+
+<p>Hell, maybe we should call this RDD, "responsibility-driven development,"
+because what the programming world needs is new acronyms.</p>
+
+<p>For the ETL system, I would have problems such as needing to know if "Dr.
+Bob Smith at Mercy Clinic" was the same person as "Robert Smith (no title) at
+Mercy Hospital." Sometimes those different records would come in from
+different pharmaceutical companies, but sometimes they would come in from the
+same pharmaceutical company; I'd still have to figure out if they were the
+same person. This is the very definition of "bad data" but it was critical
+that the ETL system work and, as it turns out, it's a fairly well-understood
+problem and there are many approaches.</p>
+
+<p>In this case, I would use various geolocation services to find addresses
+and lat/long data for the locations (with fallbacks if a service was down). I
+would create known "name variants" (in English, "Robert" is often shortened to
+"Bob"), encode names with something like Soundex[% Ovid.add_footnote('I did
+not use Soundex, but I can&lsquo;t recall which alternative I chose. I only
+mention this to stave off the inevitable "Soundex sucks" nit-picking which
+articles like this are prone to.') %], stripped stop words from names, check
+email addresses and phone numbers, along with their Levenshtein distance since
+they were a frequent source of typos, and so on. By the time I was done, I had
+a large list of things which were potentially identifying, and scoring to
+indicate which sources of "truth" were more valuable.</p>
+
+<p>By calculating a score, if it exceeded a particular threshold, we assumed
+they were the same person.  Below a threshold, we assumed they were different
+people. Between those thresholds, we flagged them for follow-up.  And if the
+external geolocation services were down?  Fine! I just didn't get a score for
+their data, but I still had plenty of other scores to help me calculate that
+threshold.[% Ovid.add_footnote('At this point, it&lsquo;s worth meditating
+about neural networks and how marvelously they work with incomplete
+information. They are powerful, in part, because we don&lsquo;t have to tell
+them how to work around incomplete information.') %] Surprisingly, we usually
+had no follow-up records, despite often processing tens of thousands of people
+per batch.</p>
+
+<p>This is how you deal with unanswered messages. You <em>think</em> about
+your response instead of just letting your software crash. Is it OK if you
+don't have that info? Can you just leave a spreadsheet field blank? Are there
+other sources for that information? Can you try later to fetch that
+information, having designed a nice async system to make this easier? There
+are <em>tons</em> of ways of dealing with these issues, but they all involve
+more work, and different problems, of course, involve different solutions.</p>
+
+<p>This isn't to say that there's always a neat answer, but curiously, as I
+find problem spaces increasing in complexity, I sometimes find that there are
+more solutions to bad data instead of just "more bad data."</p>
+
+<p>There is, however, a little bug in this ointment: clients often want
+software today, not tomorrow. As we're pushed harder to develop more software
+in less time, struggling under [%
+Ovid.link('/articles/the-tyranny-of-budgets.html', 'the tyranny of budgets')
+%], we often don't have the time to make our software this robust. Even if it
+would save the client a lot of money in the long run, they want to move
+quickly and let their later selves pay down the technical debt. So I'll be
+writing a more <code>try/catch</code> blocks in the future, because sometimes
+it's really not my problem.</p>
+
+[% INCLUDE include/footer.tt %]
