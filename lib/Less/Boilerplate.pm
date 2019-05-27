@@ -7,6 +7,7 @@ use feature ();
 use utf8::all;
 use autodie ();
 use Carp;
+use Try::Tiny;
 
 use Import::Into;
 
@@ -20,6 +21,7 @@ sub import {
     strict->import;
     feature->import(qw/signatures :5.26/);
     utf8::all->import;
+    Try::Tiny->import::into( $caller, qw(try catch finally) );
     autodie->import(':all');
     Carp->import::into( $caller, qw(carp croak) );
 }
@@ -29,6 +31,7 @@ sub unimport {
     strict->unimport;
     feature->unimport;
     utf8::all->unimport;
+    Try::Tiny->unimport;
     autodie->unimport;
     Carp->unimport;
 }

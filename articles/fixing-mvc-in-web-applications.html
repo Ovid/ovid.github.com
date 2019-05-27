@@ -71,7 +71,7 @@
       <div class="three columns">
         <h1>Links</h1>
         <ul>
-          <li><a href="/index.html">Follow Me</li>
+          <li><a href="/index.html">Follow Me</a></li>
           <li><a href="/articles.html">Read Me</a></li>
           <li><a href="/publicspeaking.html">Hear Me</a></li>
           <li><a href="/hireme.html">Hire Me</a></li>
@@ -228,7 +228,7 @@ everything breaks down. Almost every MVC tutorial that I see confuses the
     model     = this.get_orm();
     neighbors = model.table('Characters')
                      .search( location: this.character.location );
-    this.template("people", people=neighbors);</pre></code>
+    this.template("people", people=neighbors);</code></pre>
 
 <p>Now that looks reasonable. In fact, it seems so sensible that I did
 something very similar in the Tau Station MMORPG a long time ago. But it was
@@ -249,7 +249,7 @@ method:</p>
     model     = this.get_orm();
     neighbors = model.table('Characters').visible_to(this.character);
     this.template("people", people=neighbors);
-</pre></code>
+</code></pre>
 
 <p>Ah, that's much better. Except we have exposed our ORM (and thus, our
 database). We have many data sources which have data in Redis, or
@@ -263,7 +263,7 @@ should only be asking for the data. Instead:</p>
 <pre><code>method neighbors():
     neighbors = this.model('Characters').visible_to(this.character);
     this.template("people", people=neighbors);
-</pre></code>
+</code></pre>
 
 <p>Where do the "visible" characters come from? You don't care. By hiding all
 of these details from the controller, the developers are free to implement the
@@ -327,6 +327,7 @@ complex concept and start building from there..</p>
         <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
       
         </div>
+    </div>
     </div>
 
 </body>
