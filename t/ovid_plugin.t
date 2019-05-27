@@ -7,7 +7,7 @@ use Template::Plugin::Ovid;
 my $ovid = Template::Plugin::Ovid->new(undef);
 
 is $ovid->cite( '/example.html', 'link name' ),
-'<a href="/example.html" target="_blank">link name</a> <span class="fa fa-external-link"></span>',
+'<a href="/example.html" target="_blank">link name</a> <span class="fa fa-external-link fa_custom"></span>',
   'We should be able to cite an external link with an external link span';
 
 is $ovid->link( '/example.html', 'link name' ),

@@ -15,7 +15,7 @@ sub new ( $class, $context ) {
 sub cite ( $self, $path, $name ) {
     return
       sprintf
-'<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link"></span>'
+'<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>'
       => $path,
       $name;
 }
