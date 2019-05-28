@@ -78,8 +78,7 @@ sub build_toc ( $file, $contents ) {
                 croak("Already seen $title/$slug in $file");
             }
             $rewritten .= qq{<a name="$slug"></a>};
-            my $leader = '&nbsp;' x ( 4 * ( $level - 1 ) );
-            push @links => qq{    <li><a href="#$slug">$leader$title</a></li>};
+            push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
         }
         else {
             $rewritten .= $token->as_is;
