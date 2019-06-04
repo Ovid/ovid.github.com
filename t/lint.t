@@ -30,8 +30,14 @@ sub html_is_bad ( $file ) {
 
     my ( @errors, @stack, $unbalanced, %id_seen );
 
+    my %linter_for = ( a => \&_validate_anchor, );
+
   TOKEN: while ( my $token = $parser->get_tag ) {
         if ( $token->is_start_tag ) {
+            if ( my $linter = $linter_for{ $token->get_tag } ) {
+                push @errors => $linter->($token);
+            }
+
             if ( my $id = $token->get_attr('id') ) {
                 if ( $id_seen{$id}++ ) {
                     push @errors => "ID '$id' was already seen on this page";
@@ -73,4 +79,12 @@ sub html_is_bad ( $file ) {
         }
     }
     return @errors;
+}
+
+sub _validate_anchor ($anchor) {
+    if ( my $href = $anchor->get_attr('href') ) {
+        return "localhost found in a.href '$href'"
+          if $href =~ m{^https?://localhost};
+    }
+    return;
 }
