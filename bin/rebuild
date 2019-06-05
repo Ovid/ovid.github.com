@@ -74,8 +74,8 @@ sub build_toc ( $file, $contents ) {
             my $level = $1;
             my $title = $p->peek(1);
             my $slug  = make_slug($title);
-            if ( $seen->{$slug}++ ) {
-                croak("Already seen $title/$slug in $file");
+            if ( $seen->{$file}{$slug}++ ) {
+                croak("Already seen heading '$title/$slug' in '$file'");
             }
             $rewritten .= qq{<a name="$slug"></a>};
             push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
