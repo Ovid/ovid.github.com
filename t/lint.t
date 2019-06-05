@@ -11,7 +11,8 @@ foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
     try {
         my @errors = html_is_bad($file);
-        ok !@errors, "$file should have no linting errors" or explain \@errors;
+        ok !@errors, "$file should have no linting errors"
+          or diag join "\n" => @errors;
     }
     catch {
         fail "Parting $file failed: $_";
