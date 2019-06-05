@@ -1,0 +1,209 @@
+[%
+    title            = 'Project Management in Three Numbers';
+    identifier       = 'articles/project-management-in-three-numbers';
+    include_comments = 1;
+    syntax_highlight = 0;
+    USE Ovid;
+    INCLUDE include/header.tt;
+%]
+
+<h2>What's a Project Manager?</h2>
+
+<P>[%
+Ovid.cite('https://www.pmi.org/about/learn-about-pmi/what-is-project-management',
+'The Project Management Institute defines project management as follows')%]:</p>
+
+<blockquote>Project management...is the application of knowledge, skills,
+tools, and techniques to project activities to meet the project
+requirements.</blockquote>
+
+<p>As a proponent of agile (in particular, [% Ovid.link('/wildagile.html',
+'WildAgile')%]), I find that project management is an oft-ignored area in
+the field. For example, Scrum defines three roles, the product owner,
+the team, and the ScrumMaster.[% Ovid.add_footnote('I&lsquo;ve read, but I
+cannot prove, that the <a href="https://www.scrumalliance.org">Scrum
+Alliance</a> used to offer Certified Scrum Master (two words) courses where
+you became a "Scrum Master" after a two-day course and a multiple choice quiz.
+After many people objected, correctly, that you can&lsquo;t become a "master"
+after only two days, the Scrum Alliance shortened it to ScrumMaster, thus
+"solving" the problem.')%] No mention of any sort of management, project or
+otherwise, is made. It's not that Scrum is against management; it's that Scrum
+is a framework for getting stuff done and management is an outside force.</p>
+
+<p>So there you are, a brand new project manager (PM), or product owner (PO) and ...
+wait a minute. What the heck's the difference? In many agile projects, there
+is no project manager and the PM's responsibility is distributed across the
+various members of the team: product owner, developers, ScrumMaster (Scrum),
+Coach (XP), and so on. Thus, the definition of a PM is sometimes muddied and
+in my experience, varies wildly across organizations.</p>
+
+<p>Curiously, when I find companies have the PO role, that&lsquo;s more clear.
+The product owner represents the "voice of the customer" and maintains the
+product backlog of tasks that the team works on. The Product Owner, in
+addition to representing the customer, also represents project stakeholders,
+so they have two masters, so to speak: the customers and management. But their
+role is the mama bird role of constantly vomiting up new tasks to feed to the
+baby birds of the team; they're not really project managers.</p>
+
+<p>But because the waters are often muddied here, I&lsquo;m going to handwave
+this entire issue and hope you don&lsquo;t notice. Instead, we&lsquo;ll focus
+on an age-old problem in the PM/PO space: what should we do next?</p>
+
+<h2>What Do I Do Next?</h2>
+
+<p>As a fledgling team lead, PO, PM, or whatever title your company&lsquo;s
+uses for <em>person responsibile for getting stuff done</em>, figuring out
+what to work on next is a daunting task. It involves having an in-depth
+knowledge of the project, the product, the business, and the team. And when
+you're juggling 27 things at once, it can be maddening to have a baby bird
+cheeping "what do I do next?", and demanding a meal.</p>
+
+<p>You might think that [%
+Ovid.cite('https://www.agilealliance.org/glossary/backlog-grooming/',
+'backlog grooming/refinement')%] is all you need, but that still doesn't tell
+you, out of the 374 tasks that need to be done, which should be done
+<em>next</em>! Fortunately, there's a very simple way to do this, and that's
+to build a business case for each task, using just three numbers.</p>
+
+<h2>The Three Number Business Case</h2>
+
+<p>A business case is really nothing more than making an argument that a thing
+should or should not be done, but using numbers to back it up. If you want to
+learn more, I have a "rescuing a legacy codebase" talk that covers this.[%
+Ovid.add_footnote('Fair warning: this talk is not a a technical talk, nor is
+it a management talk. It&lsquo;s squarely aimed at the communication gap
+between the two and is thus guaranteed to bore both managmene and software
+developers.')%]</p>
+
+<hr>
+
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/4c8ixLgpxwo" frameborder="0"
+allow="accelerometer; autoplay; encrypted-media; gyroscope;
+picture-in-picture" allowfullscreen></iframe>
+
+<hr>
+
+<figure class="captioned">
+    <img src="/static/images/three-numbers.png" width="300">
+    <figcaption>The Three Number Problem</figcaption>
+</figure>
+
+<p>But what numbers do we use? For this case, try to pick the three most
+important numbers that represent value in your tasks.[%
+Ovid.add_footnote("Honestly, you can pick more or less, but I find three works
+very well.")%] At one point, when I had the project management role in
+developing [% Ovid.cite('https://taustation.space/', 'Tau Station')%], a
+free-to-play (F2P) narrative sci-fi adventure, the complexity of the role was
+overwhelming, but each task's "three most important numbers" were clear:
+complexity, usability, monetization.</p>
+
+<p>The <strong>complexity</strong> of a task is simply how many "story points"
+(or whatever you call them) that team members have assigned to a task. I
+<em>strongly</em> recommend using [%
+Ovid.cite('http://www.velocitycounts.com/2013/05/why-do-high-performing-scrum-teams-tend-to-use-story-point-estimation/',
+'Fibonacci numbers for story point estimates')%], especially for what I'm
+about to show you.</p>
+
+<p>The <strong>usability</strong> of a task was how useful it was to the
+customers. Again, you want to use Fibonacci numbers here. You need a
+<em>feel</em> for what this number is because, in reality, you cannot get a
+perfect estimate. However, it's clear that a feature which lets customers
+download reports is more valuable to them than a feature which slightly
+adjusts the color of a sidebar, so the former might get the number "13" while
+the latter might get the number "1".</p>
+
+<p>In the case of Tau Station, everyone is allowed to play the game for free,
+but as with many F2P games, there are <strong>monetization</strong> options in
+the game[% Ovid.add_footnote("It should be mentioned that Tau Station tries
+very hard to follow the ethical free play model and we do not offer 'pay to
+win.'")%] and anything which increases the likelihood of monetization gets a
+higher number.  A "Happy Hour" feature, where the players get extra rewards
+when they buy stuff gets a higher monetization number than a feature to
+make forum posts "sticky." Again, you're using Fibonacci numbers here.</p>
+
+<p><em><strong>Important:</strong> the three things you choose should reflect
+<em>your</em> business concerns and may very well be vastly different business
+requirements. You may choose "security" or "legal compliance" or something
+else entirely. Tau Station included these as part of the "usability" number.
+Think hard about these numbers because you don't want to get them
+wrong.</em></p>
+
+<p>Once you have your three numbers, what next? Well, you need to assign
+weights to them. This will largely be a process of trial and error until it
+feels right. In our case, let's say that both monetization and complexity get
+a weight of 40 and usability gets a 20.  Then you play around with formulae
+until you get a final score, with higher-scoring tasks having a greater
+priority. Here's the formula I used for Tau Station, though you will need to
+adjust this for your own needs:</p>
+
+<pre><code>pros  = monetization * 40 + usability * 20
+cons  = complexity * 40
+scale = 10
+score = ( ( pros – cons ) + 500 ) / scale</code></pre>
+
+<p>Let's say a task has a monetization of 1, and a usability of 5, and a
+complexity of 7. How does that compare with a take of a monetization of 3, a
+usability of 3, but a complexity of 13? The first task might earn us less
+money and be less useful, but it's easy to implement. Decisions, decisions
+...</p>
+
+<p>Well, monetization and usability are both "pros" (benefits), and complexity
+is a "con" (drawback), so we have task 1:</p>
+
+<pre><code>pros  = 1 * 40 + 5 * 20
+cons  = 7 * 40
+scale = 10
+score = ( ( 140 – 280 ) + 500 ) / 10</code></pre>
+
+<p>And task 2:</p>
+
+<pre><code>pros  = 3 * 40 + 3 * 40
+cons  = 13 * 40
+scale = 10
+score = ( ( 240 – 520 ) + 500 ) / 10</code></pre>
+
+<P>Task 1 has a final score of 36, while task 2 has a final score of 22. Thus,
+we do task 1 first.</p>
+
+<p>Once you learn to plug those three numbers into a spreadsheet, you can then
+sort the tasks by score and prioritize tasks at the top of the list.</p>
+
+<figure class="image">
+    <img src="/static/images/three-number-spreadsheet.png" width="600">
+    <figcaption>A Spreadsheet Showing Our Three Number Business Case</figcaption>
+</figure>
+
+<h2>Real World Usage</h2>
+
+<p>When I was doing this, I found it made my work much easier and the team
+appreciated it because it was clear direction. Plus, since the team provides
+the complexity estimates, they know that they have a real impact on project
+direction, something that teams usually appreciate.</p>
+
+<p>I used an Excel spreadsheet, but also a small program that I wrote which
+fetched data from github and [% Ovid.cite('https://www.zenhub.com/',
+'ZenHub')%] to automate the creation of my spreadsheet. Every month I'd repeat
+the process, fill in missing numbers, sort the rows and share it with the team
+via a Google Doc. It worked very well and figuring out the project tasks for the
+month was no longer a stressful affair..</p>
+
+<p>Note that sometimes you will find tasks which don't seem to be scored
+correctly with this technique. When that happens, investigate whether or not
+your three numbers seem reasonable. Maybe your weigths are wrong, or your
+formula is off.</p>
+
+<p>Or, as sometimes happens, there are external factors. A task may be
+complex, offer low usability, and no monetization potential, but another team
+is demanding that XML feed <em>now</em> and hey, you have to play nice with
+others. When odd events like that happen, use your judgement instead of the
+spreadsheet.</p>
+
+<p>At the end of the day, this technique, like all others, isn't perfect. When
+used correctly, however, it's a great tool for building value and focusing on
+your real needs. Further, you prioritize greater value and, when asked to
+justify your decisions, you have <em>numbers</em> to back them up. Even if
+they're not perfect, quibbling over numbers and formulae instead of hunches is
+a much safer career move.</p>
+
+[% INCLUDE include/footer.tt %]
