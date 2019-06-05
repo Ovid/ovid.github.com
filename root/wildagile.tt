@@ -2,18 +2,24 @@
     title            = 'WildAgile';
     identifier       = 'wildagile';
     include_comments = 1;
+    USE Ovid;
 %]
 [% INCLUDE include/header.tt %]
+
+{TOC}
+
+<h1>The Problem</h1>
+
 <p>I've worked with a variety of successful companies, many of which are Agile
 in nature, but when discussion of Agile arises, the conversation often goes
 like this:</p>
 
-<blockquote><p>Them: We're agile.</p>
-
-<p>Me: Ah! Do you use Scrum, XP, something else?</p>
-
-<p>Them (embarrassed): Um, er, we just sort of get things
-done.</p></blockquote>
+<blockquote>Them: We're agile.<br>
+<br>
+Me: Ah! Do you use Scrum, XP, something else?<br>
+<br>
+Them (embarrassed): Um, er, we just sort of get things
+done.</blockquote>
 
 <p>And they do! And yet they're embarrassed by the lack of a name for what they
 actually do. I often hear something like "we do a modified scrum", meaning
@@ -21,9 +27,9 @@ they have sprints and stand ups and that's about it.</p>
 
 <p>Thus, I developed <strong>WildAgile</strong>, an Agile methodology that is
 so agile that it describes what <em>actually happens in the wild</em> instead
-of what you are <em>supposed</em> to do. It's designed for very rapid delivery,
-with <strong>Just Enough Process</strong> to provide order to the chaos. Though
-I draw inspiration from Scrum, XP, Kanban and Crystal Clear, there's a good
+of what you are supposed to do. It's designed for very rapid delivery, with
+<strong>Just Enough Process</strong> to provide order to the chaos. Though I
+draw inspiration from Scrum, XP, Kanban and Crystal Clear, there's a good
 chance that claiming your team is WildAgile-compliant merely involves reading
 this and saying "yup, we're WildAgile-compliant."</p>
 
@@ -47,7 +53,7 @@ description</a> for details.</p>
 intimidating. XP practitioners regularly complain about pair programming (and
 hence don't do it). Scrum practitioners often ignore retrospectives. System
 administrators get upset about a "failed sprint" because they had to stop all
-work to fix a critical security hole.</p>
+work to fix a critical security issue.</p>
 
 <p>And yet work still gets done. Developers finish a task and take a new task.
 Wash, rinse, repeat. By formalizing this I introduce Just Enough Process to
@@ -55,7 +61,7 @@ get things done in a structured manner. "Just Enough Process" is an appropriate
 tagline for management. "Shut Up And Write Some Code" is an appropriate tagline
 for developers.</p>
 
-<h2>When to Use WildAgile</h2>
+<h2>What is WildAgile?</h2>
 
 <p>WildAgile is appropriate for small teams where the entire code base can be
 roughly understood by a single programmer. That doesn't mean that someone
@@ -64,10 +70,13 @@ what it does, but the developer should at least have a <em>sense</em> of what
 it's for. Because WildAgile is designed to avoid <a title="Code that will be
 unmaintainable if the developer is hit by a bus"
 href="http://c2.com/cgi/wiki?HitByBus" target="_blank">bus-sensitive code</a>,
-it's important to have a small to medium size codebase. What this means is that
-as a developer transitions from <strong>Apprentice</strong> to
-<strong>Veteran</strong> (described later), they won't always know how to solve
-a problem, but they'll know where to look to solve that problem.</p>
+this might be better for small to medium sized codebases, though I know of a
+huge company, with a codebase exceeding one million lines, which is very
+profitable and follows a process not quite unlike WildAgile, despite having
+hundreds of developers. What this means is that as a developer transitions
+from <strong>Apprentice</strong> to <strong>Veteran</strong> (described
+later), they won't always know how to solve a problem, but they'll know where
+to look to solve that problem.</p>
 
 <p>You may think of WildAgile as a <em>transitional</em> methodology. This
 means that you may adopt WildAgile before your team transitions to a more
@@ -92,7 +101,7 @@ software. I also do not recommend WildAgile for highly complex projects in
 which the majority of developers cannot understand how various components fit
 together.</p>
 
-<h3>Workflow</h3>
+<h2>The Workflow</h2>
 
 <p>Just to make it clear what I'm focusing on, here's the development
 workflow for one company I've worked with:</p>
@@ -110,11 +119,11 @@ every task is at.</p>
 <p><img class="alignCenter" alt="start_finish"
 src="static/images/start_finish-209x300.png" width="209" height="300"/></p>
 
-<p>Things are not this simple in the real world, but I strongly advise our
-clients to understand the Platonic Ideal of Agile and constantly strive
-towards it.</p>
+<p>Things are not this simple in the real world, but I strongly advise clients
+to understand the Platonic Ideal of Agile and constantly strive towards
+it.</p>
 
-<h2>Assumptions</h2>
+<h2>Assumptions Made in Creating WildAgile</h2>
 
 <p><strong></strong>Drawing on work from Alistair Cockburn's <a title="Crystal
 Clear PDF"
@@ -149,10 +158,14 @@ requirement actually said "colocation" of the team, requiring team members to
 be physically near each other. This ignores today's reality. Savvy companies
 realize they have access to an entire world of developers if they are willing
 to have remote workers.  Thus, tools such as Slack, Google Hangouts, Skype,
-and other communication channels should be employed to ensure that someone is
-always available to help. I've seen WildAgile work in teams that are also
-temporally diverse (separated by many time zones), but this does introduce
-challenges that require extra attention to team communication.</p>
+Zoom, and other communication channels should be employed to ensure that
+someone is always available to help. I've seen WildAgile work in teams that
+are also temporally diverse (separated by many time zones), but this does
+introduce challenges that require extra attention to team communication.</p>
+
+<h1>The Details</h1>
+
+<p>Yeah, yeah. That's enough blathering. What's it all about?</p>
 
 <h2>WildAgile Roles</h2>
 
@@ -225,7 +238,7 @@ rein in developers who spend too much time "improving" instead of "developing"
 
 <p><strong>Tasks</strong> are "things a developer can do." Every task is done
 in a separate branch (when appropriate) and when it is done and the tests pass,
-it is merged back into the "main", "trunk", or "integration" branch, or
+it is merged back into the "master", "trunk", or "integration" branch, or
 whatever you call it. Tasks are expected to include tests, when feasible, and
 if merging the code breaks any test, the developer responsible for merging the
 code should be the person responsible for fixing the tests (again, when
@@ -311,16 +324,7 @@ you're doing, and how you are doing it. This helps to catch problems early on
 and minimizes the need for developers to distract other developers while they're
 working.</p>
 
-<h3>But what if the devs slack off?!</h3>
-
-<p>This issue still gets raised. It can be a problem when you're hiring
-a developer for a specific project that you don't know well, but for long-term
-teams, it's honestly a non-issue. If you, as a manager, can't tell who is and
-isn't delivering in your team, you have to accept responsibility for that,
-even if you're not the one to blame. This issue arises regardless of whether
-or not the developer are remote, so don't worry about it.</p>
-
-<h2>Discussion</h2>
+<h1>Discussion</h1>
 
 <p>The idea behind WildAgile is not to formalize a new methodology, but to put
 a name on a practice that is already moderately well-known but followed in an
@@ -333,13 +337,6 @@ get things done."</p>
 <p>In short, WildAgile eliminates the silo problem of cowboy coding, but allows
 the extremely rapid development of products. It encourages creativity while
 having Just Enough Process to keep development on target.</p>
-
-<p>Again, it bears repeating that WildAgile is not recommended for very
-large-scale environments. This is not necessarily because it is not suitable
-for large-scale environments (I know of at least one large company whose
-successful development process is very similar to this), but given that most of
-our experience with WildAgile-like development models has been with smaller
-code bases, I are hesitant to suggest it for anything else.</p>
 
 <p>By separating developers into Apprentices and Veterans, I create the
 psychological incentive to explore more of the code base. Ambitious developers
@@ -396,38 +393,28 @@ WildAgile-certifications (though if you pay me enough money, I'm happy to
 give a one-hour presentation and print up WildAgile-certifications for
 you).</p>
 
-<h2>Glossary</h2>
+<h1>Glossary</h1>
 
-<ul>
-    <li><strong>Backlog</strong> — Tasks which have not yet been done.</li>
-    <li><strong>Critical Issue</strong> — Something which must be done
-    <em>now</em>.</li>
-    <li><strong>Just Enough Process</strong> – Only enough process to provide
-    structure.</li>
-    <li><strong>Apprentice</strong> — A new developer becoming an expert on part of the
-    system. I don't actually use this term in day-to-day work, but it's useful
-    to make it clear who we're talking about.</li>
-    <li><strong>Priority</strong> — Tasks which should be taken before other
-    tasks.</li>
-    <li><strong>Product Owner (PO)</strong> — The proxy for the customer. Maintains
-    backlog and assigns Priorities.</li>
-    <li><strong>WildAgile</strong> — "Real World" Agile.</li>
-    <li><strong>Stand up</strong> — An end-of-day "what I did, will do, and
-    blockers" explanation for every developer.</li>
-    <li><strong>Summary</strong> — The PO's business-focused summary of the project
-    status, given immediately prior to the stand up.</li>
-    <li><strong>Task</strong> — Something a developer can do.</li>
-    <li><strong>Team Lead</strong> — The code base expert. Should also understand
-    business concerns.</li>
-    <li><strong>Team</strong> — All developers, including the Team Lead.</li>
-    <li><strong>Veteran</strong> — A developer who is allowed to work on all parts
-    of the system.</li>
-</ul>
+<dl>
+    <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.[% Ovid.add_footnote("I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.")%]</dd>
+    <dt>Backlog</dt><dd>Tasks which have not yet been done.</dd>
+    <dt>Critical Issue</dt><dd>Something which must be done <em>now</em>.</dd>
+    <dt>Just Enough Process</dt><dd>Only enough process to provide structure.</dd>
+    <dt>Priority</dt><dd>Tasks which should be taken before other tasks.</dd>
+    <dt>Product Owner (PO)</dt><dd>The proxy for the customer. Maintains backlog and assigns Priorities.</dd>
+    <dt>Stand up</dt><dd>An end-of-day "what I did, will do, and blockers" explanation for every developer.</dd>
+    <dt>Summary</dt><dd>The PO's business-focused summary of the project status, given immediately prior to the stand up.</dd>
+    <dt>Task</dt><dd>Something a developer can do.</dd>
+    <dt>Team Lead</dt><dd>The code base expert. Should also understand business concerns.</dd>
+    <dt>Team</dt><dd>All developers, including the Team Lead.</dd>
+    <dt>Veteran</dt><dd>A developer who is allowed to work on all parts of the system.</dd>
+    <dt>WildAgile</dt><dd>"Real World" Agile.</dd>
+</dl>
 
 <p>There is very little terminology and most of this fits what you already
 know.</p>
 
-<h2>Summary</h2>
+<h1>Summary</h1>
 
 <p>Shut up and write some code.</p>
 
