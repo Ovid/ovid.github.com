@@ -15,6 +15,7 @@ use Less::Pager;
 my @files = File::Find::Rule->file->in('root');
 
 preprocess_files(@files);
+rebuild_article_pagination();
 system(
     'ttree', '-a',     # process all files
     '-s',    'tmp',    # use tmp/ as a source
@@ -22,7 +23,6 @@ system(
 );
 
 system( 'prove', '-l', 't' );
-rebuild_article_pagination();
 
 sub preprocess_files (@files) {
   FILE: foreach my $file (@files) {
@@ -148,14 +148,21 @@ sub get_pagination ( $total, $current ) {
         my $article = article_page($prev);
         $pagination .= qq{    <a href="/$article.html">&laquo;</a>\n};
     }
+    else {
+        $pagination .= qq{    <span class="inactive">&laquo;</span>\n};
+    }
     for my $page ( 1 .. $total ) {
+        my $class   = $page == $current ? 'class="active"' : '';
         my $article = article_page($page);
-        $pagination .= qq{    <a href="/$article.html">$page</a>\n};
+        $pagination .= qq{    <a $class href="/$article.html">$page</a>\n};
     }
     if ( $current < $total ) {
         my $next    = $current + 1;
         my $article = article_page($next);
         $pagination .= qq{    <a href="/$article.html">&raquo;</a>\n};
+    }
+    else {
+        $pagination .= qq{    <span class="inactive">&raquo;</span>\n};
     }
     $pagination .= "</nav>";
     return $pagination;
@@ -174,7 +181,6 @@ qq{    <li><a href="/articles/$article->{slug}.html">$article->{title}</a></li>\
     $list .= "</ul>";
     return $list;
 }
-
 
 __END__
 
