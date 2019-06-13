@@ -31,7 +31,10 @@ sub html_is_bad ( $file ) {
 
     my ( @errors, @stack, $unbalanced, %id_seen );
 
-    my %linter_for = ( a => \&_validate_anchor, );
+    my %linter_for = (
+        a   => \&_validate_anchor,
+        img => \&_validate_image,
+    );
 
   TOKEN: while ( my $token = $parser->get_tag ) {
         if ( $token->is_start_tag ) {
@@ -86,6 +89,14 @@ sub _validate_anchor ($anchor) {
     if ( my $href = $anchor->get_attr('href') ) {
         return "localhost found in a.href '$href'"
           if $href =~ m{^https?://localhost};
+    }
+    return;
+}
+
+sub _validate_image ($image) {
+    if ( !$image->get_attr('alt') ) {
+        my $tag = $image->as_is;
+        return "a11y alert! Missing 'alt' tag in image: $tag";
     }
     return;
 }
