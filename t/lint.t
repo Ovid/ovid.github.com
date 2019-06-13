@@ -105,8 +105,15 @@ sub _validate_image ($image) {
     }
     if ( my $src = $image->get_attr('src') ) {
         $src =~ s{^/}{};
-        unless (-e $src) {
+        if ( !-e $src ) {
             push @errors => "Cannot find image for $tag";
+        }
+        elsif ( $src !~ /\.gif$/ ) {
+            my $size = -s $src;
+            if ( $size > 250_000 ) {
+                push @errors =>
+"Image $src does not appear to be optimized. It's $size bytes.";
+            }
         }
     }
     else {
