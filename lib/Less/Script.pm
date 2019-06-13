@@ -81,8 +81,8 @@ Fetch a database handle to test or prod.
 
 sub dbh ($db) {
     state $dbh_for = {
-        test => DBI->connect( "dbi:SQLite:dbname=ovid_test.db", "", "" ),
-        prod => DBI->connect( "dbi:SQLite:dbname=ovidt.db",     "", "" ),
+        test => DBI->connect( "dbi:SQLite:dbname=db/ovid_test.db", "", "" ),
+        prod => DBI->connect( "dbi:SQLite:dbname=db/ovid.db",      "", "" ),
     };
     my $dbh = $dbh_for->{$db}
       or croak("Could not find database handle for '$db'");
