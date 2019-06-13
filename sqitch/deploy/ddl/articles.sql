@@ -4,9 +4,9 @@ BEGIN;
 
     CREATE TABLE articles (
         article_id INTEGER PRIMARY KEY,
-        name       VARCHAR(100) NOT NULL,
-        slug       VARCHAR(100) NOT NULL,
-        created    TEXT NOT NULL
+        title      VARCHAR(100) NOT NULL,
+        path       VARCHAR(200) NOT NULL,
+        created    TEXT         NOT NULL
     );
 
 COMMIT;
