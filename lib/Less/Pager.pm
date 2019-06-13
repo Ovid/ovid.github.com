@@ -48,6 +48,11 @@ has current_page_number => (
     default => sub { 0 },
 );
 
+sub total_pages ($self) {
+    my $pages = $self->total / $self->items_per_page;
+    return $pages == int($pages) ? $pages : int($pages) + 1;
+}
+
 sub next ($self) {
     my $total = $self->total;
     return if $self->_current_offset >= $self->total;
