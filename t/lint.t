@@ -11,6 +11,9 @@ foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
     try {
         my @errors = html_is_bad($file);
+
+        # diag() instead of explain() to ensure these errors show up when I
+        # run bin/rebuild
         ok !@errors, "$file should have no linting errors"
           or diag join "\n" => @errors;
     }
@@ -23,7 +26,8 @@ done_testing;
 
 sub html_is_bad ( $file ) {
 
-    # HTML::Lint doesn't like HTML5 and HTML::Tidy5 doesn't build.
+    # HTML::Lint doesn't like HTML5 and HTML::Tidy5 doesn't build. Hence, a
+    # custom linter
     my $parser = HTML::TokeParser::Simple->new( file => $file );
 
     state $no_end_tag =
@@ -94,9 +98,19 @@ sub _validate_anchor ($anchor) {
 }
 
 sub _validate_image ($image) {
+    my @errors;
+    my $tag = $image->as_is;
     if ( !$image->get_attr('alt') ) {
-        my $tag = $image->as_is;
-        return "a11y alert! Missing 'alt' tag in image: $tag";
+        push @errors => "a11y alert! Missing 'alt' tag in image: $tag";
     }
-    return;
+    if ( my $src = $image->get_attr('src') ) {
+        $src =~ s{^/}{};
+        unless (-e $src) {
+            push @errors => "Cannot find image for $tag";
+        }
+    }
+    else {
+        push @errors => "No src attribute for $tag";
+    }
+    return @errors;
 }
