@@ -25,6 +25,9 @@ system(
 system( 'prove', '-l', 't' );
 
 sub preprocess_files (@files) {
+
+    # scrub our tmp directory
+    system( 'rm', '-fr', 'tmp' );
   FILE: foreach my $file (@files) {
         next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
         my $is_tt_file = $file =~ /\.tt$/;
