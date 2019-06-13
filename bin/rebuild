@@ -10,47 +10,11 @@ use File::Spec::Functions qw(catfile catdir);
 use File::Basename qw(dirname basename);
 use File::Path qw(mkpath);
 use File::Copy;
+use Less::Pager;
 
 my @files = File::Find::Rule->file->in('root');
 
-FILE: foreach my $file (@files) {
-    next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
-    my $is_tt_file = $file =~ /\.tt$/;
-
-    my $dir  = dirname($file);
-    my $name = basename($file);
-
-    if ( $dir !~ /static/ && !$is_tt_file ) {
-        next FILE;
-    }
-
-    # make sure we have our destination directory
-    my $destdir = $dir;
-    $destdir =~ s/^root/tmp/;
-    unless ( -d $destdir ) {
-        mkpath($destdir);
-    }
-
-    my $destfile = catfile( $destdir, $name );
-
-    if ( !$is_tt_file ) {
-
-        # not a template toolkit file? Copy it over directly
-        copy( $file, $destfile )
-          or croak("Could not copy $file to $destfile: $!");
-    }
-    else {
-        # ah, crap. We need to pre-process it.
-        my $contents = slurp($file);
-
-        if ( $is_tt_file && $contents =~ /^\s*{TOC}\s*$/m ) {
-            $contents = build_toc( $file, $contents );
-        }
-
-        splat( $destfile, $contents );
-    }
-}
-
+preprocess_files(@files);
 system(
     'ttree', '-a',     # process all files
     '-s',    'tmp',    # use tmp/ as a source
@@ -58,6 +22,47 @@ system(
 );
 
 system( 'prove', '-l', 't' );
+rebuild_article_pagination();
+
+sub preprocess_files (@files) {
+  FILE: foreach my $file (@files) {
+        next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
+        my $is_tt_file = $file =~ /\.tt$/;
+
+        my $dir  = dirname($file);
+        my $name = basename($file);
+
+        if ( $dir !~ /static/ && !$is_tt_file ) {
+            next FILE;
+        }
+
+        # make sure we have our destination directory
+        my $destdir = $dir;
+        $destdir =~ s/^root/tmp/;
+        unless ( -d $destdir ) {
+            mkpath($destdir);
+        }
+
+        my $destfile = catfile( $destdir, $name );
+
+        if ( !$is_tt_file ) {
+
+            # not a template toolkit file? Copy it over directly
+            copy( $file, $destfile )
+              or croak("Could not copy $file to $destfile: $!");
+        }
+        else {
+            # ah, crap. We need to pre-process it.
+            my $contents = slurp($file);
+
+            if ( $is_tt_file && $contents =~ /^\s*{TOC}\s*$/m ) {
+                $contents = build_toc( $file, $contents );
+            }
+
+            splat( $destfile, $contents );
+        }
+    }
+}
 
 sub build_toc ( $file, $contents ) {
     my $p = HTML::TokeParser::Simple->new( string => $contents );
@@ -78,7 +83,8 @@ sub build_toc ( $file, $contents ) {
                 croak("Already seen heading '$title/$slug' in '$file'");
             }
             $rewritten .= qq{<a name="$slug"></a>};
-            push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
+            push @links =>
+qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
         }
         else {
             $rewritten .= $token->as_is;
@@ -96,3 +102,93 @@ TOC
     $rewritten =~ s/^s*{TOC}\s*$/$toc/m;
     return $rewritten;
 }
+
+sub rebuild_article_pagination () {
+    my $pager = Less::Pager->new( db => 'prod' );
+    while ( my $records = $pager->next ) {
+        my $page_number = $pager->current_page_number;
+        my $articles    = get_article_list($records);
+        my $pagination  = get_pagination( $pager->total_pages, $page_number );
+        my $template    = <<"END";
+[%
+    title      = 'Articles by Ovid, page $page_number';
+    identifier = 'articles';
+%]
+
+[% INCLUDE include/header.tt %]
+
+<p>I've written a lot over the years, including a couple of books, but
+much of that is scattered hither and yon over the web. This page is a
+curated list of some of the writing that I think you might find
+useful.</p>
+
+$articles
+$pagination
+[% IF $page_number == 1 -%]
+<script>
+    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+</script>
+[%- END %]
+
+[% INCLUDE include/footer.tt %]
+END
+        my $article = article_page($page_number);
+        splat( "root/$article.tt", $template );
+    }
+}
+
+sub get_pagination ( $total, $current ) {
+    my $pagination = qq{<nav class="pagination">\n};
+    if ( $current > 1 ) {
+        my $prev    = $current - 1;
+        my $article = article_page($prev);
+        $pagination .= qq{    <a href="/$article.html">&laquo;</a>\n};
+    }
+    for my $page ( 1 .. $total ) {
+        my $article = article_page($page);
+        $pagination .= qq{    <a href="/$article.html">$page</a>\n};
+    }
+    if ( $current < $total ) {
+        my $next    = $current + 1;
+        my $article = article_page($next);
+        $pagination .= qq{    <a href="/$article.html">&raquo;</a>\n};
+    }
+    $pagination .= "</nav>";
+    return $pagination;
+}
+
+sub article_page($number) {
+    return 1 == $number ? "articles" : "articles_$number";
+}
+
+sub get_article_list ($records) {
+    my $list = qq{<ul id="articles">\n};
+    foreach my $article ( $records->@* ) {
+        $list .=
+qq{    <li><a href="/articles/$article->{slug}.html">$article->{title}</a></li>\n};
+    }
+    $list .= "</ul>";
+    return $list;
+}
+
+
+__END__
+
+=head1 NAME
+
+rebuild - Rebuilds site
+
+=head1 DESCRIPTION
+
+=over 4
+
+=item * Preprocesses files (such as adding TOCs)
+
+=item * Runs C<ttree>
+
+=item * Runs all tests
+
+=item * Rebuilds article pagination
+
+=back

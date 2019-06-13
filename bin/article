@@ -5,23 +5,19 @@
 use lib 'lib';
 use Less::Script;
 use File::Spec::Functions qw(catfile);
-use Less::Pager;
 
 GetOptions( \my %opt_for, 'nocomments' )
   or die "Bad options";
 
 my $comments = $opt_for{nocomments} ? 0 : 1;
 
-my ( $title, $slug, $template );
-if (@ARGV) {
-    $title    = join( ' ' => @ARGV );
-    $slug     = make_slug($title);
-    $template = write_article_stub( $title, $slug, $comments );
-    add_to_sqitch( $title, $slug );
-}
+croak("Usage: $0 Name of Article") unless @ARGV;
 
-rebuild_article_pagination();
-edit_article($template) if $title;    #exits this program
+my $title    = join( ' ' => @ARGV );
+my $slug     = make_slug($title);
+my $template = write_article_stub( $title, $slug, $comments );
+add_to_sqitch( $title, $slug );
+edit_article($template);    #exits this program
 
 sub add_to_sqitch ( $title, $slug ) {
     my $dbh = dbh('prod');
@@ -49,69 +45,7 @@ END
     system( 'sqitch', 'add', "data/$slug" );
     splat( "sqitch/deploy/data/$slug.sql", $deploy );
     splat( "sqitch/revert/data/$slug.sql", $revert );
-
-    #    system('sqitch', 'deploy', 'ovid');
-}
-
-sub rebuild_article_pagination () {
-    my $pager = Less::Pager->new( db => 'prod' );
-    while ( my $records = $pager->next ) {
-        my $page_number = $pager->current_page_number;
-        my $articles    = get_article_list($records);
-        my $pagination  = get_pagination( $pager->total_pages, $page_number );
-        my $template    = <<"END";
-[%
-    title      = 'Articles by Ovid, page $page_number';
-    identifier = 'articles';
-%]
-
-[% INCLUDE include/header.tt %]
-
-<p>I've written a lot over the years, including a couple of books, but
-much of that is scattered hither and yon over the web. This page is a
-curated list of some of the writing that I think you might find
-useful.</p>
-
-$articles
-$pagination
-[% IF $page_number == 1 -%]
-<script>
-    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
-    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
-</script>
-[%- END %]
-
-[% INCLUDE include/footer.tt %]
-END
-        splat( "root/articles_${page_number}.tt", $template );
-    }
-}
-
-sub get_pagination ( $total, $current ) {
-    my $pagination = qq{<nav class="pagination">\n};
-    if ( $current > 1 ) {
-        my $prev = $current - 1;
-        $pagination .= qq{    <a href="/articles_${prev}.html">&laquo;</a>\n};
-    }
-    for my $page ( 1 .. $total ) {
-        $pagination .= qq{    <a href="/articles_${page}.html">$page</a>\n};
-    }
-    if ( $current < $total ) {
-        my $next = $current + 1;
-        $pagination .= qq{    <a href="/articles_${next}.html">&raquo;</a>\n};
-    }
-    $pagination .= "</nav>";
-    return $pagination;
-}
-
-sub get_article_list ($records) {
-    my $list = qq{<ul id="articles">\n};
-    foreach my $article ( $records->@* ) {
-        $list .=
-qq{    <li><a href="/articles/$article->{slug}.html">$article->{title}</a></li>\n};
-    }
-    $list .= "</ul>";
-    return $list;
+    system('sqitch', 'deploy', 'ovid');
 }
 
 sub write_article_stub ( $title, $slug, $comments ) {
@@ -166,7 +100,6 @@ article - Write an article
 
     perl bin/article My Awesome Article
     perl bin/article My Awesome Article --nocomments
-    perl bin/article -- run without args to rebuild article pagination
 
 =head1 OPTIONS
 
