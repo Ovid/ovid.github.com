@@ -4,6 +4,7 @@
 use lib 'lib';
 use Less::Script;
 use HTML::TokeParser::Simple;
+use Capture::Tiny 'capture';
 
 use File::Find::Rule;
 use File::Spec::Functions qw(catfile catdir);
@@ -16,11 +17,20 @@ my @files = File::Find::Rule->file->in('root');
 
 preprocess_files(@files);
 rebuild_article_pagination();
-system(
-    'ttree', '-a',     # process all files
-    '-s',    'tmp',    # use tmp/ as a source
-    '-d',    '.',      # use . as the target
-);
+my ( $stdout, $stderr, $exit ) = capture {
+    system(
+        'ttree', '-a',     # process all files
+        '-s',    'tmp',    # use tmp/ as a source
+        '-d',    '.',      # use . as the target
+    )
+};
+
+if ( $stdout =~ /!.*file error/ ) {
+
+    # yeah, ttree needs proper exit codes
+    croak($stdout);
+}
+say $stdout;
 
 system( 'prove', '-l', 't' );
 
