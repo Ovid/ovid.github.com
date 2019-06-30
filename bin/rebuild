@@ -19,9 +19,10 @@ preprocess_files(@files);
 rebuild_article_pagination();
 my ( $stdout, $stderr, $exit ) = capture {
     system(
-        'ttree', '-a',     # process all files
-        '-s',    'tmp',    # use tmp/ as a source
-        '-d',    '.',      # use . as the target
+        'ttree',  '-a',                      # process all files
+        '-s',     'tmp',                     # use tmp/ as a source
+        '-d',     '.',                       # use . as the target
+        '--copy', '\.(gif|png|jpg|pdf)$',    # copy, don't process images
     )
 };
 
