@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Case study: 500 TPS</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  
+  <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <h1>Case study: 500 TPS</h1>
+            <hr>
+
+
+<nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#the-constraints">The Constraints</a></li>
+    <li class="indent-1"><a href="#hitting-the-ground">Hitting the Ground</a></li>
+    <li class="indent-2"><a href="#the-tyranny-of-orms">The Tyranny of ORMs</a></li>
+    <li class="indent-2"><a href="#soap">SOAP</a></li>
+    <li class="indent-2"><a href="#tax-server">Tax Server</a></li>
+    <li class="indent-2"><a href="#the-big-test">The Big Test</a></li>
+    </ul>
+</nav>
+<hr>
+
+<blockquote>The Devil went down to Georgia.<br>
+He was lookin' for a soul to steal.<br>
+He was in a bind 'cause he was way behind.<br>
+He was willing to make a deal.<br>
+<strong>"Devil Went Down To Georgia"—The Charlie Daniels Band</strong>
+</blockquote>
+
+<p>Our client had just won a nice contract, but were in a corner: their legacy
+system, while powerful, was slow. They could not process more than 39
+transactions per second. They needed to get to 500 transactions per second and
+they had two weeks to do it. They turned to our company, <a href="https://allaroundtheworld.fr" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>, because
+we have a proven track record with them.</p>
+
+<p>We had a systems architect, Shawn, and a software architect, Noel, on the
+project. Our managing director, Leïla, oversaw the project. I was brought in
+because there was simply too much work to do in two weeks.  Fortunately,
+though I didn't know the project, I had two very senior architects who knew
+the system fairly well to help get me up to speed rapidly.</p>
+
+<p>We had two weeks to improve their performance by an order of magnitude.</p>
+
+<h1><a name="the-constraints"></a>The Constraints</h1>
+
+<p>There were several key constraints we had to consider. Our overriding
+consideration was ensuring that PCI-compliance was strictly adhered to to
+ensure that customer data was always protected. Second, the client had
+developed an in-house ORM (object-relational mapper) many years ago and like
+all projects, it grew tremendously. While it was powerful, it was also
+extremely slow. Third, because we only had two weeks, we were given permission
+to take "shortcuts", where necessary, with the understanding that all work
+was to be thoroughly documented and tested, and easy to either merge or
+remove, as needed.</p>
+
+<p>Finally, we could change anything we wanted so long as we didn't change the
+API, or cause any breaking changes anywhere else in the code. There was no
+time to give customers a "heads up" that they would need to make changes.</p>
+
+<h1><a name="hitting-the-ground"></a>Hitting the Ground</h1>
+
+<p>The contract was for a very short online event, so whatever solution we
+implemented didn't have to stay up for long. This also meant that whatever
+solution we implemented would be disabled quickly if needed. We also knew that
+only a few customers would use this new "fast path" solution, and only one
+payment provider needed to be supported.</p>
+
+<p>Noel immediately started tracing the full code path through the system,
+taking copious notes about any behavior we would need to be aware of. Shawn
+was investigating the databases, the servers, the network architecture, and
+assessing what additional resources could be brought online and tested in two
+weeks.</p>
+
+<p>I, being new to the project, started by taking a full-stack integration
+test representing one of these transactions and investigating it to learn the
+code and its behavior. In particular, I wanted to better understand the
+database behavior as this is often one of the most signficant bottlenecks.
+Worse, the client was in the midst of a large migration from Oracle to
+PostgreSQL, so making changes at the database level was not an option, so we
+needed to know immediately if this was one of the bottlenecks. I wrote code
+which would dump out a quick summary of database activity for a block of code.
+It looked sort of like this:</p>
+
+<pre><code class="language-perl">explain dbitrace(
+	name =&gt; 'Full stack transaction request',
+	code =&gt; sub { $object-&gt;make_full_request },
+);
+</code></pre>
+
+<p>The output looked similar to this:</p>
+
+<pre><code class="language-perl">{
+  report =&gt; {
+    name =&gt; 'Full stack transaction request',
+    time =&gt; '3.70091 wallclock secs'
+  },
+  sql =&gt; {
+    delete =&gt; 1,
+    insert =&gt; 7,
+    select =&gt; 137,
+    update =&gt; 32,
+    total  =&gt; 177,
+  }
+}</code></pre>
+
+<p>We had a problem. Even our client was surprised about the amount of
+database activity for a single "buy this thing" request.</p>
+
+<p>None of the database activity was particularly slow, but there was a lot of
+it. Deadlocks weren't an issue given that the changed data was for the current
+request. But the ORM was killing us.</p>
+
+<h2><a name="the-tyranny-of-orms"></a>The Tyranny of ORMs</h2>
+
+<p>In two decades of working with ORMs, I have only once seen an in-house ORM
+which was on-par with, or superior to, commercial or open source products. And
+it was an ORM optimized for aggregation and reporting, something many ORMs
+struggle with.</p>
+
+<p>For this particular ORM, every time a request was made, it would assemble a
+bunch of metadata, check permissions, make decisions based on whether or not
+it was using Oracle or PostgreSQL, check to see if the data was cached, and
+<em>then</em> check to see if the data was in the database. Instantiating
+every object was very slow, even if there was no data available. And the code
+was instantiating (and throwing away without using) hundreds of these
+objects.</p>
+
+<p>To be fair, this is a common problems with ORMs: they're never as fast as
+hand-crafted SQL, but they're far easier to update and, when used correctly,
+they increase development speed to the point most don't consider going
+back.</p>
+
+<p>We considered using a "pre-flight" check to see if the data was there
+before instantiating the objects, but there was so much business logic
+embedded in the ORM layer that this was not a practical solution. And we
+couldn't simply fetch the data directly because, again, the ORM had too much
+business logic. We had to reduce the calls to the database.</p>
+
+<p>After an exhaustive analysis, we found out several things.</p>
+
+<ul>
+  <li>Some of the calls were for a "dead" part of the system that no one
+  really remembered, but was clearly unused.</li>
+  <li>Numerous duplicate calls were being made to <em>unchanging</em> data. We
+  could cache those objects safely.</li>
+  <li>A number of calls were being made for important data, but it wasn't
+  relevant to our code path, so we could skip it.</li>
+</ul>
+
+<p>Our first step at addressing the problem was to ensure that everything was
+wrapped in configuration variables that allowed us to easily turn on or off
+different code paths for our project. Fortunately, the client had a
+system that allowed them to update the configuration data without restarting
+the web servers.</p>
+
+<p>Once that was in place, our first pass cut our SQL calls roughly in half,
+tremendously sped up the code, and the tests still passed. But we were nowhere
+near 500 transaction per second.</p>
+
+<h2><a name="soap"></a>SOAP</h2>
+
+<p>Another serious bottleneck was their SOAP server.  Our client made good use
+of WSDL (Web Services Description Language) to help their customers understand
+how to create SOAP requests and SOAP was integral to their entire pipeline.
+The client would receive a SOAP request, parse it, extract the necessary data,
+process that data, create <em>another</em> SOAP request, pass this to backend
+servers, which would repeat the process with the new SOAP request.</p>
+
+<p>SOAP stands for "Simple Object Access Protocol." SOAP isn't "objects", and
+it's not "simple." It's a huge XML document, with an outer envelope telling
+you how to parse the message contents. Reading and writing SOAP is
+<em>slow</em>.  Further, our client's SOAP implementation had grown over the
+years, with each new version of their SOAP interface starting with
+cutting-and-pasting the last version's code into a new module and modifying
+that. There were, at the time of the project, 24 versions,<sup id="1-return"><a href="#1">1</a></sup> most of which had heavily duplicated code. To optimize
+their SOAP, we were facing a problem. Further investigation found that only
+one version would be used for this project, so our client authorized us to skip
+updating the other SOAP versions.</p>
+
+<p>We tried several approaches to fine-tuning the SOAP, including replacing
+many <code class="language-perl">AUTOLOAD</code> (dynamically generated)
+methods with static ones. In Perl, <code class="language-perl">AUTOLOAD</code>
+methods are optional "fallback" methods that are used when Perl cannot find a
+method of the desired name. However, this means Perl must carefully walk
+through inheritance heirarchies to ensure the method requested isn't there
+before falling back to <code class="language-perl">AUTOLOAD</code>. This can
+add considerable overhead to a request.</p>
+
+<p>Replacing these methods was extremely difficult work because the <code
+class="language-perl">AUTOLOAD</code> methods were used heavily, often calling
+each other, and  had grown tremendously over the years. Many of them were
+extremely dangerous to pick apart due to their very complex logic. We managed
+to shave some more time with this approach but stopped before we tackled the
+most complicated ones. There was only so much risk we were willing to
+take.</p>
+
+<p>Noel, in carefully reading through the SOAP code, also found several code
+paths that were slow, but didn't apply to our requests. Unfortunately, we
+could not simply skip them because the SOAP code was tightly coupled with
+external business logic. Skipping these code paths would invariably break
+something else in the codebase. What he discovered is that if we carefully
+created a special read-only "request metadata" singleton. Different parts of
+the code, when recognizing they were in "web context", could request this
+metadata and skip non-essential codepaths. While singletons are generally
+frowned upon by experienced developers, we were under time pressure and in
+this case, our SOAP code and the code it called could all consult the
+singleton to coordinate their activity.</p>
+
+<p>The singleton is one of the many area where deadlines and reality
+collide.</p>
+
+<p>We also leveraged that singleton to allow us to extract data on the
+front-end, and send it to the back-end directly, without the need to serialize
+and deserialize SOAP. Another great performance improvement. Sadly, like many
+others, it was specific to this one customer and this one payment
+provider.</p>
+
+<h2><a name="tax-server"></a>Tax Server</h2>
+
+<p>By this time, with the above and numerous other fixes in place, we were
+ready to do our initial QA runs. We didn't expect to hit our 500 TPS target,
+but we were pretty confident we had achieved some major speed gains. And, in
+fact, we did have some pretty impressive speed gains, except that periodically
+some of our requests would simply halt for several seconds. Due to the
+complicated nature of the system, it wasn't immediately clear what was going
+on, but we finally tracked this down to the tax server.</p>
+
+<p>Our client was processing credit card transactions and for many of them,
+taxes had to be applied. Calculating taxes is complicated enough that there
+are companies that provide "tax calculation as a service" and our client was
+using one of them. Though the tax service assured us they could handle the
+amount of traffic we were sending, they would periodically block. It wasn't
+clear if this was a limitation of their test servers that we would hit with
+their production servers, but we could not take this chance.</p>
+
+<p>We tried several approaches, including caching of tax amounts, but the
+wide diversity of data we relied on to calculate tax meant a high cache miss
+rate, not allowing us to solve the problem. Finally, one of our client's
+developers who knew the tax system fairly well came up with a great solution.
+He convinced the tax service to provide a "one-time" data dump of tax rates
+that would not be valid long, but would be valid long enough for our short
+event. We could load the data into memory and read it directly and skip the
+tax server entirely. Though the resulting code was complicated, it worked, and
+our requests no longer halted.</p>
+
+<h2><a name="the-big-test"></a>The Big Test</h2>
+
+<p>With the above, and many other optimizations, we felt confident in what we
+delivered and in a late-night test run, our client was ecstatic. We were
+running seven hundred transactions per second, almost twenty times faster than
+when we started. It was time for our first production run, using beefier
+servers and a much faster network.</p>
+
+<p>It was a disaster. As you may recall, the client had been migrating from
+Oracle to PostgreSQL. The QA servers were far less powerful than the
+production servers, but they were running PostgreSQL. The production servers
+were running Oracle. Oracle is the fast, beastly sports car that will quickly
+outpace that Honda Accord you're driving ... so long as the sports car has an
+expert driver, regular maintenance, and a highly trained pit crew to look
+after it.</p>
+
+<p>Out of the box, PostgreSQL just tends to be fast. Often companies find that
+a single PostgreSQL DBA working with competent developers is enough to easily
+handle their traffic. But we had Oracle. And it wasn't going away before the
+deadline. Time was running out and twenty times faster wasn't fast enough.</p>
+
+## Overview
+
+Increase the performance of Business Transactions from 25-30/sec to 500+/sec.
+
+## Solutions Implemented
+
+The overall implemented solution could not change the outward facing API calls
+as end users of the service were not to be impacted by backend changes. The
+solution could also not effect the traditional processing as clients would
+be issuing both traditional and streamlined transactions.
+
+### New Caching Architecture
+
+Implement a new redundant shared caching architecture using Redis as a data
+store, to replace the existing on application server memcached instances.
+
+Update existing application code to remove the use of internal application
+caches (implemented as hashes), and replace with pre-loaded shared cache
+entries.
+
+### Data Storage Performance
+
+Create an additional data storage path that replaces storing intermediate data
+in the backend shared database with the shared caching architecture.
+
+Remove the use of a third party provider API call, and replace with a static
+table lookup.
+
+### Implement Staged Processing
+
+As data processing in real time is not a requirement, add a data path that
+allows for separation of the front end API responses from the third party
+backend processing. This allowed for heavy backend processes to be deferred and
+processed in smaller batches.
+
+### Process Streamlining
+
+Worked closely with the client to determine which parts of the process are
+required during the processing, and which can be bypassed to save overhead.
+
+Code review and clean up. Refactor code base to remove extraneous or ill
+performing legacy code.
+
+### Repeatable
+
+The process was re-engineered to be configurable allowing the same pipeline to
+be reimplemented for feature events/customer requirement through simple
+documented configuration options, while not impacting traditional processing.
+
+
+    <hr>
+
+    <p><strong>Footnotes</strong></p>
+
+    <div class="footnotes">
+<p id="1"><a href="#1-return">[1]</a> Many of the oldest SOAP versions had long been deprecated,
+so that helped.</p>
+    </div>
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/project-500.html";
+            this.page.identifier = "articles/project-500";
+            this.page.title      = "Case study: 500 TPS";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
