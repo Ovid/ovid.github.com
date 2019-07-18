@@ -13,21 +13,24 @@
 He was lookin' for a soul to steal.<br>
 He was in a bind 'cause he was way behind.<br>
 He was willing to make a deal.<br>
-<strong>"Devil Went Down To Georgia"—The Charlie Daniels Band</strong>
+<div style="text-align: right; font-weight: bold;">"Devil Went Down To Georgia"—The Charlie Daniels Band</div>
 </blockquote>
 
-<p>Our client had just won a nice contract, but were in a corner: their legacy
-system, while powerful, was slow. They could not process more than 39
-transactions per second. They needed to get to 500 transactions per second and
-they had two weeks to do it. They turned to our company, [%
-Ovid.cite('https://allaroundtheworld.fr', 'All Around the World')%], because
-we have a proven track record with them.</p>
+<p>Our client had just won a nice contract but were in a corner: their legacy
+system, while powerful, was slow. They could not process more than 39 credit
+card transactions per second. They needed to get to 500 transactions per
+second for an online event lasting for 30 minutes. They had two weeks to get a
+proof of concept running.</p>
 
-<p>We had a systems architect, Shawn, and a software architect, Noel, on the
-project. Our managing director, Leïla, oversaw the project. I was brought in
+<p>They turned to our company, [% Ovid.cite('https://allaroundtheworld.fr',
+'All Around the World')%], because we have a proven track record with them.</p>
+
+<p>We had a senior systems architect, Shawn, and a senior software architect,
+Noel, on the project. Our managing director, Leïla, oversaw the project and
+ensured that if we had questions, she had the answers. I was brought in
 because there was simply too much work to do in two weeks.  Fortunately,
-though I didn't know the project, I had two very senior architects who knew
-the system fairly well to help get me up to speed rapidly.</p>
+though I didn't know the project, I had Shawn and Noel who knew the system
+well to help get me up to speed, and Leïla to answer business questions.</p>
 
 <p>We had two weeks to improve their performance by an order of magnitude.</p>
 
@@ -37,11 +40,12 @@ the system fairly well to help get me up to speed rapidly.</p>
 consideration was ensuring that PCI-compliance was strictly adhered to to
 ensure that customer data was always protected. Second, the client had
 developed an in-house ORM (object-relational mapper) many years ago and like
-all projects, it grew tremendously. While it was powerful, it was also
-extremely slow. Third, because we only had two weeks, we were given permission
-to take "shortcuts", where necessary, with the understanding that all work
-was to be thoroughly documented and tested, and easy to either merge or
-remove, as needed.</p>
+all projects, it grew tremendously. While it was powerful, it was extremely
+slow and had a lot of business logic embedded in it. Third, because we only
+had two weeks for the first pass, we were given permission to take
+"shortcuts", where necessary, with the understanding that all work was to be
+thoroughly documented and tested, and easy to either merge or remove, as
+needed.</p>
 
 <p>Finally, we could change anything we wanted so long as we didn't change the
 API, or cause any breaking changes anywhere else in the code. There was no
@@ -49,11 +53,11 @@ time to give customers a "heads up" that they would need to make changes.</p>
 
 <h1>Hitting the Ground</h1>
 
-<p>The contract was for a very short online event, so whatever solution we
-implemented didn't have to stay up for long. This also meant that whatever
-solution we implemented would be disabled quickly if needed. We also knew that
-only a few customers would use this new "fast path" solution, and only one
-payment provider needed to be supported.</p>
+<p>Because the event only lasted 30 minutes, whatever solution we implemented
+didn't have to stay up for long. This also meant that whatever solution we
+implemented had to be disabled quickly if needed. We also knew that only a few
+customers would use this new "fast" solution, and only one payment
+provider needed to be supported.</p>
 
 <p>Noel immediately started tracing the full code path through the system,
 taking copious notes about any behavior we would need to be aware of. Shawn
@@ -62,23 +66,26 @@ assessing what additional resources could be brought online and tested in two
 weeks.</p>
 
 <p>I, being new to the project, started by taking a full-stack integration
-test representing one of these transactions and investigating it to learn the
+test representing one of these transactions and studied it to learn the
 code and its behavior. In particular, I wanted to better understand the
-database behavior as this is often one of the most signficant bottlenecks.
-Worse, the client was in the midst of a large migration from Oracle to
-PostgreSQL, so making changes at the database level was not an option, so we
-needed to know immediately if this was one of the bottlenecks. I wrote code
-which would dump out a quick summary of database activity for a block of code.
-It looked sort of like this:</p>
+database behavior as this is often one of the most significant
+bottlenecks.</p>
+
+<p>I was particularly concerned because the client was in the midst of a large
+migration from Oracle to PostgreSQL, so making changes at the database level
+was not an option. We needed to know immediately if this was one of the
+bottlenecks. I wrote code which would dump out a quick summary of database
+activity for a block of code.  It looked sort of like this:</p>
 
 [% WRAPPER include/code.tt language='perl' -%]
 explain dbitrace(
 	name => 'Full stack transaction request',
 	code => sub { $object->make_full_request },
+    save => '/tmp/all_sql.txt',
 );
 [% END %]
 
-<p>The output looked similar to this:</p>
+<p>The summary output looked similar to this:</p>
 
 [% WRAPPER include/code.tt language='perl' -%]
 {
@@ -105,10 +112,12 @@ request. But the ORM was killing us.</p>
 
 <h2>The Tyranny of ORMs</h2>
 
-<p>In two decades of working with ORMs, I have only once seen an in-house ORM
-which was on-par with, or superior to, commercial or open source products. And
-it was an ORM optimized for aggregation and reporting, something many ORMs
-struggle with.</p>
+<p>I love working with a good ORM, but ORMs generally trade execution
+performance for developer performance. You have to decide which is more
+important to you. Further, in two decades of working with ORMs, I have only
+once seen an in-house ORM which was on-par with, or superior to, commercial or
+open source products. And it was an ORM optimized for reporting, something
+many ORMs struggle with.</p>
 
 <p>For this particular ORM, every time a request was made, it would assemble a
 bunch of metadata, check permissions, make decisions based on whether or not
@@ -117,11 +126,6 @@ it was using Oracle or PostgreSQL, check to see if the data was cached, and
 every object was very slow, even if there was no data available. And the code
 was instantiating (and throwing away without using) hundreds of these
 objects.</p>
-
-<p>To be fair, this is a common problems with ORMs: they're never as fast as
-hand-crafted SQL, but they're far easier to update and, when used correctly,
-they increase development speed to the point most don't consider going
-back.</p>
 
 <p>We considered using a "pre-flight" check to see if the data was there
 before instantiating the objects, but there was so much business logic
@@ -136,19 +140,47 @@ business logic. We had to reduce the calls to the database.</p>
   really remembered, but was clearly unused.</li>
   <li>Numerous duplicate calls were being made to <em>unchanging</em> data. We
   could cache those objects safely.</li>
-  <li>A number of calls were being made for important data, but it wasn't
-  relevant to our code path, so we could skip it.</li>
+  <li>A number of calls were being made for important data that wasn't
+  relevant to our code path, so we could skip them.</li>
 </ul>
 
 <p>Our first step at addressing the problem was to ensure that everything was
 wrapped in configuration variables that allowed us to easily turn on or off
 different code paths for our project. Fortunately, the client had a
 system that allowed them to update the configuration data without restarting
-the web servers.</p>
+the application servers, so this made our choice much safer.</p>
 
 <p>Once that was in place, our first pass cut our SQL calls roughly in half,
 tremendously sped up the code, and the tests still passed. But we were nowhere
 near 500 transaction per second.</p>
+
+<h2>Caching</h2>
+
+<p>It's often said that the three most common bugs in software are related to
+caching and off-by-one errors. And we had caching problems in spades.</p>
+
+<p>We couldn't afford cache misses during the event, so we needed to "preheat"
+the caches by ensuring all information was loaded on server startup. Except
+that we had a few problems with this.</p>
+
+<p>First, it was <em>slow</em> because there was a lot of data to cache.
+Second, it consumed a lot of memory and we were concerned about memory
+contention issues. Third, the app caches primarily used per-server memcached
+instances, but the data was global, not per-server, thus causing a lot of
+unnecessary duplication. Shawn had already known about much of this, so one of
+the first things he did was set up a secure Redis cluster with failover to
+replace memcached, where appropriate. We only had to heat the cache once,
+bringing up servers was faster, and reducing per-server memory
+consumption.</p>
+
+<p>The application itself also used heavy in-memory caching (implemented as
+hashes), which we replaced with pre-loaded shared cache entries, thereby
+lowering memory requirements even further.</p>
+
+<p>As part of this work, we centralized all caching knowledge into a single
+namespace rather than the ad-hoc "per module" implementations. We also created
+a single configuration file to control all of it, making caching much simpler
+for our client. This is one of the many features they still use today.</p>
 
 <h2>SOAP</h2>
 
@@ -159,18 +191,18 @@ The client would receive a SOAP request, parse it, extract the necessary data,
 process that data, create <em>another</em> SOAP request, pass this to backend
 servers, which would repeat the process with the new SOAP request.</p>
 
-<p>SOAP stands for "Simple Object Access Protocol." SOAP isn't "objects", and
-it's not "simple." It's a huge XML document, with an outer envelope telling
-you how to parse the message contents. Reading and writing SOAP is
+<p>SOAP stands for "Simple Object Access Protocol." But SOAP isn't "objects",
+and it's not "simple." It's a huge XML document, with an outer envelope
+telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client's SOAP implementation had grown over the
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version's code into a new module and modifying
 that. There were, at the time of the project, 24 versions,[%
 Ovid.add_footnote('Many of the oldest SOAP versions had long been deprecated,
 so that helped.') %] most of which had heavily duplicated code. To optimize
-their SOAP, we were facing a problem. Further investigation found that only
-one version would be used for this project, so our client authorized us to skip
-updating the other SOAP versions.</p>
+their SOAP, we were facing a problem. However, we dug in further and found
+that only one version would be used for this project, so our client authorized
+us to skip updating the other SOAP versions.</p>
 
 <p>We tried several approaches to fine-tuning the SOAP, including replacing
 many <code class="language-perl">AUTOLOAD</code> (dynamically generated)
@@ -179,7 +211,8 @@ methods are optional "fallback" methods that are used when Perl cannot find a
 method of the desired name. However, this means Perl must carefully walk
 through inheritance heirarchies to ensure the method requested isn't there
 before falling back to <code class="language-perl">AUTOLOAD</code>. This can
-add considerable overhead to a request.</p>
+add considerable overhead to a request. For this and other reasons, the use of
+<code class="language-perl">AUTOLOAD</code> is heavily discouraged.</p>
 
 <p>Replacing these methods was extremely difficult work because the <code
 class="language-perl">AUTOLOAD</code> methods were used heavily, often calling
@@ -193,21 +226,26 @@ take.</p>
 paths that were slow, but didn't apply to our requests. Unfortunately, we
 could not simply skip them because the SOAP code was tightly coupled with
 external business logic. Skipping these code paths would invariably break
-something else in the codebase. What he discovered is that if we carefully
-created a special read-only "request metadata" singleton. Different parts of
-the code, when recognizing they were in "web context", could request this
-metadata and skip non-essential codepaths. While singletons are generally
-frowned upon by experienced developers, we were under time pressure and in
-this case, our SOAP code and the code it called could all consult the
-singleton to coordinate their activity.</p>
+something else in the codebase. What he proposed, with caution, is the
+creation of a special read-only "request metadata" singleton. Different parts
+of the code, when recognizing they were in "web context", could request this
+metadata and skip non-essential codepaths. While singletons are frowned upon
+by experienced developers, we were under time pressure and in this case, our
+SOAP code and the code it called could all consult the singleton to coordinate
+their activity.</p>
 
-<p>The singleton is one of the many area where deadlines and reality
-collide.</p>
+<p>The singleton is one of the many area where deadlines and reality collide.
+Hence, the "Devil Went Down to Georgia" quote at the beginning of this case
+study. We were not happy with this solution, but sometimes you need to
+sacrifice "best practices" when you're in an emergency situation. We alerted
+our client to the concern so they could be aware that this was not a long-term
+solution.</p>
 
-<p>We also leveraged that singleton to allow us to extract data on the
-front-end, and send it to the back-end directly, without the need to serialize
-and deserialize SOAP. Another great performance improvement. Sadly, like many
-others, it was specific to this one customer and this one payment
+<p>We also leveraged that singleton to allow us to alert the back-end that
+encrypted transaction data was available directly via Redis. The backend
+merely needed to decrypt that data without the need to deserialize SOAP and
+then decrypt the data. Another great performance improvement. Sadly, like many
+others improvements, it was specific to this one customer and this one payment
 provider.</p>
 
 <h2>Tax Server</h2>
@@ -228,84 +266,150 @@ amount of traffic we were sending, they would periodically block. It wasn't
 clear if this was a limitation of their test servers that we would hit with
 their production servers, but we could not take this chance.</p>
 
-<p>We tried several approaches, including caching of tax amounts, but the
-wide diversity of data we relied on to calculate tax meant a high cache miss
-rate, not allowing us to solve the problem. Finally, one of our client's
-developers who knew the tax system fairly well came up with a great solution.
-He convinced the tax service to provide a "one-time" data dump of tax rates
-that would not be valid long, but would be valid long enough for our short
-event. We could load the data into memory and read it directly and skip the
-tax server entirely. Though the resulting code was complicated, it worked, and
-our requests no longer halted.</p>
+<p>We tried several approaches, including caching of tax rates, but the wide
+diversity of data we relied on to calculate tax meant a high cache miss rate,
+not allowing us to solve the problem. Finally, one of our client's developers
+who knew the tax system fairly well came up with a great solution.  He
+convinced the tax service to provide a "one-time" data dump of tax rates that
+would not be valid long, but would be valid long enough for our short event.
+We could load the data into memory and read it directly and skip the tax
+server entirely. Though the resulting code was complicated, it worked, and our
+requests no longer blocked.</p>
 
 <h2>The Big Test</h2>
 
 <p>With the above, and many other optimizations, we felt confident in what we
 delivered and in a late-night test run, our client was ecstatic. We were
-running seven hundred transactions per second, almost twenty times faster than
-when we started. It was time for our first production run, using beefier
-servers and a much faster network.</p>
+handling 700 transactions per second, almost twenty times faster than when we
+started. It was time for our first production run, using beefier servers and a
+much faster network.</p>
 
-<p>It was a disaster. As you may recall, the client had been migrating from
-Oracle to PostgreSQL. The QA servers were far less powerful than the
-production servers, but they were running PostgreSQL. The production servers
-were running Oracle. Oracle is the fast, beastly sports car that will quickly
-outpace that Honda Accord you're driving ... so long as the sports car has an
-expert driver, regular maintenance, and a highly trained pit crew to look
-after it.</p>
+<p>And that, to put it mildly, was disappointing. We were only running about
+200 to 300 transactions per second. As you may recall, the client had been
+migrating from Oracle to PostgreSQL. The QA servers were far less powerful
+than the production servers, but they were running PostgreSQL. The production
+servers were running Oracle. Oracle is the fast, beastly sports car that will
+quickly outpace that Honda Accord you're driving ... so long as the sports car
+has an expert driver, regular maintenance, and a highly trained pit crew to
+look after it.</p>
 
 <p>Out of the box, PostgreSQL just tends to be fast. Often companies find that
 a single PostgreSQL DBA working with competent developers is enough to easily
 handle their traffic. But we had Oracle. And it wasn't going away before the
-deadline. Time was running out and twenty times faster wasn't fast enough.</p>
+deadline. Our first two weeks was up and our proof of concept worked, but
+greatly exceeding client requirements still wasn't fast enough.</p>
 
-## Overview
+<p>And that's when the client informed us that they had a bit more than two
+weeks, so we had more time. It was going to be more nights and weekends for
+us, but we weren't about to give up now.</p>
 
-Increase the performance of Business Transactions from 25-30/sec to 500+/sec.
+<p>Oracle wasn't the only problem, as it turns out. This faster, higher
+capacity network had switches that automatically throttled traffic surges.
+This was harder to diagnose and work around, but alleviated the networking
+issues.</p>
 
-## Solutions Implemented
+<p>With the use of Oracle being a bottleneck, we had to figure out a way to
+remove those final few SQL statements. Our client suggested we might be able to
+do something unusual and it's based on how credit cards work.</p>
 
-The overall implemented solution could not change the outward facing API calls
+<p>When you check into a hotel and reserve your room with a credit card, your
+card is not charged for the room. Instead, they "authorize" (sometimes
+called preauthorization) the charge. That lowers the credit limit on your card
+and reserves the money for the hotel. They will often preauthorize for over
+the amount of your bill, to allow a small wiggle room for incidental charges,
+such as food you may have ordered in the hotel.</p>
+
+<p>Later, when you check out, they'll charge your card. Or, if you leave and
+forget to check out, they have a preauthorization, so they can still "capture"
+the preauthorization and get the money deposited to their account. This
+protects them from fraud, or guests who are simply forgetful.</p>
+
+<p>In our case, the client often used preauthorization for payments and after
+the preauthorization was successful, the card would be charged. This had a few
+internal benefits for them that we won't go into now.</p>
+
+<p>What the client pointed out is that the money was reserved, so we had
+several days before we needed to charge the card. When the back-end sent the
+preauthorization to the front-end, the front-end would then submit the charge.
+But we didn't have to do that. Instead, we were able to serialize the charge
+request and store it in an encrypted file on the front-end server (with the
+decryption key unavailable on those servers). Later, a utility we wrote read
+and batch processed those files <em>after</em> the event, allowing us to
+finish the transaction processing asynchronously.</p>
+
+<p>This worked very well and by the time we were done, our changes to the code
+resulted in a single SQL <code>SELECT</code> statement. Further, after this
+and a few other tweaks, we were easily able to hit 500 transactions per second
+on their production system. When the event happened shortly after, the code
+ran flawlessly.</p>
+
+<h1>What We Delivered</h1>
+
+<h2>Overview</h2>
+
+<p>Increase the performance of Business Transactions from 39/sec to 500+/sec.</p>
+
+<h2>Solutions Implemented</h2>
+
+<p>The overall implemented solution could not change the outward facing API calls
 as end users of the service were not to be impacted by backend changes. The
 solution could also not effect the traditional processing as clients would
-be issuing both traditional and streamlined transactions.
+be issuing both traditional and streamlined transactions.</p>
 
-### New Caching Architecture
+<h3>New Caching Architecture</h3>
 
-Implement a new redundant shared caching architecture using Redis as a data
-store, to replace the existing on application server memcached instances.
+<p>Implement a new redundant shared caching architecture using Redis as a data
+store, to replace the existing on application server memcached instances.</p>
 
-Update existing application code to remove the use of internal application
+<p>Update existing application code to remove the use of internal application
 caches (implemented as hashes), and replace with pre-loaded shared cache
-entries.
+entries.</p>
 
-### Data Storage Performance
+<p>The new caching system caches items using both the legacy and the new
+caching system, so that production systems can be transitioned to the unified
+caching system without downtime.</p>
 
-Create an additional data storage path that replaces storing intermediate data
-in the backend shared database with the shared caching architecture.
+<p>Allowed a cache storage backend to define its storage scope, so that caches
+can be managed based on the storage locality:</p>
 
-Remove the use of a third party provider API call, and replace with a static
-table lookup.
+   - "process": cache is stored in local per-process memory
+   - "server": cache is stored on the local server, and shared by all processes on the server
+   - "global": cache is stored globally, and shared by all processes on any server
+ - logs basic caching statistics for each cache namespace when the process exits
 
-### Implement Staged Processing
+<h3>Data Storage Performance</h3>
 
-As data processing in real time is not a requirement, add a data path that
+<p>Create an additional data storage path that replaces storing intermediate data
+in the backend shared database with the shared caching architecture.</p>
+
+<p>Remove the use of a third party provider API call, and replace with a static
+table lookup.</p>
+
+<h3>Implement Staged Processing</h3>
+
+<p>As data processing in real time is not a requirement, add a data path that
 allows for separation of the front end API responses from the third party
 backend processing. This allowed for heavy backend processes to be deferred and
-processed in smaller batches.
+processed in smaller batches.</p>
 
-### Process Streamlining
+<h3>Process Streamlining</h3>
 
-Worked closely with the client to determine which parts of the process are
-required during the processing, and which can be bypassed to save overhead.
+<p>Worked closely with the client to determine which parts of the process are
+required during the processing, and which can be bypassed to save overhead.</p>
 
-Code review and clean up. Refactor code base to remove extraneous or ill
-performing legacy code.
+<p>Code review and clean up. Refactor code base to remove extraneous or
+ill-performing legacy code.</p>
 
-### Repeatable
+<h3>Repeatable</h3>
 
-The process was re-engineered to be configurable allowing the same pipeline to
+<p>The process was re-engineered to be configurable allowing the same pipeline to
 be reimplemented for feature events/customer requirement through simple
-documented configuration options, while not impacting traditional processing.
+documented configuration options, while not impacting traditional processing.</p>
+
+<h1>Caveat</h1>
+
+<p>This information was compiled from our notes from this project and not
+written while the project was ongoing. Some details have undoubtedly been
+forgotten.</p>
 
 [% INCLUDE include/footer.tt %]
