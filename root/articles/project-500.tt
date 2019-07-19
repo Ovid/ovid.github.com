@@ -227,7 +227,7 @@ today.</p>
 of WSDL (Web Services Description Language) to help their customers understand
 how to create SOAP requests and SOAP was integral to their entire pipeline.
 The client would receive a SOAP request, parse it, extract the necessary data,
-process that data, create <em>another</em> SOAP request, pass this to backend
+process that data, create <em>another</em> SOAP request, pass this to back-end
 servers, which would repeat the process with the new SOAP request.</p>
 
 <p>SOAP stands for "Simple Object Access Protocol." But SOAP isn't "objects",
@@ -281,13 +281,13 @@ our client to the concern so they could be aware that this was not a long-term
 solution.</p>
 
 <p>We also leveraged that singleton to allow us to alert the back-end that
-encrypted transaction data was available directly via Redis. The backend
+encrypted transaction data was available directly via Redis. The back-end
 merely needed to decrypt that data without the need to first deserialize SOAP
 and <em>then</em> decrypt the data. Another great performance improvement.
 Sadly, like many others improvements, it was specific to this one customer and
 this one payment provider.</p>
 
-<p>However, this approach allowed to remove even more SQL calls, again
+<p>However, this approach allowed us to remove even more SQL calls, again
 providing a nice performance boost.</p>
 
 <h2>Tax Server</h2>
@@ -306,7 +306,7 @@ but we were pretty confident we had achieved some major speed gains. And, in
 fact, we did have some pretty impressive speed gains, except that periodically
 some of our requests would simply halt for several seconds. Due to the
 complicated nature of the system, it wasn't immediately clear what was going
-on, but we finally tracked an issue with the tax server.</p>
+on, but we finally tracked down an issue with the tax server.</p>
 
 <p>Our client was processing credit card transactions and for many of them,
 taxes had to be applied. Calculating taxes is complicated enough that there
@@ -395,15 +395,17 @@ protects them from fraud or guests who are simply forgetful.</p>
 the preauthorization was successful, the card would be charged. This had a few
 internal benefits for them that we won't go into now.</p>
 
-<p>It worked like this: the back-end sent the preauthorization to the
-front-end and if the preauthorization was denied, the denial would be sent
-back to the customer.  However, usually it was approved and the front-end
-would then submit the charge <em>back</em> to the back-end.[%
+<p>It worked like this: the front-end would receive the request and send it to
+the back-end. The back-end would submit the request for preauthorization to the
+payment provide and the payment provider would respond. The back-end sent the
+response to the front-end and if the preauthorization was denied, the denial
+would be sent back to the customer.  However, usually it was approved and the
+front-end would then submit the charge <em>back</em> to the back-end.[%
 Ovid.add_footnote("Of course, it was sent to the back-end via SOAP. SOAP, oh,
-how I hate thee. I'm never taking a bath again.") %] The back-end would
-then submit the preauthorized charge to the payment provider and lots of
-network and database activity helped to keep the server room warm. The entire
-process was about as fast as a snail crawling through mud.</p>
+how I hate thee. I'm never taking a bath again.") %] The back-end would then
+submit the preauthorized charge to the payment provider and lots of network
+and database activity helped to keep the server room warm. The entire process
+was about as fast as a snail crawling through mud.</p>
 
 <p>What the client pointed out is that the money was reserved, so we could
 charge the card after the event because we had already preauthorized it.
@@ -436,7 +438,7 @@ ran flawlessly.</p>
 <h2>Solutions Implemented</h2>
 
 <p>The overall implemented solution could not change the outward facing API calls
-as end users of the service were not to be impacted by backend changes. The
+as end users of the service were not to be impacted by back-end changes. The
 solution could also not effect the traditional processing as clients would
 be issuing both traditional and streamlined transactions.</p>
 
@@ -453,7 +455,7 @@ entries.</p>
 caching system, so that production systems can be transitioned to the unified
 caching system without downtime.</p>
 
-<p>Allowed a cache storage backend to define its storage scope, so that caches
+<p>Allowed a cache storage back-end to define its storage scope, so that caches
 can be managed based on the storage locality:</p>
 
 <ol>
@@ -467,7 +469,7 @@ can be managed based on the storage locality:</p>
 <h3>Data Storage Performance</h3>
 
 <p>Create an additional data storage path that replaces storing intermediate data
-in the backend shared database with the shared caching architecture.</p>
+in the back-end shared database with the shared caching architecture.</p>
 
 <p>Remove the use of a third party provider API call, and replace with a static
 table lookup.</p>
@@ -476,7 +478,7 @@ table lookup.</p>
 
 <p>As data processing in real time is not a requirement, add a data path that
 allows for separation of the front end API responses from the third party
-backend processing. This allowed for heavy backend processes to be deferred and
+back-end processing. This allowed for heavy back-end processes to be deferred and
 processed in smaller batches.</p>
 
 <h3>Process Streamlining</h3>
