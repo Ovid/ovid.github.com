@@ -95,7 +95,7 @@
 <nav role="navigation" class="table-of-contents">
     <ul>
     <li class="indent-1"><a href="#the-constraints">The Constraints</a></li>
-    <li class="indent-1"><a href="#hitting-the-ground">Hitting the Ground</a></li>
+    <li class="indent-1"><a href="#getting-started">Getting Started</a></li>
     <li class="indent-2"><a href="#the-tyranny-of-orms">The Tyranny of ORMs</a></li>
     <li class="indent-2"><a href="#caching">Caching</a></li>
     <li class="indent-2"><a href="#soap">SOAP</a></li>
@@ -122,41 +122,46 @@ He was willing to make a deal.
 </blockquote>
 
 
-<p>Our client had just won a nice contract but were in a corner: their legacy
-system, while powerful, was slow. They could not process more than 39 credit
+<p>Our client had just won a nice contract but were in a bind. Their legacy
+codebase, while powerful, was slow. They could not process more than 39 credit
 card transactions per second. They needed to get to 500 transactions per
-second for an online event lasting for 30 minutes. They had two weeks to get a
-proof of concept running.</p>
+second for an event lasting 30 minutes. Because the event was publicized,
+there was a tight deadline. They had two weeks to get a proof of concept
+running, improving their performance by an order of magnitude.</p>
 
 <p>They turned to our company, <a href="https://allaroundtheworld.fr" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>, because we have a proven track record with them.</p>
 
 <p>We had a senior systems architect, Shawn, and a senior software architect,
 Noel, on the project. Our managing director, Leïla, oversaw the project and
-ensured that if we had questions, she had the answers. I was brought in
-because there was simply too much work to do in two weeks.  Fortunately,
-though I didn't know the project, I had Shawn and Noel who knew the system
-well to help get me up to speed, and Leïla to answer business questions.</p>
-
-<p>We had two weeks to improve their performance by an order of magnitude.</p>
+ensured that if we had questions, she had answers. I was brought in from
+another project because there was simply too much work to do in two weeks.
+Fortunately, though I didn't know the project, Shawn and Noel knew the system
+well and helped get me up to speed.</p>
 
 <h1><a name="the-constraints"></a>The Constraints</h1>
 
 <p>There were several key constraints we had to consider. Our overriding
-consideration was ensuring that PCI-compliance was strictly adhered to to
-ensure that customer data was always protected. Second, the client had
-developed an in-house ORM (object-relational mapper) many years ago and like
-all projects, it grew tremendously. While it was powerful, it was extremely
-slow and had a lot of business logic embedded in it. Third, because we only
-had two weeks for the first pass, we were given permission to take
+consideration was ensuring that PCI-compliance (Payment Card Industry) was
+strictly adhered to to ensure that customer data was always protected. Second,
+the client had developed an in-house ORM (object-relational mapper) many years
+ago and like all projects, it grew tremendously. While it was powerful, it was
+extremely slow and had a lot of business logic embedded in it. Third, because
+we only had two weeks for the first pass, we were given permission to take
 "shortcuts", where necessary, with the understanding that all work was to be
-thoroughly documented and tested, and easy to either merge or remove, as
-needed.</p>
+thoroughly documented and tested, and easy to either merge, remove, or
+disable, as needed.</p>
 
 <p>Finally, we could change anything we wanted so long as we didn't change the
-API, or cause any breaking changes anywhere else in the code. There was no
+API or cause any breaking changes anywhere else in the code. There was no
 time to give customers a "heads up" that they would need to make changes.</p>
 
-<h1><a name="hitting-the-ground"></a>Hitting the Ground</h1>
+<h1><a name="getting-started"></a>Getting Started</h1>
+
+<figure class="captioned-left">
+    <img src="/static/images/starting-race.jpg" width="600" alt="A man about
+    to start running around a race track.">
+    <figcaption><a href="https://www.pexels.com/photo/man-wearing-white-sweater-and-black-shorts-about-to-run-936094/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <p>Because the event only lasted 30 minutes, whatever solution we implemented
 didn't have to stay up for long. This also meant that whatever solution we
@@ -180,11 +185,11 @@ bottlenecks.</p>
 migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
-activity for a block of code.  It looked sort of like this:</p>
+activity for a block of code.  It looked sort of like this:<sup id="1-return"><a href="#1">1</a></sup></p>
 
 <pre><code class="language-perl">explain dbitrace(
-	name =&gt; 'Full stack transaction request',
-	code =&gt; sub { $object-&gt;make_full_request },
+    name =&gt; 'Full stack transaction request',
+    code =&gt; sub { $object-&gt;make_full_request(\%request_data) },
     save =&gt; '/tmp/all_sql.txt',
 );
 </code></pre>
@@ -209,37 +214,43 @@ activity for a block of code.  It looked sort of like this:</p>
 database activity for a single "buy this thing" request.</p>
 
 <p>None of the database activity was particularly slow, but there was a lot of
-it. Deadlocks weren't an issue given that the changed data was for the current
-request. But the ORM was killing us.</p>
+it. Deadlocks weren't an issue given that the changed data was only for the current
+request, but the ORM was killing us.</p>
 
 <h2><a name="the-tyranny-of-orms"></a>The Tyranny of ORMs</h2>
 
-<p>I love working with a good ORM, but ORMs generally trade execution
-performance for developer performance. You have to decide which is more
-important to you. Further, in two decades of working with ORMs, I have only
-once seen an in-house ORM which was on-par with, or superior to, commercial or
-open source products. And it was an ORM optimized for reporting, something
-many ORMs struggle with.</p>
+<figure class="captioned">
+    <img src="/static/images/trainwreck.jpg" width="600" alt="A train train
+    has burst through the wall of a building and is resting, wrecked, on the
+    ground.">
+    <figcaption>How it feels to work on most in-house ORMs. <a href="https://www.pexels.com/photo/accident-disaster-steam-locomotive-train-wreck-73821/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
+<p>I love working with a good ORM, but ORMs generally trade execution speed
+for developer speed. You have to decide which is more important to you.
+Further, in two decades of working with ORMs, I have only once seen an
+in-house ORM which was on-par with, or superior to, commercial or open source
+products. And it was an ORM optimized for reporting, something many ORMs
+struggle with.</p>
 
-<p>For this particular ORM, every time a request was made, it would assemble a
+<p>For this particular ORM, every time a request was made it would gather a
 bunch of metadata, check permissions, make decisions based on whether or not
 it was using Oracle or PostgreSQL, check to see if the data was cached, and
 <em>then</em> check to see if the data was in the database. Instantiating
 every object was very slow, even if there was no data available. And the code
-was instantiating (and throwing away without using) hundreds of these
-objects.</p>
+was creating&mdash;and throwing away without using&mdash;hundreds of these
+objects per request.</p>
 
 <p>We considered using a "pre-flight" check to see if the data was there
-before instantiating the objects, but there was so much business logic
+before creating the objects, but there was so much business logic
 embedded in the ORM layer that this was not a practical solution. And we
 couldn't simply fetch the data directly because, again, the ORM had too much
 business logic. We had to reduce the calls to the database.</p>
 
-<p>After an exhaustive analysis, we found out several things.</p>
+<p>After an exhaustive analysis, we discovered several things.</p>
 
 <ul>
   <li>Some of the calls were for a "dead" part of the system that no one
-  really remembered, but was clearly unused.</li>
+  really remembered but was clearly unused.</li>
   <li>Numerous duplicate calls were being made to <em>unchanging</em> data. We
   could cache those objects safely.</li>
   <li>A number of calls were being made for important data that wasn't
@@ -265,15 +276,26 @@ caching and off-by-one errors. And we had caching problems in spades.</p>
 the caches by ensuring all information was loaded on server startup. Except
 that we had a few problems with this.</p>
 
-<p>First, it was <em>slow</em> because there was a lot of data to cache.
-Second, it consumed a lot of memory and we were concerned about memory
-contention issues. Third, the app caches primarily used per-server memcached
-instances, but the data was global, not per-server, thus causing a lot of
-unnecessary duplication. Shawn had already known about much of this, so one of
-the first things he did was set up a secure Redis cluster with failover to
-replace memcached, where appropriate. We only had to heat the cache once,
-bringing up servers was faster, and reducing per-server memory
-consumption.</p>
+<p>First, it was <em>slow</em> because there was a lot of data to cache. If we
+needed to rapidly bring new servers online during the event, this was not an
+option.</p>
+
+<p>Second, it consumed a lot of memory and we were concerned about
+memory contention issues. Disk swapping was not an option.</p>
+
+<p>Third, the app caches primarily used per-server memcached instances, but
+the data was global, not per-server, thus causing a lot of unnecessary
+duplication. Shawn already knew about this, so one of the first things he did
+was set up a secure Redis cluster with failover to replace memcached, where
+appropriate. Since we only had to heat the cache once, bringing up servers was
+faster, and we significantly reduced per-server memory consumption.</p>
+
+<figure class="image">
+    <img src="/static/images/searching.jpg" width="600" alt="A man on a beach,
+    with a life-preserver over his shoulder. He appears to be looking for
+    something.">
+    <figcaption>Now, where did I put that data? <a href="https://www.pexels.com/photo/adult-beach-enjoyment-fat-319930/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <p>The application itself also used heavy in-memory caching (implemented as
 hashes), which we replaced with pre-loaded shared cache entries, thereby
@@ -282,9 +304,16 @@ lowering memory requirements even further.</p>
 <p>As part of this work, we centralized all caching knowledge into a single
 namespace rather than the ad-hoc "per module" implementations. We also created
 a single configuration file to control all of it, making caching much simpler
-for our client. This is one of the many features they still use today.</p>
+for our client. This is one of the many features we added that they still use
+today.</p>
 
 <h2><a name="soap"></a>SOAP</h2>
+
+<figure class="captioned">
+    <img src="/static/images/soap.jpg" width="600" alt="Three bars of soap in
+    a stack.">
+    <figcaption>Possibly not the most original image I've come up with ... <a href="https://unsplash.com/photos/cxAZxTuL7Sk" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <p>Another serious bottleneck was their SOAP server.  Our client made good use
 of WSDL (Web Services Description Language) to help their customers understand
@@ -299,7 +328,7 @@ telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client's SOAP implementation had grown over the
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version's code into a new module and modifying
-that. There were, at the time of the project, 24 versions,<sup id="1-return"><a href="#1">1</a></sup> most of which had heavily duplicated code. To optimize
+that. There were, at the time of the project, 24 versions,<sup id="2-return"><a href="#2">2</a></sup> most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
 us to skip updating the other SOAP versions.</p>
@@ -309,10 +338,10 @@ many <code class="language-perl">AUTOLOAD</code> (dynamically generated)
 methods with static ones. In Perl, <code class="language-perl">AUTOLOAD</code>
 methods are optional "fallback" methods that are used when Perl cannot find a
 method of the desired name. However, this means Perl must carefully walk
-through inheritance heirarchies to ensure the method requested isn't there
+through inheritance hierarchies to ensure the method requested isn't there
 before falling back to <code class="language-perl">AUTOLOAD</code>. This can
 add considerable overhead to a request. For this and other reasons, the use of
-<code class="language-perl">AUTOLOAD</code> is heavily discouraged.</p>
+<code class="language-perl">AUTOLOAD</code> is strongly discouraged.</p>
 
 <p>Replacing these methods was extremely difficult work because the <code
 class="language-perl">AUTOLOAD</code> methods were used heavily, often calling
@@ -329,12 +358,12 @@ external business logic. Skipping these code paths would invariably break
 something else in the codebase. What he proposed, with caution, is the
 creation of a special read-only "request metadata" singleton. Different parts
 of the code, when recognizing they were in "web context", could request this
-metadata and skip non-essential codepaths. While singletons are frowned upon
+metadata and skip non-essential code paths. While singletons are frowned upon
 by experienced developers, we were under time pressure and in this case, our
 SOAP code and the code it called could all consult the singleton to coordinate
 their activity.</p>
 
-<p>The singleton is one of the many area where deadlines and reality collide.
+<p>The singleton is one of the many areas where deadlines and reality collide.
 Hence, the "Devil Went Down to Georgia" quote at the beginning of this case
 study. We were not happy with this solution, but sometimes you need to
 sacrifice "best practices" when you're in an emergency situation. We alerted
@@ -343,12 +372,21 @@ solution.</p>
 
 <p>We also leveraged that singleton to allow us to alert the back-end that
 encrypted transaction data was available directly via Redis. The backend
-merely needed to decrypt that data without the need to deserialize SOAP and
-then decrypt the data. Another great performance improvement. Sadly, like many
-others improvements, it was specific to this one customer and this one payment
-provider.</p>
+merely needed to decrypt that data without the need to first deserialize SOAP
+and <em>then</em> decrypt the data. Another great performance improvement.
+Sadly, like many others improvements, it was specific to this one customer and
+this one payment provider.</p>
+
+<p>However, this approach allowed to remove even more SQL calls, again
+providing a nice performance boost.</p>
 
 <h2><a name="tax-server"></a>Tax Server</h2>
+
+<figure class="captioned-left">
+    <img src="/static/images/ledger.jpg" width="600" alt="A hand-written
+    accounting ledger.">
+    <figcaption>In the 80s, I used to do accounting by hand. <a href="https://www.pexels.com/photo/white-graphing-paper-164686/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <p>By this time, with the above and numerous other fixes in place, we were
 ready to do our initial QA runs. We didn't expect to hit our 500 TPS target,
@@ -356,42 +394,49 @@ but we were pretty confident we had achieved some major speed gains. And, in
 fact, we did have some pretty impressive speed gains, except that periodically
 some of our requests would simply halt for several seconds. Due to the
 complicated nature of the system, it wasn't immediately clear what was going
-on, but we finally tracked this down to the tax server.</p>
+on, but we finally tracked an issue with the tax server.</p>
 
 <p>Our client was processing credit card transactions and for many of them,
 taxes had to be applied. Calculating taxes is complicated enough that there
 are companies that provide "tax calculation as a service" and our client was
 using one of them. Though the tax service assured us they could handle the
 amount of traffic we were sending, they would periodically block. It wasn't
-clear if this was a limitation of their test servers that we would hit with
+clear if this was a limitation of their test servers that we would avoid with
 their production servers, but we could not take this chance.</p>
 
 <p>We tried several approaches, including caching of tax rates, but the wide
-diversity of data we relied on to calculate tax meant a high cache miss rate,
-not allowing us to solve the problem. Finally, one of our client's developers
-who knew the tax system fairly well came up with a great solution.  He
-convinced the tax service to provide a "one-time" data dump of tax rates that
-would not be valid long, but would be valid long enough for our short event.
-We could load the data into memory and read it directly and skip the tax
-server entirely. Though the resulting code was complicated, it worked, and our
-requests no longer blocked.</p>
+diversity of data we relied on to calculate the tax meant a high cache miss
+rate, not allowing us to solve the problem. Finally, one of our client's
+developers who knew the tax system fairly well came up with a great solution.
+He convinced the tax service to provide a "one-time" data dump of tax rates
+that would not be valid long but would be valid long enough for our short
+event.  We could load the data into memory, read it directly, and skip the
+tax server entirely. Though the resulting code was complicated, it worked, and
+our requests no longer blocked.</p>
 
 <h2><a name="the-big-test"></a>The Big Test</h2>
 
 <p>With the above, and many other optimizations, we felt confident in what we
 delivered and in a late-night test run, our client was ecstatic. We were
 handling 700 transactions per second, almost twenty times faster than when we
-started. It was time for our first production run, using beefier servers and a
-much faster network.</p>
+started. Our client hired us because they knew we could deliver results like
+this. Now it was time for our first production run, using beefier servers and
+a much faster network.</p>
 
-<p>And that, to put it mildly, was disappointing. We were only running about
-200 to 300 transactions per second. As you may recall, the client had been
-migrating from Oracle to PostgreSQL. The QA servers were far less powerful
-than the production servers, but they were running PostgreSQL. The production
-servers were running Oracle. Oracle is the fast, beastly sports car that will
-quickly outpace that Honda Accord you're driving ... so long as the sports car
-has an expert driver, regular maintenance, and a highly trained pit crew to
-look after it.</p>
+<p>Cue the "sad trombone" music. We were only running about 200 to 300
+transactions per second. As you may recall, the client had been migrating from
+Oracle to PostgreSQL. The QA servers were far less powerful than the
+production servers, but they were running PostgreSQL. The production servers
+were running Oracle. Oracle is the fast, beastly sports car that will quickly
+outpace that Honda Accord you're driving ... so long as the sports car has an
+expert driver, regular maintenance, and a highly trained pit crew to look
+after it.</p>
+
+<figure class="image">
+    <img src="/static/images/angry-cat.jpg" width="600" alt="An angry-looking
+    cat.">
+    <figcaption>How I felt after our first production test run. <a href="https://unsplash.com/photos/tEMU4lzAL0w" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <p>Out of the box, PostgreSQL just tends to be fast. Often companies find that
 a single PostgreSQL DBA working with competent developers is enough to easily
@@ -399,43 +444,56 @@ handle their traffic. But we had Oracle. And it wasn't going away before the
 deadline. Our first two weeks was up and our proof of concept worked, but
 greatly exceeding client requirements still wasn't fast enough.</p>
 
-<p>And that's when the client informed us that they had a bit more than two
-weeks, so we had more time. It was going to be more nights and weekends for
-us, but we weren't about to give up now.</p>
+<p>However, this was good enough for the proof of concept, so it was time to
+nail this down. It was going to be more nights and weekends for us, but we
+were having a huge amount of fun.</p>
 
 <p>Oracle wasn't the only problem, as it turns out. This faster, higher
 capacity network had switches that automatically throttled traffic surges.
-This was harder to diagnose and work around, but alleviated the networking
+This was harder to diagnose and work around but alleviated the networking
 issues.</p>
 
 <p>With the use of Oracle being a bottleneck, we had to figure out a way to
 remove those final few SQL statements. Our client suggested we might be able to
 do something unusual and it's based on how credit cards work.</p>
 
+<figure class="captioned">
+    <img src="/static/images/credit-card.jpg" width="600" alt="A hand holding a
+    credit card.">
+    <figcaption><a href="https://www.pexels.com/photo/shopping-business-money-pay-50987/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
+
 <p>When you check into a hotel and reserve your room with a credit card, your
-card is not charged for the room. Instead, they "authorize" (sometimes
-called preauthorization) the charge. That lowers the credit limit on your card
-and reserves the money for the hotel. They will often preauthorize for over
-the amount of your bill, to allow a small wiggle room for incidental charges,
-such as food you may have ordered in the hotel.</p>
+card is not charged for the room. Instead, they "authorize" (also known as
+"preauthorize") the charge. That lowers the credit limit on your card and
+reserves the money for the hotel. They will often preauthorize for over the
+amount of your bill to allow a small wiggle room for incidental charges, such
+as food you may have ordered during your stay.</p>
 
 <p>Later, when you check out, they'll charge your card. Or, if you leave and
 forget to check out, they have a preauthorization, so they can still "capture"
 the preauthorization and get the money deposited to their account. This
-protects them from fraud, or guests who are simply forgetful.</p>
+protects them from fraud or guests who are simply forgetful.</p>
 
 <p>In our case, the client often used preauthorization for payments and after
 the preauthorization was successful, the card would be charged. This had a few
 internal benefits for them that we won't go into now.</p>
 
-<p>What the client pointed out is that the money was reserved, so we had
-several days before we needed to charge the card. When the back-end sent the
-preauthorization to the front-end, the front-end would then submit the charge.
-But we didn't have to do that. Instead, we were able to serialize the charge
-request and store it in an encrypted file on the front-end server (with the
-decryption key unavailable on those servers). Later, a utility we wrote read
-and batch processed those files <em>after</em> the event, allowing us to
-finish the transaction processing asynchronously.</p>
+<p>It worked like this: the back-end sent the preauthorization to the
+front-end and if the preauthorization was denied, the denial would be sent
+back to the customer.  However, usually it was approved and the front-end
+would then submit the charge <em>back</em> to the back-end.<sup id="3-return"><a href="#3">3</a></sup> The back-end would
+then submit the preauthorized charge to the payment provider and lots of
+network and database activity helped to keep the server room warm. The entire
+process was about as fast as a snail crawling through mud.</p>
+
+<p>What the client pointed out is that the money was reserved, so we could
+charge the card after the event because we had already preauthorized it.
+Instead, we could serialize the charge request and store it in an encrypted
+file on the front-end server (with the decryption key unavailable on those
+servers). Later, a utility we wrote read and batch processed those files
+<em>after</em> the event, allowing us to finish the transaction processing
+asynchronously.</p>
 
 <p>This worked very well and by the time we were done, our changes to the code
 resulted in a single SQL <code>SELECT</code> statement. Further, after this
@@ -444,6 +502,12 @@ on their production system. When the event happened shortly after, the code
 ran flawlessly.</p>
 
 <h1><a name="what-we-delivered"></a>What We Delivered</h1>
+
+<figure class="image">
+    <img src="/static/images/wheelbarrow.jpg" width="600" alt="Two people
+    loading salt into wheelbarrows.">
+    <figcaption><a href="https://www.pexels.com/photo/man-pushing-wheelbarrow-2163888/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure>
 
 <h2><a name="overview"></a>Overview</h2>
 
@@ -472,10 +536,13 @@ caching system without downtime.</p>
 <p>Allowed a cache storage backend to define its storage scope, so that caches
 can be managed based on the storage locality:</p>
 
-   - "process": cache is stored in local per-process memory
-   - "server": cache is stored on the local server, and shared by all processes on the server
-   - "global": cache is stored globally, and shared by all processes on any server
- - logs basic caching statistics for each cache namespace when the process exits
+<ol>
+    <li>"process": cache is stored in local per-process memory</li>
+    <li>"server": cache is stored on the local server, and shared by all processes
+    on the server</li>
+    <li>"global": cache is stored globally, and shared by all processes on any
+    server</li>
+</ol>
 
 <h3><a name="data-storage-performance"></a>Data Storage Performance</h3>
 
@@ -503,14 +570,14 @@ ill-performing legacy code.</p>
 <h3><a name="repeatable"></a>Repeatable</h3>
 
 <p>The process was re-engineered to be configurable allowing the same pipeline to
-be reimplemented for feature events/customer requirement through simple
+be reimplemented for future events/customer requirement through simple
 documented configuration options, while not impacting traditional processing.</p>
 
 <h1><a name="caveat"></a>Caveat</h1>
 
-<p>This information was compiled from our notes from this project and not
-written while the project was ongoing. Some details have undoubtedly been
-forgotten.</p>
+<p>This information was compiled from our reports during this project and not
+written while the project was ongoing. Some events may not have happened in
+the exact sequence listed above.</p>
 
 
     <hr>
@@ -518,8 +585,10 @@ forgotten.</p>
     <p><strong>Footnotes</strong></p>
 
     <div class="footnotes">
-<p id="1"><a href="#1-return">[1]</a> Many of the oldest SOAP versions had long been deprecated,
-so that helped.</p>
+<p id="1"><a href="#1-return">[1]</a> These number are recreated from memory, but are roughly
+accurate.</p><p id="2"><a href="#2-return">[2]</a> Many of the oldest SOAP versions had long been deprecated,
+so that helped.</p><p id="3"><a href="#3-return">[3]</a> Of course, it was sent to the back-end via SOAP. SOAP, oh,
+how I hate thee. I'm never taking a bath again.</p>
     </div>
           <hr>
           <p>If you'd like top-notch consulting or training, <a
