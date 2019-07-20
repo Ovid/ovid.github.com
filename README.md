@@ -24,7 +24,7 @@ Use the `bin/article` program to start writing an article:
 After writing the article, run `bin/rebuild` from this directory to rebuild
 the html docs.
 
-Note: If you need a table of contents for a TT doc, include the string `{TOC}`
+Note: If you need a table of contents for a TT doc, include the string `{{TOC}}`
 on a blank line by itself. We try to build the table of contents automatically
 from the "H" tags in the HTML (`<h1>`, `<h2>`, up to `<h6>`).
 

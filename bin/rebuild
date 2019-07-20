@@ -12,6 +12,7 @@ use File::Basename qw(dirname basename);
 use File::Path qw(mkpath);
 use File::Copy;
 use Less::Pager;
+use Text::Markdown 'markdown';
 
 my @files = File::Find::Rule->file->in('root');
 
@@ -69,7 +70,7 @@ sub preprocess_files (@files) {
             # ah, crap. We need to pre-process it.
             my $contents = slurp($file);
 
-            if ( $is_tt_file && $contents =~ /^\s*{TOC}\s*$/m ) {
+            if ( $is_tt_file && $contents =~ /^\s*\{\{TOC\}\}\s*$/m ) {
                 $contents = build_toc( $file, $contents );
             }
 
@@ -79,6 +80,14 @@ sub preprocess_files (@files) {
 }
 
 sub build_toc ( $file, $contents ) {
+
+    # XXX this is a simplistic heuristic. Need something better in the future.
+    if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*markdown=1.*%\]} ) {
+        # convert markdown to HTML, putting <p>{{TOC}}</p> back to {{TOC}}
+        # so we only have one canonical markup to parse
+        $contents = template_markdown_to_html($contents);
+        $contents =~ s/^\Q<p>{{TOC}}<\/p>/{{TOC}}/m;
+    }
     my $p = HTML::TokeParser::Simple->new( string => $contents );
 
     state $seen = {};
@@ -113,8 +122,22 @@ $links
 </nav>
 <hr>
 TOC
-    $rewritten =~ s/^s*{TOC}\s*$/$toc/m;
+    $rewritten =~ s/^s*\{\{TOC\}\}\s*$/$toc/m;
     return $rewritten;
+}
+
+# If we have Template markup, we don't want to process that with markdown, so
+# identify the template directives and skip 'em.
+sub template_markdown_to_html ($contents) {
+
+    # capturing parens causes split() to also return the text we matched on
+    my $tag     = qr/(\[%.*?%\])/m;
+    my @records = split $tag => $contents;
+    foreach (@records) {
+        next if /\[%/;    # XXX why doesn't /$tag/ work?
+        $_ = markdown($_);
+    }
+    return join "\n" => @records;
 }
 
 sub rebuild_article_pagination () {
