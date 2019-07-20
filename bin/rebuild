@@ -84,10 +84,21 @@ sub build_toc ( $file, $contents ) {
     # XXX this is a simplistic heuristic. Need something better in the future.
     if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*markdown=1.*%\]} ) {
 
-        # convert markdown to HTML, putting <p>{{TOC}}</p> back to {{TOC}}
-        # so we only have one canonical markup to parse
-        $contents = template_markdown_to_html($contents);
-        $contents =~ s/^\Q<p>{{TOC}}<\/p>/{{TOC}}/m;
+        # we need to preprocess the markdown, replacing '#' headers with their
+        # appropriate HTML tag. This allows the subsequent HTML parsing logic
+        # to build the TOC, but still allows the bulk of Markdown processing
+        # to happen in the templates, where it should be.
+        my %replacement_for;
+        while ( $contents =~ /^((#+)\s*(.*))$/mg ) {
+            my $line  = $1;
+            my $level = length($2);
+            my $title = $3;
+            my $h_tag = "<h$level>$title</h$level>";
+            $replacement_for{$line} = $h_tag;
+        }
+        while ( my ( $line, $tag ) = each %replacement_for ) {
+            $contents =~ s/\Q$line/$tag/;
+        }
     }
     my $p = HTML::TokeParser::Simple->new( string => $contents );
 
@@ -125,20 +136,6 @@ $links
 TOC
     $rewritten =~ s/^s*\{\{TOC\}\}\s*$/$toc/m;
     return $rewritten;
-}
-
-# If we have Template markup, we don't want to process that with markdown, so
-# identify the template directives and skip 'em.
-sub template_markdown_to_html ($contents) {
-
-    # capturing parens causes split() to also return the text we matched on
-    my $tag     = qr/(\[%.*?%\])/m;
-    my @records = split $tag => $contents;
-    foreach (@records) {
-        next if /\[%/;    # XXX why doesn't /$tag/ work?
-        $_ = markdown($_);
-    }
-    return join "\n" => @records;
 }
 
 sub rebuild_article_pagination () {
