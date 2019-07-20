@@ -103,7 +103,6 @@
     <li class="indent-2"><a href="#the-big-test">The Big Test</a></li>
     <li class="indent-1"><a href="#what-we-delivered">What We Delivered</a></li>
     <li class="indent-2"><a href="#overview">Overview</a></li>
-    <li class="indent-2"><a href="#solutions-implemented">Solutions Implemented</a></li>
     <li class="indent-3"><a href="#new-caching-architecture">New Caching Architecture</a></li>
     <li class="indent-3"><a href="#data-storage-performance">Data Storage Performance</a></li>
     <li class="indent-3"><a href="#implement-staged-processing">Implement Staged Processing</a></li>
@@ -158,10 +157,10 @@ time to give customers a "heads up" that they would need to make changes.</p>
 <h1><a name="getting-started"></a>Getting Started</h1>
 
 <figure class="captioned-left">
-    <img src="/static/images/starting-race.jpg" width="600" alt="A man about
-    to start running around a race track.">
+    <img src="/static/images/starting-race.jpg" width="600" alt="A man about to start running around a race track.">
     <figcaption><a href="https://www.pexels.com/photo/man-wearing-white-sweater-and-black-shorts-about-to-run-936094/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
 </figure>
+
 
 <p>Because the event only lasted 30 minutes, whatever solution we implemented
 didn't have to stay up for long. This also meant that whatever solution we
@@ -187,7 +186,7 @@ was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
 activity for a block of code.  It looked sort of like this:<sup id="1-return"><a href="#1">1</a></sup></p>
 
-<pre><code class="language-perl">explain dbitrace(
+<pre class="scrolled"><code class="language-perl">explain dbitrace(
     name =&gt; 'Full stack transaction request',
     code =&gt; sub { $object-&gt;make_full_request(\%request_data) },
     save =&gt; '/tmp/all_sql.txt',
@@ -196,7 +195,7 @@ activity for a block of code.  It looked sort of like this:<sup id="1-return"><a
 
 <p>The summary output looked similar to this:</p>
 
-<pre><code class="language-perl">{
+<pre class="scrolled"><code class="language-perl">{
   report =&gt; {
     name =&gt; 'Full stack transaction request',
     time =&gt; '3.70091 wallclock secs'
@@ -506,16 +505,16 @@ ran flawlessly.</p>
 <h1><a name="what-we-delivered"></a>What We Delivered</h1>
 
 <figure class="image">
-    <img src="/static/images/wheelbarrow.jpg" width="600" alt="Two people
-    loading salt into wheelbarrows.">
+    <img src="/static/images/wheelbarrow.jpg" width="600" alt="Two people loading salt into wheelbarrows.">
     <figcaption><a href="https://www.pexels.com/photo/man-pushing-wheelbarrow-2163888/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
 </figure>
+
 
 <h2><a name="overview"></a>Overview</h2>
 
 <p>Increase the performance of Business Transactions from 39/sec to 500+/sec.</p>
 
-<h2><a name="solutions-implemented"></a>Solutions Implemented</h2>
+/bin/bash: q: command not found
 
 <p>The overall implemented solution could not change the outward facing API calls
 as end users of the service were not to be impacted by back-end changes. The
