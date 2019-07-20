@@ -1,0 +1,20 @@
+[% USE Ovid;
+   # type    = type of image (left, center, right) (default = 'center')
+   # src     = path to image
+   # alt     = alt text (a11y)
+   # source  = URL of source
+   # caption = caption to appear under image (optional)
+   IF ( (position == 'center') || (!position.defined) );
+     class = 'image';
+   ELSIF ( position == 'left' );
+     class = 'captioned-left';
+   ELSIF ( position == 'right' );
+     class = 'captioned';
+   ELSE;
+     THROW "Unknown position argument for image $src: $position";
+   END;
+-%]
+<figure class="[% class %]">
+    <img src="[% src %]" width="600" alt="[% alt %]">
+    <figcaption>[% IF caption; caption _ ' '; END; Ovid.cite(source, 'Source') %]</figcaption>
+</figure>
