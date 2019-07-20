@@ -83,6 +83,7 @@ sub build_toc ( $file, $contents ) {
 
     # XXX this is a simplistic heuristic. Need something better in the future.
     if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*markdown=1.*%\]} ) {
+
         # convert markdown to HTML, putting <p>{{TOC}}</p> back to {{TOC}}
         # so we only have one canonical markup to parse
         $contents = template_markdown_to_html($contents);
