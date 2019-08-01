@@ -1,0 +1,97 @@
+[%
+    title            = 'Moving from Oracle to PostgreSQL';
+    identifier       = 'articles/moving-from-oracle-to-postgresql';
+    include_comments = 1;
+    syntax_highlight = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+{{TOC}}
+
+# The Evasion of the Oracle
+
+[% WRAPPER include/quote.tt attribution='<a href="/articles/project-500.html">Source</a>' -%]
+Oracle is the fast, beastly sports car that will quickly
+outpace that Honda Accord you're driving ... so long as the sports car has an
+expert driver, regular maintenance, and a highly trained pit crew to look
+after it.
+[%- END %]
+
+In the early 2000s, I was working for a company that was using Oracle on
+Linux. At the time, this was unusual, though becoming more common. It was
+still a time that open source software was often looked upon with mistrust, so
+we pointed out to our investors that we used Oracle; we didn't trumpted the
+fact that we used Linux.
+
+One day, we discovered a problem. An Oracle <code
+class="language-sql">SELECT</code> statement was sometimes returning different
+results, even though the underlying data had not changed. The query in
+question was extremely complex, but the data should not have changed. So the
+company called Oracle and presented the problem. We were informed that while
+Oracle could run on Linux, it needed to be Red Hat Advanced Server. Otherwise,
+it would not be officially supported.
+
+So we switched to Red Hat Advanced Server. And the bug was still there.
+
+*&ldquo;No, you need be on version X of Red Hat Advanced server.&rdquo;*
+
+So we switched to version X of Red Hat Advanced Server. And the bug was still there.
+
+*&ldquo;No, you need be on version X, point release Y, of Red Hat Advanced server.&rdquo;*
+
+So we switched to version X, point release Y of Red Hat Advanced Server. And the bug was still there.
+
+*&ldquo;That's a known bug. We&rsquo;re working on it.&rdquo;*
+
+Words were said. They were not nice words.
+
+# Outrunning the Oracle
+
+In the early 2000s, switching from Oracle to PostgreSQL was a radical
+decision. Today, we've have several clients who've wanted to make the switch,
+but what holds them back is no longer "can we trust PostgreSQL?", it's "our
+entire technology stack assumes Oracle."
+
+And the driver behind the switch? It's invariably Oracle's insane costs with
+no clear return on benefit for most companies. Yes, I assume that some
+companies find real value with Oracle's ERP solutions, but once you've bought
+into that, you have multiple business processes embedded in that world and
+backing out is much harder.
+
+But for just using the Oracle database, what does it cost? Hard to say. Oracle
+doesn't want to tell you. [%
+Ovid.cite('https://www.oracle.com/assets/technology-price-list-070617.pdf', 'I
+found a price list for 2019') %], but it clearly states that I cannot
+reproduce any of it in whole or part and it's for "education use only."[%
+Ovid.add_footnote("Ah, crud. I just reproduced part of it.") %] The consensus
+seems to be that a basic Oracle license will start out at a *minimum* of $50,000 US
+for most companies, easily raising to $500,000 or more, depending on your size
+and the options you select.
+
+And that's not counting the cost of an Oracle DBA. Or the support policies. 
+
+Regarding support policies, you might *think* you don't need them, but [%
+Ovid.cite('http://www.oracle.com/us/support/library/057419.pdf', "there's
+this little catch") %]:
+
+[% WRAPPER include/quote.tt %]
+Customers with unsupported programs are not entitled to download,or
+receive updates, maintenance releases, patches, telephone assistance, or
+any other technical support services for unsupported programs. CD packs or
+programs purchased or downloaded for trial use, use with other supported
+programs, or purchased or downloaded as replacement media may not be used to
+update any unsupported programs.
+[% END %]
+
+It seems insane that not purchasing a support contract means I can't apply a
+security patch, or a critical bugfix, and [%
+Ovid.cite('https://b-lay.com/software-licensing/oracle-support-how-to-save-costs/',
+'but B-Lay, the license management company confirms this') %].
+
+Oracle DDL is not transaction safe
+
+<!-- https://severalnines.com/blog/migrating-oracle-postgresql-what-you-should-know
+     -->
+
+[%- END %]

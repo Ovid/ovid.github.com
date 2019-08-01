@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Moving from Oracle to PostgreSQL</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  
+  <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <h1>Moving from Oracle to PostgreSQL</h1>
+            <hr>
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#the-evasion-of-the-oracle">The Evasion of the Oracle</a></li>
+    <li class="indent-1"><a href="#outrunning-the-oracle">Outrunning the Oracle</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="the-evasion-of-the-oracle"></a>The Evasion of the Oracle</h1>
+
+<blockquote>Oracle is the fast, beastly sports car that will quickly
+outpace that Honda Accord you're driving ... so long as the sports car has an
+expert driver, regular maintenance, and a highly trained pit crew to look
+after it.
+<div class="attribution"><a href="/articles/project-500.html">Source</a></div>
+</blockquote>
+
+<p>In the early 2000s, I was working for a company that was using Oracle on
+Linux. At the time, this was unusual, though becoming more common. It was
+still a time that open source software was often looked upon with mistrust, so
+we pointed out to our investors that we used Oracle; we didn't trumpted the
+fact that we used Linux.</p>
+
+<p>One day, we discovered a problem. An Oracle <code
+class="language-sql">SELECT</code> statement was sometimes returning different
+results, even though the underlying data had not changed. The query in
+question was extremely complex, but the data should not have changed. So the
+company called Oracle and presented the problem. We were informed that while
+Oracle could run on Linux, it needed to be Red Hat Advanced Server. Otherwise,
+it would not be officially supported.</p>
+
+<p>So we switched to Red Hat Advanced Server. And the bug was still there.</p>
+
+<p><em>&ldquo;No, you need be on version X of Red Hat Advanced server.&rdquo;</em></p>
+
+<p>So we switched to version X of Red Hat Advanced Server. And the bug was still there.</p>
+
+<p><em>&ldquo;No, you need be on version X, point release Y, of Red Hat Advanced server.&rdquo;</em></p>
+
+<p>So we switched to version X, point release Y of Red Hat Advanced Server. And the bug was still there.</p>
+
+<p><em>&ldquo;That's a known bug. We&rsquo;re working on it.&rdquo;</em></p>
+
+<p>Words were said. They were not nice words.</p>
+
+<h1><a name="outrunning-the-oracle"></a>Outrunning the Oracle</h1>
+
+<p>In the early 2000s, switching from Oracle to PostgreSQL was a radical
+decision. Today, we've have several clients who've wanted to make the switch,
+but what holds them back is no longer "can we trust PostgreSQL?", it's "our
+entire technology stack assumes Oracle."</p>
+
+<p>And the driver behind the switch? It's invariably Oracle's insane costs with
+no clear return on benefit for most companies. Yes, I assume that some
+companies find real value with Oracle's ERP solutions, but once you've bought
+into that, you have multiple business processes embedded in that world and
+backing out is much harder.</p>
+
+<p>But for just using the Oracle database, what does it cost? Hard to say. Oracle
+doesn't want to tell you. <a href="https://www.oracle.com/assets/technology-price-list-070617.pdf" target="_blank">I
+found a price list for 2019</a> <span class="fa fa-external-link fa_custom"></span>, but it clearly states that I cannot
+reproduce any of it in whole or part and it's for "education use only."<sup id="1-return"><a href="#1">1</a></sup> The consensus
+seems to be that a basic Oracle license will start out at a <em>minimum</em> of $50,000 US
+for most companies, easily raising to $500,000 or more, depending on your size
+and the options you select.</p>
+
+<p>And that's not counting the cost of an Oracle DBA. Or the support policies. </p>
+
+<p>Regarding support policies, you might <em>think</em> you don't need them, but <a href="http://www.oracle.com/us/support/library/057419.pdf" target="_blank">there's
+this little catch</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+Customers with unsupported programs are not entitled to download,or
+receive updates, maintenance releases, patches, telephone assistance, or
+any other technical support services for unsupported programs. CD packs or
+programs purchased or downloaded for trial use, use with other supported
+programs, or purchased or downloaded as replacement media may not be used to
+update any unsupported programs.
+
+
+</blockquote>
+
+<p>It seems insane that not purchasing a support contract means I can't apply a
+security patch, or a critical bugfix, and <a href="https://b-lay.com/software-licensing/oracle-support-how-to-save-costs/" target="_blank">but B-Lay, the license management company confirms this</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>Oracle DDL is not transaction safe</p>
+
+<!-- https://severalnines.com/blog/migrating-oracle-postgresql-what-you-should-know
+     -->
+
+
+    <hr>
+
+    <p><strong>Footnotes</strong></p>
+
+    <div class="footnotes">
+<p id="1"><a href="#1-return">[1]</a> Ah, crud. I just reproduced part of it.</p>
+    </div>
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/moving-from-oracle-to-postgresql.html";
+            this.page.identifier = "articles/moving-from-oracle-to-postgresql";
+            this.page.title      = "Moving from Oracle to PostgreSQL";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
+
