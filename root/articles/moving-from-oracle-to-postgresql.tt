@@ -38,7 +38,6 @@ results. The query in question was extremely complex, but the results should
 not have changed as the underlying data was static. After much debugging, the
 company gave up trying to solve the issue and called Oracle. We were informed
 that while Oracle could run on Linux, it needed to be Red Hat Advanced Server.
-Otherwise, it would not be officially supported.
 
 So we switched to Red Hat Advanced Server. And the bug was still there.
 
@@ -73,6 +72,27 @@ work around this limitation.") %] Oracle violates the ANSI standard by often
 treating empty strings as `NULL`, causing all sorts of subtle bugs. And Oracle
 was built in an ASCII world, not a Unicode one, and it shows, painfully.
 
+## Added Benefits of PostgreSQL
+
+First, PostgreSQL is generally chosen as the migration target due to its
+strong compatibility with Oracle and its excellent data handling. Fortunately,
+it's now easy to find PostgreSQL admins (as opposed to Oracle admins) in the
+wild now because Postgres is open source, so it’s now a lot easier for a
+would-be DBA to get experience with the stack. In fact, one of our DBAs
+commented:
+
+> I never met anyone who knew how to use Oracle RAC (and debug its problems)
+unless they had already endured the hell of a broken Oracle RAC installation
+at least once ... on someone’s production server.
+
+Cloud support for PostgreSQL is fantastic, with Amazon, Azure, and Google all
+supporting PostgreSQL.
+
+And because Postgres is SQL-92 (and increasingly, SQL-99 compliant) with an
+open extension library, its geospatial tooling and JSON support are arguably
+much stronger than Oracle’s. If you need those tools, you save a ton of money
+_and_ get a better product.
+
 # Starting the Process
 
 As with any project of this scope, you need to start out with a solid plan and
@@ -84,7 +104,7 @@ that plan starts with a problem statement clearly outlining:
 4. _Measurable_ success criteria.
 5. A SWOT analysis (or something comparable).
 
-While points 1 through 3 are the most straightfoward, it's worth considering
+While points 1 through 3 are the most straightforward, it's worth considering
 unusual ways of meeting your goals. For example, merely contacting Oracle and
 explaining that you're considering leaving Oracle for a more affordable
 solutions might get enough of a discount on licensing that you don't feel the
@@ -102,9 +122,9 @@ There are also many edge cases to consider. One company we know uses Oracle
 for a public facing application so that they can reassure investors that "they
 use Oracle", but use PostgreSQL exclusively for everything internal.
 
-Or there are the cases where clients use Oracle Enterprise applications, but
+Or there are the cases where clients use Oracle Enterprise applications but
 find many internal cases where they're unnecessarily spending on Oracle
-licences. The Enterprise applications are often difficult to extricate from,
+licenses. The Enterprise applications are often difficult to extricate from,
 while individual applications still eat up enormous costs for no valid reason.
 
 ## Success Criteria
@@ -163,13 +183,13 @@ Oracle is used, identifying all licenses and expirations (you may need to
 renew during the migration process), and _how_ Oracle is being used. We've
 found many clients are merely using Oracle as a data store and use few, if
 any, stored procedures or functions. This is underutilizing the power of the
-database, but has the advantage of simplifying migrations.
+database but has the advantage of simplifying migrations.
 
 The software audit is a critical portion of the overall audit. Many
 applications using sophisticated ORMs may find they need few, if any, changes
-when switching from Oracle to PostgreSQL. However, others applications,
-particularly those building SQL directly, will need a deeper audit to
-understand how the migration is to be accomplished.
+when switching from Oracle to PostgreSQL. However, other
+applications—particularly those building SQL directly—will need a deeper audit
+to understand how the migration is to be accomplished.
 
 Further, because the migration process is time-consuming, make sure you're
 only migrating what needs to be migrated. Do you have historical data that
@@ -197,7 +217,7 @@ data.
 
 The actual migration at the database level will take some time, but it in the
 software level that you'll particularly experience grief. Having a robust test
-is imperative, as is a strong QA deparment.
+is imperative, as is a strong QA department.
 
 One issue we routinely encounter is Unicode.  Unicode is problematic for
 Oracle because it was developed in an ASCII world while PostgreSQL fully
@@ -216,6 +236,15 @@ This is in violation of the ANSI-SQL standard and causes no end of headaches
 for developers. For example, in Oracle you can often find cases of outer joins
 with ambiguous semantics because you don't know if field you're asking for was
 missing (not joined), or is the empty string.
+
+Or one surprising issues we've stumbled across: Oracle allows you to declare
+integers (`INT`), but it's internally it's a `NUMBER(38,0)` and conversion
+tools generally have `NUMERIC(38,0)` in the PostgreSQL version of the schema.
+While [% Ovid.cite('https://dba.stackexchange.com/a/206406', "there are those
+who insist there's no performance difference between the two") %], when ported
+to PostgreSQL, you should use the appropriate integer datatypes and not their
+`NUMBER(p,0)` equivalents. We've found significant performance improvements by
+converting `NUMERIC(p,0)` types to appropriate integer types.
 
 There are many other subtle differences (`TIMESTAMP WITH TIME ZONE`, join
 differences, transactions, function incompatibilities, and so on). The free,
@@ -260,26 +289,11 @@ other than:
 * Those criteria should be automated as far as is possible
 * Rejected work must document the success criteria and how to achieve them
 
-There is, however, one aspect which is important: your success criteria might
-be wrong. Migrating from Oracle to PostgreSQL should generally fall under the
-rubric of "refactoring." In short, this means changing your code without
-changing its behavior. That being said, it's entirely possible that you'll
-find areas where the migration is problematic and expensive.  "Adjusting"
-isn't just for the software: it can also be for the success criteria. If
-they're hard to meet, it's worth asking if the success criteria can be
-adjusted and still meet your business needs. However, be cautious in doing
-this: changing too many things at once is a recipe for disaster.
-
-That being said, if adjustments need to be met at the success criteria level,
-management must be prepared to be flexible and expect expect some political
-consequences.  Department X might very well be convinced that their success
-criteria is critical to the well-being of the company, but the overall
-migration is there to support the needs of the company, not just individual
-departments. If departments are giving strong pushback on changes to success
-criteria and you know that the criteria need to be changed, remember the old
-adage that it's difficult to convince someone they're wrong if their paycheck
-depends on them being wrong. They're not necessarily acting in bad faith, but
-inertia is hard to fight.
+However, keep in mind that you must not let the perfect be the enemy of the
+good. Are you excelling in some areas and underperforming in others? Is this
+an acceptable tradeoff? Are some success criteria _really_ that important?
+Remember: your primary goal is to facility the Oracle to PostgreSQL migration.
+You can take full advantage of PostgreSQL's power later.
 
 ## 6. Deployment
 
