@@ -40,6 +40,7 @@
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
   
@@ -164,7 +165,20 @@ technology stack assumes Oracle."</p>
 
 <p>And the driver behind the switch? It's invariably Oracle's insane costs with
 no clear return on benefit for most companies. But there are plenty of
-technical reasons, too. Oracle DDL is not transaction safe.  <sup id="1-return"><a href="#1">1</a></sup> Oracle violates the ANSI standard by often
+technical reasons, too. Oracle DDL is not transaction safe.  <a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a></p>
+
+<div id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <p class="popup-body">In other words, statements such as <code>CREATE</code>,
+<code>ALTER</code>, <code>DROP</code>, and others which alter the _structure_
+of the database cannot be rolled back, thus potentially leaving your database
+in a corrupted state if a transaction fails.  Oracle Database version 11g
+Release 2 has a workaround via the cumbersome 'Edition-Based Redefinition' to
+work around this limitation.</p>
+</div>
+
+<p><a href="#1-return" class="close-popup"></a>
+ Oracle violates the ANSI standard by often
 treating empty strings as <code>NULL</code>, causing all sorts of subtle bugs. And Oracle
 was built in an ASCII world, not a Unicode one, and it shows, painfully.</p>
 
@@ -454,19 +468,6 @@ unlikely to face this decision, but prepare for it.</p>
 success, not prepare for failure. By expecting success but planning for
 failure, you'll put yourself in a great position.</p>
 
-
-    <hr>
-
-    <p><strong>Footnotes</strong></p>
-
-    <div class="footnotes">
-<p id="1"><a href="#1-return">[1]</a> In other words, statements such as <code>CREATE</code>,
-<code>ALTER</code>, <code>DROP</code>, and others which alter the _structure_
-of the database cannot be rolled back, thus potentially leaving your database
-in a corrupted state if a transaction fails.  Oracle Database version 11g
-Release 2 has a workaround via the cumbersome 'Edition-Based Redefinition' to
-work around this limitation.</p>
-    </div>
           <hr>
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss

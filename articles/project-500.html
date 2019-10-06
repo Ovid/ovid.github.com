@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
   
@@ -185,7 +186,14 @@ bottlenecks.</p>
 migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
-activity for a block of code.  It looked sort of like this:<sup id="1-return"><a href="#1">1</a></sup></p>
+activity for a block of code.  It looked sort of like this:<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <p class="popup-body">These number are recreated from memory, but are roughly
+accurate.</p>
+</div>
+<a href="#1-return" class="close-popup"></a>
+</p>
 
 <pre class="scrolled"><code class="language-perl">explain dbitrace(
     name =&gt; 'Full stack transaction request',
@@ -328,7 +336,14 @@ telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client's SOAP implementation had grown over the
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version's code into a new module and modifying
-that. There were, at the time of the project, 24 versions,<sup id="2-return"><a href="#2">2</a></sup> most of which had heavily duplicated code. To optimize
+that. There were, at the time of the project, 24 versions,<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="2" class="popup">
+  <a href="#2-return" class="close">&times;</a>
+  <p class="popup-body">Many of the oldest SOAP versions had long been deprecated,
+so that helped.</p>
+</div>
+<a href="#2-return" class="close-popup"></a>
+ most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
 us to skip updating the other SOAP versions.</p>
@@ -484,7 +499,14 @@ the back-end. The back-end would submit the request for preauthorization to the
 payment provide and the payment provider would respond. The back-end sent the
 response to the front-end and if the preauthorization was denied, the denial
 would be sent back to the customer.  However, usually it was approved and the
-front-end would then submit the charge <em>back</em> to the back-end.<sup id="3-return"><a href="#3">3</a></sup> The back-end would then
+front-end would then submit the charge <em>back</em> to the back-end.<a href="#3" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="3" class="popup">
+  <a href="#3-return" class="close">&times;</a>
+  <p class="popup-body">Of course, it was sent to the back-end via SOAP. SOAP, oh,
+how I hate thee. I'm never taking a bath again.</p>
+</div>
+<a href="#3-return" class="close-popup"></a>
+ The back-end would then
 submit the preauthorized charge to the payment provider and lots of network
 and database activity helped to keep the server room warm. The entire process
 was about as fast as a snail crawling through mud.</p>
@@ -579,17 +601,6 @@ documented configuration options, while not impacting traditional processing.</p
 written while the project was ongoing. Some events may not have happened in
 the exact sequence listed above.</p>
 
-
-    <hr>
-
-    <p><strong>Footnotes</strong></p>
-
-    <div class="footnotes">
-<p id="1"><a href="#1-return">[1]</a> These number are recreated from memory, but are roughly
-accurate.</p><p id="2"><a href="#2-return">[2]</a> Many of the oldest SOAP versions had long been deprecated,
-so that helped.</p><p id="3"><a href="#3-return">[3]</a> Of course, it was sent to the back-end via SOAP. SOAP, oh,
-how I hate thee. I'm never taking a bath again.</p>
-    </div>
           <hr>
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss

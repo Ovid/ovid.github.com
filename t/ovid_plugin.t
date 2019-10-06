@@ -14,27 +14,28 @@ is $ovid->link( '/example.html', 'link name' ),
   '<a href="/example.html">link name</a>',
   'We should be able to create an internal link with no external link span';
 
-ok !$ovid->has_footnotes, 'Our plugin should start with no footnotes';
-
 my @hrefs = (
-    $ovid->add_footnote('footnote 1'),
-    $ovid->add_footnote( 'footnote 2', 'named footnote' )
+    $ovid->add_note('footnote 1'),
+    $ovid->add_note( 'footnote 2', 'named footnote' )
 );
 my @expected = (
-    '<sup id="1-return"><a href="#1">1</a></sup>',
-    '<sup id="named-footnote-return"><a href="#named-footnote">2</a></sup>'
+'<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <p class="popup-body">footnote 1</p>
+</div>
+<a href="#1-return" class="close-popup"></a>
+',
+'<a href="#named-footnote" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="named-footnote" class="popup">
+  <a href="#named-footnote-return" class="close">&times;</a>
+  <p class="popup-body">footnote 2</p>
+</div>
+<a href="#named-footnote-return" class="close-popup"></a>
+'
 );
 
 eq_or_diff \@hrefs, \@expected,
-  'add_footnote() should return links for unnamed and named footnotes';
-ok $ovid->has_footnotes, '... and has_footnotes() should now return true';
-
-@expected = (
-    '<p id="1"><a href="#1-return">[1]</a> footnote 1</p>',
-'<p id="named-footnote"><a href="#named-footnote-return">[2]</a> footnote 2</p>'
-);
-eq_or_diff $ovid->get_footnotes, \@expected,
-'... and get_footnotes() should return an aref the actual footnotes in HTML format.';
-ok $ovid->has_footnotes, '... and has_footnotes() should still return true';
+  'add_note() should return links for unnamed and named footnotes';
 
 done_testing;
