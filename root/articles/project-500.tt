@@ -82,7 +82,7 @@ migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
 activity for a block of code.  It looked sort of like this:[%
-Ovid.add_footnote('These number are recreated from memory, but are roughly
+Ovid.add_note('These number are recreated from memory, but are roughly
 accurate.') %]</p>
 
 [% WRAPPER include/code.tt language='perl' -%]
@@ -236,7 +236,7 @@ telling you how to parse the message contents. Reading and writing SOAP is
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version's code into a new module and modifying
 that. There were, at the time of the project, 24 versions,[%
-Ovid.add_footnote('Many of the oldest SOAP versions had long been deprecated,
+Ovid.add_note('Many of the oldest SOAP versions had long been deprecated,
 so that helped.') %] most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
@@ -400,7 +400,7 @@ payment provide and the payment provider would respond. The back-end sent the
 response to the front-end and if the preauthorization was denied, the denial
 would be sent back to the customer.  However, usually it was approved and the
 front-end would then submit the charge <em>back</em> to the back-end.[%
-Ovid.add_footnote("Of course, it was sent to the back-end via SOAP. SOAP, oh,
+Ovid.add_note("Of course, it was sent to the back-end via SOAP. SOAP, oh,
 how I hate thee. I'm never taking a bath again.") %] The back-end would then
 submit the preauthorized charge to the payment provider and lots of network
 and database activity helped to keep the server room warm. The entire process

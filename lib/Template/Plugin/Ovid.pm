@@ -20,7 +20,7 @@ sub cite ( $self, $path, $name ) {
       $name;
 }
 
-sub add_footnote ( $self, $note, $name = $self->{footnote_number} ) {
+sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
     $name =~ s/\s+/-/g;
     my $return = "$name-return";
     my $number = $self->{footnote_number}++;
@@ -28,10 +28,17 @@ sub add_footnote ( $self, $note, $name = $self->{footnote_number} ) {
         croak("Footnote '$name' already used");
     }
     $self->{footnote_names}{$name} = 1;
-    my $href = qq{<sup id="$return"><a href="#$name">$number</a></sup>};
-    push $self->{footnotes}->@* =>
-      qq{<p id="$name"><a href="#$return">[$number]</a> $note</p>};
-    return $href;
+    my $html = <<"HTML";
+<a href="#$name" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<div id="$name" class="popup">
+  <a href="#$return" class="close">&times;</a>
+  <p class="popup-body">$note</p>
+</div>
+<a href="#$return" class="close-popup"></a>
+HTML
+#    push $self->{footnotes}->@* =>
+#      qq{<p id="$name"><a href="#$return">[$number]</a> $note</p>};
+    return $html;
 }
 
 sub link ( $self, $path, $name ) {
@@ -78,10 +85,10 @@ the link is a superscript number, (a C<< <sup> >> tag) to be small an unobtrusiv
 
 We'll see later if this was a mistake.
 
-=head2 C<add_footnote($text, $optional_name)>
+=head2 C<add_note($text, $optional_name)>
 
-    [% Ovid.add_footnote('Witty and insightful comment that would nonetheless be distracting') %]
-    [% Ovid.add_footnote('This is a comment.', 'named comment') %]
+    [% Ovid.add_note('Witty and insightful comment that would nonetheless be distracting') %]
+    [% Ovid.add_note('This is a comment.', 'named comment') %]
 
 Adds a footnote (shown as a link via a superscripted number) to the document.
 
