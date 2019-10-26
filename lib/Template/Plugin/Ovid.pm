@@ -30,10 +30,10 @@ sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
     $self->{footnote_names}{$name} = 1;
     my $html = <<"HTML";
 <a href="#$name" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<div id="$name" class="popup">
+<span id="$name" class="popup">
   <a href="#$return" class="close">&times;</a>
-  <p class="popup-body">$note</p>
-</div>
+  <span class="popup-body">$note</span>
+</span>
 <a href="#$return" class="close-popup"></a>
 HTML
 #    push $self->{footnotes}->@* =>

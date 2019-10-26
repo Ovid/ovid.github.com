@@ -20,17 +20,17 @@ my @hrefs = (
 );
 my @expected = (
 '<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<div id="1" class="popup">
+<span id="1" class="popup">
   <a href="#1-return" class="close">&times;</a>
-  <p class="popup-body">footnote 1</p>
-</div>
+  <span class="popup-body">footnote 1</span>
+</span>
 <a href="#1-return" class="close-popup"></a>
 ',
 '<a href="#named-footnote" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<div id="named-footnote" class="popup">
+<span id="named-footnote" class="popup">
   <a href="#named-footnote-return" class="close">&times;</a>
-  <p class="popup-body">footnote 2</p>
-</div>
+  <span class="popup-body">footnote 2</span>
+</span>
 <a href="#named-footnote-return" class="close-popup"></a>
 '
 );
