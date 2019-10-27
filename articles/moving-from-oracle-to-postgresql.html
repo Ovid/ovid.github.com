@@ -111,6 +111,7 @@
     <li class="indent-2"><a href="#5-adjusting">5. Adjusting</a></li>
     <li class="indent-2"><a href="#6-deployment">6. Deployment</a></li>
     <li class="indent-2"><a href="#7-rollback">7. Rollback</a></li>
+    <li class="indent-1"><a href="#success">Success!</a></li>
     </ul>
 </nav>
 <hr></p>
@@ -124,7 +125,7 @@
 
 <blockquote>Oracle is the fast, beastly sports car that will quickly outpace that Honda
 Accord you're driving ... so long as the sports car has an expert driver,
-constant maintenance, and an expensive, highly trained pit crew to look after
+constant maintenance, and an expensive, highly-trained pit crew to look after
 it.
 <div class="attribution"><a href="/articles/project-500.html">Source</a></div>
 </blockquote>
@@ -159,12 +160,12 @@ that while Oracle could run on Linux, it needed to be Red Hat Advanced Server.</
 <h2><a name="time-has-not-been-kind-to-oracle"></a>Time Has Not Been Kind to Oracle</h2>
 
 <p>In the early 2000s, switching from Oracle to PostgreSQL was a gamble.  Today
-we've have several clients making the switch or in the process of it, but what
+we've had several clients making the switch or in the process of it, but what
 holds them back is no longer "can we trust PostgreSQL?", it's "our entire
 technology stack assumes Oracle."</p>
 
 <p>And the driver behind the switch? It's invariably Oracle's insane costs with
-no clear return on benefit for most companies. But there are plenty of
+no clear return on investment for most companies. But there are plenty of
 technical reasons, too. Oracle DDL is not transaction safe.  <a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
 <span id="1" class="popup">
   <a href="#1-return" class="close">&times;</a>
@@ -185,8 +186,8 @@ was built in an ASCII world, not a Unicode one, and it shows, painfully.</p>
 <p>First, PostgreSQL is generally chosen as the migration target due to its
 strong compatibility with Oracle and its excellent data handling. Fortunately,
 it's now easy to find PostgreSQL admins (as opposed to Oracle admins) in the
-wild now because PostgreSQL is open source, so it's much easier for a
-would-be DBA to get experience with the stack. In fact, one of our DBAs
+wild because PostgreSQL is both open source and free, so it's much easier for
+a would-be DBA to get experience with the stack. In fact, one of our DBAs
 commented:</p>
 
 <blockquote>
@@ -221,7 +222,7 @@ unusual ways of meeting your goals. For example, merely contacting Oracle and
 explaining that you're considering leaving Oracle for a more affordable
 solutions might get enough of a discount on licensing that you don't feel the
 immediate pressure to migrate. High-profile companies, or organizations that
-hook people young (such as universities) often can command hefty discounts.</p>
+hook people young (such as universities) can often command hefty discounts.</p>
 
 <p>You may also find that hiring an expert to review licensing is worthwhile. For
 example, hot standby servers need licensing, but cold standby with minimal use
@@ -273,7 +274,8 @@ transactions, while threats might involve a need for write-heavy multi-master
 replication.</p>
 
 <p>The above weaknesses or threats can be addressed, but you need to understand
-them and plan for them up front.</p>
+them and plan for them up front, with a signicant focus on mitigating
+weaknesses and threats.</p>
 
 <h1><a name="developing-a-migration-plan"></a>Developing a Migration Plan</h1>
 
@@ -352,11 +354,11 @@ with ambiguous semantics because you don't know if field you're asking for was
 missing (not joined), or is the empty string.</p>
 
 <p>Or one surprising issues we've stumbled across: Oracle allows you to declare
-integers (<code>INT</code>), but it's internally it's a <code>NUMBER(38,0)</code> and conversion
-tools generally have <code>NUMERIC(38,0)</code> in the PostgreSQL version of the schema.
-While <a href="https://dba.stackexchange.com/a/206406" target="_blank">there are those
-who insist there's no performance difference between the two</a> <span class="fa fa-external-link fa_custom"></span>, when ported
-to PostgreSQL, you should use the appropriate integer datatypes and not their
+integers (<code>INT</code>), but internally it's a <code>NUMBER(38,0)</code> and conversion tools
+generally have <code>NUMERIC(38,0)</code> in the PostgreSQL version of the schema.  While
+<a href="https://dba.stackexchange.com/a/206406" target="_blank">there are those who
+insist there's no performance difference between the two</a> <span class="fa fa-external-link fa_custom"></span>, when ported to
+PostgreSQL, you should use the appropriate integer datatypes and not their
 <code>NUMBER(p,0)</code> equivalents. We've found significant performance improvements by
 converting <code>NUMERIC(p,0)</code> types to appropriate integer types.</p>
 
@@ -393,6 +395,11 @@ failover? What's your throughput like? Do you have "stealth" applications
 which assume Oracle and you've just switched? Perfectly functioning software
 doesn't matter when your infrastructure catches fire.</p>
 
+<p>And please keep in mind that this testing isn't just a "one off" for the
+migration. A solid testing plan allows you to ensure that regressions don't
+occur in the PostgreSQL implementation as it undergoes further development.
+Spending this time and money up front will save you time and money later.</p>
+
 <h2><a name="5-adjusting"></a>5. Adjusting</h2>
 
 <p>The migration and testing aspects of your transition will likely need to be
@@ -408,8 +415,8 @@ other than:</p>
 <p>However, keep in mind that you must not let the perfect be the enemy of the
 good. Are you excelling in some areas and under performing in others? Is this
 an acceptable trade off? Are all success criteria <em>really</em> that important?
-Remember: your primary goal is to facility the Oracle to PostgreSQL migration.
-You can take full advantage of PostgreSQL's power later.</p>
+Remember: your primary goal is to facilitate the Oracle to PostgreSQL
+migration.  You can take full advantage of PostgreSQL's power later.</p>
 
 <h2><a name="6-deployment"></a>6. Deployment</h2>
 
@@ -465,6 +472,12 @@ unlikely to face this decision, but prepare for it.</p>
 <p>Remember that a key flaw of release management is that people tend to expect
 success, not prepare for failure. By expecting success but planning for
 failure, you'll put yourself in a great position.</p>
+
+<h1><a name="success"></a>Success!</h1>
+
+<p>Congratulations! You've successfully replaced Oracle with PostgreSQL. You've
+saved yourself a lot of money, you have a database that's easier to manage,
+and you get to take advantage of many of the powerful features of PostgreSQL.</p>
 
           <hr>
           <p>If you'd like top-notch consulting or training, <a
