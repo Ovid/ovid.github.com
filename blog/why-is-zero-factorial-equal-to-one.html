@@ -23,7 +23,7 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>3D Starmap in JavaScript</title>
+  <title>Why is zero factorial equal to one?</title>
   <meta name="description" content="">
   <meta name="author" content="">
 
@@ -42,22 +42,14 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/popups.css">
   <link rel="stylesheet" href="/css/layout.css">
-    
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+      <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-  
-  <!-- starmap controls -->
-  <link rel="stylesheet" type="text/css" href="/css/starmap.css"/> 
-    
-  <!-- I can almost get rid of this now, thanks to refactoring -->
-  <script type="text/javascript" src="/static/js/prototype.js"></script>
-
-  <!-- this is the starmap renderer -->
-  <script type="text/javascript" src="/static/js/starmap.js"></script>
-
-  <!-- this is the data for the current starmap -->
-  <script type="text/javascript" src="/static/js/sol.js"></script>
   
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -104,38 +96,126 @@
         <div class="nine columns verticalLine">
             <!-- Back to top button -->
             <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-            <h1>3D Starmap in JavaScript</h1>
+            <h1>Why is zero factorial equal to one?</h1>
             <hr>
 
-<canvas id="starmap" width="650" height="650"></canvas>
-<hr>
-<div id="starmap_controls">
-    <input type="checkbox" name="toggle_wormholes" id="toggle_wormholes" value="0"> Show Wormholes
-    <br />
-    <input type="checkbox" name="toggle_rotation" id="toggle_rotation" value="0"> Rotate
-    <br />
-    <input type="checkbox" name="toggle_names" id="toggle_names" value="0"> Star Names
-    <br />
-    <input type="checkbox" name="toggle_unreachable" id="toggle_unreachable" value="0"> Show Unreachable
-    <br />
-</div>
-<div id="star_id">No star selected</div>
-<hr />
+<p>This blog entry is actually for my daughter. She's eight years old and already
+turning into a math wizard. While other children are struggling with simple
+multiplication, she's delving into square roots, negative numbers, factorials,
+and so on. She's also been asking her teacher at school when they're going to
+start getting problems in base 5 (she can count in different bases &lt; 10 now).</p>
 
-<p>This is the starmap for <a href="/tau-station.html">Tau
-Station</a>, a narrative sci-fi MMORPG. It never made it into the
-game, but so many people look for how to build a 3-D rotating star map
-in Javascript that I thought I'd show my solution. I'm more of a
-back-end developer and the code reflects this.</p>
+<p>So when we were discussing factorials, she asked why the factorial of zero is
+one and I, um, stumbled. I was a math whiz in my high school, taking calculus
+in my jumior year, surrounded by seniors, but I've forgotten most of my math
+and for the life of me, I couldn't remember the answer to her question. So
+here it is, after a bit of a refresher.</p>
 
-<p>The map shows all of the stars within 20 light years of Sol. The
-green circle (sorry, color-blind folks!) is where the "player" in the
-game is currently located. The lines are wormholes between star
-systems and yes, some are deliberaty disconnected. The white lines are
-the wormholes directly connected to the player's current position.</p>
+<p>You probably remember that the factor of an integer, <em>n</em>, is the product of
+all integers from 1 to <em>n</em>. So we would say that that the factorial of 4, or
+4!, is equal to:</p>
 
-<p>Honestly, there's no real reason to have it here other than the
-fact that was I was pleased with the result.</p>
+<p>$$4! = 4\times3\times2\times1 = 24$$</p>
+
+<p>And for a few other numbers:</p>
+
+<p>$$3! = 3\times2\times1 = 6$$
+$$2! = 2\times1 = 2$$
+$$1! = 1 = 1$$</p>
+
+<p>But where does that leave the factorial of zero? There doesn't appear to be
+any <em>room</em> left to put that equation.</p>
+
+<p>There are two simple ways of answering this. One is intuitive and the other
+involves simple math.</p>
+
+<h1>The Intuitive Solution</h1>
+
+<p>Imagine that you have three runners in a race, Alice, Bob, and Charlie.
+Assuming ties are not allowed, how many ways can you arrange them into first,
+second, and third place? Mathematically, we'd ask "given a set of <em>n</em>
+elements, how many different ways can you order them?" That's what's called a
+"permutation."</p>
+
+<p>Well, let's work it out the hard way:</p>
+
+<ol>
+<li>Alice, Bob, Charlie</li>
+<li>Alice, Charlie, Bob</li>
+<li>Bob, Alice, Charlie</li>
+<li>Bob, Charlie, Alice</li>
+<li>Charlie, Alice, Bob</li>
+<li>Charlie, Bob, Alice</li>
+</ol>
+
+<p>So for three participants, there are six different ways we can order them. Not
+coincidentally, that's equal to 3! (three factorial). What if it's only Alice
+and Bob?</p>
+
+<ol>
+<li>Alice, Bob</li>
+<li>Bob, Alice</li>
+</ol>
+
+<p>That's 2! (two factorial).</p>
+
+<p>If you are really bored, you can work out four participants, but I promise you
+that it's equal to 4! (four factorial).</p>
+
+<p>So to figure out the number of ways you can order <em>n</em> elements, you just
+calculate <em>n</em>! (<em>n</em> factorial).</p>
+
+<p>But what is <em>n</em>? In math, we have the concept of a <em>set</em>.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <span class="popup-body">I
+am going to skip a lot, because this is a simple explanation.</span>
+</span>
+<a href="#1-return" class="close-popup"></a>
+ A <em>set</em> is merely an
+collection of <em>n</em> distinct things. The order of those things doesn't matter.
+The set <strong>{Alice, Bob, Charlie}</strong> is the same as the set <strong>{Charlie, Alice,
+Bob}</strong>. So our original question is "how many permutions of a set are there
+when <em>n</em> = 3?" And the answer is 3! (three factorial).</p>
+
+<p>But it turns out that an important concept in math is the "empty set",
+designated as <strong>{}</strong>. How many permutations does it have? 1 and only 1. Thus,
+0! = 1.</p>
+
+<h1>Do the Math</h1>
+
+<p>OK, that sounds like cheating, so let's look at it another way.</p>
+
+<p>As it turns out, we can say the following:</p>
+
+<p>$$n! = \frac{(n + 1)!}{n + 1}$$</p>
+
+<p>How does that work? Well, let's use 4! as an example.</p>
+
+<p>$$4! = \frac{(4 + 1)!}{4 + 1}$$
+$$4! = \frac{5!}{5}$$
+$$4! = \frac{5\times4\times3\times2\times1}{5}$$</p>
+
+<p>And since the fives cancel out:</p>
+
+<p>$$4! = 4\times3\times2\times1$$</p>
+
+<p>And working this out with other numbers:</p>
+
+<p>$$3! = \frac{(3 + 1)!}{3 + 1}$$
+$$2! = \frac{(2 + 1)!}{2 + 1}$$
+$$1! = \frac{(1 + 1)!}{1 + 1}$$
+$$0! = \frac{(0 + 1)!}{0 + 1}$$</p>
+
+<p>Since it's 0! that we're interested in, we see it works out to:</p>
+
+<p>$$0! = \frac{1!}{1}$$</p>
+
+<p>Since 1! is 1, we have:</p>
+
+<p>$$0! = \frac{1}{1}$$</p>
+
+<p>And one over one is one. Thus, 0! = 1.</p>
 
           <hr>
           <p>If you'd like top-notch consulting or training, <a
@@ -161,9 +241,9 @@ fact that was I was pleased with the result.</p>
       
         <script>
         var disqus_config = function () {
-            this.page.url        = "https://ovid.github.io/starmap.html";
-            this.page.identifier = "starmap";
-            this.page.title      = "3D Starmap in JavaScript";
+            this.page.url        = "https://ovid.github.io/articles/why-is-zero-factorial-equal-to-one.html";
+            this.page.identifier = "articles/why-is-zero-factorial-equal-to-one";
+            this.page.title      = "Why is zero factorial equal to one?";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -178,6 +258,9 @@ fact that was I was pleased with the result.</p>
     </div>
     </div>
 
+<script src="/static/js/prism.js"></script>
+
 </body>
 </html>
+
 

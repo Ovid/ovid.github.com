@@ -1,0 +1,121 @@
+[%
+    title            = 'Why is zero factorial equal to one?';
+    identifier       = 'articles/why-is-zero-factorial-equal-to-one';
+    include_comments = 1;
+    syntax_highlight = 1;
+    mathjax          = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+
+This blog entry is actually for my daughter. She's eight years old and already
+turning into a math wizard. While other children are struggling with simple
+multiplication, she's delving into square roots, negative numbers, factorials,
+and so on. She's also been asking her teacher at school when they're going to
+start getting problems in base 5 (she can count in different bases &lt; 10 now).
+
+So when we were discussing factorials, she asked why the factorial of zero is
+one and I, um, stumbled. I was a math whiz in my high school, taking calculus
+in my jumior year, surrounded by seniors, but I've forgotten most of my math
+and for the life of me, I couldn't remember the answer to her question. So
+here it is, after a bit of a refresher.
+
+You probably remember that the factor of an integer, _n_, is the product of
+all integers from 1 to _n_. So we would say that that the factorial of 4, or
+4!, is equal to:
+
+$$4! = 4\times3\times2\times1 = 24$$
+
+And for a few other numbers:
+
+
+$$3! = 3\times2\times1 = 6$$
+$$2! = 2\times1 = 2$$
+$$1! = 1 = 1$$
+
+But where does that leave the factorial of zero? There doesn't appear to be
+any _room_ left to put that equation.
+
+There are two simple ways of answering this. One is intuitive and the other
+involves simple math.
+
+# The Intuitive Solution
+
+Imagine that you have three runners in a race, Alice, Bob, and Charlie.
+Assuming ties are not allowed, how many ways can you arrange them into first,
+second, and third place? Mathematically, we'd ask "given a set of _n_
+elements, how many different ways can you order them?" That's what's called a
+"permutation."
+
+Well, let's work it out the hard way:
+
+1. Alice, Bob, Charlie
+2. Alice, Charlie, Bob
+3. Bob, Alice, Charlie
+4. Bob, Charlie, Alice
+5. Charlie, Alice, Bob
+6. Charlie, Bob, Alice
+
+So for three participants, there are six different ways we can order them. Not
+coincidentally, that's equal to 3! (three factorial). What if it's only Alice
+and Bob?
+
+1. Alice, Bob
+2. Bob, Alice
+
+That's 2! (two factorial).
+
+If you are really bored, you can work out four participants, but I promise you
+that it's equal to 4! (four factorial).
+
+So to figure out the number of ways you can order _n_ elements, you just
+calculate _n_! (_n_ factorial).
+
+But what is _n_? In math, we have the concept of a _set_.[% Ovid.add_note('I
+am going to skip a lot, because this is a simple explanation.') %] A _set_ is merely an
+collection of _n_ distinct things. The order of those things doesn't matter.
+The set **{Alice, Bob, Charlie}** is the same as the set **{Charlie, Alice,
+Bob}**. So our original question is "how many permutions of a set are there
+when _n_ = 3?" And the answer is 3! (three factorial).
+
+But it turns out that an important concept in math is the "empty set",
+designated as **{}**. How many permutations does it have? 1 and only 1. Thus,
+0! = 1.
+
+# Do the Math
+
+OK, that sounds like cheating, so let's look at it another way.
+
+As it turns out, we can say the following:
+
+$$n! = \frac{(n + 1)!}{n + 1}$$
+
+How does that work? Well, let's use 4! as an example.
+
+$$4! = \frac{(4 + 1)!}{4 + 1}$$
+$$4! = \frac{5!}{5}$$
+$$4! = \frac{5\times4\times3\times2\times1}{5}$$
+
+And since the fives cancel out:
+
+$$4! = 4\times3\times2\times1$$
+
+And working this out with other numbers:
+
+$$3! = \frac{(3 + 1)!}{3 + 1}$$
+$$2! = \frac{(2 + 1)!}{2 + 1}$$
+$$1! = \frac{(1 + 1)!}{1 + 1}$$
+$$0! = \frac{(0 + 1)!}{0 + 1}$$
+
+Since it's 0! that we're interested in, we see it works out to:
+
+$$0! = \frac{1!}{1}$$
+
+Since 1! is 1, we have:
+
+$$0! = \frac{1}{1}$$
+
+And one over one is one. Thus, 0! = 1.
+
+[%- END %]
