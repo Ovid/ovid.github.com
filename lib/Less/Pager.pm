@@ -61,9 +61,9 @@ sub next ($self) {
     my $order  = $self->oldest_first ? 'ASC' : 'DESC';
     my $records =
       dbh( $self->db )->selectall_arrayref( <<"SQL", { Slice => {} } );
-    SELECT title, slug, directory, created
+    SELECT title, slug, directory, sort_order
       FROM articles
-  ORDER BY created $order LIMIT $limit OFFSET $offset;
+  ORDER BY sort_order $order LIMIT $limit OFFSET $offset;
 SQL
     $self->_set_page_number( $self->current_page_number + 1 ) if @$records;
     $self->_current_offset( $self->_current_offset + $self->items_per_page );

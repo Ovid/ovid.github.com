@@ -28,8 +28,8 @@ sub add_to_sqitch ( $title, $slug ) {
 
 BEGIN;
 
-    INSERT INTO articles (title, directory, slug, created)
-         VALUES ( $title, '/articles/', $q_slug, datetime('now'));
+    INSERT INTO articles (title, directory, slug, sort_order)
+         VALUES ( $title, '/articles/', $q_slug, (SELECT max(sort_order) FROM articles) + 1 );
 
 COMMIT;
 END
