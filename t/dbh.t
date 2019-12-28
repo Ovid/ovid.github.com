@@ -9,11 +9,16 @@ ok my $tables =
   $dbh->selectcol_arrayref(
     "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name;"),
   '... and we should be able to fetch our tables';
-eq_or_diff $tables, ['articles'], '... and they should be the tables we expect';
+eq_or_diff $tables, [ 'article_types', 'articles' ],
+  '... and they should be the tables we expect';
 ok my $prod = dbh('prod'),
   '... and we should also be able to fetch our prod database';
 throws_ok { dbh('wtf') }
 qr/Could not find database handle for 'wtf'/,
   '... but attempting to fetch an unknown database handle should fail';
+
+my $type = article_type('blog');
+eq_or_diff $type, { name => 'Blog Entries', type => 'blog', directory => 'blog', },
+ 'article_type($type) should return a hashref of type information';
 
 done_testing;

@@ -1,8 +1,11 @@
 package Less::Pager;
 
 use Moose;
-use Less::Script;
 use namespace::autoclean;
+use Moose::Util::TypeConstraints;
+use Less::Script;
+
+enum ArticleType => [qw/article blog/];
 
 has items_per_page => (
     is      => 'ro',
@@ -29,9 +32,20 @@ has oldest_first => (
     default => 0,
 );
 
+has type => (
+    is       => 'ro',
+    isa      => 'ArticleType',
+    required => 1,
+);
+
 sub _build_total($self) {
-    return dbh( $self->db )
-      ->selectcol_arrayref('SELECT COUNT(*) FROM articles')->[0];
+    my $sql = <<'SQL';
+    SELECT COUNT(*)
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE at.type = ?
+SQL
+    return dbh( $self->db )->selectcol_arrayref( $sql, {}, $self->type )->[0];
 }
 
 has _current_offset => (
@@ -60,9 +74,14 @@ sub next ($self) {
     my $offset = $self->_current_offset;
     my $order  = $self->oldest_first ? 'ASC' : 'DESC';
     my $records =
-      dbh( $self->db )->selectall_arrayref( <<"SQL", { Slice => {} } );
-    SELECT title, slug, directory, sort_order
-      FROM articles
+      dbh( $self->db )->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
+    SELECT a.title,
+           a.slug,
+           at.type,
+           a.sort_order
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE at.type = ?
   ORDER BY sort_order $order LIMIT $limit OFFSET $offset;
 SQL
     $self->_set_page_number( $self->current_page_number + 1 ) if @$records;

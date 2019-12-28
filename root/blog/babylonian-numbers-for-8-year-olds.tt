@@ -1,0 +1,148 @@
+[%
+    title            = 'Babylonian Numbers for 8-Year Olds';
+    identifier       = 'blog/babylonian-numbers-for-8-year-olds';
+    include_comments = 1;
+    syntax_highlight = 1;
+    mathjax          = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+My eight-year old daughter surprised me again. She likes getting simple math problems
+to solve at bedtime an for a recent bedtime story, the equation I asked her to
+solve was this:
+
+$$3\times\sqrt{25}\times5$$
+
+After a pause, she answered 75. I was happy, but then I asked her how she
+solved it.
+
+For myself, after reducing $\sqrt{25}$ to 5, I solved 3 x 5 and then 15 x 5.
+
+I then thought 5 x 5 followed by 3 x 25 is easier because multipliying by 25
+is easier for me than multipliying by 15. Hence my wanting to know which way
+_she_ chose to solve it. And her answer?
+
+> Three times five is fifteen. So we have fifteen times five. That's twelve
+> times five, or sixty, and I added fifteen.
+
+Well, damn. Perfectly correct. She's a reincarnated Babylonian mathematician.
+
+The Babylonians used base 60 math (which they inherited from Sumerians) which
+is why we have 60 seconds in a minute and 60 minutes in an hour. So naturally
+my daughter's comment made me think of the Babylonians and I started doing
+some reading.
+
+If you've ever worked with different mathematical bases, you might be wondering
+how the Babylonians memorized 60 different symbols for their numbers.
+
+Turns out they didn't. They only had two symbols, a unit symbol and a 10
+symbol (so, some hints of base 10). We can't easily write cuneiform, but if we
+pretend the units symbol is | (the pipe character) and the tens is «, they we
+could write 54 as «««««||||.
+
+In Unicode's interpretation of cuneiform (assuming you have the font
+installed), that's 𒐐𒐘. But note that cuneiform is complicated and evolved over
+millennia, so the Unicode representations don't appear to quite match the real
+ones I've seen online.
+
+But where does base 60 come in? Well, recall that in base 10, the number 365
+can be thought of as this:
+
+$$3\times10^2+6\times10^1+5\times10^0$$
+
+For the Babylonians, they might have written |||||| ||||| (a six and a five
+with a space in between) which is:
+
+$$6\times60^1+5\times60^0$$
+
+Or in cuneiform, 𒐚 𒐙, or after 300 CE: 𒐚𒑱𒐙.
+
+You might ask how they dealt with zero. For example, the number 1 (one) might
+be 𒐕, but the number 60 (1x60) would also be 𒐕 unless there was a space after
+it to denote the units position: 𒐕𒑱. Apparently the Babylonians didn't think
+this a problem and, in fact, that middle '𒑱' character to separate digits was
+only introduced about 300 CE, so prior to that, you'd have to pay very careful
+attention to the position of the numbers in columns to hope you interpreted
+ambiguous numbers correctly.
+
+That separator character solves all sorts of grief, I might add. The number 61
+is 𒐕𒐕, but the number 2 is 𒐖. It's easy to get them wrong unless you write 𒐕𒑱𒐕.
+
+That being said, after mentioning to my daughter that Babylonian numbers were
+base 60, she immediately wanted to know about them. So I showed her the basics
+and after converting our year, 2019, to Babylonian, we got 𒌍𒐗 𒌍𒐝  (33;39). I
+then worked with her to show her that in different bases, the "columns" of
+numbers of powers of the base (from right to left, they're 0,1,2,etc.), so
+after she translated the above "digits" to 33 and 39 respectively, I showed
+her how that works out to $33\times60^1 + 39\times60^0$. And that equals 2019.
+
+Her mind was blown, but she thought it was one of the coolest things she's ever
+seen.
+
+[%
+Ovid.cite('https://mathandinformatic.wordpress.com/numbers-and-number-theory/',
+'You can read more about Babylonian numbers here.') %]
+
+It should also go without saying that I'm hardly an expert on cuneiform of
+Babylonian mathematics, so if you or or know anyone who is, I'd love
+corrections.
+
+And if you're software developer, here's a quick Perl script I wrote to
+convert base 10 numbers to Babylonian:
+
+[% WRAPPER include/code.tt language='perl' -%]
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+binmode STDOUT, ':utf8_strict';
+
+foreach my $num (@ARGV) {
+    my $orig = $num;
+    if ( $num < 1 || $num != int($num) ) {
+        die "'$num' is not a positive integer";
+    }
+    my $base    = 60;
+    my $space   = '𒑱';
+    my %numbers = qw(
+      0 ␣
+      1 𒐕 2 𒐖 3 𒐗 4 𒐘 5 𒐙 6 𒐚 7 𒐛 8 𒐜 9 𒐝 10 𒌋␣
+      11 𒌋𒐕 12 𒌋𒐖 13 𒌋𒐗 14 𒌋𒐘 15 𒌋𒐙 16 𒌋𒐚 17 𒌋𒐛 18 𒌋𒐜 19 𒌋𒐝 20 𒎙␣
+      21 𒎙𒐕 22 𒎙𒐖 23 𒎙𒐗 24 𒎙𒐘 25 𒎙𒐙 26 𒎙𒐚 27 𒎙𒐛 28 𒎙𒐜 29 𒎙𒐝 30 𒌍␣
+      31 𒌍𒐕 32 𒌍𒐖 33 𒌍𒐗 34 𒌍𒐘 35 𒌍𒐙 36 𒌍𒐚 37 𒌍𒐛 38 𒌍𒐜 39 𒌍𒐝 40 𒐏␣
+      41 𒐏𒐕 42 𒐏𒐖 43 𒐏𒐗 44 𒐏𒐘 45 𒐏𒐙 46 𒐏𒐚 47 𒐏𒐛 48 𒐏𒐜 49 𒐏𒐝 50 𒐐␣
+      51 𒐐𒐕 52 𒐐𒐖 53 𒐐𒐗 54 𒐐𒐘 55 𒐐𒐙 56 𒐐𒐚 57 𒐐𒐛 58 𒐐𒐜 59 𒐐𒐝
+    );
+
+    my @result;
+    do {
+        unshift @result => $num % $base;
+        $num = int( $num / $base );
+    } while ( $num >= $base );
+    unshift @result => $num if $num;
+    my $babylonian = join $space => map { $numbers{$_} } @result;
+    print "$orig is '$babylonian'\n";
+}
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+babylonian.pl - print Babylonian numbers
+
+=head1 SYNOPSIS
+
+    $ ./babylonian.pl 123456789
+    𒐝𒑱𒌍𒐕𒑱𒌍𒐗𒑱𒌍𒐗𒑱𒐝
+
+=head1 DESCRIPTION
+
+Given a positive integer, prints the Babylonian version of it.
+
+See also: https://mathandinformatic.wordpress.com/numbers-and-number-theory/
+[% END %]
+
+[%- END %]
