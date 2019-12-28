@@ -144,21 +144,20 @@ sub rebuild_article_pagination () {
         my $pager        = Less::Pager->new( db => 'prod', type => $type );
         while ( my $records = $pager->next ) {
             my $page_number = $pager->current_page_number;
+            my $title = "$article_type->{name} by Ovid";
+            if ( $pager->total_pages > 1 ) {
+                $title .= ", page $page_number";
+            }
             my $articles    = get_article_list( $records, $article_type );
             my $pagination  = get_pagination( $pager->total_pages, $page_number,
                 $article_type );
             my $template = <<"END";
 [%
-    title      = '$article_type->{name} by Ovid, page $page_number';
+    title      = '$title';
     identifier = 'articles';
 %]
 
 [% INCLUDE include/header.tt %]
-
-<p>I've written a lot over the years, including a couple of books, but
-much of that is scattered hither and yon over the web. This page is a
-curated list of some of the writing that I think you might find
-useful.</p>
 
 $articles
 $pagination
@@ -178,9 +177,7 @@ END
 }
 
 sub get_pagination ( $total, $current, $article_type ) {
-
-    # XXX currently, we don't have enough pages to need more than this. Later,
-    # that will change.
+    return '' if $total == 1; 
     my $pagination = qq{<nav class="pagination">\n};
     if ( $current > 1 ) {
         my $prev    = $current - 1;
