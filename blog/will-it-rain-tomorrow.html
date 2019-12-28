@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Will It Rain Tomorrow?</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/css/layout.css">
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <!-- Back to top button -->
+            <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+            <h1>Will It Rain Tomorrow?</h1>
+            <hr>
+
+<p><em>I always forget many things about basic statistics, but I find I'm more likely
+to remember them if I write about them. Hence, this blog post. It's written to
+help me remember something I keep forgetting, but you can read it too.</em></p>
+
+<p>Like many of you, I have a near useless weather application on my phone. It
+tells me one of two things.</p>
+
+<p>First, what is the weather <em>now</em>? If I'm deep in the bowels of a client's
+building in Stockholm or Glasgow, yes, I might want to know the weather now
+because I don't know the local climate and glancing at my phone and seeing
+there's a blizzard raging is useful.</p>
+
+<p>But my consulting work is usually from home, so I can glance out the window.</p>
+
+<p>The second thing my weather application tells me is the <em>likelihood</em> of rain
+at 3AM tomorrow morning. Unless I'm planning on being out and about at that
+time, I don't care. But my phone assumes I do and I might see something
+like this:</p>
+
+<table>
+  <tr> <th>...</th> <th>3AM</th> <th>4AM</th> <th>5AM</th> <th>6AM</th> <th>7AM</th><th>...</th>  </tr>
+  <tr> <td>...</td> <td>13%</td> <td>13%</td> <td>18%</td> <td>22%</td> <td>8%</td><td>...</td>  </tr>
+</table>
+
+<p>But what I want to know is whether or not I should send my daughter to school
+with an umbrella. Thus, I want to know how likely it is that that it will at
+at all tomorrow.  So from the snippet above, is it likely that it's going to
+rain between 3 to 7AM? I have no idea. </p>
+
+<p>So how do I calculate that? Well, I am assuming that those percentages are for
+what are called "inpendent" events. What's an inpendent event? Well, let's say
+I want to know the odds of my dying tomorrow. You might assume that I want
+there to be no chance that I'll die tomorrow, but that's not true! I very much
+want there to be a chance of dying tomorrow because the only way there's no
+chance that I'll due tomorrow is if I'm already dead!</p>
+
+<p>Thus, the odds of my dying tomorrow are <em>dependent</em> on whether or not I've
+survived until tomorrow.</p>
+
+<p>But statisticians are boring and usually don't use such colorful examples.
+Instead, they'll ask a question like "what are the odds of flipping a fair
+coin twice and getting heads both times?" You simply mulitply the chance of
+getting heads by the number of times you flip the coin. You can quickly
+determine that the odds of getting heads twice in a row is 25%.</p>
+
+<p>But that's not rain. If we assume that the percentage chances listed for each
+of those hours don't take into account whether or not it's already rained, we
+have independent event. So, what if, for each of the 24 hours in a day, the
+odds of rain are 95%? We can safely assume that it will probaby rain at least
+once tomorrow.</p>
+
+<p>But what if the odds are only 10% for each of the 24 hours? That's harder to
+know.</p>
+
+<p>As it turns out, statisticians know very well how to calculate this and they
+use something called a <a href="https://en.wikipedia.org/wiki/Binomial_distribution" target="_blank">binomial
+distribution</a> <span class="fa fa-external-link fa_custom"></span>, but it's not useful here because ...</p>
+
+<p>If $p$ is the chance of success of an event, then the chance that
+we have <strong>exactly</strong> $k$ successes over $n$ independent trials is:</p>
+
+<p>$$P(X = k) = \frac{n!}{k!(n-k)!} \cdot p^k \cdot (1-p)^{n-k}$$</p>
+
+<p>where $X$ is the number of times the event happened.</p>
+
+<p>But that doesn't actually help because we don't want to know the odds of it
+raining once and only once. We want to know if it happens <em>at least</em> once. And
+that, it turns out, is easy. The odds of an event happening at least once is
+100% minus the odds that it <em>never</em> happened.</p>
+
+<p>The odds of something never happening are the chance of it not happening each
+hour, multiplied by the other chances of it not happening.</p>
+
+<p>If there's a 10% chance of rain at 2PM, there's a 90% chance of no rain.
+That's pretty clear, right?  But if there's a 10% chance of rain at 2PM and a
+15% chance of rain at 3PM, what are the odds of no rain between 2 and 3PM?</p>
+
+<p>$$(1-.1)\cdot(1-.15)$$</p>
+
+<p>That works out to roughly 77% chance of it not raining. That means there's a
+23% chance it raining between those two hours, even though the highest chance
+of rain it 15% at 3PM!  Thus, even low percentages quickly add up.</p>
+
+<p>Assuming that every hour has a 10% chance of rain, the chance of it <em>never</em>
+raining is $(1-.1)^{24}$ (90% multiplied by itself 24 times), or roughly .08,
+or 8%. Thus, the chance of it raining at least once tomorrow would be 92%.</p>
+
+<p>Even though each hour only has a 10% chance of rain, I still need to send my
+daughter to school with an umbrella.</p>
+
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/will-it-rain-tomorrow.html";
+            this.page.identifier = "blog/will-it-rain-tomorrow";
+            this.page.title      = "Will It Rain Tomorrow?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+</body>
+</html>
+
+

@@ -1,0 +1,101 @@
+[%
+    title            = 'Will It Rain Tomorrow?';
+    identifier       = 'blog/will-it-rain-tomorrow';
+    include_comments = 1;
+    mathjax          = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+_I always forget many things about basic statistics, but I find I'm more likely
+to remember them if I write about them. Hence, this blog post. It's written to
+help me remember something I keep forgetting, but you can read it too._
+
+Like many of you, I have a near useless weather application on my phone. It
+tells me one of two things.
+
+First, what is the weather _now_? If I'm deep in the bowels of a client's
+building in Stockholm or Glasgow, yes, I might want to know the weather now
+because I don't know the local climate and glancing at my phone and seeing
+there's a blizzard raging is useful.
+
+But my consulting work is usually from home, so I can glance out the window.
+
+The second thing my weather application tells me is the _likelihood_ of rain
+at 3AM tomorrow morning. Unless I'm planning on being out and about at that
+time, I don't care. But my phone assumes I do and I might see something
+like this:
+
+<table>
+  <tr> <th>...</th> <th>3AM</th> <th>4AM</th> <th>5AM</th> <th>6AM</th> <th>7AM</th><th>...</th>  </tr>
+  <tr> <td>...</td> <td>13%</td> <td>13%</td> <td>18%</td> <td>22%</td> <td>8%</td><td>...</td>  </tr>
+</table>
+
+But what I want to know is whether or not I should send my daughter to school
+with an umbrella. Thus, I want to know how likely it is that that it will at
+at all tomorrow.  So from the snippet above, is it likely that it's going to
+rain between 3 to 7AM? I have no idea. 
+
+So how do I calculate that? Well, I am assuming that those percentages are for
+what are called "inpendent" events. What's an inpendent event? Well, let's say
+I want to know the odds of my dying tomorrow. You might assume that I want
+there to be no chance that I'll die tomorrow, but that's not true! I very much
+want there to be a chance of dying tomorrow because the only way there's no
+chance that I'll due tomorrow is if I'm already dead!
+
+Thus, the odds of my dying tomorrow are _dependent_ on whether or not I've
+survived until tomorrow.
+
+But statisticians are boring and usually don't use such colorful examples.
+Instead, they'll ask a question like "what are the odds of flipping a fair
+coin twice and getting heads both times?" You simply mulitply the chance of
+getting heads by the number of times you flip the coin. You can quickly
+determine that the odds of getting heads twice in a row is 25%.
+
+But that's not rain. If we assume that the percentage chances listed for each
+of those hours don't take into account whether or not it's already rained, we
+have independent event. So, what if, for each of the 24 hours in a day, the
+odds of rain are 95%? We can safely assume that it will probaby rain at least
+once tomorrow.
+
+But what if the odds are only 10% for each of the 24 hours? That's harder to
+know.
+
+As it turns out, statisticians know very well how to calculate this and they
+use something called a [%
+Ovid.cite('https://en.wikipedia.org/wiki/Binomial_distribution', 'binomial
+distribution') %], but it's not useful here because ...
+
+If $p$ is the chance of success of an event, then the chance that
+we have **exactly** $k$ successes over $n$ independent trials is:
+
+$$P(X = k) = \frac{n!}{k!(n-k)!} \cdot p^k \cdot (1-p)^{n-k}$$
+
+where $X$ is the number of times the event happened.
+
+But that doesn't actually help because we don't want to know the odds of it
+raining once and only once. We want to know if it happens _at least_ once. And
+that, it turns out, is easy. The odds of an event happening at least once is
+100% minus the odds that it _never_ happened.
+
+The odds of something never happening are the chance of it not happening each
+hour, multiplied by the other chances of it not happening.
+
+If there's a 10% chance of rain at 2PM, there's a 90% chance of no rain.
+That's pretty clear, right?  But if there's a 10% chance of rain at 2PM and a
+15% chance of rain at 3PM, what are the odds of no rain between 2 and 3PM?
+
+$$(1-.1)\cdot(1-.15)$$
+
+That works out to roughly 77% chance of it not raining. That means there's a
+23% chance it raining between those two hours, even though the highest chance
+of rain it 15% at 3PM!  Thus, even low percentages quickly add up.
+
+Assuming that every hour has a 10% chance of rain, the chance of it _never_
+raining is $(1-.1)^{24}$ (90% multiplied by itself 24 times), or roughly .08,
+or 8%. Thus, the chance of it raining at least once tomorrow would be 92%.
+
+Even though each hour only has a 10% chance of rain, I still need to send my
+daughter to school with an umbrella.
+
+[%- END %]
