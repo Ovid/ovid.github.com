@@ -139,14 +139,17 @@ TOC
 }
 
 sub rebuild_article_pagination () {
-    my $pager = Less::Pager->new( db => 'prod' );
-    while ( my $records = $pager->next ) {
-        my $page_number = $pager->current_page_number;
-        my $articles    = get_article_list($records);
-        my $pagination  = get_pagination( $pager->total_pages, $page_number );
-        my $template    = <<"END";
+    foreach my $type (qw/article blog/) {
+        my $article_type = article_type($type);
+        my $pager        = Less::Pager->new( db => 'prod', type => $type );
+        while ( my $records = $pager->next ) {
+            my $page_number = $pager->current_page_number;
+            my $articles    = get_article_list( $records, $article_type );
+            my $pagination  = get_pagination( $pager->total_pages, $page_number,
+                $article_type );
+            my $template = <<"END";
 [%
-    title      = 'Articles by Ovid, page $page_number';
+    title      = '$article_type->{name} by Ovid, page $page_number';
     identifier = 'articles';
 %]
 
@@ -168,19 +171,20 @@ $pagination
 
 [% INCLUDE include/footer.tt %]
 END
-        my $article = article_page($page_number);
-        splat( "root/$article.tt", $template );
+            my $article = article_page( $page_number, $article_type );
+            splat( "root/$article.tt", $template );
+        }
     }
 }
 
-sub get_pagination ( $total, $current ) {
+sub get_pagination ( $total, $current, $article_type ) {
 
     # XXX currently, we don't have enough pages to need more than this. Later,
     # that will change.
     my $pagination = qq{<nav class="pagination">\n};
     if ( $current > 1 ) {
         my $prev    = $current - 1;
-        my $article = article_page($prev);
+        my $article = article_page( $prev, $article_type );
         $pagination .= qq{    <a href="/$article.html">&laquo;</a>\n};
     }
     else {
@@ -188,12 +192,12 @@ sub get_pagination ( $total, $current ) {
     }
     for my $page ( 1 .. $total ) {
         my $class   = $page == $current ? 'class="active"' : '';
-        my $article = article_page($page);
+        my $article = article_page( $page, $article_type );
         $pagination .= qq{    <a $class href="/$article.html">$page</a>\n};
     }
     if ( $current < $total ) {
         my $next    = $current + 1;
-        my $article = article_page($next);
+        my $article = article_page( $next, $article_type );
         $pagination .= qq{    <a href="/$article.html">&raquo;</a>\n};
     }
     else {
@@ -203,15 +207,16 @@ sub get_pagination ( $total, $current ) {
     return $pagination;
 }
 
-sub article_page($number) {
-    return 1 == $number ? "articles" : "articles_$number";
+sub article_page ( $number, $article_type ) {
+    my $directory = $article_type->{directory};
+    return 1 == $number ? $directory : "${directory}_$number";
 }
 
-sub get_article_list ($records) {
+sub get_article_list ( $records, $article_type ) {
     my $list = qq{<ul id="articles">\n};
     foreach my $article ( $records->@* ) {
         $list .=
-qq{    <li><a href="/articles/$article->{slug}.html">$article->{title}</a></li>\n};
+qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article->{title}</a></li>\n};
     }
     $list .= "</ul>";
     return $list;

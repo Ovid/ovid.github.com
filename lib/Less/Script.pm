@@ -10,6 +10,7 @@ use autodie ':all';
 use base qw(Exporter);
 
 our @EXPORT = qw(
+  article_type
   make_slug
   splat
   slurp
@@ -20,6 +21,26 @@ sub import ( $class, %arg_for ) {
     $class->export_to_level(1);
     Less::Boilerplate->import::into(1);
     Getopt::Long->import::into(1);
+}
+
+=head2 C<article_type>
+
+    my $type = article_type('blog');
+    say $type->{name};
+    say $type->{directory};
+
+=cut
+
+sub article_type ($type) {
+    my $article_type = dbh('test')->selectall_arrayref(<<'SQL', { Slice => {} }, $type)->[0];
+    SELECT name, type, directory
+      FROM article_types
+     WHERE type = ?
+SQL
+    unless ($article_type && keys $article_type->%*) {
+        croak("Could not fetch article_type information for '$type'");
+    }
+    return $article_type;
 }
 
 =head2 C<slurp>

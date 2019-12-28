@@ -4,8 +4,12 @@ use Test::Most;
 use lib 'lib';
 use Less::Pager;
 
-my $pager =
-  Less::Pager->new( db => 'test', items_per_page => 2, oldest_first => 1 );
+my $pager = Less::Pager->new(
+    db             => 'test',
+    items_per_page => 2,
+    oldest_first   => 1,
+    type           => 'article'
+);
 cmp_ok $pager->total, '>', 0, 'We should have records in our database';
 is $pager->current_page_number, 0, '... and we should not yet have a page';
 my $found = 0;
