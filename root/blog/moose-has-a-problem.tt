@@ -1,0 +1,259 @@
+[%
+    title            = 'Moose "has" a Problem';
+    identifier       = 'blog/moose-has-a-problem';
+    include_comments = 1;
+    syntax_highlight = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+> **Background**: I recently proposed [%
+Ovid.cite('https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede','a
+new object system, name Cor, for the Perl core') %]. This work has been done
+in coordination with Sawyer X and Stevan Little. What follows are my musings on
+the process and OO in general. For those things I inevitably get wrong in this
+discussion, it's my fault, not theirs.
+
+Contrary to what some might think, the discussions about the `Cor` OO system
+are ongoing, but it's happening quietly, via email, and the holiday period
+doesn't help.
+
+And the [Moose](https://metacpan.org/pod/Moose) `has` function also doesn't
+help. At all. It's possible that you've heard some rumblings about the `has`
+function, so let's clear up some of this. This will take some time, but I
+promise you, by the time I'm done, that I will have given a rubbish
+explanation of a hard problem. In throwing this together, I truly understand
+Blaise Pascal's comment "I would have written a shorter letter, but I did not
+have the time." If I had the time, this would be much shorter and clearer, but
+I'm too lazy to delete this.
+
+In Moose (and [Moo](https://metacpan.org/pod/Moo), but we'll stick to Moose
+for this discussion), the `has` function lets you declare an attribute:
+
+[% WRAPPER include/code.tt language='perl' -%]
+package Point2D {
+    use Moose;
+    has [qw/x y/] => (
+        is       => 'ro',
+        isa      => 'Num',
+        required => 1,
+    );
+}
+[% END %]
+
+The above is a class for the canonical 2D point object that developers have a
+love/hate relationship about when learning OO concepts.
+
+As you can see from the `has` declaration, we have:
+
+1. Created slots for the data
+2. Created read-only accessors for the data
+3. Required that they be passed to the constructor[% Ovid.add_note('Not quite correct, but we will get to that later.') %]
+
+That's a lot to pack into one function, and it leads to confusion like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+has attr => (
+    is       => 'ro',            # read-only
+    isa      => 'Int',           # declare it an integer
+    writer   => 'set_attr',      # but it's read-only?
+    required => 1,               # 'attr' must be provided
+    builder  => '_build_attr',   # called if not passed in the constructor
+);
+[% END %]
+
+There are other examples you could put together, but that shows part of the
+issue: Moose has crammed so much into one function that it's easy to write
+code that is confusing or just plain doesn't make sense. The above _does_ make
+sense if you realize that `required` doesn't mean that the attribute is
+required to be passed to the constructor (as some assume). [%
+Ovid.cite('https://metacpan.org/pod/distribution/Moose/lib/Moose/Manual/Attributes.pod#Required-or-not?',
+'The docs say this') %]:
+
+> Basically, all [required] says is that this attribute must be provided to the
+> constructor or it must have either a default or a builder. It does not say
+> anything about its value, so it could be undef.
+
+But what does declaring something as read-only and providing a writer
+(mutator) mean? That's confusing because we're really packing a lot of
+meaning into a single function.
+
+What's worse, it's harder to write code that does what we need. If I want a
+private, internal slot, per instance, with no accessor, do you know how to do
+that in Moose? We tend not to do that too much with Moose simply because it's
+hard to do, despite being trivial in other languages.
+
+Well, you can declare a slot as `bare` (instead of `ro` and friends) and then do:
+
+[% WRAPPER include/code.tt language='perl' -%]
+my $value = $self->meta
+                 ->get_attribute($attribute_name)
+                 ->get_value($self);
+[% END %]
+
+Except no one does that (by "no one", of course, I mean "the set of no
+developers who aren't not Stevan.") They just declare the attribute private
+and that's that.  And I don't blame them. But it means that everyone just
+makes accessors for everything, and that makes it much easier to make _public_
+accessors for everything and when I'm cleaning up code for a client, that's a
+problem because it makes it much harder for me because now I have a public
+contract that I have to respect, even if there wasn't originally a need to
+expose that data.
+
+Encouraging people to write accessors is a bad idea, but people do it all over
+the place, just as they often make attribute mutable for no good reason ([%
+Ovid.cite('https://rjbs.manxome.org/rubric/entry/1929', 'and here is a great
+example of why mutable objects are dangerous') %]). A good rule of thumb for
+OO design: make your interface as small as possible. Moose, unfortunately,
+offers an affordance to making our interace as large as possible.
+
+Moving along, what does that point class look like in Java?
+
+[% WRAPPER include/code.tt language='java' -%]
+public class Point2D { 
+    // slots
+    private double x;
+    private double y;
+
+    // accessors
+    public double x() { return x; }
+    public double y() { return y; }
+
+    // constructor
+    public Point2D(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+[% END %]
+
+Note how the slots, the accessors, and the constructor arguments are all nicely
+decoupled, leaving no ambiguity.
+
+And without going into detail, private slots with no accessors are trivial in
+Java, at both the class and instance level.
+
+But where does that leave `Cor`? Well, `Cor` aims to be _core_, meaning that
+overloading `has` is problematic. We've learned a lot from Moose about how to
+make OO that feels "perlish", but we need to keep growing and learn from our
+mistakes. Returning to this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+has attr => (
+    is       => 'ro',
+    isa      => 'Int',
+    writer   => 'set_attr',
+    builder  => '_build_attr',
+    required => 1,
+);
+[% END %]
+
+For Moose, that's OK. For `Cor`, that's not, because it means you can write
+code that is, at best, confusing.
+
+And then there are things like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+my $auth = Authenticate->new($one_time_token);
+# or
+my $auth = Authenticate->new( user => $user, pass => $pass );
+# or
+my $auth = Authenticate->new({user => $user, pass => $pass});
+[% END %]
+
+Here's one way you could try to handle that:
+
+[% WRAPPER include/code.tt language='perl' -%]
+around BUILDARGS => sub ($orig, $class, @args) {
+    my %arg_for
+      = @args > 1              ? @args
+      : 'HASH' eq ref $args[0] ? $args[0]->%*
+      :                          ( token => $args[0] );
+    return $class->$orig(%arg_for);
+};
+[% END %]
+
+In languages with multi-dispatch, if we add a new way of instantiating an
+object, we can just add a new constructor and the language will handle the
+dispatching for us. With Moose, we need to use `BUILDARGS` for this, and
+manually handle all of that dispatching ourselves. That means more bugs. If
+Perl had something like multidispatch, we could possibly write:
+
+[% WRAPPER include/code.tt language='perl' -%]
+method BUILDARGS (Code $orig, Class $class, UUID $token)             { ... }
+method BUILDARGS (Code $orig, Class $class, Str :$user, Str :$pass ) { ... }
+method BUILDARGS (Code $orig, Class $class, HashRef $args)           { ... }
+[% END %]
+
+For `Cor`, we're not going to get there because Perl doesn't yet have robust
+signatures like that and we're probably _never_ going to get multidispatch,
+but decoupling the very overloaded meaning of `has` will help, and limiting
+how we can pass arguments can help (no more "named pairs" or "hashref"
+decision making).
+
+And here's a fun one! An attribute that you can't set, even though it looks
+like you can pass it in the constructor:
+
+[% WRAPPER include/code.tt language='perl' -%]
+#!/usr/bin/env perl
+
+package SomeClass {
+    use Moose;
+    has 'username' => (
+        is       => 'ro',
+        isa      => 'Str',
+        required => 1,
+        init_arg => undef,
+        default  => 'Bob',
+    );
+}
+
+# this prints "Bob"
+print SomeClass->new( username => 'foo' )->username;
+[% END %]
+
+Of course, `Cor` could try to trap every possible illegal (or confusing)
+combination and then what?
+
+* Warn about them?
+* Ignore them?
+* Make them fatal?
+* Do this at compile-time?
+* At runtime?
+
+And if we check illegal combinations, then if we ever extend `has` to have
+more functionality, we have to figure out the new "illegal" combinations (such
+as making attributes simultaneously required and lazy).
+
+Do we stop developers from shooting themselves in the foot or hand them a gun?
+
+The counter-argument I hear from many developers is "we don't need to separate
+slots and attributes or a different syntax for declaring attributes. What
+we've been doing works."
+
+And frankly, this has worked fairly well. If the new `Cor` proposal doesn't
+provide some dead-simple way to create accessors, then we'll wind up with 42
+different modules to provide that and we won't be that much further along than
+when we started.
+
+There are so many decisions to be made with `Cor`, many of which would be dead
+wrong if we move too quickly and we don't want to get this wrong. And the lack
+of multi-methods and the inability to introspect signatures means the
+`BUILDARGS` and `BUILD` pain will remain in some form (though `BUILD` isnt'
+too bad).
+
+Thus, we really want to have some separation of slots, attributes, and
+constructors, but making an easy syntax for that is is a challenge. As the old
+line goes, "making things hard is easy; making things easy is hard." And
+making a solution that is easy and does the right thing and that all Perl
+developers will like is impossible. And there _will_ be developers looking at
+the final solution and sayind "no" because their one pet peeve wasn't
+respected.
+
+As for our initial work with the syntax, the core Perl devs liked what they
+saw in the initial proposal, but it's one thing to say "shiny!". It's another
+thing to hammer that shiny onto something that already exists. There are a
+number of approaches which can be taken, but they require hard decisions. For
+now, `Cor` will be focusing on the syntax.
+
+[%- END %]

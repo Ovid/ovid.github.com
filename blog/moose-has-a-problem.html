@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Moose "has" a Problem</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <!-- Back to top button -->
+            <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+            <h1>Moose "has" a Problem</h1>
+            <hr>
+
+<blockquote>
+  <p><strong>Background</strong>: I recently proposed <a href="https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede" target="_blank">a
+  new object system, name Cor, for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>. This work has been done
+  in coordination with Sawyer X and Stevan Little. What follows are my musings on
+  the process and OO in general. For those things I inevitably get wrong in this
+  discussion, it's my fault, not theirs.</p>
+</blockquote>
+
+<p>Contrary to what some might think, the discussions about the <code>Cor</code> OO system
+are ongoing, but it's happening quietly, via email, and the holiday period
+doesn't help.</p>
+
+<p>And the <a href="https://metacpan.org/pod/Moose">Moose</a> <code>has</code> function also doesn't
+help. At all. It's possible that you've heard some rumblings about the <code>has</code>
+function, so let's clear up some of this. This will take some time, but I
+promise you, by the time I'm done, that I will have given a rubbish
+explanation of a hard problem. In throwing this together, I truly understand
+Blaise Pascal's comment "I would have written a shorter letter, but I did not
+have the time." If I had the time, this would be much shorter and clearer, but
+I'm too lazy to delete this.</p>
+
+<p>In Moose (and <a href="https://metacpan.org/pod/Moo">Moo</a>, but we'll stick to Moose
+for this discussion), the <code>has</code> function lets you declare an attribute:</p>
+
+<pre class="scrolled"><code class="language-perl">package Point2D {
+    use Moose;
+    has [qw/x y/] =&gt; (
+        is       =&gt; 'ro',
+        isa      =&gt; 'Num',
+        required =&gt; 1,
+    );
+}
+</code></pre>
+
+<p>The above is a class for the canonical 2D point object that developers have a
+love/hate relationship about when learning OO concepts.</p>
+
+<p>As you can see from the <code>has</code> declaration, we have:</p>
+
+<ol>
+<li>Created slots for the data</li>
+<li>Created read-only accessors for the data</li>
+<li>Required that they be passed to the constructor<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="1" class="popup">
+<a href="#1-return" class="close">&times;</a>
+<span class="popup-body">Not quite correct, but we will get to that later.</span>
+</span>
+<a href="#1-return" class="close-popup"></a></li>
+</ol>
+
+<p>That's a lot to pack into one function, and it leads to confusion like this:</p>
+
+<pre class="scrolled"><code class="language-perl">has attr =&gt; (
+    is       =&gt; 'ro',            # read-only
+    isa      =&gt; 'Int',           # declare it an integer
+    writer   =&gt; 'set_attr',      # but it's read-only?
+    required =&gt; 1,               # 'attr' must be provided
+    builder  =&gt; '_build_attr',   # called if not passed in the constructor
+);
+</code></pre>
+
+<p>There are other examples you could put together, but that shows part of the
+issue: Moose has crammed so much into one function that it's easy to write
+code that is confusing or just plain doesn't make sense. The above <em>does</em> make
+sense if you realize that <code>required</code> doesn't mean that the attribute is
+required to be passed to the constructor (as some assume). <a href="https://metacpan.org/pod/distribution/Moose/lib/Moose/Manual/Attributes.pod#Required-or-not?" target="_blank">The docs say this</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>Basically, all [required] says is that this attribute must be provided to the
+  constructor or it must have either a default or a builder. It does not say
+  anything about its value, so it could be undef.</p>
+</blockquote>
+
+<p>But what does declaring something as read-only and providing a writer
+(mutator) mean? That's confusing because we're really packing a lot of
+meaning into a single function.</p>
+
+<p>What's worse, it's harder to write code that does what we need. If I want a
+private, internal slot, per instance, with no accessor, do you know how to do
+that in Moose? We tend not to do that too much with Moose simply because it's
+hard to do, despite being trivial in other languages.</p>
+
+<p>Well, you can declare a slot as <code>bare</code> (instead of <code>ro</code> and friends) and then do:</p>
+
+<pre class="scrolled"><code class="language-perl">my $value = $self-&gt;meta
+                 -&gt;get_attribute($attribute_name)
+                 -&gt;get_value($self);
+</code></pre>
+
+<p>Except no one does that (by "no one", of course, I mean "the set of no
+developers who aren't not Stevan.") They just declare the attribute private
+and that's that.  And I don't blame them. But it means that everyone just
+makes accessors for everything, and that makes it much easier to make <em>public</em>
+accessors for everything and when I'm cleaning up code for a client, that's a
+problem because it makes it much harder for me because now I have a public
+contract that I have to respect, even if there wasn't originally a need to
+expose that data.</p>
+
+<p>Encouraging people to write accessors is a bad idea, but people do it all over
+the place, just as they often make attribute mutable for no good reason (<a href="https://rjbs.manxome.org/rubric/entry/1929" target="_blank">and here is a great
+example of why mutable objects are dangerous</a> <span class="fa fa-external-link fa_custom"></span>). A good rule of thumb for
+OO design: make your interface as small as possible. Moose, unfortunately,
+offers an affordance to making our interace as large as possible.</p>
+
+<p>Moving along, what does that point class look like in Java?</p>
+
+<pre class="scrolled"><code class="language-java">public class Point2D { 
+    // slots
+    private double x;
+    private double y;
+
+    // accessors
+    public double x() { return x; }
+    public double y() { return y; }
+
+    // constructor
+    public Point2D(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+</code></pre>
+
+<p>Note how the slots, the accessors, and the constructor arguments are all nicely
+decoupled, leaving no ambiguity.</p>
+
+<p>And without going into detail, private slots with no accessors are trivial in
+Java, at both the class and instance level.</p>
+
+<p>But where does that leave <code>Cor</code>? Well, <code>Cor</code> aims to be <em>core</em>, meaning that
+overloading <code>has</code> is problematic. We've learned a lot from Moose about how to
+make OO that feels "perlish", but we need to keep growing and learn from our
+mistakes. Returning to this:</p>
+
+<pre class="scrolled"><code class="language-perl">has attr =&gt; (
+    is       =&gt; 'ro',
+    isa      =&gt; 'Int',
+    writer   =&gt; 'set_attr',
+    builder  =&gt; '_build_attr',
+    required =&gt; 1,
+);
+</code></pre>
+
+<p>For Moose, that's OK. For <code>Cor</code>, that's not, because it means you can write
+code that is, at best, confusing.</p>
+
+<p>And then there are things like this:</p>
+
+<pre class="scrolled"><code class="language-perl">my $auth = Authenticate-&gt;new($one_time_token);
+# or
+my $auth = Authenticate-&gt;new( user =&gt; $user, pass =&gt; $pass );
+# or
+my $auth = Authenticate-&gt;new({user =&gt; $user, pass =&gt; $pass});
+</code></pre>
+
+<p>Here's one way you could try to handle that:</p>
+
+<pre class="scrolled"><code class="language-perl">around BUILDARGS =&gt; sub ($orig, $class, @args) {
+    my %arg_for
+      = @args &gt; 1              ? @args
+      : 'HASH' eq ref $args[0] ? $args[0]-&gt;%*
+      :                          ( token =&gt; $args[0] );
+    return $class-&gt;$orig(%arg_for);
+};
+</code></pre>
+
+<p>In languages with multi-dispatch, if we add a new way of instantiating an
+object, we can just add a new constructor and the language will handle the
+dispatching for us. With Moose, we need to use <code>BUILDARGS</code> for this, and
+manually handle all of that dispatching ourselves. That means more bugs. If
+Perl had something like multidispatch, we could possibly write:</p>
+
+<pre class="scrolled"><code class="language-perl">method BUILDARGS (Code $orig, Class $class, UUID $token)             { ... }
+method BUILDARGS (Code $orig, Class $class, Str :$user, Str :$pass ) { ... }
+method BUILDARGS (Code $orig, Class $class, HashRef $args)           { ... }
+</code></pre>
+
+<p>For <code>Cor</code>, we're not going to get there because Perl doesn't yet have robust
+signatures like that and we're probably <em>never</em> going to get multidispatch,
+but decoupling the very overloaded meaning of <code>has</code> will help, and limiting
+how we can pass arguments can help (no more "named pairs" or "hashref"
+decision making).</p>
+
+<p>And here's a fun one! An attribute that you can't set, even though it looks
+like you can pass it in the constructor:</p>
+
+<pre class="scrolled"><code class="language-perl">#!/usr/bin/env perl
+
+package SomeClass {
+    use Moose;
+    has 'username' =&gt; (
+        is       =&gt; 'ro',
+        isa      =&gt; 'Str',
+        required =&gt; 1,
+        init_arg =&gt; undef,
+        default  =&gt; 'Bob',
+    );
+}
+
+# this prints &quot;Bob&quot;
+print SomeClass-&gt;new( username =&gt; 'foo' )-&gt;username;
+</code></pre>
+
+<p>Of course, <code>Cor</code> could try to trap every possible illegal (or confusing)
+combination and then what?</p>
+
+<ul>
+<li>Warn about them?</li>
+<li>Ignore them?</li>
+<li>Make them fatal?</li>
+<li>Do this at compile-time?</li>
+<li>At runtime?</li>
+</ul>
+
+<p>And if we check illegal combinations, then if we ever extend <code>has</code> to have
+more functionality, we have to figure out the new "illegal" combinations (such
+as making attributes simultaneously required and lazy).</p>
+
+<p>Do we stop developers from shooting themselves in the foot or hand them a gun?</p>
+
+<p>The counter-argument I hear from many developers is "we don't need to separate
+slots and attributes or a different syntax for declaring attributes. What
+we've been doing works."</p>
+
+<p>And frankly, this has worked fairly well. If the new <code>Cor</code> proposal doesn't
+provide some dead-simple way to create accessors, then we'll wind up with 42
+different modules to provide that and we won't be that much further along than
+when we started.</p>
+
+<p>There are so many decisions to be made with <code>Cor</code>, many of which would be dead
+wrong if we move too quickly and we don't want to get this wrong. And the lack
+of multi-methods and the inability to introspect signatures means the
+<code>BUILDARGS</code> and <code>BUILD</code> pain will remain in some form (though <code>BUILD</code> isnt'
+too bad).</p>
+
+<p>Thus, we really want to have some separation of slots, attributes, and
+constructors, but making an easy syntax for that is is a challenge. As the old
+line goes, "making things hard is easy; making things easy is hard." And
+making a solution that is easy and does the right thing and that all Perl
+developers will like is impossible. And there <em>will</em> be developers looking at
+the final solution and sayind "no" because their one pet peeve wasn't
+respected.</p>
+
+<p>As for our initial work with the syntax, the core Perl devs liked what they
+saw in the initial proposal, but it's one thing to say "shiny!". It's another
+thing to hammer that shiny onto something that already exists. There are a
+number of approaches which can be taken, but they require hard decisions. For
+now, <code>Cor</code> will be focusing on the syntax.</p>
+
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/moose-has-a-problem.html";
+            this.page.identifier = "blog/moose-has-a-problem";
+            this.page.title      = "Moose "has" a Problem";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
+
