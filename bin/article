@@ -4,6 +4,7 @@
 
 use lib 'lib';
 use File::Spec::Functions qw(catfile);
+use DateTime;
 use Less::Script;
 
 GetOptions( \my %opt_for, 'nocomments', 'type=s' )
@@ -81,12 +82,14 @@ sub edit_article ($template) {
 }
 
 sub template ( $title, $identifier, $comments = 1 ) {
-    return sprintf <<'END' => $title, $identifier, $comments;
+    my $ymd = DateTime->now->ymd;
+    return sprintf <<'END' => $title, $identifier, $comments, $ymd;
 [%%
     title            = '%s';
     identifier       = '%s';
     include_comments = %d;
     syntax_highlight = 1;
+    date             = '%s';
     USE Ovid;
 %%]
 [%% WRAPPER include/wrapper.tt markdown=1 -%%]

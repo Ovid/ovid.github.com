@@ -11,6 +11,7 @@ use base qw(Exporter);
 
 our @EXPORT = qw(
   article_type
+  article
   make_slug
   splat
   slurp
