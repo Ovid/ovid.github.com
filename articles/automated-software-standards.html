@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Automate Your Software Standards</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <!-- Back to top button -->
+            <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+            <h1>Automate Your Software Standards</h1>
+            <time>2020-01-05</time>
+            <hr>
+
+<p>When I was working with the BBC, the age-old debate had arisen again: should
+we use "cuddled elses" or not?<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <span class="popup-body">This is from memory. It could
+have been some other trivial detail we were debating.</span>
+</span>
+<a href="#1-return" class="close-popup"></a>
+ For those not
+familiar with the debate, it's asking if we should do this:</p>
+
+<pre class="scrolled"><code class="language-java">if (someCondition) {
+    System.out.println(&quot;We all gonna die&quot;);
+} else {
+    System.out.println(&quot;We not gonna die&quot;);
+}
+</code></pre>
+
+<p>Or this:</p>
+
+<pre class="scrolled"><code class="language-java">if (someCondition) {
+    System.out.println(&quot;We all gonna die&quot;);
+}
+else {
+    System.out.println(&quot;We not gonna die&quot;);
+}
+</code></pre>
+
+<p>For those of you who are not software developers, the differences might seem
+pedantic. For those of you who <em>are</em> software developers, the difference <em>is</em>
+pedantic. Unfortunately, it caused a furious debate (as it often does) at the
+BBC and, as often happens with these debates, work isn't done. Sometimes
+tempers flare. And quite often a decision isn't made.</p>
+
+<p>And that's actually bad because one developer might "cuddle" that <code>else</code> and
+another developer working on this code might "uncuddle" it. And they're not
+being malicious or petty: "correctly" formatting code is simply something an
+experienced developer does as part of their job. And that means more commits
+to your version control system and more work digging through those commits if
+you're trying to figure out why something was written in a particular way.</p>
+
+<p>Or worse, you have a developer who decides to write code to format the entire
+codebase in their personal style and running <code>git annotate $filename</code> shows
+that developer on all the lines. So you contact this "expert" about the
+<code>$filename</code> and they say they've never heard of it. I've run across this mess
+more than once.</p>
+
+<p>Getting back to the BBC ...</p>
+
+<p>We had agreed we'd use <a href="https://metacpan.org/pod/Perl::Tidy" target="_blank"><code>Perl::Tidy</code></a> <span class="fa fa-external-link fa_custom"></span> to automatically format our code, but at that point, we hit
+<em>another</em> obstacle because everyone argued about the brace style (if you don't
+know what that means, trust me, you don't care) and no matter how hard we
+tried, <code>Perl::Tidy</code> couldn't get the curly braces formatted the way we wanted
+them to be formatted.</p>
+
+<p>My argument was "who cares? We'll get used to the new styles. Let's get back
+to work." But another developer, passionate about his brace placement, argued
+that he could write a <a href="https://metacpan.org/pod/PPI" target="_blank"><code>PPI</code></a> <span class="fa fa-external-link fa_custom"></span>
+hook to fix this. Sigh.</p>
+
+<p>I quietly bet another developer £5 that this approach would not work.  I'm sad
+to say I won that bet. Worse, when the "solution" was ready, it kept hitting
+edge cases in our code and breaking.</p>
+
+<p>And if you really want to see what a ridiculous timesink this can be, you can
+choose many different indentation styles such as K&amp;R (and its many variants),
+Allman, Pico, Ratliff, GNU, <a href="https://en.wikipedia.org/wiki/Indentation_style" target="_blank">ad nauseum</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p><strong>What a waste of time!</strong></p>
+
+<p>The icing on the cake? Though we know having regular formatting of code to
+show the logical structure of the program makes it easier to follow the code
+(proof: read minimized Javascript versus unminimized), there's no strong
+evidence (that I've ever found) a <em>particular</em> type of formatting is better
+than another. If you disagree, please provide non-anecdotal evidence.</p>
+
+<p>In fact, in the excellent book <a href="https://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670" target="_blank">Code Complete: A Practical Handbook of Software Construction, Second
+Edition</a> <span class="fa fa-external-link fa_custom"></span>, by Steve McConnell, he dives into this at the beginning of
+chapter 31. After some discussion of the topic, including referencing some
+studies on said topic, he concludes (emphasis mine):</p>
+
+<blockquote>
+  <p>Expert programmers often cling to their own styles tenaciously, even when
+  they’re vastly different from other styles used by other expert programmers.
+  The bottom line is that <strong>the details of a specific method of structuring a
+  program are much less important than the fact that the program is structured
+  consistently</strong>.</p>
+</blockquote>
+
+<p>Unsurprisingly, these arguments about brace style, cuddled elses, tabs versus
+spaces,<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="2" class="popup">
+  <a href="#2-return" class="close">&times;</a>
+  <span class="popup-body">Actually, there are strong arguments for tabs
+regarding accessibility for those with poor vision, but I still prefer spaces.
+I'm as irrational as everyone else.</span>
+</span>
+<a href="#2-return" class="close-popup"></a>
+ and so on, are almost meaningless. To
+be fair, there is marginal value to be had in suggesting things such as
+"shorter variable names for smaller scopes" and "indent to show logical
+structure", but being too pedantic about it pisses people off for no good
+reason.</p>
+
+<p>So how do we fix this?</p>
+
+<p>First, pick a reasonable style you can <em>automate</em>, swallow your pride
+about the details, and choose your automation tools. Second, consider
+that—unless you're pair programming—noone really cares much about the
+font you're using, do they? Not really. You've set your editor to choose your
+own font and that's not written back to your source code, so set your editor
+to choose your own style and make sure <em>it's</em> not written back to the source
+code.</p>
+
+<p>So let's say you prefer spaces to tabs, with a four-space indent, and you
+use vim to edit your code. When you open a file, or create a new one, using
+the <code>BufRead,BufNewFile</code> commands is the first thing you need, or you can
+create a mapping to apply your style. For example, in your filetype mappings
+you can add the following:</p>
+
+<pre class="scrolled"><code>noremap &lt;silent&gt; &lt;leader&gt;ms :call s:ApplyMyStyle()&lt;cr&gt;
+
+function! s:ApplyMyStyle()
+    &quot; set up my editor to do the right thing
+    setfiletype perl
+    set expandtab
+    set textwidth=78
+    set tabstop=4
+    set shiftwidth=4
+    set expandtab
+    retab &quot; apply my tab/space choices
+    &quot; reformat the file
+    execute(&quot;:%!perltidy -q --profile=myperltidyrc&quot;)
+endfunction
+</code></pre>
+
+<p>Now, assuming your leader is the backslash, you can type <code>\ms</code> to apply your
+coding style and never, ever have to pay attention to the silly choices other
+developers make.</p>
+
+<p>Do I recommend this technique? Absolutely not. You're going to commit in your
+own style one day. However, <a href="https://github.com/mlawren/githook-perltidy" target="_blank">there are git hooks
+you can write to apply styles when you commit</a> <span class="fa fa-external-link fa_custom"></span>. It's much safer. A better
+choice, still, is to just be an adult and admit your "one true style" is
+a personal preference, not a mandate handed down from heaven. Learn to use the
+house style in preference to your own and avoid all of the petty arguments in
+the first place. You won't look like a better person for it, but you'll look
+like a worse one if you tell the other programmers they're fools for
+choosing a style different from your own.</p>
+
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/automated-software-standards.html";
+            this.page.identifier = "articles/automated-software-standards";
+            this.page.title      = "Automate Your Software Standards";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,25 @@
+[%
+    title      = 'Articles by Ovid, page 3';
+    identifier = 'articles';
+%]
+
+[% INCLUDE include/header.tt %]
+
+<ul id="articles">
+    <li><a href="/articles/going-agile-can-hurt-your-company.html">When going agile can hurt your company</a></li>
+</ul>
+<nav class="pagination">
+    <a href="/articles_2.html">&laquo;</a>
+    <a  href="/articles.html">1</a>
+    <a  href="/articles_2.html">2</a>
+    <a class="active" href="/articles_3.html">3</a>
+    <span class="inactive">&raquo;</span>
+</nav>
+[% IF 3 == 1 -%]
+<script>
+    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+</script>
+[%- END %]
+
+[% INCLUDE include/footer.tt %]
