@@ -141,9 +141,9 @@ time you work with a new database.</p>
 online where we see table names like <code>CustomerOrders</code> or <code>customer_orders</code>.
 Which should you use? You probably want to use whatever standard is already in
 place, but if you're creating a new database, I recommend <code>using_undercores</code>
-for accessibility. The words "under value" has a different meaning from the
+for accessibility. The words "under value" have a different meaning from the
 word "undervalue", but the former, with underscores, is always <code>under_value</code>,
-while the latter is <code>undervalue</code>. But with CamelCase, it's <code>Undervalue</code> versus
+while the latter is <code>undervalue</code>. With CamelCase, it's <code>Undervalue</code> versus
 <code>UnderValue</code>. If you have vision problems and are constantly playing around
 with fonts and sizes to distinguish words, the underscores are <em>much</em> easier
 to read.</p>
@@ -204,7 +204,7 @@ LEFT JOIN route
 ORDER BY datesent ASC, thread.parent_id ASC
 </code></pre>
 
-<p>Do you see the bugs? If the SQL had used full id names, such as <code>email_id</code>,
+<p>Do you see the problem? If the SQL had used full id names, such as <code>email_id</code>,
 <code>star_id</code>, and <code>station_id</code>, the bugs would have stood out like a sore thumb
 <em>while I was typing out this SQL</em>, not later when I was trying to figure out
 both what I did wrong and why I don't drink as much as I should.</p>
@@ -231,8 +231,9 @@ column <code>fahrenheit</code>.</p>
 
 <p>Now it's completely unambiguous.</p>
 
-<p>Also, when you need to join tables, as much as possible, give identical names
-to the columns. For example, consider this perfectly reasonable, sane, SQL.</p>
+<p>Also, when you have foreign key constraints, you should name the columns on
+each side of the constraint identically, if possible.  For example, consider
+this perfectly reasonable, sane, SQL.</p>
 
 <pre class="scrolled"><code class="language-sql">SELECT *
   FROM some_table       s
@@ -256,13 +257,13 @@ line of code and don't have to go consult the table definition.</p>
 
 <p>However, it should be noted that this isn't always possible. If you have a
 table with a source warehouse and a destination warehouse, you might want a
-<code>source_id</code> and a <code>destination_id</code> to compare with your <code>factory_id</code>. Naming
-them <code>source_factory_id</code> and <code>destination_factory_id</code> will make this easier to
-follow.</p>
+<code>source_id</code> and a <code>destination_id</code> to compare with your <code>warehouse_id</code>. Naming
+them <code>source_warehouse_id</code> and <code>destination_warehouse_id</code> will make this
+easier to follow.</p>
 
 <p>It should also be noted that in the example above, <code>owner</code> is more descriptive
 of the intent than <code>company_id</code>. If you feel this is likely to cause
-confusion, you can name the column <code>owner_company_id</code>. That can still embed
+confusion, you can name the column <code>owning_company_id</code>. That can still embed
 the intent of the column in the name while giving you a strong hint as to its
 intent.</p>
 
@@ -281,13 +282,12 @@ serious problems <code>NULL</code> values cause. </p>
 <h2><a name="database-types"></a>Database Types</h2>
 
 <p>In the database, we have various data <em>types</em>, such as <code>INTEGER</code>, <code>JSON</code>,
-<code>DATETIME</code>, and so on. A type is associated with a column, not a value in that
-column. Thus, any value added into a column should conform to the type
-associated with that column.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<code>DATETIME</code>, and so on. A type is associated with a column and any value added
+should conform to the type associated with that column.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
 <span id="1" class="popup">
   <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">Well, that's the idea, but SQLite and MySQL regularly make a
-mockery of this.</span>
+  <span class="popup-body">Well,
+that's the idea, but SQLite and MySQL regularly make a mockery of this.</span>
 </span>
 <a href="#1-return" class="close-popup"></a></p>
 
@@ -302,13 +302,13 @@ Java, what happens if you try to compare a string and an integer?</p>
   second type: int
 </code></pre>
 
-<p>Even if you can't see by at <code>current &gt; threshhold</code> that they're different
-types, the compiler will trap this for you.</p>
+<p>Even if you can't see by glancing at the code that <code>current &gt; threshhold</code> is
+comparing incompatible types, the compiler will trap this for you.</p>
 
-<p>Ironically, databases, which store your data, and are your last line of
-defense against data corruption, are terrible at types! I mean, really, really
-bad at them. For example, if your <code>customers</code> table has an integer surrogate
-key, you can do this:</p>
+<p>Ironically, databases, which store your data—and are your last line of defense
+against data corruption—are terrible at types! I mean, really, really bad at
+them. For example, if your <code>customers</code> table has an integer surrogate key, you
+can do this:</p>
 
 <pre class="scrolled"><code class="language-sql">SELECT name, birthdate
   FROM customers
@@ -372,13 +372,13 @@ paid a salary. Maybe they're paid hourly and are not salaried. There are
 <em>plenty</em> of reasons why that data might not be available.</p>
 
 <p>The existence or non-existence of data in a column suggests that it depends on
-something <em>other</em> than just the primary key. Columns which might have <code>NULL</code>
-values are thus good candidates for creating new tables. In this case, you
-might have tables for <code>salaries</code>, <code>hourly_rates</code>, <code>none_of_your_business</code> and
-so on.  You'll still get fired for blindly joining on salaries and missing
-that your boss doesn't have one, but at least your database is starting to
-present you with enough information to suggest that there's more to the
-problem than just a salary.</p>
+something <em>other</em> than just the primary key and your database is possibly
+denormalized. Thus, columns which might have <code>NULL</code> values are good candidates
+for creating new tables. In this case, you might have tables for <code>salaries</code>,
+<code>hourly_rates</code>, <code>none_of_your_business</code> and so on.  You'll still get fired for
+blindly joining on salaries and missing that your boss doesn't have one, but
+at least your database is starting to present you with enough information to
+suggest that there's more to the problem than just a salary.</p>
 
 <p>And yes, this was a silly example, but it leads to the final nail in the coffin.</p>
 
@@ -388,10 +388,10 @@ problem than just a salary.</p>
 but we have one final example and it's caused much real-world grief.</p>
 
 <p>Years ago I was in London working for a domain registrar and trying to figure
-out why a somewhat complicated, 80 line SQL query was returning incorrect
-data. There was a particular case where data absolutely should have been
-returned, but wasn't. I'm embarassed to say that it took me about a day to
-track it down and it was a combination of a few things:</p>
+out why a somewhat messy 80 line SQL query was returning incorrect data. There
+was a particular case where data absolutely should have been returned, but
+wasn't. I'm embarassed to say that it took me about a day to track it down and
+it was a combination of a few things:</p>
 
 <ul>
 <li>I had used an <code>OUTER JOIN</code></li>
@@ -439,10 +439,11 @@ let's look at an example <a href="https://www.amazon.com/Database-Depth-Relation
  WHERE city = city;
 </code></pre>
 
-<p>Since you cannot compare a <code>NULL</code> value with anything (even another <code>NULL</code>),
-that returns no rows. That seems odd because the city for every given row must
-the be the same city, right? And that leads us to the following. What does
-this return?  Try to work out the answer before reading it below.</p>
+<p>That returns no rows since you cannot compare a <code>NULL</code> value with anything—not
+even another <code>NULL</code> and not even the <em>same</em> <code>NULL</code>.  That seems odd because
+the city for every given row must the be the same city, even if we don't know
+it, right? And that leads us to the following. What does this return?  Try to
+work out the answer before reading it below.</p>
 
 <pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
   FROM suppliers s, parts p
@@ -472,6 +473,7 @@ It doesn't happen often, but when it does, it's devilishly hard to track down.</
 <li>Don't use ambiguous column names</li>
 <li>When possible, name foreign key columns the same as the columns they refer to</li>
 <li>Add <code>NOT NULL</code> to all column definitions, when possible</li>
+<li>Avoid writing SQL which can generate <code>NULL</code> values, when possible</li>
 </ul>
 
 <p>While not perfect, the above database design guidelines will make your

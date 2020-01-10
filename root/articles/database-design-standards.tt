@@ -39,9 +39,9 @@ Let's get this out of the way quickly. I routinely see database examples
 online where we see table names like `CustomerOrders` or `customer_orders`.
 Which should you use? You probably want to use whatever standard is already in
 place, but if you're creating a new database, I recommend `using_undercores`
-for accessibility. The words "under value" has a different meaning from the
+for accessibility. The words "under value" have a different meaning from the
 word "undervalue", but the former, with underscores, is always `under_value`,
-while the latter is `undervalue`. But with CamelCase, it's `Undervalue` versus
+while the latter is `undervalue`. With CamelCase, it's `Undervalue` versus
 `UnderValue`. If you have vision problems and are constantly playing around
 with fonts and sizes to distinguish words, the underscores are *much* easier
 to read.
@@ -103,7 +103,7 @@ LEFT JOIN route
 ORDER BY datesent ASC, thread.parent_id ASC
 [% END %]
 
-Do you see the bugs? If the SQL had used full id names, such as `email_id`,
+Do you see the problem? If the SQL had used full id names, such as `email_id`,
 `star_id`, and `station_id`, the bugs would have stood out like a sore thumb
 _while I was typing out this SQL_, not later when I was trying to figure out
 both what I did wrong and why I don't drink as much as I should.
@@ -132,8 +132,9 @@ SELECT name, 'too cold'
 
 Now it's completely unambiguous.
 
-Also, when you need to join tables, as much as possible, give identical names
-to the columns. For example, consider this perfectly reasonable, sane, SQL.
+Also, when you have foreign key constraints, you should name the columns on
+each side of the constraint identically, if possible.  For example, consider
+this perfectly reasonable, sane, SQL.
 
 [% WRAPPER include/code.tt language='sql' -%]
 SELECT *
@@ -159,13 +160,13 @@ line of code and don't have to go consult the table definition.
 
 However, it should be noted that this isn't always possible. If you have a
 table with a source warehouse and a destination warehouse, you might want a
-`source_id` and a `destination_id` to compare with your `factory_id`. Naming
-them `source_factory_id` and `destination_factory_id` will make this easier to
-follow.
+`source_id` and a `destination_id` to compare with your `warehouse_id`. Naming
+them `source_warehouse_id` and `destination_warehouse_id` will make this
+easier to follow.
 
 It should also be noted that in the example above, `owner` is more descriptive
 of the intent than `company_id`. If you feel this is likely to cause
-confusion, you can name the column `owner_company_id`. That can still embed
+confusion, you can name the column `owning_company_id`. That can still embed
 the intent of the column in the name while giving you a strong hint as to its
 intent.
 
@@ -184,11 +185,9 @@ serious problems `NULL` values cause.
 ## Database Types
 
 In the database, we have various data _types_, such as `INTEGER`, `JSON`,
-`DATETIME`, and so on. A type is associated with a column, not a value in that
-column. Thus, any value added into a column should conform to the type
-associated with that column.[%
-Ovid.add_note("Well, that's the idea, but SQLite and MySQL regularly make a
-mockery of this.") %]
+`DATETIME`, and so on. A type is associated with a column and any value added
+should conform to the type associated with that column.[% Ovid.add_note("Well,
+that's the idea, but SQLite and MySQL regularly make a mockery of this.") %]
 
 But what's a type? A type is a name, a set of allowed values, and a set of
 allowed operations. This helps us avoid unwanted behavior. For example, in
@@ -200,13 +199,13 @@ Java, what happens if you try to compare a string and an integer?
       first type:  String
       second type: int
 
-Even if you can't see by at `current > threshhold` that they're different
-types, the compiler will trap this for you.
+Even if you can't see by glancing at the code that `current > threshhold` is
+comparing incompatible types, the compiler will trap this for you.
 
-Ironically, databases, which store your data, and are your last line of
-defense against data corruption, are terrible at types! I mean, really, really
-bad at them. For example, if your `customers` table has an integer surrogate
-key, you can do this:
+Ironically, databases, which store your data—and are your last line of defense
+against data corruption—are terrible at types! I mean, really, really bad at
+them. For example, if your `customers` table has an integer surrogate key, you
+can do this:
 
 [% WRAPPER include/code.tt language='sql' -%]
 SELECT name, birthdate
@@ -265,13 +264,13 @@ paid a salary. Maybe they're paid hourly and are not salaried. There are
 _plenty_ of reasons why that data might not be available.
 
 The existence or non-existence of data in a column suggests that it depends on
-something _other_ than just the primary key. Columns which might have `NULL`
-values are thus good candidates for creating new tables. In this case, you
-might have tables for `salaries`, `hourly_rates`, `none_of_your_business` and
-so on.  You'll still get fired for blindly joining on salaries and missing
-that your boss doesn't have one, but at least your database is starting to
-present you with enough information to suggest that there's more to the
-problem than just a salary.
+something _other_ than just the primary key and your database is possibly
+denormalized. Thus, columns which might have `NULL` values are good candidates
+for creating new tables. In this case, you might have tables for `salaries`,
+`hourly_rates`, `none_of_your_business` and so on.  You'll still get fired for
+blindly joining on salaries and missing that your boss doesn't have one, but
+at least your database is starting to present you with enough information to
+suggest that there's more to the problem than just a salary.
 
 And yes, this was a silly example, but it leads to the final nail in the coffin.
 
@@ -281,10 +280,10 @@ You might have some sense that I'm being a bit pedantic about `NULL` values,
 but we have one final example and it's caused much real-world grief.
 
 Years ago I was in London working for a domain registrar and trying to figure
-out why a somewhat complicated, 80 line SQL query was returning incorrect
-data. There was a particular case where data absolutely should have been
-returned, but wasn't. I'm embarassed to say that it took me about a day to
-track it down and it was a combination of a few things:
+out why a somewhat messy 80 line SQL query was returning incorrect data. There
+was a particular case where data absolutely should have been returned, but
+wasn't. I'm embarassed to say that it took me about a day to track it down and
+it was a combination of a few things:
 
 * I had used an `OUTER JOIN`
 * Those can easily generate `NULL` values
@@ -334,10 +333,11 @@ SELECT part_id
  WHERE city = city;
 [% END %]
 
-Since you cannot compare a `NULL` value with anything (even another `NULL`),
-that returns no rows. That seems odd because the city for every given row must
-the be the same city, right? And that leads us to the following. What does
-this return?  Try to work out the answer before reading it below.
+That returns no rows since you cannot compare a `NULL` value with anything—not
+even another `NULL` and not even the _same_ `NULL`.  That seems odd because
+the city for every given row must the be the same city, even if we don't know
+it, right? And that leads us to the following. What does this return?  Try to
+work out the answer before reading it below.
 
 [% WRAPPER include/code.tt language='sql' -%]
 SELECT s.supplier_id, p.part_id
@@ -367,6 +367,7 @@ It doesn't happen often, but when it does, it's devilishly hard to track down.
 * Don't use ambiguous column names
 * When possible, name foreign key columns the same as the columns they refer to
 * Add `NOT NULL` to all column definitions, when possible
+* Avoid writing SQL which can generate `NULL` values, when possible
 
 While not perfect, the above database design guidelines will make your
 database world a better place.
