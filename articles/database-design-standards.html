@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Database Design Standards</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <h1>Links</h1>
+        <ul>
+          <li><a href="/articles.html">Technical Articles</a></li>
+          <li><a href="/blog.html">Blog</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/index.html">Follow Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine">
+            <!-- Back to top button -->
+            <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+            <h1>Database Design Standards</h1>
+            <time>2020-01-10</time>
+            <hr>
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#camecasenames-or-underscore-names">CameCaseNames or underscore_names?</a></li>
+    <li class="indent-1"><a href="#plural-or-singular-tables">Plural or Singular Tables?</a></li>
+    <li class="indent-1"><a href="#dont-name-the-id-column-id">Don't name the ID column "id"</a></li>
+    <li class="indent-1"><a href="#column-naming">Column Naming</a></li>
+    <li class="indent-1"><a href="#avoid-null-values">Avoid NULL Values</a></li>
+    <li class="indent-2"><a href="#database-types">Database Types</a></li>
+    <li class="indent-2"><a href="#what-does-a-null-value-mean">What does a NULL value mean?</a></li>
+    <li class="indent-2"><a href="#nulls-lead-to-logical-impossibilities">NULLs lead to logical impossibilities</a></li>
+    <li class="indent-1"><a href="#summary">Summary</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>When moving from project to project, it's unfortunate that we find that there
+are no consistent standards on database design, despite SQL having been around
+for decades. I suspect that much of this is because <a href="/articles/how-databases-can-hurt-your-startup.html">most
+developers don't understand database design</a>. In fact, with my years of
+hiring developers, only a handful of times have I met developers who can
+properly normalize a database. To be fair, normalization can be hard, but most
+developers I've interviewed, even excellent ones with strong SQL skills, don't
+have database design skills.</p>
+
+<p>But this article isn't about database normalization. If you want to learn
+more, here's a short talk I gave which explains the basics.</p>
+
+<p><iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+
+<p>Instead, when you have a working database, the question we want to know is
+"what standards can we apply which make it easier to <em>use</em> that database?" If
+these standards were to be widely adopted, databases would be easier to use
+because you wouldn't have to learn and remember a new set of standards every
+time you work with a new database.</p>
+
+<h1><a name="camecasenames-or-underscore-names"></a>CameCaseNames or underscore_names?</h1>
+
+<p>Let's get this out of the way quickly. I routinely see database examples
+online where we see table names like <code>CustomerOrders</code> or <code>customer_orders</code>.
+Which should you use? You probably want to use whatever standard is already in
+place, but if you're creating a new database, I recommend <code>using_undercores</code>
+for accessibility. The words "under value" have a different meaning from the
+word "undervalue", but the former, with underscores, is always <code>under_value</code>,
+while the latter is <code>undervalue</code>. With CamelCase, it's <code>Undervalue</code> versus
+<code>UnderValue</code>. If you have vision problems and are constantly playing around
+with fonts and sizes to distinguish words, the underscores are <em>much</em> easier
+to read.</p>
+
+<p>As a side problem, CamelCase is anecdotally harder to read for people for whom
+English isn't their first language.</p>
+
+<p>That being said, this is a personal preference and not a strong
+recommendation.</p>
+
+<h1><a name="plural-or-singular-tables"></a>Plural or Singular Tables?</h1>
+
+<p>There's long been a huge debate amongst experts in database theory about
+whether or not database tables should be singular (<code>customer</code>) or plural
+(<code>customers</code>). Without going into the theory, let me cut the Gordian Knot with
+a healthy dose of pragmatism: plural table names are less likely to conflict
+with reserved keywords.</p>
+
+<p>Do you have users? SQL has a <code>user</code> reserved word. Do you want a table of
+constraints? <code>constraint</code> is a reserved word. Is <code>audit</code> a reserved word but
+you want an <code>audit</code> table? By simply using the <em>plural</em> form of nouns, most
+reserved words won't cause you grief when you're writing SQL. Even PostgreSQL,
+which has an excellent SQL parser, has been tripped up when encountering a
+<code>user</code> table.</p>
+
+<p>Just use plural names and you're far less likely to have a collision.</p>
+
+<h1><a name="dont-name-the-id-column-id"></a>Don't name the ID column "id"</h1>
+
+<p>This is a sin I've been guilty of for years. When working with a client in
+Paris, I had a DBA complain when I named my id columns <code>id</code> and I thought he
+was being pedantic. After all, the <code>customers.id</code> column is unambiguous, but
+<code>customers.customer_id</code> is repeating information.</p>
+
+<p>And later I had to debug the following:</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT thread.*
+  FROM email thread
+  JOIN email selected      ON selected.id = thread.id
+  JOIN character recipient ON recipient.id = thread.recipient_id
+  JOIN station_area sa     ON sa.id = recipient.id
+  JOIN station st          ON st.id = sa.id
+  JOIN star origin         ON origin.id = thread.id
+  JOIN star destination    ON destination.id = st.id
+LEFT JOIN route
+       ON ( route.from_id = origin.id
+            AND 
+            route.to_id = destination.id )
+ WHERE selected.id                = ?
+   AND ( thread.sender_id         = ? 
+         OR ( thread.recipient_id = ?
+              AND ( origin.id = destination.id
+                    OR ( route.distance IS NOT NULL
+                         AND
+                         now() &gt;= thread.datesent
+                         + ( route.distance * interval '30 seconds' )
+        ))))
+ORDER BY datesent ASC, thread.parent_id ASC
+</code></pre>
+
+<p>Do you see the problem? If the SQL had used full id names, such as <code>email_id</code>,
+<code>star_id</code>, and <code>station_id</code>, the bugs would have stood out like a sore thumb
+<em>while I was typing out this SQL</em>, not later when I was trying to figure out
+both what I did wrong and why I don't drink as much as I should.</p>
+
+<p>Do yourself a favor and use full names for IDs. You can thank me later.</p>
+
+<h1><a name="column-naming"></a>Column Naming</h1>
+
+<p>As much as possible, name columns very descriptively. For example, a
+<code>temperature</code> column doesn't make sense for this:</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+  FROM areas
+ WHERE temperature &lt; 32;  
+</code></pre>
+
+<p>I live in France and for anyone here, 32 would be "too hot". Instead, name that
+column <code>fahrenheit</code>.</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+  FROM areas
+ WHERE fahrenheit &lt; 32;  
+</code></pre>
+
+<p>Now it's completely unambiguous.</p>
+
+<p>Also, when you have foreign key constraints, you should name the columns on
+each side of the constraint identically, if possible.  For example, consider
+this perfectly reasonable, sane, SQL.</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT *
+  FROM some_table       s
+  JOIN some_other_table o
+    ON o.owner = s.person_id;
+</code></pre>
+
+<p>That looks sane. There's really nothing wrong with it. But when you consult the
+table definition, you discover that <code>some_other_table.owner</code> has a foreign key
+constraint against <code>companies.company_id</code>. That SQL is, in fact, wrong. Had
+you used identical names:</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT *
+  FROM some_table       s
+  JOIN some_other_table o
+    ON o.company_id = s.person_id;
+</code></pre>
+
+<p>Now it's immediately clear that we have a bug and you can see it on a single
+line of code and don't have to go consult the table definition.</p>
+
+<p>However, it should be noted that this isn't always possible. If you have a
+table with a source warehouse and a destination warehouse, you might want a
+<code>source_id</code> and a <code>destination_id</code> to compare with your <code>warehouse_id</code>. Naming
+them <code>source_warehouse_id</code> and <code>destination_warehouse_id</code> will make this
+easier to follow.</p>
+
+<p>It should also be noted that in the example above, <code>owner</code> is more descriptive
+of the intent than <code>company_id</code>. If you feel this is likely to cause
+confusion, you can name the column <code>owning_company_id</code>. That can still embed
+the intent of the column in the name while giving you a strong hint as to its
+intent.</p>
+
+<h1><a name="avoid-null-values"></a>Avoid NULL Values</h1>
+
+<p>Saving the best (or is it worst?) for last! This is a tip that many
+experienced database developers are aware of, but sadly, it doesn't get
+repeated often enough: don't allow <code>NULL</code> values in your database without an
+excellent reason.</p>
+
+<p>This will take a bit of time because this is an important, but somewhat
+complicated topic. First, we'll discuss the theory, then we'll discuss their
+impact on database design, and we'll finish up with a practical example of the
+serious problems <code>NULL</code> values cause. </p>
+
+<h2><a name="database-types"></a>Database Types</h2>
+
+<p>In the database, we have various data <em>types</em>, such as <code>INTEGER</code>, <code>JSON</code>,
+<code>DATETIME</code>, and so on. A type is associated with a column and any value added
+should conform to the type associated with that column.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <span class="popup-body">Well,
+that's the idea, but SQLite and MySQL regularly make a mockery of this.</span>
+</span>
+<a href="#1-return" class="close-popup"></a></p>
+
+<p>But what's a type? A type is a name, a set of allowed values, and a set of
+allowed operations. This helps us avoid unwanted behavior. For example, in
+Java, what happens if you try to compare a string and an integer?</p>
+
+<pre><code>CustomerAccount.java:5: error: bad operand types for binary operator '&gt;'
+        if ( current &gt; threshhold ) {
+                   ^
+  first type:  String
+  second type: int
+</code></pre>
+
+<p>Even if you can't see by glancing at the code that <code>current &gt; threshhold</code> is
+comparing incompatible types, the compiler will trap this for you.</p>
+
+<p>Ironically, databases, which store your data—and are your last line of defense
+against data corruption—are terrible at types! I mean, really, really bad at
+them. For example, if your <code>customers</code> table has an integer surrogate key, you
+can do this:</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT name, birthdate
+  FROM customers
+ WHERE customer_id &gt; weight;
+</code></pre>
+
+<p>That, of course, doesn't make a lick of sense and in a sane world would be a
+compile-time error.<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="2" class="popup">
+  <a href="#2-return" class="close">&times;</a>
+  <span class="popup-body">The <a
+href="https://en.wikipedia.org/wiki/D_(data_language_specification)">D
+specification</a> by C.J. Date and Hugh Darwen attempts to address this, but
+it is not very well known.</span>
+</span>
+<a href="#2-return" class="close-popup"></a>
+ Many programming languages make it trivial to
+trap type errors like this but databases make it hard.</p>
+
+<p>But that's not how databases generally behave, quite possibly because when <a href="https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt" target="_blank">the first SQL
+standard was released in 1992</a> <span class="fa fa-external-link fa_custom"></span>, computers were slow beasts and anything that
+complicated the implementation would undoubtedly have made databases slow.</p>
+
+<p>And here's where the <code>NULL</code> value comes into all of this. There is one place
+where the SQL standard got this right and that's with the <code>IS NULL</code> and <code>IS
+NOT NULL</code> predicates. Since the <code>NULL</code> value is, by definition, unknown, you
+can't possibly have operators defined for it. That's why <code>IS NULL</code> and <code>IS NOT
+NULL</code> exist instead of <code>= NULL</code> and <code>!= NULL</code>. And any <code>NULL</code> comparison
+results in a new <code>NULL</code> value.</p>
+
+<p>If that sounds strange, it becomes <em>much</em> easier if you say "unknown" instead
+of <code>NULL</code>:</p>
+
+<blockquote>
+  <p><strike>NULL</strike> Unknown comparisons result in <strike>NULL</strike>
+  unknown values.</p>
+</blockquote>
+
+<p>Ah, now it makes perfect sense!</p>
+
+<h2><a name="what-does-a-null-value-mean"></a>What does a NULL value mean?</h2>
+
+<p>Now that we have the tiniest amount of type theory under our belt, let's
+examine the practical implications.</p>
+
+<p>You need to pay a $500 bonus to all employees who earn more than $50K a year
+in salary. So you write the following SQL.</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT employee_number, name
+  FROM employees
+ WHERE salary &gt; 50000;
+</code></pre>
+
+<p>And you just got fired because your boss earns more than $50K but their salary
+isn't in the database (their <code>employees.salary</code> column is <code>NULL</code>) and the
+comparison operator can't compare a <code>NULL</code> with 50000.</p>
+
+<p>And just why is that value <code>NULL</code>? Maybe their salary is confidential. Maybe
+the information hasn't arrived yet. Maybe they're a consultant and they're not
+paid a salary. Maybe they're paid hourly and are not salaried. There are
+<em>plenty</em> of reasons why that data might not be available.</p>
+
+<p>The existence or non-existence of data in a column suggests that it depends on
+something <em>other</em> than just the primary key and your database is possibly
+denormalized. Thus, columns which might have <code>NULL</code> values are good candidates
+for creating new tables. In this case, you might have tables for <code>salaries</code>,
+<code>hourly_rates</code>, <code>none_of_your_business</code> and so on.  You'll still get fired for
+blindly joining on salaries and missing that your boss doesn't have one, but
+at least your database is starting to present you with enough information to
+suggest that there's more to the problem than just a salary.</p>
+
+<p>And yes, this was a silly example, but it leads to the final nail in the coffin.</p>
+
+<h2><a name="nulls-lead-to-logical-impossibilities"></a>NULLs lead to logical impossibilities</h2>
+
+<p>You might have some sense that I'm being a bit pedantic about <code>NULL</code> values,
+but we have one final example and it's caused much real-world grief.</p>
+
+<p>Years ago I was in London working for a domain registrar and trying to figure
+out why a somewhat messy 80 line SQL query was returning incorrect data. There
+was a particular case where data absolutely should have been returned, but
+wasn't. I'm embarassed to say that it took me about a day to track it down and
+it was a combination of a few things:</p>
+
+<ul>
+<li>I had used an <code>OUTER JOIN</code></li>
+<li>Those can easily generate <code>NULL</code> values</li>
+<li><code>NULL</code> values can cause your SQL to give you incorrect answers</li>
+</ul>
+
+<p>That last statement is something most database developers are unaware of, so
+let's look at an example <a href="https://www.amazon.com/Database-Depth-Relational-Theory-Practitioners/dp/0596100124/" target="_blank">Database In Depth</a> <span class="fa fa-external-link fa_custom"></span> by C.J. Date. First, a trivial schema with two tables.</p>
+
+<hr />
+
+<p><code>suppliers</code></p>
+
+<div class="container">
+  <table class="u-full-width">
+    <tr class="u-full-width"><th>supplier_id</th><th>city</th></tr>
+    <tr class="u-full-width"><td>s1</td><td>London</td></tr>
+  </table>
+</div>
+
+<p><code>parts</code></p>
+
+<div class="container">
+  <table class="u-full-width">
+    <tr class="u-full-width"><th>part_id</th><th>city</th></tr>
+    <tr class="u-full-width"><td>p1</td><td><code>NULL</code></td></tr>
+  </table>
+</div>
+
+<hr />
+
+<p>Those should be pretty clear and it's harder to get a simpler example.</p>
+
+<p>The following, of course, returns <code>p1</code>.</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT part_id
+  FROM parts;
+</code></pre>
+
+<p>But what about the following?</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT part_id
+  FROM parts
+ WHERE city = city;
+</code></pre>
+
+<p>That returns no rows since you cannot compare a <code>NULL</code> value with anything—not
+even another <code>NULL</code> and not even the <em>same</em> <code>NULL</code>.  That seems odd because
+the city for every given row must the be the same city, even if we don't know
+it, right? And that leads us to the following. What does this return?  Try to
+work out the answer before reading it below.</p>
+
+<pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
+  FROM suppliers s, parts p
+ WHERE p.city &lt;&gt; s.city
+    OR p.city &lt;&gt; 'Paris';
+</code></pre>
+
+<p>We get no rows because we can’t compare a <code>NULL</code> city (<code>p.city</code>) and thus
+neither branch of the <code>WHERE</code> clause can evaluate to true.</p>
+
+<p>However, we know that the unknown city either <strong>is Paris</strong> or it <strong>is not
+Paris</strong>.  If it's Paris, the first condition is true (<code>&lt;&gt; 'London'</code>).  If it’s
+not Paris, the second condition is true (<code>&lt;&gt; 'Paris'</code>).  Thus, the <code>WHERE</code>
+clause must be true, but it's not, leading to SQL which generates logically
+impossible results.</p>
+
+<p><em>That</em> was the bug which bit me in London. Any time you write SQL which can
+generate or include <code>NULL</code> values you run the risk of having SQL lie to you.
+It doesn't happen often, but when it does, it's devilishly hard to track down.</p>
+
+<h1><a name="summary"></a>Summary</h1>
+
+<ul>
+<li>Use <code>underscore_names</code> instead of <code>CameCaseNames</code></li>
+<li>Table names should be plural</li>
+<li>Spell out id fields (<code>item_id</code> instead of <code>id</code>)</li>
+<li>Don't use ambiguous column names</li>
+<li>When possible, name foreign key columns the same as the columns they refer to</li>
+<li>Add <code>NOT NULL</code> to all column definitions, when possible</li>
+<li>Avoid writing SQL which can generate <code>NULL</code> values, when possible</li>
+</ul>
+
+<p>While not perfect, the above database design guidelines will make your
+database world a better place.</p>
+
+          <hr>
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2019 by Curtis "Ovid" Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/database-design-standards.html";
+            this.page.identifier = "articles/database-design-standards";
+            this.page.title      = "Database Design Standards";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
+

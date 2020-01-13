@@ -1,0 +1,375 @@
+[%
+    title            = 'Database Design Standards';
+    identifier       = 'articles/database-design-standards';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2020-01-10';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+{{TOC}}
+
+# Introduction
+
+When moving from project to project, it's unfortunate that we find that there
+are no consistent standards on database design, despite SQL having been around
+for decades. I suspect that much of this is because [%
+Ovid.link('/articles/how-databases-can-hurt-your-startup.html', "most
+developers don't understand database design") %]. In fact, with my years of
+hiring developers, only a handful of times have I met developers who can
+properly normalize a database. To be fair, normalization can be hard, but most
+developers I've interviewed, even excellent ones with strong SQL skills, don't
+have database design skills.
+
+But this article isn't about database normalization. If you want to learn
+more, here's a short talk I gave which explains the basics.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+Instead, when you have a working database, the question we want to know is
+"what standards can we apply which make it easier to _use_ that database?" If
+these standards were to be widely adopted, databases would be easier to use
+because you wouldn't have to learn and remember a new set of standards every
+time you work with a new database.
+
+# CameCaseNames or underscore_names?
+
+Let's get this out of the way quickly. I routinely see database examples
+online where we see table names like `CustomerOrders` or `customer_orders`.
+Which should you use? You probably want to use whatever standard is already in
+place, but if you're creating a new database, I recommend `using_undercores`
+for accessibility. The words "under value" have a different meaning from the
+word "undervalue", but the former, with underscores, is always `under_value`,
+while the latter is `undervalue`. With CamelCase, it's `Undervalue` versus
+`UnderValue`. If you have vision problems and are constantly playing around
+with fonts and sizes to distinguish words, the underscores are *much* easier
+to read.
+
+As a side problem, CamelCase is anecdotally harder to read for people for whom
+English isn't their first language.
+
+That being said, this is a personal preference and not a strong
+recommendation.
+
+# Plural or Singular Tables?
+
+There's long been a huge debate amongst experts in database theory about
+whether or not database tables should be singular (`customer`) or plural
+(`customers`). Without going into the theory, let me cut the Gordian Knot with
+a healthy dose of pragmatism: plural table names are less likely to conflict
+with reserved keywords.
+
+Do you have users? SQL has a `user` reserved word. Do you want a table of
+constraints? `constraint` is a reserved word. Is `audit` a reserved word but
+you want an `audit` table? By simply using the _plural_ form of nouns, most
+reserved words won't cause you grief when you're writing SQL. Even PostgreSQL,
+which has an excellent SQL parser, has been tripped up when encountering a
+`user` table.
+
+Just use plural names and you're far less likely to have a collision.
+
+# Don't name the ID column "id"
+
+This is a sin I've been guilty of for years. When working with a client in
+Paris, I had a DBA complain when I named my id columns `id` and I thought he
+was being pedantic. After all, the `customers.id` column is unambiguous, but
+`customers.customer_id` is repeating information.
+
+And later I had to debug the following:
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT thread.*
+  FROM email thread
+  JOIN email selected      ON selected.id = thread.id
+  JOIN character recipient ON recipient.id = thread.recipient_id
+  JOIN station_area sa     ON sa.id = recipient.id
+  JOIN station st          ON st.id = sa.id
+  JOIN star origin         ON origin.id = thread.id
+  JOIN star destination    ON destination.id = st.id
+LEFT JOIN route
+       ON ( route.from_id = origin.id
+            AND 
+            route.to_id = destination.id )
+ WHERE selected.id                = ?
+   AND ( thread.sender_id         = ? 
+         OR ( thread.recipient_id = ?
+              AND ( origin.id = destination.id
+                    OR ( route.distance IS NOT NULL
+                         AND
+                         now() >= thread.datesent
+                         + ( route.distance * interval '30 seconds' )
+        ))))
+ORDER BY datesent ASC, thread.parent_id ASC
+[% END %]
+
+Do you see the problem? If the SQL had used full id names, such as `email_id`,
+`star_id`, and `station_id`, the bugs would have stood out like a sore thumb
+_while I was typing out this SQL_, not later when I was trying to figure out
+both what I did wrong and why I don't drink as much as I should.
+
+Do yourself a favor and use full names for IDs. You can thank me later.
+
+# Column Naming
+
+As much as possible, name columns very descriptively. For example, a
+`temperature` column doesn't make sense for this:
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT name, 'too cold'
+  FROM areas
+ WHERE temperature < 32;  
+[% END %]
+
+I live in France and for anyone here, 32 would be "too hot". Instead, name that
+column `fahrenheit`.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT name, 'too cold'
+  FROM areas
+ WHERE fahrenheit < 32;  
+[% END %]
+
+Now it's completely unambiguous.
+
+Also, when you have foreign key constraints, you should name the columns on
+each side of the constraint identically, if possible.  For example, consider
+this perfectly reasonable, sane, SQL.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT *
+  FROM some_table       s
+  JOIN some_other_table o
+    ON o.owner = s.person_id;
+[% END %]
+
+That looks sane. There's really nothing wrong with it. But when you consult the
+table definition, you discover that `some_other_table.owner` has a foreign key
+constraint against `companies.company_id`. That SQL is, in fact, wrong. Had
+you used identical names:
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT *
+  FROM some_table       s
+  JOIN some_other_table o
+    ON o.company_id = s.person_id;
+[% END %]
+
+Now it's immediately clear that we have a bug and you can see it on a single
+line of code and don't have to go consult the table definition.
+
+However, it should be noted that this isn't always possible. If you have a
+table with a source warehouse and a destination warehouse, you might want a
+`source_id` and a `destination_id` to compare with your `warehouse_id`. Naming
+them `source_warehouse_id` and `destination_warehouse_id` will make this
+easier to follow.
+
+It should also be noted that in the example above, `owner` is more descriptive
+of the intent than `company_id`. If you feel this is likely to cause
+confusion, you can name the column `owning_company_id`. That can still embed
+the intent of the column in the name while giving you a strong hint as to its
+intent.
+
+# Avoid NULL Values
+
+Saving the best (or is it worst?) for last! This is a tip that many
+experienced database developers are aware of, but sadly, it doesn't get
+repeated often enough: don't allow `NULL` values in your database without an
+excellent reason.
+
+This will take a bit of time because this is an important, but somewhat
+complicated topic. First, we'll discuss the theory, then we'll discuss their
+impact on database design, and we'll finish up with a practical example of the
+serious problems `NULL` values cause. 
+
+## Database Types
+
+In the database, we have various data _types_, such as `INTEGER`, `JSON`,
+`DATETIME`, and so on. A type is associated with a column and any value added
+should conform to the type associated with that column.[% Ovid.add_note("Well,
+that's the idea, but SQLite and MySQL regularly make a mockery of this.") %]
+
+But what's a type? A type is a name, a set of allowed values, and a set of
+allowed operations. This helps us avoid unwanted behavior. For example, in
+Java, what happens if you try to compare a string and an integer?
+
+    CustomerAccount.java:5: error: bad operand types for binary operator '>'
+            if ( current > threshhold ) {
+                       ^
+      first type:  String
+      second type: int
+
+Even if you can't see by glancing at the code that `current > threshhold` is
+comparing incompatible types, the compiler will trap this for you.
+
+Ironically, databases, which store your data—and are your last line of defense
+against data corruption—are terrible at types! I mean, really, really bad at
+them. For example, if your `customers` table has an integer surrogate key, you
+can do this:
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT name, birthdate
+  FROM customers
+ WHERE customer_id > weight;
+[% END %]
+
+That, of course, doesn't make a lick of sense and in a sane world would be a
+compile-time error.[% Ovid.add_note('The <a
+href="https://en.wikipedia.org/wiki/D_(data_language_specification)">D
+specification</a> by C.J. Date and Hugh Darwen attempts to address this, but
+it is not very well known.') %] Many programming languages make it trivial to
+trap type errors like this but databases make it hard.
+
+But that's not how databases generally behave, quite possibly because when [%
+Ovid.cite('https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt', 'the first SQL
+standard was released in 1992') %], computers were slow beasts and anything that
+complicated the implementation would undoubtedly have made databases slow.
+
+And here's where the `NULL` value comes into all of this. There is one place
+where the SQL standard got this right and that's with the `IS NULL` and `IS
+NOT NULL` predicates. Since the `NULL` value is, by definition, unknown, you
+can't possibly have operators defined for it. That's why `IS NULL` and `IS NOT
+NULL` exist instead of `= NULL` and `!= NULL`. And any `NULL` comparison
+results in a new `NULL` value.
+
+If that sounds strange, it becomes _much_ easier if you say "unknown" instead
+of `NULL`:
+
+> <strike>NULL</strike> Unknown comparisons result in <strike>NULL</strike>
+unknown values.
+
+Ah, now it makes perfect sense!
+
+## What does a NULL value mean?
+
+Now that we have the tiniest amount of type theory under our belt, let's
+examine the practical implications.
+
+You need to pay a $500 bonus to all employees who earn more than $50K a year
+in salary. So you write the following SQL.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT employee_number, name
+  FROM employees
+ WHERE salary > 50000;
+[% END %]
+
+And you just got fired because your boss earns more than $50K but their salary
+isn't in the database (their `employees.salary` column is `NULL`) and the
+comparison operator can't compare a `NULL` with 50000.
+
+And just why is that value `NULL`? Maybe their salary is confidential. Maybe
+the information hasn't arrived yet. Maybe they're a consultant and they're not
+paid a salary. Maybe they're paid hourly and are not salaried. There are
+_plenty_ of reasons why that data might not be available.
+
+The existence or non-existence of data in a column suggests that it depends on
+something _other_ than just the primary key and your database is possibly
+denormalized. Thus, columns which might have `NULL` values are good candidates
+for creating new tables. In this case, you might have tables for `salaries`,
+`hourly_rates`, `none_of_your_business` and so on.  You'll still get fired for
+blindly joining on salaries and missing that your boss doesn't have one, but
+at least your database is starting to present you with enough information to
+suggest that there's more to the problem than just a salary.
+
+And yes, this was a silly example, but it leads to the final nail in the coffin.
+
+## NULLs lead to logical impossibilities
+
+You might have some sense that I'm being a bit pedantic about `NULL` values,
+but we have one final example and it's caused much real-world grief.
+
+Years ago I was in London working for a domain registrar and trying to figure
+out why a somewhat messy 80 line SQL query was returning incorrect data. There
+was a particular case where data absolutely should have been returned, but
+wasn't. I'm embarassed to say that it took me about a day to track it down and
+it was a combination of a few things:
+
+* I had used an `OUTER JOIN`
+* Those can easily generate `NULL` values
+* `NULL` values can cause your SQL to give you incorrect answers
+
+That last statement is something most database developers are unaware of, so
+let's look at an example [%
+Ovid.cite('https://www.amazon.com/Database-Depth-Relational-Theory-Practitioners/dp/0596100124/',
+'Database In Depth') %] by C.J. Date. First, a trivial schema with two tables.
+
+---
+
+`suppliers`
+
+<div class="container">
+  <table class="u-full-width">
+    <tr class="u-full-width"><th>supplier_id</th><th>city</th></tr>
+    <tr class="u-full-width"><td>s1</td><td>London</td></tr>
+  </table>
+</div>
+
+`parts`
+
+<div class="container">
+  <table class="u-full-width">
+    <tr class="u-full-width"><th>part_id</th><th>city</th></tr>
+    <tr class="u-full-width"><td>p1</td><td><code>NULL</code></td></tr>
+  </table>
+</div>
+
+---
+
+Those should be pretty clear and it's harder to get a simpler example.
+
+The following, of course, returns `p1`.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT part_id
+  FROM parts;
+[% END %]
+
+But what about the following?
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT part_id
+  FROM parts
+ WHERE city = city;
+[% END %]
+
+That returns no rows since you cannot compare a `NULL` value with anything—not
+even another `NULL` and not even the _same_ `NULL`.  That seems odd because
+the city for every given row must the be the same city, even if we don't know
+it, right? And that leads us to the following. What does this return?  Try to
+work out the answer before reading it below.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT s.supplier_id, p.part_id
+  FROM suppliers s, parts p
+ WHERE p.city <> s.city
+    OR p.city <> 'Paris';
+[% END %]
+
+We get no rows because we can’t compare a `NULL` city (`p.city`) and thus
+neither branch of the `WHERE` clause can evaluate to true.
+
+However, we know that the unknown city either **is Paris** or it **is not
+Paris**.  If it's Paris, the first condition is true (`<> 'London'`).  If it’s
+not Paris, the second condition is true (`<> 'Paris'`).  Thus, the `WHERE`
+clause must be true, but it's not, leading to SQL which generates logically
+impossible results.
+
+_That_ was the bug which bit me in London. Any time you write SQL which can
+generate or include `NULL` values you run the risk of having SQL lie to you.
+It doesn't happen often, but when it does, it's devilishly hard to track down.
+
+# Summary
+
+* Use `underscore_names` instead of `CameCaseNames`
+* Table names should be plural
+* Spell out id fields (`item_id` instead of `id`)
+* Don't use ambiguous column names
+* When possible, name foreign key columns the same as the columns they refer to
+* Add `NOT NULL` to all column definitions, when possible
+* Avoid writing SQL which can generate `NULL` values, when possible
+
+While not perfect, the above database design guidelines will make your
+database world a better place.
+
+[%- END %]
