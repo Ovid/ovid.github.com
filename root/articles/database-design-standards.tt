@@ -108,6 +108,37 @@ Do you see the problem? If the SQL had used full id names, such as `email_id`,
 _while I was typing out this SQL_, not later when I was trying to figure out
 both what I did wrong and why I don't drink as much as I should.
 
+And by request of a few people who couldn't see the errors, here's the SQL
+after it's corrected. It's very clear that "star_id" and "email_id", or
+"station_id" and "station_area_id" are probabyl not valid comparisons. As
+previously mentioned, if SQL had a decent type system, this SQL would not even
+have compiled.
+
+[% WRAPPER include/code.tt language='sql' -%]
+SELECT thread.*
+  FROM email thread
+  JOIN email selected      ON selected.email_id      = thread.email_id
+  JOIN character recipient ON recipient.character_id = thread.recipient_id
+  JOIN station_area sa     ON sa.station_area_id     = recipient.character_id
+  JOIN station st          ON st.station_id          = sa.station_area_id
+  JOIN star origin         ON origin.star_id         = thread.email_id
+  JOIN star destination    ON destination.star_id    = st.star_id
+LEFT JOIN route
+       ON ( route.from_id = origin.star_id
+            AND 
+            route.to_id = destination.star_id )
+ WHERE selected.email_id          = ?
+   AND ( thread.sender_id         = ? 
+         OR ( thread.recipient_id = ?
+              AND ( origin.star_id = destination.star_id
+                    OR ( route.distance IS NOT NULL
+                         AND
+                         now() >= thread.datesent
+                         + ( route.distance * interval '30 seconds' )
+        ))))
+ORDER BY datesent ASC, thread.parent_id ASC
+[% END %]
+
 Do yourself a favor and use full names for IDs. You can thank me later.
 
 # Column Naming
