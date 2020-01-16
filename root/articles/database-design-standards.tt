@@ -119,8 +119,11 @@ SELECT thread.*
   FROM email thread
   JOIN email selected      ON selected.email_id      = thread.email_id
   JOIN character recipient ON recipient.character_id = thread.recipient_id
+  -- station_area_id = character_id is probably wrong
   JOIN station_area sa     ON sa.station_area_id     = recipient.character_id
+  -- station_id = station_area_id is probably wrong
   JOIN station st          ON st.station_id          = sa.station_area_id
+  -- star_id = email_id is probably wrong
   JOIN star origin         ON origin.star_id         = thread.email_id
   JOIN star destination    ON destination.star_id    = st.star_id
 LEFT JOIN route
