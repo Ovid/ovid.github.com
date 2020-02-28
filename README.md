@@ -5,7 +5,7 @@ My Personal Web site
 # DESCRIPTION
 
 A simple Web site written using Template Toolkit's ttree utility, with
-Skeleton for the CSS.
+Skeleton for the CSS. No user serviceable parts inside.
 
 # USAGE
 
@@ -19,7 +19,7 @@ command.
 
 Use the `bin/article` program to start writing an article:
 
-    perl bin/article Name of Article
+    perl bin/article -type=article Name of Article
 
 After writing the article, run `bin/rebuild` from this directory to rebuild
 the html docs.
@@ -72,5 +72,5 @@ Many photos from are from the free stock photo sites
 
 # LICENSE
 
-Copyright 2018-2019, Curtis "Ovid" Poe. Released under [The MIT
+Copyright 2018-2020, Curtis "Ovid" Poe. Released under [The MIT
 License](http://opensource.org/licenses/MIT).
