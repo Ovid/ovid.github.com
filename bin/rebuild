@@ -2,6 +2,9 @@
 
 # vim: ft=perl
 use lib 'lib';
+
+use DateTime;
+use XML::RSS;
 use Less::Script;
 use Less::Pager;
 
@@ -18,6 +21,7 @@ my @files = File::Find::Rule->file->in('root');
 
 preprocess_files(@files);
 rebuild_article_pagination();
+rebuil_rss_feeds();
 my ( $stdout, $stderr, $exit ) = capture {
     system(
         'ttree',  '-a',                      # process all files
@@ -141,15 +145,15 @@ TOC
 sub rebuild_article_pagination () {
     foreach my $type (qw/article blog/) {
         my $article_type = article_type($type);
-        my $pager        = Less::Pager->new( db => 'prod', type => $type );
+        my $pager        = Less::Pager->new( type => $type );
         while ( my $records = $pager->next ) {
             my $page_number = $pager->current_page_number;
-            my $title = "$article_type->{name} by Ovid";
+            my $title       = "$article_type->{name} by Ovid";
             if ( $pager->total_pages > 1 ) {
                 $title .= ", page $page_number";
             }
-            my $articles    = get_article_list( $records, $article_type );
-            my $pagination  = get_pagination( $pager->total_pages, $page_number,
+            my $articles   = get_article_list( $records, $article_type );
+            my $pagination = get_pagination( $pager->total_pages, $page_number,
                 $article_type );
             my $template = <<"END";
 [%
@@ -176,8 +180,56 @@ END
     }
 }
 
+sub rebuil_rss_feeds () {
+    my $base_url = 'https://ovid.github.io/';
+
+    my $types =
+      dbh()
+      ->selectall_arrayref( 'SELECT name, type, directory FROM article_types',
+        { Slice => {} } );
+
+    foreach my $type ( $types->@* ) {
+        my $name      = $type->{name};
+        my $directory = $type->{directory};
+        my $now       = DateTime->now;
+        my $year      = $now->year;
+        my $rss       = XML::RSS->new( version => '2.0' );
+        $rss->channel(
+            title => $name,
+            link  => "$base_url$directory",
+            description =>
+              "the one-stop-shop for all your Linux software needs",
+            language       => 'en-us',
+            copyright      => "Copyright $year, Curtis \"Ovid\" Poe",
+            # RSS 2.0 requires RFC822 dates
+            pubDate        => $now->strftime("%a, %d %b %Y %H:%M:%S %z"),
+            managingEditor => 'curtis.poe@gmail.com (Curtis "Ovid" Poe)',
+        );
+        my $articles =
+          dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $type->{type} );
+    SELECT a.title,
+           a.slug,
+           a.description,
+           a.created
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE available = 1 AND at.type = ?
+  ORDER BY sort_order DESC
+SQL
+        foreach my $article ( $articles->@* ) {
+            $rss->add_item(
+                title       => $article->{title},
+                link        => "$base_url$directory/$article->{slug}.html",
+                description => $article->{description},
+                creator     => 'Curtis "Ovid" Poe',
+            );
+        }
+        splat( "$type->{type}.rss", $rss->as_string );
+    }
+}
+
 sub get_pagination ( $total, $current, $article_type ) {
-    return '' if $total == 1; 
+    return '' if $total == 1;
     my $pagination = qq{<nav class="pagination">\n};
     if ( $current > 1 ) {
         my $prev    = $current - 1;
