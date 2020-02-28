@@ -12,6 +12,7 @@ See https://metacpan.org/pod/CPAN::Meta::Spec#VERSION-NUMBERS for details.
 
 =cut
 
+requires 'Data::GUILD'                => '0.049';
 requires 'DBD::SQLite'                => '1.62';
 requires 'DBI'                        => '1.642';
 requires 'File::Find::Rule'           => '0.34';
@@ -25,3 +26,4 @@ requires 'Template::Plugin::Markdown' => '0.02';
 requires 'Test::Most'                 => '0.35';
 requires 'Text::Unidecode'            => '1.30';
 requires 'autodie'                    => '2.29';
+requires "XML::RSS"                   => '1.59';

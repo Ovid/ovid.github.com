@@ -71,11 +71,12 @@ sub next ($self) {
       dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
     SELECT a.title,
            a.slug,
+           a.description,
            at.type,
            a.sort_order
       FROM articles a
       JOIN article_types at ON at.article_type_id = a.article_type_id
-     WHERE at.type = ?
+     WHERE a.available = 1 AND at.type = ?
   ORDER BY sort_order $order LIMIT $limit OFFSET $offset;
 SQL
     $self->_set_page_number( $self->current_page_number + 1 ) if @$records;
