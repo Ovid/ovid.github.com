@@ -7,8 +7,12 @@ use File::Spec::Functions qw(catfile);
 use DateTime;
 use Less::Script;
 
-GetOptions( \my %opt_for, 'nocomments', 'type=s' )
-  or die "Bad options";
+GetOptions(
+    \my %opt_for,
+    'nocomments',    # disables comments for an entry
+    'type=s',        # one of 'article' or 'blog'
+    'description=s',
+) or die "Bad options";
 
 my $comments = $opt_for{nocomments} ? 0 : 1;
 $opt_for{comments} = $comments;
@@ -19,6 +23,12 @@ unless ( 'article' eq $opt_for{type} xor 'blog' eq $opt_for{type} ) {
 
 croak("Usage: $0 Name of Article") unless @ARGV;
 
+unless ( $opt_for{description} ) {
+    say "Please enter a description for this $opt_for{type} entry:";
+    chomp( my $description = <STDIN> );
+    $opt_for{description} = $description;
+}
+
 my $title    = join( ' ' => @ARGV );
 my $slug     = make_slug($title);
 my $template = write_article_stub( $title, $slug, \%opt_for );
@@ -28,17 +38,19 @@ edit_article($template);    #exits this program
 sub add_to_sqitch ( $title, $slug, $opt_for ) {
     my $dbh = dbh();
     $title = $dbh->quote($title);
-    my $q_slug = $dbh->quote($slug);
-    my $type   = $dbh->quote( $opt_for->{type} );
-    my $deploy = <<"END";
+    my $q_slug      = $dbh->quote($slug);
+    my $type        = $dbh->quote( $opt_for->{type} );
+    my $description = $dbh->quote( $opt_for->{description} );
+    my $deploy      = <<"END";
 -- Deploy ovid:data/$slug to sqlite
 
 BEGIN;
 
-    INSERT INTO articles (title, slug, article_type_id, sort_order)
+    INSERT INTO articles (title, slug, description, article_type_id, sort_order)
          VALUES (
            $title,
            $q_slug,
+           $description,
            (SELECT article_type_id FROM article_types WHERE type = $type),
            (SELECT max(sort_order) FROM articles) + 1 
          );
@@ -114,8 +126,12 @@ article - Write an article
 
     perl bin/article --type=article My Awesome Article
     perl bin/article --type=blog My Awesome Article --nocomments
+    perl bin/article --type=blog My Awesome Article --description 'This is a longer description'
 
 =head1 OPTIONS
 
     nocomments        If passed, comments are disabled for this article
     type              Must be one of 'article' or 'blog'
+    description       A longer description of what the entry is about.
+
+If you do not entry a description, you will be prompted for one.
