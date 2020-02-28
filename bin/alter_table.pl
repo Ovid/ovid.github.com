@@ -8,6 +8,7 @@ use Carp qw(carp croak);
 use Getopt::Long;
 use File::Temp 'tempfile';
 
+die usage() unless @ARGV;
 GetOptions( \my %args, 'database=s', 'table=s', 'sqlite3=s', 'foreign_keys!', )
   or die usage("Bad options");
 
