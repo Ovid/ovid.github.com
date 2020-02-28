@@ -33,12 +33,13 @@ sub import ( $class, %arg_for ) {
 =cut
 
 sub article_type ($type) {
-    my $article_type = dbh('test')->selectall_arrayref(<<'SQL', { Slice => {} }, $type)->[0];
+    my $article_type =
+      dbh()->selectall_arrayref( <<'SQL', { Slice => {} }, $type )->[0];
     SELECT name, type, directory
       FROM article_types
      WHERE type = ?
 SQL
-    unless ($article_type && keys $article_type->%*) {
+    unless ( $article_type && keys $article_type->%* ) {
         croak("Could not fetch article_type information for '$type'");
     }
     return $article_type;
@@ -94,20 +95,15 @@ sub make_slug ($name) {
 
 =head2 C<dbh>
 
-    my $dbh = dbh('test');
-    my $dbh = dbh('prod');
+    my $dbh = dbh;
 
-Fetch a database handle to test or prod.
+Fetch a database handle.
 
 =cut
 
-sub dbh ($db) {
-    state $dbh_for = {
-        test => DBI->connect( "dbi:SQLite:dbname=db/ovid_test.db", "", "" ),
-        prod => DBI->connect( "dbi:SQLite:dbname=db/ovid.db",      "", "" ),
-    };
-    my $dbh = $dbh_for->{$db}
-      or croak("Could not find database handle for '$db'");
+sub dbh () {
+    state $dbh = DBI->connect( "dbi:SQLite:dbname=db/ovid.db", "", "" )
+      or croak("Could not find database handle: $DBI::errstr");
     return $dbh;
 }
 

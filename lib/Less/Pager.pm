@@ -13,12 +13,6 @@ has items_per_page => (
     default => sub { 10 },
 );
 
-has db => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-);
-
 has total => (
     is      => 'ro',
     isa     => 'Int',
@@ -45,7 +39,7 @@ sub _build_total($self) {
       JOIN article_types at ON at.article_type_id = a.article_type_id
      WHERE at.type = ?
 SQL
-    return dbh( $self->db )->selectcol_arrayref( $sql, {}, $self->type )->[0];
+    return dbh()->selectcol_arrayref( $sql, {}, $self->type )->[0];
 }
 
 has _current_offset => (
@@ -74,7 +68,7 @@ sub next ($self) {
     my $offset = $self->_current_offset;
     my $order  = $self->oldest_first ? 'ASC' : 'DESC';
     my $records =
-      dbh( $self->db )->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
+      dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
     SELECT a.title,
            a.slug,
            at.type,

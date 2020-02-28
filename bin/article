@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# vim ft=perl
+# vim: ft=perl
 
 use lib 'lib';
 use File::Spec::Functions qw(catfile);
@@ -26,7 +26,7 @@ add_to_sqitch( $title, $slug, \%opt_for );
 edit_article($template);    #exits this program
 
 sub add_to_sqitch ( $title, $slug, $opt_for ) {
-    my $dbh = dbh('prod');
+    my $dbh = dbh();
     $title = $dbh->quote($title);
     my $q_slug = $dbh->quote($slug);
     my $type   = $dbh->quote( $opt_for->{type} );
