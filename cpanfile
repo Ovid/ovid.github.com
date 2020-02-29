@@ -12,7 +12,7 @@ See https://metacpan.org/pod/CPAN::Meta::Spec#VERSION-NUMBERS for details.
 
 =cut
 
-requires 'Data::GUILD'                => '0.049';
+requires 'DateTime::Format::SQLite'   => '0.11';
 requires 'DBD::SQLite'                => '1.62';
 requires 'DBI'                        => '1.642';
 requires 'File::Find::Rule'           => '0.34';

@@ -1,0 +1,179 @@
+[%
+    title            = 'The Easy Solution to Quadratic Equations';
+    identifier       = 'blog/the-easy-solution-to-quadratic-equations';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2020-03-01';
+    mathjax          = 1;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+If you have an interest in math, by now you may have hear that the
+mathematician Po-Shen Loh has found an easy way to solve quadratic equations.
+Those equations looked like this:
+
+$$ax^2 + bx + c = 0$$
+
+And they were _every_ student's nightmare in algebra class, because when
+factoring the equation didn't work, you learned this solution:
+
+$$x={-b\pm\sqrt{b^2-4ac} \over 2a}$$
+
+Finding the solution for many quadratic equations was a difficult chore,
+especially if the answers involved imaginary numbers. Thanks to Loh, it's now
+easy. Unfortunately, many of the sites I've visited seem to have rather
+cumbersome descriptions of this relatively easy solution. So to help _myself_
+remember the solution, and thus help you learn the solution, let me skip [%
+Ovid.cite('https://arxiv.org/abs/1910.06709', 'the proof of this novel
+solution') %] and just show you how to solve it. If you wish to know how it
+works, there are many sites on the web which will get into the details. Just
+hit your favorite search engine for something like "Po-Shen Loh quadratic
+equation".
+
+You'll only need basic algebra to understand this.
+
+# Step 1: Getting x<sup>2</sup>
+
+Loh's solution requires that the first term, $x^2$, is always just $x^2$, and
+never multiplied or divided by anything. So we don't want the first term to be
+$3x^2$ or $x^2 \over 4$.
+
+That's fine, because we can just multiply or divide, as needed, so get to
+$x^2$. For example, if we start with this equation:
+
+$${x^2 \over 2} - 3.5x + 6 = 0$$
+
+We can just multiply by $2$ to get:
+
+$$x^2 - 7x + 12 = 0$$
+
+# Step 2: Getting $-b$ and $c$
+
+Next, we need to isolate the _opposite_ of $b$. Since quadratic equations are
+in the form $ax^2 + bx + c = 0$, and we have $x^2 - 7x + 12 = 0$, we know that
+the _opposite_ of $b$ is $7$ (since it's $-7$ in the equation).
+
+Next, we need $c$. In the equation $x^2 - 7x + 12 = 0$, we can see that $c = 12$.
+
+The key insight in Loh's work is that we're searching for numbers which _add_
+to $-b$ and _multiply_ to $c$. Thus, for our example:
+
+* Sum ($-b$) is $7$
+* Product ($c$) is $12$
+
+If you remember the above, you'll remember this in no time because that's the
+key to making everything work.
+
+# Step 3: Finding the roots
+
+So we need two numbers which add to $7$ and multiply to $12$. Rather than
+guessing, we start with the addition.
+
+First, we know that two numbers, added together, will equal any number if their
+_average_ is half of that number. So let's take half of that $7$, or $3.5$ (or
+$3{1 \over 2}$ if you prefer fractions).
+
+So we know that the two numbers are (using $u$ for a placeholder) are $3.5 - u$
+and $3.5 + u$.
+
+Since _multiplying_ them gives us $c$, or $12$, we have:
+
+$$(3.5 - u)(3.5 + u) = 12$$
+
+Using the difference of squares, left hand side becomes $3.5^2 - u^2$, or
+$12.25 - u^2$. So we have:
+
+$$12.25 - u^2 = 12$$
+
+And that gives us:
+
+$$.25 = u^2$$.
+
+Taking the square root of each side gives us $.5 = u$. Since we that the
+numbers are $3.5 - u$ and $3.5 + u$ we know that the solutions are 3 and 4.
+
+You can substitute those numbers into this equation to check the answers:
+
+$${x^2 \over 2} - 3.5x + 6 = 0$$
+
+# Simplifying
+
+Skipping over many mathematical steps, let's take this:
+
+$$4x^2 - 8x - 16 = 0$$
+
+We want $x^2$ as the first term, so divide each side by four: $x^2 - 2x - 4$.
+
+We know that $-b$ is $2$ an $c$ is $-4$, so we have $(1 - u)$ multiplied by
+$(1 + u)$ = $-4$.
+
+$$1 - u^2 = -4$$
+$$5 = u^2$$
+$$\sqrt{5} = u$$
+
+So the roots are $1 \pm \sqrt{5}$.
+
+# Let's do it again
+
+Let's use this equation:
+
+$$x^2 - 2x - 24 = 0$$
+
+We know that $-b$ is $2$ an $c$ is $-24$.
+
+So _half_ of $-b$ is $1$, we have:
+
+$$(1 - u)(1 + u) = 24$$
+
+That reduces to:
+
+$$1 - u^2 = 24$$
+
+Which becomes:
+
+$$25 = u^2$$
+
+So we can see that $u$ is $5$ and $(1 - u)$ is $-4$ and $1 + u$ is $6$, giving
+us the roots of the equation. See how simple that is? It takes practice,
+though.
+
+# A harder example
+
+Let's take this equation:
+
+$${x^2 \over 2} - x + 12 = 0$$
+
+We need $x^2$, so let's multiply both sides by $2$, giving us:
+
+$$x^2 - 2x + 24 = 0$$
+
+We know that $-b$ is $2$ an $c$ is $24$.
+
+So _half_ of $-b$ is $1$, we have:
+
+$$(1 - u)(1 + u) = 24$$
+
+That reduces to:
+
+$$1 - u^2 = 24$$
+
+Which becomes:
+
+$$-23 = u^2$$
+
+So $u$ is $\sqrt{-23}$, or $i\sqrt{23}$.
+
+Thus, the two possible solutions are $1 \pm i\sqrt{23}$.
+
+That's not a fun problem to solve with the traditional quadratic equation
+solution.
+
+If you want more practice watch Loh's video on the topic.
+
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/XKBX0r3J-9Y" frameborder="0"
+allow="accelerometer; autoplay; encrypted-media; gyroscope;
+picture-in-picture" allowfullscreen></iframe>
+
+[%- END %]

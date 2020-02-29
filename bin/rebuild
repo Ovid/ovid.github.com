@@ -4,6 +4,7 @@
 use lib 'lib';
 
 use DateTime;
+use DateTime::Format::SQLite;
 use XML::RSS;
 use Less::Script;
 use Less::Pager;
@@ -21,7 +22,7 @@ my @files = File::Find::Rule->file->in('root');
 
 preprocess_files(@files);
 rebuild_article_pagination();
-rebuil_rss_feeds();
+rebuild_rss_feeds();
 my ( $stdout, $stderr, $exit ) = capture {
     system(
         'ttree',  '-a',                      # process all files
@@ -180,12 +181,13 @@ END
     }
 }
 
-sub rebuil_rss_feeds () {
+sub rebuild_rss_feeds () {
     my $base_url = 'https://ovid.github.io/';
 
     my $types =
       dbh()
-      ->selectall_arrayref( 'SELECT name, type, directory FROM article_types',
+      ->selectall_arrayref(
+        'SELECT name, type, directory, description FROM article_types',
         { Slice => {} } );
 
     foreach my $type ( $types->@* ) {
@@ -194,13 +196,24 @@ sub rebuil_rss_feeds () {
         my $now       = DateTime->now;
         my $year      = $now->year;
         my $rss       = XML::RSS->new( version => '2.0' );
+        $rss->add_module(
+            prefix => 'atom',
+            uri    => 'http://www.w3.org/2005/Atom'
+        );
         $rss->channel(
-            title => $name,
-            link  => "$base_url$directory",
-            description =>
-              "the one-stop-shop for all your Linux software needs",
-            language       => 'en-us',
-            copyright      => "Copyright $year, Curtis \"Ovid\" Poe",
+            title       => $type->{description},
+            link        => "$base_url$directory",
+            description => $type->{description},
+            language    => 'en-us',
+            copyright   => "Copyright $year, Curtis \"Ovid\" Poe",
+            atom        => {
+                'link' => {
+                    'href' => "$base_url$type->{type}.rss",
+                    'rel'  => 'self',
+                    'type' => 'application/rss+xml'
+                }
+            },
+
             # RSS 2.0 requires RFC822 dates
             pubDate        => $now->strftime("%a, %d %b %Y %H:%M:%S %z"),
             managingEditor => 'curtis.poe@gmail.com (Curtis "Ovid" Poe)',
@@ -217,12 +230,15 @@ sub rebuil_rss_feeds () {
   ORDER BY sort_order DESC
 SQL
         foreach my $article ( $articles->@* ) {
+            my $created =
+              DateTime::Format::SQLite->parse_datetime( $article->{created} );
             $rss->add_item(
                 title       => $article->{title},
                 link        => "$base_url$directory/$article->{slug}.html",
                 description => $article->{description},
                 creator     => 'Curtis "Ovid" Poe',
                 guid        => "$type->{type}/$article->{slug}",
+                pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
             );
         }
         splat( "$type->{type}.rss", $rss->as_string );
