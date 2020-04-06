@@ -1,0 +1,375 @@
+[%
+    title            = 'Making Complex Software Simple';
+    identifier       = 'articles/making-complex-software-simple';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2020-04-05';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt markdown=1 -%]
+
+<a href="https://allaroundtheworld.fr/" target="blank" style="color: #eaf2fa">
+    <figure class="captioned-left" style="background-color: black; color: white;">
+        <img src="/static/images/logo-shadow.png" width="600" alt="Company logo for 'All Around the World">
+        <figcaption>We say what we do and do what we say.</figcaption>
+    </figure>
+</a>
+
+_Note: I've written about this before, but the writing is scattered over the
+web and in conference keynote presentations I've given. This is to bring it
+home to my site. It's some of our best code driving the narrative sci-fi
+MMORPG [% Ovid.cite('https://taustation.space/', 'Tau Station') %]. And feel
+free to <a href="mailto:curtis.poe@gmail.com">email me</a> to discuss how we
+can help you build excellent software._
+
+Just about anyone who's taken a beginning database course learns about the
+critical importance of database transactions. For example, consider the
+following code:
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub transfer_money ($self, $from, $to, $amount) {
+    if ( $from->balance < $amount ) {
+        Exception::InsufficientFunds->throw(...);
+    }
+    $from->dec_balance($amount);
+    $to->inc_balance($amount);
+}
+[% END %]
+
+The code is a grotesque oversimplification in several ways, but let's just
+look at one little line:
+
+[% WRAPPER include/code.tt language='perl' -%]
+    $from->dec_balance($amount);
+[% END %]
+
+What happens if that fails and throws an exception? If it fails _before_ the
+money is withdrawn, that might not be disastrous. If it happens _after_ the
+money is withdrawn, we withdraw the money, but don't deposit it to the new
+account. Our customers will be disappointed, to put it mildly.
+
+So we fix that with a database transaction. It might look like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub transfer_money ($self, $from, $to, $amount) {
+    if ( $from->balance < $amount ) {
+        Exception::InsufficientFunds->throw(...);
+    }
+    $self->db->do_transaction(sub {
+        $from->dec_balance($amount);
+        $to->inc_balance($amount);
+    });
+}
+[% END %]
+
+Now if `dec_balance` fails, we're guaranteed that whatever money was withdrawn
+will still be in the original account.
+
+But it still has a massive bug. What if money was withdrawn _after_ we checked
+the balance, but _before_ we withdrew it? Oops. It's called a "race condition",
+because the behavior of your code depends on which code finishes first.
+
+In this case, the behavior depends on whether the system allows negative
+balances, whether the account allows negative balances, and other factors. We
+don't want to risk this bug, so let's expand the transaction scope.
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub transfer_money ($self, $from, $to, $amount) {
+    $self->db->do_transaction(sub {
+        if ( $from->balance < $amount ) {
+            Exception::InsufficientFunds->throw(...);
+        }
+        $from->dec_balance($amount);
+        $to->inc_balance($amount);
+    });
+}
+[% END %]
+
+So now we check the transaction before we check the balance. Good to go,
+right?
+
+No. Of course not. For _most_ OO system I've worked on, that code is not good
+to go because objects hold their data independently from the underlying
+storage mechanism. What that means is that the information was read earlier
+and might be stale. Instead, you need to refresh your data. But you can't just
+do a `SELECT`, you need a `SELECT ... FOR UPDATE` to ensure that the row is
+locked in the transaction.
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub transfer_money ($self, $from, $to, $amount) {
+    $self->db->do_transaction(sub {
+        $from->requery_for_update;
+        $to->requery_for_update;
+        if ( $from->balance < $amount ) {
+            Exception::InsufficientFunds->throw(...);
+        }
+        $from->dec_balance($amount);
+        $to->inc_balance($amount);
+    });
+}
+[% END %]
+
+The above is certainly better, but my goodness, there are traps there. And it
+still has bugs, but I'll stop belaboring the point now.
+
+All you wanted to do was move a bit of money from one bank account to another.
+And honestly, this is a _simple_ example. When your code gets seriously
+complex, it can be hard to track down bugs caused by race conditions and not
+having proper scope on transactions.
+
+Which brings me to the real point of this article:
+
+> The more things you must remember, the more things you will forget.
+
+That is something that developers often gloss over. "You have to know your
+system." "It's your fault that you weren't paying attention." "Be better!"
+
+No. You want to write systems that take failure modes into account and make it
+_hard_ to write those serious bugs.
+
+# Making This Simple
+
+So, what would the above look like in [% Ovid.cite('https://taustation.space',
+'Tau Station') %]? Well, currently we don't
+have multiple bank accounts per player, but we do have the ability to move
+money from your wallet to your bank account and conceptually that's the same
+thing. It uses an "Exchange" system we've built and it looks like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+my $exchange = $self->new_exchange(
+    Preamble( 'deposit' => { amount => $amount } ),
+    Steps(
+        Wallet(      $self => remove_credits => $amount ),
+        BankAccount( $self => add_credits    => $amount ),
+    ),
+);
+[% END %]
+
+The "Preamble" is a second that declares that messages are going to be
+displayed to the player and what information, if any, to use for those
+messages. The "Steps", however, are only what we're actually trying to
+accomplish. In other words, with our exchanges, we mostly write code that
+describes the desired behavior. All of the "scaffolding" code is hidden away
+behind the scenes.
+
+For example, note the code we didn't have to write, but that our
+exchange system handles:
+
+* Exception handling
+* Transactions
+* Success messages
+* Error messages
+* Logging
+* Checks for whether or not we had enough money
+* Taxes (we have them. Long story)
+
+And for other exchanges, we have things such as:
+
+* Job queues for asynchronous work
+* Email
+* Message popups
+* ... and many other details I'm omitting from this
+
+In fact, the declarative nature of the above code means that we can even take
+this "exchange" and cut-n-paste it for our non-technical narrative designers
+and they understand what it means!
+
+And guess what? We can reuse this. Here's another example, reusing the
+`BankAccount.add_credits` code, for a relatively complex action of buying an
+item from another player (a bit simplified). But first, imagine how you would
+write the code for buying a physical item from a vendor and compare that code
+to the following.
+
+[% WRAPPER include/code.tt language='perl' -%]
+Steps(
+  Location(           $self => is_in_station          => $station ),
+  PlayerMarketItem(   $self => is_not_seller_of       => $item ),
+  PlayerMarketItem(   $self => check_item_is_not_sold => $item ),
+  BankAccount(        $self => remove_credits         => $amount ),
+  BankAccount(      $vendor => add_credits            => $amount ),
+  Inventory(          $self => add_item_instance      => $item ),
+  PlayerMarketItem( $vendor => delete                 => $item ),
+)
+[% END %]
+
+Did you think of all those steps? How much code would you have had to write
+to implement all those steps? And would you have remembered all the
+possible exceptions, the transactions, the `SELECT ... FOR UPDATE`, and so on?
+Would you have remembered or cared about all the success or failure
+messages?
+
+By writing code in such a declarative style, we have taken incredibly complex
+behavior and not only made it simpler, but more correct.
+
+Here's another example. In Tau Station, you can "save" your progress by
+gestating a new clone. If you die, you respawn into your latest close. What
+does clone gestation look like? It used to look like this mess:
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub gestate ( $self, $character ) {
+    croak( … ) unless $character->area->slug eq 'clonevat';
+    my $price = $self->price_per_character($character);
+    if ( $character->wallet < $price ) {
+        $character->add_message( … );
+        return;
+    }
+    my $guard = $self->result_source->schema->txn_scope_guard;
+    $character->dec_wallet($price);
+    $character->update;
+    my $clone = $self->find_or_new(
+        character_id    => $character->character_id,
+        station_area_id => $character->station_area->station_area_id,
+    );
+    $clone->$_( $character->$_ ) for $character->physical_stats;
+    my $now = DateTime->now;
+    $clone->clone_date($now);
+    $clone->gestation_date(
+    $now->clone->add( seconds => $self->gestation_delay($character) ) );
+    $clone->update_or_insert;
+    $character->add_message( … );
+    $guard->commit;
+    return $clone;
+}
+[% END %]
+
+And that was a bucket of bugs. And hard to follow. Now it looks like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+Steps(
+  Location( $self => is_in_area => 'clonevat' ),
+  Wallet(   $self => pay        => $price ),
+  Clone(    $self => gestate    => $area ),
+),
+[% END %]
+
+Honestly, which of those would you rather write?
+
+# Declarative Exchanges
+
+So how does this magic work?
+
+## The Behavior
+
+When you create a new exchange, the first thing it does is go through your
+steps and figure out what objects might be updated.  Then we:
+
+1. Start a transaction
+2. Refresh all assets via `SELECT...FOR UPDATE`
+3. Run all the steps
+4. Commit on success and rollback on failure
+5. Notify the player(s) (if appropriate)
+
+It sounds simple, but there's a lot more going on under the hood. For example,
+if you are a member of a syndicate and you earn income, you may have to pay
+"tax" to that syndicate. Thus, the exchange needs to know that it must fetch
+the syndicate object, lock it, and send taxes to it. As a developer writing
+the code, you almost never have to pay attention to this. It's all automatic.
+
+## The Structure
+
+Each exchange step looks very similar:
+
+[% WRAPPER include/code.tt language='perl' -%]
+    Location( $self => is_in_area => 'clonevat' )
+[% END %]
+
+In exhange parlance, that's:
+
+[% WRAPPER include/code.tt language='perl' -%]
+    Topic( subject => verb => object )
+[% END %]
+
+Everything follows a linguistic SVO (subject-verb-object) pattern. To create a
+new _Topic_ for the exchanges, you create a class called
+<code>Veure::Economy::Asset::_Topic_</code> (there are legacy reasons for the
+name) and have it inherit from `Veure::Economy::Asset`. We have another system
+that automatically finds and loads all these classes and ensures that the
+asset name is exportable on demand. You just write the code, there's no need
+to wire it together because that's done for you.
+
+Each of these classes takes a subject (the first argument) and implementing a
+verb is merely a matter of writing a method. The object (in linguisitic terms)
+becomes the argument(s) to the method. A simple `is_in_area` check might look
+like this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+sub is_in_area ( $self, $area_slug ) {
+    my $station_area_id = $self->station_area->area_id;
+
+    if ( $self->station_area->area_slug eq $area_slug  ) {
+        return $self->new_outcome( success => 1 );
+    }
+
+    # give them a nice failure message
+    return $self->new_outcome(
+        success => 0,
+        message => ...
+    );
+}
+[% END %]
+
+Simple, eh? And now we can reuse this to our heart's content.
+
+## Failure
+
+Aside from the fact that the exchanges allow us to write incredibly complex
+code very quickly, one of my favorite parts is the fact that even though it's
+mostly declarative on the surface, underneath it's objects all the way down.
+That means we get the full power of OO introspection where we need it. For
+example, what happens if I'm running the test suite and an exchange throws an
+exception?
+
+Well, of course, we get a stack trace. And at the top of that trace, we get a
+stringified version of the exchange. In this case, it's for refueling a
+spaceship:
+
+[% WRAPPER include/code.tt language='perl' -%]
+character('ovid')->new_exchange(
+    slug            => 'refuel-current-ship',
+    success_message => 'Your ship is now being refueled.',
+    failure_message => 'Unable to refuel ship.',
+    Steps(
+        Area( character('ovid'), is_in, docks ),
+        Ship( ship('ovid', 'bootlegger'), is_docked_on, tau-station ),
+        Ship( ship('ovid', 'bootlegger'), needs_refueling ),
+        Character( character('ovid'), not_onboard_ship, 
+          ship('ovid', 'bootlegger') 
+        ),
+        Money( character('ovid'), pay, -15.00 ),
+        Character( character('ovid'), refuel_ship, ship('ovid', 'bootlegger') ),
+        Character( character('ovid'), set_cooldown, 
+          {ship => ship('ovid', 'bootlegger'),
+          cooldown_type => 'ship_refuel',period => 1000} ),
+    )
+);
+[% END %]
+
+In this case, we got an exception because there's a serious bug: somehow the
+character has been asked to pay _negative_ credits. This stringified exchange
+shows this very clearly here:
+
+[% WRAPPER include/code.tt language='perl' -%]
+        Money( character('ovid'), pay, -15.00 ),
+[% END %]
+
+So it's dead simple to recreate conditions that cause failures in incredibly
+complex behavior. In this case, we knew our exchange system was fine, but
+something was sending it bad data.
+
+# Regrets
+
+If there is one regret I have about the exchange system, it's that it's not
+open-source. We absolutely would release this if we could, but when we started
+on it, it wasn't clear what the end result would be. Thus, it's deeply tied
+to our game [% Ovid.cite('https://taustation.space/', 'Tau Station') %]. If we
+find ourselves with the time—or a contract—for this, we will release this
+for everyone.
+
+As an aside, [% Ovid.cite('http://trailblazer.to/', 'Ruby has something rather
+similar, named Trailblazer') %]. The main difference in exchanges is that
+we're not tied to MVC or the web. Trailblazer documents itself as "A New
+Architecture For Rails", suggesting a tight coupling. That being said, it has
+fantastic testimonials which match our internal experience with exchanges. I
+expect we might see more of this type of code in the future.
+
+[%- END %]
