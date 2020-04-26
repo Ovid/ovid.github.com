@@ -89,5 +89,8 @@ Text::Markdown::Blog - Ovid's Markdown hack
 
 =head1 DESCRIPTION
 
-Just like L<Text::Markdown>, but if a link C<< [...](...) >> has a URL beginning with C<^\w+://>, than
-we add C<< target="_blank" >> to the URL.
+No user-serviceable parts inside.
+
+Just like L<Text::Markdown>, but if a link C<< [...](...) >> has a URL
+beginning with C<^\w+://>, then we add extra processing to ensure it works for
+Ovid's blog setup.
