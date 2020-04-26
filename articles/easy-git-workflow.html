@@ -99,6 +99,22 @@
             <time>2020-04-13</time>
             <hr>
 
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#quickstart">Quickstart</a></li>
+    <li class="indent-1"><a href="#the-overview">The Overview</a></li>
+    <li class="indent-2"><a href="#git-flow">git-flow</a></li>
+    <li class="indent-1"><a href="#our-git-workflow">Our git Workflow</a></li>
+    <li class="indent-1"><a href="#assumptions">Assumptions</a></li>
+    <li class="indent-2"><a href="#checking-out-a-branch">Checking Out a Branch</a></li>
+    <li class="indent-3"><a href="#caveats">Caveats</a></li>
+    <li class="indent-2"><a href="#refreshing-your-branch">Refreshing Your Branch</a></li>
+    <li class="indent-2"><a href="#merging-into-master">Merging into master</a></li>
+    <li class="indent-1"><a href="#merge-conflicts">Merge Conflicts</a></li>
+    </ul>
+</nav>
+<hr></p>
+
 <p><a href="https://allaroundtheworld.fr/" target="blank" style="color: #eaf2fa">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img src="/static/images/logo-shadow.png" width="600" alt="Company logo for 'All Around the World">
@@ -106,24 +122,281 @@
     </figure>
 </a></p>
 
-<p>One of the things we constantly strive to do at <a href="https://allaroundtheworld.fr" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span> is apply
-the <a href="https://en.wikipedia.org/wiki/Pareto_principle" target="_blank">Pareto
-Principle</a> <span class="fa fa-external-link fa_custom"></span>: 80% of your results from from 20% of your actions.  When we go
-in to solve problems for clients, we don't have the luxury of sitting around
-for days to debate the perfect way of doing things before we start working.
-Instead, we strive to find the 20% of actions which give us 80% of the results
-and uncover the rest as we go. Today, I'll talk about our <a href="https://github.com/Ovid/git-workflow" target="_blank">git
+<p>One of the things we constantly strive to do at <a href="https://allaroundtheworld.fr" target="_blank">All Around the
+World</a> <span class="fa fa-external-link fa_custom"></span> is apply the <a href="https://en.wikipedia.org/wiki/Pareto_principle" target="_blank">Pareto
+Principle</a> <span class="fa fa-external-link fa_custom"></span>: 80% of your
+results stem from 20% of your actions.  When we go in to solve problems for
+clients; we don't have the luxury of sitting around for days to debate the
+perfect way of doing things before we start working.  Instead, we strive to
+find the 20% of actions which give us 80% of the results and uncover the rest
+as we go. Today, I'll talk about our <a href="https://github.com/Ovid/git-workflow" target="_blank">git
 workflow</a> <span class="fa fa-external-link fa_custom"></span> and how three simple commands
-make our team collaboration much easier.  And feel free to <a
-href="mailto:info@allaroundtheworld.fr">email us</a> to discuss how we can
+make our team collaboration much easier.  <a
+href="mailto:info@allaroundtheworld.fr">Email us</a> to discuss how we can
 build a remote software team for you. A team that delivers, not debates.</p>
 
-<h1>The Overview</h1>
+<h1><a name="quickstart"></a>Quickstart</h1>
 
-<p>It's fair to say that the <code>git</code> command, while extremely powerful, is also
-extremely complicated. One only needs to read the hilarious <a href="https://git-man-page-generator.lokaltog.net/" target="_blank">git man page
-generator</a> <span class="fa fa-external-link fa_custom"></span> to appreciate just
-how convoluted people consider this tool.</p>
+<p>Using our git workflow couldn't be simpler:</p>
+
+<pre><code>(master) $ git hub 123            # create new branch
+(new-feature-123) $               # hack, hack, hack
+(new-feature-123) $ git refresh   # pull in latest master changes
+(new-feature-123) $               # hack, hack, hack
+(new-feature-123) $ git merge-with-master
+(master) $                        # done
+</code></pre>
+
+<p>And that's it. Three simple commands to remember and git <em>gets out of your
+way</em>.</p>
+
+<h1><a name="the-overview"></a>The Overview</h1>
+
+<p>The <code>git</code> command is extremely complicated.  Invariably in a team environment
+someone gets something "wrong" with git and the local git guru comes by and
+does mysterious things with <code>git fsck</code>, <code>git reflog</code>, and other commands that
+developers have never heard of. And while it's useful to have a git guru on
+hand, we find it's even easier to have a single, standard way of using git so
+that all developers are doing things the same way. Even developers new to git
+find our workflow very easy.</p>
+
+<p>It's designed largely to avoid this:</p>
+
+<p><figure class="image">
+    <img src="/static/images/typical-git-history.png" width="600" alt="A convoluted map of the London Tube (subway) network.">
+    <figcaption>A typical git history. </figcaption>
+</figure></p>
+
+<p>For us, the complicated history was the showstopper. We want a clean, linear
+history and an "easy-to-use" workflow. It's based on the following logic:</p>
+
+<ol>
+<li>The <code>master</code> branch is the source of truth</li>
+<li>All new development happens in a new branch off of <code>master</code></li>
+<li>When you're done, merge your code back into <code>master</code> and delete your
+branches</li>
+</ol>
+
+<p>In other words, it's very clean, very simple, and focuses on the core
+development needs. There's nothing surprising about this workflow. How do
+releases work? That depends on your project and its needs. How do hotfixes
+work? That depends on your project and its needs. How do code reviews work?
+That depends on your project and its needs.  Like <a href="/wildagile.html">the WildAgile project
+management system</a>, our workflow is designed to be the <em>core</em>
+of what you do day in and day out. The bits you need to customize are up to
+you. We're not dogmatic.</p>
+
+<h2><a name="git-flow"></a>git-flow</h2>
+
+<p>As an aside, one popular workflow is
+<a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank">git-flow</a> <span class="fa fa-external-link fa_custom"></span>.  Yet
+<a href="https://www.endoflineblog.com/gitflow-considered-harmful" target="_blank">git-flow has its
+detractors</a> <span class="fa fa-external-link fa_custom"></span>
+and it's easy to find <a href="https://www.google.com/search?client=firefox-b-d&amp;q=what%27s+wrong+with+git-flow" target="_blank">many
+more</a> <span class="fa fa-external-link fa_custom"></span>.
+We found the convoluted history and strict requirements that things be "just
+so" to not be a good fit for our workflow. It might be the perfect fit for
+yours.</p>
+
+<h1><a name="our-git-workflow"></a>Our git Workflow</h1>
+
+<p>The <a href="https://github.com/Ovid/git-workflow" target="_blank">git workflow tools</a> <span class="fa fa-external-link fa_custom"></span> are open source
+and they contain a simplified subset of the git tools used by <a href="https://allaroundtheworld.fr/" target="_blank">All Around the
+World</a> <span class="fa fa-external-link fa_custom"></span> for our software development. It makes
+it dead easy for teams using git (and in our case, github) to work together.</p>
+
+<p>There are only three new commands to remember:</p>
+
+<dl>
+  <dt>git hub $issue</dt>
+  <dd>Create new branch based on a github ticket</dd>
+  <dt>git refresh</dt>
+  <dd>Rebase your work on top of current master</dd>
+  <dt>git merge-with-master</dt>
+  <dd>Merge your branch back into master</dd>
+</dl>
+
+<p>Note: only the <code>bin/git-hub</code> command assumes you're using github. The other
+commands work fine without it.</p>
+
+<h1><a name="assumptions"></a>Assumptions</h1>
+
+<p>The <code>master</code> branch is never worked on directly. Instead, new branches are
+created (usually for an individual github ticket), we hack, we regularly pull
+new changes into that branch, and after a pull request is created and the
+approved, we merge the code back into <code>master</code>.</p>
+
+<p>The examples below assume the files in the <code>bin/</code> directory are in your path.
+If they are not in your path, you have to type the commands explicitly:</p>
+
+<pre><code>bin/git-hub 5738
+bin/git-refresh
+bin/git-merge-with-master
+</code></pre>
+
+<h2><a name="checking-out-a-branch"></a>Checking Out a Branch</h2>
+
+<p>We assume that branches are <em>usually</em> per ticket. You can manually create a
+branch, but we tend not to. Instead, if you are going to work on github issue
+5738, with the title "Lower reputation for failed crimes", you run the
+following command:</p>
+
+<pre><code>git hub 5738
+</code></pre>
+
+<p>And you're in a shiny new branch named <code>lower-reputation-for-failed-crimes-5738</code>.</p>
+
+<p>If that branch already exists, it's checked out.</p>
+
+<p>If you're not using github, it's trivial to do this by hand:</p>
+
+<pre><code>git checkout -b name-of-your-branch
+</code></pre>
+
+<p>We just like the convenience of always having standard naming conventions.</p>
+
+<h3><a name="caveats"></a>Caveats</h3>
+
+<ol>
+<li>The new branch that is created is based on the branch you're on, so you
+probably want to run this from <code>master</code></li>
+<li>Branch detection is based on a heuristic, using the ticket number. If you
+have more than one branch with that ticket number, you will get a warning
+and the code will exit.</li>
+<li>You'll need a config file for this. See <code>perldoc bin/git-hub</code> for this.</li>
+<li>Assumes Perl 5 version 20</li>
+</ol>
+
+<p>You will also need to install the following modules from the
+<a href="https://metacpan.org/" target="_blank">CPAN</a> <span class="fa fa-external-link fa_custom"></span> if you've not already done so.</p>
+
+<ul>
+<li><code>autodie</code></li>
+<li><code>Config::General</code></li>
+<li><code>JSON</code></li>
+<li><code>Text::Unidecode</code></li>
+<li><code>Pithub</code></li>
+</ul>
+
+<p>If you're not familiar with installing CPAN modules, check out
+<a href="https://metacpan.org/pod/App::cpanminus" target="_blank">cpanminus</a> <span class="fa fa-external-link fa_custom"></span>, or you can use the
+<code>cpan</code> command line tool that is standard with Perl.</p>
+
+<h2><a name="refreshing-your-branch"></a>Refreshing Your Branch</h2>
+
+<p>While working on your branch, you want to regularly pull in the latest <code>master</code>
+to keep your code up-to-date. Working on a change for a week with a fast-moving
+codebase can cause serious headaches when it's time to merge. Thus, you should
+regularly run the following in your branch (I try to run it at least once per
+day):</p>
+
+<pre><code>git refresh
+</code></pre>
+
+<p>Regardless of the branch you are on, this code:</p>
+
+<ul>
+<li>Stashes changes (if any)</li>
+<li>Checks out master</li>
+<li>Does a fast-forward merge</li>
+<li>Checks out your branch (if branch is not master)</li>
+<li>Rebases onto <code>master</code> (if branch is not master)</li>
+<li>Pops changes from stash, if any</li>
+</ul>
+
+<p>In other words, it cleanly rebases your code on top of master, even if you
+have uncommitted changes.</p>
+
+<p>Note: for everyone who keeps asking "why not <code>git pull --rebase --autostash</code>?"</p>
+
+<p>The simple reason is backwards-compatibility. Sometimes developers have older
+versions of git installed and while that's usually perfectly compatible with
+newer versions, we don't force them to upgrade. Also, internally <code>git-refresh</code>
+does things like <code>git fetch -p</code> to remove references to remote branches which
+no longer exist. This regular "house cleaning" helps to keep git more
+performant. See the <a href="https://git-scm.com/docs/git-fetch#_pruning" target="_blank">Pruning</a> <span class="fa fa-external-link fa_custom"></span>
+documentation for <code>git-fetch</code> for more information.</p>
+
+<p>Note: if this command aborts (such as during a merge conflict), the stashed
+changes will remain stashed. Run <code>git stash</code> to see those changes and <code>git
+stash pop</code> to return them to your codebase when you've finished resolving the
+merge conflicts.</p>
+
+<h2><a name="merging-into-master"></a>Merging into master</h2>
+
+<p>So you've finished your work and are ready to merge your branch back into
+master. Here's one way to do that very cleanly and safely:</p>
+
+<pre><code>git checkout master
+git fetch --prune
+git merge --ff-only origin/master
+git rebase master my-awesome-feature-1234
+git push --force-with-lease origin my-awesome-feature-1234
+git checkout master
+git merge --no-ff my-awesome-feature-1234
+git push origin master
+</code></pre>
+
+<p>You'll remember that, right? And you'll never mess it up?</p>
+
+<p>For us, we simply run:</p>
+
+<pre><code>git merge-with-master
+</code></pre>
+
+<p>And that will cleanly update <code>master</code> and rebase your branch on top of it, and
+push that change to your origin.</p>
+
+<p>With that, you get a clean git history like this:</p>
+
+<pre><code>| * 44eba1b094 - ...
+| * 217350810f - ...
+|/
+*   c84e694e59 - Merge branch 'no-add-message-from-context-object-8615' PR#8622 (6 days ago)  &lt;some author&gt;
+|\
+| * 9d73143f75 - ...
+| * 983a1a5020 - ...
+| * e799ecc8e3 - ...
+| * aa9c981c2e - ...
+| * 4651830fd6 - ...
+|/
+*   010e94b446 - Merge branch 'fix-test-combat-module-usage' PR#8623 (7 days ago)  &lt;some author&gt;
+|\
+| * 46d8917af7 - ...
+|/
+*   4acfdd8309 - Merge branch 'economy-action-use-args-hashref' PR#8617 (10 days ago)  &lt;some author&gt;
+|\
+| * a1f863f908 - ...
+| * b3dc3efb2a - ...
+| * ab77373fca - ...
+| * b5491e4ae9 - ...
+</code></pre>
+
+<p>And when you're done, it will also print out the instructions on how you can
+delete your local and remote copies of the branch, to help you be nice and not
+leave branches cluttering up the repository.</p>
+
+<h1><a name="merge-conflicts"></a>Merge Conflicts</h1>
+
+<p>With all of this rebasing, you're sometimes going to hit the dreaded ...</p>
+
+<pre><code>Auto-merging lib/Veure/Moose.pm
+CONFLICT (content): Merge conflict in lib/Veure/Moose.pm
+Failed to merge in the changes.
+Patch failed at 0001 Issue 144 Make read-only the default for attributes
+</code></pre>
+
+<p>And then you're very unhappy. Worse, if you do this after a week of isolated
+hacking, you might get a <em>huge</em> amount of merge conflicts to work through.
+However, by running <code>git refresh</code> at least once a day, if not more often,
+those conflicts are minimized. And when you do get them? I have the following
+in my <code>.bash_aliases</code> file:</p>
+
+<pre><code>alias damnit='vim $(git grep -l "&lt;&lt;&lt;&lt; HEAD")'
+</code></pre>
+
+<p>Then, when I get a conflict, I just type <code>damnit</code> and am automatically editing
+the files which caused the conflict. It saves me a huge amount of time.</p>
 
           <hr>
           <p>If you'd like top-notch consulting or training, <a

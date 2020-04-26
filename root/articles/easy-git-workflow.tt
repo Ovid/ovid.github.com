@@ -8,6 +8,8 @@
 %]
 [% WRAPPER include/wrapper.tt blogdown=1 -%]
 
+{{TOC}}
+
 <a href="https://allaroundtheworld.fr/" target="blank" style="color: #eaf2fa">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img src="/static/images/logo-shadow.png" width="600" alt="Company logo for 'All Around the World">
@@ -15,24 +17,263 @@
     </figure>
 </a>
 
-One of the things we constantly strive to do at [%
-Ovid.cite('https://allaroundtheworld.fr', 'All Around the World') %] is apply
-the [% Ovid.cite('https://en.wikipedia.org/wiki/Pareto_principle', 'Pareto
-Principle') %]: 80% of your results from from 20% of your actions.  When we go
-in to solve problems for clients, we don't have the luxury of sitting around
-for days to debate the perfect way of doing things before we start working.
-Instead, we strive to find the 20% of actions which give us 80% of the results
-and uncover the rest as we go. Today, I'll talk about our [git
+One of the things we constantly strive to do at [All Around the
+World](https://allaroundtheworld.fr) is apply the [Pareto
+Principle](https://en.wikipedia.org/wiki/Pareto_principle): 80% of your
+results stem from 20% of your actions.  When we go in to solve problems for
+clients; we don't have the luxury of sitting around for days to debate the
+perfect way of doing things before we start working.  Instead, we strive to
+find the 20% of actions which give us 80% of the results and uncover the rest
+as we go. Today, I'll talk about our [git
 workflow](https://github.com/Ovid/git-workflow) and how three simple commands
-make our team collaboration much easier.  And feel free to <a
-href="mailto:info@allaroundtheworld.fr">email us</a> to discuss how we can
+make our team collaboration much easier.  <a
+href="mailto:info@allaroundtheworld.fr">Email us</a> to discuss how we can
 build a remote software team for you. A team that delivers, not debates.
+
+# Quickstart
+
+Using our git workflow couldn't be simpler:
+
+    (master) $ git hub 123            # create new branch
+    (new-feature-123) $               # hack, hack, hack
+    (new-feature-123) $ git refresh   # pull in latest master changes
+    (new-feature-123) $               # hack, hack, hack
+    (new-feature-123) $ git merge-with-master
+    (master) $                        # done
+
+And that's it. Three simple commands to remember and git _gets out of your
+way_.
 
 # The Overview
 
-It's fair to say that the `git` command, while extremely powerful, is also
-extremely complicated. One only needs to read the hilarious [git man page
-generator](https://git-man-page-generator.lokaltog.net/) to appreciate just
-how convoluted people consider this tool.
+The `git` command is extremely complicated.  Invariably in a team environment
+someone gets something "wrong" with git and the local git guru comes by and
+does mysterious things with `git fsck`, `git reflog`, and other commands that
+developers have never heard of. And while it's useful to have a git guru on
+hand, we find it's even easier to have a single, standard way of using git so
+that all developers are doing things the same way. Even developers new to git
+find our workflow very easy.
+
+It's designed largely to avoid this:
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/typical-git-history.png"
+   alt      = "A convoluted map of the London Tube (subway) network."
+   caption  = "A typical git history."
+%]
+
+For us, the complicated history was the showstopper. We want a clean, linear
+history and an "easy-to-use" workflow. It's based on the following logic:
+
+1. The `master` branch is the source of truth
+2. All new development happens in a new branch off of `master`
+3. When you're done, merge your code back into `master` and delete your
+branches
+
+In other words, it's very clean, very simple, and focuses on the core
+development needs. There's nothing surprising about this workflow. How do
+releases work? That depends on your project and its needs. How do hotfixes
+work? That depends on your project and its needs. How do code reviews work?
+That depends on your project and its needs.  Like [the WildAgile project
+management system](/wildagile.html), our workflow is designed to be the _core_
+of what you do day in and day out. The bits you need to customize are up to
+you. We're not dogmatic.
+
+## git-flow
+
+As an aside, one popular workflow is
+[git-flow](https://nvie.com/posts/a-successful-git-branching-model/).  Yet
+[git-flow has its
+detractors](https://www.endoflineblog.com/gitflow-considered-harmful)
+and it's easy to find [many
+more](https://www.google.com/search?client=firefox-b-d&q=what%27s+wrong+with+git-flow).
+We found the convoluted history and strict requirements that things be "just
+so" to not be a good fit for our workflow. It might be the perfect fit for
+yours.
+
+# Our git Workflow
+
+The [git workflow tools](https://github.com/Ovid/git-workflow) are open source
+and they contain a simplified subset of the git tools used by [All Around the
+World](https://allaroundtheworld.fr/) for our software development. It makes
+it dead easy for teams using git (and in our case, github) to work together.
+
+There are only three new commands to remember:
+
+<dl>
+  <dt>git hub $issue</dt>
+  <dd>Create new branch based on a github ticket</dd>
+  <dt>git refresh</dt>
+  <dd>Rebase your work on top of current master</dd>
+  <dt>git merge-with-master</dt>
+  <dd>Merge your branch back into master</dd>
+</dl>
+
+Note: only the `bin/git-hub` command assumes you're using github. The other
+commands work fine without it.
+
+# Assumptions
+
+The `master` branch is never worked on directly. Instead, new branches are
+created (usually for an individual github ticket), we hack, we regularly pull
+new changes into that branch, and after a pull request is created and the
+approved, we merge the code back into `master`.
+
+The examples below assume the files in the `bin/` directory are in your path.
+If they are not in your path, you have to type the commands explicitly:
+
+    bin/git-hub 5738
+    bin/git-refresh
+    bin/git-merge-with-master
+
+## Checking Out a Branch
+
+We assume that branches are _usually_ per ticket. You can manually create a
+branch, but we tend not to. Instead, if you are going to work on github issue
+5738, with the title "Lower reputation for failed crimes", you run the
+following command:
+
+    git hub 5738
+
+And you're in a shiny new branch named `lower-reputation-for-failed-crimes-5738`.
+
+If that branch already exists, it's checked out.
+
+If you're not using github, it's trivial to do this by hand:
+
+	git checkout -b name-of-your-branch
+
+We just like the convenience of always having standard naming conventions.
+
+### Caveats
+
+1. The new branch that is created is based on the branch you're on, so you
+   probably want to run this from `master`
+2. Branch detection is based on a heuristic, using the ticket number. If you
+   have more than one branch with that ticket number, you will get a warning
+   and the code will exit.
+3. You'll need a config file for this. See `perldoc bin/git-hub` for this.
+4. Assumes Perl 5 version 20
+
+You will also need to install the following modules from the
+[CPAN](https://metacpan.org/) if you've not already done so.
+
+* `autodie`
+* `Config::General`
+* `JSON`
+* `Text::Unidecode`
+* `Pithub`
+
+If you're not familiar with installing CPAN modules, check out
+[cpanminus](https://metacpan.org/pod/App::cpanminus), or you can use the
+`cpan` command line tool that is standard with Perl.
+
+## Refreshing Your Branch
+
+While working on your branch, you want to regularly pull in the latest `master`
+to keep your code up-to-date. Working on a change for a week with a fast-moving
+codebase can cause serious headaches when it's time to merge. Thus, you should
+regularly run the following in your branch (I try to run it at least once per
+day):
+
+    git refresh
+
+Regardless of the branch you are on, this code:
+
+* Stashes changes (if any)
+* Checks out master
+* Does a fast-forward merge
+* Checks out your branch (if branch is not master)
+* Rebases onto `master` (if branch is not master)
+* Pops changes from stash, if any
+
+In other words, it cleanly rebases your code on top of master, even if you
+have uncommitted changes.
+
+Note: for everyone who keeps asking "why not `git pull --rebase --autostash`?"
+
+The simple reason is backwards-compatibility. Sometimes developers have older
+versions of git installed and while that's usually perfectly compatible with
+newer versions, we don't force them to upgrade. Also, internally `git-refresh`
+does things like `git fetch -p` to remove references to remote branches which
+no longer exist. This regular "house cleaning" helps to keep git more
+performant. See the [Pruning](https://git-scm.com/docs/git-fetch#_pruning)
+documentation for `git-fetch` for more information.
+
+Note: if this command aborts (such as during a merge conflict), the stashed
+changes will remain stashed. Run `git stash` to see those changes and `git
+stash pop` to return them to your codebase when you've finished resolving the
+merge conflicts.
+
+## Merging into master
+
+So you've finished your work and are ready to merge your branch back into
+master. Here's one way to do that very cleanly and safely:
+
+    git checkout master
+    git fetch --prune
+    git merge --ff-only origin/master
+    git rebase master my-awesome-feature-1234
+    git push --force-with-lease origin my-awesome-feature-1234
+    git checkout master
+    git merge --no-ff my-awesome-feature-1234
+    git push origin master
+
+You'll remember that, right? And you'll never mess it up?
+
+For us, we simply run:
+
+    git merge-with-master
+
+And that will cleanly update `master` and rebase your branch on top of it, and
+push that change to your origin.
+
+With that, you get a clean git history like this:
+
+    | * 44eba1b094 - ...
+    | * 217350810f - ...
+    |/
+    *   c84e694e59 - Merge branch 'no-add-message-from-context-object-8615' PR#8622 (6 days ago)  <some author>
+    |\
+    | * 9d73143f75 - ...
+    | * 983a1a5020 - ...
+    | * e799ecc8e3 - ...
+    | * aa9c981c2e - ...
+    | * 4651830fd6 - ...
+    |/
+    *   010e94b446 - Merge branch 'fix-test-combat-module-usage' PR#8623 (7 days ago)  <some author>
+    |\
+    | * 46d8917af7 - ...
+    |/
+    *   4acfdd8309 - Merge branch 'economy-action-use-args-hashref' PR#8617 (10 days ago)  <some author>
+    |\
+    | * a1f863f908 - ...
+    | * b3dc3efb2a - ...
+    | * ab77373fca - ...
+    | * b5491e4ae9 - ...
+
+And when you're done, it will also print out the instructions on how you can
+delete your local and remote copies of the branch, to help you be nice and not
+leave branches cluttering up the repository.
+
+# Merge Conflicts
+
+With all of this rebasing, you're sometimes going to hit the dreaded ...
+
+    Auto-merging lib/Veure/Moose.pm
+    CONFLICT (content): Merge conflict in lib/Veure/Moose.pm
+    Failed to merge in the changes.
+    Patch failed at 0001 Issue 144 Make read-only the default for attributes
+
+And then you're very unhappy. Worse, if you do this after a week of isolated
+hacking, you might get a _huge_ amount of merge conflicts to work through.
+However, by running `git refresh` at least once a day, if not more often,
+those conflicts are minimized. And when you do get them? I have the following
+in my `.bash_aliases` file:
+
+    alias damnit='vim $(git grep -l "<<<< HEAD")'
+
+Then, when I get a conflict, I just type `damnit` and am automatically editing
+the files which caused the conflict. It saves me a huge amount of time.
 
 [%- END %]
