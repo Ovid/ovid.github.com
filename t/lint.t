@@ -112,7 +112,7 @@ sub _validate_image ($image) {
             my $size = -s $src;
             if ( $size > 250_000 ) {
                 push @errors =>
-"Image $src does not appear to be optimized. It's $size bytes.";
+"Image $src does not appear to be optimized. It's $size bytes. We prefer 250,000 bytes or under.";
             }
         }
     }
