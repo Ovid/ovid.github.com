@@ -33,6 +33,9 @@
 
   <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  [% IF is_blog %]
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"> 
+  [% END %]
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
   <!-- CSS
@@ -96,7 +99,7 @@
 			</ul>
         </div>
     </div>
-    <div class="row title">
+    <div class="row title[% IF is_blog %] blog[% END %]">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1>[% title || "No Title Found" %]</h1>
@@ -107,4 +110,4 @@
     </div>
     <div class="row">
 [% INCLUDE include/links.tt %]
-        <div class="nine columns verticalLine">
+        <div class="nine columns verticalLine article[% IF is_blog %] blog[% END %]">
