@@ -38,4 +38,23 @@ my @expected = (
 eq_or_diff \@hrefs, \@expected,
   'add_note() should return links for unnamed and named footnotes';
 
+explain "I should fix this one day. It's currently coupled to my personal data";
+my $prev_post =
+  $ovid->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
+is $prev_post->{slug}, 'avoid-common-software-project-mistakes',
+  'prev post should be correct';
+my $next_post =
+  $ovid->next_post( 'articles', 'fixing-mvc-in-web-applications' );
+is $next_post->{slug}, 'how-to-defeat-facebook', 'next post should be correct';
+ok !$ovid->next_post( 'articles', 'no-such-post' ),
+  '... but we should not be able to fetch non-existing posts';
+
+  $DB::single = 1;
+my $bug =
+  $ovid->next_post( 'articles', 'fixing-mvc-in-web-applications' );
+explain $bug;
+$bug =
+ $ovid->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
+ explain $bug;
+
 done_testing;

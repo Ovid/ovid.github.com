@@ -1,0 +1,6 @@
+    <div class="prevNext">
+        [% prev = Ovid.prev_post(type, slug) %]
+        <a href="/[% IF prev; type _ '/' _ prev.slug _ '.html';  ELSE; '#'; END %]" class="prevPost">[% IF prev %]&laquo; [% prev.title | html %][% END %]</a>
+        [% next = Ovid.next_post(type, slug) %]
+        <a href="/[% IF next; type _ '/' _ next.slug _ '.html'; ELSE; '#'; END %]" class="nextPost">[% IF next %][% next.title | html %] &raquo;[% END %]</a>
+    </div>

@@ -5,7 +5,6 @@ use lib 'lib';
 use Less::Pager;
 
 my $pager = Less::Pager->new(
-    db             => 'test',
     items_per_page => 2,
     oldest_first   => 1,
     type           => 'article'
@@ -26,5 +25,15 @@ is $pager->total_pages, $current_page_number,
 
 is $found, $pager->total,
   'We should be able to fetch the correct number of records';
+
+explain "I should fix this one day. It's currently coupled to my personal data";
+my $prev_post =
+  $pager->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
+is $prev_post->{slug}, 'avoid-common-software-project-mistakes',
+  'prev post should be correct';
+my $next_post =
+  $pager->next_post( 'articles', 'fixing-mvc-in-web-applications' );
+is $next_post->{slug}, 'how-to-defeat-facebook',
+  'next post should be correct';
 
 done_testing;

@@ -1,5 +1,9 @@
 [% USE date %]
-          <hr>
+[% IF type == 'articles' or type == 'blog' %]
+<hr>
+[% INCLUDE include/pager.tt %]
+<hr>
+[% END %]
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
           how I can help you. Read my <a href="/hireme.html">hire me</a> page
@@ -20,7 +24,10 @@
         <div id="disqus_thread"></div>
     <div class="row">
       <div class="twelve columns">
-      [% IF include_comments %]
+      [% IF include_comments;
+		    UNLESS identifier;
+			 identifier = type _ "/" _ slug;
+            END  %]
         <script>
         var disqus_config = function () {
             this.page.url        = "[% url || "https://ovid.github.io/" _ identifier _ ".html" %]";

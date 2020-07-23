@@ -21,8 +21,8 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>[% title %]</title>
-  <meta name="description" content="Curtis Poe's Personal Site">
+  <title>[% title | html %]</title>
+  <meta name="description" content="[% title | html %]">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="http://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="http://ovid.github.io/blog.rss" />
@@ -111,3 +111,7 @@
     <div class="row">
 [% INCLUDE include/links.tt %]
         <div class="nine columns verticalLine article[% IF is_blog %] blog[% END %]">
+[% IF type == 'articles' or type == 'blog' %]
+[% INCLUDE include/pager.tt %]
+        <hr>
+[% END %]
