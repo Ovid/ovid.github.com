@@ -74,7 +74,7 @@ END
 
 sub write_article_stub ( $title, $slug, $opt_for ) {
     my $directory = article_type( $opt_for->{type} )->{directory};
-    my $contents = template( $title, "$directory/$slug", $opt_for );
+    my $contents = template( $title, $directory, $slug, $opt_for );
     my $template = catfile( 'root', $directory, "$slug.tt" );
 
     if ( -e $template ) {
@@ -93,13 +93,14 @@ sub edit_article ($template) {
     system $editor => $template;
 }
 
-sub template ( $title, $identifier, $opt_for ) {
+sub template ( $title, $directory, $slug, $opt_for ) {
     my $ymd = DateTime->now->ymd;
     my $is_blog = $opt_for->{type} eq 'blog' ? 1 : 0;
-    return sprintf <<'END' => $title, $identifier, $opt_for->{comments}, $ymd, $is_blog;
+    return sprintf <<'END' => $title, $directory, $slug, $slug, $opt_for->{comments}, $ymd, $is_blog;
 [%%
     title            = '%s';
-    identifier       = '%s';
+    identifier       = '%s/%s';
+    slug             ='%s';
     include_comments = %d;
     syntax_highlight = 1;
     date             = '%s';
