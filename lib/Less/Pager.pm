@@ -83,27 +83,31 @@ SQL
     return $records;
 }
 
-sub prev_post ($self, $directory, $slug) {
-    return $self->_get_prev_next(-1, $directory, $slug);
+sub prev_post ( $self, $directory, $slug ) {
+    return $self->_get_prev_next( -1, $directory, $slug );
 }
 
-sub next_post ($self, $directory, $slug) {
-    return $self->_get_prev_next(1, $directory, $slug);
+sub next_post ( $self, $directory, $slug ) {
+    return $self->_get_prev_next( 1, $directory, $slug );
 }
 
-sub _get_prev_next ($self, $direction, $directory, $slug) {
-    my $func     = $direction < 0 ? 'MAX' : 'MIN';
-    my $operator = $direction < 0 ? '<'   : '>';
-    my ( $sort_order, $article_type_id ) = dbh()->selectall_arrayref(<<'SQL', {}, $directory, $slug)->[0]->@*;
+sub _get_prev_next ( $self, $direction, $directory, $slug ) {
+    my $result = dbh()->selectall_arrayref( <<'SQL', {}, $directory, $slug );
     SELECT a.sort_order, a.article_type_id
       FROM articles a
       JOIN article_types at ON at.article_type_id = a.article_type_id
      WHERE at.directory = ?
        AND a.slug       = ?
 SQL
-    return unless defined $sort_order;
+    return unless $result->[0];
+    my ( $sort_order, $article_type_id ) = $result->[0]->@*;
 
-    return dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $article_type_id, $sort_order)->[0];
+    my $func     = $direction < 0 ? 'MAX' : 'MIN';
+    my $operator = $direction < 0 ? '<'   : '>';
+    $result =
+      dbh()
+      ->selectall_arrayref(
+        <<"SQL", { Slice => {} }, $article_type_id, $sort_order ) or return;
     SELECT a.title,
            a.slug,
            a.description,
@@ -120,6 +124,7 @@ SQL
                             AND available       = 1
                         );
 SQL
+    return $result->[0];
 }
 
 __PACKAGE__->meta->make_immutable;

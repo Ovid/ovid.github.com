@@ -5,7 +5,6 @@ use lib 'lib';
 use Less::Pager;
 
 my $pager = Less::Pager->new(
-    db             => 'test',
     items_per_page => 2,
     oldest_first   => 1,
     type           => 'article'

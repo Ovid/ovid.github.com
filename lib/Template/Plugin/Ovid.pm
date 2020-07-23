@@ -1,6 +1,7 @@
 package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
+use Less::Pager;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
@@ -9,6 +10,7 @@ sub new ( $class, $context ) {
         footnote_number => 1,
         footnote_names  => {},
         footnotes       => [],
+        pager           => Less::Pager->new( type => 'article' ),
     }, $class;
 }
 
@@ -59,6 +61,14 @@ sub get_footnotes($self) {
 
 sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
+}
+
+sub prev_post($self, $type, $slug) {
+    return $self->{pager}->prev_post($type, $slug);
+}
+
+sub next_post($self, $type, $slug) {
+    return $self->{pager}->next_post($type, $slug);
 }
 
 1;
