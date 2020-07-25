@@ -43,10 +43,13 @@ HTML
     return $html;
 }
 
-sub youtube ($self, $path) {
+sub youtube ($self, $youtube_id) {
+    if ( $youtube_id =~ m{/} ) {
+        croak("Youtube id '$youtube_id' id does not appear to be valid");
+    }
     return <<"HTML";
 <div class="video-responsive">
-	<iframe width="560" height="315" src="$path" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 HTML
 }
