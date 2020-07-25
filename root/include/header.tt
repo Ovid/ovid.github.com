@@ -31,10 +31,12 @@
   [% IF facebook %]
   [% # images should be 1200 x 630, but not less than 600 x 315 %]
   <meta property="og:image" content="http://ovid.github.io/static/images/facebook/[% facebook %]" />
+  [% IF facebook_alt %]<meta property="og:image:alt" content="[% facebook_alt |html%]" />[% END %]
   <meta property="og:type" content="article" />
   <meta property="og:url" content="http://ovid.github.io/[% type %]/[% slug %].html" />
   <meta property="og:title" content="[% title |html %]" />
   <meta property="og:description" content="[% Ovid.this_post(type, slug).description |html %]" />
+
   [% END %]
 
   <!-- Mobile Specific Metas –––––––––––––––––––––––––––––––––––––––––––––––––– -->
