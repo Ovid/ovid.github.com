@@ -49,7 +49,6 @@ is $next_post->{slug}, 'how-to-defeat-facebook', 'next post should be correct';
 ok !$ovid->next_post( 'articles', 'no-such-post' ),
   '... but we should not be able to fetch non-existing posts';
 
-  $DB::single = 1;
 my $bug =
   $ovid->next_post( 'articles', 'fixing-mvc-in-web-applications' );
 explain $bug;
