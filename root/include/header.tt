@@ -18,8 +18,7 @@
   </script>
 
 
-  <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- Basic Page Needs –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
   <title>[% title | html %]</title>
   <meta name="description" content="[% title | html %]">
@@ -27,19 +26,27 @@
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="http://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="http://ovid.github.io/blog.rss" />
 
-  <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- Facebook –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  [% IF facebook %]
+  [% # images should be 1200 x 630, but not less than 600 x 315 %]
+  <meta property="og:image" content="http://ovid.github.io/static/images/facebook/[% facebook %]" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="http://ovid.github.io/[% type %]/[% slug %].html" />
+  <meta property="og:title" content="[% title |html %]" />
+  <meta property="og:description" content="[% Ovid.this_post(type, slug).description |html %]" />
+  [% END %]
+
+  <!-- Mobile Specific Metas –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- FONT –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   [% IF is_blog %]
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"> 
   [% END %]
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-  <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">

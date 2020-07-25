@@ -66,6 +66,10 @@ sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
 }
 
+sub this_post($self, $type, $slug) {
+    return $self->{pager}->this_post($type, $slug);
+}
+
 sub prev_post($self, $type, $slug) {
     return $self->{pager}->prev_post($type, $slug);
 }

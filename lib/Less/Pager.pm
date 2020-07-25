@@ -127,4 +127,23 @@ SQL
     return $result->[0];
 }
 
+sub this_post ( $self, $directory, $slug ) {
+    my $result =
+      dbh()
+      ->selectall_arrayref(
+        <<"SQL", { Slice => {} }, $directory, $slug ) or return;
+    SELECT a.title,
+           a.slug,
+           a.description,
+           at.type,
+           a.sort_order
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE a.available = 1
+       AND at.directory = ?
+       AND a.slug = ?
+SQL
+    return $result->[0];
+}
+
 __PACKAGE__->meta->make_immutable;
