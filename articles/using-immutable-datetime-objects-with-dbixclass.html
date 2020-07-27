@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Why Do We Want Immutable Objects?</title>
+  <meta name="description" content="Why Do We Want Immutable Objects?">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="http://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="http://ovid.github.io/blog.rss" />
+
+  <!-- Facebook –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  
+  <meta property="og:image" content="http://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="http://ovid.github.io/articles/using-immutable-datetime-objects-with-dbixclass.html" />
+  <meta property="og:title" content="Why Do We Want Immutable Objects?" />
+  <meta property="og:description" content="I’m building a new object-oriented system to ship with the Perl language. It tries to default to immutable objects. Why is that?" />
+
+  <!-- Mobile Specific Metas –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Why Do We Want Immutable Objects?</h1>
+        <time>2020-07-27</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/easy-git-workflow.html" class="prevPost">&laquo; Easy Git Workflow</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<h1>Immutable Objects</h1>
+
+<p>I’ve been spending time designing <a href="https://github.com/Ovid/Cor/wiki" target="_blank">Cor</a> <span class="fa fa-external-link fa_custom"></span>, a
+new object system to be shipped with the Perl language. Amongst its many
+features, it’s designed to make it easier to create immutable objects, but
+not everyone is happy with that. For example, consider the following class:</p>
+
+<pre class="scrolled"><code class="language-perl">class Box {
+    has ($height, $width, $depth) :reader :new;
+    has $volume :reader = $width * $height * $depth;
+}
+
+my $original_box = Box-&gt;new(height=&gt;1, width=&gt;2, depth=&gt;3);
+my $updated_box  = $original_box-&gt;clone(depth=&gt;9);  # h=1, w=2, d=9
+</code></pre>
+
+<p>Because none of the slots have a <code>:writer</code> attribute, there is no way to mutate
+this object. Instead you call a <code>clone</code> method, supplying an overriding value
+for the constructor argument you need to change. The <code>$volume</code> argument
+doesn’t get copied over because it’s derived from the constructor arguments.</p>
+
+<p><a href="https://github.com/Ovid/Cor/issues/8" target="_blank">But not everyone is happy with this
+approach</a> <span class="fa fa-external-link fa_custom"></span>. Aside from arguments about
+utility of the <code>clone</code> method, the notion that objects should be immutable by
+default has frustrated some developers reading the Cor proposal. Even when I
+point out just adding a <code>:writer</code> attribute is all you need to do to get your
+mutability, people still object. So let’s have a brief discussion about
+immutability and why it’s useful.</p>
+
+<p>But first, here’s my last 2020 Perl Conference presentation on Cor.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Tst-vs4Br2A" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<h1>The Problem</h1>
+
+<p>Imagine, for example, that you have a very simple <code>Customer</code> object:</p>
+
+<pre class="scrolled"><code class="language-perl">my $customer = Customer-&gt;new(
+    name      =&gt; &quot;Ovid&quot;, 
+    birthdate =&gt; DateTime-&gt;new( ... ),
+);
+</code></pre>
+
+<p>In the code above, we’ll assume the <code>$customer</code> can give us useful information
+about the state of that object. For example, we have a section of code guarded
+by a check to see if they are old enough to drink alcohol:</p>
+
+<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+    ...
+}
+</code></pre>
+
+<p>The above looks innocent enough and it’s the sort of thing we regularly
+see in code. But then this happens:</p>
+
+<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+    my $date = $ovid-&gt;birthdate;
+    ...
+    # deep in the bowels of your code
+    my $cutoff_date = $date-&gt;set( year =&gt; $last_year ); # oops!
+    ...
+}
+</code></pre>
+
+<p>We had a guard to ensure that this code would not be executed if the customer
+wasn’t old enough to drink, but now in the middle of that code, due to how
+<code>DateTime</code> is designed, someone’s set the customer birth date to last year!
+The code, at this point, is probably in an invalid state and its behavior can
+no longer be considered correct.</p>
+
+<p>But clearly no one would do something so silly, would they?</p>
+
+<h1>Global State</h1>
+
+<p>We’ve known about <a href="https://softwareengineering.stackexchange.com/questions/148108/why-is-global-state-so-evil" target="_blank">the dangers of global
+state</a> <span class="fa fa-external-link fa_custom"></span>
+for a long time. For example, if I call the following subroutine, will the
+program halt or not?</p>
+
+<pre class="scrolled"><code class="language-perl">sub next ($number) {
+    if ( $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} ) {
+        die &quot;This was a bad idea.&quot;;
+    }
+    return $number++;
+}
+</code></pre>
+
+<p>You literally <em>cannot</em> inspect the above code and tell me if it will <code>die</code>
+when called because you cannot know, by inspection, what the
+<code>BLESS_ME_LARRY_FOR_I_HAVE_SINNED</code> environment variable is set to. This is
+one of the reasons why global environment variables are discouraged.</p>
+
+<p>But here we’re talking about <em>mutable</em> state.  You don’t what the above code
+to die, so you do this:</p>
+
+<pre class="scrolled"><code class="language-perl">$ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
+say next(4);
+</code></pre>
+
+<p>Except that now you’ve altered that mutable state and anything else which
+relies on that environment variable being set is unpredicatable. So we need to
+use <code>local</code> to safely change that in the local scope:</p>
+
+<pre class="scrolled"><code class="language-perl">{
+    local $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
+    say next(4);
+}
+</code></pre>
+
+<p>Even that is not good because there’s no indication of why we’re doing this
+<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="1" class="popup">
+  <a href="#1-return" class="close">&times;</a>
+  <span class="popup-body">Admittedly, for a silly example such as this, that argument
+kinda falls flat.</span>
+</span>
+<a href="#1-return" class="close-popup"></a>
+, but at least you can see how we can safely change that
+global variable in our local scope.</p>
+
+<h1>ORMs</h1>
+
+<p>And I can hear your objection now:</p>
+
+<blockquote>
+  <p>“But Ovid, the DateTime object in your first example isn’t global!”</p>
+</blockquote>
+
+<p>That’s true. What we had was this:</p>
+
+<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+    my $date = $ovid-&gt;birthdate;
+    ...
+    # deep in the bowels of your code
+    my $cutoff_date = $date-&gt;set( year =&gt; $last_year ); # oops!
+    ...
+}
+</code></pre>
+
+<p>But the offending line should have been this:</p>
+
+<pre class="scrolled"><code class="language-perl">    # note the clone().
+    my $cutoff_date = $date-&gt;clone-&gt;set( year =&gt; $last_year );
+</code></pre>
+
+<p>This is because the <code>set</code> method mutates the object in place, causing
+<em>everything holding a reference to that object to silently change</em>. It’s not
+global in the normal sense, but this <a href="https://rjbs.manxome.org/rubric/entry/1929" target="_blank">action at a distance is a source of very
+real bugs</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>It’s a serious enough problem that
+<a href="https://metacpan.org/pod/DateTime::Moonpig" target="_blank">DateTime::Moonpig</a> <span class="fa fa-external-link fa_custom"></span> and
+<a href="https://metacpan.org/pod/DateTimeX::Immutable" target="_blank">DateTimeX::Immutable</a> <span class="fa fa-external-link fa_custom"></span> have
+both been written to provide immutable <code>DateTime</code> objects, and that brings me
+to <a href="https://metacpan.org/release/DBIx-Class" target="_blank">DBIx::Class</a> <span class="fa fa-external-link fa_custom"></span>, an excellent ORM
+for Perl.</p>
+
+<p>As of this writing, it’s been around for about 15 years and provides a
+component called
+<a href="DBIx::Class::InflateColumn::DateTime">DBIx::Class::InflateColumn::DateTime</a>.
+This allows you to do things like this:</p>
+
+<pre class="scrolled"><code class="language-perl">package Event;
+use base 'DBIx::Class::Core';
+
+__PACKAGE__-&gt;load_components(qw/InflateColumn::DateTime/);
+__PACKAGE__-&gt;add_columns(
+  starts_when =&gt; { data_type =&gt; 'datetime' }
+  create_date =&gt; { data_type =&gt; 'date' }
+);
+</code></pre>
+
+<p>Now, whenever you call <code>starts_when</code> or <code>create_date</code> on an <code>Event</code> instance,
+you’ll get a <code>DateTime</code> object instead of just the raw string from the
+database. Further, you can <em>set</em> a <code>DateTime</code> object and not worry about your
+particular database’s date syntax. It <em>just works</em>.</p>
+
+<p>Except that the object is mutable and we don’t want that.<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
+<span id="2" class="popup">
+  <a href="#2-return" class="close">&times;</a>
+  <span class="popup-body">This is even worse for code that uses in-memory cached versions
+of these objects. They are truly global then!</span>
+</span>
+<a href="#2-return" class="close-popup"></a>
+ You can fix this
+by writing your own <code>DBIx::Class</code> component to use immutable <code>DateTime</code> objects.</p>
+
+<pre class="scrolled"><code class="language-perl">package My::Schema::Component::ImmutableDateTime;
+
+use DateTimeX::Immutable;
+use parent 'DBIx::Class::InflateColumn::DateTime';
+
+sub _post_inflate_datetime {
+    my ( $self, @args ) = @_;
+    my $dt = $self-&gt;next::method(@args);
+    return DateTimeX::Immutable-&gt;from_object( object =&gt; $dt );
+}
+
+1;
+</code></pre>
+
+<p>And then load this component:</p>
+
+<pre class="scrolled"><code class="language-perl">__PACKAGE__-&gt;load_components(
+    qw/+My::Schema::Component::ImmutableDateTime/
+);
+</code></pre>
+
+<p>And now, when you fetch your objects from the database, you get nice,
+immutable <code>DateTime</code>s. And it will be interesting to see where your codebase
+fails!</p>
+
+<p>Does all of this mean we should never use mutable objects? Of course not.
+Imagine creating an immutable cache where, if you wanted to add or delete an
+entry, you had to clone the entire cache to set the new state. That would
+likely defeat the main purpose of a cache: speeding things up. But in general,
+immutability is a good thing and is something to strive for. Trying to debug
+why code far, far away from your code has reset your data is not fun.</p>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/easy-git-workflow.html" class="prevPost">&laquo; Easy Git Workflow</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2020 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/using-immutable-datetime-objects-with-dbixclass.html";
+            this.page.identifier = "articles/using-immutable-datetime-objects-with-dbixclass";
+            this.page.title      = "Why Do We Want Immutable Objects?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+
+<script src="/static/js/prism.js"></script>
+
+</body>
+</html>
+
+
