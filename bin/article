@@ -16,12 +16,13 @@ GetOptions(
 
 my $comments = $opt_for{nocomments} ? 0 : 1;
 $opt_for{comments} = $comments;
+$opt_for{type} //= '';
 
 unless ( 'article' eq $opt_for{type} xor 'blog' eq $opt_for{type} ) {
     die "--type is required and must be one of 'article' or 'blog'";
 }
 
-croak("Usage: $0 Name of Article") unless @ARGV;
+die usage() unless @ARGV;
 
 unless ( $opt_for{description} ) {
     say "Please enter a description for this $opt_for{type} entry:";
@@ -100,7 +101,7 @@ sub template ( $title, $directory, $slug, $opt_for ) {
 [%%
     title            = '%s';
     type             = '%s';
-    slug             ='%s';
+    slug             = '%s';
     include_comments = %d;
     syntax_highlight = 1;
     date             = '%s';
@@ -116,7 +117,7 @@ END
 }
 
 sub usage {
-    return "$0 'My Awesome Title' --nocomments";
+    return "Usage: $0 --type \$type 'My Awesome Title' --nocomments\n";
 }
 
 __END__
@@ -127,9 +128,9 @@ article - Write an article
 
 =head1 SYNOPSIS
 
-    perl bin/article --type=article My Awesome Article
-    perl bin/article --type=blog My Awesome Article --nocomments
-    perl bin/article --type=blog My Awesome Article --description 'This is a longer description'
+    perl bin/article --type article My Awesome Article
+    perl bin/article --type blog My Awesome Article --nocomments
+    perl bin/article --type blog My Awesome Article --description 'This is a longer description'
 
 =head1 OPTIONS
 
