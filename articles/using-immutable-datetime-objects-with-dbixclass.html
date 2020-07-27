@@ -202,7 +202,7 @@ for a long time. For example, if I call the following subroutine, will the
 program halt or not?</p>
 
 <pre class="scrolled"><code class="language-perl">sub next ($number) {
-    if ( $ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} ) {
+    if ( $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} ) {
         die &quot;This was a bad idea.&quot;;
     }
     return $number++;
@@ -211,13 +211,13 @@ program halt or not?</p>
 
 <p>You literally <em>cannot</em> inspect the above code and tell me if it will <code>die</code>
 when called because you cannot know, by inspection, what the
-<code>BLESS_ME_FATHER_FOR_I_HAVE_SINNED</code> environment variable is set to. This is
+<code>BLESS_ME_LARRY_FOR_I_HAVE_SINNED</code> environment variable is set to. This is
 one of the reasons why global environment variables are discouraged.</p>
 
 <p>But here we’re talking about <em>mutable</em> state.  You don’t what the above code
 to die, so you do this:</p>
 
-<pre class="scrolled"><code class="language-perl">$ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} = 0;
+<pre class="scrolled"><code class="language-perl">$ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
 say next(4);
 </code></pre>
 
@@ -226,7 +226,7 @@ relies on that environment variable being set is unpredicatable. So we need to
 use <code>local</code> to safely change that in the local scope:</p>
 
 <pre class="scrolled"><code class="language-perl">{
-    local $ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} = 0;
+    local $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
     say next(4);
 }
 </code></pre>

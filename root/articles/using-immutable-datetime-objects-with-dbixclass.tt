@@ -96,7 +96,7 @@ program halt or not?
 
 [% WRAPPER include/code.tt language='perl' -%]
 sub next ($number) {
-    if ( $ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} ) {
+    if ( $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} ) {
         die "This was a bad idea.";
     }
     return $number++;
@@ -105,14 +105,14 @@ sub next ($number) {
 
 You literally _cannot_ inspect the above code and tell me if it will `die`
 when called because you cannot know, by inspection, what the
-`BLESS_ME_FATHER_FOR_I_HAVE_SINNED` environment variable is set to. This is
+`BLESS_ME_LARRY_FOR_I_HAVE_SINNED` environment variable is set to. This is
 one of the reasons why global environment variables are discouraged.
 
 But here we’re talking about _mutable_ state.  You don’t what the above code
 to die, so you do this:
 
 [% WRAPPER include/code.tt language='perl' -%]
-$ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} = 0;
+$ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
 say next(4);
 [% END %]
 
@@ -122,7 +122,7 @@ use `local` to safely change that in the local scope:
 
 [% WRAPPER include/code.tt language='perl' -%]
 {
-    local $ENV{BLESS_ME_FATHER_FOR_I_HAVE_SINNED} = 0;
+    local $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
     say next(4);
 }
 [% END %]
