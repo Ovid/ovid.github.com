@@ -78,6 +78,10 @@ sub next_post($self, $type, $slug) {
     return $self->{pager}->next_post($type, $slug);
 }
 
+sub is_blog($self,$type) {
+    return $type eq 'blog';
+}
+
 1;
 
 __END__

@@ -45,7 +45,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  [% IF is_blog %]
+  [% IF Ovid.is_blog(type) %]
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"> 
   [% END %]
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
@@ -110,7 +110,7 @@
 			</ul>
         </div>
     </div>
-    <div class="row title[% IF is_blog %] blog[% END %]">
+    <div class="row title[% IF Ovid.is_blog(type) %] blog[% END %]">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1>[% title || "No Title Found" %]</h1>
@@ -121,7 +121,7 @@
     </div>
     <div class="row">
 [% INCLUDE include/links.tt %]
-        <div class="nine columns verticalLine article[% IF is_blog %] blog[% END %]">
+        <div class="nine columns verticalLine article[% IF Ovid.is_blog(type) %] blog[% END %]">
 [% IF type == 'articles' or type == 'blog' %]
 [% INCLUDE include/pager.tt %]
         <hr>
