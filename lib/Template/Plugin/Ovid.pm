@@ -30,20 +30,24 @@ sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
         croak("Footnote '$name' already used");
     }
     $self->{footnote_names}{$name} = 1;
-    my $html = <<"HTML";
-<a href="#$name" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="$name" class="popup">
-  <a href="#$return" class="close">&times;</a>
-  <span class="popup-body">$note</span>
-</span>
-<a href="#$return" class="close-popup"></a>
+    my $id = "note-$number";
+    my $dialog =
+qq{<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
+    my $body = <<"HTML";
+    <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number">
+        <strong id="$id">Footnotes</strong>
+        <p id="note-description-$number" class="sr-only">Note number $number</p>
+	    <div>$note</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times"></i> </button>
+    </div>
 HTML
-#    push $self->{footnotes}->@* =>
-#      qq{<p id="$name"><a href="#$return">[$number]</a> $note</p>};
-    return $html;
+
+    # the footnotes are read and displayed in the template footer
+    push $self->{footnotes}->@* => { number => $number, body => $body };
+    return $dialog;
 }
 
-sub youtube ($self, $youtube_id) {
+sub youtube ( $self, $youtube_id ) {
     if ( $youtube_id =~ m{/} ) {
         croak("Youtube id '$youtube_id' id does not appear to be valid");
     }
@@ -66,19 +70,19 @@ sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
 }
 
-sub this_post($self, $type, $slug) {
-    return $self->{pager}->this_post($type, $slug);
+sub this_post ( $self, $type, $slug ) {
+    return $self->{pager}->this_post( $type, $slug );
 }
 
-sub prev_post($self, $type, $slug) {
-    return $self->{pager}->prev_post($type, $slug);
+sub prev_post ( $self, $type, $slug ) {
+    return $self->{pager}->prev_post( $type, $slug );
 }
 
-sub next_post($self, $type, $slug) {
-    return $self->{pager}->next_post($type, $slug);
+sub next_post ( $self, $type, $slug ) {
+    return $self->{pager}->next_post( $type, $slug );
 }
 
-sub is_blog($self,$type) {
+sub is_blog ( $self, $type ) {
     return $type eq 'blog';
 }
 

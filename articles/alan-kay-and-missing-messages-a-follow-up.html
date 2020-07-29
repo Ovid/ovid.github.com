@@ -43,11 +43,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
@@ -157,22 +158,7 @@ step of allocating more disk space than my software needed to guarantee that
 <em>this</em> would never be a problem with my software. I knew the
 main accounting software ran out of disk space every couple of weeks,
 requiring costly work on the part of the developers and operators to
-coordinate on resurrecting a batch job.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">When I first
-started, I only learned about this because we had a brand-new senior developer
-on the team. After a couple of weeks of pager duty, she sat down one day to
-fix the JCL to allocate enough disk space for all steps. When the lead
-programmer found out, she tried to stop her, saying "but if the jobs
-don&lsquo;t fail, they won&lsquo;t need us!" I never got along with that lead
-programmer.<br><br>It&lsquo;s also interesting to note that the above story
-refers to two female senior programmers. Our large mainframe staff had tons of
-female programmers. It&lsquo;s a damned shame this is no longer true of most
-shops.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
-</p>
+coordinate on resurrecting a batch job.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <p>Obviously, that was much earlier in my programming career. I didn't know
 anything about OOP, had never heard of Alan Kay, and couldn't possibly
@@ -182,16 +168,7 @@ use to restart my software if it failed. Keep that in mind: I gave a lot of
 thought about how to respond if my software didn't perform as expected.</p>
 
 <p>Fast forward a couple of decades to when I was hired to fix the ETL system
-of a company working to reduce the costs of <a href="https://www.cancerresearchuk.org/about-cancer/find-a-clinical-trial/what-clinical-trials-are/phases-of-clinical-trials#phase3" target="_blank">Phase III clinical trials.</a> <span class="fa fa-external-link fa_custom"></span>.<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="2" class="popup">
-  <a href="#2-return" class="close">&times;</a>
-  <span class="popup-body">To this day
-that&lsquo;s some of my proudest work, not because of the quality of my work,
-but because it involved potentially saving lives. I wish I had more work like
-that.</span>
-</span>
-<a href="#2-return" class="close-popup"></a>
- It was a large project, with many parts, but the ETL system had
+of a company working to reduce the costs of <a href="https://www.cancerresearchuk.org/about-cancer/find-a-clinical-trial/what-clinical-trials-are/phases-of-clinical-trials#phase3" target="_blank">Phase III clinical trials.</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> It was a large project, with many parts, but the ETL system had
 been written a couple of years earlier by a doctor! I was rather surprised. It
 was clear that he wasn't an experienced developer, but his work showed a lot
 of brilliance because he deeply understood the problem space.</p>
@@ -209,17 +186,7 @@ washing their hands of the mess.</p>
 
 <p>After a few months, I had rewritten the ETL system to be a fault-tolerant,
 rules-driven system that could handle the radically different data formats
-that pharmaceutical companies kept sending us.<a href="#3" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="3" class="popup">
-  <a href="#3-return" class="close">&times;</a>
-  <span class="popup-body">In fact,
-this work led to <a
-href="https://www.quora.com/What-is-the-most-interesting-bug-you-have-ever-solved-in-a-computer-program/answer/Curtis-Poe?ch=10&share=b49c1dd9&srid=OB5p"
-target="_blank">one of the most interesting sofware bugs I&lsquo;ve had the
-pleasure of fixing</a>.</span>
-</span>
-<a href="#3-return" class="close-popup"></a>
- More importatnly, instead of two days of hands-on
+that pharmaceutical companies kept sending us.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> More importatnly, instead of two days of hands-on
 work from one of our developers, it turned into two hours of automated work,
 leaving the developers free to do other tasks. So given that the data quality
 was rubbish, how did I get there?</p>
@@ -288,16 +255,7 @@ problem and there are many approaches.</p>
 <p>In this case, I would use various geolocation services to find addresses
 and lat/long data for the locations (with fallbacks if a service was down). I
 would create known "name variants" (in English, "Robert" is often shortened to
-"Bob"), encode names with something like Soundex<a href="#4" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="4" class="popup">
-  <a href="#4-return" class="close">&times;</a>
-  <span class="popup-body">I did
-not use Soundex, but I can&lsquo;t recall which alternative I chose. I only
-mention this to stave off the inevitable "Soundex sucks" nit-picking which
-articles like this are prone to.</span>
-</span>
-<a href="#4-return" class="close-popup"></a>
-, stripped stop words from names, check
+"Bob"), encode names with something like Soundex<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span>, stripped stop words from names, check
 email addresses and phone numbers, along with their Levenshtein distance since
 they were a frequent source of typos, and so on. By the time I was done, I had
 a large list of things which were potentially identifying, and scoring to
@@ -308,16 +266,7 @@ they were the same person.  Below a threshold, we assumed they were different
 people. Between those thresholds, we flagged them for follow-up.  And if the
 external geolocation services were down?  Fine! I just didn't get a score for
 their data, but I still had plenty of other scores to help me calculate that
-threshold.<a href="#5" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="5" class="popup">
-  <a href="#5-return" class="close">&times;</a>
-  <span class="popup-body">At this point, it&lsquo;s worth meditating
-about neural networks and how marvelously they work with incomplete
-information. They are powerful, in part, because we don&lsquo;t have to tell
-them how to work around incomplete information.</span>
-</span>
-<a href="#5-return" class="close-popup"></a>
- Surprisingly, we usually
+threshold.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span> Surprisingly, we usually
 had no follow-up records, despite often processing tens of thousands of people
 per batch.</p>
 
@@ -397,9 +346,103 @@ it's really not my problem.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>When I first
+started, I only learned about this because we had a brand-new senior developer
+on the team. After a couple of weeks of pager duty, she sat down one day to
+fix the JCL to allocate enough disk space for all steps. When the lead
+programmer found out, she tried to stop her, saying "but if the jobs
+don&lsquo;t fail, they won&lsquo;t need us!" I never got along with that lead
+programmer.<br><br>It&lsquo;s also interesting to note that the above story
+refers to two female senior programmers. Our large mainframe staff had tons of
+female programmers. It&lsquo;s a damned shame this is no longer true of most
+shops.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
-<script src="/static/js/prism.js"></script>
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>To this day
+that&lsquo;s some of my proudest work, not because of the quality of my work,
+but because it involved potentially saving lives. I wish I had more work like
+that.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>In fact,
+this work led to <a
+href="https://www.quora.com/What-is-the-most-interesting-bug-you-have-ever-solved-in-a-computer-program/answer/Curtis-Poe?ch=10&share=b49c1dd9&srid=OB5p"
+target="_blank">one of the most interesting sofware bugs I&lsquo;ve had the
+pleasure of fixing</a>.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4">
+        <strong id="note-4">Footnotes</strong>
+        <p id="note-description-4" class="sr-only">Note number 4</p>
+	    <div>I did
+not use Soundex, but I can&lsquo;t recall which alternative I chose. I only
+mention this to stave off the inevitable "Soundex sucks" nit-picking which
+articles like this are prone to.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog4 = new Dialog(document.querySelector('#dialog-4'), dialogOverlay);
+        myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
+    </script>
+      
+            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5">
+        <strong id="note-5">Footnotes</strong>
+        <p id="note-description-5" class="sr-only">Note number 5</p>
+	    <div>At this point, it&lsquo;s worth meditating
+about neural networks and how marvelously they work with incomplete
+information. They are powerful, in part, because we don&lsquo;t have to tell
+them how to work around incomplete information.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog5 = new Dialog(document.querySelector('#dialog-5'), dialogOverlay);
+        myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
+    </script>
+      
+    
 </body>
 </html>
 

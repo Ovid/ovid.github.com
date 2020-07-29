@@ -45,11 +45,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
@@ -120,14 +121,7 @@
 
 
 <p>When I was working with the BBC, the age-old debate had arisen again: should
-we use "cuddled elses" or not?<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">This is from memory. It could
-have been some other trivial detail we were debating.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
- For those not
+we use "cuddled elses" or not?<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> For those not
 familiar with the debate, it's asking if we should do this:</p>
 
 <pre class="scrolled"><code class="language-java">if (someCondition) {
@@ -209,15 +203,7 @@ studies on said topic, he concludes (emphasis mine):</p>
 </blockquote>
 
 <p>Unsurprisingly, these arguments about brace style, cuddled elses, tabs versus
-spaces,<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="2" class="popup">
-  <a href="#2-return" class="close">&times;</a>
-  <span class="popup-body">Actually, there are strong arguments for tabs
-regarding accessibility for those with poor vision, but I still prefer spaces.
-I'm as irrational as everyone else.</span>
-</span>
-<a href="#2-return" class="close-popup"></a>
- and so on, are almost meaningless. To
+spaces,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> and so on, are almost meaningless. To
 be fair, there is marginal value to be had in suggesting things such as
 "shorter variable names for smaller scopes" and "indent to show logical
 structure", but being too pedantic about it pisses people off for no good
@@ -325,9 +311,45 @@ choosing a style different from your own.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>This is from memory. It could
+have been some other trivial detail we were debating.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
-<script src="/static/js/prism.js"></script>
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Actually, there are strong arguments for tabs
+regarding accessibility for those with poor vision, but I still prefer spaces.
+I'm as irrational as everyone else.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
 </body>
 </html>
 

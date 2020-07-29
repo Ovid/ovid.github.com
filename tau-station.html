@@ -44,11 +44,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     
 
@@ -192,14 +193,7 @@ rebuilding, and if they attackers return, we want to be ready.</p>
 <p>Tau Station is a <em>narrative</em> game. That means it's a game you read.
 There are no adolescent boys camping spawn points and screaming improbable
 things about your mother; It's a game that lets you take your time, think, and
-plan.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">Also, because it's text and images in a browser,
-it's a game you can play at work, but you didn't hear that from me.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
- And
+plan.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> And
 because it's also an MMO, you can interact with other citizens of the Tau
 Station universe, join a syndicate, explore new star systems, and watch with
 us as we build the universe.</p>
@@ -219,15 +213,7 @@ fiction). There is no artifical gravity or FTL travel. We use <tt>E =
 mc<sup>2</sup></tt> and the mass of your ships to calculate the amount of
 anti-matter necessary for travel. We use proper orbital mechanics to calculate
 the orbits of space stations. And while we have to take shortcuts here and
-there (it's a game, after all), we stay faithful where we can.<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="2" class="popup">
-  <a href="#2-return" class="close">&times;</a>
-  <span class="popup-body">In fact, Tau Station is what the <a
-href="/starmap.html">Star Map</a> was for, but it sadly never made it into the
-game.</span>
-</span>
-<a href="#2-return" class="close-popup"></a>
-</p>
+there (it's a game, after all), we stay faithful where we can.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <p>We still have a lot to do, including:</p>
 
@@ -294,7 +280,43 @@ checkout out <a href="https://www.reddit.com/r/taustation/" target="_blank">/r/t
         </div>
     </div>
     </div>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Also, because it's text and images in a browser,
+it's a game you can play at work, but you didn't hear that from me.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>In fact, Tau Station is what the <a
+href="/starmap.html">Star Map</a> was for, but it sadly never made it into the
+game.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
 </body>
 </html>
 

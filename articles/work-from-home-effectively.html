@@ -45,11 +45,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
@@ -188,13 +189,7 @@ button off. Do it. It might sound scary at first, but when you wake up and
 realize that there is no snooze available, you have no choice but to get up.</p>
 
 <p>I was surprised at how well this simple trick works and I've been using it for
-years.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">And on a personal note, this is my personal best productivity tip. I
-started this back in the 80s and it changed my life.</span>
-</span>
-<a href="#1-return" class="close-popup"></a></p>
+years.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <p>Next, when you get up in the morning, make your bed. I doesn't have to have
 perfectly crisp "hospital" corners, but it should be comfy enough that when
@@ -297,21 +292,8 @@ remote work.</p>
 <p>So make sure you communicate well and often. And choose the most effective
 communication tools you can find.  Dr. Alistair Cockburn, in his presentation
 <a href="https://ameyakarve.wordpress.com/2012/07/22/characterizing-people-as-non-linear-1st-order-components-in-software-development-cockburn-us/" target="_blank">Characterizing people as non-linear 1st order components in software
-development</a> <span class="fa fa-external-link fa_custom"></span><a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="2" class="popup">
-  <a href="#2-return" class="close">&times;</a>
-  <span class="popup-body">Which, despite it's tongue-in-cheek name, is
-rather amusing and easy to read.</span>
-</span>
-<a href="#2-return" class="close-popup"></a>
-, found that communication effectiveness,
-from best to worst, tends to be:<a href="#3" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="3" class="popup">
-  <a href="#3-return" class="close">&times;</a>
-  <span class="popup-body">I have updated this for
-2020. Mentioning 'videotape', for example, no longer makes sense.</span>
-</span>
-<a href="#3-return" class="close-popup"></a></p>
+development</a> <span class="fa fa-external-link fa_custom"></span><span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span>, found that communication effectiveness,
+from best to worst, tends to be:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <ol>
 <li>Face-to-face</li>
@@ -445,9 +427,58 @@ in this article will make that easier.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>And on a personal note, this is my personal best productivity tip. I
+started this back in the 80s and it changed my life.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
-<script src="/static/js/prism.js"></script>
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Which, despite it's tongue-in-cheek name, is
+rather amusing and easy to read.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>I have updated this for
+2020. Mentioning 'videotape', for example, no longer makes sense.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
 </body>
 </html>
 

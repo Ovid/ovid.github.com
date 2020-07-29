@@ -47,11 +47,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
       <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -195,14 +196,7 @@ that it's equal to 4! (four factorial).</p>
 <p>So to figure out the number of ways you can order <em>n</em> elements, you just
 calculate <em>n</em>! (<em>n</em> factorial).</p>
 
-<p>But what is <em>n</em>? In math, we have the concept of a <em>set</em>.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">I
-am going to skip a lot, because this is a simple explanation.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
- A <em>set</em> is merely an
+<p>But what is <em>n</em>? In math, we have the concept of a <em>set</em>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> A <em>set</em> is merely an
 collection of <em>n</em> distinct things. The order of those things doesn't matter.
 The set <strong>{Alice, Bob, Charlie}</strong> is the same as the set <strong>{Charlie, Alice,
 Bob}</strong>. So our original question is "how many permutions of a set are there
@@ -303,7 +297,28 @@ $$0! = \frac{(0 + 1)!}{0 + 1}$$</p>
         </div>
     </div>
     </div>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>I
+am going to skip a lot, because this is a simple explanation.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 

@@ -47,11 +47,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     
 
@@ -188,15 +189,7 @@ the disease are <em>independent</em> of one another. But what does that mean?</p
 
 <p>Currently, it appears that the chances of our daughter dying are pretty close to
 zero. The chances of my wife dying appear to be around 2%, and the chances of my
-dying are around 4%.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">There are various factors in play,
-including my history of chronic lung issues. These numbers are based on what
-we know today and could very well be wrong.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
-. Well, it turns out that <a href="/blog/will-it-rain-tomorrow.html">if you do the math</a>, that
+dying are around 4%.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>. Well, it turns out that <a href="/blog/will-it-rain-tomorrow.html">if you do the math</a>, that
 works out to a 5.9% chance of one of us dying.  Instead of a 1 in 50 chance of
 losing a parent, our daughter has a 1 in 17 chance of losing a parent.</p>
 
@@ -312,7 +305,29 @@ wrong.</p>
         </div>
     </div>
     </div>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>There are various factors in play,
+including my history of chronic lung issues. These numbers are based on what
+we know today and could very well be wrong.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 

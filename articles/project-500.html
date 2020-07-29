@@ -43,11 +43,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
@@ -210,14 +211,7 @@ bottlenecks.</p>
 migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
-activity for a block of code.  It looked sort of like this:<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">These number are recreated from memory, but are roughly
-accurate.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
-</p>
+activity for a block of code.  It looked sort of like this:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <pre class="scrolled"><code class="language-perl">explain dbitrace(
     name =&gt; 'Full stack transaction request',
@@ -360,14 +354,7 @@ telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client's SOAP implementation had grown over the
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version's code into a new module and modifying
-that. There were, at the time of the project, 24 versions,<a href="#2" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="2" class="popup">
-  <a href="#2-return" class="close">&times;</a>
-  <span class="popup-body">Many of the oldest SOAP versions had long been deprecated,
-so that helped.</span>
-</span>
-<a href="#2-return" class="close-popup"></a>
- most of which had heavily duplicated code. To optimize
+that. There were, at the time of the project, 24 versions,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
 us to skip updating the other SOAP versions.</p>
@@ -523,14 +510,7 @@ the back-end. The back-end would submit the request for preauthorization to the
 payment provide and the payment provider would respond. The back-end sent the
 response to the front-end and if the preauthorization was denied, the denial
 would be sent back to the customer.  However, usually it was approved and the
-front-end would then submit the charge <em>back</em> to the back-end.<a href="#3" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="3" class="popup">
-  <a href="#3-return" class="close">&times;</a>
-  <span class="popup-body">Of course, it was sent to the back-end via SOAP. SOAP, oh,
-how I hate thee. I'm never taking a bath again.</span>
-</span>
-<a href="#3-return" class="close-popup"></a>
- The back-end would then
+front-end would then submit the charge <em>back</em> to the back-end.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> The back-end would then
 submit the preauthorized charge to the payment provider and lots of network
 and database activity helped to keep the server room warm. The entire process
 was about as fast as a snail crawling through mud.</p>
@@ -681,9 +661,58 @@ the exact sequence listed above.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>These number are recreated from memory, but are roughly
+accurate.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
-<script src="/static/js/prism.js"></script>
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Many of the oldest SOAP versions had long been deprecated,
+so that helped.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>Of course, it was sent to the back-end via SOAP. SOAP, oh,
+how I hate thee. I'm never taking a bath again.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
 </body>
 </html>
 

@@ -19,20 +19,8 @@ my @hrefs = (
     $ovid->add_note( 'footnote 2', 'named footnote' )
 );
 my @expected = (
-'<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">footnote 1</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
-',
-'<a href="#named-footnote" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="named-footnote" class="popup">
-  <a href="#named-footnote-return" class="close">&times;</a>
-  <span class="popup-body">footnote 2</span>
-</span>
-<a href="#named-footnote-return" class="close-popup"></a>
-'
+'<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>',
+'<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span>',
 );
 
 eq_or_diff \@hrefs, \@expected,
