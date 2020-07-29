@@ -1,4 +1,5 @@
 [% USE date %]
+[% USE Config %]
 [% IF include_comments %]
           <p><strong>Please leave a comment below!</strong></p>
 [% END %]
@@ -34,7 +35,7 @@
             END  %]
         <script>
         var disqus_config = function () {
-            this.page.url        = "[% url || "https://ovid.github.io/" _ identifier _ ".html" %]";
+            this.page.url        = "[% url || Config.url _ identifier _ ".html" %]";
             this.page.identifier = "[% identifier | html %]";
             this.page.title      = "[% title | html %]";
         };
@@ -50,8 +51,22 @@
         </div>
     </div>
     </div>
-[% IF syntax_highlight %]
-<script src="/static/js/prism.js"></script>
-[% END %]
+    [% IF syntax_highlight %]
+    <script src="/static/js/prism.js"></script>
+    [% END %]
+	[% IF Ovid.has_footnotes %]
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    [% footnotes = Ovid.get_footnotes %]
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  [% FOR footnote IN footnotes %]
+        [% footnote.body %]
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog[% footnote.number %] = new Dialog(document.querySelector('#dialog-[% footnote.number %]'), dialogOverlay);
+        myDialog[% footnote.number %].addEventListeners('#open-dialog-[% footnote.number %]', '#close-dialog-[% footnote.number %]');
+    </script>
+      [% END %]
+    [% END %]
 </body>
 </html>

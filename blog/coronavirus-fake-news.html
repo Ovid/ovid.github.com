@@ -3,8 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -25,17 +24,17 @@
   <title>Coronavirus Fake News</title>
   <meta name="description" content="Coronavirus Fake News">
   <meta name="author" content="Curtis Poe">
-  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="http://ovid.github.io/article.rss" />
-  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="http://ovid.github.io/blog.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
 
   <!-- Facebook –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
   
-  <meta property="og:image" content="http://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
   <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
   
   <meta property="og:type" content="article" />
-  <meta property="og:url" content="http://ovid.github.io/blog/coronavirus-fake-news.html" />
+  <meta property="og:url" content="https://ovid.github.io/blog/coronavirus-fake-news.html" />
   <meta property="og:title" content="Coronavirus Fake News" />
   <meta property="og:description" content="There is a lot of nonsense being peddled about the coronavirus. One article by a PhD in psychology is getting shared and it's dangerous." />
 
@@ -48,11 +47,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     
 
@@ -189,15 +189,7 @@ the disease are <em>independent</em> of one another. But what does that mean?</p
 
 <p>Currently, it appears that the chances of our daughter dying are pretty close to
 zero. The chances of my wife dying appear to be around 2%, and the chances of my
-dying are around 4%.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">There are various factors in play,
-including my history of chronic lung issues. These numbers are based on what
-we know today and could very well be wrong.</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
-. Well, it turns out that <a href="/blog/will-it-rain-tomorrow.html">if you do the math</a>, that
+dying are around 4%.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>. Well, it turns out that <a href="/blog/will-it-rain-tomorrow.html">if you do the math</a>, that
 works out to a 5.9% chance of one of us dying.  Instead of a 1 in 50 chance of
 losing a parent, our daughter has a 1 in 17 chance of losing a parent.</p>
 
@@ -259,6 +251,7 @@ wrong.</p>
 
 
 
+
           <p><strong>Please leave a comment below!</strong></p>
 
 
@@ -312,7 +305,29 @@ wrong.</p>
         </div>
     </div>
     </div>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>There are various factors in play,
+including my history of chronic lung issues. These numbers are based on what
+we know today and could very well be wrong.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 

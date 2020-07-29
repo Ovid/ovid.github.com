@@ -3,8 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -25,17 +24,17 @@
   <title>The Murder of George Floyd and The New Civil Rights Movement</title>
   <meta name="description" content="The Murder of George Floyd and The New Civil Rights Movement">
   <meta name="author" content="Curtis Poe">
-  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="http://ovid.github.io/article.rss" />
-  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="http://ovid.github.io/blog.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
 
   <!-- Facebook –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
   
-  <meta property="og:image" content="http://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
   <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
   
   <meta property="og:type" content="article" />
-  <meta property="og:url" content="http://ovid.github.io/blog/the-murder-of-george-floyd-and-the-new-civil-rights-movement.html" />
+  <meta property="og:url" content="https://ovid.github.io/blog/the-murder-of-george-floyd-and-the-new-civil-rights-movement.html" />
   <meta property="og:title" content="The Murder of George Floyd and The New Civil Rights Movement" />
   <meta property="og:description" content="The horrific video of the death of George Floyd at the hands of the police might just kick off a new civil rights movement." />
 
@@ -48,11 +47,12 @@
   
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
+
   <!-- CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/popups.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
@@ -143,16 +143,7 @@ uphold</a> <span class="fa fa-external-link fa_custom"></span>).</p>
 
 <p>But it’s shouldn’t be hard to understand. Colin Kaepernick lost his career and
 was vilified in the press for respectfully “taking a knee” during the National
-Anthem.<a href="#1" class="popup-btn"> <span class="fa fa-clipboard fa_custom"></span></a>
-<span id="1" class="popup">
-  <a href="#1-return" class="close">&times;</a>
-  <span class="popup-body">The NFL has finally admitted they were wrong and
-these protests should be allowed. In other news, tickets are now available for
-Washington Redskins and Kansas City Chiefs games! Get to practicing your
-Tomahawk Chop!</span>
-</span>
-<a href="#1-return" class="close-popup"></a>
- Yet another uppity black person who didn’t know his place.
+Anthem.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Yet another uppity black person who didn’t know his place.
 You can’t protest peacefully. You can’t vote your way to equality if enough
 people vote against you. <a href="https://www.modbee.com/latest-news/article239007883.html" target="_blank">You can’t protest racism without being accused of
 being racist</a> <span class="fa fa-external-link fa_custom"></span>.  What
@@ -366,6 +357,7 @@ and it’s long overdue.</p>
 
 
 
+
           <p><strong>Please leave a comment below!</strong></p>
 
 
@@ -419,9 +411,32 @@ and it’s long overdue.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>The NFL has finally admitted they were wrong and
+these protests should be allowed. In other news, tickets are now available for
+Washington Redskins and Kansas City Chiefs games! Get to practicing your
+Tomahawk Chop!</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
 
-<script src="/static/js/prism.js"></script>
-
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 

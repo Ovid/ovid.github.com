@@ -96,8 +96,7 @@ sub edit_article ($template) {
 
 sub template ( $title, $directory, $slug, $opt_for ) {
     my $ymd = DateTime->now->ymd;
-    my $is_blog = $opt_for->{type} eq 'blog' ? 1 : 0;
-    return sprintf <<'END' => $title, $directory, $slug, $opt_for->{comments}, $ymd, $is_blog;
+    return sprintf <<'END' => $title, $directory, $slug, $opt_for->{comments}, $ymd;
 [%%
     title            = '%s';
     type             = '%s';
@@ -105,7 +104,6 @@ sub template ( $title, $directory, $slug, $opt_for ) {
     include_comments = %d;
     syntax_highlight = 1;
     date             = '%s';
-    is_blog          = %d;
     USE Ovid;
 %%]
 [%% WRAPPER include/wrapper.tt blogdown=1 -%%]
