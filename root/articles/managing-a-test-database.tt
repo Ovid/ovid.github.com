@@ -28,11 +28,11 @@ transactions). It had the disadvantage of everything else: it was fragile and
 slow.
 
 Later, I started using xUnit frameworks, [eventually writing a new
-one](https://metacpan.org/pod/Test::Class::Moose) that's popular for larger
-companies needing "large scale" testing. With this, I show how trivial for
-each test class to run in a separate transaction, cleaning itself up as you
-go. It provides great isolation, leverages what databases are already good at,
-and let's you run many classes in parallel.
+one](https://metacpan.org/pod/Test::Class::Moose) that's popular for companies
+needing "large scale" testing. With this, I show how trivial for each test
+class to run in a separate transaction, cleaning itself up as you go. It
+provides great isolation, leverages what databases are already good at, and
+let's you run many classes in parallel.
 
 But it can easily break embedded transaction logic. And you have to guarantee
 everything shares the same database handle, and you can't really test the
@@ -103,13 +103,16 @@ system("mysqldump -u $user --password=$password test_db > $filename") == 0
 system("mysql -u $user --password=$password $db_name < $filename") == 0
   or croak("importing schema to mysql failed: $?");
 
-# XXX We're being naughty in this quick hack. We're writing this back
-# to the Model so that modules which use this connect to the correct
-# database.
+# XXX We're being naughty in this quick hack. We're writing
+# this back to the Model so that modules which use this connect 
+# to the correct database.
 $connect_info->{dsn} = "dbi:mysql:$db_name";
 
-# this is just a quick hack to get tests working for this code
+# This is just a quick hack to get tests working for this code.
+# A catastrophic failure in the test means this might not get
+# run and we have a junk test database lying around.
 # Obviously we want something far more robust
+
 END { $dbh->do("DROP DATABASE $db_name") }
 
 sub test_dbh () { $dbh }
