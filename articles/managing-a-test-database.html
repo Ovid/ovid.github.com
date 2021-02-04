@@ -123,40 +123,47 @@
 <h1>The Problem</h1>
 
 <p>Test databases are very easy to get wrong. Very easy. Decades ago when I first
-learned testing, the team "shared" a test database. If you ran your test at
+learned testing, the team shared a test database. If you ran your test at
 the same time another developer, both of your test suites would fail!
 However, we were using a database where we had to pay for individual licenses,
 so we were limited in what we could do.</p>
 
 <p>Later, I worked for a company using MySQL and I created an elaborate system of
-triggers to track all database changes. This let me "fake" transactions by
-starting a test run, see what had changed last time, and reverting those
-changes. It had the advantage that multiple database handles could see each
-others changes (hard to do for many databases if you have separate
-transactions). It had the disadvantage of everything else: it was fragile and
-slow.</p>
+triggers to track all database changes. This let me “fake” transactions by
+starting a test run, see what had changed last time, and automatically
+reverting those changes. It had the advantage that multiple database handles
+could see each other’s changes (hard to do for many databases if you have
+separate transactions). It had the disadvantage of everything else: it was
+fragile and slow.</p>
 
 <p>Later, I started using xUnit frameworks, <a href="https://metacpan.org/pod/Test::Class::Moose" target="_blank">eventually writing a new
-one</a> <span class="fa fa-external-link fa_custom"></span> that's popular for companies
-needing "large scale" testing. With this, I show how trivial for each test
-class to run in a separate transaction, cleaning itself up as you go. It
-provides great isolation, leverages what databases are already good at, and
-let's you run many classes in parallel.</p>
+one</a> <span class="fa fa-external-link fa_custom"></span> that’s popular for companies
+needing a large-scale testing solution. With this, it was easy for each test
+class to run in a separate transaction, cleaning itself up as it went. Using
+transactions provides great isolation, leverages what databases are already
+good at, and let’s you run many classes in parallel.</p>
 
 <p>But it can easily break embedded transaction logic. And you have to guarantee
-everything shares the same database handle, and you can't really test the
+everything shares the same database handle, and you can’t really test the
 transactions in your code, and, and, and ...</p>
 
-<p>Matt Trout was reminding me (again) why this approach was broken. Just spawn
-off temporary test databases and use those, throwing them away when you're
-done.</p>
+<p>What finally drove me over the edge was writing some code for a client using
+the <a href="https://github.com/mojolicious/minion" target="_blank">Minion job queue</a> <span class="fa fa-external-link fa_custom"></span>. The queue is
+solid, but it creates new database connections, thus ensuring that it can’t
+see anything in your database transactions. I figured out a (hackish)
+solution, but I was tired of hackish solutions.</p>
+
+<p>While I was researching the solution, Matt Trout was reminding me (again) why
+the “database transactions for tests” approach was broken. Just spawn off
+temporary test databases and use those, throwing them away when you’re done.</p>
 
 <h1>The Client</h1>
 
 <p>So a company wanting to hire me gave me a technical test and there was a task
-to add a small, simple feature to a Catalyst web application. It was trivial.
-They handed me a Vagrant file and after a quick <code>vagrant up</code> and <code>vagrant ssh</code>,
-I was ready to begin.  Then I looked at the test they had for the controller:</p>
+to add a small, simple feature to a <a href="http://www.catalystframework.org/" target="_blank">Catalyst web
+application</a> <span class="fa fa-external-link fa_custom"></span>. It was trivial.  They handed
+me a Vagrant file and after a quick <code>vagrant up</code> and <code>vagrant ssh</code>, I was
+ready to begin.  Then I looked at the test they had for the controller:</p>
 
 <pre class="scrolled"><code class="language-perl">use strict;
 use warnings;
@@ -169,8 +176,8 @@ done_testing();
 </code></pre>
 
 <p>The task involved a <code>POST</code> to a URL. There was no test for the existing feature
-that I was adding to, but any test I wrote meant I'd be changing the state of
-the database. Run the code multiple times and I'd leave junk in the database.
+that I was adding to, but any test I wrote meant I’d be changing the state of
+the database. Run the code multiple times and I’d leave junk in the database.
 There were various ways I could approach this, but I decided it was time to build
 a quick database on the fly, write to that, and then dispose of it after. The
 code for this was trivial:</p>
@@ -210,7 +217,7 @@ system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot
 system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) == 0
   or croak(&quot;importing schema to mysql failed: $?&quot;);
 
-# XXX We're being naughty in this quick hack. We're writing
+# XXX We’re being naughty in this quick hack. We’re writing
 # this back to the Model so that modules which use this connect 
 # to the correct database.
 $connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
@@ -228,7 +235,7 @@ sub test_dbh () { $dbh }
 </code></pre>
 
 <p>The above is very naughty in many ways, but the client hinted that how fast I
-returned the test might be a factor (or maybe they didn't and I misread the
+returned the test might be a factor (or maybe they didn’t and I misread the
 signals). They also made it clear they were looking at how I approached problems,
 not whether or not the code was perfect. Thus, I thought I was on safe territory.
 And it meant I could do this in my test:</p>
@@ -252,17 +259,17 @@ done_testing();
 <p>The <code>Test::DB</code> code was quick and easy to write and made it trivial for me
 to safely write tests. I was pleased.</p>
 
-<h1>What's Wrong With Test::DB?</h1>
+<h1>What’s Wrong With Test::DB?</h1>
 
 <p>For a junior developer, <code>Test::DB</code> might look awesome. For an experienced
-developer, it's terrible. So what would I do to make it closer to "production
-ready"?</p>
+developer, it’s terrible. So what would I do to make it closer to production
+ready?</p>
 
 <p>Here are just a few of the things I would consider.</p>
 
 <h2>Stronger Data Validation</h2>
 
-<p>First, let's look at our connection information:</p>
+<p>First, let’s look at our connection information:</p>
 
 <pre class="scrolled"><code class="language-perl">my $connect_info = Client::Model::ClientDB-&gt;config-&gt;{connect_info};
 my $dsn          = $connect_info-&gt;{dsn};
@@ -288,11 +295,11 @@ __PACKAGE__-&gt;config(
 </code></pre>
 
 <p>Once you load that class, you get a <code>config</code> class method which can tell you
-how that class is configured. However, there's no guarantee in the <code>Test::DB</code>
+how that class is configured. However, there’s no guarantee in the <code>Test::DB</code>
 side that the data is structured the way that I expect. Thus, I need to validate
 that data and throw an exception immediately if something has changed.</p>
 
-<p>And how do we create our test db?</p>
+<p>And how do we create our test database?</p>
 
 <pre class="scrolled"><code class="language-perl">$dbh-&gt;do(&quot;CREATE DATABASE $db_name&quot;);
 system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot;) == 0
@@ -301,7 +308,7 @@ system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) 
   or croak(&quot;importing schema to mysql failed: $?&quot;);
 </code></pre>
 
-<p>The <code>CREATE DATABASE</code> command is fast, so I'm not worried about that.  And the
+<p>The <code>CREATE DATABASE</code> command is fast, so I’m not worried about that.  And the
 test had a single table with very little data, so this was quick. But for <a href="https://taustation.space/" target="_blank">Tau
 Station</a> <span class="fa fa-external-link fa_custom"></span>, we have a couple of hundred tables and
 tons of data. This would be slow. For any reasonably mature system, dumping
@@ -310,7 +317,7 @@ easily avoid dumping it multiple times, but that hits the next problem: adding
 that data to your new test database. That would need to be done for each test
 and <em>that</em> is not something you can trivially speed up.</p>
 
-<p>For a more robust system, I'd probably create a local database service
+<p>For a more robust system, I’d probably create a local database service
 that would simply build a set number of test databases and have them waiting.
 The test would request the next test database, the service would regist that
 the database had been taken, and create a new test database in the background
@@ -329,16 +336,16 @@ databases based on whatever policies you think are appropriate.</p>
 merely a reference to that data. Instead, if I have a "database service" that
 tells the code which database it can use, then <code>Test::DB</code> can call that
 service, and so can <code>Client::Model::ClientDB</code>. Everything relies on a single
-source of truth instead of hacking global variables and hoping you don't mess
+source of truth instead of hacking global variables and hoping you don’t mess
 up.</p>
 
-<h1>Don't Drop The Test Database</h1>
+<h1>Don’t Drop The Test Database</h1>
 
-<p>If there is one thing which I hate about many testing systems, it's a watching
-a test horribly fail, but the database is cleaned up (or dropped) and I can't
+<p>If there is one thing which I hate about many testing systems, it’s a watching
+a test horribly fail, but the database is cleaned up (or dropped) and I can’t
 see the actual data after the test is done. What I often have to do is fire up
 the debugger and run the code up to the test failure and grab a database
-handle and try to inspect the data that way. It's a mess.</p>
+handle and try to inspect the data that way. It’s a mess.</p>
 
 <p>Here, we can fix that by simply dropping this line:</p>
 
@@ -346,7 +353,7 @@ handle and try to inspect the data that way. It's a mess.</p>
 </code></pre>
 
 <p>At the beginning and end of every test run, we can <code>diag</code> the test database
-name and if I need to see if there's an issue in the database, I can still use
+name and if I need to see if there’s an issue in the database, I can still use
 it. Our database service would have code to drop the database on:</p>
 
 <ul>
@@ -358,11 +365,62 @@ it. Our database service would have code to drop the database on:</p>
 
 <p>In short, keep the valuable data around for debugging.</p>
 
+<h1>Rapid Database Development</h1>
+
+<p>The database service solution would also have to tie into your database
+change management strategy. I heavily use <a href="https://sqitch.org/" target="_blank">sqitch</a> <span class="fa fa-external-link fa_custom"></span> to
+manage database changes and I’ve written a lot of code to support odd edge
+cases. It wouldn’t be hard to write code to let the database service see if
+it’s up to date with your local version of <code>sqitch</code>. Whatever database change
+management strategy you use, it needs to be discoverable to properly automate
+the database service. </p>
+
+<p>Of course, you think, that’s obvious. Yet you’d be shocked how many times I’ve
+worked with clients whose database change management strategy involves listing
+a bunch of SQL files and checking their <code>mtime</code> to see which ones need to be
+applied to your database. Yikes!</p>
+
+<h1>Faster Tests</h1>
+
+<p>If this is done well, your tests should also be faster. You won’t have the
+overhead of transactions beyond what your code already has. Plus, you can
+avoid issues like this:</p>
+
+<pre class="scrolled"><code class="language-perl">sub test_basic_combat_attack_behavior ($test,$) {
+    my $ovid    = $test-&gt;load_fixture('character.ovid');
+    my $winston = $test-&gt;load_fixture('character.winston');
+    my $station = $test-&gt;load_fixture('station.tau-station');
+
+    $test-&gt; move_to($station-&gt;port, $ovid, $winston);
+    ok !$ovid-&gt;attack($winston),
+      'We should not be able to attack someone on the home station.';
+    ...
+}
+</code></pre>
+
+<p>In the above, we’re loading some fixtures. Sometimes those fixtures are very
+complicated and loading them takes time. For one client, when I would run
+<code>$test-&gt;load_all_fixtures('connection');</code>, that would add an extra couple of
+seconds to every test which needed to do that.</p>
+
+<p>Instead, pre-built test databases can have the test fixtures already loaded.
+Further, having a pre-populated database helps your code deal with something
+closer to a real-world problem instead of dealing with an empty database and
+not catching corner cases that might cause.</p>
+
 <h1>Conclusion</h1>
+
+<p>By using a database service which merely hands you a temporary test database,
+you don’t have to worry about leaving the database a mess, managing
+transactions in tests, or having nasty hacks in your tests to workaround these
+issues. Most importantly, you’re not changing the behavior of your code. You
+just use the database like normal. It might be a little bit more work up front
+to create that database, but it’s worth the effort.</p>
 
 <p>I really do want to get around to creating a proper database tool like this
 some day. Today is not that day. But I was delighted how even my quick hack,
-written in just a couple of minutes, made it so much easier to test my code.</p>
+written in just a couple of minutes, made it so much easier to test my code. I
+should have done this ages ago.</p>
 
 
 
