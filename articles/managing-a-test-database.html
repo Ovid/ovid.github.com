@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ovid.github.io/articles/managing-a-test-database.html" />
+  <meta property="og:title" content="Managing a Test Database" />
+  <meta property="og:description" content="It's easy to get test databases wrong. Here's a nasty hack I did for a software test to make it easier to get the test database right." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Managing a Test Database</title>
+  <meta name="description" content="Managing a Test Database">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Managing a Test Database</h1>
+        <time>2021-02-04</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html" class="prevPost">&laquo; Why Do We Want Immutable Objects?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<h1>The Problem</h1>
+
+<p>Test databases are very easy to get wrong. Very easy. Decades ago when I first
+learned testing, the team shared a test database. If you ran your test at
+the same time another developer, both of your test suites would fail!
+However, we were using a database where we had to pay for individual licenses,
+so we were limited in what we could do.</p>
+
+<p>Later, I worked for a company using MySQL and I created an elaborate system of
+triggers to track all database changes. This let me “fake” transactions by
+starting a test run, see what had changed last time, and automatically
+reverting those changes. It had the advantage that multiple database handles
+could see each other’s changes (hard to do for many databases if you have
+separate transactions). It had the disadvantage of everything else: it was
+fragile and slow.</p>
+
+<p>Later, I started using xUnit frameworks, <a href="https://metacpan.org/pod/Test::Class::Moose" target="_blank">eventually writing a new
+one</a> <span class="fa fa-external-link fa_custom"></span> that’s popular for companies
+needing a large-scale testing solution. With this, it was easy for each test
+class to run in a separate transaction, cleaning itself up as it went. Using
+transactions provides great isolation, leverages what databases are already
+good at, and let’s you run many classes in parallel.</p>
+
+<p>But it can easily break embedded transaction logic. And you have to guarantee
+everything shares the same database handle, and you can’t really test the
+transactions in your code, and, and, and ...</p>
+
+<p>What finally drove me over the edge was writing some code for a client using
+the <a href="https://github.com/mojolicious/minion" target="_blank">Minion job queue</a> <span class="fa fa-external-link fa_custom"></span>. The queue is
+solid, but it creates new database connections, thus ensuring that it can’t
+see anything in your database transactions. I figured out a (hackish)
+solution, but I was tired of hackish solutions.</p>
+
+<p>While I was researching the solution, Matt Trout was reminding me (again) why
+the “database transactions for tests” approach was broken. Just spawn off
+temporary test databases and use those, throwing them away when you’re done.</p>
+
+<h1>The Client</h1>
+
+<p>So a company wanting to hire me gave me a technical test and there was a task
+to add a small, simple feature to a <a href="http://www.catalystframework.org/" target="_blank">Catalyst web
+application</a> <span class="fa fa-external-link fa_custom"></span>. It was trivial.  They handed
+me a Vagrant file and after a quick <code>vagrant up</code> and <code>vagrant ssh</code>, I was
+ready to begin.  Then I looked at the test they had for the controller:</p>
+
+<pre class="scrolled"><code class="language-perl">use strict;
+use warnings;
+use Test::More;
+
+use Catalyst::Test 'Client';
+
+ok( request('/some_path')-&gt;is_success, 'Request should succeed' );
+done_testing();
+</code></pre>
+
+<p>The task involved a <code>POST</code> to a URL. There was no test for the existing feature
+that I was adding to, but any test I wrote meant I’d be changing the state of
+the database. Run the code multiple times and I’d leave junk in the database.
+There were various ways I could approach this, but I decided it was time to build
+a quick database on the fly, write to that, and then dispose of it after. The
+code for this was trivial:</p>
+
+<pre class="scrolled"><code class="language-perl">package Test::DB;
+
+use File::Temp qw(tempfile);
+use DBI;
+use parent 'Exporter';
+use Client::Policy;
+
+BEGIN {
+    if ( exists $INC{'Client/Model/ClientDB.pm'} ) {
+        croak(&quot;You must load Test::DB before Client::Model::ClientDB&quot;);
+    }
+}
+use Client::Model::ClientDB;
+
+our @EXPORT_OK = qw(test_dbh);
+
+my $connect_info = Client::Model::ClientDB-&gt;config-&gt;{connect_info};
+my $dsn          = $connect_info-&gt;{dsn};
+my $user         = $connect_info-&gt;{user};
+my $password     = $connect_info-&gt;{password};
+
+# $$ is the process id (PID)
+my $db_name = sprintf 'test_db_%d_%d', time, $$;
+my ( $fh, $filename ) = tempfile();
+
+my $dbh = DBI-&gt;connect(
+    $dsn, $user, $password,
+    { RaiseError =&gt; 1, AutoCommit =&gt; 1 } 
+);
+$dbh-&gt;do(&quot;CREATE DATABASE $db_name&quot;);
+system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot;) == 0
+  or croak(&quot;mysqldump failed: $?&quot;);
+system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) == 0
+  or croak(&quot;importing schema to mysql failed: $?&quot;);
+
+# XXX We’re being naughty in this quick hack. We’re writing
+# this back to the Model so that modules which use this connect 
+# to the correct database.
+$connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
+
+# This is just a quick hack to get tests working for this code.
+# A catastrophic failure in the test means this might not get
+# run and we have a junk test database lying around.
+# Obviously we want something far more robust
+
+END { $dbh-&gt;do(&quot;DROP DATABASE $db_name&quot;) }
+
+sub test_dbh () { $dbh }
+
+1;
+</code></pre>
+
+<p>The above is very naughty in many ways, but the client hinted that how fast I
+returned the test might be a factor (or maybe they didn’t and I misread the
+signals). They also made it clear they were looking at how I approached problems,
+not whether or not the code was perfect. Thus, I thought I was on safe territory.
+And it meant I could do this in my test:</p>
+
+<pre class="scrolled"><code class="language-perl">use strict;
+use warnings;
+use Test::More;
+use lib 't/lib';
+use Test::DB;
+
+use Catalyst::Test 'Client';
+
+ok( request('/some_path')-&gt;is_success, 'Request should succeed' );
+
+# anything I do here is against a temporary test database
+# and will be discarded when the test finishes
+
+done_testing();
+</code></pre>
+
+<p>The <code>Test::DB</code> code was quick and easy to write and made it trivial for me
+to safely write tests. I was pleased.</p>
+
+<h1>What’s Wrong With Test::DB?</h1>
+
+<p>For a junior developer, <code>Test::DB</code> might look awesome. For an experienced
+developer, it’s terrible. So what would I do to make it closer to production
+ready?</p>
+
+<p>Here are just a few of the things I would consider.</p>
+
+<h2>Stronger Data Validation</h2>
+
+<p>First, let’s look at our connection information:</p>
+
+<pre class="scrolled"><code class="language-perl">my $connect_info = Client::Model::ClientDB-&gt;config-&gt;{connect_info};
+my $dsn          = $connect_info-&gt;{dsn};
+my $user         = $connect_info-&gt;{user};
+my $password     = $connect_info-&gt;{password};
+</code></pre>
+
+<p>The above relied on how Catalyst often sets up its DBIx::Class (a Perl ORM) model:</p>
+
+<pre class="scrolled"><code class="language-perl">package Client::Model::ClientDB;
+
+use strict;
+use base 'Catalyst::Model::DBIC::Schema';
+
+__PACKAGE__-&gt;config(
+    schema_class =&gt; 'Client::Schema::ClientDB',
+    connect_info =&gt; {
+        dsn      =&gt; 'dbi:mysql:test_db',
+        user     =&gt; 'root',
+        password =&gt; 'rootpass',
+    }
+);
+</code></pre>
+
+<p>Once you load that class, you get a <code>config</code> class method which can tell you
+how that class is configured. However, there’s no guarantee in the <code>Test::DB</code>
+side that the data is structured the way that I expect. Thus, I need to validate
+that data and throw an exception immediately if something has changed.</p>
+
+<p>And how do we create our test database?</p>
+
+<pre class="scrolled"><code class="language-perl">$dbh-&gt;do(&quot;CREATE DATABASE $db_name&quot;);
+system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot;) == 0
+  or croak(&quot;mysqldump failed: $?&quot;);
+system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) == 0
+  or croak(&quot;importing schema to mysql failed: $?&quot;);
+</code></pre>
+
+<p>The <code>CREATE DATABASE</code> command is fast, so I’m not worried about that.  And the
+test had a single table with very little data, so this was quick. But for <a href="https://taustation.space/" target="_blank">Tau
+Station</a> <span class="fa fa-external-link fa_custom"></span>, we have a couple of hundred tables and
+tons of data. This would be slow. For any reasonably mature system, dumping
+the database each time would be a bad idea. There are also ways you could
+easily avoid dumping it multiple times, but that hits the next problem: adding
+that data to your new test database. That would need to be done for each test
+and <em>that</em> is not something you can trivially speed up.</p>
+
+<p>For a more robust system, I’d probably create a local database service
+that would simply build a set number of test databases and have them waiting.
+The test would request the next test database, the service would regist that
+the database had been taken, and create a new test database in the background
+while your test runs. The service would also probably clean up old test
+databases based on whatever policies you think are appropriate.</p>
+
+<h1>No Action At A Distance</h1>
+
+<p>This line is terrible:</p>
+
+<pre class="scrolled"><code class="language-perl">$connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
+</code></pre>
+
+<p>The reason that works is because the <code>config</code> data in
+<code>Client::Model::ClientDB</code> is global <em>and</em> mutable and <code>$connect_info</code> is
+merely a reference to that data. Instead, if I have a "database service" that
+tells the code which database it can use, then <code>Test::DB</code> can call that
+service, and so can <code>Client::Model::ClientDB</code>. Everything relies on a single
+source of truth instead of hacking global variables and hoping you don’t mess
+up.</p>
+
+<h1>Don’t Drop The Test Database</h1>
+
+<p>If there is one thing which I hate about many testing systems, it’s a watching
+a test horribly fail, but the database is cleaned up (or dropped) and I can’t
+see the actual data after the test is done. What I often have to do is fire up
+the debugger and run the code up to the test failure and grab a database
+handle and try to inspect the data that way. It’s a mess.</p>
+
+<p>Here, we can fix that by simply dropping this line:</p>
+
+<pre class="scrolled"><code class="language-perl">END { $dbh-&gt;do(&quot;DROP DATABASE $db_name&quot;) }
+</code></pre>
+
+<p>At the beginning and end of every test run, we can <code>diag</code> the test database
+name and if I need to see if there’s an issue in the database, I can still use
+it. Our database service would have code to drop the database on:</p>
+
+<ul>
+<li>The next day</li>
+<li>The next test run</li>
+<li>After exceeding a threshold of databases</li>
+<li>... or whatever else you need</li>
+</ul>
+
+<p>In short, keep the valuable data around for debugging.</p>
+
+<h1>Rapid Database Development</h1>
+
+<p>The database service solution would also have to tie into your database
+change management strategy. I heavily use <a href="https://sqitch.org/" target="_blank">sqitch</a> <span class="fa fa-external-link fa_custom"></span> to
+manage database changes and I’ve written a lot of code to support odd edge
+cases. It wouldn’t be hard to write code to let the database service see if
+it’s up to date with your local version of <code>sqitch</code>. Whatever database change
+management strategy you use, it needs to be discoverable to properly automate
+the database service. </p>
+
+<p>Of course, you think, that’s obvious. Yet you’d be shocked how many times I’ve
+worked with clients whose database change management strategy involves listing
+a bunch of SQL files and checking their <code>mtime</code> to see which ones need to be
+applied to your database. Yikes!</p>
+
+<h1>Faster Tests</h1>
+
+<p>If this is done well, your tests should also be faster. You won’t have the
+overhead of transactions beyond what your code already has. Plus, you can
+avoid issues like this:</p>
+
+<pre class="scrolled"><code class="language-perl">sub test_basic_combat_attack_behavior ($test,$) {
+    my $ovid    = $test-&gt;load_fixture('character.ovid');
+    my $winston = $test-&gt;load_fixture('character.winston');
+    my $station = $test-&gt;load_fixture('station.tau-station');
+
+    $test-&gt; move_to($station-&gt;port, $ovid, $winston);
+    ok !$ovid-&gt;attack($winston),
+      'We should not be able to attack someone on the home station.';
+    ...
+}
+</code></pre>
+
+<p>In the above, we’re loading some fixtures. Sometimes those fixtures are very
+complicated and loading them takes time. For one client, when I would run
+<code>$test-&gt;load_all_fixtures('connection');</code>, that would add an extra couple of
+seconds to every test which needed to do that.</p>
+
+<p>Instead, pre-built test databases can have the test fixtures already loaded.
+Further, having a pre-populated database helps your code deal with something
+closer to a real-world problem instead of dealing with an empty database and
+not catching corner cases that might cause.</p>
+
+<h1>Conclusion</h1>
+
+<p>By using a database service which merely hands you a temporary test database,
+you don’t have to worry about leaving the database a mess, managing
+transactions in tests, or having nasty hacks in your tests to workaround these
+issues. Most importantly, you’re not changing the behavior of your code. You
+just use the database like normal. It might be a little bit more work up front
+to create that database, but it’s worth the effort.</p>
+
+<p>I really do want to get around to creating a proper database tool like this
+some day. Today is not that day. But I was delighted how even my quick hack,
+written in just a couple of minutes, made it so much easier to test my code. I
+should have done this ages ago.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html" class="prevPost">&laquo; Why Do We Want Immutable Objects?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2021 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/managing-a-test-database.html";
+            this.page.identifier = "articles/managing-a-test-database";
+            this.page.title      = "Managing a Test Database";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
