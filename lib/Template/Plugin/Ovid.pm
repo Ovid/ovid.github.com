@@ -14,6 +14,14 @@ sub new ( $class, $context ) {
     }, $class;
 }
 
+sub image_type ( $self, $image ) {
+    return
+        $image =~ /\.png$/   ? 'image/png'
+      : $image =~ /\.gif/    ? 'image/gif'
+      : $image =~ /\.jpe?g$/ ? 'image/jpeg'
+      :   croak("Cannot determine image type for '$image'");
+}
+
 sub cite ( $self, $path, $name ) {
     return
       sprintf
