@@ -39,6 +39,76 @@ testing. After installation, simply run this from the root directory:
 You can then navigate to `http://127.0.0.1:7007/` in your browser to see the
 results. See `perldoc http_this` for more details.
 
+# Article Metadata
+
+At the top of any new article or blog entry, you'll often see a premable like
+this:
+
+  [%
+      title            = 'Life on Venus?';
+      type             = 'blog';
+      slug             = 'life-on-venus';
+      include_comments = 1;
+      syntax_highlight = 1;
+      date             = '2020-09-15';
+      facebook         = 'venus.jpg';
+      facebook_alt     = 'The planet Venus';
+      USE Ovid;
+  %]
+
+      title            = 'Life on Venus?';
+
+The `title` is the title of the entry. It will be used in the `<title>` tag
+and also as the title in the page.
+
+      type             = 'blog';
+
+The `type` should be one of `blog` or `article`.
+
+      slug             = 'life-on-venus';
+
+This is the slug that will be used to build the URL.
+
+      include_comments = 1;
+
+If set to a true value, `include_comments` will enable Disqus comments for the
+page.
+
+      syntax_highlight = 1;
+
+If `syntax_highlight` is true, you can wrap your code and have it syntax
+highlighted:
+
+    [% WRAPPER include/code.tt language='perl' -%]
+    use strict;
+    use warnings;
+    use Test::More;
+
+    use Catalyst::Test 'Client';
+
+    ok( request('/some_path')->is_success, 'Request should succeed' );
+    done_testing();
+    [% END %]
+
+      date             = '2020-09-15';
+
+This date will be displayed on the web page.
+
+      facebook         = 'venus.jpg';
+
+If present, this will create an opengraph image that will be used by Facebook
+and other social media sites for displaying as a teaser image for the article.
+This must be an image in the `root/static/images/facebook` directory. For the
+size, 200 x 200 is the absolute minimum, [Facebook advises using an image
+that's at least 600 x 314
+pixels](https://developers.facebook.com/docs/sharing/best-practices#images).
+For the best display on high-resolution devices, the company suggests choosing
+an image that's at least 1200 x 630 pixels.
+
+      facebook_alt     = 'The planet Venus';
+
+This is the alt text that will be provided for the Facebook image.
+
 # CONFIGURATION
 
 This is in my `~/.ttreerc` file (though the `src` and `dst` are now overridden
