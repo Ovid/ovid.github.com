@@ -1,9 +1,10 @@
 #!/usr/bin/env perl
 
 use Test::Most;
-use Less::Boilerplate;
 use lib 'lib';
 use Text::Markdown::Blog;
+use Test2::Plugin::UTF8;
+use Less::Boilerplate;
 
 sub is_html : prototype($$$);
 
@@ -139,11 +140,25 @@ subtest 'smartquotes' => sub {
     chomp($html);
     is $html, '<p>This is "quoted text" in here</p>',
       'We should be able to disable smart quotes if needed';
+
+    $text = <<~'END';
+    <pre>Ignore all "quotes" that we find here. Don't change 'em</pre>
+
+    But these "quotes" are OK.
+    END
+    $html = $blog->blogdown($text);
+    explain $html;
+    $expected = <<~'END';
+    <pre>Ignore all "quotes" that we find here. Don't change 'em</pre>
+    
+    <p>But these “quotes” are OK.</p>
+    END
+    is_html $html, $expected, 'Quotes in <pre> blocks should not be quoted';
 };
 
 done_testing;
 
-sub is_html ( $have, $want, $message ) {
+sub is_html ( $have, $want, $message ) : prototype($$$) {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my @have = map { trim($_) } split /\n/ => trim($have);
     my @want = map { trim($_) } split /\n/ => trim($want);

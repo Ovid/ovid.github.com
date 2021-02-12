@@ -41,8 +41,16 @@ sub _use_smart_quotes ( $self, $text ) {
 
     my $html  = '';
     my $punct = '[[:punct:]]';
+
+    my $in_pre_text = 0;
     while ( my $token = $parser->get_token ) {
-        if ( $token->is_text ) {
+        if ($token->is_start_tag('pre') ) {
+            $in_pre_text++;
+        }
+        if ($token->is_end_tag('pre') ) {
+            $in_pre_text--
+        }
+        if ( !$in_pre_text && $token->is_text ) {
             my $text = $token->as_is;
 
             # this is a case where we have a double-quote character embedded
