@@ -334,7 +334,7 @@ databases based on whatever policies you think are appropriate.</p>
 
 <p>The reason that works is because the <code>config</code> data in
 <code>Client::Model::ClientDB</code> is global <em>and</em> mutable and <code>$connect_info</code> is
-merely a reference to that data. Instead, if I have a "database service" that
+merely a reference to that data. Instead, if I have a “database service” that
 tells the code which database it can use, then <code>Test::DB</code> can call that
 service, and so can <code>Client::Model::ClientDB</code>. Everything relies on a single
 source of truth instead of hacking global variables and hoping you don’t mess
@@ -401,7 +401,7 @@ avoid issues like this:</p>
 
 <p>In the above, we’re loading some fixtures. Sometimes those fixtures are very
 complicated and loading them takes time. For one client, when I would run
-<code>$test-&gt;load_all_fixtures('connection');</code>, that would add an extra couple of
+<code>$test-&gt;load_all_fixtures(‘connection');</code>, that would add an extra couple of
 seconds to every test which needed to do that.</p>
 
 <p>Instead, pre-built test databases can have the test fixtures already loaded.

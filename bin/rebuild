@@ -25,10 +25,12 @@ rebuild_article_pagination();
 rebuild_rss_feeds();
 my ( $stdout, $stderr, $exit ) = capture {
     system(
-        'ttree',  '-a',                      # process all files
-        '-s',     'tmp',                     # use tmp/ as a source
-        '-d',     '.',                       # use . as the target
-        '--copy', '\.(gif|png|jpg|pdf)$',    # copy, don't process images
+        'ttree',      '-a',                      # process all files
+        '-s',         'tmp',                     # use tmp/ as a source
+        '-d',         '.',                       # use . as the target
+        '--copy',     '\.(gif|png|jpg|pdf)$',    # copy, don't process images
+        '--binmode',  'utf8',                    # encoding of output file
+        '--encoding', 'utf8',                    # encoding of input files
     )
 };
 
