@@ -42,7 +42,8 @@ subtest 'basic' => sub {
 };
 
 subtest 'tables' => sub {
-	# see https://fletcher.github.io/MultiMarkdown-6/syntax/tables.html
+
+    # see https://fletcher.github.io/MultiMarkdown-6/syntax/tables.html
     my $html = $blog->blogdown(<<~'END');
     |             |          Grouping           ||
     First Header  | Second Header | Third Header |
@@ -98,6 +99,46 @@ subtest 'tables' => sub {
     </table>
     END
     is_html $html, $expected, 'We should be able to build rich tables';
+};
+
+subtest 'smartquotes' => sub {
+    my $text = <<~'END';
+    "this is a test."
+
+    We don't know how to hand"le a spurious double-quote
+
+    <p>HTML should <a href="/to/some/path">be safe to use</a>.</p>
+
+    "Don't you dare," said Sarah.
+
+    <p>"Leading double-quote</p>
+
+    'tis the season
+    END
+    my $blog = Text::Markdown::Blog->new;
+    my $html = $blog->blogdown($text);
+
+    my $expected = <<~'END';
+    <p>“this is a test.”</p>
+    
+    <p>We don’t know how to hand&quot;le a spurious double-quote</p>
+    
+    <p>HTML should <a href="/to/some/path">be safe to use</a>.</p>
+    
+    <p>“Don’t you dare,” said Sarah.</p>
+    
+    <p>“Leading double-quote</p>
+    
+    <p>‘tis the season</p>
+    END
+    is_html $html, $expected,
+      'We should be able to automatically use smart-quotes';
+
+    $html = Text::Markdown::Blog->new( use_smart_quotes => 0 )
+      ->blogdown('This is "quoted text" in here');
+    chomp($html);
+    is $html, '<p>This is "quoted text" in here</p>',
+      'We should be able to disable smart quotes if needed';
 };
 
 done_testing;

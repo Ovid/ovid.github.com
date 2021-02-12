@@ -2,7 +2,18 @@ package Text::Markdown::Blog;
 
 use Less::Boilerplate;
 use parent 'Text::Markdown';
+use HTML::TokeParser::Simple;
+use HTML::Entities;
 use Const::Fast;
+
+sub new ( $class, %args ) {
+    $args{use_smart_quotes} //= 1;
+    return $class->next::method(%args);
+}
+
+sub should_use_smart_quotes ($self) {
+    return $self->{use_smart_quotes};
+}
 
 # I should consider biting the bullet and going full multi-markdown?
 
@@ -17,11 +28,43 @@ my %REPLACEMENTS = (
 );
 
 sub blogdown ( $self, $text, $options = {} ) {
-    my $markdown = $self->markdown( $text, $options );
+    my $html = $self->markdown( $text, $options );
     while ( my ( $marker, $replacement ) = each %REPLACEMENTS ) {
-        $markdown =~ s/\Q$marker\E/$replacement/g;
+        $html =~ s/\Q$marker\E/$replacement/g;
     }
-    return $markdown;
+    $self->_use_smart_quotes($html);
+}
+
+sub _use_smart_quotes ( $self, $text ) {
+    return $text unless $self->should_use_smart_quotes;
+    my $parser = HTML::TokeParser::Simple->new( string => $text );
+
+    my $html  = '';
+    my $punct = '[[:punct:]]';
+    while ( my $token = $parser->get_token ) {
+        if ( $token->is_text ) {
+            my $text = $token->as_is;
+
+            # this is a case where we have a double-quote character embedded
+            # between two letters. We can't tell which smart quote that should
+            # be, so we encode it and skip it.
+            $text =~ s/(\w)"(\w)/$1&quot;$2/smg;
+
+            $text =~ s/\"($punct|\w)/“$1/smg;    # leading smart quote
+            $text =~ s/(\w|$punct)\"/$1”/smg;    # trailing smart quote
+            $text =~ s/(\w)'(\w)/$1’$2/smg;      # contractions: don’t
+            $text =~ s/(\W)'(\w)/$1‘$2/smg;      # ‘tis the season
+
+            # special-cases of single quote starting a string. We handle it
+            # independently to avoid complicating the above regexes
+            $text =~ s/^'(\w)/‘$1/;    # ‘tis the season
+            $html .= $text;
+        }
+        else {
+            $html .= $token->as_is;
+        }
+    }
+    return $html;
 }
 
 sub _GenerateAnchor (
