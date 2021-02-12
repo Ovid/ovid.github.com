@@ -120,8 +120,8 @@
 
 
 <p>When I was working with the BBC, the age-old debate had arisen again: should
-we use "cuddled elses" or not?<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> For those not
-familiar with the debate, it's asking if we should do this:</p>
+we use “cuddled elses” or not?<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> For those not
+familiar with the debate, it’s asking if we should do this:</p>
 
 <pre class="scrolled"><code class="language-java">if (someCondition) {
     System.out.println(&quot;We all gonna die&quot;);
@@ -143,37 +143,37 @@ else {
 <p>For those of you who are not software developers, the differences might seem
 pedantic. For those of you who <em>are</em> software developers, the difference <em>is</em>
 pedantic. Unfortunately, it caused a furious debate (as it often does) at the
-BBC and, as often happens with these debates, work isn't done. Sometimes
-tempers flare. And quite often a decision isn't made.</p>
+BBC and, as often happens with these debates, work isn’t done. Sometimes
+tempers flare. And quite often a decision isn’t made.</p>
 
-<p>And that's actually bad because one developer might "cuddle" that <code>else</code> and
-another developer working on this code might "uncuddle" it. And they're not
-being malicious or petty: "correctly" formatting code is simply something an
+<p>And that’s actually bad because one developer might “cuddle” that <code>else</code> and
+another developer working on this code might “uncuddle” it. And they’re not
+being malicious or petty: “correctly” formatting code is simply something an
 experienced developer does as part of their job. And that means more commits
 to your version control system and more work digging through those commits if
-you're trying to figure out why something was written in a particular way.</p>
+you’re trying to figure out why something was written in a particular way.</p>
 
 <p>Or worse, you have a developer who decides to write code to format the entire
 codebase in their personal style and running <code>git annotate $filename</code> shows
-that developer on all the lines. So you contact this "expert" about the
-<code>$filename</code> and they say they've never heard of it. I've run across this mess
+that developer on all the lines. So you contact this “expert” about the
+<code>$filename</code> and they say they’ve never heard of it. I’ve run across this mess
 more than once.</p>
 
 <p>Getting back to the BBC ...</p>
 
-<p>We had agreed we'd use <a href="https://metacpan.org/pod/Perl::Tidy" target="_blank"><code>Perl::Tidy</code></a> <span class="fa fa-external-link fa_custom"></span> to automatically format our code, but at that point, we hit
-<em>another</em> obstacle because everyone argued about the brace style (if you don't
-know what that means, trust me, you don't care) and no matter how hard we
-tried, <code>Perl::Tidy</code> couldn't get the curly braces formatted the way we wanted
+<p>We had agreed we’d use <a href="https://metacpan.org/pod/Perl::Tidy" target="_blank"><code>Perl::Tidy</code></a> <span class="fa fa-external-link fa_custom"></span> to automatically format our code, but at that point, we hit
+<em>another</em> obstacle because everyone argued about the brace style (if you don’t
+know what that means, trust me, you don’t care) and no matter how hard we
+tried, <code>Perl::Tidy</code> couldn’t get the curly braces formatted the way we wanted
 them to be formatted.</p>
 
-<p>My argument was "who cares? We'll get used to the new styles. Let's get back
-to work." But another developer, passionate about his brace placement, argued
+<p>My argument was “who cares? We’ll get used to the new styles. Let’s get back
+to work.” But another developer, passionate about his brace placement, argued
 that he could write a <a href="https://metacpan.org/pod/PPI" target="_blank"><code>PPI</code></a> <span class="fa fa-external-link fa_custom"></span>
 hook to fix this. Sigh.</p>
 
-<p>I quietly bet another developer £5 that this approach would not work.  I'm sad
-to say I won that bet. Worse, when the "solution" was ready, it kept hitting
+<p>I quietly bet another developer £5 that this approach would not work.  I’m sad
+to say I won that bet. Worse, when the “solution” was ready, it kept hitting
 edge cases in our code and breaking.</p>
 
 <p>And if you really want to see what a ridiculous timesink this can be, you can
@@ -184,8 +184,8 @@ Allman, Pico, Ratliff, GNU, <a href="https://en.wikipedia.org/wiki/Indentation_s
 
 <p>The icing on the cake? Though we know having regular formatting of code to
 show the logical structure of the program makes it easier to follow the code
-(proof: read minimized Javascript versus unminimized), there's no strong
-evidence (that I've ever found) a <em>particular</em> type of formatting is better
+(proof: read minimized Javascript versus unminimized), there’s no strong
+evidence (that I’ve ever found) a <em>particular</em> type of formatting is better
 than another. If you disagree, please provide non-anecdotal evidence.</p>
 
 <p>In fact, in the excellent book <a href="https://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670" target="_blank">Code Complete: A Practical Handbook of Software Construction, Second
@@ -204,21 +204,21 @@ studies on said topic, he concludes (emphasis mine):</p>
 <p>Unsurprisingly, these arguments about brace style, cuddled elses, tabs versus
 spaces,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> and so on, are almost meaningless. To
 be fair, there is marginal value to be had in suggesting things such as
-"shorter variable names for smaller scopes" and "indent to show logical
-structure", but being too pedantic about it pisses people off for no good
+“shorter variable names for smaller scopes” and “indent to show logical
+structure“, but being too pedantic about it pisses people off for no good
 reason.</p>
 
 <p>So how do we fix this?</p>
 
 <p>First, pick a reasonable style you can <em>automate</em>, swallow your pride
 about the details, and choose your automation tools. Second, consider
-that—unless you're pair programming—noone really cares much about the
-font you're using, do they? Not really. You've set your editor to choose your
-own font and that's not written back to your source code, so set your editor
-to choose your own style and make sure <em>it's</em> not written back to the source
+that—unless you’re pair programming—noone really cares much about the
+font you’re using, do they? Not really. You’ve set your editor to choose your
+own font and that’s not written back to your source code, so set your editor
+to choose your own style and make sure <em>it’s</em> not written back to the source
 code.</p>
 
-<p>So let's say you prefer spaces to tabs, with a four-space indent, and you
+<p>So let’s say you prefer spaces to tabs, with a four-space indent, and you
 use vim to edit your code. When you open a file, or create a new one, using
 the <code>BufRead,BufNewFile</code> commands is the first thing you need, or you can
 create a mapping to apply your style. For example, in your filetype mappings
@@ -244,14 +244,14 @@ endfunction
 coding style and never, ever have to pay attention to the silly choices other
 developers make.</p>
 
-<p>Do I recommend this technique? Absolutely not. You're going to commit in your
+<p>Do I recommend this technique? Absolutely not. You’re going to commit in your
 own style one day. However, <a href="https://github.com/mlawren/githook-perltidy" target="_blank">there are git hooks
-you can write to apply styles when you commit</a> <span class="fa fa-external-link fa_custom"></span>. It's much safer. A better
-choice, still, is to just be an adult and admit your "one true style" is
+you can write to apply styles when you commit</a> <span class="fa fa-external-link fa_custom"></span>. It’s much safer. A better
+choice, still, is to just be an adult and admit your “one true style” is
 a personal preference, not a mandate handed down from heaven. Learn to use the
 house style in preference to your own and avoid all of the petty arguments in
-the first place. You won't look like a better person for it, but you'll look
-like a worse one if you tell the other programmers they're fools for
+the first place. You won’t look like a better person for it, but you’ll look
+like a worse one if you tell the other programmers they’re fools for
 choosing a style different from your own.</p>
 
 
