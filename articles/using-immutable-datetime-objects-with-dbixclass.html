@@ -126,14 +126,14 @@ new object system to be shipped with the Perl language. Amongst its many
 features, it’s designed to make it easier to create immutable objects, but
 not everyone is happy with that. For example, consider the following class:</p>
 
-<pre class="scrolled"><code class="language-perl">class Box {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class Box {
     has ($height, $width, $depth) :reader :new;
     has $volume :reader = $width * $height * $depth;
 }
 
 my $original_box = Box-&gt;new(height=&gt;1, width=&gt;2, depth=&gt;3);
 my $updated_box  = $original_box-&gt;clone(depth=&gt;9);  # h=1, w=2, d=9
-</code></pre>
+</code></pre></div>
 
 <p>Because none of the slots have a <code>:writer</code> attribute, there is no way to mutate
 this object. Instead you call a <code>clone</code> method, supplying an overriding value
@@ -158,32 +158,32 @@ immutability and why it’s useful.</p>
 
 <p>Imagine, for example, that you have a very simple <code>Customer</code> object:</p>
 
-<pre class="scrolled"><code class="language-perl">my $customer = Customer-&gt;new(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $customer = Customer-&gt;new(
     name      =&gt; &quot;Ovid&quot;, 
     birthdate =&gt; DateTime-&gt;new( ... ),
 );
-</code></pre>
+</code></pre></div>
 
 <p>In the code above, we’ll assume the <code>$customer</code> can give us useful information
 about the state of that object. For example, we have a section of code guarded
 by a check to see if they are old enough to drink alcohol:</p>
 
-<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
     ...
 }
-</code></pre>
+</code></pre></div>
 
 <p>The above looks innocent enough and it’s the sort of thing we regularly
 see in code. But then this happens:</p>
 
-<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
     my $date = $ovid-&gt;birthdate;
     ...
     # deep in the bowels of your code
     my $cutoff_date = $date-&gt;set( year =&gt; $last_year ); # oops!
     ...
 }
-</code></pre>
+</code></pre></div>
 
 <p>We had a guard to ensure that this code would not be executed if the customer
 wasn’t old enough to drink, but now in the middle of that code, due to how
@@ -200,13 +200,13 @@ state</a> <span class="fa fa-external-link fa_custom"></span>
 for a long time. For example, if I call the following subroutine, will the
 program halt or not?</p>
 
-<pre class="scrolled"><code class="language-perl">sub next ($number) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub next ($number) {
     if ( $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} ) {
         die &quot;This was a bad idea.&quot;;
     }
     return $number++;
 }
-</code></pre>
+</code></pre></div>
 
 <p>You literally <em>cannot</em> inspect the above code and tell me if it will <code>die</code>
 when called because you cannot know, by inspection, what the
@@ -216,19 +216,19 @@ one of the reasons why global environment variables are discouraged.</p>
 <p>But here we’re talking about <em>mutable</em> state.  You don’t want the above code
 to die, so you do this:</p>
 
-<pre class="scrolled"><code class="language-perl">$ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">$ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
 say next(4);
-</code></pre>
+</code></pre></div>
 
 <p>Except that now you’ve altered that mutable state and anything else which
 relies on that environment variable being set is unpredicatable. So we need to
 use <code>local</code> to safely change that in the local scope:</p>
 
-<pre class="scrolled"><code class="language-perl">{
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">{
     local $ENV{BLESS_ME_LARRY_FOR_I_HAVE_SINNED} = 0;
     say next(4);
 }
-</code></pre>
+</code></pre></div>
 
 <p>Even that is not good because there’s no indication of why we’re doing this
 <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>, but at least you can see how we can safely change that
@@ -244,20 +244,20 @@ global variable in our local scope.</p>
 
 <p>That’s true. What we had was this:</p>
 
-<pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">if ( $ovid-&gt;old_enough_to_drink_alcohol ) {
     my $date = $ovid-&gt;birthdate;
     ...
     # deep in the bowels of your code
     my $cutoff_date = $date-&gt;set( year =&gt; $last_year ); # oops!
     ...
 }
-</code></pre>
+</code></pre></div>
 
 <p>But the offending line should have been this:</p>
 
-<pre class="scrolled"><code class="language-perl">    # note the clone().
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">    # note the clone().
     my $cutoff_date = $date-&gt;clone-&gt;set( year =&gt; $last_year );
-</code></pre>
+</code></pre></div>
 
 <p>This is because the <code>set</code> method mutates the object in place, causing
 <em>everything holding a reference to that object to silently change</em>. It’s not
@@ -276,7 +276,7 @@ component called
 <a href="DBIx::Class::InflateColumn::DateTime">DBIx::Class::InflateColumn::DateTime</a>.
 This allows you to do things like this:</p>
 
-<pre class="scrolled"><code class="language-perl">package Event;
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Event;
 use base 'DBIx::Class::Core';
 
 __PACKAGE__-&gt;load_components(qw/InflateColumn::DateTime/);
@@ -284,7 +284,7 @@ __PACKAGE__-&gt;add_columns(
   starts_when =&gt; { data_type =&gt; 'datetime' }
   create_date =&gt; { data_type =&gt; 'date' }
 );
-</code></pre>
+</code></pre></div>
 
 <p>Now, whenever you call <code>starts_when</code> or <code>create_date</code> on an <code>Event</code> instance,
 you’ll get a <code>DateTime</code> object instead of just the raw string from the
@@ -294,7 +294,7 @@ particular database’s date syntax. It <em>just works</em>.</p>
 <p>Except that the object is mutable and we don’t want that.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> You can fix this
 by writing your own <code>DBIx::Class</code> component to use immutable <code>DateTime</code> objects.</p>
 
-<pre class="scrolled"><code class="language-perl">package My::Schema::Component::ImmutableDateTime;
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package My::Schema::Component::ImmutableDateTime;
 
 use DateTimeX::Immutable;
 use parent 'DBIx::Class::InflateColumn::DateTime';
@@ -306,14 +306,14 @@ sub _post_inflate_datetime {
 }
 
 1;
-</code></pre>
+</code></pre></div>
 
 <p>And then load this component:</p>
 
-<pre class="scrolled"><code class="language-perl">__PACKAGE__-&gt;load_components(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">__PACKAGE__-&gt;load_components(
     qw/+My::Schema::Component::ImmutableDateTime/
 );
-</code></pre>
+</code></pre></div>
 
 <p>And now, when you fetch your objects from the database, you get nice,
 immutable <code>DateTime</code>s. And it will be interesting to see where your codebase

@@ -140,20 +140,20 @@ the quality you can expect for your own project.</em></p>
 critical importance of database transactions. For example, consider the
 following code:</p>
 
-<pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
     if ( $from-&gt;balance &lt; $amount ) {
         Exception::InsufficientFunds-&gt;throw(...);
     }
     $from-&gt;dec_balance($amount);
     $to-&gt;inc_balance($amount);
 }
-</code></pre>
+</code></pre></div>
 
 <p>The code is a grotesque oversimplification in several ways, but let’s just
 look at one little line:</p>
 
-<pre class="scrolled"><code class="language-perl">    $from-&gt;dec_balance($amount);
-</code></pre>
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">    $from-&gt;dec_balance($amount);
+</code></pre></div>
 
 <p>What happens if that fails and throws an exception? If it fails <em>before</em> the
 money is withdrawn, that might not be disastrous. If it happens <em>after</em> the
@@ -162,7 +162,7 @@ account. Our customers will be disappointed, to put it mildly.</p>
 
 <p>So we fix that with a database transaction. It might look like this:</p>
 
-<pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
     if ( $from-&gt;balance &lt; $amount ) {
         Exception::InsufficientFunds-&gt;throw(...);
     }
@@ -171,7 +171,7 @@ account. Our customers will be disappointed, to put it mildly.</p>
         $to-&gt;inc_balance($amount);
     });
 }
-</code></pre>
+</code></pre></div>
 
 <p>Now if <code>dec_balance</code> fails, we’re guaranteed that whatever money was withdrawn
 will still be in the original account.</p>
@@ -184,7 +184,7 @@ because the behavior of your code depends on which code finishes first.</p>
 balances, whether the account allows negative balances, and other factors. We
 don’t want to risk this bug, so let’s expand the transaction scope.</p>
 
-<pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
     $self-&gt;db-&gt;do_transaction(sub {
         if ( $from-&gt;balance &lt; $amount ) {
             Exception::InsufficientFunds-&gt;throw(...);
@@ -193,7 +193,7 @@ don’t want to risk this bug, so let’s expand the transaction scope.</p>
         $to-&gt;inc_balance($amount);
     });
 }
-</code></pre>
+</code></pre></div>
 
 <p>So now we check the transaction before we check the balance. Good to go,
 right?</p>
@@ -205,7 +205,7 @@ and might be stale. Instead, you need to refresh your data. But you can’t just
 do a <code>SELECT</code>, you need a <code>SELECT ... FOR UPDATE</code> to ensure that the row is
 locked in the transaction.</p>
 
-<pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub transfer_money ($self, $from, $to, $amount) {
     $self-&gt;db-&gt;do_transaction(sub {
         $from-&gt;requery_for_update;
         $to-&gt;requery_for_update;
@@ -216,7 +216,7 @@ locked in the transaction.</p>
         $to-&gt;inc_balance($amount);
     });
 }
-</code></pre>
+</code></pre></div>
 
 <p>The above is certainly better, but my goodness, there are traps there. And it
 still has bugs, but I’ll stop belaboring the point now.</p>
@@ -245,14 +245,14 @@ have multiple bank accounts per player, but we do have the ability to move
 money from your wallet to your bank account and conceptually that’s the same
 thing. It uses an “Exchange” system we’ve built and it looks like this:</p>
 
-<pre class="scrolled"><code class="language-perl">my $exchange = $self-&gt;new_exchange(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $exchange = $self-&gt;new_exchange(
     Preamble( 'deposit' =&gt; { amount =&gt; $amount } ),
     Steps(
         Wallet(      $self =&gt; remove_credits =&gt; $amount ),
         BankAccount( $self =&gt; add_credits    =&gt; $amount ),
     ),
 );
-</code></pre>
+</code></pre></div>
 
 <p>The “Preamble” is a second that declares that messages are going to be
 displayed to the player and what information, if any, to use for those
@@ -293,7 +293,7 @@ item from another player (a bit simplified). But first, imagine how you would
 write the code for buying a physical item from a vendor and compare that code
 to the following.</p>
 
-<pre class="scrolled"><code class="language-perl">Steps(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">Steps(
   Location(           $self =&gt; is_in_station          =&gt; $station ),
   PlayerMarketItem(   $self =&gt; is_not_seller_of       =&gt; $item ),
   PlayerMarketItem(   $self =&gt; check_item_is_not_sold =&gt; $item ),
@@ -302,7 +302,7 @@ to the following.</p>
   Inventory(          $self =&gt; add_item_instance      =&gt; $item ),
   PlayerMarketItem( $vendor =&gt; delete                 =&gt; $item ),
 )
-</code></pre>
+</code></pre></div>
 
 <p>Did you think of all those steps? How much code would you have had to write
 to implement all those steps? And would you have remembered all the
@@ -317,7 +317,7 @@ behavior and not only made it simpler, but more correct.</p>
 gestating a new clone. If you die, you respawn into your latest close. What
 does clone gestation look like? It used to look like this mess:</p>
 
-<pre class="scrolled"><code class="language-perl">sub gestate ( $self, $character ) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub gestate ( $self, $character ) {
     croak( … ) unless $character-&gt;area-&gt;slug eq 'clonevat';
     my $price = $self-&gt;price_per_character($character);
     if ( $character-&gt;wallet &lt; $price ) {
@@ -341,16 +341,16 @@ does clone gestation look like? It used to look like this mess:</p>
     $guard-&gt;commit;
     return $clone;
 }
-</code></pre>
+</code></pre></div>
 
 <p>And that was a bucket of bugs. And hard to follow. Now it looks like this:</p>
 
-<pre class="scrolled"><code class="language-perl">Steps(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">Steps(
   Location( $self =&gt; is_in_area =&gt; 'clonevat' ),
   Wallet(   $self =&gt; pay        =&gt; $price ),
   Clone(    $self =&gt; gestate    =&gt; $area ),
 ),
-</code></pre>
+</code></pre></div>
 
 <p>Honestly, which of those would you rather write?</p>
 
@@ -381,13 +381,13 @@ the code, you almost never have to pay attention to this. It’s all automatic.<
 
 <p>Each exchange step looks very similar:</p>
 
-<pre class="scrolled"><code class="language-perl">    Location( $self =&gt; is_in_area =&gt; 'clonevat' )
-</code></pre>
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">    Location( $self =&gt; is_in_area =&gt; 'clonevat' )
+</code></pre></div>
 
 <p>In exhange parlance, that’s:</p>
 
-<pre class="scrolled"><code class="language-perl">    Topic( subject =&gt; verb =&gt; object )
-</code></pre>
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">    Topic( subject =&gt; verb =&gt; object )
+</code></pre></div>
 
 <p>Everything follows a linguistic SVO (subject-verb-object) pattern. To create a
 new <em>Topic</em> for the exchanges, you create a class called
@@ -402,7 +402,7 @@ verb is merely a matter of writing a method. The object (in linguisitic terms)
 becomes the argument(s) to the method. A simple <code>is_in_area</code> check might look
 like this:</p>
 
-<pre class="scrolled"><code class="language-perl">sub is_in_area ( $self, $area_slug ) {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub is_in_area ( $self, $area_slug ) {
     my $station_area_id = $self-&gt;station_area-&gt;area_id;
 
     if ( $self-&gt;station_area-&gt;area_slug eq $area_slug  ) {
@@ -415,7 +415,7 @@ like this:</p>
         message =&gt; ...
     );
 }
-</code></pre>
+</code></pre></div>
 
 <p>Simple, eh? And now we can reuse this to our heart’s content.</p>
 
@@ -432,7 +432,7 @@ exception?</p>
 stringified version of the exchange. In this case, it’s for refueling a
 spaceship:</p>
 
-<pre class="scrolled"><code class="language-perl">character('ovid')-&gt;new_exchange(
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">character('ovid')-&gt;new_exchange(
     slug            =&gt; 'refuel-current-ship',
     success_message =&gt; 'Your ship is now being refueled.',
     failure_message =&gt; 'Unable to refuel ship.',
@@ -450,14 +450,14 @@ spaceship:</p>
           cooldown_type =&gt; 'ship_refuel',period =&gt; 1000} ),
     )
 );
-</code></pre>
+</code></pre></div>
 
 <p>In this case, we got an exception because there’s a serious bug: somehow the
 character has been asked to pay <em>negative</em> credits. This stringified exchange
 shows this very clearly here:</p>
 
-<pre class="scrolled"><code class="language-perl">        Money( character('ovid'), pay, -15.00 ),
-</code></pre>
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">        Money( character('ovid'), pay, -15.00 ),
+</code></pre></div>
 
 <p>So it’s dead simple to recreate conditions that cause failures in incredibly
 complex behavior. In this case, we knew our exchange system was fine, but

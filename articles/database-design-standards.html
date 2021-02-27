@@ -204,7 +204,7 @@ was being pedantic. After all, the <code>customers.id</code> column is unambiguo
 
 <p>And later I had to debug the following:</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT thread.*
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
   FROM email thread
   JOIN email selected      ON selected.id = thread.id
   JOIN character recipient ON recipient.id = thread.recipient_id
@@ -226,7 +226,7 @@ LEFT JOIN route
                          + ( route.distance * interval '30 seconds' )
         ))))
 ORDER BY datesent ASC, thread.parent_id ASC
-</code></pre>
+</code></pre></div>
 
 <p>Do you see the problem? If the SQL had used full id names, such as <code>email_id</code>,
 <code>star_id</code>, and <code>station_id</code>, the bugs would have stood out like a sore thumb
@@ -239,7 +239,7 @@ after it’s corrected. It’s very clear that “star_id” and “email_id“,
 previously mentioned, if SQL had a decent type system, this SQL would not even
 have compiled.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT thread.*
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
   FROM email thread
   JOIN email selected      ON selected.email_id      = thread.email_id
   JOIN character recipient ON recipient.character_id = thread.recipient_id
@@ -264,7 +264,7 @@ LEFT JOIN route
                          + ( route.distance * interval '30 seconds' )
         ))))
 ORDER BY datesent ASC, thread.parent_id ASC
-</code></pre>
+</code></pre></div>
 
 <p>Do yourself a favor and use full names for IDs. You can thank me later.</p>
 
@@ -273,18 +273,18 @@ ORDER BY datesent ASC, thread.parent_id ASC
 <p>As much as possible, name columns very descriptively. For example, a
 <code>temperature</code> column doesn’t make sense for this:</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
   FROM areas
  WHERE temperature &lt; 32;  
-</code></pre>
+</code></pre></div>
 
 <p>I live in France and for anyone here, 32 would be “too hot“. Instead, name that
 column <code>fahrenheit</code>.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
   FROM areas
  WHERE fahrenheit &lt; 32;  
-</code></pre>
+</code></pre></div>
 
 <p>Now it’s completely unambiguous.</p>
 
@@ -292,22 +292,22 @@ column <code>fahrenheit</code>.</p>
 each side of the constraint identically, if possible.  For example, consider
 this perfectly reasonable, sane, SQL.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT *
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT *
   FROM some_table       s
   JOIN some_other_table o
     ON o.owner = s.person_id;
-</code></pre>
+</code></pre></div>
 
 <p>That looks sane. There’s really nothing wrong with it. But when you consult the
 table definition, you discover that <code>some_other_table.owner</code> has a foreign key
 constraint against <code>companies.company_id</code>. That SQL is, in fact, wrong. Had
 you used identical names:</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT *
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT *
   FROM some_table       s
   JOIN some_other_table o
     ON o.company_id = s.person_id;
-</code></pre>
+</code></pre></div>
 
 <p>Now it’s immediately clear that we have a bug and you can see it on a single
 line of code and don’t have to go consult the table definition.</p>
@@ -361,10 +361,10 @@ against data corruption—are terrible at types! I mean, really, really bad at
 them. For example, if your <code>customers</code> table has an integer surrogate key, you
 can do this:</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT name, birthdate
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, birthdate
   FROM customers
  WHERE customer_id &gt; weight;
-</code></pre>
+</code></pre></div>
 
 <p>That, of course, doesn’t make a lick of sense and in a sane world would be a
 compile-time error.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> Many programming languages make it trivial to
@@ -399,10 +399,10 @@ examine the practical implications.</p>
 <p>You need to pay a $500 bonus to all employees who earn more than $50K a year
 in salary. So you write the following SQL.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT employee_number, name
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT employee_number, name
   FROM employees
  WHERE salary &gt; 50000;
-</code></pre>
+</code></pre></div>
 
 <p>And you just got fired because your boss earns more than $50K but their salary
 isn’t in the database (their <code>employees.salary</code> column is <code>NULL</code>) and the
@@ -470,16 +470,16 @@ let’s look at an example <a href="https://www.amazon.com/Database-Depth-Relati
 
 <p>The following, of course, returns <code>p1</code>.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT part_id
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
   FROM parts;
-</code></pre>
+</code></pre></div>
 
 <p>But what about the following?</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT part_id
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
   FROM parts
  WHERE city = city;
-</code></pre>
+</code></pre></div>
 
 <p>That returns no rows since you cannot compare a <code>NULL</code> value with anything—not
 even another <code>NULL</code> and not even the <em>same</em> <code>NULL</code>.  That seems odd because
@@ -487,11 +487,11 @@ the city for every given row must the be the same city, even if we don’t know
 it, right? And that leads us to the following. What does this return?  Try to
 work out the answer before reading it below.</p>
 
-<pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
   FROM suppliers s, parts p
  WHERE p.city &lt;&gt; s.city
     OR p.city &lt;&gt; 'Paris';
-</code></pre>
+</code></pre></div>
 
 <p>We get no rows because we can’t compare a <code>NULL</code> city (<code>p.city</code>) and thus
 neither branch of the <code>WHERE</code> clause can evaluate to true.</p>

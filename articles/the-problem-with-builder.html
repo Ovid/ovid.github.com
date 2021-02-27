@@ -132,6 +132,8 @@
 </nav>
 <hr></p>
 
+<p><strong>Note:</strong> I am available for consulting at the time this article was written.</p>
+
 <p>I’ve been spending a lot of time designing <a href="https://github.com/Ovid/Cor/wiki" target="_blank">a new OO syntax for the Perl
 language</a> <span class="fa fa-external-link fa_custom"></span> called Corinna. This syntax is not
 designed to be another object-oriented module. Instead, it’s designed to be a
@@ -152,13 +154,13 @@ change.</p>
 
 <p>As part of our proposal, we have this:</p>
 
-<pre class="scrolled"><code class="language-perl">class SomeClass {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class SomeClass {
     has $x :builder;
     method _build_x () {
         return rand;
     }
 }
-</code></pre>
+</code></pre></div>
 
 <p>If you call <code>SomeClass-&gt;new</code>, you’ll get a random numeric value assigned to
 the <code>$x</code> slot variable. Note that <code>$x</code> has no reader or writer, so it’s
@@ -205,7 +207,7 @@ that make sense? Probably not. But there we are.</p>
 
 <p>Next, let’s take a look at a Python object:</p>
 
-<pre class="scrolled"><code class="language-python">class Point:
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-python">class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -216,11 +218,11 @@ that make sense? Probably not. But there we are.</p>
 point = Point(7,3.2).inverse()
 print(point.x)
 point.x = &quot;foo&quot;
-</code></pre>
+</code></pre></div>
 
 <p>And for those who would like to see that in our current proposal:</p>
 
-<pre class="scrolled"><code class="language-python">class Point {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-python">class Point {
     has ($x,$y) :reader :writer :new;
 
     method inverse {
@@ -230,7 +232,7 @@ point.x = &quot;foo&quot;
 my $point = Point-&gt;new( x =&gt; y =&gt; 3.2 )-&gt;inverse;
 say $point-&gt;x;
 $point-&gt;x(&quot;foo&quot;);
-</code></pre>
+</code></pre></div>
 
 <p>As you can see, we’ve assigned “foo” to the x value of a Point object.  We’ve
 done this in both Python and our new OO syntax for Perl. Sadly, due to the
@@ -275,17 +277,17 @@ up.</p>
 argument that the above is not valid. In languages like
 <a href="https://raku.org/" target="_blank">Raku</a> <span class="fa fa-external-link fa_custom"></span>, we easily fix that:</p>
 
-<pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
 my Celsius $temp = -1300.15;
-</code></pre>
+</code></pre></div>
 
 <p>The above will fail at compile-time. Most languages that allow types, however,
 aren’t quite as flexible, but you can use classes instead.</p>
 
 <h1><a name="classes-are-types"></a>Classes are Types</h1>
 
-<pre class="scrolled"><code class="language-perl">my $temp = Celsius-&gt;new( temperature =&gt; -1300.15 );
-</code></pre>
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $temp = Celsius-&gt;new( temperature =&gt; -1300.15 );
+</code></pre></div>
 
 <p>Assuming your class is sane, the above should throw an exception because
 you’re trying to create an object with an invalid state.</p>
@@ -309,7 +311,7 @@ illegal operation.<span aria-label="Open Footnote" class="open-dialog" id="open-
 <p>And this gets us to <code>:builder</code>. In Perl‘s Moo/se family of OO, you can do
 something similar to this (but using our new syntax):</p>
 
-<pre class="scrolled"><code class="language-perl">class Parent {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class Parent {
     has $x :builder;
     method _build_x () {
         return rand;
@@ -319,7 +321,7 @@ something similar to this (but using our new syntax):</p>
 class Child isa Parent {
     method _build_x () { return &quot;not a number&quot; }
 }
-</code></pre>
+</code></pre></div>
 
 <p>This has exactly the same issue with see with Python’s <code>point.x = "foo"</code>. It’s
 hardly necessary to belabor the point, but I will: <code>$x</code> is supposed to be
@@ -328,7 +330,7 @@ private, but we’ve grossly violated encapsulation.</p>
 <p>Ah, you reply. But Moo/se has types. So let’s look at Moo/se, using a better
 example (not great, but enough to get the point across):</p>
 
-<pre class="scrolled"><code class="language-perl">package Collection {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Collection {
     use Moose;
 
     # this is a personal module which gives me a &quot;saner&quot; Perl
@@ -378,7 +380,7 @@ example (not great, but enough to get the point across):</p>
         $self-&gt;_index(0);
     }
 }
-</code></pre>
+</code></pre></div>
 
 <p>It goes without saying that writing an iterator like the above can be rather
 problematic for a number of reasons, and yes, the <code>_build__index</code> method is
@@ -388,7 +390,7 @@ index do? In the above, it would throw an exception because of the
 index to a value larger than the size of the <code>items</code> array reference (and
 ignoring that the above allows <code>$coll-&gt;_index($integer)</code>).</p>
 
-<pre class="scrolled"><code class="language-perl">package My::Collection {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package My::Collection {
     use Moose;
     extends 'Collection';
 
@@ -400,7 +402,7 @@ my $collection = My::Collection-&gt;new( items =&gt; [qw/foo bar baz/] );
 while ( defined( my $item = $collection-&gt;next ) ) {
     say $item;
 }
-</code></pre>
+</code></pre></div>
 
 <p>What do you think the above does? The constraint passes, but it prints
 nothing. That’s because the allowed value of the index is tightly coupled to
@@ -421,7 +423,7 @@ internally.</p>
 manually with <a href="https://github.com/Ovid/Cor/wiki/Cookbook#construct--adjust-and-destruct-buildargs-and-build" target="_blank">the <code>ADJUST</code>
 phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
-<pre class="scrolled"><code class="language-perl">class Collection {
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class Collection {
     has $index;
     has $items :new;
 
@@ -439,7 +441,7 @@ phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
     # other methods here
 }
-</code></pre>
+</code></pre></div>
 
 <p>Do I recommend that? No. Can you do it? Yes. And it has some advantages.</p>
 
@@ -463,7 +465,7 @@ developers will call you out on in code reviews if you do it some other way.</p>
 
 <p>Oh, and we also hit issues like this. Which of these is correct?</p>
 
-<pre class="scrolled"><code class="language-perl">
+<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">
 class Position {
     slot $x :name(ordinate) :builder;
 
@@ -479,7 +481,7 @@ class Position {
 
     method _build_x { return rand }          # Or does it follow the private slot variable name?
 }
-</code></pre>
+</code></pre></div>
 
 <p>If we were to allow builders, we should, at least, mandate the syntax
 <code>:builder($method_name)</code> and not allow default builder names.</p>
