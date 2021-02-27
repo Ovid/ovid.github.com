@@ -1,0 +1,415 @@
+[%
+    title            = 'Classes Should Not Override Parent Attributes';
+    type             = 'articles';
+    slug             = 'the-problem-with-builder';
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2021-02-27';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+I've been spending a lot of time designing [a new OO syntax for the Perl
+language](https://github.com/Ovid/Cor/wiki) called Corinna. This syntax is not
+designed to be another object-oriented module. Instead, it's designed to be a
+be a core part of the language. It's received a lot of support (and a few
+detractors), but I have a problem with it.
+
+Lately I've been worried about the slot variable `:builder` attribute and I've
+been concerned that it's problematic. I've nattered on about this on IRC and
+just generally let the concerns simmer in my mind. If we're going to get to
+propose something for the core, it's better that we avoid mistakes before that
+time rather than after. Then Damian Conway shared some thoughts with me about
+his concerns for `:builder` and that was the final straw. Something has to
+change.
+
+---
+
+# History
+
+As part of our proposal, we have this:
+
+[% WRAPPER include/code.tt language='perl' -%]
+class SomeClass {
+    has $x :builder;
+    method _build_x () {
+        return rand;
+    }
+}
+[% END %]
+
+If you call `SomeClass->new`, you'll get a random numeric value assigned to
+the `$x` slot variable. Note that `$x` has no reader or writer, so it's
+designed to be completely encapsulated. But it's not and that's a problem.
+
+That's been bugging me for quite a while, but to explain that, I need to
+go back in time.
+
+In 1967 (my birth year, but I swear it's a coincidence), the first truly
+class-based OO language was released, [Simula
+67](https://en.wikipedia.org/wiki/Simula) and it introduced classes,
+polymorphism, encapsulation, and inheritance (and coroutines (!), but let's not
+go there).
+
+Classes, polymorphism, and encapsulation are relatively uncontroversial, but
+the debate over inheritance has raged for decades.
+
+[Alan Kay, the man who invented the term "Object Oriented" in Utah "sometime
+after
+1966"](http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en)
+and who's been doing OO programming before most of us were born, has made it
+clear over the years that inheritance in OO is very problematic. He's even
+left it out of the implementation of some OO languages he's created. And then
+I found a Quora question entitled "What does Alan Kay think about inheritance
+in object-oriented programming?" and [someone purporting to be Alan Kay
+responded](https://qr.ae/pNQ2Kd) with a deeply thoughtful answer. His first
+paragraph is fantastic (emphasis mine):
+
+> Simula I didn’t have inheritance (paper ca 1966) and Simula 67 did (paper ca
+1968 or so). I initially liked the idea — it could be useful — but soon
+realized that something that would be “mathematically binding” was really
+needed because the mechanism itself let too many semantically different things
+to be “done” (aka “kluged”) by the programmer. For example, **there is no
+restriction of any kind to have a subclass resemble a superclass, be a
+refinement of a superclass, etc. All relies on the cleanliness of mind of
+programmers (and even the most clean of these often just do things they need
+when in the throes of debugging).**
+
+In other words, if I create a class named `Vehicle::Motorized`, there is
+nothing to stop your `Order::Customer` class from inheriting from it. Would
+that make sense? Probably not. But there we are.
+
+Next, let's take a look at a Python object:
+
+[% WRAPPER include/code.tt language='python' -%]
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def inverse(self):
+        return Point(self.y,self.x)
+
+point = Point(7,3.2).inverse()
+print(point.x)
+point.x = "foo"
+[% END %]
+
+And for those who would like to see that in our current proposal:
+
+[% WRAPPER include/code.tt language='python' -%]
+class Point {
+    has ($x,$y) :reader :writer :new;
+
+    method inverse {
+        return $class->new( x => $y, y => $x );
+    }
+}
+my $point = Point->new( x => y => 3.2 )->inverse;
+say $point->x;
+$point->x("foo");
+[% END %]
+
+As you can see, we've assigned "foo" to the x value of a Point object.  We've
+done this in both Python and our new OO syntax for Perl. Sadly, due to the
+need to harmonize types across the language, we can't have type constraints in
+v0.1.0. This is a serious limitation, but we're taking baby steps.
+
+But what about the Python version? Surely they must validate their data,
+right? No. Pythonistas have assured me that [validating your data is very
+unpythonic](https://www.reddit.com/r/Python/comments/91q2op/trying_to_understand_pythonic_classes/).
+
+(I envision spit-takes from tons of Moo/se fans out there right now).
+
+[Python 3.7 contains data
+classes](https://docs.python.org/3/library/dataclasses.html) and those will
+help, but  I don't know how widespread the usage is.
+
+---
+
+# Variables and Types
+
+But what does that have to do with inheritance?
+
+For many languages, you can try something like (example in the Go programming
+language) `var myvar float64 = "foo"` and it will throw an exception. It might
+be compile-time. It might be runtime. But it will die a horrible death because
+the variable, `myvar`, has a type associated with it and if you assign
+something that doesn't match that type (or that the language can't/won't
+coerce), then things go boom.
+
+Why is that? Because on line 372 of your _whopping huge function_, it's easy
+to have something like `myvar := stuff[0:2]` and not be sure what kind of data
+`stuff[0:2]` contains.
+
+So we can say that—for a small subset of types the programming language can
+understand—variables in those kinds of languages are the "experts" about what
+they can do and if you try to put that variable in an invalid state, it blows
+up.
+
+That's great. But what about `var celsius float64 = -1300.15`. Is that valid?
+
+Absolute zero is -273.15 on the Celsius scale, so we can make a reasonable
+argument that the above is not valid. In languages like
+[Raku](https://raku.org/), we easily fix that:
+
+[% WRAPPER include/code.tt language='perl' -%]
+subset Celsius of Num where  * >= -273.15;
+my Celsius $temp = -1300.15;
+[% END %]
+
+The above will fail at compile-time. Most languages that allow types, however,
+aren't quite as flexible, but you can use classes instead.
+
+# Classes are Types
+
+[% WRAPPER include/code.tt language='perl' -%]
+my $temp = Celsius->new( temperature => -1300.15 );
+[% END %]
+
+Assuming your class is sane, the above should throw an exception because
+you're trying to create an object with an invalid state.
+
+If you think that's similar to how built-in types work, it is. We can think of
+a class as a user-defined type. Types have a set of allowed values and
+operators you can apply to those values. Classes have (often complex) sets of
+allowed values and methods (operators) you can apply to those values.
+
+Just as an `int` is often an expert in values -32,768 to 32,767, or
+-2,147,483,648 to 2,147,483,647 if you're using 4 bytes (larger values for
+more bytes, of course), so is your `Celsius` class an expert about allowed
+Celsius temperatures. And your [Personal
+Shopper](/articles/alan-kay-and-oo-programming.html) knows exactly how much
+money it can spend, and even if it knows you have enough money to buy cocaine,
+it's still going to throw an exception if you request that because it's an
+illegal operation.[% Ovid.add_note("My daughter doesn‘t laugh at my jokes,
+either.") %]
+
+# The Problem with :builder
+
+And this gets us to `:builder`. In Perl‘s Moo/se family of OO, you can do
+something similar to this (but using our new syntax):
+
+[% WRAPPER include/code.tt language='perl' -%]
+class Parent {
+    has $x :builder;
+    method _build_x () {
+        return rand;
+    }
+}
+
+class Child isa Parent {
+    method _build_x () { return "not a number" }
+}
+[% END %]
+
+This has exactly the same issue with see with Python's `point.x = "foo"`. It's
+hardly necessary to belabor the point, but I will: `$x` is supposed to be
+private, but we've grossly violated encapsulation.
+
+Ah, you reply. But Moo/se has types. So let's look at Moo/se, using a better
+example (not great, but enough to get the point across):
+
+[% WRAPPER include/code.tt language='perl' -%]
+package Collection {
+    use Moose;
+
+    # this is a personal module which gives me a "saner" Perl
+    # environment
+    use Less::Boilerplate;
+    use Types::Standard qw(Int ArrayRef);
+    has _index => (
+        is      => 'rw',
+        isa     => Int->where('$_ >= 0'),
+        builder => '_build__index',
+    );
+
+    # default, but maybe someone wants a different default
+    sub _build__index { 0 }
+
+    has items => (
+        is       => 'ro',
+        isa      => ArrayRef,
+        required => 1,
+    );
+
+    sub BUILD ( $self, @ ) {
+        my @items = $self->items->@*;
+        my $type = ref $items[0];
+        foreach my $item (@items) {
+            if ( not defined $item ) {
+                croak("items() does not allow undefined values");
+            }
+            if ( ref $item ne $type ) {
+                croak("All items in collection must be of the same type");
+            }
+        }
+    }
+
+    sub num_items ($self) {
+        return scalar $self->items->@*;
+    }
+
+    sub next ($self) {
+        my $i = $self->_index;
+        return if $i >= $self->num_items;
+        $self->_index( $i + 1 );
+        return $self->items->[$i];
+    }
+
+    sub reset ($self) {
+        $self->_index(0);
+    }
+}
+[% END %]
+
+It goes without saying that writing an iterator like the above can be rather
+problematic for a number of reasons, and yes, the `_build__index` method is
+kind of silly, but it shows the issue. For example, what would a negative
+index do? In the above, it would throw an exception because of the
+`Int->where( '$_ >= 0' )` constraint. But what would happen if we set the
+index to a value larger than the size of the `items` array reference (and
+ignoring that the above allows `$coll->_index($integer)`).
+
+[% WRAPPER include/code.tt language='perl' -%]
+package My::Collection {
+    use Moose;
+    extends 'Collection';
+
+    sub _build__index { 5 }
+}
+
+my $collection = My::Collection->new( items => [qw/foo bar baz/] );
+
+while ( defined( my $item = $collection->next ) ) {
+    say $item;
+}
+[% END %]
+
+What do you think the above does? The constraint passes, but it prints
+nothing. That's because the allowed value of the index is tightly coupled to
+something else in that class, the number of items in the collection.
+
+Oh, but Ovid, I wouldn't write something like that!
+
+Yes, you would. I do it too. We all do it when we're quickly hacking on that
+883 line class from our 1,000 KLOC codebase and we're rushing to beat our
+sprint deadline. Programmers do this _all the time_ because we have a language
+which allows this, but OO modules which encourage this. You can inspect tons
+of OO modules and find attributes (a.k.a "slot variables" in our new system)
+which are coupled with other values. We like to minimize that, but sometimes
+we can't and classes are supposed to _encapsulate_ this problem and handle it
+internally.
+
+My suggestion is that, if you want to allow this internally, you have to do it
+manually with [the `ADJUST`
+phaser](https://github.com/Ovid/Cor/wiki/Cookbook#construct--adjust-and-destruct-buildargs-and-build).
+
+[% WRAPPER include/code.tt language='perl' -%]
+class Collection {
+    has $index;
+    has $items :new;
+
+    sub ADJUST (%args) {
+        # other checks here
+
+        $index = $self->_default_index;
+        if ( $index > $items->@* - 1 ) {
+            # don't let subclasses break our code
+            croak(...);
+        }
+    }
+
+    method _default_index () { 0 }
+
+    # other methods here
+}
+[% END %]
+
+Do I recommend that? No. Can you do it? Yes. And it has some advantages.
+
+First, you are being explicit about _which_ slots are can access in your
+subclasses. Second, you have fine-grained control over slot initialization
+ordering.
+
+By default, with Corinna, slots are initialized in the order declared (until
+you hit `:new`, in which case all `:new` slots are initialized at once). In
+Moo/se it's harder to predict the order of initialization. That's why you
+often see a bunch of attributes declared as `lazy` to ensure that non-lazy
+attributes are set first. If you have circular lazy dependencies, it can be
+hard to work out and you fall back to `BUILD` or `BUILDARGS` as needed.
+
+Yes, this does mean a touch more work on the off chance you need to override a
+slot in a subclass. I've been writing Moo/se for years and I can count on the
+fingers of one hand the number of times I've needed to do this. However, I
+can't count how many times I've unnecesssarily littered my namespace with `sub
+_build...` methods because this is largely what Moo/se prefers and what
+developers will call you out on in code reviews if you do it some other way.
+
+Oh, and we also hit issues like this. Which of these is correct?
+
+[% WRAPPER include/code.tt language='perl' %]
+class Position {
+    slot $x :name(ordinate) :builder;
+
+    # and many lines later...
+
+    method _build_ordinate { return rand }   # Does the builder follow the public slot name?
+}
+
+class Position {
+    slot $x :name(ordinate) :builder;
+
+    # and many lines later...
+
+    method _build_x { return rand }          # Or does it follow the private slot variable name?
+}
+[% END %]
+
+If we were to allow builders, we should, at least, mandate the syntax
+`:builder($method_name)` and not allow default builder names.
+
+# Builder Guidelines
+
+So here are a few guidelines we should follow for assigning default values to slots.
+
+* Every slot _should_ have a default value.
+
+It is often a code smell to have an undefined slot.
+
+* Use the = default syntax
+
+In the example below, `:new` says we can pass the value to the constructor,
+but if we don't, it will get the value 42.
+
+`has $x :new = 42;`
+
+* YAGNI (You Ain't Gonna Need It).
+
+Don't allow overriding a private slot value unless you have a clear need for
+it. This also prevents littering the namespace with a `_build_...`  methods.
+
+* Liskov is your friend
+
+Remember the [Liskov Substitution
+Principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle): if
+you have a subclass and it _must_ be allowed to override some of this data,
+remember that a subclass should be a more specialized version of a parent
+class and must be usable anywhere the parent can be.
+
+* Check for coupling
+
+If the slot data is tightly coupled to some other slot data, consider breaking
+the coupling or ask yourself if delegation is more appropriate. Have checks in
+`BUILD` (Moo/se) or `ADJUST` (Corinna) to verify the integrity of your class.
+
+If all of the above seems like too much to remember, just don't allow child
+classes to set parent slot data. Corinna should follow one of the early
+principles guiding its design: you should be _allowed_ to do bad things, but
+the language design shouldn't _encourage_ bad things.
+
+[%- END %]

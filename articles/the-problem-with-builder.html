@@ -1,0 +1,619 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ovid.github.io/articles/the-problem-with-builder.html" />
+  <meta property="og:title" content="Classes Should Not Override Parent Attributes" />
+  <meta property="og:description" content="Slot/attribute builders in OO languages can be dangerous if you can inherit them." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Classes Should Not Override Parent Attributes</title>
+  <meta name="description" content="Classes Should Not Override Parent Attributes">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Classes Should Not Override Parent Attributes</h1>
+        <time>2021-02-27</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/managing-a-test-database.html" class="prevPost">&laquo; Managing a Test Database</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#history">History</a></li>
+    <li class="indent-1"><a href="#variables-and-types">Variables and Types</a></li>
+    <li class="indent-1"><a href="#classes-are-types">Classes are Types</a></li>
+    <li class="indent-1"><a href="#the-problem-with-builder">The Problem with :builder</a></li>
+    <li class="indent-1"><a href="#builder-guidelines">Builder Guidelines</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<p>I’ve been spending a lot of time designing <a href="https://github.com/Ovid/Cor/wiki" target="_blank">a new OO syntax for the Perl
+language</a> <span class="fa fa-external-link fa_custom"></span> called Corinna. This syntax is not
+designed to be another object-oriented module. Instead, it’s designed to be a
+be a core part of the language. It’s received a lot of support (and a few
+detractors), but I have a problem with it.</p>
+
+<p>Lately I’ve been worried about the slot variable <code>:builder</code> attribute and I’ve
+been concerned that it’s problematic. I’ve nattered on about this on IRC and
+just generally let the concerns simmer in my mind. If we’re going to get to
+propose something for the core, it’s better that we avoid mistakes before that
+time rather than after. Then Damian Conway shared some thoughts with me about
+his concerns for <code>:builder</code> and that was the final straw. Something has to
+change.</p>
+
+<hr />
+
+<h1><a name="history"></a>History</h1>
+
+<p>As part of our proposal, we have this:</p>
+
+<pre class="scrolled"><code class="language-perl">class SomeClass {
+    has $x :builder;
+    method _build_x () {
+        return rand;
+    }
+}
+</code></pre>
+
+<p>If you call <code>SomeClass-&gt;new</code>, you’ll get a random numeric value assigned to
+the <code>$x</code> slot variable. Note that <code>$x</code> has no reader or writer, so it’s
+designed to be completely encapsulated. But it’s not and that’s a problem.</p>
+
+<p>That’s been bugging me for quite a while, but to explain that, I need to
+go back in time.</p>
+
+<p>In 1967 (my birth year, but I swear it’s a coincidence), the first truly
+class-based OO language was released, <a href="https://en.wikipedia.org/wiki/Simula" target="_blank">Simula
+67</a> <span class="fa fa-external-link fa_custom"></span> and it introduced classes,
+polymorphism, encapsulation, and inheritance (and coroutines (!), but let’s not
+go there).</p>
+
+<p>Classes, polymorphism, and encapsulation are relatively uncontroversial, but
+the debate over inheritance has raged for decades.</p>
+
+<p><a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank">Alan Kay, the man who invented the term “Object Oriented” in Utah “sometime
+after
+1966”</a> <span class="fa fa-external-link fa_custom"></span>
+and who’s been doing OO programming before most of us were born, has made it
+clear over the years that inheritance in OO is very problematic. He’s even
+left it out of the implementation of some OO languages he’s created. And then
+I found a Quora question entitled “What does Alan Kay think about inheritance
+in object-oriented programming?” and <a href="https://qr.ae/pNQ2Kd" target="_blank">someone purporting to be Alan Kay
+responded</a> <span class="fa fa-external-link fa_custom"></span> with a deeply thoughtful answer. His first
+paragraph is fantastic (emphasis mine):</p>
+
+<blockquote>
+  <p>Simula I didn’t have inheritance (paper ca 1966) and Simula 67 did (paper ca
+  1968 or so). I initially liked the idea — it could be useful — but soon
+  realized that something that would be “mathematically binding” was really
+  needed because the mechanism itself let too many semantically different things
+  to be “done” (aka “kluged”) by the programmer. For example, <strong>there is no
+  restriction of any kind to have a subclass resemble a superclass, be a
+  refinement of a superclass, etc. All relies on the cleanliness of mind of
+  programmers (and even the most clean of these often just do things they need
+  when in the throes of debugging).</strong></p>
+</blockquote>
+
+<p>In other words, if I create a class named <code>Vehicle::Motorized</code>, there is
+nothing to stop your <code>Order::Customer</code> class from inheriting from it. Would
+that make sense? Probably not. But there we are.</p>
+
+<p>Next, let’s take a look at a Python object:</p>
+
+<pre class="scrolled"><code class="language-python">class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def inverse(self):
+        return Point(self.y,self.x)
+
+point = Point(7,3.2).inverse()
+print(point.x)
+point.x = &quot;foo&quot;
+</code></pre>
+
+<p>And for those who would like to see that in our current proposal:</p>
+
+<pre class="scrolled"><code class="language-python">class Point {
+    has ($x,$y) :reader :writer :new;
+
+    method inverse {
+        return $class-&gt;new( x =&gt; $y, y =&gt; $x );
+    }
+}
+my $point = Point-&gt;new( x =&gt; y =&gt; 3.2 )-&gt;inverse;
+say $point-&gt;x;
+$point-&gt;x(&quot;foo&quot;);
+</code></pre>
+
+<p>As you can see, we’ve assigned “foo” to the x value of a Point object.  We’ve
+done this in both Python and our new OO syntax for Perl. Sadly, due to the
+need to harmonize types across the language, we can’t have type constraints in
+v0.1.0. This is a serious limitation, but we’re taking baby steps.</p>
+
+<p>But what about the Python version? Surely they must validate their data,
+right? No. Pythonistas have assured me that <a href="https://www.reddit.com/r/Python/comments/91q2op/trying_to_understand_pythonic_classes/" target="_blank">validating your data is very
+unpythonic</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>(I envision spit-takes from tons of Moo/se fans out there right now).</p>
+
+<p><a href="https://docs.python.org/3/library/dataclasses.html" target="_blank">Python 3.7 contains data
+classes</a> <span class="fa fa-external-link fa_custom"></span> and those will
+help, but  I don’t know how widespread the usage is.</p>
+
+<hr />
+
+<h1><a name="variables-and-types"></a>Variables and Types</h1>
+
+<p>But what does that have to do with inheritance?</p>
+
+<p>For many languages, you can try something like (example in the Go programming
+language) <code>var myvar float64 = "foo"</code> and it will throw an exception. It might
+be compile-time. It might be runtime. But it will die a horrible death because
+the variable, <code>myvar</code>, has a type associated with it and if you assign
+something that doesn’t match that type (or that the language can’t/won’t
+coerce), then things go boom.</p>
+
+<p>Why is that? Because on line 372 of your <em>whopping huge function</em>, it’s easy
+to have something like <code>myvar := stuff[0:2]</code> and not be sure what kind of data
+<code>stuff[0:2]</code> contains.</p>
+
+<p>So we can say that—for a small subset of types the programming language can
+understand—variables in those kinds of languages are the “experts” about what
+they can do and if you try to put that variable in an invalid state, it blows
+up.</p>
+
+<p>That’s great. But what about <code>var celsius float64 = -1300.15</code>. Is that valid?</p>
+
+<p>Absolute zero is -273.15 on the Celsius scale, so we can make a reasonable
+argument that the above is not valid. In languages like
+<a href="https://raku.org/" target="_blank">Raku</a> <span class="fa fa-external-link fa_custom"></span>, we easily fix that:</p>
+
+<pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
+my Celsius $temp = -1300.15;
+</code></pre>
+
+<p>The above will fail at compile-time. Most languages that allow types, however,
+aren’t quite as flexible, but you can use classes instead.</p>
+
+<h1><a name="classes-are-types"></a>Classes are Types</h1>
+
+<pre class="scrolled"><code class="language-perl">my $temp = Celsius-&gt;new( temperature =&gt; -1300.15 );
+</code></pre>
+
+<p>Assuming your class is sane, the above should throw an exception because
+you’re trying to create an object with an invalid state.</p>
+
+<p>If you think that’s similar to how built-in types work, it is. We can think of
+a class as a user-defined type. Types have a set of allowed values and
+operators you can apply to those values. Classes have (often complex) sets of
+allowed values and methods (operators) you can apply to those values.</p>
+
+<p>Just as an <code>int</code> is often an expert in values -32,768 to 32,767, or
+-2,147,483,648 to 2,147,483,647 if you’re using 4 bytes (larger values for
+more bytes, of course), so is your <code>Celsius</code> class an expert about allowed
+Celsius temperatures. And your <a href="/articles/alan-kay-and-oo-programming.html">Personal
+Shopper</a> knows exactly how much
+money it can spend, and even if it knows you have enough money to buy cocaine,
+it’s still going to throw an exception if you request that because it’s an
+illegal operation.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<h1><a name="the-problem-with-builder"></a>The Problem with :builder</h1>
+
+<p>And this gets us to <code>:builder</code>. In Perl‘s Moo/se family of OO, you can do
+something similar to this (but using our new syntax):</p>
+
+<pre class="scrolled"><code class="language-perl">class Parent {
+    has $x :builder;
+    method _build_x () {
+        return rand;
+    }
+}
+
+class Child isa Parent {
+    method _build_x () { return &quot;not a number&quot; }
+}
+</code></pre>
+
+<p>This has exactly the same issue with see with Python’s <code>point.x = "foo"</code>. It’s
+hardly necessary to belabor the point, but I will: <code>$x</code> is supposed to be
+private, but we’ve grossly violated encapsulation.</p>
+
+<p>Ah, you reply. But Moo/se has types. So let’s look at Moo/se, using a better
+example (not great, but enough to get the point across):</p>
+
+<pre class="scrolled"><code class="language-perl">package Collection {
+    use Moose;
+
+    # this is a personal module which gives me a &quot;saner&quot; Perl
+    # environment
+    use Less::Boilerplate;
+    use Types::Standard qw(Int ArrayRef);
+    has _index =&gt; (
+        is      =&gt; 'rw',
+        isa     =&gt; Int-&gt;where('$_ &gt;= 0'),
+        builder =&gt; '_build__index',
+    );
+
+    # default, but maybe someone wants a different default
+    sub _build__index { 0 }
+
+    has items =&gt; (
+        is       =&gt; 'ro',
+        isa      =&gt; ArrayRef,
+        required =&gt; 1,
+    );
+
+    sub BUILD ( $self, @ ) {
+        my @items = $self-&gt;items-&gt;@*;
+        my $type = ref $items[0];
+        foreach my $item (@items) {
+            if ( not defined $item ) {
+                croak(&quot;items() does not allow undefined values&quot;);
+            }
+            if ( ref $item ne $type ) {
+                croak(&quot;All items in collection must be of the same type&quot;);
+            }
+        }
+    }
+
+    sub num_items ($self) {
+        return scalar $self-&gt;items-&gt;@*;
+    }
+
+    sub next ($self) {
+        my $i = $self-&gt;_index;
+        return if $i &gt;= $self-&gt;num_items;
+        $self-&gt;_index( $i + 1 );
+        return $self-&gt;items-&gt;[$i];
+    }
+
+    sub reset ($self) {
+        $self-&gt;_index(0);
+    }
+}
+</code></pre>
+
+<p>It goes without saying that writing an iterator like the above can be rather
+problematic for a number of reasons, and yes, the <code>_build__index</code> method is
+kind of silly, but it shows the issue. For example, what would a negative
+index do? In the above, it would throw an exception because of the
+<code>Int-&gt;where( '$_ &gt;= 0' )</code> constraint. But what would happen if we set the
+index to a value larger than the size of the <code>items</code> array reference (and
+ignoring that the above allows <code>$coll-&gt;_index($integer)</code>).</p>
+
+<pre class="scrolled"><code class="language-perl">package My::Collection {
+    use Moose;
+    extends 'Collection';
+
+    sub _build__index { 5 }
+}
+
+my $collection = My::Collection-&gt;new( items =&gt; [qw/foo bar baz/] );
+
+while ( defined( my $item = $collection-&gt;next ) ) {
+    say $item;
+}
+</code></pre>
+
+<p>What do you think the above does? The constraint passes, but it prints
+nothing. That’s because the allowed value of the index is tightly coupled to
+something else in that class, the number of items in the collection.</p>
+
+<p>Oh, but Ovid, I wouldn’t write something like that!</p>
+
+<p>Yes, you would. I do it too. We all do it when we’re quickly hacking on that
+883 line class from our 1,000 KLOC codebase and we’re rushing to beat our
+sprint deadline. Programmers do this <em>all the time</em> because we have a language
+which allows this, but OO modules which encourage this. You can inspect tons
+of OO modules and find attributes (a.k.a “slot variables” in our new system)
+which are coupled with other values. We like to minimize that, but sometimes
+we can’t and classes are supposed to <em>encapsulate</em> this problem and handle it
+internally.</p>
+
+<p>My suggestion is that, if you want to allow this internally, you have to do it
+manually with <a href="https://github.com/Ovid/Cor/wiki/Cookbook#construct--adjust-and-destruct-buildargs-and-build" target="_blank">the <code>ADJUST</code>
+phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<pre class="scrolled"><code class="language-perl">class Collection {
+    has $index;
+    has $items :new;
+
+    sub ADJUST (%args) {
+        # other checks here
+
+        $index = $self-&gt;_default_index;
+        if ( $index &gt; $items-&gt;@* - 1 ) {
+            # don't let subclasses break our code
+            croak(...);
+        }
+    }
+
+    method _default_index () { 0 }
+
+    # other methods here
+}
+</code></pre>
+
+<p>Do I recommend that? No. Can you do it? Yes. And it has some advantages.</p>
+
+<p>First, you are being explicit about <em>which</em> slots are can access in your
+subclasses. Second, you have fine-grained control over slot initialization
+ordering.</p>
+
+<p>By default, with Corinna, slots are initialized in the order declared (until
+you hit <code>:new</code>, in which case all <code>:new</code> slots are initialized at once). In
+Moo/se it’s harder to predict the order of initialization. That’s why you
+often see a bunch of attributes declared as <code>lazy</code> to ensure that non-lazy
+attributes are set first. If you have circular lazy dependencies, it can be
+hard to work out and you fall back to <code>BUILD</code> or <code>BUILDARGS</code> as needed.</p>
+
+<p>Yes, this does mean a touch more work on the off chance you need to override a
+slot in a subclass. I’ve been writing Moo/se for years and I can count on the
+fingers of one hand the number of times I’ve needed to do this. However, I
+can’t count how many times I’ve unnecesssarily littered my namespace with <code>sub
+_build...</code> methods because this is largely what Moo/se prefers and what
+developers will call you out on in code reviews if you do it some other way.</p>
+
+<p>Oh, and we also hit issues like this. Which of these is correct?</p>
+
+<pre class="scrolled"><code class="language-perl">
+class Position {
+    slot $x :name(ordinate) :builder;
+
+    # and many lines later...
+
+    method _build_ordinate { return rand }   # Does the builder follow the public slot name?
+}
+
+class Position {
+    slot $x :name(ordinate) :builder;
+
+    # and many lines later...
+
+    method _build_x { return rand }          # Or does it follow the private slot variable name?
+}
+</code></pre>
+
+<p>If we were to allow builders, we should, at least, mandate the syntax
+<code>:builder($method_name)</code> and not allow default builder names.</p>
+
+<h1><a name="builder-guidelines"></a>Builder Guidelines</h1>
+
+<p>So here are a few guidelines we should follow for assigning default values to slots.</p>
+
+<ul>
+<li>Every slot <em>should</em> have a default value.</li>
+</ul>
+
+<p>It is often a code smell to have an undefined slot.</p>
+
+<ul>
+<li>Use the = default syntax</li>
+</ul>
+
+<p>In the example below, <code>:new</code> says we can pass the value to the constructor,
+but if we don’t, it will get the value 42.</p>
+
+<p><code>has $x :new = 42;</code></p>
+
+<ul>
+<li>YAGNI (You Ain’t Gonna Need It).</li>
+</ul>
+
+<p>Don’t allow overriding a private slot value unless you have a clear need for
+it. This also prevents littering the namespace with a <code>_build_...</code>  methods.</p>
+
+<ul>
+<li>Liskov is your friend</li>
+</ul>
+
+<p>Remember the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov Substitution
+Principle</a> <span class="fa fa-external-link fa_custom"></span>: if
+you have a subclass and it <em>must</em> be allowed to override some of this data,
+remember that a subclass should be a more specialized version of a parent
+class and must be usable anywhere the parent can be.</p>
+
+<ul>
+<li>Check for coupling</li>
+</ul>
+
+<p>If the slot data is tightly coupled to some other slot data, consider breaking
+the coupling or ask yourself if delegation is more appropriate. Have checks in
+<code>BUILD</code> (Moo/se) or <code>ADJUST</code> (Corinna) to verify the integrity of your class.</p>
+
+<p>If all of the above seems like too much to remember, just don’t allow child
+classes to set parent slot data. Corinna should follow one of the early
+principles guiding its design: you should be <em>allowed</em> to do bad things, but
+the language design shouldn’t <em>encourage</em> bad things.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/managing-a-test-database.html" class="prevPost">&laquo; Managing a Test Database</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2021 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/the-problem-with-builder.html";
+            this.page.identifier = "articles/the-problem-with-builder";
+            this.page.title      = "Classes Should Not Override Parent Attributes";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>My daughter doesn‘t laugh at my jokes,
+either.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+</body>
+</html>
+
+
