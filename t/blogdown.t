@@ -114,6 +114,8 @@ subtest 'smartquotes' => sub {
 
     <p>"Leading double-quote</p>
 
+    <code>point.x = "foo"</code>
+
     'tis the season
     END
     my $blog = Text::Markdown::Blog->new;
@@ -129,6 +131,8 @@ subtest 'smartquotes' => sub {
     <p>“Don’t you dare,” said Sarah.</p>
     
     <p>“Leading double-quote</p>
+
+    <p><code>point.x = "foo"</code></p>
     
     <p>‘tis the season</p>
     END
