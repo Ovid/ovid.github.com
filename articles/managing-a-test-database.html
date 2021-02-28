@@ -166,7 +166,7 @@ application</a> <span class="fa fa-external-link fa_custom"></span>. It was triv
 me a Vagrant file and after a quick <code>vagrant up</code> and <code>vagrant ssh</code>, I was
 ready to begin.  Then I looked at the test they had for the controller:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">use strict;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use strict;
 use warnings;
 use Test::More;
 
@@ -183,7 +183,7 @@ There were various ways I could approach this, but I decided it was time to buil
 a quick database on the fly, write to that, and then dispose of it after. The
 code for this was trivial:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Test::DB;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Test::DB;
 
 use File::Temp qw(tempfile);
 use DBI;
@@ -241,7 +241,7 @@ signals). They also made it clear they were looking at how I approached problems
 not whether or not the code was perfect. Thus, I thought I was on safe territory.
 And it meant I could do this in my test:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">use strict;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use strict;
 use warnings;
 use Test::More;
 use lib 't/lib';
@@ -272,7 +272,7 @@ ready?</p>
 
 <p>First, let’s look at our connection information:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $connect_info = Client::Model::ClientDB-&gt;config-&gt;{connect_info};
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $connect_info = Client::Model::ClientDB-&gt;config-&gt;{connect_info};
 my $dsn          = $connect_info-&gt;{dsn};
 my $user         = $connect_info-&gt;{user};
 my $password     = $connect_info-&gt;{password};
@@ -280,7 +280,7 @@ my $password     = $connect_info-&gt;{password};
 
 <p>The above relied on how Catalyst often sets up its DBIx::Class (a Perl ORM) model:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Client::Model::ClientDB;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Client::Model::ClientDB;
 
 use strict;
 use base 'Catalyst::Model::DBIC::Schema';
@@ -302,7 +302,7 @@ that data and throw an exception immediately if something has changed.</p>
 
 <p>And how do we create our test database?</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">$dbh-&gt;do(&quot;CREATE DATABASE $db_name&quot;);
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$dbh-&gt;do(&quot;CREATE DATABASE $db_name&quot;);
 system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot;) == 0
   or croak(&quot;mysqldump failed: $?&quot;);
 system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) == 0
@@ -329,7 +329,7 @@ databases based on whatever policies you think are appropriate.</p>
 
 <p>This line is terrible:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">$connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
 </code></pre></div>
 
 <p>The reason that works is because the <code>config</code> data in
@@ -350,7 +350,7 @@ handle and try to inspect the data that way. It’s a mess.</p>
 
 <p>Here, we can fix that by simply dropping this line:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">END { $dbh-&gt;do(&quot;DROP DATABASE $db_name&quot;) }
+<div class="shadow"><pre class="scrolled"><code class="language-perl">END { $dbh-&gt;do(&quot;DROP DATABASE $db_name&quot;) }
 </code></pre></div>
 
 <p>At the beginning and end of every test run, we can <code>diag</code> the test database
@@ -387,7 +387,7 @@ applied to your database. Yikes!</p>
 overhead of transactions beyond what your code already has. Plus, you can
 avoid issues like this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">sub test_basic_combat_attack_behavior ($test,$) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">sub test_basic_combat_attack_behavior ($test,$) {
     my $ovid    = $test-&gt;load_fixture('character.ovid');
     my $winston = $test-&gt;load_fixture('character.winston');
     my $station = $test-&gt;load_fixture('station.tau-station');

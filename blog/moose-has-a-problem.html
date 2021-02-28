@@ -145,7 +145,7 @@ I’m too lazy to delete this.</p>
 <p>In Moose (and <a href="https://metacpan.org/pod/Moo" target="_blank">Moo</a> <span class="fa fa-external-link fa_custom"></span>, but we’ll stick to Moose
 for this discussion), the <code>has</code> function lets you declare an attribute:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Point2D {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Point2D {
     use Moose;
     has [qw/x y/] =&gt; (
         is       =&gt; 'ro',
@@ -168,7 +168,7 @@ love/hate relationship about when learning OO concepts.</p>
 
 <p>That’s a lot to pack into one function, and it leads to confusion like this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
     is       =&gt; 'ro',            # read-only
     isa      =&gt; 'Int',           # declare it an integer
     writer   =&gt; 'set_attr',      # but it's read-only?
@@ -200,7 +200,7 @@ hard to do, despite being trivial in other languages.</p>
 
 <p>Well, you can declare a slot as <code>bare</code> (instead of <code>ro</code> and friends) and then do:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $value = $self-&gt;meta
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $value = $self-&gt;meta
                  -&gt;get_attribute($attribute_name)
                  -&gt;get_value($self);
 </code></pre></div>
@@ -222,7 +222,7 @@ offers an affordance to making our interace as large as possible.</p>
 
 <p>Moving along, what does that point class look like in Java?</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-java">public class Point2D { 
+<div class="shadow"><pre class="scrolled"><code class="language-java">public class Point2D { 
     // slots
     private double x;
     private double y;
@@ -250,7 +250,7 @@ overloading <code>has</code> is problematic. We’ve learned a lot from Moose ab
 make OO that feels “perlish“, but we need to keep growing and learn from our
 mistakes. Returning to this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
     is       =&gt; 'ro',
     isa      =&gt; 'Int',
     writer   =&gt; 'set_attr',
@@ -264,7 +264,7 @@ code that is, at best, confusing.</p>
 
 <p>And then there are things like this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $auth = Authenticate-&gt;new($one_time_token);
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $auth = Authenticate-&gt;new($one_time_token);
 # or
 my $auth = Authenticate-&gt;new( user =&gt; $user, pass =&gt; $pass );
 # or
@@ -273,7 +273,7 @@ my $auth = Authenticate-&gt;new({user =&gt; $user, pass =&gt; $pass});
 
 <p>Here’s one way you could try to handle that:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">around BUILDARGS =&gt; sub ($orig, $class, @args) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">around BUILDARGS =&gt; sub ($orig, $class, @args) {
     my %arg_for
       = @args &gt; 1              ? @args
       : 'HASH' eq ref $args[0] ? $args[0]-&gt;%*
@@ -288,7 +288,7 @@ dispatching for us. With Moose, we need to use <code>BUILDARGS</code> for this, 
 manually handle all of that dispatching ourselves. That means more bugs. If
 Perl had something like multidispatch, we could possibly write:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">method BUILDARGS (Code $orig, Class $class, UUID $token)             { ... }
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method BUILDARGS (Code $orig, Class $class, UUID $token)             { ... }
 method BUILDARGS (Code $orig, Class $class, Str :$user, Str :$pass ) { ... }
 method BUILDARGS (Code $orig, Class $class, HashRef $args)           { ... }
 </code></pre></div>
@@ -302,7 +302,7 @@ decision making).</p>
 <p>And here’s a fun one! An attribute that you can’t set, even though it looks
 like you can pass it in the constructor:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">#!/usr/bin/env perl
+<div class="shadow"><pre class="scrolled"><code class="language-perl">#!/usr/bin/env perl
 
 package SomeClass {
     use Moose;

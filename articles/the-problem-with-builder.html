@@ -154,7 +154,7 @@ change.</p>
 
 <p>As part of our proposal, we have this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class SomeClass {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class SomeClass {
     has $x :builder;
     method _build_x () {
         return rand;
@@ -207,7 +207,7 @@ that make sense? Probably not. But there we are.</p>
 
 <p>Next, let’s take a look at a Python object:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-python">class Point:
+<div class="shadow"><pre class="scrolled"><code class="language-python">class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -222,7 +222,7 @@ point.x = &quot;foo&quot;
 
 <p>And for those who would like to see that in our current proposal:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-python">class Point {
+<div class="shadow"><pre class="scrolled"><code class="language-python">class Point {
     has ($x,$y) :reader :writer :new;
 
     method inverse {
@@ -277,7 +277,7 @@ up.</p>
 argument that the above is not valid. In languages like
 <a href="https://raku.org/" target="_blank">Raku</a> <span class="fa fa-external-link fa_custom"></span>, we easily fix that:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
 my Celsius $temp = -1300.15;
 </code></pre></div>
 
@@ -286,7 +286,7 @@ aren’t quite as flexible, but you can use classes instead.</p>
 
 <h1><a name="classes-are-types"></a>Classes are Types</h1>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">my $temp = Celsius-&gt;new( temperature =&gt; -1300.15 );
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $temp = Celsius-&gt;new( temperature =&gt; -1300.15 );
 </code></pre></div>
 
 <p>Assuming your class is sane, the above should throw an exception because
@@ -311,7 +311,7 @@ illegal operation.<span aria-label="Open Footnote" class="open-dialog" id="open-
 <p>And this gets us to <code>:builder</code>. In Perl‘s Moo/se family of OO, you can do
 something similar to this (but using our new syntax):</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class Parent {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Parent {
     has $x :builder;
     method _build_x () {
         return rand;
@@ -330,7 +330,7 @@ private, but we’ve grossly violated encapsulation.</p>
 <p>Ah, you reply. But Moo/se has types. So let’s look at Moo/se, using a better
 example (not great, but enough to get the point across):</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package Collection {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Collection {
     use Moose;
 
     # this is a personal module which gives me a &quot;saner&quot; Perl
@@ -390,7 +390,7 @@ index do? In the above, it would throw an exception because of the
 index to a value larger than the size of the <code>items</code> array reference (and
 ignoring that the above allows <code>$coll-&gt;_index($integer)</code>).</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">package My::Collection {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Collection {
     use Moose;
     extends 'Collection';
 
@@ -423,7 +423,7 @@ internally.</p>
 manually with <a href="https://github.com/Ovid/Cor/wiki/Cookbook#construct--adjust-and-destruct-buildargs-and-build" target="_blank">the <code>ADJUST</code>
 phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">class Collection {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Collection {
     has $index;
     has $items :new;
 
@@ -465,7 +465,7 @@ developers will call you out on in code reviews if you do it some other way.</p>
 
 <p>Oh, and we also hit issues like this. Which of these is correct?</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-perl">
+<div class="shadow"><pre class="scrolled"><code class="language-perl">
 class Position {
     slot $x :name(ordinate) :builder;
 

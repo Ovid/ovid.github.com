@@ -204,7 +204,7 @@ was being pedantic. After all, the <code>customers.id</code> column is unambiguo
 
 <p>And later I had to debug the following:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
   FROM email thread
   JOIN email selected      ON selected.id = thread.id
   JOIN character recipient ON recipient.id = thread.recipient_id
@@ -239,7 +239,7 @@ after it’s corrected. It’s very clear that “star_id” and “email_id“,
 previously mentioned, if SQL had a decent type system, this SQL would not even
 have compiled.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT thread.*
   FROM email thread
   JOIN email selected      ON selected.email_id      = thread.email_id
   JOIN character recipient ON recipient.character_id = thread.recipient_id
@@ -273,7 +273,7 @@ ORDER BY datesent ASC, thread.parent_id ASC
 <p>As much as possible, name columns very descriptively. For example, a
 <code>temperature</code> column doesn’t make sense for this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
   FROM areas
  WHERE temperature &lt; 32;  
 </code></pre></div>
@@ -281,7 +281,7 @@ ORDER BY datesent ASC, thread.parent_id ASC
 <p>I live in France and for anyone here, 32 would be “too hot“. Instead, name that
 column <code>fahrenheit</code>.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
   FROM areas
  WHERE fahrenheit &lt; 32;  
 </code></pre></div>
@@ -292,7 +292,7 @@ column <code>fahrenheit</code>.</p>
 each side of the constraint identically, if possible.  For example, consider
 this perfectly reasonable, sane, SQL.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT *
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT *
   FROM some_table       s
   JOIN some_other_table o
     ON o.owner = s.person_id;
@@ -303,7 +303,7 @@ table definition, you discover that <code>some_other_table.owner</code> has a fo
 constraint against <code>companies.company_id</code>. That SQL is, in fact, wrong. Had
 you used identical names:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT *
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT *
   FROM some_table       s
   JOIN some_other_table o
     ON o.company_id = s.person_id;
@@ -361,7 +361,7 @@ against data corruption—are terrible at types! I mean, really, really bad at
 them. For example, if your <code>customers</code> table has an integer surrogate key, you
 can do this:</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT name, birthdate
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, birthdate
   FROM customers
  WHERE customer_id &gt; weight;
 </code></pre></div>
@@ -399,7 +399,7 @@ examine the practical implications.</p>
 <p>You need to pay a $500 bonus to all employees who earn more than $50K a year
 in salary. So you write the following SQL.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT employee_number, name
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT employee_number, name
   FROM employees
  WHERE salary &gt; 50000;
 </code></pre></div>
@@ -470,13 +470,13 @@ let’s look at an example <a href="https://www.amazon.com/Database-Depth-Relati
 
 <p>The following, of course, returns <code>p1</code>.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
   FROM parts;
 </code></pre></div>
 
 <p>But what about the following?</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT part_id
   FROM parts
  WHERE city = city;
 </code></pre></div>
@@ -487,7 +487,7 @@ the city for every given row must the be the same city, even if we don’t know
 it, right? And that leads us to the following. What does this return?  Try to
 work out the answer before reading it below.</p>
 
-<div class="one-edge-shadow"><pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
   FROM suppliers s, parts p
  WHERE p.city &lt;&gt; s.city
     OR p.city &lt;&gt; 'Paris';
