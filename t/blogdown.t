@@ -6,7 +6,7 @@ use Text::Markdown::Blog;
 use Test2::Plugin::UTF8;
 use Less::Boilerplate;
 
-sub is_html : prototype($$$);
+sub is_html;
 
 my $blog = Text::Markdown::Blog->new;
 subtest 'basic' => sub {
@@ -162,7 +162,7 @@ subtest 'smartquotes' => sub {
 
 done_testing;
 
-sub is_html ( $have, $want, $message ) : prototype($$$) {
+sub is_html ( $have, $want, $message ) {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my @have = map { trim($_) } split /\n/ => trim($have);
     my @want = map { trim($_) } split /\n/ => trim($want);
