@@ -18,11 +18,20 @@ my $comments = $opt_for{nocomments} ? 0 : 1;
 $opt_for{comments} = $comments;
 $opt_for{type} //= '';
 
+my @errors;
 unless ( 'article' eq $opt_for{type} xor 'blog' eq $opt_for{type} ) {
-    die "--type is required and must be one of 'article' or 'blog'";
+    push @errors => "--type is required and must be one of 'article' or 'blog'";
 }
 
-die usage() unless @ARGV;
+unless (@ARGV) {
+    push @errors =>
+      'You should provide the title as the arguments to this script';
+}
+
+if (@errors) {
+    warn join "\n" => @errors;
+    die usage();
+}
 
 unless ( $opt_for{description} ) {
     say "Please enter a description for this $opt_for{type} entry:";
@@ -75,8 +84,8 @@ END
 
 sub write_article_stub ( $title, $slug, $opt_for ) {
     my $directory = article_type( $opt_for->{type} )->{directory};
-    my $contents = template( $title, $directory, $slug, $opt_for );
-    my $template = catfile( 'root', $directory, "$slug.tt" );
+    my $contents  = template( $title, $directory, $slug, $opt_for );
+    my $template  = catfile( 'root', $directory, "$slug.tt" );
 
     if ( -e $template ) {
         say "Refusing to overwrite the existing file at $template. Exiting.";
@@ -96,7 +105,8 @@ sub edit_article ($template) {
 
 sub template ( $title, $directory, $slug, $opt_for ) {
     my $ymd = DateTime->now->ymd;
-    return sprintf <<'END' => $title, $directory, $slug, $opt_for->{comments}, $ymd;
+    return
+      sprintf <<'END' => $title, $directory, $slug, $opt_for->{comments}, $ymd;
 [%%
     title            = '%s';
     type             = '%s';
@@ -115,7 +125,8 @@ END
 }
 
 sub usage {
-    return "Usage: $0 --type \$type 'My Awesome Title' --nocomments\n";
+    return
+"Usage: $0 --type \$type 'My Awesome Title' --description Short description of content\n";
 }
 
 __END__
