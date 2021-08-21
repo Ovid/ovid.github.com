@@ -58,10 +58,10 @@ sub _use_smart_quotes ( $self, $text ) {
             # be, so we encode it and skip it.
             $text =~ s/(\w)"(\w)/$1&quot;$2/smg;
 
-            $text =~ s/\"($punct|\w)/“$1/smg;    # leading smart quote
-            $text =~ s/(\w|$punct)\"/$1”/smg;    # trailing smart quote
-            $text =~ s/(\w)'(\w)/$1’$2/smg;      # contractions: don’t
-            $text =~ s/(\W)'(\w)/$1‘$2/smg;      # ‘tis the season
+            $text =~ s/(?<!\w)\"($punct|\w)/“$1/smg;   # leading smart quote
+            $text =~ s/(\w|$punct)\"/$1”/smg;          # trailing smart quote
+            $text =~ s/(\w)'(\w)/$1’$2/smg;            # contractions: don’t
+            $text =~ s/(\W)'(\w)/$1‘$2/smg;            # ‘tis the season
 
             # special-cases of single quote starting a string. We handle it
             # independently to avoid complicating the above regexes

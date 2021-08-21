@@ -114,6 +114,8 @@ subtest 'smartquotes' => sub {
 
     <p>"Leading double-quote</p>
 
+    <p>Quotes in ("parentheses")</p>
+
     <code>point.x = "foo"</code>
 
     'tis the season
@@ -131,6 +133,8 @@ subtest 'smartquotes' => sub {
     <p>“Don’t you dare,” said Sarah.</p>
     
     <p>“Leading double-quote</p>
+
+    <p>Quotes in (“parentheses”)</p>
 
     <p><code>point.x = "foo"</code></p>
     
