@@ -136,6 +136,7 @@
     <li class="indent-2"><a href="#state-variables">State Variables</a></li>
     <li class="indent-1"><a href="#the-future">The Future</a></li>
     <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    <li class="indent-1"><a href="#update">Update</a></li>
     </ul>
 </nav>
 <hr></p>
@@ -883,6 +884,23 @@ political solution. So I decided to play it safe technically.</p>
 up. That’s fine. I welcome those arguments and I might change my mind, but the
 arguments have raged since February with no sign of consensus. I had to make a
 call. I might not have made the right call, but it needed to be done.</p>
+
+<h1><a name="update"></a>Update</h1>
+
+<p>I’ve been getting some feedback on this. I’ve now been going back through
+tickets, emails, and IRC logs and I see that there some agreement on <code>class
+method foo () {...}</code>, but a lot of disagreement over <code>class $foo</code>. There was
+some discussion of <code>class slot $foo</code> being OK. There has been so much
+discussion of this issue for months on end, on IRC, email, and github, that
+I’ve not remembered all of the fine-grained detail well.</p>
+
+<p>The use of a <code>class</code> as a both a class declarator and a non-access modifier
+overloads the meaning of <code>class</code> and violates the “different things should
+look different” principle (to be fair, it’s not the only place we’ve violated
+this). And this still doesn’t address the awkward case of declaring a static
+inner class: <code>class class InnerClass {...}</code>.</p>
+
+<p>Looks like this debate is not done.</p>
 
 
 

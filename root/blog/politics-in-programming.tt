@@ -766,6 +766,23 @@ up. That's fine. I welcome those arguments and I might change my mind, but the
 arguments have raged since February with no sign of consensus. I had to make a
 call. I might not have made the right call, but it needed to be done.
 
+# Update
+
+I've been getting some feedback on this. I've now been going back through
+tickets, emails, and IRC logs and I see that there some agreement on `class
+method foo () {...}`, but a lot of disagreement over `class $foo`. There was
+some discussion of `class slot $foo` being OK. There has been so much
+discussion of this issue for months on end, on IRC, email, and github, that
+I've not remembered all of the fine-grained detail well.
+
+The use of a `class` as a both a class declarator and a non-access modifier
+overloads the meaning of `class` and violates the "different things should
+look different" principle (to be fair, it's not the only place we've violated
+this). And this still doesn't address the awkward case of declaring a static
+inner class: `class class InnerClass {...}`.
+
+Looks like this debate is not done.
+
 [%- END %]
 [% WRAPPER include/code.tt language='perl' -%]
 class SomeClass {
