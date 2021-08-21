@@ -388,7 +388,7 @@ whether) to address them.</p>
 <p>This worked well for slot encapsulation because we eventually came up with
 this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">has $name :reader :writer;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">slot $name :reader :writer;
 </code></pre></div>
 
 <p>The <code>$name</code> variable can be read via <code>$object-&gt;name</code> and can be set via
@@ -426,7 +426,7 @@ any access to instance data. In fact, done properly, we could make violations
 of that a compile-time failure. That’s a huge win for Perl. They might look
 like this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">has $some_data; # instance data
+<div class="shadow"><pre class="scrolled"><code class="language-perl">slot $some_data; # instance data
 
 common method foo() {
     # $class is available here
@@ -440,8 +440,8 @@ MVP, you write an alternate constructor (we don’t have method overloading in
 Perl).</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Box {
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     common method new_cube ($length) {
         return $class-&gt;new(
@@ -462,8 +462,8 @@ pointed out that it’s literally impossible to avoid:</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Box {
     my $num_instances = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -534,8 +534,8 @@ avoid.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Box {
     my $num_instances = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -558,8 +558,8 @@ even renaming it).</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Box {
     my $num_instances :reader(inventory_count) = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -819,8 +819,8 @@ StaticNestedClass {...}</code>?)</p>
 <p>Next, let’s consider an anonymous class. Here’s one way to think about it.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $thing = class  {
-    has $foo;
-    has $name :param;
+    slot $foo;
+    slot $name :param;
     ...
 };
 my $o1 = $thing-&gt;new(name =&gt; $name1);
@@ -833,8 +833,8 @@ time</a> <span class="fa fa-external-link fa_custom"></span>,
 but I don’t think that gains us anything:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $object = (class  {
-    has $foo;
-    has $name :param;
+    slot $foo;
+    slot $name :param;
     ...
 })-&gt;new(name =&gt; $name1);
 </code></pre></div>
@@ -848,7 +848,7 @@ but I don’t think that gains us anything:</p>
         method some_method (%args) {
             return class {
                 state $class_data = 17; # or my $class_data = 17
-                has $name :param;
+                slot $name :param;
             };
         }
     }

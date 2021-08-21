@@ -262,7 +262,7 @@ This worked well for slot encapsulation because we eventually came up with
 this:
 
 [% WRAPPER include/code.tt language='perl' -%]
-has $name :reader :writer;
+slot $name :reader :writer;
 [% END %]
 
 The `$name` variable can be read via `$object->name` and can be set via
@@ -299,7 +299,7 @@ of that a compile-time failure. That's a huge win for Perl. They might look
 like this:
 
 [% WRAPPER include/code.tt language='perl' -%]
-has $some_data; # instance data
+slot $some_data; # instance data
 
 common method foo() {
     # $class is available here
@@ -314,8 +314,8 @@ Perl).
 
 [% WRAPPER include/code.tt language='perl' -%]
 class Box {
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     common method new_cube ($length) {
         return $class->new(
@@ -337,8 +337,8 @@ pointed out that it's literally impossible to avoid:
 class Box {
     my $num_instances = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -411,8 +411,8 @@ avoid.
 class Box {
     my $num_instances = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -437,8 +437,8 @@ even renaming it).
 class Box {
     my $num_instances :reader(inventory_count) = 0;      # class data!!
 
-    has ( $height, $width, $depth ) :param;
-    has $volume :reader = $height * $width * $depth;
+    slot ( $height, $width, $depth ) :param;
+    slot $volume :reader = $height * $width * $depth;
 
     ADJUST   { $num_instances++ }
     DESTRUCT { $num_instances-- }
@@ -698,8 +698,8 @@ Next, let's consider an anonymous class. Here's one way to think about it.
 
 [% WRAPPER include/code.tt language='perl' -%]
 my $thing = class  {
-    has $foo;
-    has $name :param;
+    slot $foo;
+    slot $name :param;
     ...
 };
 my $o1 = $thing->new(name => $name1);
@@ -713,8 +713,8 @@ but I don't think that gains us anything:
 
 [% WRAPPER include/code.tt language='perl' -%]
 my $object = (class  {
-    has $foo;
-    has $name :param;
+    slot $foo;
+    slot $name :param;
     ...
 })->new(name => $name1);
 [% END %]
@@ -729,7 +729,7 @@ class OuterClass {
         method some_method (%args) {
             return class {
                 state $class_data = 17; # or my $class_data = 17
-                has $name :param;
+                slot $name :param;
             };
         }
     }
