@@ -152,16 +152,18 @@ language development), urged me to stop working on the implementation and just
 focus on the design. Design something great and he’d find someone to implement
 it.</p>
 
-<p>When I first announced Corinna (then known as “Cor”), a proposed <a href="https://github.com/Ovid/Cor" target="_blank">object
-system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, it was met with
+<p>When I first announced Corinna (then known as “Cor”), it was met with
 enthusiasm, indifference, and hostility, depending on whom you asked. In fact,
 I was convinced that what I had proposed was solid enough that I was sure the
-community would buy into it. They did not.</p>
+community would buy into it easily. They did not.</p>
 
 <p>Truth be told, they were right to not get excited. Ignoring the fact that
 people have wanted to get an object system in the Perl core for years and no
-one has succeeded, the fact is that Corinna wasn’t really that interesting in
-terms of an OO system. Here’s what an early version looked like.</p>
+one had succeeded, the fact is that Corinna wasn’t really that interesting in
+terms of an OO system for the Perl community. I had spent so much time
+researching good OO practices that I hadn’t take into consideration the impact
+of decades of ingrained behaviors in the Perl community. Here’s what an early
+version looked like.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU v0.01 {
     use Hash::Ordered;
@@ -235,7 +237,7 @@ Because that was a signal to other develpers that <code>_items</code> was meant 
 private. It was asking them to not touch that rather than simply not offering
 them that chances.</p>
 
-<p>Something similar for Moo/se would likely be written similar to this:</p>
+<p>Something similar for Moo/se could be written like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package SomeClass;
 use Moose;
@@ -260,7 +262,7 @@ has '_items' =&gt; (
 and you still don’t get encapsulation. Bad, right?</p>
 
 <p>Well, yeah. That’s bad. <a href="https://allaroundtheworld.fr" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>
-has repeatedly gone into clients and fixing broken code which is broken for no
+has repeatedly gone into clients and fixed broken code which is broken for no
 other reason than not respecting encapsulation (drop me a line if you’d like
 to hire us).</p>
 
@@ -332,7 +334,7 @@ opening of Wikipedia</a> <span class="fa fa-external-link fa_custom"></span> the
 has no place in the workplace” (or community, or mailing list, or whatever).
 But politics is nothing more than helping groups form a consensus. When you
 have a group as large as the Perl community, if you’re not interested in
-forming a consensus for a large project, you’re already put yourself behind
+forming a consensus for a large project, you’ve already put yourself behind
 the eight ball and that’s what I had done.</p>
 
 <p><figure class="image">
@@ -348,8 +350,8 @@ in the project was welcome to share their thoughts.</p>
 profanity or strong language and there were certainly some emotions flying in
 the early days. Second, nobody likes being told their baby is ugly, and people
 were telling me that. For example, when I was trying to figure out how to
-handle class data, here’s part of the conversation (I will delete comments
-identifying this person):</p>
+handle class data, here’s part of the conversation (if you leave a comment, I
+will delete it if it’s identifying this person):</p>
 
 <ul>
 <li>developer: Ovid: this is not an attack on you or at all, I’m just about to rant about class data, ok</li>
@@ -373,7 +375,7 @@ worked on codebases with plenty of globals and, even if they’re immutable,
 there’s the lifecycle question of when the come into existence.  Plus, class
 data is clearly associated with a class, so at the very least, when I call <code>my
 $foo = SomeClass-&gt;data</code> (assuming it’s needed outside the class), the class
-can maintain responsibility for what that data is. Or it the class data is
+can maintain responsibility for what that data is. Or if the class data is
 private to the class (as it often is), a global breaks that entirely. But
 nonetheless, I have to get buy-in for Corinna and that means listening to
 people and trying to figure out what the real complaints were and how (and
@@ -399,9 +401,9 @@ this.</p>
 <h1><a name="class-data-and-methods"></a>Class Data and Methods</h1>
 
 <p>Should we include class data and methods in Corinna? I discovered that for
-many people, the answer was obvious, but thier obvious answers disgreed with
+many people, the answer was obvious, but their obvious answers disgreed with
 other people’s obvious answers. What makes it worse is that this isn’t just a
-“yes or no” question. We have to ask some questions.</p>
+“yes or no” question. We have multiple questions.</p>
 
 <ol>
 <li>Should we include class data and methods?</li>
@@ -583,9 +585,9 @@ would class methods and class data have different declarators? We can’t just
 say <code>my method foo() {...}</code> because that clearly implies it’s a private
 method.</p>
 
-<p>Or we can adopt the approach other OO languages such as Java, C++, and Swift
-have done and use a single keyword to explain the same concept: these things
-are bound to the class and not an instance of the class. For the
+<p>Or we can adopt the approach other OO languages such as Java, C++, C#, and
+Swift have done and use a single keyword to explain the same concept: these
+things are bound to the class and not an instance of the class. For the
 aforementioned languages, that keyword was <code>static</code>, but it was strongly shot
 down as “not good for us” due to possible confusion with the <code>state</code> keyword
 and the fact that different languages often use <code>static</code> to mean different
@@ -594,13 +596,17 @@ things.</p>
 <p><code>shared</code> seems good, <a href="https://perldoc.perl.org/threads::shared" target="_blank">but that implies threads to many
 people</a> <span class="fa fa-external-link fa_custom"></span>, so that was also shot down.</p>
 
-<p>I’m not sure who came up with the word <code>common</code> (it may have been me, but not
-promising), but so far it seems like the least-bad alternative.</p>
+<p>I’m not sure who came up with the word <code>common</code> (it may have been me back in
+February of 2021, according to IRC logs) but so far it seems like the
+least-bad alternative. (Another suggestion I proposed at that time was
+<code>mutual</code>)</p>
 
 <p>However, there are those who are <em>strongly</em> in favor of <code>my</code>, including adding
 attributes to it—if it’s in Corinna and not inside a method—and strongly
 object to <code>common</code> on the grounds that all methods defined in a class are
-common to every instance of that class.</p>
+common to every instance of that class. They have a point about <code>common</code> being
+a poor choice, but I don’t have a good one and I suspect that, over time, it
+won’t even be noticed (I may live to regret typing that).</p>
 
 <p>So while I’m trying to figure all of this out, <a href="http://blogs.perl.org/users/damian_conway/2021/08/a-dream-realized.html" target="_blank">Damian Conway posted an
 extensive endorsement of
@@ -673,11 +679,10 @@ printit() for 1 .. 3;
 
 <p>That prints out:</p>
 
-<p>``
-state 2 and my 2
+<pre><code>state 2 and my 2
 state 3 and my 2
 state 4 and my 2
-```</p>
+</code></pre>
 
 <p>As you can see, the <code>state</code> variables are like <code>static</code> variables in C. They
 are declared once and retain their value between calls. They <em>kinda</em> look like
@@ -705,18 +710,17 @@ $second-&gt;() for 1 .. 3;
 
 <p>And that prints out:</p>
 
-<p><code>
-first: state 2 and my 2
+<pre><code>first: state 2 and my 2
 first: state 3 and my 2
 first: state 4 and my 2
 second: state 2 and my 2
 second: state 3 and my 2
 second: state 4 and my 2
-</code></p>
+</code></pre>
 
 <p>Hmm, <code>perldoc -f state</code> says that <code>state</code> variables are only initialized once,
 but in the case of returning an anonymous sub, we’ve created a <em>new</em> lexical
-scope and the state variable <em>is</em> reinitialized.</p>
+scope and we have a different state variable.</p>
 
 <p>Just for completeness, let’s define those variables inside the outer sub, but
 outside the inner sub.</p>
@@ -740,14 +744,13 @@ $second-&gt;() for 1 .. 3;
 
 <p>And that prints out:</p>
 
-<p><code>
-first: state 2 and my 2
+<pre><code>first: state 2 and my 2
 first: state 3 and my 3
 first: state 4 and my 4
 second: state 5 and my 2
 second: state 6 and my 3
 second: state 7 and my 4
-</code></p>
+</code></pre>
 
 <p>So, depending on how we declare those variables and what the enclosing scope
 should be, we get different results, as expected.</p>
@@ -761,7 +764,7 @@ harder because we can’t predict the future.</p>
 <h1><a name="the-future"></a>The Future</h1>
 
 <p>There are two things we would love to see in the future for Perl. One is inner
-classes and the second is anonymous classes. Anonymous classes already feels
+classes and the second is anonymous classes. “Anonymous classes” already feels
 “Perlish” because  we have anonymous subroutines and most Perl developers are
 familiar with the concept of closures. But let’s discuss inner classes first
 since many people are not familiar with them. <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/nested.html" target="_blank">Let’s look at some examples
@@ -805,6 +808,10 @@ this is a way to do that while still maintaining encapsulation.</p>
 battle-tested semantics from the Java language (if we’re allowed to steal from
 other languages, Java should be on that list. No language bigotry, please).</p>
 
+<p>(As an aside, this is why we can’t reuse the <code>class</code> keyword for class data and
+methods. How would we describe a static inner class? <code>class class
+StaticNestedClass {...}</code>?)</p>
+
 <p>Next, let’s consider an anonymous class. Here’s one way to think about it.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $thing = class  {
@@ -816,9 +823,17 @@ my $o1 = $thing-&gt;new(name =&gt; $name1);
 my $o2 = $thing-&gt;new(name =&gt; $name2);
 </code></pre></div>
 
-<p><a href="https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html" target="_blank">Or we could go the Java route and allow declaration and instantiation at the
+<p>We could go the Java route and allow <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html" target="_blank">declaration and instantiation at the
 same
-time</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+time</a> <span class="fa fa-external-link fa_custom"></span>,
+but I don’t think that gains us anything:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $object = (class  {
+    has $foo;
+    has $name :param;
+    ...
+})-&gt;new(name =&gt; $name1);
+</code></pre></div>
 
 <p>But consider this:</p>
 
@@ -839,7 +854,9 @@ time</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 <p>So we have a private inner class which returns anonymous metaclass instances
 with <code>state</code> or <code>my</code> variables being used for class data. Are they shared
 across all metaclass instances or not? I would think “no”, but someone else
-might make a reasonable argument otherwise.</p>
+might make a reasonable argument otherwise. And should it be <code>state</code> or <code>my</code>?
+Do either really connote “global to this class regardless of how the class is
+generated”?</p>
 
 <p>And what we’re talking about is something speculative, years in the future,
 where the existing semantics of <code>my</code> or <code>state</code> might be perfectly
@@ -855,8 +872,9 @@ safety for the future of Perl. I also didn’t want to potentially overload the
 meaning of existing syntax.</p>
 
 <p>There are already people who have let me know that they’re very upset with
-this decision. There are others who are delighted by it. In this case, I don’t
-think there’s a political solution. So I decided to play it safe.</p>
+this decision. There are others who are fine with this decision; they just
+want to get Corinna in core. In this case, I don’t think there’s a political
+solution. So I decided to play it safe.</p>
 
 <p>People might come back to me later and make a strong argument that I screwed
 up. That’s fine. I welcome those arguments and I might change my mind, but the
