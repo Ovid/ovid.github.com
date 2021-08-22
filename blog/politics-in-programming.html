@@ -210,7 +210,7 @@ look at one mistake I made in that specification:</p>
   as good OO practice).</p>
 </blockquote>
 
-<p>So you couldn’t call <code>$self-&gt;cache</code> or <code>$self-&gt;max_size</code> outsize of the class.</p>
+<p>So you couldn’t call <code>$self-&gt;cache</code> or <code>$self-&gt;max_size</code> outside of the class.</p>
 
 <h2><a name="good-oo-design"></a>Good OO Design</h2>
 
@@ -246,15 +246,15 @@ them that chances.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package SomeClass;
 use Moose;
 
-has 'name' =&gt; (
-    is       =&gt; 'ro',
-    isa      =&gt; 'Str,
+has &#39;name&#39; =&gt; (
+    is       =&gt; &#39;ro&#39;,
+    isa      =&gt; &#39;Str,
     required =&gt; 1,
 );
 
-has '_items' =&gt; (
-    is       =&gt; 'ro',
-    isa      =&gt; 'ArrayRef',
+has &#39;_items&#39; =&gt; (
+    is       =&gt; &#39;ro&#39;,
+    isa      =&gt; &#39;ArrayRef&#39;,
     default  =&gt; sub {[]},
     init_arg =&gt; undef,
 );
@@ -628,7 +628,7 @@ presentation.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use Dios;
 
 class Account {
-    state $next_ID = 'AAA0001';
+    state $next_ID = &#39;AAA0001&#39;;
 
     has $.name     is rw  is required;
     has $.balance  = 0;
@@ -705,8 +705,8 @@ with the variables.</p>
     }
 }
 
-my $first  = printit('first');
-my $second = printit('second');
+my $first  = printit(&#39;first&#39;);
+my $second = printit(&#39;second&#39;);
 
 $first-&gt;()  for 1 .. 3;
 $second-&gt;() for 1 .. 3;
@@ -739,8 +739,8 @@ outside the inner sub.</p>
     }
 }
 
-my $first  = printit('first');
-my $second = printit('second');
+my $first  = printit(&#39;first&#39;);
+my $second = printit(&#39;second&#39;);
 
 $first-&gt;()  for 1 .. 3;
 $second-&gt;() for 1 .. 3;
