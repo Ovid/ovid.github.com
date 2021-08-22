@@ -164,6 +164,76 @@ subtest 'smartquotes' => sub {
     is_html $html, $expected, 'Quotes in <pre> blocks should not be quoted';
 };
 
+subtest 'Code Blocks' => sub {
+    my $text = <<~'END';
+    "this is a test."
+
+    ~~~perl
+    my $foo = 'bar';
+    class SomeClass {
+        slot $foo = '~~~';
+        slot $not_markdown <<~'CODE';
+        ~~~javascript
+        alert('whoops!')
+        ~~~
+        CODE
+    }
+    ~~~
+
+    Whee!
+
+    ~~~
+    x = y
+    ~~~
+
+    More Text
+
+    ~~~java
+    class SomeClass {
+        private state int count = 0;
+    }
+    ~~~
+
+    <p>HTML should <a href="/to/some/path">be safe to use</a>.</p>
+    END
+
+    my $expected = <<~'END';
+    <p>“this is a test.”</p>
+    
+    <div class="shadow"><pre class="scrolled"><code class="language-perl">my $foo = &#39;bar&#39;;
+    class SomeClass {
+        slot $foo = &#39;~~~&#39;;
+        slot $not_markdown &lt;&lt;~&#39;CODE&#39;;
+        ~~~javascript
+        alert(&#39;whoops!&#39;)
+        ~~~
+        CODE
+    }
+    </code></pre></div>
+    
+    <p>Whee!</p>
+    
+    <div class="shadow"><pre class="scrolled"><code>x = y
+    </code></pre></div>
+    
+    <p>More Text</p>
+    
+    <div class="shadow"><pre class="scrolled"><code class="language-java">class SomeClass {
+        private state int count = 0;
+    }
+    </code></pre></div>
+    
+    <p>HTML should <a href="/to/some/path">be safe to use</a>.</p>
+    END
+
+    my $blog = Text::Markdown::Blog->new;
+    my $html = $blog->blogdown($text);
+
+    is_html $html, $expected,
+      'We should be able to automatically use quote code';
+};
+
+
 done_testing;
 
 sub is_html ( $have, $want, $message ) {

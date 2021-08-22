@@ -28,13 +28,53 @@ my %REPLACEMENTS = (
 );
 
 sub blogdown ( $self, $text, $options = {} ) {
+    $text = $self->_fix_code_blocks($text);
     my $html = $self->markdown( $text, $options );
     while ( my ( $marker, $replacement ) = each %REPLACEMENTS ) {
         $html =~ s/\Q$marker\E/$replacement/g;
     }
-    $self->_use_smart_quotes($html);
+    $html = $self->_use_smart_quotes($html);
+    return $html;
 }
 
+sub _fix_code_blocks ( $class, $text ) {
+    my $in_block = 0;
+    my @lines    = split /\n/ => $text;
+    $text     = '';
+  LINE: while (@lines) {
+        my $line = shift @lines;
+        if ($in_block) {
+            if ( $line =~ /^~~~\s*$/ ) {
+                $in_block = 0;
+                $text .= "</code></pre></div>\n";
+                next LINE;
+            }
+        }
+        elsif ( $line =~ /^~~~\s*(?<language>\w+)?\s*$/ ) {
+            $in_block = 1;
+            $text .= '<div class="shadow">';
+            if ( $+{language} ) {
+                $text .=
+                  qq'<pre class="scrolled"><code class="language-$+{language}">';
+            }
+            else {
+                $text .= qq'<pre class="scrolled"><code>';
+            }
+            next LINE;
+        }
+        $text .= $in_block ? encode_entities($line) : $line;
+        $text .= "\n";
+    }
+    return $text;
+}
+# <div class="shadow">
+# [%- IF language -%]
+# <pre class="scrolled"><code class="language-[% language %]">[% content | html %]</code></pre>
+# [%- ELSE -%]
+# <pre class="scrolled"><code>[% content | html %]</code></pre>
+# [%- END -%]
+# </div>
+# 
 sub _use_smart_quotes ( $self, $text ) {
     return $text unless $self->should_use_smart_quotes;
     my $parser = HTML::TokeParser::Simple->new( string => $text );
