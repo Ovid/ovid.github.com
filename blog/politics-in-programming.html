@@ -146,8 +146,10 @@
 <p>Note: Corinna is the name of Ovid’s love interest in <a href="https://www.gutenberg.org/files/47676/47676-h/47676-h.htm" target="_blank">the
 Amores</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
+<hr />
+
 <p>I had been working on the design for Corinna, a proposed <a href="https://github.com/Ovid/Cor" target="_blank">object system for
-the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, for several months , inspired by
+the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, for several months, inspired by
 the work of <a href="https://metacpan.org/author/STEVAN" target="_blank">Stevan Little</a> <span class="fa fa-external-link fa_custom"></span>, pulling ideas
 from many other sources, including far too much reading about effective
 object-oriented design. <a href="https://metacpan.org/author/XSAWYERX" target="_blank">Sawyer X</a> <span class="fa fa-external-link fa_custom"></span>, then
@@ -236,10 +238,10 @@ sub new {
 </code></pre></div>
 
 <p>With that, even outside the class you could inspect data with
-<code>$object-&gt;{name}</code> and <code>$object-&gt;{_items}</code>. But why the leading underscore?
-Because that was a signal to other develpers that <code>_items</code> was meant to be
-private. It was asking them to not touch that rather than simply not offering
-them that chances.</p>
+<code>$object-&gt;{name}</code> and <code>$object-&gt;{_items}</code>. But why the leading underscore on
+<code>_items</code>?  Because that was a signal to other developers that <code>_items</code> was
+meant to be private. It was asking them to not touch that because Perl didn’t
+offer an easy way to ensure encapsulation.</p>
 
 <p>Something similar for Moo/se could be written like this:</p>
 
@@ -272,9 +274,9 @@ to hire us).</p>
 
 <p>There have been attempts to introduce <a href="https://metacpan.org/pod/Class::Std" target="_blank">“inside-out”
 objects</a> <span class="fa fa-external-link fa_custom"></span> which properly encapsulate their
-data, but these have never caught on. They feel a touch awkward to write and,
-most importantly, you can’t just call <code>Dumper($object)</code> to see its internal
-state while debugging. That alone may have killed them.</p>
+data, but these have never caught on. They are awkward to write and, most
+importantly, you can’t just call <code>Dumper($object)</code> to see its internal state
+while debugging. That alone may have killed them.</p>
 
 <h2><a name="my-mistake"></a>My Mistake</h2>
 
@@ -290,7 +292,7 @@ to write a helper method:</p>
     has cache    =&gt; ( default =&gt; method { Hash::Ordered-&gt;new } );
     has max_size =&gt; ( default =&gt; method { 20 } );
 
-    method max_size () { return $self-&gt;max_size }
+    method max_size () { return self-&gt;max_size }
 
     ...
 }
@@ -300,25 +302,27 @@ to write a helper method:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">method max_size ($new_size) {
     if (@_ &gt; 1) { # guaranteed to confuse new developers
-        $self-&gt;max_size($new_size);
+        self-&gt;max_size($new_size);
     }
     else {
-        return $self-&gt;max_size;
+        return self-&gt;max_size;
     }
 }
 </code></pre></div>
 
-<p>And there are many, many ways to write the above and get it wrong. And why
-should people have to write it? And if I offered some convenience, how should
-they look? Enough people argued against the design that I realized I made a
-mistake. Maybe encapsulation is good, but my strictness was over the top.
-Which leads me to the entire point of this blog entry:</p>
+<p>And there are many, many ways to write the above and get it wrong. Corinna is
+supposed to make it easier to focus on writing good OO code. Here, it was
+letting developers fall back to writing bad code that Corinna could easily
+write. Why should people have to write it? If I offered some convenience here,
+how should it look? Enough people argued against the design that I realized I
+made a mistake. Maybe encapsulation is good, but my strictness was over the
+top. Which leads me to the entire point of this blog entry:</p>
 
 <p><strong>If you’re not effective, it doesn’t matter if you’re right.</strong></p>
 
-<p>And was I right to strive for such encapsulation? I honestly don’t know, but
-if it meant that no one would use my OO system, then it didn’t matter. I had
-to change something.</p>
+<p>Was I right to strive for such encapsulation? I honestly don’t know, but if it
+meant that no one would use my OO system, it didn’t matter. I had to change
+something.</p>
 
 <h2><a name="politics"></a>Politics</h2>
 
@@ -405,7 +409,7 @@ this.</p>
 <h1><a name="class-data-and-methods"></a>Class Data and Methods</h1>
 
 <p>Should we include class data and methods in Corinna? I discovered that for
-many people, the answer was obvious, but their obvious answers disgreed with
+many people, the answer was obvious, but their obvious answers disagreed with
 other people’s obvious answers. What makes it worse is that this isn’t just a
 “yes or no” question. We have multiple questions.</p>
 
@@ -594,14 +598,14 @@ Swift have done and use a single keyword to explain the same concept: these
 things are bound to the class and not an instance of the class. For the
 aforementioned languages, that keyword was <code>static</code>, but it was strongly shot
 down as “not good for us” due to possible confusion with the <code>state</code> keyword
-and the fact that different languages often use <code>static</code> to mean different
-things.</p>
+and the fact that different languages sometimes use <code>static</code> to mean different
+things. Different things should look different.</p>
 
 <p><code>shared</code> seems good, <a href="https://perldoc.perl.org/threads::shared" target="_blank">but that implies threads to many
 people</a> <span class="fa fa-external-link fa_custom"></span>, so that was also shot down.</p>
 
 <p>I’m not sure who came up with the word <code>common</code> (it may have been me back in
-February of 2021, according to IRC logs) but so far it seems like the
+February of 2021, according to IRC logs) and so far it seems like the
 least-bad alternative. (Another suggestion I proposed at that time was
 <code>mutual</code>)</p>
 
@@ -688,8 +692,8 @@ state 3 and my 2
 state 4 and my 2
 </code></pre>
 
-<p>As you can see, the <code>state</code> variables are like <code>static</code> variables in C. They
-are declared once and retain their value between calls. They <em>kinda</em> look like
+<p>As you can see, <code>state</code> variables are like <code>static</code> variables in C. They are
+declared once and retain their value between calls. They <em>kinda</em> look like
 static members in Java.</p>
 
 <p>Let’s look at <code>state</code> some more, this time returning an anonymous subroutine
@@ -757,9 +761,11 @@ second: state 7 and my 4
 </code></pre>
 
 <p>So, depending on how we declare those variables and what the enclosing scope
-should be, we get different results, as expected.</p>
+should be, we get different results. This is more or less as expected, though
+creating a new lexical scope and having the state variables re-initialized
+might surprise some because I don’t think it’s clearly documented.</p>
 
-<p>So what does that mean for class data?</p>
+<p>But what does that mean for class data?</p>
 
 <p>Part of my job is to ensure that Corinna doesn’t break existing Perl. However,
 I need to ensure that Corinna doesn’t hobble future Perl, either. That’s much
