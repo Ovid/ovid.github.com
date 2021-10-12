@@ -2,6 +2,8 @@
 
 # vim: ft=perl
 use lib 'lib';
+use strict;
+use warnings;
 
 use DateTime;
 use DateTime::Format::SQLite;
@@ -193,7 +195,6 @@ sub rebuild_rss_feeds () {
         { Slice => {} } );
 
     foreach my $type ( $types->@* ) {
-        my $name      = $type->{name};
         my $directory = $type->{directory};
         my $now       = DateTime->now;
         my $year      = $now->year;
