@@ -54,7 +54,7 @@ Read contents of C<$filename> into a variable.
 =cut
 
 sub slurp($filename) {
-    open my $fh, '<', $filename;
+    open my $fh, '<:encoding(UTF-8)', $filename;
     my $contents = do { local $/; <$fh> };
     return $contents;
 }
@@ -68,7 +68,7 @@ Write C<$contents> to C<filename>.
 =cut
 
 sub splat ( $filename, $contents ) {
-    open my $fh, '>', $filename;
+    open my $fh, '>:encoding(UTF-8)', $filename;
     print {$fh} $contents;
 }
 
