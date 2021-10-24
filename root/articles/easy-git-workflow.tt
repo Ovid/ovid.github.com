@@ -41,7 +41,7 @@ Using our git workflow couldn't be simpler:
     (new-feature-123) $               # hack, hack, hack
     (new-feature-123) $ git refresh   # pull in latest master changes
     (new-feature-123) $               # hack, hack, hack
-    (new-feature-123) $ git merge-with-master
+    (new-feature-123) $ git done
     (master) $                        # done
 
 And that's it. Three simple commands to remember and git _gets out of your
@@ -108,7 +108,7 @@ There are only three new commands to remember:
   <dd>Create new branch based on a github ticket</dd>
   <dt>git refresh</dt>
   <dd>Rebase your work on top of current master</dd>
-  <dt>git merge-with-master</dt>
+  <dt>git done</dt>
   <dd>Merge your branch back into master</dd>
 </dl>
 
@@ -127,7 +127,7 @@ If they are not in your path, you have to type the commands explicitly:
 
     bin/git-hub 5738
     bin/git-refresh
-    bin/git-merge-with-master
+    bin/git-done
 
 ## Checking Out a Branch
 
@@ -226,10 +226,10 @@ You'll remember that, right? And you'll never mess it up?
 
 For us, we simply run:
 
-    git merge-with-master
+    git done
 
-And that will cleanly update `master` and rebase your branch on top of it, and
-push that change to your origin.
+And that will cleanly update `master` (or whatever the source branch is) and
+rebase your branch on top of it, and push that change to your origin.
 
 With that, you get a clean git history like this:
 
@@ -278,5 +278,21 @@ in my `.bash_aliases` file:
 
 Then, when I get a conflict, I just type `damnit` and am automatically editing
 the files which caused the conflict. It saves me a huge amount of time.
+
+# Update
+
+We have renamed `git-merge-with-master` to `git-done`. The former still works.
+
+Check out the tools at [our github
+repo](https://github.com/Ovid/git-workflow).
+
+For historical reasons, we have left the name `master` in a number of places
+in this document. Many projects prefer that this name be `main` or something
+different. To use `git-refresh` and `git-done` with a different nume, you'll
+need a `.git-hub` file in your current directory with the following line:
+
+    # replace 'main' with the name of your canonical source branch, such as 
+    # 'dev' or 'trunk'
+    target main
 
 [%- END %]

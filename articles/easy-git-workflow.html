@@ -131,6 +131,7 @@
     <li class="indent-2"><a href="#refreshing-your-branch">Refreshing Your Branch</a></li>
     <li class="indent-2"><a href="#merging-into-master">Merging into master</a></li>
     <li class="indent-1"><a href="#merge-conflicts">Merge Conflicts</a></li>
+    <li class="indent-1"><a href="#update">Update</a></li>
     </ul>
 </nav>
 <hr></p>
@@ -163,7 +164,7 @@ build a remote software team for you. A team that delivers, not debates.</p>
 (new-feature-123) $               # hack, hack, hack
 (new-feature-123) $ git refresh   # pull in latest master changes
 (new-feature-123) $               # hack, hack, hack
-(new-feature-123) $ git merge-with-master
+(new-feature-123) $ git done
 (master) $                        # done
 </code></pre>
 
@@ -232,7 +233,7 @@ it dead easy for teams using git (and in our case, github) to work together.</p>
   <dd>Create new branch based on a github ticket</dd>
   <dt>git refresh</dt>
   <dd>Rebase your work on top of current master</dd>
-  <dt>git merge-with-master</dt>
+  <dt>git done</dt>
   <dd>Merge your branch back into master</dd>
 </dl>
 
@@ -251,7 +252,7 @@ If they are not in your path, you have to type the commands explicitly:</p>
 
 <pre><code>bin/git-hub 5738
 bin/git-refresh
-bin/git-merge-with-master
+bin/git-done
 </code></pre>
 
 <h2><a name="checking-out-a-branch"></a>Checking Out a Branch</h2>
@@ -361,11 +362,11 @@ git push origin master
 
 <p>For us, we simply run:</p>
 
-<pre><code>git merge-with-master
+<pre><code>git done
 </code></pre>
 
-<p>And that will cleanly update <code>master</code> and rebase your branch on top of it, and
-push that change to your origin.</p>
+<p>And that will cleanly update <code>master</code> (or whatever the source branch is) and
+rebase your branch on top of it, and push that change to your origin.</p>
 
 <p>With that, you get a clean git history like this:</p>
 
@@ -417,6 +418,23 @@ in my <code>.bash_aliases</code> file:</p>
 
 <p>Then, when I get a conflict, I just type <code>damnit</code> and am automatically editing
 the files which caused the conflict. It saves me a huge amount of time.</p>
+
+<h1><a name="update"></a>Update</h1>
+
+<p>We have renamed <code>git-merge-with-master</code> to <code>git-done</code>. The former still works.</p>
+
+<p>Check out the tools at <a href="https://github.com/Ovid/git-workflow" target="_blank">our github
+repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>For historical reasons, we have left the name <code>master</code> in a number of places
+in this document. Many projects prefer that this name be <code>main</code> or something
+different. To use <code>git-refresh</code> and <code>git-done</code> with a different nume, you’ll
+need a <code>.git-hub</code> file in your current directory with the following line:</p>
+
+<pre><code># replace 'main' with the name of your canonical source branch, such as 
+# 'dev' or 'trunk'
+target main
+</code></pre>
 
 
 
