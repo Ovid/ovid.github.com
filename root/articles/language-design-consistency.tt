@@ -1,0 +1,320 @@
+[%
+    title            = 'Language Design Consistency';
+    type             = 'articles';
+    slug             = 'language-design-consistency';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2021-11-14';
+    mathjax          = 0;
+    facebook         = 'corinna.jpg';
+    facebook_alt     = 'An ancient painting of Ovid and Corinna';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+# Consistency Is Your Friend
+
+_**Note**: None of the following is set in stone. This is merely a way to start
+discussion on some issues with syntactic inconsistencies in Corinna._
+
+Years ago I was working with some graphing software where points would be
+declared via:
+
+```
+var point = point(2,3);
+```
+
+Except that the `point` function took `Y,X` as arguments, not the near
+universally-accepted `X,Y`. To this day, I loathe the author of that library
+for making my life hell.
+
+On a more personal note, while building [Tau
+Station](https://taustation.space)—a narrative sci-fi MMORPG—I was trying to
+respect proper separation of concerns and not building god objects, so when it
+came time to check if an NPC has a mission for a character, I had this:
+
+```perl
+if ( $missions->has_mission_for( $character, $npc ) ) {
+    ...
+}
+```
+
+Or was it this?
+
+```perl
+if ( $missions->has_mission_for( $npc, $character ) ) {
+    ...
+}
+```
+
+To this day, I cannot remember which style I used and what justification I had
+for that, but it was a constant source of bugs because I kept getting the
+`$npc` and `$character` swapped. So I bit the bullet and decided that, as much
+as possible, Tau Station code would follow SVO (subject-verb-object) syntax,
+instead of the weird "context-verb-subject-object" I had created. Or was it
+"context-verb-object-subject"? Who knows? Instead, the above became this:
+
+```perl
+if ( $npc->has_missions_for($character) ) {
+    ...
+}
+```
+
+And now the meaning of the code is crystal clear, though people will complain
+about "God objects" ([which I address
+here](http://blogs.perl.org/users/ovid/2014/12/using-role-as-partial-classes.html)).
+
+Consistency brings clarity. Reasoning about code is hard enough when it
+appears to be an ad-hoc mishmash of rules.[% Ovid.add_note('Dear PHP
+developers: don’t you dare start. You have <em>no</em> room to criticize Perl
+in this regard.') %]
+
+So, um, that brings us to the [Corinna project](https://github.com/Ovid/Cor),
+my attempt to bring modern object-oriented programming to the Perl language.
+
+# Language Design
+
+As I've previously pointed out, [my first foray into language
+design](/blog/politics-in-programming.html) didn't go as well as I hoped. At
+its heart, you can think of language design as consisting of three parts:
+
+1. Semantics
+2. Syntax
+3. Community
+
+I mostly had the semantics and syntax down, but I hadn't done a great job of
+paying attention to the community. The community feedback was _mixed_, to put
+it politely.  So an IRC channel was created (irc.perl.org #cor) and a [github
+project](https://github.com/Ovid/Cor) was started and anyone with an interest
+in the project was welcome to share their thoughts.
+
+By including the community, we've done a fantastic job of turning Corinna from
+an interesting sideshow to something that is (mostly) popular with the Perl
+community. If we can bring her over the finish line, we have something that is
+likely to be included in the Perl core as an _experimental_ project. You have
+to ask for it by name:
+
+```perl
+use feature 'class';
+
+class Foo {
+    ...
+}
+```
+
+And then you get all the lovely OO goodies in a powerful, declarative syntax.
+
+We're _soooooo_ close to being able to propose an RFC that I am loathe to
+throw a wrench in the works, but I must. I must because Kim is very, very
+unhappy with Corinna.
+
+## Who the Hell is Kim?
+
+Please note that much of this is largely derived from emails I've swapped with
+[Damian Conway](https://en.wikipedia.org/wiki/Damian_Conway).  I've rewritten
+it considerably, but the core of this is him noting inconsistencies that have
+been discussed on the IRC channel, but not put together conherently. Corinna
+has evolved with some serious inconsistencies and the time to consider fixing
+them is now, not after it's released.
+
+Corinna, as some of you may know, was chosen as the name of this project
+because my _nom de guerre_, [% Ovid.add_note('French for “war name”, now more
+appropriate than ever ...') %] is "Ovid" and he wrote poems to Corinna, a love
+interest (if you're familiar with the poetry, you know I'm keeping this
+family-friendly). Kim isn't jealous of Corinna. She's _furious_ because
+Corinna, after literally years of design, is breaking some cardinal rules of
+consistency. So, let's dig into that.
+
+So let's look at the way we declare things in Perl. In particular, we'll look
+at `my` variables, subroutines, and packages.
+
+```perl
+my $answer = 42;
+sub douglas_adams  { ... }
+package Restaurant { ... }
+```
+
+Those all seem different, but we start declaring what type of _thing_ we have: a
+variable, a subroutine, or a package. Then we follow that up with the name of
+the thing, followed by the optional set up of that thing.
+
+But what if we want to _modify_ how those things behave? Attributes have been
+alternately proposed and rejected by many developers, but if you use
+`threads::shared` in Perl, you can declare a variable as shared across
+threads:
+
+```perl
+my $answer :shared = 42;
+```
+
+What if you want to declare a subroutine as an lvalue?
+
+```perl
+sub douglas_adams :lvalue {...}
+```
+
+Or declaratively state the version of a package without using the procedural
+`$VERSION` assignment?
+
+```
+package Restaurant v3.1.4 { ... }
+```
+
+In fact, if we continue down this road, we see a pattern start to emerge:
+
+| keyword | identifier | modifiers? | setup? |
+|---|---|---|---|
+| my | $lexvar | :shared |  |
+| our | $packvar | :Tracked | = 0 |
+| state | $statevar | :Readonly | = 1 |
+| sub | action | :lvalue | () {...} |
+| package | Namespace | v1.2.3 | {...} |
+| format | Report | | = ... . |
+
+KIM stands for "Keyword", "Identifier", and "Modifier" (yes, it should be "KIMS", but I
+like the "Kim versus Corinna" description. Sue me.)
+
+Kim likes consistency. You must always declare the kind of thing you're going
+to use and then name it. You can then optionally modify its base behavior and
+then optionally set it up. Very, very consistent:
+
+```
+KEYWORD IDENTIFIER MODIFIERS SETUP
+```
+
+Of course, you can point to plenty of areas where Perl is not consistent, but
+Corinna is designed to _improve_ the Perl language, not add to the
+inconsistency, so let's look at a few examples:
+
+
+| keyword | identifier | modifiers? | setup? |
+|---|---|---|---|
+| role | Tracked | | {...} |
+
+| class | Root | | {...} |
+
+| slot | $msg | :param | |
+| slot | $handler | :handles(exists delete) | = Handler->new; |
+| slot | $size | :reader :param | = 100; |
+| slot | $created | :reader | = time; |
+
+| method | is_root () | |  {...} |
+| method | obj_count | :common () | {...} |
+| method | insert | :private ($key,$value) | {...} |
+| method | show ($msg) | | {...} |
+| method | obj_count | :overrides :common () | {...} |
+[KIM features in Corinna]
+
+So that's actually looking pretty good. Corinna is developing **with** a
+clear, consistent KIM syntax. But if that was all, this wouldn't be a helpful
+article. That's the good; it's time to look at the bad. And maybe the ugly.
+
+## This Ain't Kim
+
+Let's look at a few examples of inconsistencies.  We'll start with putting the
+modifier first.
+
+| modifier | keyword | identifier | setup |
+|---|---|---|---|
+| abstract |    class   |   Counter |    {...} |
+[Modifiers First]
+
+And let's mix up keywords and modifiers.
+
+| keyword | identifier | keyword as modifiers | setup |
+|---|---|---|---|
+| class   |   Handler  |   isa Counter does Tracked |  {...} |
+[Keywords as Modifiers]
+
+Let's use modifers plus keywords plus identifiers plus modifiers plus ...
+
+| modifier | keyword | identifier | modifiers | setup |
+|---|---|---|---|---|
+| before | method | obj_count | :overrides :common () | { warn "Counting..."; } |
+| after | method | obj_count | :overrides :common () | { warn "...done"; } |
+| around | method | obj_count | :overrides :common () | { return 1 + $self->$ORIG(); } |
+[Keywords gonna Keyword]
+
+So, yeah. Damian pointed all of this out to me and he's right. Corinna is
+_close_, but there are syntactical inconsistencies which, if agreed that they
+should be addressed, should be addressed before an RFC, not after.
+
+# Turning Corinna into Kim
+
+The name's still Corinna, but she needs KIM.
+
+When I started converting Tau Station code to (in)consistently use SVO syntax,
+it made it much easier to maintain. Doing the same thing with Corinna is
+worthwhile.
+
+So, how do we address all these inconsistencies? Corinna _semantics_ are OK.
+We just need some tweaks to the syntax.
+
+| keyword | identifier | modifiers? | setup? |
+|---|---|---|---|
+| class | Counter | :abstract | {...} |
+| class | Handler | :isa(Counter) :does(Tracked) | {...} |
+| method | obj_count | :before :overrides :common | () { warn "Counting..."; } |
+| method | obj_count | :after :overrides :common | () { warn "...done"; } |
+| method | obj_count | :around :overrides :common | () { return 1 + $self->$ORIG(); } |
+
+And here's a slightly modified example from Damian showing this more consistent
+syntax:
+
+
+```perl
+role Tracked {
+    slot $msg :param;
+
+    method report () { $self->show($msg++) }
+
+    method show; # required
+}
+
+class Root {
+    method is_root () { return 1; }
+}
+
+class Counter :abstract {
+    slot $obj_count :common :reader = 0;
+
+    ADJUST   { $obj_count++ }
+    DESTRUCT { $obj_count-- }
+}
+
+class Handler :isa(Counter) :does(Tracked) {
+    slot $handler  :handles(exists delete) = Handler->new;
+    slot $size     :reader  :param         = 100;
+    slot $created  :reader                 = time;
+
+    ADJUST   { croak("Too small") if $size < 1; }
+    DESTRUCT { $handler->shutdown; }
+
+    method insert :private ($key, $value ) {
+        if ( ! $self->exists($key) ) {
+            $handler->set( $key, $value );
+        }
+    }
+
+    method show ($msg) { say $msg; }
+
+    method obj_count :common :overrides () { $self->next::method() - 42; }
+
+    method obj_count :common :before () { warn "Counting...";         }
+    method obj_count :common :around () { return 1 + $self->$ORIG();  }
+    method obj_count :common :after  () { warn "...done";             }
+}
+```
+
+# Conclusion
+
+As you can see from the sample code, this still looks like Corinna. We have
+the semantics and syntax, but do we have the community? The changes aren't
+huge, but they might prove controversial because Corinna would _again_ be
+changing. But I think it's changing for the better. Further, by establishing
+the KIM principle now, further upgrades to the Perl language can have guidance
+on maintaining consistency.
+
+[%- END %]

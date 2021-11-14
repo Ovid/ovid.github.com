@@ -5,7 +5,7 @@ use HTML::TokeParser::Simple;
 use File::Find::Rule;
 use Less::Boilerplate;
 
-my @files = File::Find::Rule->file->name('*.html')->in('.');
+my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
@@ -39,9 +39,13 @@ sub html_is_bad ( $file ) {
         a   => \&_validate_anchor,
         img => \&_validate_image,
     );
-
   TOKEN: while ( my $token = $parser->get_tag ) {
         if ( $token->is_start_tag ) {
+            if ( $token->as_is =~ / \/ \s* > $/x ) {
+
+                # something like '<br />' (a self-closing tag)
+                next TOKEN;
+            }
             if ( my $linter = $linter_for{ $token->get_tag } ) {
                 push @errors => $linter->($token);
             }

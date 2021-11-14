@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/corinna.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="An ancient painting of Ovid and Corinna" />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ovid.github.io/articles/language-design-consistency.html" />
+  <meta property="og:title" content="Language Design Consistency" />
+  <meta property="og:description" content="Consistency can be a hallmark of great language design. My Corinna OO project for Perl falls short of this." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Language Design Consistency</title>
+  <meta name="description" content="Language Design Consistency">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Language Design Consistency</h1>
+        <time>2021-11-14</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/the-problem-with-builder.html" class="prevPost">&laquo; Classes Should Not Override Parent Attributes</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#consistency-is-your-friend">Consistency Is Your Friend</a></li>
+    <li class="indent-1"><a href="#language-design">Language Design</a></li>
+    <li class="indent-2"><a href="#who-the-hell-is-kim">Who the Hell is Kim?</a></li>
+    <li class="indent-2"><a href="#this-aint-kim">This Ain’t Kim</a></li>
+    <li class="indent-1"><a href="#turning-corinna-into-kim">Turning Corinna into Kim</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="consistency-is-your-friend"></a>Consistency Is Your Friend</h1>
+
+<p><em><strong>Note</strong>: None of the following is set in stone. This is merely a way to start
+discussion on some issues with syntactic inconsistencies in Corinna.</em></p>
+
+<p>Years ago I was working with some graphing software where points would be
+declared via:</p>
+
+<div class="shadow"><pre class="scrolled"><code>var point = point(2,3);
+</code></pre></div>
+
+<p>Except that the <code>point</code> function took <code>Y,X</code> as arguments, not the near
+universally-accepted <code>X,Y</code>. To this day, I loathe the author of that library
+for making my life hell.</p>
+
+<p>On a more personal note, while building <a href="https://taustation.space" target="_blank">Tau
+Station</a> <span class="fa fa-external-link fa_custom"></span>—a narrative sci-fi MMORPG—I was trying to
+respect proper separation of concerns and not building god objects, so when it
+came time to check if an NPC has a mission for a character, I had this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $missions-&gt;has_mission_for( $character, $npc ) ) {
+    ...
+}
+</code></pre></div>
+
+<p>Or was it this?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $missions-&gt;has_mission_for( $npc, $character ) ) {
+    ...
+}
+</code></pre></div>
+
+<p>To this day, I cannot remember which style I used and what justification I had
+for that, but it was a constant source of bugs because I kept getting the
+<code>$npc</code> and <code>$character</code> swapped. So I bit the bullet and decided that, as much
+as possible, Tau Station code would follow SVO (subject-verb-object) syntax,
+instead of the weird “context-verb-subject-object” I had created. Or was it
+“context-verb-object-subject”? Who knows? Instead, the above became this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $npc-&gt;has_missions_for($character) ) {
+    ...
+}
+</code></pre></div>
+
+<p>And now the meaning of the code is crystal clear, though people will complain
+about “God objects” (<a href="http://blogs.perl.org/users/ovid/2014/12/using-role-as-partial-classes.html" target="_blank">which I address
+here</a> <span class="fa fa-external-link fa_custom"></span>).</p>
+
+<p>Consistency brings clarity. Reasoning about code is hard enough when it
+appears to be an ad-hoc mishmash of rules.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>So, um, that brings us to the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna project</a> <span class="fa fa-external-link fa_custom"></span>,
+my attempt to bring modern object-oriented programming to the Perl language.</p>
+
+<h1><a name="language-design"></a>Language Design</h1>
+
+<p>As I’ve previously pointed out, <a href="/blog/politics-in-programming.html">my first foray into language
+design</a> didn’t go as well as I hoped. At
+its heart, you can think of language design as consisting of three parts:</p>
+
+<ol>
+<li>Semantics</li>
+<li>Syntax</li>
+<li>Community</li>
+</ol>
+
+<p>I mostly had the semantics and syntax down, but I hadn’t done a great job of
+paying attention to the community. The community feedback was <em>mixed</em>, to put
+it politely.  So an IRC channel was created (irc.perl.org #cor) and a <a href="https://github.com/Ovid/Cor" target="_blank">github
+project</a> <span class="fa fa-external-link fa_custom"></span> was started and anyone with an interest
+in the project was welcome to share their thoughts.</p>
+
+<p>By including the community, we’ve done a fantastic job of turning Corinna from
+an interesting sideshow to something that is (mostly) popular with the Perl
+community. If we can bring her over the finish line, we have something that is
+likely to be included in the Perl core as an <em>experimental</em> project. You have
+to ask for it by name:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature 'class';
+
+class Foo {
+    ...
+}
+</code></pre></div>
+
+<p>And then you get all the lovely OO goodies in a powerful, declarative syntax.</p>
+
+<p>We’re <em>soooooo</em> close to being able to propose an RFC that I am loathe to
+throw a wrench in the works, but I must. I must because Kim is very, very
+unhappy with Corinna.</p>
+
+<h2><a name="who-the-hell-is-kim"></a>Who the Hell is Kim?</h2>
+
+<p>Please note that much of this is largely derived from emails I’ve swapped with
+<a href="https://en.wikipedia.org/wiki/Damian_Conway" target="_blank">Damian Conway</a> <span class="fa fa-external-link fa_custom"></span>.  I’ve rewritten
+it considerably, but the core of this is him noting inconsistencies that have
+been discussed on the IRC channel, but not put together conherently. Corinna
+has evolved with some serious inconsistencies and the time to consider fixing
+them is now, not after it’s released.</p>
+
+<p>Corinna, as some of you may know, was chosen as the name of this project
+because my <em>nom de guerre</em>, <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> is “Ovid” and he wrote poems to Corinna, a love
+interest (if you’re familiar with the poetry, you know I’m keeping this
+family-friendly). Kim isn’t jealous of Corinna. She’s <em>furious</em> because
+Corinna, after literally years of design, is breaking some cardinal rules of
+consistency. So, let’s dig into that.</p>
+
+<p>So let’s look at the way we declare things in Perl. In particular, we’ll look
+at <code>my</code> variables, subroutines, and packages.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $answer = 42;
+sub douglas_adams  { ... }
+package Restaurant { ... }
+</code></pre></div>
+
+<p>Those all seem different, but we start declaring what type of <em>thing</em> we have: a
+variable, a subroutine, or a package. Then we follow that up with the name of
+the thing, followed by the optional set up of that thing.</p>
+
+<p>But what if we want to <em>modify</em> how those things behave? Attributes have been
+alternately proposed and rejected by many developers, but if you use
+<code>threads::shared</code> in Perl, you can declare a variable as shared across
+threads:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $answer :shared = 42;
+</code></pre></div>
+
+<p>What if you want to declare a subroutine as an lvalue?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">sub douglas_adams :lvalue {...}
+</code></pre></div>
+
+<p>Or declaratively state the version of a package without using the procedural
+<code>$VERSION</code> assignment?</p>
+
+<div class="shadow"><pre class="scrolled"><code>package Restaurant v3.1.4 { ... }
+</code></pre></div>
+
+<p>In fact, if we continue down this road, we see a pattern start to emerge:</p>
+
+<table>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>modifiers?</th>
+	<th>setup?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>my</td>
+	<td>$lexvar</td>
+	<td>:shared</td>
+	<td> </td>
+</tr>
+<tr>
+	<td>our</td>
+	<td>$packvar</td>
+	<td>:Tracked</td>
+	<td>= 0</td>
+</tr>
+<tr>
+	<td>state</td>
+	<td>$statevar</td>
+	<td>:Readonly</td>
+	<td>= 1</td>
+</tr>
+<tr>
+	<td>sub</td>
+	<td>action</td>
+	<td>:lvalue</td>
+	<td>() {...}</td>
+</tr>
+<tr>
+	<td>package</td>
+	<td>Namespace</td>
+	<td>v1.2.3</td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>format</td>
+	<td>Report</td>
+	<td> </td>
+	<td>= ... .</td>
+</tr>
+</tbody>
+</table>
+
+<p>KIM stands for “Keyword”, “Identifier”, and “Modifier” (yes, it should be “KIMS”, but I
+like the “Kim versus Corinna” description. Sue me.)</p>
+
+<p>Kim likes consistency. You must always declare the kind of thing you’re going
+to use and then name it. You can then optionally modify its base behavior and
+then optionally set it up. Very, very consistent:</p>
+
+<div class="shadow"><pre class="scrolled"><code>KEYWORD IDENTIFIER MODIFIERS SETUP
+</code></pre></div>
+
+<p>Of course, you can point to plenty of areas where Perl is not consistent, but
+Corinna is designed to <em>improve</em> the Perl language, not add to the
+inconsistency, so let’s look at a few examples:</p>
+
+<table>
+<caption>KIM features in Corinna</caption>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>modifiers?</th>
+	<th>setup?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>role</td>
+	<td>Tracked</td>
+	<td> </td>
+	<td>{...}</td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td>class</td>
+	<td>Root</td>
+	<td> </td>
+	<td>{...}</td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td>slot</td>
+	<td>$msg</td>
+	<td>:param</td>
+	<td> </td>
+</tr>
+<tr>
+	<td>slot</td>
+	<td>$handler</td>
+	<td>:handles(exists delete)</td>
+	<td>= Handler->new;</td>
+</tr>
+<tr>
+	<td>slot</td>
+	<td>$size</td>
+	<td>:reader :param</td>
+	<td>= 100;</td>
+</tr>
+<tr>
+	<td>slot</td>
+	<td>$created</td>
+	<td>:reader</td>
+	<td>= time;</td>
+</tr>
+</tbody>
+
+<tbody>
+<tr>
+	<td>method</td>
+	<td>is_root ()</td>
+	<td> </td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:common ()</td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>insert</td>
+	<td>:private ($key,$value)</td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>show ($msg)</td>
+	<td> </td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:overrides :common ()</td>
+	<td>{...}</td>
+</tr>
+</tbody>
+</table>
+
+<p>So that’s actually looking pretty good. Corinna is developing <strong>with</strong> a
+clear, consistent KIM syntax. But if that was all, this wouldn’t be a helpful
+article. That’s the good; it’s time to look at the bad. And maybe the ugly.</p>
+
+<h2><a name="this-aint-kim"></a>This Ain’t Kim</h2>
+
+<p>Let’s look at a few examples of inconsistencies.  We’ll start with putting the
+modifier first.</p>
+
+<table>
+<caption>Modifiers First</caption>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>modifier</th>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>abstract</td>
+	<td>class</td>
+	<td>Counter</td>
+	<td>{...}</td>
+</tr>
+</tbody>
+</table>
+
+<p>And let’s mix up keywords and modifiers.</p>
+
+<table>
+<caption>Keywords as Modifiers</caption>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>keyword as modifiers</th>
+	<th>setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>class</td>
+	<td>Handler</td>
+	<td>isa Counter does Tracked</td>
+	<td>{...}</td>
+</tr>
+</tbody>
+</table>
+
+<p>Let’s use modifers plus keywords plus identifiers plus modifiers plus ...</p>
+
+<table>
+<caption>Keywords gonna Keyword</caption>
+<col />
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>modifier</th>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>modifiers</th>
+	<th>setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>before</td>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:overrides :common ()</td>
+	<td>{ warn “Counting...“; }</td>
+</tr>
+<tr>
+	<td>after</td>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:overrides :common ()</td>
+	<td>{ warn “...done”; }</td>
+</tr>
+<tr>
+	<td>around</td>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:overrides :common ()</td>
+	<td>{ return 1 + $self->$ORIG(); }</td>
+</tr>
+</tbody>
+</table>
+
+<p>So, yeah. Damian pointed all of this out to me and he’s right. Corinna is
+<em>close</em>, but there are syntactical inconsistencies which, if agreed that they
+should be addressed, should be addressed before an RFC, not after.</p>
+
+<h1><a name="turning-corinna-into-kim"></a>Turning Corinna into Kim</h1>
+
+<p>The name’s still Corinna, but she needs KIM.</p>
+
+<p>When I started converting Tau Station code to (in)consistently use SVO syntax,
+it made it much easier to maintain. Doing the same thing with Corinna is
+worthwhile.</p>
+
+<p>So, how do we address all these inconsistencies? Corinna <em>semantics</em> are OK.
+We just need some tweaks to the syntax.</p>
+
+<table>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>keyword</th>
+	<th>identifier</th>
+	<th>modifiers?</th>
+	<th>setup?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>class</td>
+	<td>Counter</td>
+	<td>:abstract</td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>class</td>
+	<td>Handler</td>
+	<td>:isa(Counter) :does(Tracked)</td>
+	<td>{...}</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:before :overrides :common</td>
+	<td>() { warn “Counting...“; }</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:after :overrides :common</td>
+	<td>() { warn “...done”; }</td>
+</tr>
+<tr>
+	<td>method</td>
+	<td>obj_count</td>
+	<td>:around :overrides :common</td>
+	<td>() { return 1 + $self->$ORIG(); }</td>
+</tr>
+</tbody>
+</table>
+
+<p>And here’s a slightly modified example from Damian showing this more consistent
+syntax:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">role Tracked {
+    slot $msg :param;
+
+    method report () { $self-&gt;show($msg++) }
+
+    method show; # required
+}
+
+class Root {
+    method is_root () { return 1; }
+}
+
+class Counter :abstract {
+    slot $obj_count :common :reader = 0;
+
+    ADJUST   { $obj_count++ }
+    DESTRUCT { $obj_count-- }
+}
+
+class Handler :isa(Counter) :does(Tracked) {
+    slot $handler  :handles(exists delete) = Handler-&gt;new;
+    slot $size     :reader  :param         = 100;
+    slot $created  :reader                 = time;
+
+    ADJUST   { croak(&quot;Too small&quot;) if $size &lt; 1; }
+    DESTRUCT { $handler-&gt;shutdown; }
+
+    method insert :private ($key, $value ) {
+        if ( ! $self-&gt;exists($key) ) {
+            $handler-&gt;set( $key, $value );
+        }
+    }
+
+    method show ($msg) { say $msg; }
+
+    method obj_count :common :overrides () { $self-&gt;next::method() - 42; }
+
+    method obj_count :common :before () { warn &quot;Counting...&quot;;         }
+    method obj_count :common :around () { return 1 + $self-&gt;$ORIG();  }
+    method obj_count :common :after  () { warn &quot;...done&quot;;             }
+}
+</code></pre></div>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>As you can see from the sample code, this still looks like Corinna. We have
+the semantics and syntax, but do we have the community? The changes aren’t
+huge, but they might prove controversial because Corinna would <em>again</em> be
+changing. But I think it’s changing for the better. Further, by establishing
+the KIM principle now, further upgrades to the Perl language can have guidance
+on maintaining consistency.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/the-problem-with-builder.html" class="prevPost">&laquo; Classes Should Not Override Parent Attributes</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2021 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/language-design-consistency.html";
+            this.page.identifier = "articles/language-design-consistency";
+            this.page.title      = "Language Design Consistency";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Dear PHP
+developers: don’t you dare start. You have <em>no</em> room to criticize Perl
+in this regard.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>French for “war name”, now more
+appropriate than ever ...</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+</body>
+</html>
+
+
