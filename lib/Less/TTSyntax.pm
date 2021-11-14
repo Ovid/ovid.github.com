@@ -20,7 +20,9 @@ sub rewrite_code_blocks ($tt) {
     my $rewritten = '';
     my $in_code_block;
 
+    my $line_number = 0;
   LINE: foreach my $line (@lines) {
+      $line_number++;
         if ( $line !~ /\A ``` \s* (?<language>\w+)? \s* \Z/x ) {
             $rewritten .= "$line\n";
             next LINE;
@@ -29,7 +31,7 @@ sub rewrite_code_blocks ($tt) {
         # we have found the start or end of a code block such as: ```perl
         my $language = $+{language};
         if ( not $in_code_block ) {
-            $in_code_block = 1;
+            $in_code_block = $line_number;
             if ($language) {
                 $rewritten .=
                   "[% WRAPPER include/code.tt language='$language' -%]\n";
@@ -45,7 +47,7 @@ sub rewrite_code_blocks ($tt) {
     }
 
     if ($in_code_block) {
-        croak("Got to EOF but we're still in a code block!");
+        croak("Got to EOF but we're still in a code block starting at line $in_code_block!");
     }
     return $rewritten;
 }

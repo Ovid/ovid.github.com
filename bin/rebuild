@@ -86,7 +86,13 @@ sub preprocess_files (@files) {
                 $contents = build_toc( $file, $contents );
             }
 
-            $contents = simplify_tt_code($contents);
+            eval {
+                $contents = simplify_tt_code($contents);
+                1;
+            } or do {
+                my $error = $@ || "Unknown error";
+                die "$file had error error: $error\n";
+            };
 
             splat( $destfile, $contents );
         }
