@@ -24,10 +24,16 @@ subset of naysayers and you can't sway them, no matter your arguments (I still
 remember the days when there was a group of die-hards who wanted the web to
 return to a simpler time where images weren't allowed).
 
-So this is not for those naysayers. It's for everyone else who is curious
-about why Perl _might_ adopt the Corinna proposal for native object-oriented
-programming (hereinafter referred to as OOP), even when the Perl 5 Porters
-(P5P) have rejected Moose.
+Please note that no one is taking away `bless` or Moose or anything like that.
+If you prefer these tools, that's fine.  After all, many people strongly
+objected to Moose when it first came out, echoing the arguments I hear against
+Corinna (except that Moose was/is slow. Corinna is not). It tooks years before
+Moose (and later Moo) won the hearts and minds of Perl OOP developers.
+
+So the following explanation is not for the naysayers. It's for everyone else
+who is curious about why Perl _might_ adopt the Corinna proposal for native
+object-oriented programming (hereinafter referred to as OOP), even when the
+Perl 5 Porters (P5P) have rejected Moose.
 
 # What's an Object in Perl?
 
@@ -148,7 +154,7 @@ clients, it's this:
 
 Corinna is designed to _scale_.
 
-# Types
+# Types and Objects
 
 Before we get to the discussion of why Moose isn't going into the core, let's
 consider types (we'll skip type theory).
@@ -165,7 +171,7 @@ integer.
 
 You also have a set of allowed operations for those types. For example, for
 many programming languages, multiplying the string "foo" by a number is a
-fatal error, often at compile time. Sadly, Perl allows this:
+fatal error, often at compile time. However, Perl allows this:
 
 ```
 $ perl -E 'say "Foo" * 3'
@@ -195,11 +201,12 @@ allowed operations (methods).
 
 These map to _problem domains_ the programmer is concerned with. In other
 words, they're complex types written to satisfy developer needs, not computer
-needs.
+needs. They're not just a grab-bag of miscellaneous features that have been
+cobbled together ... well, they currently are for Perl.
 
 Now let's look at Moose.
 
-# Moose
+# Why not Moose?
 
 First, Moose isn't going into core because P5P said "no." It pulls in a ton of
 non-core modules that P5P has said they don't want to maintain. That _should_
@@ -371,7 +378,7 @@ signatures. We're not there yet, but already we have something better. This,
 admittedly, is the biggest downside of Corinna, but we have a more solid
 foundation for OOP.
 
-# So What?
+# Why Corinna?
 
 To be honest, encapsulation isn't very compelling to many Perl developers. In
 fact, many of the best things about OOP software isn't compelling to Perl
