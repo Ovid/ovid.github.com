@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/corinna.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="An ancient painting of Ovid and Corinna" />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ovid.github.io/articles/why-is-perl-not-putting-moose-in-the-core.html" />
+  <meta property="og:title" content="Why is Perl not putting Moose in the core?" />
+  <meta property="og:description" content="People keep asking why the Perl language doesn't just drag the Moose module into the core for object-oriented programming. Buckle up, this will be a long trip ..." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Why is Perl not putting Moose in the core?</title>
+  <meta name="description" content="Why is Perl not putting Moose in the core?">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Why is Perl not putting Moose in the core?</h1>
+        <time>2021-11-22</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/language-design-consistency.html" class="prevPost">&laquo; Language Design Consistency</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#whats-an-object-in-perl">What’s an Object in Perl?</a></li>
+    <li class="indent-1"><a href="#types-and-objects">Types and Objects</a></li>
+    <li class="indent-1"><a href="#why-not-moose">Why not Moose?</a></li>
+    <li class="indent-1"><a href="#why-corinna">Why Corinna?</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<p>As you may know, we’re designing <a href="/articles/language-design-consistency.html">a new OO system for the Perl
+language</a>. A couple of people keep
+asking why we don’t just put <a href="https://metacpan.org/pod/Moose" target="_blank">Moose</a> <span class="fa fa-external-link fa_custom"></span> in the
+Perl core and no matter how many times I explain it, for a certain subset of
+people, that explanation isn’t satisfactory. If there is one thing I’ve
+learned from years of being in technology, it’s that there will always be a
+subset of naysayers and you can’t sway them, no matter your arguments (I still
+remember the days when there was a group of die-hards who wanted the web to
+return to a simpler time where images weren’t allowed).</p>
+
+<p>Please note that no one is taking away <code>bless</code> or Moose or anything like that.
+If you prefer these tools, that’s fine.  After all, many people strongly
+objected to Moose when it first came out, echoing the arguments I hear against
+Corinna (except that Moose was/is slow. Corinna is not). It tooks years before
+Moose (and later Moo) won the hearts and minds of Perl OOP developers.</p>
+
+<p>So the following explanation is not for the naysayers. It’s for everyone else
+who is curious about why Perl <em>might</em> adopt the Corinna proposal for native
+object-oriented programming (hereinafter referred to as OOP), even when the
+Perl 5 Porters (P5P) have rejected Moose.</p>
+
+<h1><a name="whats-an-object-in-perl"></a>What’s an Object in Perl?</h1>
+
+<p>If you know Perl, the answer to the above question is “nothing.” Perl knows
+nothing about OOP. It doesn’t know what objects are. Instead, <a href="https://perldoc.perl.org/perlobj" target="_blank">there are a few
+features introduced in Perl 5</a> <span class="fa fa-external-link fa_custom"></span> to give one a
+basic toolkit for emulating some OOP behaviors.</p>
+
+<ol>
+<li>An object is a data structure that knows to which class it belongs.</li>
+<li>A class is the same thing as a package.</li>
+<li>A method is subroutine that expects a reference to an object (or a package
+name, for class methods) as the first argument.</li>
+<li>You inherit from a class by adding its name to your namespace’s <code>@ISA</code>
+array.</li>
+</ol>
+
+<p>Does that sound like a kludge? It is, but it’s worked well enough that
+developers without much experience in OOP have accepted this.</p>
+
+<p>It’s actually kinda rubbish because it’s more or less an assembler language
+for OOP behavior, but it works. In fact, it’s modeled after Python’s original
+implementation of objects, but with changes to take into account that we are
+not, in fact, Python.</p>
+
+<p>So imagine a <code>Person</code> class written in core Perl. You have a read/write name
+and that’s all. We’ll keep it simple. This is what you used to see in OOP
+Perl.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Person;
+
+use strict;
+use warnings;
+
+sub new {
+    my ( $class, $name ) = @_;
+    return bless { name =&gt; $name } =&gt; $class; # this is the instance
+}
+
+sub name {
+    my $self = shift;
+    if (@_) {
+        $self-&gt;{name} = shift;
+    }
+    return $self-&gt;{name};
+}
+
+1;
+</code></pre></div>
+
+<p>So you want to subclass that and create a <code>Person::Employee</code> and need to
+keep their salary private:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Person::Employee;
+
+use strict;
+use warnings;
+our @ISA = 'Person';
+
+sub new {
+    my ( $class, $name, $salary ) = @_;
+    my $self = $class-&gt;SUPER::new($name);
+    $self-&gt;{salary} = $salary;
+    return $self;
+}
+
+sub _salary { # the _ says &quot;private, stay out&quot;
+    my $self = shift;
+    return $self-&gt;{salary};
+}
+
+1;
+</code></pre></div>
+
+<p>OK, kinda clumsy, but it works. However, if you want to see the salary:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use Data::Dumper;
+print Dumper($employee);
+</code></pre></div>
+
+<p>Admittedly, salary is often very secret and the above code is rubbish,
+but there’s plenty of other data that isn’t really secret, but you don’t want
+to expose it because it’s not part of the interface and people shouldn’t rely
+on it. But what’s going on with that leading underscore?</p>
+
+<p>In Python, you won’t get a method for that, but if you know how the method
+names are mangled under the hood, you can jump through hoops and call them.
+For Perl, you just have that method. Developers know they shouldn’t call them,
+but I investigated three code bases from our various clients and found:</p>
+
+<ul>
+<li>Codebase 1: very good Perl, lots of tests, tremendous discipline,  and 72
+calls to private methods outside the class (or sublclass) they were defined
+in)</li>
+<li>Codebase 2: very sloppy Perl, few tests, and an organizational mess, but
+only 59 calls to private methods (to be fair, it was a smaller codebase, but
+not by much)</li>
+<li>Codebase 3: a combination of miserable and wonderful Perl, almost no tests,
+and the largest code base we have ever worked with. About 20,000 calls to
+private methods.</li>
+</ul>
+
+<p>“Private” methods in Perl are not private. At all. You have a deadline, you
+have a very hit-or-miss codebase, and you put something together as fast as
+you can. All of a sudden, the “private” code isn’t very private any more. Work
+with a large group of programmers with varying levels of ability? They’re
+going to call those private methods, they’re going to call <code>$customer-&gt;{name}</code>
+instead of <code>$customer-&gt;name</code>, and do all sorts of other naughty things.</p>
+
+<p>What this means is that your private methods are now part of the public
+interface whether you like that or not. You might <em>think</em> you can change
+them, but you do so at the risk of wide-spread carnage.</p>
+
+<p>If there is one things I’ve learned in decades of programming for multiple
+clients, it’s this:</p>
+
+<blockquote>
+  <p>Relying on developers to “do the right thing” is a disaster if the wrong
+  thing is easy to do.</p>
+</blockquote>
+
+<p>Corinna is designed to <em>scale</em>.</p>
+
+<h1><a name="types-and-objects"></a>Types and Objects</h1>
+
+<p>Before we get to the discussion of why Moose isn’t going into the core, let’s
+consider types (we’ll skip type theory).</p>
+
+<p>Types have names, allowed values, and allowed operators.</p>
+
+<p>For many programmers, when they think of types, they think about <code>int</code>,
+<code>char</code>, and so on. Those are the names of the types.</p>
+
+<p>Types have a set of values they can contain. For example, unsigned integers
+can hold zero and positive values up to a certain limit (determined by the
+amount of memory assigned to that type). You cannot assign -2 to an unsigned
+integer.</p>
+
+<p>You also have a set of allowed operations for those types. For example, for
+many programming languages, multiplying the string “foo” by a number is a
+fatal error, often at compile time. However, Perl allows this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>$ perl -E 'say &quot;Foo&quot; * 3'
+0
+</code></pre></div>
+
+<p>Of course, you should almost always enable warnings, in which case you’ll see
+a warning like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>Argument &quot;Foo&quot; isn't numeric in multiplication (*) at -e line 1.
+</code></pre></div>
+
+<p>Or if you prefer, you can make these kinds of errors fatal:</p>
+
+<div class="shadow"><pre class="scrolled"><code>use warnings FATAL =&gt; &quot;numeric&quot;;
+</code></pre></div>
+
+<p>Types such as <code>int</code>, <code>char</code>, <code>bool</code>, and so on, are largely there for the
+computer.  They usually map directly to things the CPU can understand.</p>
+
+<p>But what does this have to do with objects?</p>
+
+<p>Objects have names (the class), a set of values (often complex), and a set of
+allowed operations (methods).</p>
+
+<p>These map to <em>problem domains</em> the programmer is concerned with. In other
+words, they’re complex types written to satisfy developer needs, not computer
+needs. They’re not just a grab-bag of miscellaneous features that have been
+cobbled together ... well, they currently are for Perl.</p>
+
+<p>Now let’s look at Moose.</p>
+
+<h1><a name="why-not-moose"></a>Why not Moose?</h1>
+
+<p>First, Moose isn’t going into core because P5P said “no.” It pulls in a ton of
+non-core modules that P5P has said they don’t want to maintain. That <em>should</em>
+end the argument, but it hasn’t.</p>
+
+<p><figure class="image">
+    <img src="/static/images/moose-velvet.jpg" width="600" alt="A moose with with bloody antlers as the velvet is falling away. (I would credit this if I could find the source)">
+    <figcaption>Truly a majestic beast. </figcaption>
+</figure></p>
+
+<p>Some argue for Moo in core, but Moo has this in its documentation:</p>
+
+<blockquote>
+  <p><strong>meta</strong></p>
+
+<pre><code>my $meta = Foo::Bar-&gt;meta;
+my @methods = $meta-&gt;get_method_list;
+</code></pre>
+  
+  <p>Returns an object that will behave as if it is a Moose metaclass object for
+  the class. If you call anything other than <code>make_immutable</code> on it, the object
+  will be transparently upgraded to a genuine <code>Moose::Meta::Class</code> instance,
+  loading Moose in the process if required.</p>
+</blockquote>
+
+<p>So if we bundle Moo we have to bundle Moose, or break backwards-compatibility
+on a hugely popular module.</p>
+
+<p>But there’s more ...</p>
+
+<p>As stated earlier, objects in Perl are:</p>
+
+<ol>
+<li>An object is a data structure that knows to which class it belongs.</li>
+<li>A class is the same thing as a package.</li>
+<li>A method is subroutine that expects a reference to an object (or a package
+name, for class methods) as the first argument.</li>
+<li>You inherit from a class by adding its name to your namespace’s <code>@ISA</code>
+array.</li>
+</ol>
+
+<p>Moose is simply a sugar layer on top of that. Native objects in Perl have no
+understanding of state or encapsulation. You have to figure out how to cobble
+that together yourself.</p>
+
+<p>Here’s the person class (using only core Moose and no other helper modules):</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Person;
+use Moose;
+
+has name =&gt; (
+    is       =&gt; 'rw',    # it's read-write
+    isa      =&gt; 'Str',   # it must be a string
+    required =&gt; 1,       # it must be passed to the constructor
+);
+
+__PACKAGE__-&gt;meta-&gt;make_immutable;
+</code></pre></div>
+
+<p>Right off the bat, for this simplest of classes, it’s shorter, it’s entirely
+declarative, and it’s arguably more correct. For example, you can’t do
+<code>$person-&gt;name(DateTime-&gt;now)</code> as you could have with the core OOP example.
+You could fix that with the core example with a touch more code, but you’d
+have to do tha with every method you wrote.</p>
+
+<p>You have to change construction a bit, too. Either of the following works:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $person  = Person-&gt;new( name =&gt; 'Bob' );
+my $person2 = Person-&gt;new({ name =&gt; 'Bob2' });
+</code></pre></div>
+
+<p>Why two different ways? Who knows? Live with it.</p>
+
+<p>But what about the subclass?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Person::Employee;
+use Moose;
+BEGIN { extends 'Person' }
+
+has _salary =&gt; (
+    is       =&gt; 'ro',       # read-only
+    isa      =&gt; 'Num',      # must be a number
+    init_arg =&gt; 'salary',   # pass 'salary' to the constructor
+    required =&gt; 1,          # you must pass it to the constructor
+);
+
+__PACKAGE__-&gt;meta-&gt;make_immutable;
+</code></pre></div>
+
+<p>And to create an instance:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $employee = Person::Employee-&gt;new(
+    name   =&gt; 'Bob',
+    salary =&gt; 50000,
+);
+</code></pre></div>
+
+<p>And we don’t have a <code>-&gt;salary</code> method, but we can still access <code>-&gt;_salary</code>.
+Hmm, not good. That’s because Moose manages state, but doesn’t make it easy to
+provide encapsulation. But at least it protects the set of allowed values.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">try {
+    $employee-&gt;name( DateTime-&gt;now );
+    say $employee-&gt;name;
+}
+catch ($error) {
+    warn &quot;Naughty, naughty: $error&quot;;
+}
+</code></pre></div>
+
+<p>And that prints something like:</p>
+
+<div class="shadow"><pre class="scrolled"><code>Naughty, naughty: Attribute (name) does not pass the type constraint because: Validation failed for 'Str' with value DateTime=HASH(0x7ffb518206d8) at accessor Person::name (defined at moose.pl line 11) line 10
+        Person::name('Person::Employee=HASH(0x7ffb318d47b8)', 'DateTime=HASH(0x7ffb518206d8)') called at moose.pl line 42
+</code></pre></div>
+
+<p>Oh, but it actually <em>doesn’t</em> fully protect that set of values:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">try {
+    $employee-&gt;{name} = DateTime-&gt;now;
+    say $employee-&gt;name;
+}
+catch ($error) {
+    warn &quot;Naughty, naughty: $error&quot;;
+}
+</code></pre></div>
+
+<p>Note that we’ve reached <em>inside</em> the object and set the value directly. The
+above code cheerfully prints the current date and time.</p>
+
+<p>Naturally, you can set the salary the same way. You <em>don’t</em> want people
+messing with private data.</p>
+
+<p>And finally, Corinna.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Person {
+    slot $name :reader :writer :param;
+}
+</code></pre></div>
+
+<p>Hmm, that looks pretty easy, but what about that ugly salary problem?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Person::Employee :isa(Person) {
+    slot $salary :param;
+}
+</code></pre></div>
+
+<p>Now, internally, everthing has access to <code>$salary</code>, but nothing outside
+the class does. It’s no longer part of the public API and that’s a huge 
+win. You literally cannot set it from outside the class.</p>
+
+<p>It’s also great that <code>$salary</code> is just a local variable and we don’t have to
+keep doing method lookups to get it. With <a href="http://leonerds-code.blogspot.com/" target="_blank">Paul
+Evan’s</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://metacpan.org/pod/Object::Pad" target="_blank"><code>Object::Pad</code></a> <span class="fa fa-external-link fa_custom"></span> testbed for Corinna,
+that’s been a huge performance gain, despite little work being done on
+optimization.</p>
+
+<p>But sadly, we don’t yet have full safety on the domain of values. There’s been
+some discussion, but to make that work, we need to consider types across all
+of the Perl language. That means variable declarations, slot declarations, and
+signatures. We’re not there yet, but already we have something better. This,
+admittedly, is the biggest downside of Corinna, but we have a more solid
+foundation for OOP.</p>
+
+<h1><a name="why-corinna"></a>Why Corinna?</h1>
+
+<p>To be honest, encapsulation isn’t very compelling to many Perl developers. In
+fact, many of the best things about OOP software isn’t compelling to Perl
+developers because Perl doesn’t seem to have many OOP programmers with OOP
+experience outside of Perl, so it’s hard for them to appreciate what is
+missing.</p>
+
+<p>As a case in point, here was a complaint from someone on the Perl 5 Porter’s
+mailing list that echos complaints made elsewhere:</p>
+
+<blockquote>
+  <p>Rather than peeling the OOP “onion” back layer by layer, build it out from
+  what exists now. Starting with what’s needed to augment “bless”, prototypes,
+  and overload.pm.</p>
+</blockquote>
+
+<p>The problem, at its core, is that this misunderstands the problem space
+and current attempts to fix this.</p>
+
+<p>The following is an edit of the response written by Chris Prather which nicely
+sums up some of the problems.</p>
+
+<hr />
+
+<p>Without trying to sound offensive, this list kinda suggests you’ve not really
+done any extensive thought about what an object system is and should be. Most
+people don’t and shouldn’t ever need to. A list of things that in my opinion
+would need enhancement:</p>
+
+<ul>
+<li>Classes: Perl just gives you packages with a special @ISA variable for
+inheritance. Packages are just a bag of subroutines, they have no idea of
+state.</li>
+<li>Attributes: <code>bless</code> associates a package with a data structure to provide
+“attributes”, except it doesn’t actually provide attributes, it just
+provides a place to store data and leaves you to figure out what attributes
+are and what that means. This also means that all instance data is public by
+default. While we pretend that it doesn’t because Larry told us not to play
+with shotguns, it hasn’t stopped a lot of people putting shotgun-like things
+onto CPAN (or into Perl Best Practices).</li>
+<li>Metamodel: The way you interrogate and manipulate a package is ...  <em>not</em>
+obvious. <code>Package::Stash</code> exists on CPAN simply to provide an API for this
+manipulation because it’s fraught with edge cases and weird syntax.</li>
+<li>Methods: Perl’s concept of a method is a subroutine called in a funky way.
+Combined with the public nature of the data, this means you can call any
+method on any object ... and the only thing that can prevent this is the
+method itself. I’ve never seen anyone write enough validation code at the
+beginning of their methods to deal with what is actually possible to throw
+at a method.</li>
+<li>Class composition: <em>Design Patterns: Elements of Reusable Object-Oriented
+Software</em>, published literally 4 days after Perl 5.000 says to prefer
+composition to inheritance. Perl’s only solution to reusable behavior is
+inheritance. Worse, Perl supports multiple inheritance using a default
+algorithm that can cause weird, non-obvious bugs.</li>
+<li>Object Construction Protocol: Ensuring that all of the attributes are
+initialized properly in the correct data structure during construction is
+left entirely as a lemma for the programmer.</li>
+<li>Object Destruction Protocol: See above, but because Perl has universal
+destruction where we can’t even guarantee the order in which things are
+destroyed.</li>
+</ul>
+
+<p>The fact that Perl’s built in object system just gives you a bag of primitives
+and leaves you to build a robust object system for every application you write
+is kinda the reason things like Moose exist.  Moose’s choices to solve many of
+these problems is the reason Corinna exists. Let’s take Classes, attributes,
+and methods for example (because this is the most obvious change in Corinna).
+Classes are supposed to be a template for creating objects with initial
+definitions of state and implementations of behavior. Perl’s native system
+only provides the second half of that.</p>
+
+<hr />
+
+<p>Ultimately, by using Corinna, we can have Perl know what an <em>object</em> type is,
+not just the current hodge-podge of SVs, AVs, HVs, and so on.</p>
+
+<p>Subroutines and methods will no longer be the same thing, so
+<code>namespace::clean</code> and friends become a thing of the past.</p>
+
+<p>We can eventually write <code>my $object = class { ... }</code> and have anonymous
+classes.</p>
+
+<p>Corinna (via the <code>Object::Pad</code> test bed) <em>already</em> gets the tremendous benefits of
+compile-time failures if <code>$name</code> is missing, instead of the run-time failure
+of <code>$self-&gt;name</code> not existing.</p>
+
+<p>We can have compile-time failures of trying to call instance methods from
+class methods, something we’ve never had before. In fact, there are many
+possibilities opened up by Corinna that you will never have with Moo/se.</p>
+
+<p>That’s why Moose isn’t going into core. It also gives insight into why we’re
+not trying to gradually improve core OOP but are instead jumping right in:
+<strong>you can’t get there from here</strong> because they’re fundamentally different
+beasts. You can’t take a handful of discrete primitives and suddenly transform
+them into a holistic approach to OOP. Maybe someone could map out a way of
+doing that in an incremental fashion and by the year 2037, the last three Perl
+programmers will have a perfectly reasonable OOP system. I am tired of
+waiting.</p>
+
+<p>I’m not saying Corinna is going to make it into core, but the prospects for it
+look very good right now.  Corinna opens up a world of possibilities that
+Moo/se can’t give us because Moo/se is trapped within the constraints of Perl.
+Corinna is removing those constraints.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/language-design-consistency.html" class="prevPost">&laquo; Language Design Consistency</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2021 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/why-is-perl-not-putting-moose-in-the-core.html";
+            this.page.identifier = "articles/why-is-perl-not-putting-moose-in-the-core";
+            this.page.title      = "Why is Perl not putting Moose in the core?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+

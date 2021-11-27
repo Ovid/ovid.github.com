@@ -1,0 +1,482 @@
+[%
+    title            = 'Why is Perl not putting Moose in the core?';
+    type             = 'articles';
+    slug             = 'why-is-perl-not-putting-moose-in-the-core';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2021-11-22';
+    mathjax          = 0;
+    facebook         = 'corinna.jpg';
+    facebook_alt     = 'An ancient painting of Ovid and Corinna';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+As you may know, we're designing [a new OO system for the Perl
+language](/articles/language-design-consistency.html). A couple of people keep
+asking why we don't just put [Moose](https://metacpan.org/pod/Moose) in the
+Perl core and no matter how many times I explain it, for a certain subset of
+people, that explanation isn't satisfactory. If there is one thing I've
+learned from years of being in technology, it's that there will always be a
+subset of naysayers and you can't sway them, no matter your arguments (I still
+remember the days when there was a group of die-hards who wanted the web to
+return to a simpler time where images weren't allowed).
+
+Please note that no one is taking away `bless` or Moose or anything like that.
+If you prefer these tools, that's fine.  After all, many people strongly
+objected to Moose when it first came out, echoing the arguments I hear against
+Corinna (except that Moose was/is slow. Corinna is not). It tooks years before
+Moose (and later Moo) won the hearts and minds of Perl OOP developers.
+
+So the following explanation is not for the naysayers. It's for everyone else
+who is curious about why Perl _might_ adopt the Corinna proposal for native
+object-oriented programming (hereinafter referred to as OOP), even when the
+Perl 5 Porters (P5P) have rejected Moose.
+
+# What's an Object in Perl?
+
+If you know Perl, the answer to the above question is "nothing." Perl knows
+nothing about OOP. It doesn't know what objects are. Instead, [there are a few
+features introduced in Perl 5](https://perldoc.perl.org/perlobj) to give one a
+basic toolkit for emulating some OOP behaviors.
+
+1. An object is a data structure that knows to which class it belongs.
+2. A class is the same thing as a package.
+3. A method is subroutine that expects a reference to an object (or a package
+   name, for class methods) as the first argument.
+4. You inherit from a class by adding its name to your namespace's `@ISA`
+   array.
+
+Does that sound like a kludge? It is, but it's worked well enough that
+developers without much experience in OOP have accepted this.
+
+It's actually kinda rubbish because it's more or less an assembler language
+for OOP behavior, but it works. In fact, it's modeled after Python's original
+implementation of objects, but with changes to take into account that we are
+not, in fact, Python.
+
+So imagine a `Person` class written in core Perl. You have a read/write name
+and that's all. We'll keep it simple. This is what you used to see in OOP
+Perl.
+
+```perl
+package Person;
+
+use strict;
+use warnings;
+
+sub new {
+    my ( $class, $name ) = @_;
+    return bless { name => $name } => $class; # this is the instance
+}
+
+sub name {
+    my $self = shift;
+    if (@_) {
+        $self->{name} = shift;
+    }
+    return $self->{name};
+}
+
+1;
+```
+
+So you want to subclass that and create a `Person::Employee` and need to
+keep their salary private:
+
+```perl
+package Person::Employee;
+
+use strict;
+use warnings;
+our @ISA = 'Person';
+
+sub new {
+    my ( $class, $name, $salary ) = @_;
+    my $self = $class->SUPER::new($name);
+    $self->{salary} = $salary;
+    return $self;
+}
+
+sub _salary { # the _ says "private, stay out"
+    my $self = shift;
+    return $self->{salary};
+}
+
+1;
+```
+
+OK, kinda clumsy, but it works. However, if you want to see the salary:
+
+```perl
+use Data::Dumper;
+print Dumper($employee);
+```
+
+Admittedly, salary is often very secret and the above code is rubbish,
+but there's plenty of other data that isn't really secret, but you don't want
+to expose it because it's not part of the interface and people shouldn't rely
+on it. But what's going on with that leading underscore?
+
+In Python, you won't get a method for that, but if you know how the method
+names are mangled under the hood, you can jump through hoops and call them.
+For Perl, you just have that method. Developers know they shouldn't call them,
+but I investigated three code bases from our various clients and found:
+
+* Codebase 1: very good Perl, lots of tests, tremendous discipline,  and 72
+  calls to private methods outside the class (or sublclass) they were defined
+  in)
+* Codebase 2: very sloppy Perl, few tests, and an organizational mess, but
+  only 59 calls to private methods (to be fair, it was a smaller codebase, but
+  not by much)
+* Codebase 3: a combination of miserable and wonderful Perl, almost no tests,
+  and the largest code base we have ever worked with. About 20,000 calls to
+  private methods.
+
+"Private" methods in Perl are not private. At all. You have a deadline, you
+have a very hit-or-miss codebase, and you put something together as fast as
+you can. All of a sudden, the "private" code isn't very private any more. Work
+with a large group of programmers with varying levels of ability? They're
+going to call those private methods, they're going to call `$customer->{name}`
+instead of `$customer->name`, and do all sorts of other naughty things.
+
+What this means is that your private methods are now part of the public
+interface whether you like that or not. You might _think_ you can change
+them, but you do so at the risk of wide-spread carnage.
+
+If there is one things I've learned in decades of programming for multiple
+clients, it's this:
+
+> Relying on developers to "do the right thing" is a disaster if the wrong
+> thing is easy to do.
+
+Corinna is designed to _scale_.
+
+# Types and Objects
+
+Before we get to the discussion of why Moose isn't going into the core, let's
+consider types (we'll skip type theory).
+
+Types have names, allowed values, and allowed operators.
+
+For many programmers, when they think of types, they think about `int`,
+`char`, and so on. Those are the names of the types.
+
+Types have a set of values they can contain. For example, unsigned integers
+can hold zero and positive values up to a certain limit (determined by the
+amount of memory assigned to that type). You cannot assign -2 to an unsigned
+integer.
+
+You also have a set of allowed operations for those types. For example, for
+many programming languages, multiplying the string "foo" by a number is a
+fatal error, often at compile time. However, Perl allows this:
+
+```
+$ perl -E 'say "Foo" * 3'
+0
+```
+
+Of course, you should almost always enable warnings, in which case you'll see
+a warning like this:
+
+```
+Argument "Foo" isn't numeric in multiplication (*) at -e line 1.
+```
+
+Or if you prefer, you can make these kinds of errors fatal:
+
+```
+use warnings FATAL => "numeric";
+```
+
+Types such as `int`, `char`, `bool`, and so on, are largely there for the
+computer.  They usually map directly to things the CPU can understand.
+
+But what does this have to do with objects?
+
+Objects have names (the class), a set of values (often complex), and a set of
+allowed operations (methods).
+
+These map to _problem domains_ the programmer is concerned with. In other
+words, they're complex types written to satisfy developer needs, not computer
+needs. They're not just a grab-bag of miscellaneous features that have been
+cobbled together ... well, they currently are for Perl.
+
+Now let's look at Moose.
+
+# Why not Moose?
+
+First, Moose isn't going into core because P5P said "no." It pulls in a ton of
+non-core modules that P5P has said they don't want to maintain. That _should_
+end the argument, but it hasn't.
+
+[% INCLUDE include/image.tt
+   position = 'center',
+   src      = "/static/images/moose-velvet.jpg"
+   alt      = "A moose with with bloody antlers as the velvet is falling away. (I would credit this if I could find the source)"
+   caption  = "Truly a majestic beast."
+%]
+
+Some argue for Moo in core, but Moo has this in its documentation:
+
+> **meta**
+>
+>     my $meta = Foo::Bar->meta;
+>     my @methods = $meta->get_method_list;
+
+> Returns an object that will behave as if it is a Moose metaclass object for
+> the class. If you call anything other than `make_immutable` on it, the object
+> will be transparently upgraded to a genuine `Moose::Meta::Class` instance,
+> loading Moose in the process if required.
+
+So if we bundle Moo we have to bundle Moose, or break backwards-compatibility
+on a hugely popular module.
+
+But there's more ...
+
+As stated earlier, objects in Perl are:
+
+1. An object is a data structure that knows to which class it belongs.
+2. A class is the same thing as a package.
+3. A method is subroutine that expects a reference to an object (or a package
+   name, for class methods) as the first argument.
+4. You inherit from a class by adding its name to your namespace's `@ISA`
+   array.
+
+Moose is simply a sugar layer on top of that. Native objects in Perl have no
+understanding of state or encapsulation. You have to figure out how to cobble
+that together yourself.
+
+Here's the person class (using only core Moose and no other helper modules):
+
+```perl
+package Person;
+use Moose;
+
+has name => (
+    is       => 'rw',    # it's read-write
+    isa      => 'Str',   # it must be a string
+    required => 1,       # it must be passed to the constructor
+);
+
+__PACKAGE__->meta->make_immutable;
+```
+
+Right off the bat, for this simplest of classes, it's shorter, it's entirely
+declarative, and it's arguably more correct. For example, you can't do
+`$person->name(DateTime->now)` as you could have with the core OOP example.
+You could fix that with the core example with a touch more code, but you'd
+have to do tha with every method you wrote.
+
+You have to change construction a bit, too. Either of the following works:
+
+```perl
+my $person  = Person->new( name => 'Bob' );
+my $person2 = Person->new({ name => 'Bob2' });
+```
+
+Why two different ways? Who knows? Live with it.
+
+But what about the subclass?
+
+```perl
+package Person::Employee;
+use Moose;
+BEGIN { extends 'Person' }
+
+has _salary => (
+    is       => 'ro',       # read-only
+    isa      => 'Num',      # must be a number
+    init_arg => 'salary',   # pass 'salary' to the constructor
+    required => 1,          # you must pass it to the constructor
+);
+
+__PACKAGE__->meta->make_immutable;
+```
+
+And to create an instance:
+
+```perl
+my $employee = Person::Employee->new(
+    name   => 'Bob',
+    salary => 50000,
+);
+```
+
+And we don't have a `->salary` method, but we can still access `->_salary`.
+Hmm, not good. That's because Moose manages state, but doesn't make it easy to
+provide encapsulation. But at least it protects the set of allowed values.
+
+```perl
+try {
+    $employee->name( DateTime->now );
+    say $employee->name;
+}
+catch ($error) {
+    warn "Naughty, naughty: $error";
+}
+```
+
+And that prints something like:
+
+```
+Naughty, naughty: Attribute (name) does not pass the type constraint because: Validation failed for 'Str' with value DateTime=HASH(0x7ffb518206d8) at accessor Person::name (defined at moose.pl line 11) line 10
+        Person::name('Person::Employee=HASH(0x7ffb318d47b8)', 'DateTime=HASH(0x7ffb518206d8)') called at moose.pl line 42
+```
+
+Oh, but it actually _doesn't_ fully protect that set of values:
+
+```perl
+try {
+    $employee->{name} = DateTime->now;
+	say $employee->name;
+}
+catch ($error) {
+    warn "Naughty, naughty: $error";
+}
+```
+
+Note that we've reached _inside_ the object and set the value directly. The
+above code cheerfully prints the current date and time.
+
+Naturally, you can set the salary the same way. You _don't_ want people
+messing with private data.
+
+And finally, Corinna.
+
+```perl
+class Person {
+    slot $name :reader :writer :param;
+}
+```
+
+Hmm, that looks pretty easy, but what about that ugly salary problem?
+
+```perl
+class Person::Employee :isa(Person) {
+    slot $salary :param;
+}
+```
+
+Now, internally, everthing has access to `$salary`, but nothing outside
+the class does. It's no longer part of the public API and that's a huge 
+win. You literally cannot set it from outside the class.
+
+It's also great that `$salary` is just a local variable and we don't have to
+keep doing method lookups to get it. With [Paul
+Evan's](http://leonerds-code.blogspot.com/)
+[`Object::Pad`](https://metacpan.org/pod/Object::Pad) testbed for Corinna,
+that's been a huge performance gain, despite little work being done on
+optimization.
+
+But sadly, we don't yet have full safety on the domain of values. There's been
+some discussion, but to make that work, we need to consider types across all
+of the Perl language. That means variable declarations, slot declarations, and
+signatures. We're not there yet, but already we have something better. This,
+admittedly, is the biggest downside of Corinna, but we have a more solid
+foundation for OOP.
+
+# Why Corinna?
+
+To be honest, encapsulation isn't very compelling to many Perl developers. In
+fact, many of the best things about OOP software isn't compelling to Perl
+developers because Perl doesn't seem to have many OOP programmers with OOP
+experience outside of Perl, so it's hard for them to appreciate what is
+missing.
+
+As a case in point, here was a complaint from someone on the Perl 5 Porter's
+mailing list that echos complaints made elsewhere:
+
+> Rather than peeling the OOP "onion" back layer by layer, build it out from
+> what exists now. Starting with what's needed to augment "bless", prototypes,
+> and overload.pm.
+
+The problem, at its core, is that this misunderstands the problem space
+and current attempts to fix this.
+
+The following is an edit of the response written by Chris Prather which nicely
+sums up some of the problems.
+
+---
+
+Without trying to sound offensive, this list kinda suggests you've not really
+done any extensive thought about what an object system is and should be. Most
+people don't and shouldn't ever need to. A list of things that in my opinion
+would need enhancement:
+
+* Classes: Perl just gives you packages with a special @ISA variable for
+  inheritance. Packages are just a bag of subroutines, they have no idea of
+  state.
+* Attributes: `bless` associates a package with a data structure to provide
+  "attributes", except it doesn't actually provide attributes, it just
+  provides a place to store data and leaves you to figure out what attributes
+  are and what that means. This also means that all instance data is public by
+  default. While we pretend that it doesn't because Larry told us not to play
+  with shotguns, it hasn't stopped a lot of people putting shotgun-like things
+  onto CPAN (or into Perl Best Practices).
+* Metamodel: The way you interrogate and manipulate a package is ...  _not_
+  obvious. `Package::Stash` exists on CPAN simply to provide an API for this
+  manipulation because it's fraught with edge cases and weird syntax.
+* Methods: Perl's concept of a method is a subroutine called in a funky way.
+  Combined with the public nature of the data, this means you can call any
+  method on any object ... and the only thing that can prevent this is the
+  method itself. I've never seen anyone write enough validation code at the
+  beginning of their methods to deal with what is actually possible to throw
+  at a method.
+* Class composition: _Design Patterns: Elements of Reusable Object-Oriented
+  Software_, published literally 4 days after Perl 5.000 says to prefer
+  composition to inheritance. Perl's only solution to reusable behavior is
+  inheritance. Worse, Perl supports multiple inheritance using a default
+  algorithm that can cause weird, non-obvious bugs.
+* Object Construction Protocol: Ensuring that all of the attributes are
+  initialized properly in the correct data structure during construction is
+  left entirely as a lemma for the programmer.
+* Object Destruction Protocol: See above, but because Perl has universal
+  destruction where we can't even guarantee the order in which things are
+  destroyed.
+
+The fact that Perl's built in object system just gives you a bag of primitives
+and leaves you to build a robust object system for every application you write
+is kinda the reason things like Moose exist.  Moose's choices to solve many of
+these problems is the reason Corinna exists. Let's take Classes, attributes,
+and methods for example (because this is the most obvious change in Corinna).
+Classes are supposed to be a template for creating objects with initial
+definitions of state and implementations of behavior. Perl's native system
+only provides the second half of that.
+
+---
+
+Ultimately, by using Corinna, we can have Perl know what an _object_ type is,
+not just the current hodge-podge of SVs, AVs, HVs, and so on.
+
+Subroutines and methods will no longer be the same thing, so
+`namespace::clean` and friends become a thing of the past.
+
+We can eventually write `my $object = class { ... }` and have anonymous
+classes.
+
+Corinna (via the `Object::Pad` test bed) *already* gets the tremendous benefits of
+compile-time failures if `$name` is missing, instead of the run-time failure
+of `$self->name` not existing.
+
+We can have compile-time failures of trying to call instance methods from
+class methods, something we've never had before. In fact, there are many
+possibilities opened up by Corinna that you will never have with Moo/se.
+
+That's why Moose isn't going into core. It also gives insight into why we're
+not trying to gradually improve core OOP but are instead jumping right in:
+**you can't get there from here** because they're fundamentally different
+beasts. You can't take a handful of discrete primitives and suddenly transform
+them into a holistic approach to OOP. Maybe someone could map out a way of
+doing that in an incremental fashion and by the year 2037, the last three Perl
+programmers will have a perfectly reasonable OOP system. I am tired of
+waiting.
+
+I'm not saying Corinna is going to make it into core, but the prospects for it
+look very good right now.  Corinna opens up a world of possibilities that
+Moo/se can't give us because Moo/se is trapped within the constraints of Perl.
+Corinna is removing those constraints.
+
+[%- END %]
