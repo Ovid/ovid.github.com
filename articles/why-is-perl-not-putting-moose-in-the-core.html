@@ -132,18 +132,14 @@
 <p>As you may know, we’re designing <a href="/articles/language-design-consistency.html">a new OO system for the Perl
 language</a>. A couple of people keep
 asking why we don’t just put <a href="https://metacpan.org/pod/Moose" target="_blank">Moose</a> <span class="fa fa-external-link fa_custom"></span> in the
-Perl core and no matter how many times I explain it, for a certain subset of
-people, that explanation isn’t satisfactory. If there is one thing I’ve
-learned from years of being in technology, it’s that there will always be a
-subset of skeptics and you can’t sway them, no matter your arguments (I still
-remember the days when there was a group of die-hards who wanted the web to
-return to a simpler time where images weren’t allowed).</p>
+Perl core.</p>
 
 <p>Please note that no one is taking away <code>bless</code> or Moose or anything like that.
 If you prefer these tools, that’s fine.  After all, many people strongly
 objected to Moose when it first came out, echoing the arguments I hear against
-Corinna (except that Moose was/is slow. Corinna is not). It tooks years before
-Moose (and later Moo) won the hearts and minds of Perl OOP developers.</p>
+Corinna (except that Moose was/is slow. Corinna is not, despite the fact that
+no optimization has been done on the <code>Object::Pad</code> prototype). It took years
+before Moose (and later Moo) won the hearts and minds of Perl OOP developers.</p>
 
 <p>So the following explanation is not for the those dead-set against Corinna.
 It’s for everyone else who is curious about why Perl <em>might</em> adopt the Corinna
@@ -241,7 +237,7 @@ but I investigated three code bases from our various clients and found:</p>
 
 <ul>
 <li>Codebase 1: very good Perl, lots of tests, tremendous discipline,  and 72
-calls to private methods outside the class (or sublclass) they were defined
+calls to private methods outside the class (or subclass) they were defined
 in)</li>
 <li>Codebase 2: very sloppy Perl, few tests, and an organizational mess, but
 only 59 calls to private methods (to be fair, it was a smaller codebase, but
@@ -385,7 +381,7 @@ __PACKAGE__-&gt;meta-&gt;make_immutable;
 declarative, and it’s arguably more correct. For example, you can’t do
 <code>$person-&gt;name(DateTime-&gt;now)</code> as you could have with the core OOP example.
 You could fix that with the core example with a touch more code, but you’d
-have to do tha with every method you wrote.</p>
+have to do that with every method you wrote.</p>
 
 <p>You have to change construction a bit, too. Either of the following works:</p>
 
@@ -469,14 +465,14 @@ messing with private data.</p>
 }
 </code></pre></div>
 
-<p>Now, internally, everthing has access to <code>$salary</code>, but nothing outside
+<p>Now, internally, everything has access to <code>$salary</code>, but nothing outside
 the class does. It’s no longer part of the public API and that’s a huge 
 win. You literally cannot set it from outside the class.</p>
 
 <p>It’s also great that <code>$salary</code> is just a local variable and we don’t have to
 keep doing method lookups to get it. With <a href="http://leonerds-code.blogspot.com/" target="_blank">Paul
 Evan’s</a> <span class="fa fa-external-link fa_custom"></span>
-<a href="https://metacpan.org/pod/Object::Pad" target="_blank"><code>Object::Pad</code></a> <span class="fa fa-external-link fa_custom"></span> testbed for Corinna,
+<a href="https://metacpan.org/pod/Object::Pad" target="_blank"><code>Object::Pad</code></a> <span class="fa fa-external-link fa_custom"></span> test bed for Corinna,
 that’s been a huge performance gain, despite little work being done on
 optimization.</p>
 
