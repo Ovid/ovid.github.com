@@ -130,6 +130,7 @@
     <li class="indent-3"><a href="#caveats">Caveats</a></li>
     <li class="indent-2"><a href="#refreshing-your-branch">Refreshing Your Branch</a></li>
     <li class="indent-2"><a href="#merging-into-master">Merging into master</a></li>
+    <li class="indent-1"><a href="#determining-your-primary-branch">Determining Your Primary Branch</a></li>
     <li class="indent-1"><a href="#merge-conflicts">Merge Conflicts</a></li>
     <li class="indent-1"><a href="#update">Update</a></li>
     </ul>
@@ -142,6 +143,12 @@
         <figcaption>We say what we do and do what we say.</figcaption>
     </figure>
 </a></p>
+
+<p><strong>Note</strong>L For historical reasons, we have left the name <code>master</code> in a number
+of places in this document. Many projects prefer that this name be <code>main</code> or
+something different.</p>
+
+<hr />
 
 <p>One of the things we constantly strive to do at <a href="https://allaroundtheworld.fr" target="_blank">All Around the
 World</a> <span class="fa fa-external-link fa_custom"></span> is apply the <a href="https://en.wikipedia.org/wiki/Pareto_principle" target="_blank">Pareto
@@ -397,6 +404,25 @@ rebase your branch on top of it, and push that change to your origin.</p>
 delete your local and remote copies of the branch, to help you be nice and not
 leave branches cluttering up the repository.</p>
 
+<h1><a name="determining-your-primary-branch"></a>Determining Your Primary Branch</h1>
+
+<p>Internally the code attempts to detect the name of your primary branch using
+this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>basename $( git symbolic-ref refs/remotes/origin/HEAD  )
+</code></pre></div>
+
+<p>That will usually work. For all commands, if it does not work, it will print
+out the following message:</p>
+
+<div class="shadow"><pre class="scrolled"><code>Could not determine target branch via '&quot;basename $( git symbolic-ref refs/remotes/origin/HEAD )&quot;'
+You scan set your target branch with:
+
+     git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/\$branch_name
+
+Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
+</code></pre></div>
+
 <h1><a name="merge-conflicts"></a>Merge Conflicts</h1>
 
 <p>With all of this rebasing, you’re sometimes going to hit the dreaded ...</p>
@@ -425,16 +451,6 @@ the files which caused the conflict. It saves me a huge amount of time.</p>
 
 <p>Check out the tools at <a href="https://github.com/Ovid/git-workflow" target="_blank">our github
 repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
-
-<p>For historical reasons, we have left the name <code>master</code> in a number of places
-in this document. Many projects prefer that this name be <code>main</code> or something
-different. To use <code>git-refresh</code> and <code>git-done</code> with a different nume, you’ll
-need a <code>.git-hub</code> file in your current directory with the following line:</p>
-
-<pre><code># replace 'main' with the name of your canonical source branch, such as 
-# 'dev' or 'trunk'
-target main
-</code></pre>
 
 
 

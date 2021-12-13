@@ -20,6 +20,12 @@
     </figure>
 </a>
 
+**Note**L For historical reasons, we have left the name `master` in a number
+of places in this document. Many projects prefer that this name be `main` or
+something different.
+
+---
+
 One of the things we constantly strive to do at [All Around the
 World](https://allaroundtheworld.fr) is apply the [Pareto
 Principle](https://en.wikipedia.org/wiki/Pareto_principle): 80% of your
@@ -259,6 +265,27 @@ And when you're done, it will also print out the instructions on how you can
 delete your local and remote copies of the branch, to help you be nice and not
 leave branches cluttering up the repository.
 
+# Determining Your Primary Branch
+
+Internally the code attempts to detect the name of your primary branch using
+this:
+
+```
+basename $( git symbolic-ref refs/remotes/origin/HEAD  )
+```
+
+That will usually work. For all commands, if it does not work, it will print
+out the following message:
+
+```
+Could not determine target branch via '"basename $( git symbolic-ref refs/remotes/origin/HEAD )"'
+You scan set your target branch with:
+
+     git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/\$branch_name
+
+Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
+```
+
 # Merge Conflicts
 
 With all of this rebasing, you're sometimes going to hit the dreaded ...
@@ -285,14 +312,5 @@ We have renamed `git-merge-with-master` to `git-done`. The former still works.
 
 Check out the tools at [our github
 repo](https://github.com/Ovid/git-workflow).
-
-For historical reasons, we have left the name `master` in a number of places
-in this document. Many projects prefer that this name be `main` or something
-different. To use `git-refresh` and `git-done` with a different nume, you'll
-need a `.git-hub` file in your current directory with the following line:
-
-    # replace 'main' with the name of your canonical source branch, such as 
-    # 'dev' or 'trunk'
-    target main
 
 [%- END %]
