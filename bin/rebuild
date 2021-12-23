@@ -28,6 +28,30 @@ my @files = File::Find::Rule->file->in('root');
 preprocess_files(@files);
 rebuild_article_pagination();
 rebuild_rss_feeds();
+
+unless (-f "$ENV{HOME}/.ttreerc") {
+    warn <<"END";
+No $ENV{HOME}/.ttreerc file found
+
+It should have a structure like this:
+
+	verbose
+	recurse
+
+	color=1
+
+	src  = ~/Dropbox/Mine/projects/perl/ovid.github.com/root
+	dest  = ~/Dropbox/Mine/projects/perl/ovid.github.com/
+
+	ignore = \b(CVS|RCS|sw[pot])\b
+	ignore = ^#
+	ignore = ^.git
+
+	suffix tt=html
+END
+	exit 1;
+}
+
 my ( $stdout, $stderr, $exit ) = capture {
     system(
         'ttree',      '-a',                      # process all files
