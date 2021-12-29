@@ -1,29 +1,28 @@
-#!/usr/bin/env perl
+# vim: filetype=perl
 
-# vim: ft=perl
-
-=comment
-
-Install all dependencies with:
-
-    cpanm --installdeps . --with-configure --with-develop --with-all-features
-
-See https://metacpan.org/pod/CPAN::Meta::Spec#VERSION-NUMBERS for details.
-
-=cut
-
-requires 'DateTime::Format::SQLite'   => '0.11';
-requires 'DBD::SQLite'                => '1.62';
-requires 'DBI'                        => '1.642';
-requires 'File::Find::Rule'           => '0.34';
-requires 'HTML::Lint'                 => '2.32';
-requires 'HTML::TokeParser::Simple'   => '3.16';
-requires 'Import::Into'               => '1.002005';
-requires 'Moose'                      => '2.2011';
-requires 'String::Util'               => '1.26';
-requires 'Template'                   => '2.28';
-requires 'Template::Plugin::Markdown' => '0.02';
-requires 'Test::Most'                 => '0.35';
-requires 'Text::Unidecode'            => '1.30';
-requires 'autodie'                    => '2.29';
-requires "XML::RSS"                   => '1.59';
+requires 'App::HTTPThis'                => 0;    # local testing
+requires 'Capture::Tiny'                => 0;
+requires 'Config::General'              => 0;
+requires 'Const::Fast'                  => 0;
+requires 'DBI'                          => 0;
+requires 'DateTime'                     => 0;
+requires 'DateTime::Format::SQLite'     => 0;
+requires 'File::Basename'               => 0;
+requires 'File::Copy'                   => 0;
+requires 'File::Find::Rule'             => 0;
+requires 'File::Path'                   => 0;
+requires 'File::Spec::Functions'        => 0;
+requires 'HTML::Entities'               => 0;
+requires 'HTML::TokeParser::Simple'     => 0;
+requires 'Import::Into'                 => 0;
+requires 'Moose'                        => 0;
+requires 'Moose::Util::TypeConstraints' => 0;
+requires 'String::Util'                 => 0;
+requires 'Template'                     => 0;
+requires 'Text::Markdown'               => 0;
+requires 'Text::Unidecode'              => 0;
+requires 'Try::Tiny'                    => 0;
+requires 'XML::RSS'                     => 0;
+requires 'autodie'                      => 0;
+requires 'namespace::autoclean'         => 0;
+requires 'utf8::all'                    => 0;
