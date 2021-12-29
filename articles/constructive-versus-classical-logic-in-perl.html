@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ovid.github.io/articles/constructive-versus-classical-logic-in-perl.html" />
+  <meta property="og:title" content="Constructive Versus Classical Logic in Perl" />
+  <meta property="og:description" content="Perl developers tend to think in terms of classical logic, but Perl fits constructive logic better." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Constructive Versus Classical Logic in Perl</title>
+  <meta name="description" content="Constructive Versus Classical Logic in Perl">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1>Constructive Versus Classical Logic in Perl</h1>
+        <time>2021-12-27</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+    <div class="prevNext">
+        
+        <a href="/articles/why-is-perl-not-putting-moose-in-the-core.html" class="prevPost">&laquo; Why is Perl not putting Moose in the core?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+        <hr>
+
+
+<p>The more I dig into the logic of Perl, the more I find that it uses
+constructive (intuitionist) instead of classical logic. But Perl developers
+think in terms of the latter, not the former. This causes us to often reason
+incorrectly about our software.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/y2M5BuXoGlg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>For example, if we have this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $x &lt; 3 ) {
+    ...
+} 
+else {
+    ...
+}
+</code></pre></div>
+
+<p>We tend to think that <code>$x</code> is a number and <code>$x &gt;= 3</code> holds in the else block.
+That might be true in a strongly typed (classical) language, but that’s not
+necessarily true in either Perl or constructive logic.</p>
+
+<p>Here’s a counter-example in Perl:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $x = {};  # a reference to a hash
+if ($x &lt; 3) {
+    say &quot;if&quot;;
+}
+else {
+    say &quot;else&quot;;
+}
+</code></pre></div>
+
+<p>That will print <code>else</code> because <code>my $x = {}; say $x + 0;</code> will often print a
+number like 4966099583. That’s the <em>address</em> of <code>$x</code>.</p>
+
+<p>You won’t even get a warning.</p>
+
+<p>Not useful.</p>
+
+<p>So the `else” branch in Perl simply says the previous case didn’t hold, but it
+says nothing about the <em>actual</em> value of the number.</p>
+
+<p>We can assert that <code>$x</code> is an integer and die if it’s not, but many don’t bother
+with that.</p>
+
+<h2>Classical versus Constructive</h2>
+
+<p>In classical logic, there’s the law of the excluded middle. Something is
+either true or it’s not. In constructive logic, things are true, not true, or
+other (unknown).</p>
+
+<p>If <code>$x</code> is an integer, we know that it’s either 3 or it’s not, but we might not
+know it <em>yet</em>.</p>
+
+<blockquote>
+  <p>Note: Constructive (intuitionist) logic isn’t a mere mathematical curiosity.
+  The well-known physicist Nicolas Gisin has written a short, easy-to-read
+  paper showing how <a href="https://arxiv.org/abs/2002.01653" target="_blank">intuitionist logic might prove that there really is an
+  “arrow of time” in physics</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+</blockquote>
+
+<p>I find the idea of constructive logic useful enough that I wrote a Perl module
+named <a href="https://metacpan.org/pod/Unknown::Values" target="_blank">Unknown::Values</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>I proposed adding this new, three-value logic, or <strong>3VL</strong> (true, false,
+unknown), to Perl and while there was some interest, some practical problems
+reared their ugly heads and the idea went nowhere.</p>
+
+<p>Interestingly, one of the counterpoints was based on the confusion between
+classical and constructive logic. With a new <code>unknown</code> keyword:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl"># using undef values:
+my @overpaid = grep {
+    defined $_-&gt;salary
+    &amp;&amp;
+    $_-&gt;salary &gt; $cutoff
+} @employees;
+
+# same thing with unknown values:
+my @overpaid = grep { $_-&gt;salary &gt; $cutoff } @employees;
+</code></pre></div>
+
+<p>As you can see, using <code>unknown</code> values instead of <code>undef</code> values makes the
+code shorter and easier to read. <code>unknown</code> salaries would not pass the grep.
+You don’t have to remember the <code>defined</code> check. It just <em>works</em>. Of course,
+you can run it in the other direction:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my @underpaid = grep { $_-&gt;salary &lt;= $cutoff } @employees;
+</code></pre></div>
+
+<p>And again, <code>unknown</code> values wouldn’t pass the grep. If you need those
+employees:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my @unknown_salary = grep { is_unknown $_-&gt;salary } @employees;
+</code></pre></div>
+
+<p>But this was presented as a counter-argument:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $x &lt; 3 ) {
+    ...;
+}
+else {
+    ...;
+}
+</code></pre></div>
+
+<p>With 3VL, surely the <code>else</code> would also have to be skipped because we don’t
+know if the condition is false?  Thus, we could have an if/else block where
+the entire construct is skipped. That would be confusing madness!</p>
+
+<p>Except that in 3VL, if the <code>if</code> condition doesn’t hold, the <code>else</code> can still
+fire because it represents an <code>unknown</code> value, as shown in the <code>$x = {}</code>
+xample above. </p>
+
+<p>The counter-argument might have worked for Java:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-java">if ( var &lt; 3 ) {
+    System.out.println(&quot;Less Than&quot;);
+}
+else {
+    System.out.println(&quot;Not Less Than&quot;);
+}
+</code></pre></div>
+
+<p>In the above, if you hit the <code>else</code> block, you know both that:</p>
+
+<ol>
+<li><code>var</code> is a number.</li>
+<li><code>var</code> is not less than three.</li>
+</ol>
+
+<p>Thus, Java follows classical logic. A statement is either true or false. There
+is no middle ground. Perl follows constructive logic, even though we tend to
+think (and program) in terms of classical logic.</p>
+
+<p>Ignoring the type, for Perl this is more correct:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $x &lt; 3 ) {
+    ...;
+}
+elsif ( $x &gt;= 3 ) {
+    ...;
+}
+else {
+    ...; # something went wrong
+}
+</code></pre></div>
+
+<p>That’s because until we explicitly make a positive assertion about a value, we
+cannot know if a statement is true or false. Thus, in Perl, an <code>else</code> block is
+frequently not a negation of the <code>if</code> condition, but a <code>catch</code> block for
+conditions which haven’t held.</p>
+
+<p>Again, Perl developers (and most developers using languages with dynamic types)
+tend to think in terms classical logic when, in fact, we’re using constructive
+logic. It usually works until it doesn’t.</p>
+
+<h1>How Can We Fix This?</h1>
+
+<p><tt>brian d foy</tt> found my
+<a href="https://metacpan.org/pod/Unknown::Values" target="_blank">Unknown::Values</a> <span class="fa fa-external-link fa_custom"></span> module interesting
+enough that he felt it should be in the Perl core:</p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Unknown::Value from <a href="https://twitter.com/OvidPerl?ref_src=twsrc%5Etfw">@OvidPerl</a> looks very interesting. These objects can&#39;t compare, do math, or most of the other default behavior that undef allows. This would be awesome in core.<a href="https://t.co/xmD8yoEjIK">https://t.co/xmD8yoEjIK</a></p>&mdash; brian d foy (@briandfoy_perl) <a href="https://twitter.com/briandfoy_perl/status/1471684211602042880?ref_src=twsrc%5Etfw">December 17, 2021</a></blockquote>
+
+<p><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>His observations match my concerns with using <code>undef</code> in Perl. However, <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2021/12/msg262249.html" target="_blank">when I
+proposed this to the Perl 5
+Porters</a> <span class="fa fa-external-link fa_custom"></span>,
+while some found it interesting, there were some serious concerns. In
+particular, <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2021/12/msg262285.html" target="_blank">Nicholas Clark
+wrote</a> <span class="fa fa-external-link fa_custom"></span>
+(edited for brevity):</p>
+
+<blockquote>
+  <p>For this:</p>
+  
+  <p><code>$bar = $hash{$foo};</code></p>
+  
+  <p>If <code>$foo</code> happens to be <code>unknown</code>, is <code>$bar</code> always <code>unknown</code>?
+  Or is it <code>undef</code> if and only if <code>%hash</code> is empty?</p>
+  
+  <p>That behaviour is arguably more consistent with what <code>unknown</code> means than the
+  “always return unknown”.</p>
+  
+  <p>...</p>
+  
+  <p>Does trying to use an unknown value as a file handle trigger an exception?
+  Or an infinite stream of unknowns on read attempts?</p>
+  
+  <p>What is the range <code>[$foo .. 42]</code> where <code>$foo</code> is unknown?</p>
+  
+  <p>I <em>think</em> that most logically it’s an empty list, but that does seem to
+  end up eliminating unknown-ness. Hence if we have first class unknowns,
+  should we be able to have arrays of unknown length?</p>
+  
+  <blockquote>
+    <p>Ovid; It has a high-value win in eliminating common types of errors we currently deal with</p>
+  </blockquote>
+  
+  <p>And massive risk in introducing a lot of surprises in code not written to
+  expect unknowns, that is passed one within a data structure.</p>
+  
+  <p>Basically all of CPAN.</p>
+  
+  <p>...</p>
+  
+  <p>There are about 400 opcodes in perl. I suspect that >90% are easy to figure
+  out for “unknown” (for example as “what would a NaN do here?“) but a few
+  really aren’t going to be obvious, or end up being trade offs between
+  conceptual correctness and what it’s actually possible to implement.</p>
+</blockquote>
+
+<p>Needless to say, this pretty much shot down the idea and these were annoyingly
+fair points.</p>
+
+<p>In other words, leaking this abstraction could break a lot of code and people
+will be confused. For example, if
+<a href="https://metacpan.org/pod/DBIx::Class" target="_blank">DBIx::Class</a> <span class="fa fa-external-link fa_custom"></span> were to suddenly return
+<code>unknown</code> instead of <code>undef</code> for <code>NULL</code> values, while the <em>semantics</em> would
+adhere much more closely to SQL, the behavior would be very suprising to Perl
+developers receiving a chunk of data from the ORM and discovering that
+<code>unknown</code> doesn’t behave the same way as <code>undef</code>. </p>
+
+<p>So how would we deal with this? I can think of a couple of ways. Each would use the
+<code>feature</code> pragma to lexically scope the changes.</p>
+
+<p>The first way would be to change <code>undef</code> to use 3VL:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature 'unknown;
+
+my @numbers = ( 1, 2, undef,5, undef,6 );
+my @result = grep { $_ &lt; 5 } @numbers;
+# result now holds 1 and 2
+</code></pre></div>
+
+<p>In this approach, <em>any</em> undefined value would follow 3VL. However, if you
+returned that <code>undef</code> outside of the current lexical scope, if falls back to
+the current 2VL (two-value logic: true or false).</p>
+
+<p>However, we might find it useful (and easier) to have distinct <code>unknown</code> and
+<code>undef</code> behavior:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature 'unknown;
+
+my @numbers = ( 1, 2, unknown,5, undef,6 );
+my @result = grep { $_ &lt; 5 } @numbers;
+# result now holds 1 and 2, and `unknown`
+</code></pre></div>
+
+<p>This would require <code>unknown</code> to behave like <code>undef</code> if it left the current
+lexical scope.</p>
+
+<p>In other words, ensure that the developer who chooses to use 3VL has a
+tightly controlled scope.</p>
+
+<p>But what do we do with the case of using unknown values as a filehandle or the
+keys to a hash or the index of an array?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$colors[unknown] = 'octarine';
+</code></pre></div>
+
+<p>Currently, for the <code>Unknown::Values</code> module, we have the “loose” version which
+issues is fatal for all non-boolean operations. So <code>sort</code> and boolean
+operations (<code>$x &lt; 3</code>) are well-defined, but almost anything else is fatal.
+However, I think stringification should also be fatal (it’s not, but it is in
+the “strict” version of <code>Unknown::Values</code>). This should handle just about all
+use cases, though I’m sure there are some that I missed.</p>
+
+<h1>Why Not use  Null Objects?</h1>
+
+<p>When <a href="https://twitter.com/pdcawley" target="_blank">Piers Cawley</a> <span class="fa fa-external-link fa_custom"></span> first suggested that I use
+<a href="https://en.wikipedia.org/wiki/Null_object_pattern" target="_blank">Null Object pattern</a> <span class="fa fa-external-link fa_custom"></span>
+instead of unknown values, I balked. After all, you could have this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $employee = Employee-&gt;new($id); # not found, returns a null object
+
+if ( $employee-&gt;salary &lt; $limit ) {
+    ...
+}
+</code></pre></div>
+
+<p>That puts us right back where we started because when <code>salary</code> returns
+<code>undef</code>, it gets coerced to zero (probably with a warning) and the <code>&lt; $limit</code>
+succeeds. That’s not the behavior we want.</p>
+
+<p>Or maybe <code>salary</code> returns the invocant to allow for method chaining. Well,
+that fails because <code>$employee-&gt;salary &lt; $limit</code> silent coerces <code>salary</code> to the
+<em>address</em> of the object (thanks, Perl!) and that’s probably not what we want,
+either.</p>
+
+<p>That’s when I realized an old, bad habit was biting me. When presented with a
+solution, I tend to look for all of the ways it can go wrong. I need to look
+for all of the ways it can go right.  The more Piers made his case, the more I
+realized this could make sense if I can use the operator overloading of
+<code>Unknown::Values</code>. I could write something like this (a bit oversimplified): </p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Unknown::Values::Instance::Object {
+    use Moose;
+    extend 'Unknown::Values::Instance';
+    sub AUTOLOAD { return $_[0] }
+}
+</code></pre></div>
+
+<p>Now, any time you call a method on that object, it merely returns the object,
+When you eventually get down to <em>comparing</em> that object, the overloading magic
+in the base class always causes comparisons to return false and we get the
+desired 3VL behavior.</p>
+
+<p>We could go further and assert the type of the <code>Unknown::Values::Object</code> and
+do a <code>-&gt;can($method)</code> check and blow up if the method isn’t there, but that’s
+probably not needed for a first pass.</p>
+
+<p>But there’s more! In the <a href="https://en.wikipedia.org/wiki/Null_object_pattern" target="_blank">Wikipedia article about null
+objects</a> <span class="fa fa-external-link fa_custom"></span>, they use an
+example of a binary tree to show how Null objects sometimes need overloaded
+methods. Using syntax from <a href="https://github.com/Ovid/Cor" target="_blank">the Corinna OOP project for
+Perl</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Node {
+    has $left  :reader :param { undef };
+    has $right :reader :param { undef };
+}
+</code></pre></div>
+
+<p>We can recursively calculate the size of the tree:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method tree_size() {
+
+    # this recursive method adds 1 to $size for every node
+    # found
+    return 1
+      + $self-&gt;left-&gt;tree_size
+      + $self-&gt;right-&gt;tree_size;
+}
+</code></pre></div>
+
+<p>But the child nodes might not exist, so we need to manually account for that:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method tree_size() {
+    my $size = 1;
+    if ( $self-&gt;left ) {
+        $size += $self-&gt;left-&gt;tree_size;
+    }
+    if ( $self-&gt;right ) {
+        $size += $self-&gt;right-&gt;tree_size;
+    }
+    return $size;
+}
+</code></pre></div>
+
+<p>That’s not too bad, but if we need to remember to check if the right and left
+are there every time we use them, sooner or later we’re going to have a bug.</p>
+
+<p>So let’s fix that (note: this example is simplified since I’ll need to create
+a new version of Null objects just for Corinna).</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Null::Node :isa(Null::Object) {
+
+    # break the recursion
+    method tree_size () { 0 }
+}
+</code></pre></div>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Node {
+    use Null::Node;
+    has $left  :reader :param { Null::Node-&gt;new };
+    has $right :reader :param { Null::Node-&gt;new };
+}
+</code></pre></div>
+
+<p>Because we’ve overridden the corresponding methods, our <code>tree_size()</code> doesn’t
+need to check if the nodes are defined:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method tree_size() {
+    return 1
+      + $self-&gt;left-&gt;tree_size
+      + $self-&gt;right-&gt;tree_size;
+}
+</code></pre></div>
+
+<p>In this simple case, this may overkill, but if we start to add a lot of
+methods to our <code>Node</code> class, we will have a Null object as default, using 3VL,
+and we don’t have to worry about building in extra methods that we don’t need.
+(But see the <a href="https://en.wikipedia.org/wiki/Null_object_pattern#Criticism" target="_blank">criticism section about null objects for more
+information</a> <span class="fa fa-external-link fa_custom"></span>).</p>
+
+<p><code>Unknown::Values</code> with Null object support is on <a href="https://metacpan.org/pod/Unknown::Values" target="_blank">the
+CPAN</a> <span class="fa fa-external-link fa_custom"></span> and
+<a href="https://github.com/Ovid/unknown" target="_blank">github</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<h1>Caveat</h1>
+
+<p>Be aware that the latest version (<code>0.100</code>)of <code>Unknown::Values</code> has
+<a href="https://metacpan.org/dist/Unknown-Values/changes" target="_blank">backwards-incompatible
+changes</a> <span class="fa fa-external-link fa_custom"></span>. In particular, any
+attempt to stringify an <code>unknown</code> value or object is fatal. That is a huge win
+because it protects us from this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$hash{$unknown_color}  = 'octarine';
+$array[$unknown_index] = 42;
+</code></pre></div>
+
+<p>Both of those are clearly bugs in the context of unknown values, so they’re
+now fatal.</p>
+
+<p>This doesn’t address all of Nicolas' concerns, but it definitely goes a long way to
+handling many of them.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/why-is-perl-not-putting-moose-in-the-core.html" class="prevPost">&laquo; Why is Perl not putting Moose in the core?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2021 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/constructive-versus-classical-logic-in-perl.html";
+            this.page.identifier = "articles/constructive-versus-classical-logic-in-perl";
+            this.page.title      = "Constructive Versus Classical Logic in Perl";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+

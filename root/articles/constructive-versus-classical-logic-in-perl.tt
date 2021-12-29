@@ -1,0 +1,438 @@
+[%
+    title            = 'Constructive Versus Classical Logic in Perl';
+    type             = 'articles';
+    slug             = 'constructive-versus-classical-logic-in-perl';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2021-12-27';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+The more I dig into the logic of Perl, the more I find that it uses
+constructive (intuitionist) instead of classical logic. But Perl developers
+think in terms of the latter, not the former. This causes us to often reason
+incorrectly about our software.
+
+[% Ovid.youtube('y2M5BuXoGlg') %]
+
+For example, if we have this:
+
+```perl
+if ( $x < 3 ) {
+    ...
+} 
+else {
+    ...
+}
+```
+
+We tend to think that `$x` is a number and `$x >= 3` holds in the else block.
+That might be true in a strongly typed (classical) language, but that's not
+necessarily true in either Perl or constructive logic.
+
+Here's a counter-example in Perl:
+
+```perl
+my $x = {};  # a reference to a hash
+if ($x < 3) {
+    say "if";
+}
+else {
+    say "else";
+}
+```
+
+That will print `else` because `my $x = {}; say $x + 0;` will often print a
+number like 4966099583. That’s the _address_ of `$x`.
+
+You won’t even get a warning.
+
+Not useful.
+
+So the `else" branch in Perl simply says the previous case didn't hold, but it
+says nothing about the _actual_ value of the number.
+
+We can assert that `$x` is an integer and die if it's not, but many don't bother
+with that.
+
+## Classical versus Constructive
+
+In classical logic, there's the law of the excluded middle. Something is
+either true or it's not. In constructive logic, things are true, not true, or
+other (unknown).
+
+If `$x` is an integer, we know that it's either 3 or it's not, but we might not
+know it _yet_.
+
+> Note: Constructive (intuitionist) logic isn't a mere mathematical curiosity.
+> The well-known physicist Nicolas Gisin has written a short, easy-to-read
+> paper showing how [intuitionist logic might prove that there really is an
+> "arrow of time" in physics](https://arxiv.org/abs/2002.01653).
+
+I find the idea of constructive logic useful enough that I wrote a Perl module
+named [Unknown::Values](https://metacpan.org/pod/Unknown::Values).
+
+I proposed adding this new, three-value logic, or **3VL** (true, false,
+unknown), to Perl and while there was some interest, some practical problems
+reared their ugly heads and the idea went nowhere.
+
+Interestingly, one of the counterpoints was based on the confusion between
+classical and constructive logic. With a new `unknown` keyword:
+
+```perl
+# using undef values:
+my @overpaid = grep {
+    defined $_->salary
+    &&
+    $_->salary > $cutoff
+} @employees;
+
+# same thing with unknown values:
+my @overpaid = grep { $_->salary > $cutoff } @employees;
+```
+
+As you can see, using `unknown` values instead of `undef` values makes the
+code shorter and easier to read. `unknown` salaries would not pass the grep.
+You don't have to remember the `defined` check. It just _works_. Of course,
+you can run it in the other direction:
+
+```perl
+my @underpaid = grep { $_->salary <= $cutoff } @employees;
+```
+
+And again, `unknown` values wouldn't pass the grep. If you need those
+employees:
+
+```perl
+my @unknown_salary = grep { is_unknown $_->salary } @employees;
+```
+
+But this was presented as a counter-argument:
+
+```perl
+if ( $x < 3 ) {
+    ...;
+}
+else {
+    ...;
+}
+```
+
+With 3VL, surely the `else` would also have to be skipped because we don't
+know if the condition is false?  Thus, we could have an if/else block where
+the entire construct is skipped. That would be confusing madness!
+
+Except that in 3VL, if the `if` condition doesn't hold, the `else` can still
+fire because it represents an `unknown` value, as shown in the `$x = {}`
+xample above. 
+
+The counter-argument might have worked for Java:
+
+```java
+if ( var < 3 ) {
+	System.out.println("Less Than");
+}
+else {
+	System.out.println("Not Less Than");
+}
+```
+
+In the above, if you hit the `else` block, you know both that:
+
+1. `var` is a number.
+2. `var` is not less than three.
+
+Thus, Java follows classical logic. A statement is either true or false. There
+is no middle ground. Perl follows constructive logic, even though we tend to
+think (and program) in terms of classical logic.
+
+Ignoring the type, for Perl this is more correct:
+
+```perl
+if ( $x < 3 ) {
+    ...;
+}
+elsif ( $x >= 3 ) {
+    ...;
+}
+else {
+    ...; # something went wrong
+}
+```
+
+That's because until we explicitly make a positive assertion about a value, we
+cannot know if a statement is true or false. Thus, in Perl, an `else` block is
+frequently not a negation of the `if` condition, but a `catch` block for
+conditions which haven't held.
+
+Again, Perl developers (and most developers using languages with dynamic types)
+tend to think in terms classical logic when, in fact, we're using constructive
+logic. It usually works until it doesn't.
+
+# How Can We Fix This?
+
+<tt>brian d foy</tt> found my
+[Unknown::Values](https://metacpan.org/pod/Unknown::Values) module interesting
+enough that he felt it should be in the Perl core:
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Unknown::Value from <a href="https://twitter.com/OvidPerl?ref_src=twsrc%5Etfw">@OvidPerl</a> looks very interesting. These objects can&#39;t compare, do math, or most of the other default behavior that undef allows. This would be awesome in core.<a href="https://t.co/xmD8yoEjIK">https://t.co/xmD8yoEjIK</a></p>&mdash; brian d foy (@briandfoy_perl) <a href="https://twitter.com/briandfoy_perl/status/1471684211602042880?ref_src=twsrc%5Etfw">December 17, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+His observations match my concerns with using `undef` in Perl. However, [when I
+proposed this to the Perl 5
+Porters](https://www.nntp.perl.org/group/perl.perl5.porters/2021/12/msg262249.html),
+while some found it interesting, there were some serious concerns. In
+particular, [Nicholas Clark
+wrote](https://www.nntp.perl.org/group/perl.perl5.porters/2021/12/msg262285.html)
+(edited for brevity):
+
+> For this:
+> 
+> `$bar = $hash{$foo};`
+> 
+> If `$foo` happens to be `unknown`, is `$bar` always `unknown`?
+> Or is it `undef` if and only if `%hash` is empty?
+> 
+> That behaviour is arguably more consistent with what `unknown` means than the
+> "always return unknown".
+>
+> ...
+>
+> Does trying to use an unknown value as a file handle trigger an exception?
+> Or an infinite stream of unknowns on read attempts?
+> 
+> What is the range `[$foo .. 42]` where `$foo` is unknown?
+> 
+> I *think* that most logically it's an empty list, but that does seem to
+> end up eliminating unknown-ness. Hence if we have first class unknowns,
+> should we be able to have arrays of unknown length?
+> 
+> > Ovid; It has a high-value win in eliminating common types of errors we currently deal with
+> 
+> And massive risk in introducing a lot of surprises in code not written to
+> expect unknowns, that is passed one within a data structure.
+> 
+> Basically all of CPAN.
+> 
+> ...
+>
+> There are about 400 opcodes in perl. I suspect that >90% are easy to figure
+> out for "unknown" (for example as "what would a NaN do here?") but a few
+> really aren't going to be obvious, or end up being trade offs between
+> conceptual correctness and what it's actually possible to implement.
+
+Needless to say, this pretty much shot down the idea and these were annoyingly
+fair points.
+
+In other words, leaking this abstraction could break a lot of code and people
+will be confused. For example, if
+[DBIx::Class](https://metacpan.org/pod/DBIx::Class) were to suddenly return
+`unknown` instead of `undef` for `NULL` values, while the _semantics_ would
+adhere much more closely to SQL, the behavior would be very suprising to Perl
+developers receiving a chunk of data from the ORM and discovering that
+`unknown` doesn't behave the same way as `undef`. 
+
+So how would we deal with this? I can think of a couple of ways. Each would use the
+`feature` pragma to lexically scope the changes.
+
+The first way would be to change `undef` to use 3VL:
+
+```perl
+use feature 'unknown;
+
+my @numbers = ( 1, 2, undef,5, undef,6 );
+my @result = grep { $_ < 5 } @numbers;
+# result now holds 1 and 2
+```
+
+In this approach, _any_ undefined value would follow 3VL. However, if you
+returned that `undef` outside of the current lexical scope, if falls back to
+the current 2VL (two-value logic: true or false).
+
+However, we might find it useful (and easier) to have distinct `unknown` and
+`undef` behavior:
+
+
+```perl
+use feature 'unknown;
+
+my @numbers = ( 1, 2, unknown,5, undef,6 );
+my @result = grep { $_ < 5 } @numbers;
+# result now holds 1 and 2, and `unknown`
+```
+
+This would require `unknown` to behave like `undef` if it left the current
+lexical scope.
+
+In other words, ensure that the developer who chooses to use 3VL has a
+tightly controlled scope.
+
+But what do we do with the case of using unknown values as a filehandle or the
+keys to a hash or the index of an array?
+
+```perl
+$colors[unknown] = 'octarine';
+```
+
+Currently, for the `Unknown::Values` module, we have the "loose" version which
+issues is fatal for all non-boolean operations. So `sort` and boolean
+operations (`$x < 3`) are well-defined, but almost anything else is fatal.
+However, I think stringification should also be fatal (it's not, but it is in
+the "strict" version of `Unknown::Values`). This should handle just about all
+use cases, though I'm sure there are some that I missed.
+
+# Why Not use  Null Objects?
+
+When [Piers Cawley](https://twitter.com/pdcawley) first suggested that I use
+[Null Object pattern](https://en.wikipedia.org/wiki/Null_object_pattern)
+instead of unknown values, I balked. After all, you could have this:
+
+```perl
+my $employee = Employee->new($id); # not found, returns a null object
+
+if ( $employee->salary < $limit ) {
+    ...
+}
+```
+
+That puts us right back where we started because when `salary` returns
+`undef`, it gets coerced to zero (probably with a warning) and the `< $limit`
+succeeds. That's not the behavior we want.
+
+Or maybe `salary` returns the invocant to allow for method chaining. Well,
+that fails because `$employee->salary < $limit` silent coerces `salary` to the
+_address_ of the object (thanks, Perl!) and that's probably not what we want,
+either.
+
+That's when I realized an old, bad habit was biting me. When presented with a
+solution, I tend to look for all of the ways it can go wrong. I need to look
+for all of the ways it can go right.  The more Piers made his case, the more I
+realized this could make sense if I can use the operator overloading of
+`Unknown::Values`. I could write something like this (a bit oversimplified): 
+
+```perl
+package Unknown::Values::Instance::Object {
+    use Moose;
+    extend 'Unknown::Values::Instance';
+    sub AUTOLOAD { return $_[0] }
+}
+```
+
+Now, any time you call a method on that object, it merely returns the object,
+When you eventually get down to _comparing_ that object, the overloading magic
+in the base class always causes comparisons to return false and we get the
+desired 3VL behavior.
+
+We could go further and assert the type of the `Unknown::Values::Object` and
+do a `->can($method)` check and blow up if the method isn't there, but that's
+probably not needed for a first pass.
+
+But there's more! In the [Wikipedia article about null
+objects](https://en.wikipedia.org/wiki/Null_object_pattern), they use an
+example of a binary tree to show how Null objects sometimes need overloaded
+methods. Using syntax from [the Corinna OOP project for
+Perl](https://github.com/Ovid/Cor):
+
+```perl
+class Node {
+    has $left  :reader :param { undef };
+    has $right :reader :param { undef };
+}
+```
+
+We can recursively calculate the size of the tree:
+
+```perl
+method tree_size() {
+
+    # this recursive method adds 1 to $size for every node
+    # found
+    return 1
+      + $self->left->tree_size
+      + $self->right->tree_size;
+}
+```
+
+But the child nodes might not exist, so we need to manually account for that:
+
+```perl
+method tree_size() {
+    my $size = 1;
+    if ( $self->left ) {
+        $size += $self->left->tree_size;
+    }
+    if ( $self->right ) {
+        $size += $self->right->tree_size;
+    }
+    return $size;
+}
+```
+
+That's not too bad, but if we need to remember to check if the right and left
+are there every time we use them, sooner or later we're going to have a bug.
+
+So let's fix that (note: this example is simplified since I'll need to create
+a new version of Null objects just for Corinna).
+
+```perl
+class Null::Node :isa(Null::Object) {
+
+    # break the recursion
+    method tree_size () { 0 }
+}
+```
+
+
+
+```perl
+class Node {
+    use Null::Node;
+    has $left  :reader :param { Null::Node->new };
+    has $right :reader :param { Null::Node->new };
+}
+```
+
+Because we've overridden the corresponding methods, our `tree_size()` doesn't
+need to check if the nodes are defined:
+
+```perl
+method tree_size() {
+    return 1
+      + $self->left->tree_size
+      + $self->right->tree_size;
+}
+```
+
+In this simple case, this may overkill, but if we start to add a lot of
+methods to our `Node` class, we will have a Null object as default, using 3VL,
+and we don't have to worry about building in extra methods that we don't need.
+(But see the [criticism section about null objects for more
+information](https://en.wikipedia.org/wiki/Null_object_pattern#Criticism)).
+
+`Unknown::Values` with Null object support is on [the
+CPAN](https://metacpan.org/pod/Unknown::Values) and
+[github](https://github.com/Ovid/unknown).
+
+# Caveat
+
+Be aware that the latest version (`0.100`)of `Unknown::Values` has
+[backwards-incompatible
+changes](https://metacpan.org/dist/Unknown-Values/changes). In particular, any
+attempt to stringify an `unknown` value or object is fatal. That is a huge win
+because it protects us from this:
+
+```perl
+$hash{$unknown_color}  = 'octarine';
+$array[$unknown_index] = 42;
+```
+
+Both of those are clearly bugs in the context of unknown values, so they're
+now fatal.
+
+This doesn't address all of Nicolas' concerns, but it definitely goes a long way to
+handling many of them.
+
+[%- END %]

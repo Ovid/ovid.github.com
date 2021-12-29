@@ -2,7 +2,7 @@
 
 requires 'App::HTTPThis'                => 0;    # local testing
 requires 'Capture::Tiny'                => 0;
-requires 'Config::Any'                  => 0;
+requires 'Config::General'              => 0;
 requires 'Const::Fast'                  => 0;
 requires 'DBI'                          => 0;
 requires 'DateTime'                     => 0;
