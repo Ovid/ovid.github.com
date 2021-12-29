@@ -383,12 +383,11 @@ keys to a hash or the index of an array?</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">$colors[unknown] = 'octarine';
 </code></pre></div>
 
-<p>Currently, for the <code>Unknown::Values</code> module, we have the “loose” version which
-issues is fatal for all non-boolean operations. So <code>sort</code> and boolean
-operations (<code>$x &lt; 3</code>) are well-defined, but almost anything else is fatal.
-However, I think stringification should also be fatal (it’s not, but it is in
-the “strict” version of <code>Unknown::Values</code>). This should handle just about all
-use cases, though I’m sure there are some that I missed.</p>
+<p>Currently, for the <code>Unknown::Values</code> module, we have the “standard” version
+which mostly returns false for everything So <code>sort</code> and boolean operations
+(<code>$x &lt; 3</code>) are well-defined, but almost anything else is fatal. (There is a
+“fatal” version which is fatal for just about anything, but I don’t think it’s
+very useful).</p>
 
 <h1>Why Not use  Null Objects?</h1>
 

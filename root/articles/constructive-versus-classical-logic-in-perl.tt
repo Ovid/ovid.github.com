@@ -278,12 +278,11 @@ keys to a hash or the index of an array?
 $colors[unknown] = 'octarine';
 ```
 
-Currently, for the `Unknown::Values` module, we have the "loose" version which
-issues is fatal for all non-boolean operations. So `sort` and boolean
-operations (`$x < 3`) are well-defined, but almost anything else is fatal.
-However, I think stringification should also be fatal (it's not, but it is in
-the "strict" version of `Unknown::Values`). This should handle just about all
-use cases, though I'm sure there are some that I missed.
+Currently, for the `Unknown::Values` module, we have the "standard" version
+which mostly returns false for everything So `sort` and boolean operations
+(`$x < 3`) are well-defined, but almost anything else is fatal. (There is a
+"fatal" version which is fatal for just about anything, but I don't think it's
+very useful).
 
 # Why Not use  Null Objects?
 
