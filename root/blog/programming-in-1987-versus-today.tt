@@ -1,0 +1,255 @@
+[%
+    title            = 'Programming in 1987 Versus Today';
+    type             = 'blog';
+    slug             = 'programming-in-1987-versus-today';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-01-03';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+> "Hit the skeleton with the sword, take his ring, and then walk north and touch
+the altar."
+
+The year is 2022 and 35 years later, I still remember that damned sentence.
+The year was 1987 and I was writing a text adventure in BASIC for the [COCO
+2](https://en.wikipedia.org/wiki/TRS-80_Color_Computer#Color_Computer_2_(1983%E2%80%931986)).
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/coco-2.jpg"
+   alt      = "The TRS-80 Color Computer 2"
+   caption  = "The TRS-80 Color Computer 2"
+   source   = "https://commons.wikimedia.org/wiki/File:TRS-80_Color_Computer_2_(PAL)_4x3.jpg"
+%]
+
+Because it included BASIC for free, and because that was the only programming
+language I knew at the time, that's what I was coding it in. If you've never
+seen BASIC, [here's a hi-lo game programmed in
+it](https://github.com/coding-horror/basic-computer-games/tree/main/47_Hi-Lo):
+
+```basic
+10 PRINT TAB(34);"HI LO"
+20 PRINT TAB(15);"CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY"
+30 PRINT:PRINT:PRINT
+100 PRINT "THIS IS THE GAME OF HI LO.":PRINT
+110 PRINT "YOU WILL HAVE 6 TRIES TO GUESS THE AMOUNT OF MONEY IN THE"
+120 PRINT "HI LO JACKPOT, WHICH IS BETWEEN 1 AND 100 DOLLARS.  IF YOU"
+130 PRINT "GUESS THE AMOUNT, YOU WIN ALL THE MONEY IN THE JACKPOT!"
+140 PRINT "THEN YOU GET ANOTHER CHANCE TO WIN MORE MONEY.  HOWEVER,"
+150 PRINT "IF YOU DO NOT GUESS THE AMOUNT, THE GAME ENDS.":PRINT
+160 R=0
+170 B=0:PRINT
+180 Y=INT(100*RND(1))
+200 PRINT "YOUR GUESS";
+210 INPUT A
+220 B=B+1
+230 IF A=Y THEN 300
+240 IF A>Y THEN 270
+250 PRINT "YOUR GUESS IS TOO LOW.":GOTO 280
+270 PRINT "YOUR GUESS IS TOO HIGH."
+280 PRINT:IF B<6 THEN 200
+290 PRINT "YOU BLEW IT...TOO BAD...THE NUMBER WAS";Y
+295 R=0:GOTO 350
+300 PRINT "GOT IT!!!!!!!!!!   YOU WIN";Y;"DOLLARS."
+310 R=R+Y
+320 PRINT "YOUR TOTAL WINNINGS ARE NOW";R;"DOLLARS."
+350 PRINT:PRINT "PLAY AGAIN (YES OR NO)";
+360 INPUT A$:IF A$="YES" THEN 170
+380 PRINT:PRINT "SO LONG.  HOPE YOU ENJOYED YOURSELF!!!"
+390 END
+```
+
+Not too complex, but you'll notice a couple of easy-to-miss `GOTO` statement
+which make flow control a touch odd. Still, that's what we had to work with.
+
+What's worse is that BASIC was an _interpreted_ language. Today, many
+languages are compiled directly to machine code, such as C. Some languages,
+like Perl, are compiled to byte code code before they're executed. BASIC was
+interpreted and executed line by line. If you had a 1,000 line BASIC program
+and a syntax error on line 793, you often wouldn't find out unless that line
+executed. It made development _hard_, but it did mean that we were constantly
+manually doing QA on our programs, something that is often skipped in today's
+TDD world.
+
+And if that's not bad enough, trying to optimize BASIC programs often meant
+shortening variable names so that they would take up less memory!
+
+Ignoring my whining about how hard life was back, for my text adventure, I
+wanted a sentence parser that was better than Zork, Adventure, and other
+games, but before I could _parse_ the sentence, I had to lex it (break it into
+tokens). In the world of BASIC, this was no easy task.
+
+When writing a parser, you first _lex_ the data into discreet tokens (words,
+in our case) and parsers take those words and figure out what the sentence
+is (or if it is grammatically incorrect).
+
+Naturally, the 1987 me had no idea what that meant. I just knew that I needed
+to convert those words into numbers I could use a `ON X GOSUB` command to
+dispatch to the correct subroutine. I'd figure out the hard stuff later.
+
+But the hard stuff was lexing the string into tokens.
+
+> "Hit the skeleton with the sword, take his ring, and then walk north and touch
+the altar."
+
+When I wrote my lexer, it worked flawlessly. But it took _eight_ seconds to
+lex that string into the proper numbers.
+
+Eight seconds. I remember that very distinctly because it was at that moment
+that I knew my dreams of writing a grand text adventure were dead if I
+couldn't get that working. All of my work mapping out the hotel you woke up in
+and the puzzles you would have to solve were for nothing if I couldn't fix
+this.
+
+So I fixed it.
+
+I knew that machine code would run much faster than BASIC, though I didn't
+know _how_ much faster it might be. I was just assuming it would improve the
+performance.
+
+My roommate had an assembly program for the computer, along with a manual. I
+pored over them and because BASIC has such a paucity of features, it was
+not too difficult to convert the lexer to assembler, though it took me a few
+days.
+
+But I had to call this routine from BASIC. That's an odd combination of
+`CLEAR` (reserve memory), `DATA` (define your program), `POKE` (put your
+program in memory), `DEFUSR...` (define the user routine used to call your
+program) and `USR...` (call the user routine) commands. Here's a small program
+to print out the ASCII value of what character the user typed ([from the user
+manual](https://colorcomputerarchive.com/repo/Documents/Manuals/Hardware/Getting%20Started%20With%20Extended%20Color%20Basic%20(Tandy).pdf))
+(warning: pdf):
+
+```basic
+5 CLEAR 25. 12000 'RESERVE MEMORY
+10 DEFUSR1=1200015 CLS
+20 FOR I = 1 TO 28 "STORE EACH BYTE OF OBJECT CODE
+30 READ B: POKE 12000 + I. B
+a0 NEXT I
+a5 'HERE IS THE OBJECT CODE
+50 DATA 173,159,160.0
+60 DATA 39.250.128.10.38.12
+70 DATA 173.159,160.0.39.250
+75 DATA 129. 65, 45. 2
+80 DATA 128. 64, 31.137,78
+90 DATA 126.180. 21111
+99 'TELL BASIC WHERE THE ROUTINE IS
+100 POKE 275. 15: POKE 276. 211
+110 A = USR1(0) 'CALL THE SUBROUTINE AND GIVE RESULT TO A
+115 IF A =13 THEN END 120 PRINT "CODE ="; A 130 GOTD 110
+```
+
+Doing this for my assembly code was daunting, but I got it working. And it ran
+blindingly fast! I went from eight seconds to only the slightest of pauses. It
+was incredible! It was a miracle! It was also giving me the wrong numbers.
+
+I printed out the assembler on the dot matrix printer and laid out probably
+eight to ten meters of paper (my memory is probably faulty), got on my hands
+and knees with a pen and started laboriously tracing through that code, line
+by line. This was called a [desk
+check](https://www.techopedia.com/definition/18825/desk-check) and was one of
+our primary debugging techniques in the 80s.
+
+Hours later, with sore knees, I found my bug. I fixed the program, reran it,
+and it was a success. I had a lexer for simple English sentences and could
+move on to my parser.
+
+---
+
+I never finished that game. It was my roommate's computer and he moved away.
+By this time I was learning C at [Lower Columbia
+College](https://lowercolumbia.edu/), Except that there was a big problem.
+This was the first C class offered at LCC and we didn't have a C compiler. We
+had a [Prime Minicomputer](https://en.wikipedia.org/wiki/Prime_Computer) we
+could use, but [Garth
+Conboy](https://www.legacy.com/us/obituaries/sandiegouniontribune/name/garth-conboy-obituary?id=16006799&__cf_chl_captcha_tk__=pZXWhHj4.VR.U7VqOAX.gmHTBtOCxToHc_Djz4LvVrY-1641230723-0-gaNycGzNCNE),
+who was writing the compiler, hadn't finished it yet. So our first few C
+programs for class were written out in long-hand and submitted to our
+professor would would manually check them for correctness.
+
+I still remember the day that Professor Little brought in his computer setup
+and demonstrated one of the programs his company produced. It seemed awesome.
+Someone asked him about the sales of the program and Professor Little started
+to explain that it was very popular. It was so popular, in fact, that pirates
+were copying his program and redistributing it for free.
+
+And then our professor broke down crying in front of all of us. He was
+teaching at LCC because so many people were using free copies of his software
+instead of paying for it that his company was going broke. It was a humbling
+experience for all of us to watch our professor cry.
+
+Later, when we got the C compiler, the first version was buggy. Many expected
+commands didn't work and, one day, while debugging a problem, I added a
+`printf` statement and the program worked! I eventually just printed an empty
+string and that was enough to get my program to run. I had to show it to my
+professor and explain the problem to ensure he wouldn't mark me off on it.
+
+---
+
+Fast forward to 2022, 35 years later, and I still think about that BASIC
+program. Eight seconds to lex that string. I had gotten to the point where I
+could walk about a map, pick up and drop items, but that was all. But damn,
+eight seconds! And between me being inexperienced (I had only started
+programming in '82), and having to use an assembler, it took me two weeks (as
+I recall) to get the lexer working at an acceptable speed.
+
+What would it take today? The following is a rough hack, but it shows (sort
+of) what I was doing back in 1987.
+
+```perl
+#!/usr/bin/env perl
+
+# Less::Boilerplate is a personal module I use for quick
+# hacks, but it makes my Perl more "modern"
+use Less::Boilerplate;
+use Data::Dumper;
+use Benchmark 'countit';
+
+my $words = get_words('/usr/share/dict/words');
+
+my $sentence =
+'Hit the skeleton with the sword, take his ring and then walk north and touch the altar.';
+
+my $t = countit( 8, sub { parse_sentence( $sentence, $words ) } );
+say $t->iters;
+
+sub parse_sentence ( $sentence, $lookup ) {
+
+    # this is not perfect, but it replicates when I did back in the 80s.
+    my @words = split /\s+/,
+                lc $sentence =~ s/[[:punct:]]//gr;
+    my %numbers;
+    foreach my $word (@words) {
+        if ( my $number = $lookup->{$word} ) {
+            $numbers{$word} = $number;
+        }
+        else {
+            warn "$word not found";
+        }
+    }
+    return \%numbers;
+}
+
+sub get_words ($file) {
+    open my $fh, '<', $file;
+    my %words = map { state $i = 1; lc($_) => $i++ }
+                split /\n/,
+                do { local $/; <$fh> };
+    return \%words;
+}
+```
+
+That consistently prints out a number around 1.9 million. In other words, this
+quick 'n dirty hack that I wrote in a couple of minutes replaced two weeks
+worth of work in 1987 and ran almost two million times faster.
+
+That's right. This trivial example was not only easier to write, but it was
+two million times faster than the BASIC code I wrote 35 years ago.
+
+You kids have no idea how easy you have it.
+
+[% END %]
