@@ -211,7 +211,6 @@ of) what I was doing back in 1987.
 # hacks, but it makes my Perl more "modern". You can read that as
 # "use less boilerplate" or "useless boilerplate". Both are correct.
 use Less::Boilerplate;
-use Data::Dumper;
 use Benchmark 'countit';
 
 my $words = get_words('/usr/share/dict/words');
@@ -219,8 +218,7 @@ my $words = get_words('/usr/share/dict/words');
 my $sentence =
 'Hit the skeleton with the sword, take his ring and then walk north and touch the altar.';
 
-my $t = countit( 8, sub { parse_sentence( $sentence, $words ) } );
-say $t->iters;
+say countit( 8, sub { parse_sentence( $sentence, $words ) } )->iters;
 
 sub parse_sentence ( $sentence, $lookup ) {
 
