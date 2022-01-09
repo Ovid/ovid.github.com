@@ -1,0 +1,263 @@
+[%
+    title            = 'Are Microservices the Next Phase of Object-Oriented Programming?';
+    type             = 'articles';
+    slug             = 'are-microservices-the-next-phase-of-object-oriented-programming';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-01-09';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+# Introduction
+
+I've been meaning to write this article for a while, but never quite got
+around to it. Now I'm around it and I _know_ that it will annoy a few people.
+In fact, any time I read new discussions about how Dr. Alan Kay, the inventor
+of the term "object-oriented programming", intended something entirely
+different from what we have today, the online discussions often devolve to
+people acting like he's some grumpy old dude who just graduated from a PHP
+bootcamp.
+
+> If you want some extended discussions I've written about
+[Alan Kay and OO Programming ](/articles/alan-kay-and-oo-programming.html) and
+[Alan Kay and Missing
+Messages](/articles/alan-kay-and-missing-messages-a-follow-up.html). They're
+not required for following along in this article.
+
+In 1967, Simula 67 was released. This is often referred to as the first "true"
+object-oriented language because it included these four feature:
+
+* Classes
+* Polymorphism
+* Encapsulation
+* Inheritance
+
+It offered many other features, such as subtyping, coroutines, and
+[discrete-event
+simulation](https://en.wikipedia.org/wiki/Discrete-event_simulation), but
+those are just curiosities for the purpose of this article.
+
+# Inheritance
+
+Of the above list, the first three are generally non-controversial, but
+inheritance has been a pain in the ass for over five decades now. The
+following illustrates the core problem with inheritance:
+
+```perl
+class Person :isa(Invoice) {
+    ...
+}
+```
+
+What the hell does that even mean? I suspect (though I can't prove), that the
+majority of issues we have with inheritance today stem from that core problem.
+A subclass is intended to be a more specific instance of a parent class, but
+that's a semantic issue the programming language can't determine. Instead,
+there's a kilo of fat shoved in our skull which has to figure out what that
+means and we often get it wrong.
+
+This is problematic enough that Alan Kay left inheritance out of his original
+descriptions of Object-Oriented Programming (OOP). It's problematic enough
+that some OOP langauges (or OOP-like, depending on your definition) don't allow
+inheritance at all. Some allow multiple inheritance. Others only allow
+single-inheritance but usually give you some tools to make life a touch easier
+than simply composition and delegation (interfaces, mixins, aspect-oriented
+programming, roles (Smalltalk-style traits), etc.).
+
+Importantly, in class-based OOP languages, the classes define the behavior and
+the _instances_ of those classes contain the data (hand-waving on this quite a
+bit, of course).
+
+# Classes versus Prototypes
+
+But what about the other features? They seem good, right? Well, there are a
+number of [protype based programming
+langauges](https://wiki.c2.com/?PrototypeBasedProgramming), such as
+Javascript, Lua, Self, Io, and so on. In these languages, an object can
+contain both data and behavior and you copy the object and add new data and
+behavior as needed. To be honest, though, when I squint, I see single
+inheritance in protype-based languages. I've never worked with one enough to
+be confident in saying that, though.
+
+# Dr. Alan Kay
+
+But here's someone who should be considered an expert on the term. Note that
+he didn't invent OOP, merely the term. And he's not happy with where it went.
+
+[% Ovid.youtube("oKg1hTOQXoY") %]
+
+This isn't a classical "argument from authority" fallacy because I'm not going
+to argue whether or not he's correct. Instead, I'm going to argue that
+microservices adhere much more closely to his idea of OOP than traditional
+class-based systems.
+
+In particular, [he identifies the following three key features as the
+following](http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en):
+
+1. Messaging
+2. Isolation
+3. Extreme late-binding
+
+All three of those are unusual enough to the minds of many programmers that
+they're worth digging into. I'll be brief.
+
+## Messaging
+
+In Kay's view, you don't call methods on an object, you send messages to it.
+The receiver is free to respond however it likes, including ignoring the
+message. For example, with a web server, you could send the message `DELETE
+/foo.html` and it's free to return a 400, a 404, another status code, or
+simply drop the request. If you think of the server as an _object_, you've
+sent it a message and it can do any damned thing it wants with it.
+
+## Isolation
+
+Alan Kay actually said, "local retention and protection and hiding of
+state-process," but we often use the term "isolation" instead.
+
+First, let's think about encapsulation. If, internally, an object has a secret
+key for encrypting/decrypting something, you don't want that exposed. That's
+_encapsulation_. Many languages get this right, though I've found that many
+dynamic languages make this hard to enforce. Fixing this is one of the key
+drivers of the [Corinna OOP project for Perl](https://github.com/Ovid/Cor).
+
+But what happens if we do this (Corinna OOP syntax)?
+
+```perl
+class User {
+    has $username :param :reader;
+    has $password :param;
+}
+
+my $user = User->new(
+    username => "Ovid",
+    password => 'hunter2',
+);
+say $user->username;   # "Ovid"
+say $user->password;   # "Method not found" error
+```
+
+So I can instantiate a `User` object, send it to you, and you can see their
+username, but not their password. That's encapsulation. But if you try to
+call `$user->password`, you also get an exception. That's encapsulation, but
+not isolation. Alan Kay referred to "state-process", not just state.
+
+Again, think about a web server and a web client. If the server throws a 500
+error, or just catastrophically crashes, your client doesn't suddenly crash
+(unless it's poorly written).  Instead, it gives you useful information which
+you can then use to decide what action to take. In fact, Kay has described the
+Web as being the most successful example of OOP ever invened.
+
+## Extreme Late Binding
+
+In many OO languages, we have _early binding_ where the class is used to
+resolve, at compile time, the method that is to be called. You will get
+compile time errors if the method does not exist.
+
+In late binding, we use the _instance_ to determine resolve, at runtime, the
+method that is to be called. If you don't know what kind of instance you have,
+you can get runtime errors if the method does not exist.
+
+So what's extreme late binding? The method might not even exist when it's
+called, but it still resolves, or its behavior might change between calls
+because you've found a more efficient or accurate implementation! Smalltalk
+and Erlang are two languages known to easily support this. Surprisingly, Perl
+can as well, using the `AUTOLOAD` feature. Here's a silly example using the
+Corinna syntax, with a few speculative (made-up) features to make the example
+clearer:
+
+```perl
+class SomeClass {
+    has @objects;
+
+    ADJUST {
+        # populate @objects
+    }
+
+    method AUTOLOAD ($method, @args) {
+        foreach my $object (@objects) {
+            if ( $object->can($method, @args) ) {
+                $MOP->class->add_method(
+                    $method,
+                    method { $object->$method(@args) }
+                );
+                return $self->$method(@args);
+            }
+        }
+        return;
+    }
+}
+
+my $instance = SomeClass->new;
+
+ # return $object->frobnicate(42) from the first composed object
+ # which can handle the request
+$instance->frobnicate(42);
+```
+
+In the above example, `SomeClass` doesn't implement any methods at all, but if
+you call one that doesn't exist, it installs one that delegates to an object
+having that method. Later calls would call the installed method instead of
+`AUTOLOAD`.
+
+We can again use the web server/client analogy to explain this. A browser
+makes a request and the web server may not even be designed to handle the
+request but serves a result anyway. It might even later cache that request so
+it doesn't have to recompute it. You don't know. You don't care. You only
+know you made a request and got a response. Hopefully it's a useful response.
+
+The intent behind extreme late-binding is to protect you from committing too
+early to an implementation that may not be what you need (or even needed), but
+allow you to respond to the method/message if appropriate.
+
+# Microservices
+
+There's a lot of confusion about microservices and SOA (Service-Oriented
+Architecture) and I cover some of it in [this
+article](https://dev.to/ovid/rewriting-the-monolith-part-2-2bgf).
+
+> Microservices are generally expected to have all the logic and data they
+> need to perform a task. They're not coordinating with a bunch of other
+> services and thus are loosely coupled and fit well with agile development.
+>
+> SOA services, however, need to coordinate with other services in the same
+> way that your `Order` object needs a `Collection` of `Item` objects, along
+> with a `Customer` object, and so on.
+
+A microservice is self-contained and might duplicate code in a way that SOA
+does not, but it's completely isolated from the rest of the code. It's
+basically a process/server running that has an API (messages), isolates
+*everything*, and can use extreme late-binding if it wishes to.
+
+Thus, if you aspire to Dr. Kay's model (and the success of the internet is a
+powerful testimonial), you may want to look at microservices. Some people look
+at microservices as being a silly fad, but they're a fad that's been around
+for quite some time and more and more companies are using them. In fact, our
+company, [All Around the World](https://allaroundtheworld.fr) is routinely
+getting more requests from clients about implementing SOA/microservices for
+their systems.
+
+One interesting point about microservices (which SOA might struggle with) is
+that the extreme isolation of them combined with an OpenAPI interface means
+that you can separate off a layer of your system as a microservice, make sure
+it works, and then easily rewrite it in another programming language that
+might be more appropriate to the task at hand. That's often extremely hard to
+do when you directly use/import/require/include a module because it's usually
+required to be in the same language.
+
+# A Little Secret
+
+But if you agree with the idea that microservices might be the next step in
+OOP, along the lines of what Alan Kay proposed, perhaps we should keep this
+our little secret, shall we? OOP "purists" might be horrified at the
+description and OOP "haters" might be aghast at realizing they've been writing
+objects all this time. Admitting that microservices are objects might be a
+marketing disaster, even if it's true.
+
+[%- END %]
