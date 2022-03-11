@@ -15,23 +15,24 @@ foreach my $type (qw/article blog/) {
 SQL
     my $dir = article_type($type)->{directory};
     foreach my $article (@$articles) {
-        my $slug     = $article->{slug};
-        my $filename = filename( $dir, $slug );
-        if ( -e $filename ) {
+        my $slug      = $article->{slug};
+        my ($filename) = grep { -e $_ } filenames( $dir, $slug );
+        if ($filename) {
             pass "$filename exists for $slug";
             is $slug, get_slug_from_file($filename),
               "Actual slug and file slug should match";
         }
         else {
-            fail "$filename does not exist for $slug";
+            fail "Cannot find filename for $slug";
         }
     }
 }
 
 done_testing;
 
-sub filename ( $dir, $slug ) {
-    return "root/$dir/$slug.tt";
+sub filenames ( $dir, $slug ) {
+    # new extensions are now .tt2markdown
+    return ( "root/$dir/$slug.tt", "root/$dir/$slug.tt2markdown" );
 }
 
 sub get_slug_from_file ($filename) {

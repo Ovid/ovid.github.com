@@ -48,6 +48,7 @@ It should have a structure like this:
 	ignore = ^.git
 
 	suffix tt=html
+	suffix tt2markdown=html
 END
 	exit 1;
 }
@@ -78,7 +79,7 @@ sub preprocess_files (@files) {
     system( 'rm', '-fr', 'tmp' );
   FILE: foreach my $file (@files) {
         next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
-        my $is_tt_file = $file =~ /\.tt$/;
+        my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
 
         my $dir  = dirname($file);
         my $name = basename($file);

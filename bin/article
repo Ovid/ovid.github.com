@@ -85,7 +85,7 @@ END
 sub write_article_stub ( $title, $slug, $opt_for ) {
     my $directory = article_type( $opt_for->{type} )->{directory};
     my $contents  = template( $title, $directory, $slug, $opt_for );
-    my $template  = catfile( 'root', $directory, "$slug.tt" );
+    my $template  = catfile( 'root', $directory, "$slug.tt2markdown" );
 
     if ( -e $template ) {
         say "Refusing to overwrite the existing file at $template. Exiting.";
