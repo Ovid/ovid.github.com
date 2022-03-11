@@ -1,0 +1,561 @@
+[%
+    title            = 'Time to Invest in Space?';
+    type             = 'blog';
+    slug             = 'time-to-invest-in-space';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-03-08';
+    mathjax          = 0;
+    facebook         = 'blue-marble.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    facebook_alt     = 'It’s our home, but sooner or later, we need to leave.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+# A Brief History of Private Spaceflight
+
+At the end of the 20th century, spaceflight was considered a "national"
+endeavor, limited to a few countries such as the United States, Russia,
+France, China, Japan, and so on. Companies like Boeing, Honeywell, Roscomos,
+Arianespace, and others provided space offerings that were attached to
+national programs, not private programs.
+
+But at the dawn of the 21st century, things started to change. Jeff Bezos
+founded [Blue Origin](https://www.blueorigin.com/) in 2000. Elon Musk founded
+[SpaceX](https://www.spacex.com/) in 2002.  Richard Branson founded [Virgin
+Galactic](https://www.virgingalactic.com/) in 2004. Blue Origin was in stealth
+mode. Elon Musk was laughed at. Virgin Galactic was viewed as the toy of a
+billionaire playboy. Bezos, Musk, and Branson, serial entrepreneurs all, saw a
+future for spaceflight that others had not. They wanted to create new
+industries.
+
+At that time, VCs weren't interested in space startups. Investment funds
+didn't carry them in their portfolios.  By 2014, when [Google acquired satellite company Skybox
+Imaging](https://terrabellatech.blogspot.com/2014/06/skybox-imaging-google.html),
+that changed. The era of private spaceflight was starting to mature.
+
+[% INCLUDE include/image.tt
+   position = "right"
+   src      = "/static/images/otrag-rocket-1970s.jpg"
+   caption  = "The OTRAG Rocket, 1977"
+   alt      = "Fair use via: http://www.astronautix.com/o/otrag.html"
+%]
+
+But just as many people aren't aware that the internet started long before the
+mid-90s, private spaceflight began long before this century.
+
+Commercial satellite launches began in the 1960s, long before humanity landed
+on the moon. [The first amateur satellite, OSCAR I, was launched in
+1961](http://www.arrl.org/news/oscar-i-and-amateur-radio-satellites-celebrating-50-years),
+a scant four years after Sputnik, and [the first commercial satellite, Telstar
+1, was launched in
+1962](https://www.nasa.gov/topics/technology/features/telstar.html).
+
+And then there was OTRAG. OTRAG was a private rocket company founded in 1975
+by Lutz Kayser, a German entrepreneur. The intent was to build low-cost
+rockets an order of magnitude cheaper than existing rockets. Amazingly, Kayser
+succeeded, [but the history is
+tragic](http://www.astronautix.com/o/otrag.html).
+
+> Kayser's activities made the great powers nervous. The USSR and France were
+not interested in Germany achieving an indigenous long-range rocket activity.
+American rocket makers were not interested in having a low-cost competitor. A
+propaganda campaign began, alleging OTRAG was a cover for German and South
+African nuclear cruise missile development. Crude Soviet-source disinformation
+was eagerly picked up and given credibility by the American mainstream media.
+The government of the Congo, [where OTRAG was launching from], was pressured
+by the Russians to withdraw permission to use the site. OTRAG left the country
+in April 1979.
+
+They relocated to Libya, but the Libyan government seized their rockets in an
+attempt to create their own rocket program. Fortunately, without Kayser's
+experience, they failed, and the dream of private spaceflight failed with it.
+
+If Kayser succeeded, we might have our moon base by now. We might be on Mars
+already. Instead, we're still waiting, decades later.
+
+[There's a decent Wikimedia page that sums up the history of private
+spaceflight](https://en.wikipedia.org/wiki/Timeline_of_private_spaceflight),
+but mostly, the nascent industry sputtered along in fits and starts, usually
+followed by bankruptcy.
+
+It wasn't until the 21st century that the private rocket industry exploded.[%
+Ovid.add_note("Sorry, I couldn't resist that.") %]
+
+Now, everything is changing, but what's going to change? To understand that,
+we have to know a bit about the evolution of markets.
+
+# The Four Phases of Market Evolution
+
+**Note**: much of the following is derived from the work of [Simon
+Wardley](https://blog.gardeviance.org/), but I've adjusted some of the
+terminology.
+
+Markets (and new products within them) tend to evolve through four maturity
+phases. Each has unique characteristics and should be treated differently.
+This is boring for most, but it's important. These phases are:
+
+1. **Novelty Phase**: A new market emerges. Unknown how/if consumers will respond.
+2. **Stability Phase**: The new market is stabilizing, but not necessarily mature.
+Still experimenting with different approaches.
+3. **Commodity Phase**: Robust competition amongst competitors. Less product
+differentiation due to market maturity.
+4. **Utility Phase**: Market is mature, widespread, very stable, and margins are
+thin. New markets are built on top of these.
+
+> **Note**: the above descriptions are far too brief. For extended
+> descriptions, [I have a brief article which explains them in more detail,
+> including
+> examples](/articles/when-to-choose-agile.html).
+
+For private spaceflight, the "novelty phase" was when entrepreneurs started to
+see potential, but it's very high-risk, high-reward. As first movers, if they
+succeed (most did not, of course), they can reap tremendous benefits. This is
+why Elon Musk regularly tops the lists of the world's richest people.
+
+As we move from novelty to stability to commodity to utility, we see risk
+gradually decreasing:
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/market-maturity-risk.jpg"
+   caption  = "Novel markets are very high-risk."
+   alt      = "A chart showing how market risk decreases with maturity."
+%]
+
+Why does risk decrease? There are various factors, including customers
+becoming more comfortable with the market and having new ideas how they can
+utilize the market. But to succeed in this evolution, the products in that
+market must be _reliable_. Would you buy a cell phone that only has service
+50% of the time? Probably not.
+
+What this means is that as markets mature, their products become more stable:
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/market-maturity-stability.jpg"
+   caption  = "Stable markets are very predictable."
+   alt      = "A chart showing how product stability increases with maturity."
+%]
+
+Now [compare this with air travel](https://www.mackinac.org/V2003-30):
+
+> In the industry’s embryonic era, accidents were disturbingly numerous.
+> Ironically, 1929, the year of “The Great Crash,” was also one of the most
+> crash-ridden in aviation history, with 24 fatal accidents reported. In both
+> 1928 and 1929, the overall accident rate was about one per every million
+> miles flown. In today’s system, an accident rate of that magnitude would
+> result in a nearly incomprehensible 7,000 fatal accidents each year.
+
+By 2017, [there were no recorded deaths of passengers in commercial passenger
+jets](https://www.reuters.com/article/us-aviation-safety-idUSKBN1EQ17L). In
+2007, a National Safety Council's recent [odds-of-dying
+data](https://injuryfacts.nsc.org/all-injuries/preventable-death-overview/odds-of-dying/)
+reports that you have a 1 in 107 chance of dying in a car crash. Airline
+passenger? "Too few deaths in 2019 to calculate odds."
+
+But what about spaceships? Astronaut Chris Hadfield reports that in 1981, you
+had a 1 in 9 chance of dying in a space shuttle launch. By 1995, the odds of
+dying had already dropped to 1 in 38. If this trend continues, we could see
+ourselves in the bizarre position of seeing our odds of dying on a spaceflight
+lower than our odds of dying in a car crash.
+
+[% Ovid.youtube('mhpFpHLCuEA') %]
+
+Today, no astronauts have died since [the 2003 Columbia space shuttle
+disaster](https://www.britannica.com/event/Columbia-disaster). (Note: [the
+last cosmonauts to die in space were in
+1971](https://astronomy.com/news/2021/06/remembering-the-crew-of-soyuz-11-the-only-astronauts-to-die-in-space)).
+Though in one bizarre incident, [an astronaut almost drowned on a July, 2013
+spacewalk](https://abcnews.go.com/US/astronaut-drowned-space-due-nasas-poor-communication-report/story?id=22687977).
+
+That doesn't mean spaceflight is suddenly safe, but it's far safer than it
+ever has been.
+
+# Spaceflight is Entering the Stability Phase
+
+Long viewed as a novelty, spaceflight is entering the stability phase. It's
+not there yet, but it's on the verge and SpaceX is leading the way. While the
+novelty phase offers higher rewards, its risk level is too high for all but
+the most informed (and wealthy) investor. However, when the stability phase is
+entered, the market has begun to solidify, the products are becoming trusted,
+more investors can understand the market, and the risk has dropped
+tremendously. Of course, the reward has dropped, too, but that seems a fair
+trade-off.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/blue-moon-lander-deflated.jpg"
+   alt      = "Blue Origin's Blue Moon lander, deflated."
+   caption  = "Advanced Blue Origin Lander Prototype."
+   position = "left"
+%]
+
+However, particularly if we're viewing things through a capitalist lens, it's
+hard to argue that a market is "stabilizing" if there's only one real
+supplier. Blue Origin, despite their recent suborbital tourist flights, [is
+struggling](/blog/jeff-bezos-1000-problems.html). Due to poor performance,
+[investors worry about Virgin
+Galactic](https://www.investors.com/news/spce-stock-buy-now/) and the new
+lawsuit against Richard Branson and Virgin Galactic chairman Chamath
+Palihapitiya over [allegedly dumping shares while covering up spaceship
+defects](https://markets.businessinsider.com/news/stocks/chamath-palihapitiya-richard-branson-virgin-galactic-lawsuit-sued-insider-information-2022-3)
+is not going to help matters.
+
+Roscomos, the state-owned Russian space company has long struggled financially
+and [recently announced steep budget
+cuts](https://arstechnica.com/science/2021/10/putin-slashes-russias-space-budget-and-says-he-expects-better-results/)
+are not going to help. [Private Russian spaceflight company Dauria is fighting
+bankruptcy](https://rusbankrot.ru/en/bankruptcy-and-liquidation/private-russian-space-company-dauria-may-go-bankrupt/).
+French company Arianespace [reported a 30% increase in 2021
+revenue](https://www.spaceintelreport.com/arianespace-reports-30-boost-in-2021-revenue-to-1-4-billion-on-50-more-launches/)
+but their lack of reusable rockets and their promised reusable "Prometheus"
+engine (to be first launched eight years from when I'm writing) being delayed
+means they're falling further and further behind SpaceX.  Worse, the impending
+arrival of Starship means [Arianespace is in serious
+trouble](https://www.fool.com/investing/2021/06/01/ariane-and-europe-fall-farther-behind-spacex/).
+
+So with them not going anywhere, what happens if SpaceX collapses? [Elon Musk
+has already warned his employees about potential bankruptcy if it can't speed
+up
+production](https://www.business-standard.com/article/international/elon-musk-warns-employees-of-potential-spacex-bankruptcy-121120100660_1.html)
+(though he later admitted this was unlikely). But I've talked to plenty of
+people about the space industry and most of them are unaware of the numerous
+successful competitors out there.
+
+Virgin One was spun off from Virgin Galactic and shortly after its [first
+successful launch of seven
+satellites](https://www.theverge.com/2022/1/13/22880143/virgin-orbit-launcherone-747-cosmic-girl-air-launch-small-satellites)
+announced that [NASA put them on their short list of satellite launch
+providers](https://www.fool.com/investing/2022/01/27/why-virgin-orbit-stock-rocketed-higher-on-thursday/).
+This doesn't guarantee they'll be selected for launches, but the private
+sector is watching them. They can't launch very large satellites, but [their
+launches are only $12 to $15 million per
+launch](https://arstechnica.com/science/2021/07/virgin-orbit-suddenly-has-a-viable-rocket-so-what-comes-next/).
+They're a force to watch.
+
+[Rocket Lab and Firefly are also looking very
+competitive](https://www.cnbc.com/2021/12/02/rocket-lab-reusable-neutron-rocket-update-competing-with-spacex.html):
+
+> Rocket Lab’s small Electron rocket goes for about $7 million per launch,
+> Firefly’s medium-sized Alpha rocket goes for $15 million per launch, and
+> SpaceX’s Falcon 9 is advertised at $62 million per launch.
+
+There's also [UP Aerospace](https://www.upaerospace.com/), [United Launch
+Alliance](https://www.ulalaunch.com/),
+[SpaceForest](https://www.ulalaunch.com/) (services starting in 2023), and
+many others starting development. [Raphael
+Roettgen](https://raphaelroettgen.com/), on [the TerraWatch
+podcost](https://podcasts.apple.com/us/podcast/s1e11-demystifying-investing-in-spacetech-with-raphael/id1551879294?i=1000522583997),
+estimated that there are around 200 launch startups around the world today.
+
+The market is booming and stabilizing. Customers can now choose between a
+wide varieties of rockets with different payload sizes and price points, but
+there's still an enormous amount of risk and it will be a couple of decades
+before we can approach the commodity stage.
+
+# Starship Changes Everything
+
+A few years ago, a friend in Nottingham told me she wanted to spend the
+weekend in Ireland, so she bought a plane ticket. When she changed her mind,
+she threw away the ticket. It was only £20. No longer the domain of the
+wealthy, air travel is for everyone and this is (eventually) coming to space.
+
+## Costs
+
+For the space shuttle, [the average cost per launch for the last decade was
+around one billion dollars](https://www.nature.com/articles/472038d). For
+Starship, [Musk expects launch prices of less than ten million within two to
+three
+years](https://www.businessinsider.com/elon-musk-spacex-starship-rocket-update-flight-cost-million-2022-2).
+Eventually, he projects those prices could be less than a million dollars a
+launch.[% Ovid.add_note("Admittedly, though his success is undeniable, Musk's
+time estimates have been rather optimistic.") %]
+
+In contrast, [the Concorde's inaugural 1973 flight from Paris to Rio de
+Janeiro](https://www.britannica.com/technology/Concorde), roughly 5,700 miles
+(9173 km), operating at [a cost per flight of up to $5.20 per
+mile](https://books.google.fr/books?id=nCjsAAAAMAAJ&pg=RA2-PA223&lpg=RA2-PA223&dq=cost+%22per+flight%22+concorde&source=bl&ots=BN_R-OUbOF&sig=ACfU3U0YVecR5fUTr8PKSEY2ZOoHrS3OQQ&hl=en&sa=X&ved=2ahUKEwj-tbPSwbj2AhUCZcAKHSczA9oQ6AF6BAgdEAM#v=onepage&q=cost%20%22per%20flight%22%20concorde&f=false),
+could be looking at just shy of $30,000 for that flight. Adjusted for
+inflation, that's almost $190,000 today. However, the $5.20 figure was for a
+1972 estimate. In reality, the Concorde was subject to wild cost overruns, so
+a $190,000 flight cost is certainly low.[% Ovid.add_note('Airline flight costs
+are actually measured in "cost per block hour" and that includes many things
+such as fuel, wages, food, maintenance, insurance, advertising, rental
+charges, and so on. I couldn’t even begin to calculate that for Starship.')
+%]
+
+That Starship may not be significantly more expensive than a Concorde is
+mind-boggling. [The fact that Starship might actually cheaper than planes for
+long-haul flights is even more
+mind-boggling](https://www.nextbigfuture.com/2022/02/spacex-reusable-rocket-costs-versus-airplanes.html).
+
+But wait, there's more! [The cost of building the Boeing
+737](https://www.fool.com/investing/2017/07/10/here-are-the-average-prices-for-boeings-5-major-co.aspx), one of their
+least expensive aircraft, is just over $100 million. At the high end,
+[Starships could cost around $37 million
+each](https://www.nextbigfuture.com/2020/05/mass-production-rate-and-spacex-starship-costs.html),
+but an optimistic mass production rate could drop that price to $5 million
+per Starship. This is _insane_.
+
+## Disruption
+
+The lower costs, however, have a knock-on effect for the entire industry.  The
+media tends to think of the cost of the launch, but the insanely high launch
+costs ripple through the industry. Want to make a lunar lander out of stainless
+steel? Too bad. [Titanium is about 35 times as expensive as stainless
+steel](https://www.aesteiron.com/blog/stainless-steel-vs-titanium.html), but
+it's weighs half as much. [With costs per kilogram in the
+thousands](https://en.wikipedia.org/wiki/Space_launch_market_competition), every
+penny counts.
+
+| Launch Vehicle | Payload cost per kg |
+|---|---|
+| Vanguard | $1,000,000 |
+| Space Shuttle | $54,500 |
+| Electron | $19,039 |
+| Ariane 5G | $9,167 |
+| Long March 3B | $4,412 |
+| Proton | $4,320 |
+| Falcon 9 | $2,720 |
+| Falcon Heavy | $1,400 |
+| Starship | [$100](https://en.wikipedia.org/wiki/Space_launch_market_competition) |
+
+Yes, Starship costs can potentially cost an order of magnitude less per
+kilogram. What else does that mean?
+
+It means missions can be run in parallel, not in series.
+
+Think about a string of electric lights. If they're run in series and one goes
+out, they're all out. If they're run in parallel and one goes out, the rest
+keep working and you can compensate for the missing bulb.
+
+Missions in space today are long series of single points of failure once
+launched. Consider a simple (ha!) robotic rover to Mars. It's been devilishly
+hard to land on Mars, so we have to:
+
+1. Design the rover
+1. Order the parts for the rover
+1. Ensure all tolerances are *perfect* for the rover
+1. Assemble the rover
+1. Test, test, test, and retest the rover
+1. Return to step 2 if the parts aren't up to snuff
+1. Return to step 1 if the design isn't up to snuff
+1. Do all of this in a near-sterile environment so we don't contaminate Mars
+1. Move the rover to the rocket
+1. Have a perfect launch
+1. Wait six to nine months while the rocket heads to Mars
+1. Enter the Martian atmosphere at just the perfect angle
+1. Survive the descent to the surface
+1. Scream in agony as the dust storm covers the solar panels and kills the mission
+
+I skipped a few steps in there, but prior to launch, costs are astronomically
+high to due having to be _perfect_, absolutely _perfect_, because once you
+launch, any failure at any single point renders all of the previous work
+moot.
+
+With Starship, you could build multiple rovers, with much less costly
+materials (weight no longer being the major consideration), lower tolerances
+for many of the components, and fly _all_ of them to Mars on multiple launch
+for less than the cost of a single rover today. A couple of flights fail?
+Fine, you still have a fleet of rovers on Mars. And no, you can't reduce all
+of the tolerances, but by building a fleet, the individual costs can be
+lowered as you gain more experience in procurement and assembly.
+
+Heck, the [Perseverance rover to Mars will have a projected final mission cost
+of almost three billion
+dollars](https://www.forbes.com/sites/niallmccarthy/2021/02/19/how-the-cost-of-perseverance-compares-to-other-mars-missions-infographic/?sh=4291213f1592).
+Musk's long-term goal is to make [a passenger ticket to Mars as low as
+$100,000](https://www.inverse.com/innovation/spacex-mars-city-codex).
+
+Starship changes everything.
+
+# What the Future Holds
+
+Just as the internet has proven to be a hugely disruptive force for industry
+and society, so will the new space industry. But like the internet, we don't
+know what that impact will be.
+
+[% Ovid.youtube('-Oox2w5sMcA') %]
+
+## New Industries
+
+As we improve our rocket technologies, many of the new industries are already
+on the horizon. Space tourism on rockets and even the ISS have already
+happened. But [space hotels are being actively
+planned](https://www.architecturaldigest.com/story/worlds-first-space-hotel-open-2027):
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/space-hotel.jpg"
+   caption  = "Orbital Assembly Corporation space hotel concept."
+   alt      = "Fair use via: https://www.architecturaldigest.com/story/worlds-first-space-hotel-open-2027"
+%]
+
+Real-time satellite imaging is widely available, [high-speed, low-latency
+internet](https://www.starlink.com/) is starting, and Japanese company
+[Astroscale](https://astroscale.com/) is already planning to remove space
+debris and provide _on site_ inspection and maintenance of satellites.
+([Dealing with the ever-increasing threat of space junk is a serious
+problem](https://www.scientificamerican.com/article/space-junk-removal-is-not-going-smoothly/)).
+
+## Mining in Space
+
+Of course, no story would be complete without discussing mining. If you are at
+all interested in space, you've long heard that the world's first
+trillionaires will be space miners. [The early space mining companies are
+gone](https://www.technologyreview.com/2019/06/26/134510/asteroid-mining-bubble-burst-history/)
+because they, like OTRAG, were early adopters who adopted too early. They
+generally anticipated that the first space mining would involve mining
+extremely valuable ... water.
+
+Yes, water. They were going to sell it to [spacecraft using various means of
+water
+propulsion](https://spacenews.com/water-propulsion-technologies-picking-up-steam/)
+(seriously, the idea is picking up steam). However, the industry they wanted
+to support wasn't ready to be born, so the space mining companies drowned
+(forgive me). But water is going to be a seriously valuable resource in space.
+I describe this briefly in [one of my public
+presentations](https://youtu.be/UmLwYLSmTSs?t=3014) (if the video doesn't
+start at the correct spot, jump to 50:13):
+
+[% Ovid.youtube('UmLwYLSmTSs?t=3027s') %]
+
+> Side note: I'm also a public speaker, so if you want to have me give a talk
+> about this, [let me know](mailto:curtis.poe@gmail.com?subject=Public%20Speaking)!
+
+But what else might we mine? We are facing a near-term global lithium
+shortage, so that would be awesome. But where do we find it? Lithium dissolves
+easily in water and is found in salt flat brines like those of Chile, or
+_pegamites_, a type of rock that forms in water-rich magmas. It's estimated
+that the moon may have the same relative amount of lithium as Earth, but
+without water, it wouldn't be concentrated enough to efficiently mine. Mars?
+Maybe, but we're not sure.  Ceres has been speculated as a source of minable
+lithium, but we can't send our mining robots on a hunch. We need to go
+_prospecting_ to find what we need and currently, that's too expensive—until
+Starship is fully operational.
+
+The same goes for Rhodium and the other platinum-group metals. Without a
+low-cost ability to to prospect space, we can't send out mining equipment,
+much less miners.
+
+But let's say we find a near-Earth asteroid with the metals we want. The cost,
+per load, of those materials needs to be lower than the cost of building our
+prospectors, launching, searching, building our mining robots, launching them,
+mining the metals, refining the metals on site, and then returning them to
+Earth. As it stands now, we can't meet those costs and even with Starship,
+getting them back to Earth is difficult. We can't use parachutes. Simply
+crashing them on our planet will destroy much of it in the atmosphere and
+needlessly endanger lives, so they need to be brought back in a rocket. It's
+simply not economically feasible.
+
+More accurately, asteroid mining isn't economically feasibly until we have an
+established industry _in space_. At which point, all of that changes because
+we can build, launch, and return in space. That's much less expensive and we
+can use those materials to build out space-industry in a more cost-effective
+manner.
+
+Sadly, that's decades away. But asteroid mining might still be viable.
+
+The moon is regularly hit with asteroids and probably about 20% of those are
+metallic. Building stations on the moon and using the materials there might be
+worthwhile...and we're already looking at lunar stations. Thus, we can do
+asteroid mining, so long as we're doing it on the moon.
+
+[The south pole of the moon is a potential site for setting up our
+stations](https://www.nasa.gov/feature/moon-s-south-pole-in-nasa-s-landing-sites).
+It appears to have abundant water and if we send out plenty of robotic
+prospectors, finding a location near silicon and platinum deposits would give
+us the ability to mine the materials to make solar panels to power our lunar
+outposts. But we won't know until we start prospecting.
+
+## Disruptive Uses?
+
+We've already discussed [Starlink](https://www.starlink.com/), a
+mega-constellation of satellites to bring high-speed, low-latency internet
+connections to the entire planet. There are considerable challenges involved,
+including [efforts to reduce their visibility](https://www.starlink.com/) and
+not ruin ground-based astronomy.  The long-term goal is to have over 30,000
+satellites operational, so effort is being put into ensuring defunct
+satellites de-orbit as quickly as possible to mitigate [the problem with space
+debris](https://www.esa.int/Enabling_Support/Operations/Space_debris_assessing_the_risk).
+
+But it's possible that Musk may be [planning to become a trillionaire by
+creating space-based solar power generating
+stations](http://www.antipope.org/charlie/blog-static/2021/09/fossil-fuels-are-dead.html).
+These generate nice, clean solar power in space and beam it back to Earth.
+Before you think this is just science fiction, [China is already planning on
+doing
+this](https://interestingengineering.com/china-wants-a-huge-orbital-solar-power-station-in-space),
+but unlike SpaceX, they don't have access to Starship. That being said, the
+the long-term benefits outweigh the costs of launching via China's [Long March
+5](https://en.wikipedia.org/wiki/Long_March_5) rocket. China is pushing
+forward.
+
+Musk's path may be less clear because if successful, he threatens the
+fossil-fuel industry and they will do everything they can to stop him (unless
+he creates a partnership with them, which I doubt). They will be lobbying like
+made, citing environmental concerns of the launches (oh, the irony), trying to
+find regulatory means of stopping him, and pointing out to politicians all the
+jobs their districts stand to lose if these stations are operational. This
+seems strange, but we've already seen this with Tesla Motors. This will be
+OTRAG all over again: political and market forces working hand-in-hand to
+block innovation. 
+
+There will be other disruptive markets to emerge from this industry sometimes
+being referred to as
+[NewSpace](https://www.spacetec.partners/markets/newspace/), but like [Black
+Swan events](https://www.investopedia.com/terms/b/blackswan.asp), we can't
+predict them in advance, and they will have enormous impacts on markets.
+
+> **Note**: [space elevators will not be the disruptive
+> force](https://www.newscientist.com/article/dn16223-space-elevator-trips-could-be-agonisingly-slow/).
+> Not only are they probably decades away, but an ascent to space will likely
+> take weeks.
+
+# Investing
+
+Like OTRAG, early space mining companies died because they were too soon.
+Early investors in this "novelty" stage of the market lost a lot of money. Now
+that we're entering the stability phase, investing presents less risk, though
+less reward.
+
+Before NewSpace started entering the stability phase, there were few, if any,
+VCs or financial services company offering services. Today, there are many of
+them. Today, investment giant [Morgan Stanley is even offering space
+investing](https://www.morganstanley.com/ideas/investing-in-space).
+However, space investing today is mainly in the hands of the wealthy. Sadly,
+this is probably a good thing because as if often pointed out by investors,
+unless you put in 10,000 hours or more in deep study of NewSpace, you won't
+have the expertise to evaluate investments.
+
+NewSpace can't do the early internet thing of "throw money at the wall and
+hope it sticks." The amounts of money involved means you have to have an
+extremely high chance of a payoff. These companies aren't investing in new
+technologies so much as they're investing in markets with solid business
+plans. This sets this industry apart from the early days of the
+[tulipmania](https://www.investopedia.com/terms/d/dutch_tulip_bulb_market_bubble.asp)
+Internet Bubble.
+
+Of course, other companies are now getting involved. The highly-regarded
+[International Space University](https://www.isunet.edu/) (ISU), has a
+Master's Programs in Space Studies and offers a wide variety of professional
+courses in different aspects of the space industry.
+
+# Be Patient
+
+We're at the NewSpace equivalent of the internet in the mid-90s. It's booming
+tremendously, but due to the extremely high costs and high risks, it's being
+approached in a healthier manner than the internet boom. However, we won't see
+internet speeds of advancement. For much of the internet, it was a matter of
+building ISPs and connecting people and letting the industry blossom. For
+NewSpace, the entire industry needs to be boostrapped, including the core
+infrastructure.
+
+It's not going to impact us directly today–no one is buying a cheap flight to
+an orbital hotel–but it's coming and despite the naysayers, it's not stopping.
+And even if SpaceX unexpectedly goes bankrupt (it won't), it will still keep
+coming. I don't know if I'll live long enough for a vacation in space, but my
+daughter will. So will your children. So will many of you who read this.
+
+The long-awaited promise of a future in space is finally arriving.
+
+[%- END %]
