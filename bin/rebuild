@@ -8,6 +8,7 @@ use warnings;
 use DateTime;
 use DateTime::Format::SQLite;
 use XML::RSS;
+use Mojo::DOM;
 use Less::Script;
 use Less::Pager;
 use Less::TTSyntax qw(
@@ -231,6 +232,12 @@ sub rebuild_rss_feeds () {
         { Slice => {} } );
 
     foreach my $type ( $types->@* ) {
+        my $rss_file  = "$type->{type}.rss";
+        my %already_added;
+        if ( -e $rss_file ) {
+            my $dom = Mojo::DOM->new(slurp($rss_file));
+            %already_added = map { $_->text => 1 } $dom->find('link')->each;
+        }
         my $directory = $type->{directory};
         my $now       = DateTime->now;
         my $year      = $now->year;
@@ -268,19 +275,28 @@ sub rebuild_rss_feeds () {
      WHERE available = 1 AND at.type = ?
   ORDER BY sort_order DESC
 SQL
+
+        my $new_links = 0;
         foreach my $article ( $articles->@* ) {
             my $created =
               DateTime::Format::SQLite->parse_datetime( $article->{created} );
+            my $url = "$base_url$directory/$article->{slug}.html";
+
+            # Every time we changed an article, we kept updating the
+            # publication date of the entire RSS feed. Now we only do this if
+            # we have found at least one new article/blog entry.
+            $new_links++ if not $already_added{$url};
+
             $rss->add_item(
                 title       => $article->{title},
-                link        => "$base_url$directory/$article->{slug}.html",
+                link        => $url,
                 description => $article->{description},
                 creator     => 'Curtis "Ovid" Poe',
                 guid        => "$type->{type}/$article->{slug}",
                 pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
             );
         }
-        splat( "$type->{type}.rss", $rss->as_string );
+        splat( $rss_file, $rss->as_string ) if $new_links;
     }
 }
 
