@@ -2,15 +2,20 @@ package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
 use Less::Pager;
+use Mojo::JSON 'decode_json';
+use Less::Config 'config';
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
+    open my $fh, '<', config()->{tagmap_file};
+    my $json = do { local $/; <$fh> };
     bless {
         _CONTEXT        => $context,
         footnote_number => 1,
         footnote_names  => {},
         footnotes       => [],
         pager           => Less::Pager->new( type => 'article' ),
+        tagmap          => decode_json($json),
     }, $class;
 }
 
@@ -28,6 +33,42 @@ sub cite ( $self, $path, $name ) {
 '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>'
       => $path,
       $name;
+}
+
+sub tags ($self) {
+    return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
+}
+
+sub tags_for_url($self, $url) {
+    return $self->{tagmap}{__ALL__}{$url} // [];
+}
+
+sub has_articles_for_tag ($self, $tag) {
+    return exists $self->{tagmap}{$tag};
+}
+
+sub name_for_tag ( $self, $tag ) {
+    my $name = config()->{tagmap}{$tag}
+      or croak("Cannot find name for unknown tag '$tag'");
+    return $name;
+}
+
+sub count_for_tag ($self, $tag) {
+    my $count = $self->{tagmap}{$tag}{count}
+        or croak("Cannot find count for unknown tag '$tag'");
+    return $count;
+}
+
+sub files_for_tag ($self, $tag) {
+    my $files = $self->{tagmap}{$tag}{files}
+        or croak("Cannot find files for unknown tag '$tag'");
+    return $files;
+}
+
+sub title_for_tag_file ($self, $tag, $file) {
+    my $title = $self->{tagmap}{$tag}{titles}{$file}
+        or croak("Cannot find title for unknown tag '$tag'");
+    return $title;
 }
 
 sub add_note ( $self, $note, $name = $self->{footnote_number} ) {

@@ -16,6 +16,7 @@ our @EXPORT = qw(
   splat
   slurp
   dbh
+  trim
 );
 
 sub import ( $class, %arg_for ) {

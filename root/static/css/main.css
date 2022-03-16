@@ -313,3 +313,52 @@ ul {
   box-shadow:         3px 3px 5px 1px #ccc;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
   margin-bottom:  20px; 
 }
+
+/*
+ * https://dev.to/alvaromontoro/create-a-tag-cloud-with-html-and-css-1e90
+ */
+ul.cloud {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  line-height: 2.5rem;
+}
+
+ul.cloud a[data-weight="1"] { --size: 1; }
+ul.cloud a[data-weight="2"] { --size: 2; }
+ul.cloud a[data-weight="3"] { --size: 3; }
+ul.cloud a[data-weight="4"] { --size: 4; }
+ul.cloud a[data-weight="5"] { --size: 5; }
+ul.cloud a[data-weight="6"] { --size: 6; }
+ul.cloud a[data-weight="7"] { --size: 7; }
+ul.cloud a[data-weight="8"] { --size: 8; }
+ul.cloud a[data-weight="9"] { --size: 9; }
+ul.cloud li:nth-child(2n+1) a { --color: #181; }
+ul.cloud li:nth-child(3n+1) a { --color: #33a; }
+
+ul.cloud a {
+  --size: 4;
+  font-size: calc(var(--size) * 0.25rem + 0.5rem);
+  color: var(--color);
+  display: block;
+  padding: 0.125rem 0.25rem;
+  text-decoration: none;
+  position: relative;
+}
+
+ul.inline {
+  list-style-type: none;
+  margin: 30px;
+  display: flex;
+  flex-direction: row;
+  padding: 5px; /* this */
+}
+
+ul.inline > li {
+  text-align: center;
+  margin: 5px;  /* and that, will result in a 10px gap */
+}
+
