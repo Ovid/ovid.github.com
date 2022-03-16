@@ -9,6 +9,11 @@ use DateTime;
 use DateTime::Format::SQLite;
 use XML::RSS;
 use Mojo::DOM;
+use Mojo::JSON qw(encode_json);
+
+use Less::Config qw(
+  config
+);
 use Less::Script;
 use Less::Pager;
 use Less::TTSyntax qw(
@@ -24,60 +29,27 @@ use File::Basename qw(dirname basename);
 use File::Path qw(mkpath);
 use File::Copy;
 
-my @files = File::Find::Rule->file->in('root');
 
-preprocess_files(@files);
+assert_tt_config();
+my @files = File::Find::Rule->file->in('root');
+my $tagmap = preprocess_files(@files);
+splat('tagmap.json', encode_json($tagmap));
 rebuild_article_pagination();
 rebuild_rss_feeds();
-
-unless (-f "$ENV{HOME}/.ttreerc") {
-    warn <<"END";
-No $ENV{HOME}/.ttreerc file found
-
-It should have a structure like this:
-
-	verbose
-	recurse
-
-	color=1
-
-	src  = ~/Dropbox/Mine/projects/perl/ovid.github.com/root
-	dest  = ~/Dropbox/Mine/projects/perl/ovid.github.com/
-
-	ignore = \b(CVS|RCS|sw[pot])\b
-	ignore = ^#
-	ignore = ^.git
-
-	suffix tt=html
-	suffix tt2markdown=html
-END
-	exit 1;
-}
-
-my ( $stdout, $stderr, $exit ) = capture {
-    system(
-        'ttree',      '-a',                      # process all files
-        '-s',         'tmp',                     # use tmp/ as a source
-        '-d',         '.',                       # use . as the target
-        '--copy',     '\.(gif|png|jpg|pdf)$',    # copy, don't process images
-        '--binmode',  'utf8',                    # encoding of output file
-        '--encoding', 'utf8',                    # encoding of input files
-    )
-};
-
-if ( $stdout =~ /!.*file error/ ) {
-
-    # yeah, ttree needs proper exit codes
-    croak($stdout);
-}
-say $stdout;
-
+run_ttree();
 system( 'prove', '-l', 't' );
+exit 0;
 
 sub preprocess_files (@files) {
 
     # scrub our tmp directory
     system( 'rm', '-fr', 'tmp' );
+
+    # format:
+    #     $tag => {
+    #         name  => $tagname,
+    #         files => [$destfile. $destfile, ... ]
+    my %tagmap;
   FILE: foreach my $file (@files) {
         next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
         my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
@@ -108,8 +80,31 @@ sub preprocess_files (@files) {
             # ah, crap. We need to pre-process it.
             my $contents = slurp($file);
 
-            if ( $is_tt_file && $contents =~ /^\s*\{\{TOC\}\}\s*$/m ) {
-                $contents = build_toc( $file, $contents );
+            my $config = config();
+            if ($is_tt_file) {
+                if ( $contents =~ /^\s*\{\{TOC\}\}\s*$/m ) {
+                    $contents = build_toc( $file, $contents );
+                }
+                if ( $contents =~ /^\s*\{\{TAGS\s+(.*?)\}\}\s*$/m ) {
+                    my @tags = split /\s+/ => $1;
+                    foreach my $tag (@tags) {
+                        if ( my $name = $config->{tagmap}{$tag} ) {
+                            $tagmap{$tag}{name} = $name;
+                            $tagmap{$tag}{files} //= [];
+
+                            # XXX nasty hack alert
+                            my $url = $destfile;
+                            $url =~ s{^tmp/}{};
+                            $url =~ s/\.tt(?:2markdown)?$/.html/;
+                            push $tagmap{$tag}{files}->@* => $url;
+                        }
+                        else {
+                            die
+"No tagmap: entry found for tag '$tag' in file '$file'";
+                        }
+
+                    }
+                }
             }
 
             eval {
@@ -123,6 +118,7 @@ sub preprocess_files (@files) {
             splat( $destfile, $contents );
         }
     }
+    return \%tagmap;
 }
 
 sub build_toc ( $file, $contents ) {
@@ -180,7 +176,12 @@ $links
 </nav>
 <hr>
 TOC
+    # rewrite the table of contents
     $rewritten =~ s/^s*\{\{TOC\}\}\s*$/$toc/m;
+
+    # remove the tags
+    $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$//m;
+
     return $rewritten;
 }
 
@@ -343,6 +344,52 @@ qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article-
     return $list;
 }
 
+sub assert_tt_config {
+    unless ( -f "$ENV{HOME}/.ttreerc" ) {
+        warn <<"END";
+No $ENV{HOME}/.ttreerc file found
+
+It should have a structure like this:
+
+	verbose
+	recurse
+
+	color=1
+
+	src  = ~/Dropbox/Mine/projects/perl/ovid.github.com/root
+	dest  = ~/Dropbox/Mine/projects/perl/ovid.github.com/
+
+	ignore = \b(CVS|RCS|sw[pot])\b
+	ignore = ^#
+	ignore = ^.git
+
+	suffix tt=html
+	suffix tt2markdown=html
+END
+        exit 1;
+    }
+}
+
+sub run_ttree {
+    my ( $stdout, $stderr, $exit ) = capture {
+        system(
+            'ttree',      '-a',                     # process all files
+            '-s',         'tmp',                    # use tmp/ as a source
+            '-d',         '.',                      # use . as the target
+            '--copy',     '\.(gif|png|jpg|pdf)$',   # copy, don't process images
+            '--binmode',  'utf8',                   # encoding of output file
+            '--encoding', 'utf8',                   # encoding of input files
+        )
+    };
+
+    if ( $stdout =~ /!.*file error/ ) {
+
+        # yeah, ttree needs proper exit codes
+        croak($stdout);
+    }
+    say $stdout;
+}
+
 __END__
 
 =head1 NAME
@@ -353,7 +400,7 @@ rebuild - Rebuilds site
 
 =over 4
 
-=item * Preprocesses files (such as adding TOCs)
+=item * Preprocesses files (such as adding TOCs and TAGS)
 
 =item * Runs C<ttree>
 

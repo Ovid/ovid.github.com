@@ -44,3 +44,9 @@ Dead simple. The C<config()> function returns a hashref of key/value pairs.
     my $url = config()->{url};
 
 Base URL of our site.
+
+=head2 C<tagmap>
+
+    my $tagname = config->{tagmap}{$tag}
+
+Returns the public name of tags.
