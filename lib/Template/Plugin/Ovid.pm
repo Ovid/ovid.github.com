@@ -39,27 +39,31 @@ sub tags ($self) {
     return sort keys $self->{tagmap}->%*;
 }
 
-sub name_for_tag ($self, $tag) {
-    my $name = $self->{tagmap}{$tag}{name}
-        or croak("No such tag '$tag'");
+sub has_articles_for_tag ($self, $tag) {
+    return exists $self->{tagmap}{$tag};
+}
+
+sub name_for_tag ( $self, $tag ) {
+    my $name = config()->{tagmap}{$tag}
+      or croak("Cannot find name for unknown tag '$tag'");
     return $name;
 }
 
 sub count_for_tag ($self, $tag) {
     my $count = $self->{tagmap}{$tag}{count}
-        or croak("No such tag '$tag'");
+        or croak("Cannot find count for unknown tag '$tag'");
     return $count;
 }
 
 sub files_for_tag ($self, $tag) {
     my $files = $self->{tagmap}{$tag}{files}
-        or croak("No such tag '$tag'");
+        or croak("Cannot find files for unknown tag '$tag'");
     return $files;
 }
 
 sub title_for_tag_file ($self, $tag, $file) {
     my $title = $self->{tagmap}{$tag}{titles}{$file}
-        or croak("Cannot determine title for '$tag'");
+        or croak("Cannot find title for unknown tag '$tag'");
     return $title;
 }
 

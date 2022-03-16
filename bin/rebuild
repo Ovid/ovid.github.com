@@ -33,12 +33,32 @@ use File::Copy;
 assert_tt_config();
 my @files = File::Find::Rule->file->in('root');
 my $tagmap = preprocess_files(@files);
+write_tag_templates($tagmap);
 write_tagmap($tagmap);
 rebuild_article_pagination();
 rebuild_rss_feeds();
 run_ttree();
 system( 'prove', '-l', 't' );
 exit 0;
+
+sub write_tag_templates($tagmap) {
+    # so long as there's a tagmap entry for a tag and an article or blog for 
+    # that tag, we'll always have a template for it.
+    TAG: foreach my $tag ( keys config()->{tagmap}->%* ) {
+        my $name     = config()->{tagmap}{$tag};
+        my $file     = "root/tags/$tag.tt2markdown";
+        my $template = <<~"END";
+        [% 
+            title = 'Tags: $name';
+            USE Ovid;
+            WRAPPER include/wrapper.tt blogdown=1;
+                INCLUDE include/tags.tt tag="$tag";
+            END;
+        %]
+        END
+        splat( $file, $template );
+    }
+}
 
 sub write_tagmap($tagmap) {
     foreach my $tag ( keys $tagmap->%* ) {
