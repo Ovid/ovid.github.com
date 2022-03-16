@@ -85,7 +85,7 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1>Constructive Versus Classical Logic in Perl</h1>
+        <h1><a name="-title-no-title-found-"></a>Constructive Versus Classical Logic in Perl</h1>
         <time>2021-12-27</time>
         <hr>
         <div class="twelve columns header">
@@ -189,7 +189,7 @@ says nothing about the <em>actual</em> value of the number.</p>
 <p>We can assert that <code>$x</code> is an integer and die if it’s not, but many don’t bother
 with that.</p>
 
-<h2>Classical versus Constructive</h2>
+<h2><a name="classical-versus-constructive"></a>Classical versus Constructive</h2>
 
 <p>In classical logic, there’s the law of the excluded middle. Something is
 either true or it’s not. In constructive logic, things are true, not true, or
@@ -216,14 +216,14 @@ reared their ugly heads and the idea went nowhere.</p>
 classical and constructive logic. Complementing <code>undef</code> with a new <code>unknown</code>
 keyword (that <code>salary</code> might return):</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl"># using undef values:
+<div class="shadow"><pre class="scrolled"><code class="language-perl">&lt;h1&gt;&lt;a name=&quot;using-undef-values&quot;&gt;&lt;/a&gt;using undef values:&lt;/h1&gt;
 my @overpaid = grep {
     defined $_-&gt;salary
     &amp;&amp;
     $_-&gt;salary &gt; $cutoff
 } @employees;
 
-# same thing with unknown values:
+&lt;h1&gt;&lt;a name=&quot;same-thing-with-unknown-values&quot;&gt;&lt;/a&gt;same thing with unknown values:&lt;/h1&gt;
 my @overpaid = grep { $_-&gt;salary &gt; $cutoff } @employees;
 </code></pre></div>
 
@@ -302,7 +302,7 @@ conditions which haven’t held.</p>
 tend to think in terms classical logic when, in fact, we’re using constructive
 logic. It usually works until it doesn’t.</p>
 
-<h1>How Can We Fix This?</h1>
+<h1><a name="how-can-we-fix-this"></a>How Can We Fix This?</h1>
 
 <p><tt>brian d foy</tt> found my
 <a href="https://metacpan.org/pod/Unknown::Values" target="_blank">Unknown::Values</a> <span class="fa fa-external-link fa_custom"></span> module interesting
@@ -379,7 +379,7 @@ developers receiving a chunk of data from the ORM and discovering that
 
 my @numbers = ( 1, 2, undef,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
-# result now holds 1 and 2
+&lt;h1&gt;&lt;a name=&quot;result-now-holds-1-and-2&quot;&gt;&lt;/a&gt;result now holds 1 and 2&lt;/h1&gt;
 </code></pre></div>
 
 <p>In this approach, <em>any</em> undefined value would follow 3VL. However, if you
@@ -393,7 +393,7 @@ the current 2VL (two-value logic: true or false).</p>
 
 my @numbers = ( 1, 2, unknown,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
-# result now holds 1 and 2, and `undef`
+&lt;h1&gt;&lt;a name=&quot;result-now-holds-1-and-2-and-undef&quot;&gt;&lt;/a&gt;result now holds 1 and 2, and `undef`&lt;/h1&gt;
 </code></pre></div>
 
 <p>This would require <code>unknown</code> to behave like <code>undef</code> if it left the current
@@ -414,7 +414,7 @@ which mostly returns false for everything So <code>sort</code> and boolean opera
 “fatal” version which is fatal for just about anything, but I don’t think it’s
 very useful).</p>
 
-<h1>Why Not use  Null Objects?</h1>
+<h1><a name="why-not-use-null-objects"></a>Why Not use  Null Objects?</h1>
 
 <p>When <a href="https://twitter.com/pdcawley" target="_blank">Piers Cawley</a> <span class="fa fa-external-link fa_custom"></span> first suggested that I use
 <a href="https://en.wikipedia.org/wiki/Null_object_pattern" target="_blank">Null Object pattern</a> <span class="fa fa-external-link fa_custom"></span>
@@ -536,7 +536,7 @@ information</a> <span class="fa fa-external-link fa_custom"></span>).</p>
 CPAN</a> <span class="fa fa-external-link fa_custom"></span> and
 <a href="https://github.com/Ovid/unknown" target="_blank">github</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
-<h1>Caveat</h1>
+<h1><a name="caveat"></a>Caveat</h1>
 
 <p>Be aware that the latest version (<code>0.100</code>)of <code>Unknown::Values</code> has
 <a href="https://metacpan.org/dist/Unknown-Values/changes" target="_blank">backwards-incompatible

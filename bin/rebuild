@@ -88,16 +88,14 @@ sub preprocess_files (@files) {
 
             my $config = config();
             if ($is_tt_file) {
-                if ( $contents =~ /^\s*\{\{TOC\}\}\s*$/m ) {
-                    $contents = build_toc( $file, $contents );
-                }
-                if ( $contents =~ /^\s*\{\{TAGS\s+(.*?)\}\}\s*$/m ) {
+                my $tags;
+                ($contents, $tags) = preprocess_macros( $file, $contents );
+                if ( $tags->@* ) {
                     my $title = get_title_from_template($contents);
                     unless ($title) {
                         croak("Tags found for '$file' but could not determine title");
                     }
-                    my @tags = split /\s+/ => $1;
-                    foreach my $tag (@tags) {
+                    foreach my $tag ($tags->@*) {
                         if ( my $name = $config->{tagmap}{$tag} ) {
                             $tagmap{$tag}{name} = $name;
                             $tagmap{$tag}{count}++;
@@ -151,7 +149,7 @@ sub get_title_from_template ($contents ) {
     return;
 }
 
-sub build_toc ( $file, $contents ) {
+sub preprocess_macros ( $file, $contents ) {
 
     # XXX this is a simplistic heuristic. Need something better in the future.
     if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*blogdown=1.*%\]} ) {
@@ -210,9 +208,22 @@ TOC
     $rewritten =~ s/^s*\{\{TOC\}\}\s*$/$toc/m;
 
     # remove the tags
-    $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$//m;
+    my @tags;
+    # XXX This should probably be used in the tag map and pushed into the 
+    # template layer.
+    if ($rewritten =~ /^s*\{\{TAGS(.*)?\}\}/m ) {
+        @tags = sort grep {/\w/} split /\s+/ => $1;
+        my @taglist;
+        foreach my $tag (@tags) {
+            my $name = config()->{tagmap}{$tag};
+            my $url = sprintf '<a href="/tags/%s.html">%s</a>', $tag, $name;
+            push @taglist => $url;
+        }
+        my $taglist = join ', ' => @taglist;
+        $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$/<blockquote>Tags: $taglist<\/blockquote>/m;
+    }
 
-    return $rewritten;
+    return ( $rewritten, \@tags );
 }
 
 sub rebuild_article_pagination () {
