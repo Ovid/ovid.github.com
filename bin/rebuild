@@ -62,6 +62,7 @@ sub write_tag_templates($tagmap) {
 
 sub write_tagmap($tagmap) {
     foreach my $tag ( keys $tagmap->%* ) {
+        next if '__ALL__' eq $tag;
         $tagmap->{$tag}{files} = [sort $tagmap->{$tag}{files}->@*];
     }
     splat( config()->{tagmap_file}, encode_json($tagmap) );
@@ -115,16 +116,18 @@ sub preprocess_files (@files) {
                     unless ($title) {
                         croak("Tags found for '$file' but could not determine title");
                     }
+
+                    # XXX nasty hack alert
+                    my $url = $destfile;
+                    $url =~ s{^tmp/}{};
+                    $url =~ s/\.tt(?:2markdown)?$/.html/;
+                    $tagmap{__ALL__}{$url} = $tags;
+
                     foreach my $tag ($tags->@*) {
                         if ( my $name = $config->{tagmap}{$tag} ) {
                             $tagmap{$tag}{name} = $name;
                             $tagmap{$tag}{count}++;
                             $tagmap{$tag}{files} //= [];
-
-                            # XXX nasty hack alert
-                            my $url = $destfile;
-                            $url =~ s{^tmp/}{};
-                            $url =~ s/\.tt(?:2markdown)?$/.html/;
                             $tagmap{$tag}{titles}{$url} = $title;
                             push $tagmap{$tag}{files}->@* => $url;
                         }
@@ -234,14 +237,7 @@ TOC
     # template layer.
     if ($rewritten =~ /^s*\{\{TAGS(.*)?\}\}/m ) {
         @tags = sort grep {/\w/} split /\s+/ => $1;
-        my @taglist;
-        foreach my $tag (@tags) {
-            my $name = config()->{tagmap}{$tag};
-            my $url = sprintf '<a href="/tags/%s.html">%s</a>', $tag, $name;
-            push @taglist => $url;
-        }
-        my $taglist = join ', ' => @taglist;
-        $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$/<blockquote>Tags: $taglist<\/blockquote>/m;
+        $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$//m;
     }
 
     return ( $rewritten, \@tags );

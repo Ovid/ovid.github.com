@@ -36,7 +36,11 @@ sub cite ( $self, $path, $name ) {
 }
 
 sub tags ($self) {
-    return sort keys $self->{tagmap}->%*;
+    return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
+}
+
+sub tags_for_url($self, $url) {
+    return $self->{tagmap}{__ALL__}{$url} // [];
 }
 
 sub has_articles_for_tag ($self, $tag) {
