@@ -15,7 +15,11 @@
   <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
   [% END %]
   <meta property="og:type" content="article" />
+  [% IF type && slug %]
   <meta property="og:url" content="[% Config.url %][% type %]/[% slug %].html" />
+  [% ELSE %]
+  <meta property="og:url" content="[% Config.url %]" />
+  [% END %]
   <meta property="og:title" content="[% title |html %]" />
   <meta property="og:description" content="[% Ovid.this_post(type, slug).description |html %]" />
 
