@@ -1,24 +1,14 @@
 package Template::Plugin::Config;
 use Less::Boilerplate;
+use Less::Config qw(config);
 use base qw (Template::Plugin);
-use Config::Any;
 
 our $VERSION = 0.02;
 
 sub new ( $class, $context ) {
-    my $file   = 'config/ovid.conf';
-    my $config = Config::Any->load_files(
-        {
-            files       => [$file],
-            use_ext     => 1,
-            driver_args => {
-                General => { -UTF8 => 1 },
-            },
-        }
-    );
     bless {
         _CONTEXT    => $context,
-        ovid_config => $config->[0]{$file},
+        ovid_config => config(),
     }, $class;
 }
 
