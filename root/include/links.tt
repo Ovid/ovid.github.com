@@ -19,9 +19,11 @@
         </ul>
         <hr>
         <strong>Tags</strong>
-        <ul>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
         [% FOREACH tag IN Ovid.tags %]
-            <li><a href="/tags/[% tag %].html">[% Ovid.name_for_tag(tag) %] ([% Ovid.count_for_tag(tag) %])</a></li>
+            [% count = Ovid.count_for_tag(tag) %]
+            [% IF count > 9; count = 9; END %]
+            <li><a href="/tags/[% tag %].html" data-weight="[% count %]">[% Ovid.name_for_tag(tag) %]</a></li>
         [% END %]
         </ul>
       </div>
