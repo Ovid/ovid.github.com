@@ -111,7 +111,7 @@ sub preprocess_files (@files) {
                 my $tags;
                 ($contents, $tags) = preprocess_macros( $file, $contents );
                 if ( $tags->@* ) {
-                    my $title = get_title_from_template($contents);
+                    my $title = get_title_from_template($file, $contents);
                     unless ($title) {
                         croak("Tags found for '$file' but could not determine title");
                     }
@@ -151,14 +151,15 @@ sub preprocess_files (@files) {
     return \%tagmap;
 }
 
-sub get_title_from_template ($contents ) {
+sub get_title_from_template ($file, $contents ) {
     # many pages don't have titles, so it's ok to skip them
     if ( $contents =~
-        m{(.*)\[%.*WRAPPER include/wrapper.*(?:blogdown=1.*)?%\]}s )
+        m{\s*\[%(.*?)\[%.*?(?:INCLUDE|WRAPPER).*?%\]}s )
     {
         my $header = $1;
         foreach my $line ( split /\n/ => $header ) {
             my ( $key, $value ) = map { trim($_) } split /=/ => $line;
+            next unless $key && $value;
             next if 'title' ne $key;
             $value =~ s/;$//;
             $value =~ s/^['"]//;
