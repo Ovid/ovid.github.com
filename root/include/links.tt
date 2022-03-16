@@ -1,3 +1,4 @@
+      [% USE Ovid %]
       <div class="three columns">
         <ul>
           <li><a href="/index.html">Home</a></li>
@@ -15,5 +16,12 @@
           <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
           <li><a href="https://github.com/Ovid/">GitHub</a></li>
           <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul>
+        [% FOREACH tag IN Ovid.tags %]
+            <li><a href="/tags/[% tag %]">[% Ovid.name_for_tag(tag) %]</a></li>
+        [% END %]
         </ul>
       </div>

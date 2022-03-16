@@ -2,15 +2,20 @@ package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
 use Less::Pager;
+use Mojo::JSON 'decode_json';
+use Less::Config 'config';
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
+    open my $fh, '<', config()->{tagmap_file};
+    my $json = do { local $/; <$fh> };
     bless {
         _CONTEXT        => $context,
         footnote_number => 1,
         footnote_names  => {},
         footnotes       => [],
         pager           => Less::Pager->new( type => 'article' ),
+        tagmap          => decode_json($json),
     }, $class;
 }
 
@@ -28,6 +33,22 @@ sub cite ( $self, $path, $name ) {
 '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>'
       => $path,
       $name;
+}
+
+sub tags ($self) {
+    return sort keys $self->{tagmap}->%*;
+}
+
+sub name_for_tag ($self, $tag) {
+    my $name = $self->{tagmap}{$tag}{name}
+        or croak("No such tag '$tag'");
+    return $name;
+}
+
+sub files_for_tag ($self, $tag) {
+    my $files = $self->{tagmap}{$tag}{files}
+        or croak("No such tag '$tag'");
+    return $files;
 }
 
 sub add_note ( $self, $note, $name = $self->{footnote_number} ) {

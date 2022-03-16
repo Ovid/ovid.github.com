@@ -33,13 +33,19 @@ use File::Copy;
 assert_tt_config();
 my @files = File::Find::Rule->file->in('root');
 my $tagmap = preprocess_files(@files);
-splat('tagmap.json', encode_json($tagmap));
+write_tagmap($tagmap);
 rebuild_article_pagination();
 rebuild_rss_feeds();
 run_ttree();
 system( 'prove', '-l', 't' );
 exit 0;
 
+sub write_tagmap($tagmap) {
+    foreach my $tag ( keys $tagmap->%* ) {
+        $tagmap->{$tag}{files} = [sort $tagmap->{$tag}{files}->@*];
+    }
+    splat( config()->{tagmap_file}, encode_json($tagmap) );
+}
 sub preprocess_files (@files) {
 
     # scrub our tmp directory
@@ -90,6 +96,7 @@ sub preprocess_files (@files) {
                     foreach my $tag (@tags) {
                         if ( my $name = $config->{tagmap}{$tag} ) {
                             $tagmap{$tag}{name} = $name;
+                            $tagmap{$tag}{count}++;
                             $tagmap{$tag}{files} //= [];
 
                             # XXX nasty hack alert
