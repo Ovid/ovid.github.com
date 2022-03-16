@@ -256,10 +256,12 @@ sub rebuild_article_pagination () {
             my $articles   = get_article_list( $records, $article_type );
             my $pagination = get_pagination( $pager->total_pages, $page_number,
                 $article_type );
+            my $name = $type eq 'article' ? 'articles' : $type;
+            my $identifier = $page_number > 1 ? "${name}_$page_number" : $name;
             my $template = <<"END";
 [%
     title      = '$title';
-    identifier = 'articles';
+    identifier = '$identifier';
 %]
 
 [% INCLUDE include/header.tt %]
