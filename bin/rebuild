@@ -92,6 +92,10 @@ sub preprocess_files (@files) {
                     $contents = build_toc( $file, $contents );
                 }
                 if ( $contents =~ /^\s*\{\{TAGS\s+(.*?)\}\}\s*$/m ) {
+                    my $title = get_title_from_template($contents);
+                    unless ($title) {
+                        croak("Tags found for '$file' but could not determine title");
+                    }
                     my @tags = split /\s+/ => $1;
                     foreach my $tag (@tags) {
                         if ( my $name = $config->{tagmap}{$tag} ) {
@@ -103,6 +107,7 @@ sub preprocess_files (@files) {
                             my $url = $destfile;
                             $url =~ s{^tmp/}{};
                             $url =~ s/\.tt(?:2markdown)?$/.html/;
+                            $tagmap{$tag}{titles}{$url} = $title;
                             push $tagmap{$tag}{files}->@* => $url;
                         }
                         else {
@@ -128,6 +133,24 @@ sub preprocess_files (@files) {
     return \%tagmap;
 }
 
+sub get_title_from_template ($contents ) {
+    # many pages don't have titles, so it's ok to skip them
+    if ( $contents =~
+        m{(.*)\[%.*WRAPPER include/wrapper.*(?:blogdown=1.*)?%\]}s )
+    {
+        my $header = $1;
+        foreach my $line ( split /\n/ => $header ) {
+            my ( $key, $value ) = map { trim($_) } split /=/ => $line;
+            next if 'title' ne $key;
+            $value =~ s/;$//;
+            $value =~ s/^['"]//;
+            $value =~ s/['"]$//;
+            return $value if 'title' eq $key;
+        }
+    }
+    return;
+}
+
 sub build_toc ( $file, $contents ) {
 
     # XXX this is a simplistic heuristic. Need something better in the future.
@@ -139,9 +162,9 @@ sub build_toc ( $file, $contents ) {
         # to happen in the templates, where it should be.
         my %replacement_for;
         while ( $contents =~ /^((#+)\s*(.*))$/mg ) {
+            my $title = $3;
             my $line  = $1;
             my $level = length($2);
-            my $title = $3;
             my $h_tag = "<h$level>$title</h$level>";
             $replacement_for{$line} = $h_tag;
         }

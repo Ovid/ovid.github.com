@@ -45,10 +45,22 @@ sub name_for_tag ($self, $tag) {
     return $name;
 }
 
+sub count_for_tag ($self, $tag) {
+    my $count = $self->{tagmap}{$tag}{count}
+        or croak("No such tag '$tag'");
+    return $count;
+}
+
 sub files_for_tag ($self, $tag) {
     my $files = $self->{tagmap}{$tag}{files}
         or croak("No such tag '$tag'");
     return $files;
+}
+
+sub title_for_tag_file ($self, $tag, $file) {
+    my $title = $self->{tagmap}{$tag}{titles}{$file}
+        or croak("Cannot determine title for '$tag'");
+    return $title;
 }
 
 sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
