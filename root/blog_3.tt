@@ -1,0 +1,25 @@
+[%
+    title      = 'Blog Entries by Ovid, page 3';
+    identifier = 'blog_3';
+%]
+
+[% INCLUDE include/header.tt %]
+
+<ul id="articles">
+    <li><a href="/blog/my-father.html">A Eulogy for My Father</a></li>
+</ul>
+<nav class="pagination">
+    <a href="/blog_2.html">&laquo;</a>
+    <a  href="/blog.html">1</a>
+    <a  href="/blog_2.html">2</a>
+    <a class="active" href="/blog_3.html">3</a>
+    <span class="inactive">&raquo;</span>
+</nav>
+[% IF 3 == 1 -%]
+<script>
+    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+</script>
+[%- END %]
+
+[% INCLUDE include/footer.tt %]
