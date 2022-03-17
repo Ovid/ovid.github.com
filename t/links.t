@@ -51,13 +51,16 @@ sub links_are_good ( $file ) {
 
     state $is_wanted = {
         map { $_ => 1 }
-            qw/
-            og:image
-            og:url
-            /
+          qw/
+          og:image
+          og:url
+          /
     };
-    my $dom = Mojo::DOM->new(slurp($file));
-    my @og_links = map { $_->attr } grep { $is_wanted->{ $_->attr->{property} // '' } } $dom->find('meta')->each;
+    my $dom = Mojo::DOM->new( slurp($file) );
+    my @og_links =
+      map  { $_->attr }
+      grep { $is_wanted->{ $_->attr->{property} // '' } }
+      $dom->find('meta')->each;
     foreach my $link (@og_links) {
         my $property = $link->{property};
         my $pristine = $link->{content};
