@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 
 use Test::Most;
-use Mojo::Dom;
+use Mojo::DOM;
 use HTML::SimpleLinkExtor;
 use File::Find::Rule;
-use Less::Boilerplate;
+use Less::Script;
 
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
@@ -26,6 +26,7 @@ foreach my $file (@files) {
 done_testing;
 
 sub links_are_good ( $file ) {
+    my @errors;
     my $extor = HTML::SimpleLinkExtor->new();
     $extor->parse_file($file);
 
@@ -34,7 +35,6 @@ sub links_are_good ( $file ) {
           && !/^mailto:/                        # and mail links
           && !m{https?://(?!ovid.github.io)}    # and external links
     } $extor->links;
-    my @errors;
   LINK: foreach my $link (@links) {
         if ( !$link =~ /^\// ) {
             diag "Relative link ($link) found in $file";
@@ -48,5 +48,29 @@ sub links_are_good ( $file ) {
             }
         }
     }
+
+    state $is_wanted = {
+        map { $_ => 1 }
+            qw/
+            og:image
+            og:url
+            /
+    };
+    my $dom = Mojo::DOM->new(slurp($file));
+    my @og_links = map { $_->attr } grep { $is_wanted->{ $_->attr->{property} // '' } } $dom->find('meta')->each;
+    foreach my $link (@og_links) {
+        my $property = $link->{property};
+        my $pristine = $link->{content};
+        my $url      = $pristine;
+        if ( $url =~ s{^https?://ovid.github.io/}{} ) {
+            unless ( -e $url ) {
+                push @errors => "Missing link for $property: $pristine";
+            }
+        }
+        else {
+            push @errors => "Bad format for $property: $pristine";
+        }
+    }
+
     return @errors;
 }
