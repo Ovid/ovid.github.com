@@ -31,7 +31,7 @@ use File::Copy;
 
 
 assert_tt_config();
-my @files = File::Find::Rule->file->in('root');
+my @files = @ARGV ? @ARGV : File::Find::Rule->file->in('root');
 my $tagmap = preprocess_files(@files);
 write_tag_templates($tagmap);
 write_tagmap($tagmap);
