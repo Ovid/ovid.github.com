@@ -32,7 +32,7 @@ use File::Copy;
 
 
 assert_tt_config();
-my @files = @ARGV ? @ARGV : File::Find::Rule->file->in('root');
+my @files = @ARGV ? @ARGV : get_files('root');
 my $tagmap = preprocess_files(@files);
 write_tag_templates($tagmap);
 write_tagmap($tagmap);
@@ -41,6 +41,11 @@ rebuild_rss_feeds();
 run_ttree();
 system( 'prove', '-l', 't' );
 exit 0;
+
+sub get_files ($location) {
+    my @files = grep { !/\.(?:DS_Store|sw[pon])$/ } File::Find::Rule->file->in($location);
+    return @files;
+}
 
 sub write_tag_templates($tagmap) {
     # so long as there's a tagmap entry for a tag and an article or blog for 
