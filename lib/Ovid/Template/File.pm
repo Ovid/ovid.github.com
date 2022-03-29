@@ -16,13 +16,20 @@ package Ovid::Template::File {
     use Less::Script;
     use HTML::TokeParser::Simple;
     use Less::Config qw(config);
+    use Ovid::Types qw(
+      ArrayRef
+      InstanceOf
+      NonEmptySimpleStr
+      NonEmptyStr
+      Str
+    );
     with qw(
       Ovid::Template::Role::Debug
     );
 
     has _code => (
         is       => 'rw',
-        isa      => 'Str',
+        isa      => NonEmptyStr,
         required => 1,
         lazy     => 1,
         default  => sub ($self) { slurp( $self->filename ) }
@@ -32,15 +39,15 @@ package Ovid::Template::File {
     foreach my $attr (@TEMPLATE_ATTRS) {
         has $attr => (
             is       => 'rw',
+            isa      => NonEmptySimpleStr,
             writer   => "_set_$attr",
-            isa      => 'Str',
             init_arg => undef,
         );
     }
 
     has _lines => (
         is       => 'ro',
-        isa      => 'ArrayRef[Str]',
+        isa      => ArrayRef [Str],                                   # some lines are empty strings
         required => 1,
         lazy     => 1,
         default  => sub ($self) { [ split /\n/ => $self->_code ] },
@@ -48,7 +55,7 @@ package Ovid::Template::File {
 
     has _code_state => (
         is       => 'ro',
-        isa      => 'Ovid::Template::File::FindCode',
+        isa      => InstanceOf ['Ovid::Template::File::FindCode'],
         required => 1,
         lazy     => 1,
         default  => sub ($self) {
@@ -70,11 +77,11 @@ package Ovid::Template::File {
         return if $self->line_number + 1 > @lines;
         my $line = $lines[ $self->line_number ];
         $self->_set_line_number( $self->line_number + 1 );
-        my $parser        = Ovid::Template::File::FindCode->new(
+        my $parser = Ovid::Template::File::FindCode->new(
             filename => $self->filename,
             debug    => $self->debug,
         );
-        $self->_code_state->_set_line_number($self->line_number);
+        $self->_code_state->_set_line_number( $self->line_number );
         $self->_code_state->parse($line);
         return $line;
     }
@@ -162,7 +169,7 @@ package Ovid::Template::File {
 
         $self->_debug($contents);
 
-        # XXX this is a simplistic heuristic. Need something better in the 
+        # XXX this is a simplistic heuristic. Need something better in the
         # future.
         if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*blogdown=1.*%\]} ) {
 
@@ -170,8 +177,8 @@ package Ovid::Template::File {
             # appropriate HTML tag. This allows the subsequent HTML parsing logic
             # to build the TOC, but still allows the bulk of Markdown processing
             # to happen in the templates, where it should be.
-            my $rewritten = '';
-            my $parser = Ovid::Template::File::FindCode->new( filename => $file );
+            my $rewritten   = '';
+            my $parser      = Ovid::Template::File::FindCode->new( filename => $file );
             my $line_number = 1;
             foreach my $line ( split /\n/ => $contents ) {
                 $parser->_set_line_number($line_number);
