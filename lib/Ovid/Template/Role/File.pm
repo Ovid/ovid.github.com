@@ -4,7 +4,7 @@ package Ovid::Template::Role::File {
     use Ovid::Types qw(
       Maybe
       NonEmptySimpleStr
-      PositiveOrZeroNum
+      PositiveOrZeroInt
     );
 
     has filename => (
@@ -15,7 +15,7 @@ package Ovid::Template::Role::File {
 
     has line_number => (
         is      => 'rw',
-        isa     => Maybe [PositiveOrZeroNum],
+        isa     => Maybe [PositiveOrZeroInt],
         writer  => '_set_line_number',
         default => 0,
     );
