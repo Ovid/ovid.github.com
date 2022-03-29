@@ -1,24 +1,30 @@
 package Ovid::Template::Role::Debug {
     use Moose::Role;
     use Less::Boilerplate;
+    use Ovid::Types qw(
+      Bool
+      Maybe
+      NonEmptySimpleStr
+      PositiveOrZeroNum
+    );
 
     has debug => (
         is      => 'rw',
-        isa     => 'Bool',
+        isa     => Bool,
         default => 0,
     );
 
     has filename => (
         is       => 'rw',
-        isa      => 'Str',
+        isa      => NonEmptySimpleStr,
         required => 1,
     );
 
     has line_number => (
-        is       => 'rw',
-        isa      => 'Int',
-        writer   => '_set_line_number',
-        default  => 0,
+        is      => 'rw',
+        isa     => Maybe [PositiveOrZeroNum],
+        writer  => '_set_line_number',
+        default => 0,
     );
 
     sub _debug ( $self, $message ) {
