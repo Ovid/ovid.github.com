@@ -14,12 +14,9 @@ use Mojo::JSON qw(encode_json);
 use Less::Config qw(
   config
 );
+use Template::Code;
 use Less::Script;
 use Less::Pager;
-use Less::TTSyntax qw(
-  build_tags
-  rewrite_code_blocks
-);
 
 use HTML::TokeParser::Simple;
 use Capture::Tiny 'capture';
@@ -112,18 +109,9 @@ sub preprocess_files (@files) {
               or croak("Could not copy $file to $destfile: $!");
         }
         else {
-            # ah, crap. We need to pre-process it.
-            my $contents = slurp($file);
+            my $parser = Template::Code->new( filename => $file );
 
-            eval {
-                $contents = rewrite_code_blocks($contents);
-                1;
-            } or do {
-                my $error = $@ || "Unknown error";
-                die "$file had error error: $error\n";
-            };
-
-            $contents = build_tags( $contents, $file, $destfile, \%tagmap )
+            my $contents = $parser->rewrite( $destfile, \%tagmap )
               if $is_tt_file;
 
             splat( $destfile, $contents );
