@@ -15,9 +15,7 @@ package Template::Code {
     use Template::Code::State;
     use Less::Script;
     use HTML::TokeParser::Simple;
-    use Less::Config qw(
-      config
-    );
+    use Less::Config qw(config);
 
     has filename => (
         is       => 'rw',
@@ -39,12 +37,14 @@ package Template::Code {
         default => 0,
     );
 
-    has title => (
-        is       => 'rw',
-        writer   => '_set_title',
-        isa      => 'Str',
-        init_arg => undef,
-    );
+    foreach my $attr (qw/title date/) {
+        has $attr => (
+            is       => 'rw',
+            writer   => "_set_$attr",
+            isa      => 'Str',
+            init_arg => undef,
+        );
+    }
 
     has line_number => (
         is       => 'rw',
@@ -80,6 +80,7 @@ package Template::Code {
         $self->_set_title_from_template;
     }
 
+    # this is used for testing. We probably want to delete it.
     sub next ($self) {
         my @lines = $self->_lines->@*;
         return if $self->line_number + 1 > @lines;
@@ -253,12 +254,14 @@ TOC
             foreach my $line ( split /\n/ => $header ) {
                 my ( $key, $value ) = map { trim($_) } split /=/ => $line;
                 next unless $key && $value;
-                next if 'title' ne $key;
-                $value =~ s/;$//;
-                $value =~ s/^['"]//;
-                $value =~ s/['"]$//;
-                $self->_set_title($value) if 'title' eq $key;
-                return;
+                ATTR: foreach my $attr (qw/title date/) {
+                    next ATTR if $attr ne $key;
+                    $value =~ s/;$//;
+                    $value =~ s/^['"]//;
+                    $value =~ s/['"]$//;
+                    my $set_attr = "_set_$attr";
+                    $self->$set_attr($value);
+                }
             }
         }
     }

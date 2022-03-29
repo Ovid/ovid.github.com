@@ -13,6 +13,8 @@ foreach my $file (@files) {
     my $parser = Template::Code->new( filename => $file );
     my $title  = $parser->title;
     ok $title, "$file has a title: $title";
+    my $date  = $parser->date;
+    ok $date, "$file has a date: $date";
 }
 
 done_testing;
