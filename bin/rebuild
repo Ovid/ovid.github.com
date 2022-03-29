@@ -27,9 +27,8 @@ use File::Basename qw(dirname basename);
 use File::Path qw(mkpath);
 use File::Copy;
 
-
 assert_tt_config();
-my @files = get_files('root');
+my @files  = get_files('root');
 my $tagmap = preprocess_files(@files);
 write_tag_templates($tagmap);
 write_tagmap($tagmap);
@@ -45,7 +44,8 @@ sub get_files ($location) {
 }
 
 sub write_tag_templates($tagmap) {
-    # so long as there's a tagmap entry for a tag and an article or blog for 
+
+    # so long as there's a tagmap entry for a tag and an article or blog for
     # that tag, we'll always have a template for it.
     TAG: foreach my $tag ( keys config()->{tagmap}->%* ) {
         my $name     = config()->{tagmap}{$tag};
@@ -68,10 +68,11 @@ sub write_tag_templates($tagmap) {
 sub write_tagmap($tagmap) {
     foreach my $tag ( keys $tagmap->%* ) {
         next if '__ALL__' eq $tag;
-        $tagmap->{$tag}{files} = [sort $tagmap->{$tag}{files}->@*];
+        $tagmap->{$tag}{files} = [ sort $tagmap->{$tag}{files}->@* ];
     }
     splat( config()->{tagmap_file}, encode_json($tagmap) );
 }
+
 sub preprocess_files (@files) {
 
     # scrub our tmp directory
@@ -82,7 +83,7 @@ sub preprocess_files (@files) {
     #         name  => $tagname,
     #         files => [$destfile. $destfile, ... ]
     my %tagmap;
-  FILE: foreach my $file (@files) {
+    FILE: foreach my $file (@files) {
         next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
         my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
 
@@ -131,11 +132,13 @@ sub rebuild_article_pagination () {
                 $title .= ", page $page_number";
             }
             my $articles   = get_article_list( $records, $article_type );
-            my $pagination = get_pagination( $pager->total_pages, $page_number,
-                $article_type );
-            my $name = $type eq 'article' ? 'articles' : $type;
-            my $identifier = $page_number > 1 ? "${name}_$page_number" : $name;
-            my $template = <<"END";
+            my $pagination = get_pagination(
+                $pager->total_pages, $page_number,
+                $article_type
+            );
+            my $name       = $type eq 'article' ? 'articles'             : $type;
+            my $identifier = $page_number > 1   ? "${name}_$page_number" : $name;
+            my $template   = <<"END";
 [%
     title      = '$title';
     identifier = '$identifier';
@@ -163,17 +166,16 @@ END
 sub rebuild_rss_feeds () {
     my $base_url = 'https://ovid.github.io/';
 
-    my $types =
-      dbh()
-      ->selectall_arrayref(
+    my $types = dbh()->selectall_arrayref(
         'SELECT name, type, directory, description FROM article_types',
-        { Slice => {} } );
+        { Slice => {} }
+    );
 
     foreach my $type ( $types->@* ) {
-        my $rss_file  = "$type->{type}.rss";
+        my $rss_file = "$type->{type}.rss";
         my %already_added;
         if ( -e $rss_file ) {
-            my $dom = Mojo::DOM->new(slurp($rss_file));
+            my $dom = Mojo::DOM->new( slurp($rss_file) );
             %already_added = map { $_->text => 1 } $dom->find('link')->each;
         }
         my $directory = $type->{directory};
@@ -202,8 +204,7 @@ sub rebuild_rss_feeds () {
             pubDate        => $now->strftime("%a, %d %b %Y %H:%M:%S %z"),
             managingEditor => 'curtis.poe@gmail.com (Curtis "Ovid" Poe)',
         );
-        my $articles =
-          dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $type->{type} );
+        my $articles = dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $type->{type} );
     SELECT a.title,
            a.slug,
            a.description,
@@ -216,9 +217,8 @@ SQL
 
         my $new_links = 0;
         foreach my $article ( $articles->@* ) {
-            my $created =
-              DateTime::Format::SQLite->parse_datetime( $article->{created} );
-            my $url = "$base_url$directory/$article->{slug}.html";
+            my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
+            my $url     = "$base_url$directory/$article->{slug}.html";
 
             # Every time we changed an article, we kept updating the
             # publication date of the entire RSS feed. Now we only do this if
@@ -274,8 +274,7 @@ sub article_page ( $number, $article_type ) {
 sub get_article_list ( $records, $article_type ) {
     my $list = qq{<ul id="articles">\n};
     foreach my $article ( $records->@* ) {
-        $list .=
-qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article->{title}</a></li>\n};
+        $list .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article->{title}</a></li>\n};
     }
     $list .= "</ul>";
     return $list;
@@ -310,12 +309,12 @@ END
 sub run_ttree {
     my ( $stdout, $stderr, $exit ) = capture {
         system(
-            'ttree',      '-a',                     # process all files
-            '-s',         'tmp',                    # use tmp/ as a source
-            '-d',         '.',                      # use . as the target
-            '--copy',     '\.(gif|png|jpg|pdf)$',   # copy, don't process images
-            '--binmode',  'utf8',                   # encoding of output file
-            '--encoding', 'utf8',                   # encoding of input files
+            'ttree',      '-a',                      # process all files
+            '-s',         'tmp',                     # use tmp/ as a source
+            '-d',         '.',                       # use . as the target
+            '--copy',     '\.(gif|png|jpg|pdf)$',    # copy, don't process images
+            '--binmode',  'utf8',                    # encoding of output file
+            '--encoding', 'utf8',                    # encoding of input files
         )
     };
 
