@@ -2,6 +2,7 @@ package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
 use Less::Pager;
+use aliased 'Ovid::Template::File::Collection';
 use Mojo::JSON 'decode_json';
 use Less::Config 'config';
 use base 'Template::Plugin';
@@ -62,7 +63,7 @@ sub count_for_tag ($self, $tag) {
 sub files_for_tag ($self, $tag) {
     my $files = $self->{tagmap}{$tag}{files}
         or croak("Cannot find files for unknown tag '$tag'");
-    return $files;
+    return Collection->new( files => $files );
 }
 
 sub title_for_tag_file ($self, $tag, $file) {
