@@ -15,6 +15,7 @@
 
 # The Problem
 
+
 Test databases are very easy to get wrong. Very easy. Decades ago when I first
 learned testing, the team shared a test database. If you ran your test at
 the same time another developer, both of your test suites would fail!
@@ -76,7 +77,7 @@ There were various ways I could approach this, but I decided it was time to buil
 a quick database on the fly, write to that, and then dispose of it after. The
 code for this was trivial:
 
-[% WRAPPER include/code.tt language='perl' -%]
+```perl
 package Test::DB;
 
 use File::Temp qw(tempfile);
@@ -127,7 +128,7 @@ END { $dbh->do("DROP DATABASE $db_name") }
 sub test_dbh () { $dbh }
 
 1;
-[% END %]
+```
 
 The above is very naughty in many ways, but the client hinted that how fast I
 returned the test might be a factor (or maybe they didn’t and I misread the

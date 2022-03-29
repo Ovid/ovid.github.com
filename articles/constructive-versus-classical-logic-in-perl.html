@@ -274,14 +274,14 @@ reared their ugly heads and the idea went nowhere.</p>
 classical and constructive logic. Complementing <code>undef</code> with a new <code>unknown</code>
 keyword (that <code>salary</code> might return):</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">&lt;h1&gt;&lt;a name=&quot;using-undef-values&quot;&gt;&lt;/a&gt;using undef values:&lt;/h1&gt;
+<div class="shadow"><pre class="scrolled"><code class="language-perl"># using undef values:
 my @overpaid = grep {
     defined $_-&gt;salary
     &amp;&amp;
     $_-&gt;salary &gt; $cutoff
 } @employees;
 
-&lt;h1&gt;&lt;a name=&quot;same-thing-with-unknown-values&quot;&gt;&lt;/a&gt;same thing with unknown values:&lt;/h1&gt;
+# same thing with unknown values:
 my @overpaid = grep { $_-&gt;salary &gt; $cutoff } @employees;
 </code></pre></div>
 
@@ -437,7 +437,7 @@ developers receiving a chunk of data from the ORM and discovering that
 
 my @numbers = ( 1, 2, undef,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
-&lt;h1&gt;&lt;a name=&quot;result-now-holds-1-and-2&quot;&gt;&lt;/a&gt;result now holds 1 and 2&lt;/h1&gt;
+# result now holds 1 and 2
 </code></pre></div>
 
 <p>In this approach, <em>any</em> undefined value would follow 3VL. However, if you
@@ -451,7 +451,7 @@ the current 2VL (two-value logic: true or false).</p>
 
 my @numbers = ( 1, 2, unknown,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
-&lt;h1&gt;&lt;a name=&quot;result-now-holds-1-and-2-and-undef&quot;&gt;&lt;/a&gt;result now holds 1 and 2, and `undef`&lt;/h1&gt;
+# result now holds 1 and 2, and `undef`
 </code></pre></div>
 
 <p>This would require <code>unknown</code> to behave like <code>undef</code> if it left the current

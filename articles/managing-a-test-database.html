@@ -287,7 +287,7 @@ my $dsn          = $connect_info-&gt;{dsn};
 my $user         = $connect_info-&gt;{user};
 my $password     = $connect_info-&gt;{password};
 
-&lt;h1&gt;&lt;a name=&quot;-is-the-process-id-pid&quot;&gt;&lt;/a&gt;$$ is the process id (PID)&lt;/h1&gt;
+# $$ is the process id (PID)
 my $db_name = sprintf 'test_db_%d_%d', time, $$;
 my ( $fh, $filename ) = tempfile();
 
@@ -301,15 +301,15 @@ system(&quot;mysqldump -u $user --password=$password test_db &gt; $filename&quot
 system(&quot;mysql -u $user --password=$password $db_name &lt; $filename&quot;) == 0
   or croak(&quot;importing schema to mysql failed: $?&quot;);
 
-&lt;h1&gt;&lt;a name=&quot;xxx-were-being-naughty-in-this-quick-hack-were-writing&quot;&gt;&lt;/a&gt;XXX We’re being naughty in this quick hack. We’re writing&lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;this-back-to-the-model-so-that-modules-which-use-this-connect&quot;&gt;&lt;/a&gt;this back to the Model so that modules which use this connect &lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;to-the-correct-database&quot;&gt;&lt;/a&gt;to the correct database.&lt;/h1&gt;
+# XXX We’re being naughty in this quick hack. We’re writing
+# this back to the Model so that modules which use this connect 
+# to the correct database.
 $connect_info-&gt;{dsn} = &quot;dbi:mysql:$db_name&quot;;
 
-&lt;h1&gt;&lt;a name=&quot;this-is-just-a-quick-hack-to-get-tests-working-for-this-code&quot;&gt;&lt;/a&gt;This is just a quick hack to get tests working for this code.&lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;a-catastrophic-failure-in-the-test-means-this-might-not-get&quot;&gt;&lt;/a&gt;A catastrophic failure in the test means this might not get&lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;run-and-we-have-a-junk-test-database-lying-around&quot;&gt;&lt;/a&gt;run and we have a junk test database lying around.&lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;obviously-we-want-something-far-more-robust&quot;&gt;&lt;/a&gt;Obviously we want something far more robust&lt;/h1&gt;
+# This is just a quick hack to get tests working for this code.
+# A catastrophic failure in the test means this might not get
+# run and we have a junk test database lying around.
+# Obviously we want something far more robust
 
 END { $dbh-&gt;do(&quot;DROP DATABASE $db_name&quot;) }
 
@@ -334,8 +334,8 @@ use Catalyst::Test 'Client';
 
 ok( request('/some_path')-&gt;is_success, 'Request should succeed' );
 
-&lt;h1&gt;&lt;a name=&quot;anything-i-do-here-is-against-a-temporary-test-database&quot;&gt;&lt;/a&gt;anything I do here is against a temporary test database&lt;/h1&gt;
-&lt;h1&gt;&lt;a name=&quot;and-will-be-discarded-when-the-test-finishes&quot;&gt;&lt;/a&gt;and will be discarded when the test finishes&lt;/h1&gt;
+# anything I do here is against a temporary test database
+# and will be discarded when the test finishes
 
 done_testing();
 </code></pre></div>
