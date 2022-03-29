@@ -4,11 +4,11 @@ use Test::Most;
 use lib 'lib';
 use Test2::Plugin::UTF8;
 use Less::Boilerplate;
-use Template::Code;
+use Ovid::Template::File;
 
 my $tt = moose_blog_example();
 
-my $parser = Template::Code->new( filename => 'dummy', _code => $tt );
+my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $tt );
 is $parser->title, 'Moose "has" a Problem', 'We should be able to read the title';
 is $parser->next,        '[%', 'We should be able to fetch the first line of our code';
 is $parser->line_number, 1,    '... and we should be at the correct line number';
@@ -18,7 +18,7 @@ while ( defined( $parser->next ) ) {
 }
 ok !$parser->is_in_code, 'We should not be in a code state when we have read all of the lines';
 
-$parser = Template::Code->new( filename => 'dummy', _code => code_blocks() );
+$parser = Ovid::Template::File->new( filename => 'dummy', _code => code_blocks() );
 ok !$parser->title, 'Our code_blocks() snippet should not have a title';
 my $expected = <<'END';
 [% WRAPPER include/wrapper blogdown=1 %]
@@ -54,7 +54,7 @@ my $tag_map = {};
 my $rewritten = $parser->rewrite('foo-bar', $tag_map);
 eq_contents( $rewritten, $expected, 'Rewritten code blocks should match expections' );
 
-$parser = Template::Code->new(
+$parser = Ovid::Template::File->new(
     filename => 'dummy',
     _code    => double_or_heading_bug(),
 );
@@ -64,7 +64,7 @@ while ( defined ( my $line = $parser->next ) ) {
     explain "$line is in code? $is_in_code";
 }
 
-$parser = Template::Code->new(
+$parser = Ovid::Template::File->new(
     filename => 'dummy',
     _code    => double_or_heading_bug(),
 );

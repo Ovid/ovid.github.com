@@ -1,4 +1,4 @@
-package Template::Code {
+package Ovid::Template::File {
 
     # yes, this is a bit of a mess because it's a refactoring of what was
     # originally a quick hack. However, the original code was simple and
@@ -12,51 +12,43 @@ package Template::Code {
     # Further, older versions of templates are supported, even though I wish
     # they weren't (e.g., ``` vs WRAPPER for code blocks)
     use Moose;
-    use Template::Code::State;
+    use Ovid::Template::File::FindCode;
     use Less::Script;
     use HTML::TokeParser::Simple;
-    use Less::Config qw(
-      config
+    use Less::Config qw(config);
+    use Ovid::Types qw(
+      ArrayRef
+      InstanceOf
+      NonEmptySimpleStr
+      NonEmptyStr
+      Str
     );
-
-    has filename => (
-        is       => 'rw',
-        isa      => 'Str',
-        required => 1,
+    with qw(
+      Ovid::Template::Role::Debug
+      Ovid::Template::Role::File
     );
 
     has _code => (
         is       => 'rw',
-        isa      => 'Str',
+        isa      => NonEmptyStr,
         required => 1,
         lazy     => 1,
         default  => sub ($self) { slurp( $self->filename ) }
     );
 
-    has debug => (
-        is      => 'rw',
-        isa     => 'Bool',
-        default => 0,
-    );
-
-    has title => (
-        is       => 'rw',
-        writer   => '_set_title',
-        isa      => 'Str',
-        init_arg => undef,
-    );
-
-    has line_number => (
-        is       => 'rw',
-        isa      => 'Int',
-        writer   => '_set_line_number',
-        init_arg => undef,
-        default  => 0,
-    );
+    my @TEMPLATE_ATTRS = qw(title date type slug);
+    foreach my $attr (@TEMPLATE_ATTRS) {
+        has $attr => (
+            is       => 'rw',
+            isa      => NonEmptySimpleStr,
+            writer   => "_set_$attr",
+            init_arg => undef,
+        );
+    }
 
     has _lines => (
         is       => 'ro',
-        isa      => 'ArrayRef[Str]',
+        isa      => ArrayRef [Str],                                   # some lines are empty strings
         required => 1,
         lazy     => 1,
         default  => sub ($self) { [ split /\n/ => $self->_code ] },
@@ -64,11 +56,11 @@ package Template::Code {
 
     has _code_state => (
         is       => 'ro',
-        isa      => 'Template::Code::State',
+        isa      => InstanceOf ['Ovid::Template::File::FindCode'],
         required => 1,
         lazy     => 1,
         default  => sub ($self) {
-            return Template::Code::State->new(
+            return Ovid::Template::File::FindCode->new(
                 filename => $self->filename,
                 debug    => $self->debug,
             );
@@ -77,15 +69,20 @@ package Template::Code {
     );
 
     sub BUILD ( $self, @ ) {
-        $self->_set_title_from_template;
+        $self->_set_attrs_from_template;
     }
 
+    # this is used for testing. We probably want to delete it.
     sub next ($self) {
         my @lines = $self->_lines->@*;
         return if $self->line_number + 1 > @lines;
         my $line = $lines[ $self->line_number ];
         $self->_set_line_number( $self->line_number + 1 );
-        $self->_code_state->line_number($self->line_number);
+        my $parser = Ovid::Template::File::FindCode->new(
+            filename => $self->filename,
+            debug    => $self->debug,
+        );
+        $self->_code_state->_set_line_number( $self->line_number );
         $self->_code_state->parse($line);
         return $line;
     }
@@ -103,10 +100,13 @@ package Template::Code {
         my $rewritten     = '';
         my $in_code_block = 0;
         my $line_number   = 0;
-        my $parser        = $self->_code_state;
+        my $parser        = Ovid::Template::File::FindCode->new(
+            filename => $self->filename,
+            debug    => $self->debug,
+        );
         LINE: foreach my $line (@lines) {
             $line_number++;
-            $parser->line_number($line_number);
+            $parser->_set_line_number($line_number);
             $parser->parse($line);
 
             # we have found the start or end of a code block such as: ```perl
@@ -170,7 +170,7 @@ package Template::Code {
 
         $self->_debug($contents);
 
-        # XXX this is a simplistic heuristic. Need something better in the 
+        # XXX this is a simplistic heuristic. Need something better in the
         # future.
         if ( $contents =~ m{\[%.*WRAPPER include/wrapper.*blogdown=1.*%\]} ) {
 
@@ -178,11 +178,11 @@ package Template::Code {
             # appropriate HTML tag. This allows the subsequent HTML parsing logic
             # to build the TOC, but still allows the bulk of Markdown processing
             # to happen in the templates, where it should be.
-            my $rewritten = '';
-            my $parser = Template::Code::State->new( filename => $file );
+            my $rewritten   = '';
+            my $parser      = Ovid::Template::File::FindCode->new( filename => $file );
             my $line_number = 1;
             foreach my $line ( split /\n/ => $contents ) {
-                $parser->line_number($line_number);
+                $parser->_set_line_number($line_number);
                 $line_number++;
                 $parser->parse($line);
                 if ( !$parser->is_in_code && $line =~ /^((#+)(.*))$/ ) {
@@ -244,33 +244,21 @@ TOC
         return ( $rewritten, \@tags );
     }
 
-    sub _set_title_from_template ($self) {
-        $self->_set_title('');
+    sub _set_attrs_from_template ($self) {
+        state $is_required = { map { $_ => 1 } @TEMPLATE_ATTRS };
 
         # many pages don't have titles, so it's ok to skip them
         if ( $self->_code =~ m{\s*\[%(.*?)\[%.*?(?:INCLUDE|WRAPPER).*?%\]}s ) {
             my $header = $1;
             foreach my $line ( split /\n/ => $header ) {
                 my ( $key, $value ) = map { trim($_) } split /=/ => $line;
-                next unless $key && $value;
-                next if 'title' ne $key;
+                next unless $key && $is_required->{$key} && $value;
+                my $set_attr = "_set_$key";
                 $value =~ s/;$//;
                 $value =~ s/^['"]//;
                 $value =~ s/['"]$//;
-                $self->_set_title($value) if 'title' eq $key;
-                return;
+                $self->$set_attr($value);
             }
-        }
-    }
-
-    sub _debug ( $self, $message ) {
-        return unless $self->debug;
-        my $filename = $self->filename;
-        if ( my $line_number = $self->line_number ) {
-            say STDERR "$filename/$line_number: $message";
-        }
-        else {
-            say STDERR "$filename: $message";
         }
     }
 

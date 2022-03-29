@@ -4,7 +4,7 @@ use Test::Most;
 use lib 'lib';
 use Test2::Plugin::UTF8;
 use Less::Boilerplate;
-use Template::Code::State;
+use Ovid::Template::File::FindCode;
 
 subtest 'code block markers match' => sub {
 
@@ -15,7 +15,7 @@ subtest 'code block markers match' => sub {
         ' ```'           => 'leading space will prevent matching',
     );
     foreach my $line ( sort keys %bad ) {
-        my $state   = Template::Code::State->new( filename => 'dummy.tt' );
+        my $state   = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
         my $message = $bad{$line};
         my ( $marker, $language ) = $state->_matches_code_block_marker($line);
         ok !$marker, "no match for <$line>: $message";
@@ -26,7 +26,7 @@ subtest 'code block markers match' => sub {
         '[% WRAPPER include/code.tt language="perl" %]' => 'start tt',
     );
     foreach my $line ( sort keys %good_start ) {
-        my $state   = Template::Code::State->new( filename => 'dummy.tt' );
+        my $state   = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
         my $message = $good_start{$line};
         my ( $marker, $language ) = $state->_matches_code_block_marker($line);
         ok $marker, "match for <$line>: $message";
@@ -36,7 +36,7 @@ subtest 'code block markers match' => sub {
         '[%-   END   -%]' => 'end tt',
     );
     foreach my $line ( sort keys %good_end ) {
-        my $state = Template::Code::State->new( filename => 'dummy.tt' );
+        my $state = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
 
         explain "We have to have a valid start tag or TT end tags won't match";
         $state->parse('[% WRAPPER include/code.tt language="perl" %]');
@@ -47,7 +47,7 @@ subtest 'code block markers match' => sub {
 };
 
 subtest 'Basic code block parsing' => sub {
-    my $state = Template::Code::State->new( filename => 'dummy.tt' );
+    my $state = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
 
     ok $state->parse('...'), 'We should be able to parse a line of tt2markdown code';
     ok !$state->is_start_marker, '... and we should no be at the start code marker';
@@ -79,7 +79,7 @@ subtest 'Basic code block parsing' => sub {
 };
 
 subtest 'Standalone END tag' => sub {
-    my $state = Template::Code::State->new( filename => 'dummy.tt' );
+    my $state = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
     $state->parse('[% END %]');
     ok !$state->is_start_marker, 'A lone [% END %] tag without a start tag is not a start marker';
     ok !$state->is_end_marker,   '... and we should not be at the closing code marker';
