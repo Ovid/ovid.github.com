@@ -1,27 +1,11 @@
 package Ovid::Template::File::FindCode {
     use Moose;
     use Less::Boilerplate;
+    with qw(
+      Ovid::Template::Role::Debug
+    );
 
     # parameters
-
-    has filename => (
-        is       => 'rw',
-        isa      => 'Str',
-        required => 1,
-    );
-
-    has line_number => (
-        is       => 'rw',
-        isa      => 'Int',
-        init_arg => undef,
-    );
-
-    has debug => (
-        is       => 'rw',
-        isa      => 'Bool',
-        default  => 0,
-    );
-
 
     my $CODE_BLOCK_MARKER = qr{^
         (?:
@@ -100,17 +84,6 @@ package Ovid::Template::File::FindCode {
             return ($+{marker}, $+{language} // '' );
         }
         return;
-    }
-
-    sub _debug ( $self, $message ) {
-        return unless $self->debug;
-        my $filename = $self->filename;
-        if ( my $line_number = $self->line_number ) {
-            say STDERR "$filename/$line_number: $message";
-        }
-        else {
-            say STDERR "$filename: $message";
-        }
     }
 
     sub parse ( $self, $line = '' ) {

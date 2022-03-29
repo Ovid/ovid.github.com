@@ -16,11 +16,8 @@ package Ovid::Template::File {
     use Less::Script;
     use HTML::TokeParser::Simple;
     use Less::Config qw(config);
-
-    has filename => (
-        is       => 'rw',
-        isa      => 'Str',
-        required => 1,
+    with qw(
+      Ovid::Template::Role::Debug
     );
 
     has _code => (
@@ -29,12 +26,6 @@ package Ovid::Template::File {
         required => 1,
         lazy     => 1,
         default  => sub ($self) { slurp( $self->filename ) }
-    );
-
-    has debug => (
-        is      => 'rw',
-        isa     => 'Bool',
-        default => 0,
     );
 
     my @TEMPLATE_ATTRS = qw(title date type slug);
@@ -46,14 +37,6 @@ package Ovid::Template::File {
             init_arg => undef,
         );
     }
-
-    has line_number => (
-        is       => 'rw',
-        isa      => 'Int',
-        writer   => '_set_line_number',
-        init_arg => undef,
-        default  => 0,
-    );
 
     has _lines => (
         is       => 'ro',
@@ -91,7 +74,7 @@ package Ovid::Template::File {
             filename => $self->filename,
             debug    => $self->debug,
         );
-        $self->_code_state->line_number($self->line_number);
+        $self->_code_state->_set_line_number($self->line_number);
         $self->_code_state->parse($line);
         return $line;
     }
@@ -115,7 +98,7 @@ package Ovid::Template::File {
         );
         LINE: foreach my $line (@lines) {
             $line_number++;
-            $parser->line_number($line_number);
+            $parser->_set_line_number($line_number);
             $parser->parse($line);
 
             # we have found the start or end of a code block such as: ```perl
@@ -191,7 +174,7 @@ package Ovid::Template::File {
             my $parser = Ovid::Template::File::FindCode->new( filename => $file );
             my $line_number = 1;
             foreach my $line ( split /\n/ => $contents ) {
-                $parser->line_number($line_number);
+                $parser->_set_line_number($line_number);
                 $line_number++;
                 $parser->parse($line);
                 if ( !$parser->is_in_code && $line =~ /^((#+)(.*))$/ ) {
@@ -268,17 +251,6 @@ TOC
                 $value =~ s/['"]$//;
                 $self->$set_attr($value);
             }
-        }
-    }
-
-    sub _debug ( $self, $message ) {
-        return unless $self->debug;
-        my $filename = $self->filename;
-        if ( my $line_number = $self->line_number ) {
-            say STDERR "$filename/$line_number: $message";
-        }
-        else {
-            say STDERR "$filename: $message";
         }
     }
 
