@@ -3,9 +3,6 @@ package Ovid::Template::Role::Debug {
     use Less::Boilerplate;
     use Ovid::Types qw(
       Bool
-      Maybe
-      NonEmptySimpleStr
-      PositiveOrZeroNum
     );
 
     has debug => (
@@ -14,27 +11,19 @@ package Ovid::Template::Role::Debug {
         default => 0,
     );
 
-    has filename => (
-        is       => 'rw',
-        isa      => NonEmptySimpleStr,
-        required => 1,
-    );
-
-    has line_number => (
-        is      => 'rw',
-        isa     => Maybe [PositiveOrZeroNum],
-        writer  => '_set_line_number',
-        default => 0,
-    );
-
     sub _debug ( $self, $message ) {
         return unless $self->debug;
-        my $filename = $self->filename;
-        if ( my $line_number = $self->line_number ) {
-            say STDERR "$filename/$line_number: $message";
+        if ( $self->DOES('Ovid::Template::Role::File') ) {
+            my $filename = $self->filename;
+            if ( my $line_number = $self->line_number ) {
+                say STDERR "$filename/$line_number: $message";
+            }
+            else {
+                say STDERR "$filename: $message";
+            }
         }
         else {
-            say STDERR "$filename: $message";
+            say STDERR $message;
         }
     }
 }
@@ -65,18 +54,9 @@ Requires no methods
 
 Does nothing unless C<debug> is true.
 
-Prints the message to C<STDERR>, prepredended with filename or filename/line number.
+Prints the message to C<STDERR>, preprended with filename or filename/line
+number if C<Ovid::Template::Role::File> is also used.
 
 =head2 C<debug>
 
 May be passed to the constructor. If true, allows C<_debug> to print messages.
-
-=head2 C<filename>
-
-Must be passed to the constructor. Used to print filename in debug.
-
-=head2 C<line_number>
-
-May be passed to the constructor. If true, will be included in C<_debug> output.
-
-Due to how our code base works, we will not always have a line number available.

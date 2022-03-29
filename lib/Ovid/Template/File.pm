@@ -25,6 +25,7 @@ package Ovid::Template::File {
     );
     with qw(
       Ovid::Template::Role::Debug
+      Ovid::Template::Role::File
     );
 
     has _code => (

@@ -8,6 +8,7 @@ package Ovid::Template::File::FindCode {
     );
     with qw(
       Ovid::Template::Role::Debug
+      Ovid::Template::Role::File
     );
 
     # parameters
