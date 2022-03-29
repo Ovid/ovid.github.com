@@ -1,4 +1,4 @@
-package Template::Code {
+package Ovid::Template::File {
 
     # yes, this is a bit of a mess because it's a refactoring of what was
     # originally a quick hack. However, the original code was simple and
@@ -12,7 +12,7 @@ package Template::Code {
     # Further, older versions of templates are supported, even though I wish
     # they weren't (e.g., ``` vs WRAPPER for code blocks)
     use Moose;
-    use Template::Code::State;
+    use Ovid::Template::File::FindCode;
     use Less::Script;
     use HTML::TokeParser::Simple;
     use Less::Config qw(config);
@@ -65,11 +65,11 @@ package Template::Code {
 
     has _code_state => (
         is       => 'ro',
-        isa      => 'Template::Code::State',
+        isa      => 'Ovid::Template::File::FindCode',
         required => 1,
         lazy     => 1,
         default  => sub ($self) {
-            return Template::Code::State->new(
+            return Ovid::Template::File::FindCode->new(
                 filename => $self->filename,
                 debug    => $self->debug,
             );
@@ -87,7 +87,7 @@ package Template::Code {
         return if $self->line_number + 1 > @lines;
         my $line = $lines[ $self->line_number ];
         $self->_set_line_number( $self->line_number + 1 );
-        my $parser        = Template::Code::State->new(
+        my $parser        = Ovid::Template::File::FindCode->new(
             filename => $self->filename,
             debug    => $self->debug,
         );
@@ -109,7 +109,7 @@ package Template::Code {
         my $rewritten     = '';
         my $in_code_block = 0;
         my $line_number   = 0;
-        my $parser        = Template::Code::State->new(
+        my $parser        = Ovid::Template::File::FindCode->new(
             filename => $self->filename,
             debug    => $self->debug,
         );
@@ -188,7 +188,7 @@ package Template::Code {
             # to build the TOC, but still allows the bulk of Markdown processing
             # to happen in the templates, where it should be.
             my $rewritten = '';
-            my $parser = Template::Code::State->new( filename => $file );
+            my $parser = Ovid::Template::File::FindCode->new( filename => $file );
             my $line_number = 1;
             foreach my $line ( split /\n/ => $contents ) {
                 $parser->line_number($line_number);

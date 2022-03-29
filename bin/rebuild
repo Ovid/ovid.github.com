@@ -14,7 +14,7 @@ use Mojo::JSON qw(encode_json);
 use Less::Config qw(
   config
 );
-use Template::Code;
+use Ovid::Template::File;
 use Less::Script;
 use Less::Pager;
 
@@ -109,7 +109,7 @@ sub preprocess_files (@files) {
               or croak("Could not copy $file to $destfile: $!");
         }
         else {
-            my $parser = Template::Code->new( filename => $file );
+            my $parser = Ovid::Template::File->new( filename => $file );
 
             my $contents = $parser->rewrite( $destfile, \%tagmap )
               if $is_tt_file;

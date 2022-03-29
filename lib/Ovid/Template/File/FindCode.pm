@@ -1,4 +1,4 @@
-package Template::Code::State {
+package Ovid::Template::File::FindCode {
     use Moose;
     use Less::Boilerplate;
 
