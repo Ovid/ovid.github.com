@@ -201,15 +201,24 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 <p><nav role="navigation" class="table-of-contents">
-    <ul></p>
-
-<pre><code>&lt;/ul&gt;
-</code></pre>
-
-<p></nav>
+    <ul>
+    <li class="indent-1"><a href="#corinnas-first-missteps">Corinna’s First (mis)Steps</a></li>
+    <li class="indent-2"><a href="#good-oo-design">Good OO Design</a></li>
+    <li class="indent-2"><a href="#my-mistake">My Mistake</a></li>
+    <li class="indent-2"><a href="#politics">Politics</a></li>
+    <li class="indent-1"><a href="#class-data-and-methods">Class Data and Methods</a></li>
+    <li class="indent-2"><a href="#inclusion">Inclusion</a></li>
+    <li class="indent-2"><a href="#semantics">Semantics</a></li>
+    <li class="indent-2"><a href="#syntax">Syntax</a></li>
+    <li class="indent-2"><a href="#state-variables">State Variables</a></li>
+    <li class="indent-1"><a href="#the-future">The Future</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    <li class="indent-1"><a href="#update">Update</a></li>
+    </ul>
+</nav>
 <hr></p>
 
-<h1>Corinna’s First (mis)Steps</h1>
+<h1><a name="corinnas-first-missteps"></a>Corinna’s First (mis)Steps</h1>
 
 <p>Note: Corinna is the name of Ovid’s love interest in <a href="https://www.gutenberg.org/files/47676/47676-h/47676-h.htm" target="_blank">the
 Amores</a> <span class="fa fa-external-link fa_custom"></span>.</p>
@@ -282,7 +291,7 @@ look at one mistake I made in that specification:</p>
 
 <p>So you couldn’t call <code>$self-&gt;cache</code> or <code>$self-&gt;max_size</code> outside of the class.</p>
 
-<h2>Good OO Design</h2>
+<h2><a name="good-oo-design"></a>Good OO Design</h2>
 
 <p>So I said encapsulation is “generally accepted as good OO practice.”</p>
 
@@ -346,7 +355,7 @@ data, but these have never caught on. They are awkward to write and, most
 importantly, you can’t just call <code>Dumper($object)</code> to see its internal state
 while debugging. That alone may have killed them.</p>
 
-<h2>My Mistake</h2>
+<h2><a name="my-mistake"></a>My Mistake</h2>
 
 <p>So if encapsulation is good, and violating encapsulation is bad, why were
 people upset with my proposal?</p>
@@ -392,7 +401,7 @@ top. Which leads me to the entire point of this blog entry:</p>
 meant that no one would use my OO system, it didn’t matter. I had to change
 something.</p>
 
-<h2>Politics</h2>
+<h2><a name="politics"></a>Politics</h2>
 
 <p>It was pointed out to me that since I had been working in isolation, I hadn’t
 had the chance to hear, much less incorporate, the views of others. It was
@@ -474,7 +483,7 @@ this.</p>
 
 <p>But what about class data?</p>
 
-<h1>Class Data and Methods</h1>
+<h1><a name="class-data-and-methods"></a>Class Data and Methods</h1>
 
 <p>Should we include class data and methods in Corinna? I discovered that for
 many people, the answer was obvious, but their obvious answers disagreed with
@@ -490,7 +499,7 @@ other people’s obvious answers. What makes it worse is that this isn’t just 
 <p>This isn’t easy. We got past one and two with difficulty, but number three has
 been a bit of a trainwreck. And I’m the conductor.</p>
 
-<h2>Inclusion</h2>
+<h2><a name="inclusion"></a>Inclusion</h2>
 
 <p>I think it was pretty much universally agreed that we had to have class
 methods. These wouldn’t have <code>$self</code> injected into them, nor would they have
@@ -556,14 +565,14 @@ pointed out that it’s literally impossible to avoid:</p>
 In fact, even if we omitted class methods, we’d still have class data. So
 let’s work with what we have.</p>
 
-<h2>Semantics</h2>
+<h2><a name="semantics"></a>Semantics</h2>
 
 <p><a href="https://github.com/Ovid/Cor/wiki/Class-Data-and-Methods" target="_blank">We have a lot of the semantics described
 here</a> <span class="fa fa-external-link fa_custom"></span>, but it could
 use some more work. However, the general idea of behavior isn’t controversial
 enough that I want to spend too much time here.</p>
 
-<h2>Syntax</h2>
+<h2><a name="syntax"></a>Syntax</h2>
 
 <p>Now we have a problem. In Moo/se, we <code>BUILD</code>, <code>DEMOLISH</code>, and <code>has</code>, which
 have been renamed to <code>ADJUST</code>, <code>DESTRUCT</code>, and <code>slot</code> in Corinna in part
@@ -728,7 +737,7 @@ Corinna was arguing for <code>my</code>. Here’s Damian, using <code>state</cod
 classes, but let’s not go there yet. Let’s talk about <code>state</code> and why this is
 important.</p>
 
-<h2>State Variables</h2>
+<h2><a name="state-variables"></a>State Variables</h2>
 
 <p><a href="https://perldoc.perl.org/functions/state" target="_blank"><code>perldoc -f state</code></a> <span class="fa fa-external-link fa_custom"></span> says:</p>
 
@@ -839,7 +848,7 @@ might surprise some because I don’t think it’s clearly documented.</p>
 I need to ensure that Corinna doesn’t hobble future Perl, either. That’s much
 harder because we can’t predict the future.</p>
 
-<h1>The Future</h1>
+<h1><a name="the-future"></a>The Future</h1>
 
 <p>There are two things we would love to see in the future for Perl. One is inner
 classes and the second is anonymous classes. “Anonymous classes” already feels
@@ -942,7 +951,7 @@ appropriate. Or after we get there, we might discover that they’re not
 appropriate and we’ve backed ourselves into a corner because we decided to
 reuse a handy thing in the language.</p>
 
-<h1>Conclusion</h1>
+<h1><a name="conclusion"></a>Conclusion</h1>
 
 <p>There are no good answers here, but I had to make a call. And I decided to err
 on the side of established conventions in popular languages, and potential
@@ -959,7 +968,7 @@ up. That’s fine. I welcome those arguments and I might change my mind, but the
 arguments have raged since February with no sign of consensus. I had to make a
 call. I might not have made the right call, but it needed to be done.</p>
 
-<h1>Update</h1>
+<h1><a name="update"></a>Update</h1>
 
 <p>I’ve been getting some feedback on this. I’ve now been going back through
 tickets, emails, and IRC logs and I see that there some agreement on <code>class

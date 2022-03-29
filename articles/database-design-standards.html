@@ -199,15 +199,22 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 <p><nav role="navigation" class="table-of-contents">
-    <ul></p>
-
-<pre><code>&lt;/ul&gt;
-</code></pre>
-
-<p></nav>
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#camelcasenames-or-underscore-names">CamelCaseNames or underscore_names?</a></li>
+    <li class="indent-1"><a href="#plural-or-singular-tables">Plural or Singular Tables?</a></li>
+    <li class="indent-1"><a href="#dont-name-the-id-column-id">Don’t name the ID column “id”</a></li>
+    <li class="indent-1"><a href="#column-naming">Column Naming</a></li>
+    <li class="indent-1"><a href="#avoid-null-values">Avoid NULL Values</a></li>
+    <li class="indent-2"><a href="#database-types">Database Types</a></li>
+    <li class="indent-2"><a href="#what-does-a-null-value-mean">What does a NULL value mean?</a></li>
+    <li class="indent-2"><a href="#nulls-lead-to-logical-impossibilities">NULLs lead to logical impossibilities</a></li>
+    <li class="indent-1"><a href="#summary">Summary</a></li>
+    </ul>
+</nav>
 <hr></p>
 
-<h1>Introduction</h1>
+<h1><a name="introduction"></a>Introduction</h1>
 
 <p>When moving from project to project, it’s unfortunate that we find that there
 are no consistent standards on database design, despite SQL having been around
@@ -231,7 +238,7 @@ these standards were to be widely adopted, databases would be easier to use
 because you wouldn’t have to learn and remember a new set of standards every
 time you work with a new database.</p>
 
-<h1>CamelCaseNames or underscore_names?</h1>
+<h1><a name="camelcasenames-or-underscore-names"></a>CamelCaseNames or underscore_names?</h1>
 
 <p>Let’s get this out of the way quickly. I routinely see database examples
 online where we see table names like <code>CustomerOrders</code> or <code>customer_orders</code>.
@@ -250,7 +257,7 @@ English isn’t their first language.</p>
 <p>That being said, this is a personal preference and not a strong
 recommendation.</p>
 
-<h1>Plural or Singular Tables?</h1>
+<h1><a name="plural-or-singular-tables"></a>Plural or Singular Tables?</h1>
 
 <p>There’s long been a huge debate amongst experts in database theory about
 whether or not database tables should be singular (<code>customer</code>) or plural
@@ -267,7 +274,7 @@ which has an excellent SQL parser, has been tripped up when encountering a
 
 <p>Just use plural names and you’re far less likely to have a collision.</p>
 
-<h1>Don’t name the ID column “id”</h1>
+<h1><a name="dont-name-the-id-column-id"></a>Don’t name the ID column “id”</h1>
 
 <p>This is a sin I’ve been guilty of for years. When working with a client in
 Paris, I had a DBA complain when I named my id columns <code>id</code> and I thought he
@@ -340,7 +347,7 @@ ORDER BY datesent ASC, thread.parent_id ASC
 
 <p>Do yourself a favor and use full names for IDs. You can thank me later.</p>
 
-<h1>Column Naming</h1>
+<h1><a name="column-naming"></a>Column Naming</h1>
 
 <p>As much as possible, name columns very descriptively. For example, a
 <code>temperature</code> column doesn’t make sense for this:</p>
@@ -396,7 +403,7 @@ confusion, you can name the column <code>owning_company_id</code>. That can stil
 the intent of the column in the name while giving you a strong hint as to its
 intent.</p>
 
-<h1>Avoid NULL Values</h1>
+<h1><a name="avoid-null-values"></a>Avoid NULL Values</h1>
 
 <p>Saving the best (or is it worst?) for last! This is a tip that many
 experienced database developers are aware of, but sadly, it doesn’t get
@@ -408,7 +415,7 @@ complicated topic. First, we’ll discuss the theory, then we’ll discuss their
 impact on database design, and we’ll finish up with a practical example of the
 serious problems <code>NULL</code> values cause. </p>
 
-<h2>Database Types</h2>
+<h2><a name="database-types"></a>Database Types</h2>
 
 <p>In the database, we have various data <em>types</em>, such as <code>INTEGER</code>, <code>JSON</code>,
 <code>DATETIME</code>, and so on. A type is associated with a column and any value added
@@ -463,7 +470,7 @@ of <code>NULL</code>:</p>
 
 <p>Ah, now it makes perfect sense!</p>
 
-<h2>What does a NULL value mean?</h2>
+<h2><a name="what-does-a-null-value-mean"></a>What does a NULL value mean?</h2>
 
 <p>Now that we have the tiniest amount of type theory under our belt, let’s
 examine the practical implications.</p>
@@ -496,7 +503,7 @@ suggest that there’s more to the problem than just a salary.</p>
 
 <p>And yes, this was a silly example, but it leads to the final nail in the coffin.</p>
 
-<h2>NULLs lead to logical impossibilities</h2>
+<h2><a name="nulls-lead-to-logical-impossibilities"></a>NULLs lead to logical impossibilities</h2>
 
 <p>You might have some sense that I’m being a bit pedantic about <code>NULL</code> values,
 but we have one final example and it’s caused much real-world grief.</p>
@@ -578,7 +585,7 @@ impossible results.</p>
 generate or include <code>NULL</code> values you run the risk of having SQL lie to you.
 It doesn’t happen often, but when it does, it’s devilishly hard to track down.</p>
 
-<h1>Summary</h1>
+<h1><a name="summary"></a>Summary</h1>
 
 <ul>
 <li>Use <code>underscore_names</code> instead of <code>CamelCaseNames</code></li>

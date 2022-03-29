@@ -204,11 +204,7 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 
-<h1>The Problem</h1>
-
-<div class="shadow"><pre class="scrolled"><code class="language-perl"># this is a test
-my $x = 1;
-</code></pre></div>
+<h1><a name="the-problem"></a>The Problem</h1>
 
 <p>Test databases are very easy to get wrong. Very easy. Decades ago when I first
 learned testing, the team shared a test database. If you ran your test at
@@ -245,7 +241,7 @@ solution, but I was tired of hackish solutions.</p>
 the “database transactions for tests” approach was broken. Just spawn off
 temporary test databases and use those, throwing them away when you’re done.</p>
 
-<h1>The Client</h1>
+<h1><a name="the-client"></a>The Client</h1>
 
 <p>So a company wanting to hire me gave me a technical test and there was a task
 to add a small, simple feature to a <a href="http://www.catalystframework.org/" target="_blank">Catalyst web
@@ -347,7 +343,7 @@ done_testing();
 <p>The <code>Test::DB</code> code was quick and easy to write and made it trivial for me
 to safely write tests. I was pleased.</p>
 
-<h1>What’s Wrong With Test::DB?</h1>
+<h1><a name="whats-wrong-with-testdb"></a>What’s Wrong With Test::DB?</h1>
 
 <p>For a junior developer, <code>Test::DB</code> might look awesome. For an experienced
 developer, it’s terrible. So what would I do to make it closer to production
@@ -355,7 +351,7 @@ ready?</p>
 
 <p>Here are just a few of the things I would consider.</p>
 
-<h2>Stronger Data Validation</h2>
+<h2><a name="stronger-data-validation"></a>Stronger Data Validation</h2>
 
 <p>First, let’s look at our connection information:</p>
 
@@ -412,7 +408,7 @@ the database had been taken, and create a new test database in the background
 while your test runs. The service would also probably clean up old test
 databases based on whatever policies you think are appropriate.</p>
 
-<h1>No Action At A Distance</h1>
+<h1><a name="no-action-at-a-distance"></a>No Action At A Distance</h1>
 
 <p>This line is terrible:</p>
 
@@ -427,7 +423,7 @@ service, and so can <code>Client::Model::ClientDB</code>. Everything relies on a
 source of truth instead of hacking global variables and hoping you don’t mess
 up.</p>
 
-<h1>Don’t Drop The Test Database</h1>
+<h1><a name="dont-drop-the-test-database"></a>Don’t Drop The Test Database</h1>
 
 <p>If there is one thing which I hate about many testing systems, it’s a watching
 a test horribly fail, but the database is cleaned up (or dropped) and I can’t
@@ -453,7 +449,7 @@ it. Our database service would have code to drop the database on:</p>
 
 <p>In short, keep the valuable data around for debugging.</p>
 
-<h1>Rapid Database Development</h1>
+<h1><a name="rapid-database-development"></a>Rapid Database Development</h1>
 
 <p>The database service solution would also have to tie into your database
 change management strategy. I heavily use <a href="https://sqitch.org/" target="_blank">sqitch</a> <span class="fa fa-external-link fa_custom"></span> to
@@ -468,7 +464,7 @@ worked with clients whose database change management strategy involves listing
 a bunch of SQL files and checking their <code>mtime</code> to see which ones need to be
 applied to your database. Yikes!</p>
 
-<h1>Faster Tests</h1>
+<h1><a name="faster-tests"></a>Faster Tests</h1>
 
 <p>If this is done well, your tests should also be faster. You won’t have the
 overhead of transactions beyond what your code already has. Plus, you can
@@ -496,7 +492,7 @@ Further, having a pre-populated database helps your code deal with something
 closer to a real-world problem instead of dealing with an empty database and
 not catching corner cases that might cause.</p>
 
-<h1>Conclusion</h1>
+<h1><a name="conclusion"></a>Conclusion</h1>
 
 <p>By using a database service which merely hands you a temporary test database,
 you don’t have to worry about leaving the database a mess, managing
