@@ -37,7 +37,8 @@ package Template::Code {
         default => 0,
     );
 
-    foreach my $attr (qw/title date/) {
+    my @TEMPLATE_ATTRS = qw(title date type slug);
+    foreach my $attr (@TEMPLATE_ATTRS) {
         has $attr => (
             is       => 'rw',
             writer   => "_set_$attr",
@@ -77,7 +78,7 @@ package Template::Code {
     );
 
     sub BUILD ( $self, @ ) {
-        $self->_set_title_from_template;
+        $self->_set_attrs_from_template;
     }
 
     # this is used for testing. We probably want to delete it.
@@ -245,23 +246,20 @@ TOC
         return ( $rewritten, \@tags );
     }
 
-    sub _set_title_from_template ($self) {
-        $self->_set_title('');
+    sub _set_attrs_from_template ($self) {
+        state $is_required = { map { $_ => 1 } @TEMPLATE_ATTRS };
 
         # many pages don't have titles, so it's ok to skip them
         if ( $self->_code =~ m{\s*\[%(.*?)\[%.*?(?:INCLUDE|WRAPPER).*?%\]}s ) {
             my $header = $1;
             foreach my $line ( split /\n/ => $header ) {
                 my ( $key, $value ) = map { trim($_) } split /=/ => $line;
-                next unless $key && $value;
-                ATTR: foreach my $attr (qw/title date/) {
-                    next ATTR if $attr ne $key;
-                    $value =~ s/;$//;
-                    $value =~ s/^['"]//;
-                    $value =~ s/['"]$//;
-                    my $set_attr = "_set_$attr";
-                    $self->$set_attr($value);
-                }
+                next unless $key && $is_required->{$key} && $value;
+                my $set_attr = "_set_$key";
+                $value =~ s/;$//;
+                $value =~ s/^['"]//;
+                $value =~ s/['"]$//;
+                $self->$set_attr($value);
             }
         }
     }

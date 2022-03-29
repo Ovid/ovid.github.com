@@ -12,9 +12,16 @@ my @files = sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in( 'r
 foreach my $file (@files) {
     my $parser = Template::Code->new( filename => $file );
     my $title  = $parser->title;
-    ok $title, "$file has a title: $title";
-    my $date  = $parser->date;
-    ok $date, "$file has a date: $date";
+    my $date   = $parser->date;
+    my $type   = $parser->type;
+    my $slug   = $parser->slug;
+    subtest "Attributes for $file" => sub {
+        ok $title,  "$file has a title: « $title »";
+        ok $date,   "... and a date: $date";
+        ok $slug,   "... and a slug: $slug";
+        ok $type,   "... and a type: $type";
+        like $file, qr{^root/$type}, '... and the type should match the beginning of the path';
+    };
 }
 
 done_testing;
