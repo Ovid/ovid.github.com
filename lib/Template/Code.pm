@@ -87,6 +87,10 @@ package Template::Code {
         return if $self->line_number + 1 > @lines;
         my $line = $lines[ $self->line_number ];
         $self->_set_line_number( $self->line_number + 1 );
+        my $parser        = Template::Code::State->new(
+            filename => $self->filename,
+            debug    => $self->debug,
+        );
         $self->_code_state->line_number($self->line_number);
         $self->_code_state->parse($line);
         return $line;
@@ -105,7 +109,10 @@ package Template::Code {
         my $rewritten     = '';
         my $in_code_block = 0;
         my $line_number   = 0;
-        my $parser        = $self->_code_state;
+        my $parser        = Template::Code::State->new(
+            filename => $self->filename,
+            debug    => $self->debug,
+        );
         LINE: foreach my $line (@lines) {
             $line_number++;
             $parser->line_number($line_number);
