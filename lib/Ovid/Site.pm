@@ -1,4 +1,8 @@
 package Ovid::Site {
+
+    # this is a straight port of the bin/rebuild script. As such, it's rather
+    # sloppy and the `build()` methods need to be called in precise order
+    # because some methods set data for subsequent methods
     use Moose;
     use Less::Script;
     use Less::Pager;
