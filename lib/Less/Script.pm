@@ -55,13 +55,12 @@ Read contents of C<$filename> into a variable.
 =cut
 
 sub slurp($filename) {
-    my $mode = '<:', _get_mode($filename);
-    open my ($fh), $mode, $filename;
+    open my $fh, '<:encoding(UTF-8)', $filename;
     my $contents = do { local $/; <$fh> };
     return $contents;
 }
 
-=head1 C<splat>
+=head2 C<splat>
 
     splat($filename, $contents);
 
@@ -70,27 +69,8 @@ Write C<$contents> to C<filename>.
 =cut
 
 sub splat ( $filename, $contents ) {
-    my $mode = '>:', _get_mode($filename);
-    open my ($fh), $mode, $filename;
+    open my $fh, '>:encoding(UTF-8)', $filename;
     print {$fh} $contents;
-}
-
-sub _get_mode ($filename) {
-    state $is_utf8 = {
-        map { $_ => 1 }
-          qw/
-          html
-          js
-          css
-          tt
-          tt2html
-          /
-    };
-    my $mode = 'raw';
-    if ( $filename =~ /\.(?<extension>\w+)$/ && $is_utf8->{ $+{extension} } ) {
-        $mode = 'encoding(UTF-8)';
-    }
-    return $mode;
 }
 
 =head2 C<make_slug>
