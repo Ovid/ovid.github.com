@@ -15,6 +15,7 @@ use Less::Config qw(
   config
 );
 use Ovid::Template::File;
+use Ovid::Site;
 use Less::Script;
 use Less::Pager;
 
@@ -22,12 +23,14 @@ use HTML::TokeParser::Simple;
 use Capture::Tiny 'capture';
 
 use File::Find::Rule;
-use File::Spec::Functions qw(catfile catdir);
+use File::Spec::Functions qw(catfile);
 use File::Basename qw(dirname basename);
 use File::Path qw(mkpath);
 use File::Copy;
 
-assert_tt_config();
+my $site = Ovid::Site->new;
+$site->build;
+
 my @files  = get_files('root');
 my $tagmap = preprocess_files(@files);
 write_tag_templates($tagmap);
@@ -278,32 +281,6 @@ sub get_article_list ( $records, $article_type ) {
     }
     $list .= "</ul>";
     return $list;
-}
-
-sub assert_tt_config {
-    unless ( -f "$ENV{HOME}/.ttreerc" ) {
-        warn <<"END";
-No $ENV{HOME}/.ttreerc file found
-
-It should have a structure like this:
-
-	verbose
-	recurse
-
-	color=1
-
-	src  = ~/Dropbox/Mine/projects/perl/ovid.github.com/root
-	dest  = ~/Dropbox/Mine/projects/perl/ovid.github.com/
-
-	ignore = \b(CVS|RCS|sw[pot])\b
-	ignore = ^#
-	ignore = ^.git
-
-	suffix tt=html
-	suffix tt2markdown=html
-END
-        exit 1;
-    }
 }
 
 sub run_ttree {
