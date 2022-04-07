@@ -59,10 +59,15 @@ sub write_cpanfile($needs_install) {
 }
 
 sub get_modules ( $filenames, $is_local ) {
-    my %modules;
+
+    # the following are not detected, so we force them
+    my %modules = (
+        'YAML::LibYAML'         => 0.83,
+        'HTML::SimpleLinkExtor' => 1.273,
+    );
     my $current = 1;
     my $total   = @$filenames;
-  PACKAGE: foreach my $filename ( sort @$filenames ) {
+    PACKAGE: foreach my $filename ( sort @$filenames ) {
         say "Processing $current out of $total";
         $current++;
         my $module_name = filename_to_module($filename) or next PACKAGE;
