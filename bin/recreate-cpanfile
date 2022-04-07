@@ -32,7 +32,7 @@ write_cpanfile( \%needs_install );
 sub write_cpanfile($needs_install) {
     my $max      = max map { length } keys $needs_install->%*;
     my $requires = '';
-    foreach my $module ( keys $needs_install->%* ) {
+    foreach my $module ( sort keys $needs_install->%* ) {
         my $padding = ' ' x ( ( $max + 2 ) - length $module );
         $requires .=
           "requires '$module'$padding=> $needs_install->{$module};\n";
