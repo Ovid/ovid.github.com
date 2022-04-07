@@ -15,6 +15,7 @@ package Ovid::Site {
     use DateTime::Format::SQLite;
     use DateTime;
     use File::Basename qw(dirname basename);
+    use File::Which qw(which);
     use File::Copy;
     use File::Find::Rule;
     use File::Path qw(mkpath);
@@ -323,20 +324,22 @@ END
     }
 
     sub _run_ttree ($self) {
-        my ( $stdout, $stderr, $exit ) = capture {
-            system(
-                'ttree',      '-a',                      # process all files
-                '-s',         'tmp',                     # use tmp/ as a source
-                '-d',         '.',                       # use . as the target
-                '--copy',     '\.(gif|png|jpg|pdf)$',    # copy, don't process images
-                '--binmode',  'utf8',                    # encoding of output file
-                '--encoding', 'utf8',                    # encoding of input files
-            )
-        };
+        my $ttree = which('ttree');
+        my @args = (
+            'perl', '-Ilib',
+            $ttree, '-a',    # process all files
+            '-s'         => 'tmp',                     # use tmp/ as a source
+            '-d'         => '.',                       # use . as the target
+            '--copy'     => '\.(gif|png|jpg|pdf)$',    # copy, don't process images
+            '--binmode'  => 'utf8',                    # encoding of output file
+            '--encoding' => 'utf8',                    # encoding of input files
+        );
+        my ( $stdout, $stderr, $exit ) = capture { system(@args) };
 
         if ( $stdout =~ /!.*file error/ ) {
 
             # yeah, ttree needs proper exit codes
+            say STDERR "@args";
             croak($stdout);
         }
         say $stdout;
