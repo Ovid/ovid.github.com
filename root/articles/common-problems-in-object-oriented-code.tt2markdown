@@ -1,0 +1,227 @@
+[%
+    title            = 'Common Problems in Object-Oriented Code';
+    type             = 'articles';
+    slug             = 'common-problems-in-object-oriented-code';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-04-17';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+{{TAGS oop programming corinna perl}}
+
+After spending almost three years as the lead designer of the [Corinna
+object system for the Perl core](https://github.com/Ovid/Cor), I'm quite
+delighted that work on including this in the Perl language will start soon.
+Until it's there, [our company](https://allaroundtheworld.fr/) still does lot
+of work with object-oriented code (OOP) and we've seen some very common causes
+of failures.  Much of what follows deals with the issues we've had with client
+code, so this is a practical guide.
+
+This is not an exhaustive list of best practices, but it covers many common 
+problems and offers tips for avoiding these problems. Note that much of what 
+follows are rules of thumb, not absolute laws.
+
+# What's an Object?
+
+First and foremost, we must keep in mind what an object is. [I cover this a
+bit more in-depth in other
+articles](/articles/why-is-object-oriented-programming-bad.html), but for this
+one, just keep in mind that an object is an expert about a particular topic.  
+Forget all of those other explanations about objects being "structs with 
+behavior", or "a reference to a data type that knows what class it belongs to." 
+Those are implementation details that don't tell you objects are _for_. Objects 
+are experts on a particular problem space, that's all.
+
+# Recommendations
+
+I could talk about [SOLID](https://en.wikipedia.org/wiki/SOLID),
+[GRASP](https://en.wikipedia.org/wiki/GRASP_\(object-oriented_design\)), the
+[Liskov substitution
+principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle), the
+[Law of Demeter](https://en.wikipedia.org/wiki/Law_of_Demeter), and so on, but 
+while those are important, you can read about those on your own. Instead, I'll 
+get right to the heart of many common issues.
+
+## Immutable Objects
+
+I've written before why [immutable objects are
+good](/articles/using-immutable-datetime-objects-with-dbixclass.html), so I
+won't go into too much detail. Sometimes it's not practical to have immutable
+objects (e.g., caches), but immutability should be your _default_ position. In 
+most languages, objects are passed by reference, not values. The more widely 
+used an instance of your object is, if it's mutable, the more likely that code 
+"A" will change the state in a way that code "B" didn't expect.
+
+## Recommendation
+
+Even if you're not convinced, try writing and using immutability objects. Like 
+anything new, it can take some getting used to, but there's a payoff there. Just 
+don't insist that everything be immutable. Your colleagues will hate you.
+
+Note that if your object must return references to data, those are often 
+mutable. However, you can declare those as immutable, too.
+
+
+```perl
+package Some::Class {
+    use Const::Fast 'const';
+    
+    # set up data here
+
+    sub get_data_structure {
+        my $self = shift;
+        const my %hash => (
+            name     => $self->name,
+            giggity  => $self->_something_else,
+        );
+        return \%hash;
+    }
+}
+```
+
+In the above, the `get_data_structure` method returns an immutable data 
+structure. Attempts to access unknown hash keys or change any of the values is a 
+fatal error (use `exists` to test hash keys, of course). Some people call it 
+overkill.  Others call it safety. Your mileage may vary.
+
+## Small Interfaces
+
+The interface that your class presents is your "contract" with everyone who uses 
+your class. You should design that interface with care, but you shouldn't expose 
+what you don't need to. Using one of my "go to" examples of Corinna code that 
+will be available in upcoming releases (but not in the immediate future), here's 
+an LRU (least recently used) cache:
+
+```perl
+class Cache::LRU :version(v0.1.0) {
+    use Hash::Ordered;
+
+    field $cache                   { Hash::Ordered->new };
+    field $max_size :param :reader { 20 };
+
+    method set ( $key, $value ) {
+        if ( $cache->exists($key) ) {
+            $cache->delete($key);
+        }
+        elsif ( $cache->keys > $max_size ) {
+            $cache->shift;
+        }
+        $cache->set( $key, $value );  # add to front
+    }
+
+    method get ($key) {
+        if ( $cache>exists($key) ) {
+            my $value = $cache->get($key);
+            $self->set( $key, $value ); # add to front
+            return $value;
+        }
+        return;
+    }
+}
+```
+
+With the popular Moose OOP system for Perl, that would look something like this
+(skipping the sub bodies):
+
+```perl
+package Cache::LRU {
+    use Moose;
+    use Hash::Ordered;
+    use namespace::autoclean;
+
+    has '_cache' => (
+        is       => 'ro',
+        init_arg => undef,
+        default  => sub { Hash::Ordered->new },
+    );
+
+    has 'max_size' => ( is => 'ro', default => 20 );
+
+    sub set {
+		...
+    }
+
+    sub get {
+		...
+    }
+
+    __PACKAGE__->meta->make_immutable;
+}
+
+```
+
+For raw Perl, it might even look like this:
+
+```perl
+package Cache::LRU;
+
+use strict;
+use warnings;
+use Hash::Ordered;
+
+sub new {
+    my ( $class, $max_size ) = @_;
+    return bless {
+        max_size => $max_size,
+        _cache   => Hash::Ordered->new,
+    }, $class;
+}
+
+# more code here
+```
+
+For both Moose and core Perl, it's hard to encapsulate your objects and minimize 
+your interface. For both of those, you can call `$object->{_cache}` to get the 
+underlying cache. For Moose, you can also call `$object->_cache` (it's very 
+cumbersome in Moose or Moo to not offer private methods for private data).  This 
+means that you have exposed that data, no matter how nicely you've asked people 
+to "stay out of the kitchen." This means that later on, if you want to switch 
+your internal cache to use Redis, SQLite, you can easily break the code of 
+others who are relying on it.
+
+We almost always see `$object->_private_method` or `$object->{private_data}` in 
+client codebases and that's one of the first things we try to fix, if we have 
+time. As a class author, you need to know you can safely change the internals of 
+your object.
+
+### Recommendation
+
+Keep your classes as small as you can and stop making accessors public by 
+default. For now, this means prefixing methods with an underscore to make them 
+"private by convention." With Corinna, you simply don't write `:reader` or 
+`:writer` attributes.
+
+## Type Library
+
+## Subclassing
+
+# Problems
+
+## Too many responsibilities
+
+## Immutable
+
+## accessors for attributes
+
+## namespace::autoclean and make_immutable
+
+## Consistent return types
+
+Return empty types [] {}
+
+## Strict constructor
+
+## Small interfaces
+
+## Roles
+    modifiers
+    abstract classes
+
+[%- END %]

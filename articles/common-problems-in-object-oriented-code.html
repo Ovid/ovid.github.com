@@ -12,10 +12,10 @@
   
   <meta property="og:type" content="article" />
   
-  <meta property="og:url" content="https://ovid.github.io/articles_2.html" />
+  <meta property="og:url" content="https://ovid.github.io/articles/common-problems-in-object-oriented-code.html" />
   
-  <meta property="og:title" content="Articles by Ovid, page 2" />
-  <meta property="og:description" content="" />
+  <meta property="og:title" content="Common Problems in Object-Oriented Code" />
+  <meta property="og:description" content="At https://allaroundtheworld.fr/, we are often fixing common issues in object-oriented code. This is a practical guide for resolving them." />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -35,8 +35,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Articles by Ovid, page 2</title>
-  <meta name="description" content="Articles by Ovid, page 2">
+  <title>Common Problems in Object-Oriented Code</title>
+  <meta name="description" content="Common Problems in Object-Oriented Code">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
@@ -53,6 +53,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -86,8 +87,8 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Articles by Ovid, page 2</h1>
-        
+        <h1><a name="-title-no-title-found-"></a>Common Problems in Object-Oriented Code</h1>
+        <time>2022-04-17</time>
         <hr>
         <div class="twelve columns header">
         </div>
@@ -169,34 +170,134 @@
 
         <div class="nine columns verticalLine article">
 
+        <div class="prevNext">
+        
+        <a href="/articles/why-is-object-oriented-programming-bad.html" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
 
+    
 
-<ul id="articles">
-    <li><a href="/articles/making-complex-software-simple.html">Making Complex Software Simple</a></li>
-    <li><a href="/articles/work-from-home-effectively.html">Work From Home Effectively</a></li>
-    <li><a href="/articles/database-design-standards.html">Database Design Standards</a></li>
-    <li><a href="/articles/automated-software-standards.html">Automated Software Standards</a></li>
-    <li><a href="/articles/project-500.html">Case Study: 500 TPS</a></li>
-    <li><a href="/articles/moving-from-oracle-to-postgresql.html">Moving from Oracle to PostgreSQL</a></li>
-    <li><a href="/articles/managing-a-remote-team.html">Managing a Remote Team</a></li>
-    <li><a href="/articles/project-management-in-three-numbers.html">Project Management in Three Numbers</a></li>
-    <li><a href="/articles/alan-kay-and-missing-messages-a-follow-up.html">Alan Kay and Missing Messages (a follow-up)</a></li>
-    <li><a href="/articles/alan-kay-and-oo-programming.html">Alan Kay and OO Programming</a></li>
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/corinna.html">Corinna</a> </li>
+
+    <li><a href="/tags/oop.html">OOP</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
 </ul>
-<nav class="pagination">
-    <a href="/articles.html">&laquo;</a>
-    <a  href="/articles.html">1</a>
-    <a class="active" href="/articles_2.html">2</a>
-    <a  href="/articles_3.html">3</a>
-    <a  href="/articles_4.html">4</a>
-    <a href="/articles_3.html">&raquo;</a>
+
+
+        <hr>
+    <blockquote> We're hiring experienced Perl developers for full-time
+<em>remote</em> contracts on a number of projects. If you are interested, <a
+href="mailto:curtis.poe@gmail.com">email me</a>. We also have one potential
+role for an experienced Python developer with OpenAPI + ORM experience.
+</blockquote> 
+
+<hr/>
+
+
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#whats-an-object">What’s an Object?</a></li>
+    <li class="indent-1"><a href="#recommendations">Recommendations</a></li>
+    <li class="indent-2"><a href="#immutable-objects">Immutable Objects</a></li>
+    <li class="indent-2"><a href="#type-library">Type library</a></li>
+    <li class="indent-2"><a href="#subclassing">Subclassing</a></li>
+    <li class="indent-1"><a href="#problems">Problems</a></li>
+    <li class="indent-2"><a href="#too-many-responsibilities">Too many responsibilities</a></li>
+    <li class="indent-2"><a href="#immutable">Immutable</a></li>
+    <li class="indent-2"><a href="#accessors-for-attributes">accessors for attributes</a></li>
+    <li class="indent-2"><a href="#namespaceautoclean-and-make-immutable">namespace::autoclean and make_immutable</a></li>
+    <li class="indent-2"><a href="#consistent-return-types">Consistent return types</a></li>
+    <li class="indent-2"><a href="#strict-constructor">Strict constructor</a></li>
+    <li class="indent-2"><a href="#small-interfaces">Small interfaces</a></li>
+    <li class="indent-2"><a href="#roles">Roles</a></li>
+    </ul>
 </nav>
+<hr></p>
+
+<p>After spending almost three years as the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna
+object system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, I’m quite
+delighted that work on including this in the Perl language will start soon.
+Until it’s there, <a href="https://allaroundtheworld.fr/" target="_blank">our company</a> <span class="fa fa-external-link fa_custom"></span> still does lot
+of work with object-oriented code (OOP) and we’ve seen some very common causes
+of failures.  Much of what follows deals with the issues we’ve had with client
+code, so this is a practical guide.</p>
+
+<p>This is not an exhaustive list of best practices, but it covers many common 
+problems and offers tips for avoiding these problems. Note that much of what 
+follows are rules of thumb, not absolute laws.</p>
+
+<h1><a name="whats-an-object"></a>What’s an Object?</h1>
+
+<p>First and foremost, we must keep in mind what an object is. <a href="/articles/why-is-object-oriented-programming-bad.html">I cover this a
+bit more in-depth in other
+articles</a>, but for this
+one, just keep in mind that an object is an expert about a particular topic. <br />
+Forget all of those other explanations about objects being “structs with 
+behavior”, or “a reference to a data type that knows what class it belongs to.” 
+Those are implementation details that don’t tell you objects are <em>for</em>. Objects 
+are experts on a particular problem space, that’s all.</p>
+
+<h1><a name="recommendations"></a>Recommendations</h1>
+
+<h2><a name="immutable-objects"></a>Immutable Objects</h2>
+
+<p>I’ve written before why <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">immutable objects are
+good</a>, so I
+won’t go into too much detail. Sometimes it’s not practical to have immutable
+objects, but immutability should be your <em>default</em> position.</p>
+
+<h2><a name="type-library"></a>Type library</h2>
+
+<h2><a name="subclassing"></a>Subclassing</h2>
+
+<h1><a name="problems"></a>Problems</h1>
+
+<h2><a name="too-many-responsibilities"></a>Too many responsibilities</h2>
+
+<h2><a name="immutable"></a>Immutable</h2>
+
+<h2><a name="accessors-for-attributes"></a>accessors for attributes</h2>
+
+<h2><a name="namespaceautoclean-and-make-immutable"></a>namespace::autoclean and make_immutable</h2>
+
+<h2><a name="consistent-return-types"></a>Consistent return types</h2>
+
+<p>Return empty types [] {}</p>
+
+<h2><a name="strict-constructor"></a>Strict constructor</h2>
+
+<h2><a name="small-interfaces"></a>Small interfaces</h2>
+
+<h2><a name="roles"></a>Roles</h2>
+
+<pre><code>modifiers
+abstract classes
+</code></pre>
 
 
 
 
+          <p><strong>Please leave a comment below!</strong></p>
 
 
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/why-is-object-oriented-programming-bad.html" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
@@ -219,11 +320,29 @@
     <div class="row">
       <div class="twelve columns">
       
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/common-problems-in-object-oriented-code.html";
+            this.page.identifier = "articles/common-problems-in-object-oriented-code";
+            this.page.title      = "Common Problems in Object-Oriented Code";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
         </div>
     </div>
     </div>
     
+    <script src="/static/js/prism.js"></script>
+    
 	
 </body>
 </html>
+
 
