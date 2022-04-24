@@ -4,7 +4,7 @@
     slug             = 'common-problems-in-object-oriented-code';
     include_comments = 1;
     syntax_highlight = 1;
-    date             = '2022-04-20';
+    date             = '2022-04-24';
     mathjax          = 0;
     # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
     # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
@@ -75,7 +75,7 @@ I've written before why [immutable objects are
 good](/articles/using-immutable-datetime-objects-with-dbixclass.html), so I
 won't go into too much detail. Sometimes it's not practical to have immutable
 objects (e.g., caches), but immutability should be your _default_ position. In
-most languages, objects are passed by reference, not values. The more widely
+most languages, objects are passed by reference, not value. The more widely
 used an instance of your object is, if it's mutable, the more likely that code
 "A" will change the state in a way that code "B" didn't expect.
 
@@ -407,7 +407,7 @@ class's setup. In fact, you might have your `test_setup` call a parent
 xUnit testing and the order in which events fire is important. With roles, this
 is often done with method modifiers, but the order in which they fire is often
 dependent on their load order and that is *not* guaranteed. If you find yourself
-using lots of method modifiers in roles, you might want to think about
+frequently using method modifiers in roles, you might want to think about
 inheritance to ensure that you have complete control over the sequencing of
 commands.
 
@@ -418,7 +418,7 @@ you clearly have an object to delegate to. Roles are good when you have some
 behavior which might apply to unrelated classes (such as serialization to JSON
 or XML).
 
-There's a lot more we could say about roles, but a full tutorial is beyond the
+There's much more we could say about roles, but a full tutorial is beyond the
 scope of this article.
 
 ## Performance
@@ -523,9 +523,10 @@ common problems we encounter with our clients.
 For our [Project 500](/articles/project-500.html) contract, our client was
 providing online credit card services for a major, well-publicized event.
 However, they had a serious problem: their code could only handle 39 credit card
-transactions per second per server. For this event, they had to improve
-performance by an order of magnitude. We had two weeks to develop a proof of
-concept (spoiler: we succeeded).
+transactions per second per server. For this event, they had a contractual 
+obligation to improve performance by an **order of magnitude**. That's right; 
+they were required to have their code run at least ten times faster. We had two 
+weeks to develop a proof of concept (spoiler: we succeeded).
 
 In digging in, it turns out that they had developed an in-house OO system and an
 in-house ORM. We quickly discovered that a single "charge $x to the credit card"
@@ -540,13 +541,13 @@ every object was very slow, even if there was no data available. And the code
 was creating—and throwing away without using—hundreds of these
 objects per request.
 
-We considered using a "pre-flight" check to see if the data was there
+We considered using a "pre-flight" check to see if the data was in the database
 before creating the objects, but there was so much business logic
-embedded in the ORM layer that this was not a practical solution. And we
-couldn't simply fetch the data directly because, again, the ORM had too many
-non-ORM responsibilities built into it.
+embedded in the ORM layer that this was not a practical solution given our time 
+constrain. And we couldn't simply fetch the data directly because, again, the 
+ORM had too many non-ORM responsibilities built into it.
 
-On another system, we had an immutable object (yay!) that had a lot of disk I/O
+On another system, we had an immutable object (yay!) that had disk I/O
 and heavy data validation every time it was instantiated. Yet that data never
 changed between releases, so I was tasked with caching the object data. I
 restructured to class to separate the validation of instance data and the
@@ -556,12 +557,12 @@ handle this and it worked like a charm, but my tests missed an edge case where
 validation. I had made the classic mistake of putting too much logic in that
 class.
 
-Instead, I built a simple class to properly cache objects on web server restart
-and it cached the object for me. Not only did it work right this time, I now had
-a flexible in-memory cache for other objects. Further, because the cache
-internals were encapsulated, if we want to switch the cache out for Redis or
-something else, it becomes trivial.[% Ovid.add_note('Er, I should have just used
-<a href="https://metacpan.org/pod/CHI">CHI</a>') %].
+To address this, I built a simple class to properly cache objects on web server 
+restart and it cached the object for me. Not only did it work right this time, I 
+now had a flexible in-memory cache for other objects. Further, because the cache 
+internals were encapsulated, if we want to switch the cache out for Redis or 
+something else, it becomes trivial.[% Ovid.add_note('I should have used <a 
+href="https://metacpan.org/pod/CHI">CHI</a>.') %].
 
 ### Recommendation
 
@@ -600,9 +601,9 @@ sub title { $_[0]->{title} }
 
 So far, so good. But the business rules state that if the customer has a title,
 they must always be referred to by both their title and name, never just one or
-the other. Developers keep getting it wrong, but remember: your object is
-supposed to be the expert here and it won't get it wrong, so the object should
-handle this responsibility.
+the other. Developers keep forgetting (or don't know) this business rule, but 
+remember: your object is supposed to be the expert here and it won't get it 
+wrong, so the object should handle this responsibility.
 
 Now you're rewritten the class to remover the `title` accessor and to provide a
 `name` method to encapsulate this logic:
@@ -636,7 +637,7 @@ sub name {
 1;
 ```
 
-Again, this code looks correct, but by eliminating accessor for our `title`
+Again, this code looks correct, but by eliminating the accessor for our `title`
 attribute, if we were forced to subclass this, how do we override it, especially
 if it's used elsewhere in the class? We _could_ just overwrite the `name` and
 `title` values in the blessed hash of the subclass and that might be good
@@ -650,7 +651,8 @@ accessors for data attributes, so users of those OO systems will rarely notice
 this unless they also get in the bad habit of doing `$self->{title}`.
 
 Otherwise, if you're writing core Perl, just include simple accessors/mutators
-for your data:
+for your data (prefacing them with a leading underscore if they should be 
+private):
 
 ```perl
 sub title ($self) {
@@ -679,21 +681,26 @@ package Some::Class {
 
     # class definition here
 
-    __PACKAGE__->meta->make_immutable; # significant performance boost
+    # make_immutable is a significant performance boost
+    __PACKAGE__->meta->make_immutable;
 }
 ```
 
 I was writing some client software that could cache some objects (it's a
-coincidence that I've had to do this so often) and for one for some edge cases,
+coincidence that I've had to do this so often) and for one edge case,
 it was good if we could clone the objects first. Many things cannot be easily
 cloned, so if the object provides its own `clone` method, we used that instead
 of simply returning the object from the cache. It looked sort of like this:
 
 ```perl
 sub fetch ( $class, %arg_for ) {
-    my $object = $class->_fetch_for_identifier($arg_for{identifier};
+    my $object = $class->_fetch_for_identifier(
+      $arg_for{identifier}
+    );
     if ($object) {
-        return $object->can('clone') ? $object->clone : $object;
+        return $object->can('clone')
+            ? $object->clone 
+            : $object;
     }
     else {
         return $class->_instantiate_and_cache($arg_for);
@@ -721,9 +728,9 @@ future if it's adopted.
 
 ## Inconsistent Return Types
 
-This isn't just an OOP problem, but it's a common issue I see in code in dynamic
-languages, so it's worth mentioning here. If you're going to return an array
-reference or a hash reference, you usually want to ensure that's _all_ you
+This isn't just an OOP problem, but it's a common issue we see in code in 
+dynamic languages, so it's worth mentioning here. If you're going to return an 
+array reference or a hash reference, you usually want to ensure that's _all_ you 
 return. For example:
 
 ```perl
@@ -774,11 +781,12 @@ has 'results' => (
 In the above, we drop the `Maybe` and default to an array reference if no
 argument is supplied to the constructor. With that, if they pass an arrayref of
 hashrefs for `results`, it works. If they _don't_ pass `results` at all, it
-still works. However, if they pass anything else for `results`, including
-`undef`, it fails. That's great safety because while you want the types you
-return to be predictable, it's also good to allow the types you accept to be
-predictable. There are definitely exceptions to this, but they should be used
-with care.
+still works.
+
+However, if they pass anything else for `results`, including `undef`, it fails. 
+That's great safety because while you want the types you return to be 
+predictable, it's also good to allow the types you pass in to be predictable. 
+There are definitely exceptions to this, but they should be used with care.
 
 ## Ignored Constructor Arguments
 
@@ -863,6 +871,9 @@ is not allowed in the constructor. Let's use
 
 We won't explain how all of this works, so you have some homework to do.
 
+> Again, we're not saying the above is what you **should** do; we're just giving
+> an example of what you **can** do.
+
 ```perl
 package My::Personal::Moose;
 
@@ -899,11 +910,14 @@ sub init_meta {
 sub field {
     my ( $meta, $name, %opts ) = @_;
 
+    # default to read-only
     $opts{is} //= 'ro';
 
     # "has [@attributes]" versus "has $attribute"
     foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
+
+        # forbid setting `field` in the constructor
         $options{init_arg} = undef;
         $meta->add_attribute( $attr, %options );
     }
@@ -912,13 +926,19 @@ sub field {
 sub param {
     my ( $meta, $name, %opts ) = @_;
 
+    # default to read-only
     $opts{is}       //= 'ro';
+
+    # it's required unless they tell us otherwise
     $opts{required} //= 1;
 
     # "has [@attributes]" versus "has $attribute"
     foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
-        $options{init_arg} //= $attr;
+
+        if ( exists $options{init_arg} && !defined $options{init_arg} ) {
+            croak("You may not set init_arg to undef for 'param'");
+        }
         $meta->add_attribute( $attr, %options );
     }
 }

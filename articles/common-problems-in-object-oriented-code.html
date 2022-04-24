@@ -88,7 +88,7 @@
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>Common Problems in Object-Oriented Code</h1>
-        <time>2022-04-20</time>
+        <time>2022-04-24</time>
         <hr>
         <div class="twelve columns header">
         </div>
@@ -298,7 +298,7 @@ to decide how (or if) they apply to your codebase.</p>
 good</a>, so I
 won’t go into too much detail. Sometimes it’s not practical to have immutable
 objects (e.g., caches), but immutability should be your <em>default</em> position. In
-most languages, objects are passed by reference, not values. The more widely
+most languages, objects are passed by reference, not value. The more widely
 used an instance of your object is, if it’s mutable, the more likely that code
 “A” will change the state in a way that code “B” didn’t expect.</p>
 
@@ -619,7 +619,7 @@ class’s setup. In fact, you might have your <code>test_setup</code> call a par
 xUnit testing and the order in which events fire is important. With roles, this
 is often done with method modifiers, but the order in which they fire is often
 dependent on their load order and that is <em>not</em> guaranteed. If you find yourself
-using lots of method modifiers in roles, you might want to think about
+frequently using method modifiers in roles, you might want to think about
 inheritance to ensure that you have complete control over the sequencing of
 commands.</p>
 
@@ -630,7 +630,7 @@ you clearly have an object to delegate to. Roles are good when you have some
 behavior which might apply to unrelated classes (such as serialization to JSON
 or XML).</p>
 
-<p>There’s a lot more we could say about roles, but a full tutorial is beyond the
+<p>There’s much more we could say about roles, but a full tutorial is beyond the
 scope of this article.</p>
 
 <h2><a name="performance"></a>Performance</h2>
@@ -737,9 +737,10 @@ common problems we encounter with our clients.</p>
 <p>For our <a href="/articles/project-500.html">Project 500</a> contract, our client was
 providing online credit card services for a major, well-publicized event.
 However, they had a serious problem: their code could only handle 39 credit card
-transactions per second per server. For this event, they had to improve
-performance by an order of magnitude. We had two weeks to develop a proof of
-concept (spoiler: we succeeded).</p>
+transactions per second per server. For this event, they had a contractual 
+obligation to improve performance by an <strong>order of magnitude</strong>. That’s right; 
+they were required to have their code run at least ten times faster. We had two 
+weeks to develop a proof of concept (spoiler: we succeeded).</p>
 
 <p>In digging in, it turns out that they had developed an in-house OO system and an
 in-house ORM. We quickly discovered that a single “charge $x to the credit card”
@@ -754,13 +755,13 @@ every object was very slow, even if there was no data available. And the code
 was creating—and throwing away without using—hundreds of these
 objects per request.</p>
 
-<p>We considered using a “pre-flight” check to see if the data was there
+<p>We considered using a “pre-flight” check to see if the data was in the database
 before creating the objects, but there was so much business logic
-embedded in the ORM layer that this was not a practical solution. And we
-couldn’t simply fetch the data directly because, again, the ORM had too many
-non-ORM responsibilities built into it.</p>
+embedded in the ORM layer that this was not a practical solution given our time 
+constrain. And we couldn’t simply fetch the data directly because, again, the 
+ORM had too many non-ORM responsibilities built into it.</p>
 
-<p>On another system, we had an immutable object (yay!) that had a lot of disk I/O
+<p>On another system, we had an immutable object (yay!) that had disk I/O
 and heavy data validation every time it was instantiated. Yet that data never
 changed between releases, so I was tasked with caching the object data. I
 restructured to class to separate the validation of instance data and the
@@ -770,10 +771,10 @@ handle this and it worked like a charm, but my tests missed an edge case where
 validation. I had made the classic mistake of putting too much logic in that
 class.</p>
 
-<p>Instead, I built a simple class to properly cache objects on web server restart
-and it cached the object for me. Not only did it work right this time, I now had
-a flexible in-memory cache for other objects. Further, because the cache
-internals were encapsulated, if we want to switch the cache out for Redis or
+<p>To address this, I built a simple class to properly cache objects on web server 
+restart and it cached the object for me. Not only did it work right this time, I 
+now had a flexible in-memory cache for other objects. Further, because the cache 
+internals were encapsulated, if we want to switch the cache out for Redis or 
 something else, it becomes trivial.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>.</p>
 
 <h3><a name="recommendation-6"></a>Recommendation</h3>
@@ -812,9 +813,9 @@ sub title { $_[0]-&gt;{title} }
 
 <p>So far, so good. But the business rules state that if the customer has a title,
 they must always be referred to by both their title and name, never just one or
-the other. Developers keep getting it wrong, but remember: your object is
-supposed to be the expert here and it won’t get it wrong, so the object should
-handle this responsibility.</p>
+the other. Developers keep forgetting (or don’t know) this business rule, but 
+remember: your object is supposed to be the expert here and it won’t get it 
+wrong, so the object should handle this responsibility.</p>
 
 <p>Now you’re rewritten the class to remover the <code>title</code> accessor and to provide a
 <code>name</code> method to encapsulate this logic:</p>
@@ -847,7 +848,7 @@ sub name {
 1;
 </code></pre></div>
 
-<p>Again, this code looks correct, but by eliminating accessor for our <code>title</code>
+<p>Again, this code looks correct, but by eliminating the accessor for our <code>title</code>
 attribute, if we were forced to subclass this, how do we override it, especially
 if it’s used elsewhere in the class? We <em>could</em> just overwrite the <code>name</code> and
 <code>title</code> values in the blessed hash of the subclass and that might be good
@@ -861,7 +862,8 @@ accessors for data attributes, so users of those OO systems will rarely notice
 this unless they also get in the bad habit of doing <code>$self-&gt;{title}</code>.</p>
 
 <p>Otherwise, if you’re writing core Perl, just include simple accessors/mutators
-for your data:</p>
+for your data (prefacing them with a leading underscore if they should be 
+private):</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub title ($self) {
     return $self-&gt;{title};
@@ -888,20 +890,25 @@ are fantastic!).</p>
 
     # class definition here
 
-    __PACKAGE__-&gt;meta-&gt;make_immutable; # significant performance boost
+    # make_immutable is a significant performance boost
+    __PACKAGE__-&gt;meta-&gt;make_immutable;
 }
 </code></pre></div>
 
 <p>I was writing some client software that could cache some objects (it’s a
-coincidence that I’ve had to do this so often) and for one for some edge cases,
+coincidence that I’ve had to do this so often) and for one edge case,
 it was good if we could clone the objects first. Many things cannot be easily
 cloned, so if the object provides its own <code>clone</code> method, we used that instead
 of simply returning the object from the cache. It looked sort of like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub fetch ( $class, %arg_for ) {
-    my $object = $class-&gt;_fetch_for_identifier($arg_for{identifier};
+    my $object = $class-&gt;_fetch_for_identifier(
+      $arg_for{identifier}
+    );
     if ($object) {
-        return $object-&gt;can('clone') ? $object-&gt;clone : $object;
+        return $object-&gt;can('clone')
+            ? $object-&gt;clone 
+            : $object;
     }
     else {
         return $class-&gt;_instantiate_and_cache($arg_for);
@@ -929,9 +936,9 @@ future if it’s adopted.</p>
 
 <h2><a name="inconsistent-return-types"></a>Inconsistent Return Types</h2>
 
-<p>This isn’t just an OOP problem, but it’s a common issue I see in code in dynamic
-languages, so it’s worth mentioning here. If you’re going to return an array
-reference or a hash reference, you usually want to ensure that’s <em>all</em> you
+<p>This isn’t just an OOP problem, but it’s a common issue we see in code in 
+dynamic languages, so it’s worth mentioning here. If you’re going to return an 
+array reference or a hash reference, you usually want to ensure that’s <em>all</em> you 
 return. For example:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $results = $object-&gt;get_results;
@@ -977,11 +984,12 @@ one of the simplest and safest:</p>
 <p>In the above, we drop the <code>Maybe</code> and default to an array reference if no
 argument is supplied to the constructor. With that, if they pass an arrayref of
 hashrefs for <code>results</code>, it works. If they <em>don’t</em> pass <code>results</code> at all, it
-still works. However, if they pass anything else for <code>results</code>, including
-<code>undef</code>, it fails. That’s great safety because while you want the types you
-return to be predictable, it’s also good to allow the types you accept to be
-predictable. There are definitely exceptions to this, but they should be used
-with care.</p>
+still works.</p>
+
+<p>However, if they pass anything else for <code>results</code>, including <code>undef</code>, it fails. 
+That’s great safety because while you want the types you return to be 
+predictable, it’s also good to allow the types you pass in to be predictable. 
+There are definitely exceptions to this, but they should be used with care.</p>
 
 <h2><a name="ignored-constructor-arguments"></a>Ignored Constructor Arguments</h2>
 
@@ -1066,6 +1074,11 @@ is not allowed in the constructor. Let’s use
 
 <p>We won’t explain how all of this works, so you have some homework to do.</p>
 
+<blockquote>
+  <p>Again, we’re not saying the above is what you <strong>should</strong> do; we’re just giving
+  an example of what you <strong>can</strong> do.</p>
+</blockquote>
+
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Personal::Moose;
 
 use v5.22.0;
@@ -1101,11 +1114,14 @@ sub init_meta {
 sub field {
     my ( $meta, $name, %opts ) = @_;
 
+    # default to read-only
     $opts{is} //= 'ro';
 
     # &quot;has [@attributes]&quot; versus &quot;has $attribute&quot;
     foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
+
+        # forbid setting `field` in the constructor
         $options{init_arg} = undef;
         $meta-&gt;add_attribute( $attr, %options );
     }
@@ -1114,13 +1130,19 @@ sub field {
 sub param {
     my ( $meta, $name, %opts ) = @_;
 
+    # default to read-only
     $opts{is}       //= 'ro';
+
+    # it's required unless they tell us otherwise
     $opts{required} //= 1;
 
     # &quot;has [@attributes]&quot; versus &quot;has $attribute&quot;
     foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
-        $options{init_arg} //= $attr;
+
+        if ( exists $options{init_arg} &amp;&amp; !defined $options{init_arg} ) {
+            croak(&quot;You may not set init_arg to undef for 'param'&quot;);
+        }
         $meta-&gt;add_attribute( $attr, %options );
     }
 }
@@ -1266,8 +1288,8 @@ can do to make your software better.</p>
             <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>Er, I should have just used
-<a href="https://metacpan.org/pod/CHI">CHI</a></div>
+	    <div>I should have used <a 
+href="https://metacpan.org/pod/CHI">CHI</a>.</div>
         <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
