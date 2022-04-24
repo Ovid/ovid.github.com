@@ -4,7 +4,7 @@
     slug             = 'common-problems-in-object-oriented-code';
     include_comments = 1;
     syntax_highlight = 1;
-    date             = '2022-04-17';
+    date             = '2022-04-20';
     mathjax          = 0;
     # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
     # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
@@ -16,38 +16,58 @@
 
 {{TAGS oop programming corinna perl}}
 
-After spending almost three years as the lead designer of the [Corinna
-object system for the Perl core](https://github.com/Ovid/Cor), I'm quite
-delighted that work on including this in the Perl language will start soon.
-Until it's there, [our company](https://allaroundtheworld.fr/) still does lot
-of work with object-oriented code (OOP) and we've seen some very common causes
-of failures.  Much of what follows deals with the issues we've had with client
-code, so this is a practical guide.
+# Preface
 
-This is not an exhaustive list of best practices, but it covers many common
-problems and offers tips for avoiding these problems. Note that much of what
-follows are rules of thumb, not absolute laws.
+After spending almost three years as the lead designer of the [Corinna
+object system for the Perl core](https://github.com/Ovid/Cor), I'm delighted
+that work on including this in the Perl language will start soon.
+Until it's there, [our company](https://allaroundtheworld.fr/) still does a lot
+of work with clients, fixing their object-oriented code (OOP) and we've seen
+some very common causes of failures. Some say that our recommendations are too
+strict, and for personal projects, they might be. But we work with large-scale
+codebases, often written in Perl, and often containing over a million lines of
+code. When you're working at that scale, especially when coordinating with many
+developers who may not know your code well, you need to be more rigorous.
+
+This is not a tutorial on OOP design. That in itself is a complex topic
+(and perhaps one of the strongest arguments against OOP). So we'll assume you
+need to fix an existing OOP codebase rather than design a new one.
+
+Note: while these examples are in Perl, many of these problems apply to
+codebases we've worked on in other OO languages.
+
+**Warning**: whenever we link to a module on the CPAN, please read the 
+documentation of that module if you decide to use it. There are often caveats, 
+such as with the "strict constructor" modules we mention later.
 
 # What's an Object?
 
-First and foremost, we must keep in mind what an object is. [I cover this a
-bit more in-depth in other
+First and foremost, we must keep in mind what an object is. [This is covered
+more in other
 articles](/articles/why-is-object-oriented-programming-bad.html), but for this
 one, just keep in mind that an object is an expert about a particular topic.
 Forget all of those other explanations about objects being "structs with
 behavior", or "a reference to a data type that knows what class it belongs to."
-Those are implementation details that don't tell you objects are _for_. Objects
-are experts on a particular problem space, that's all.
+Those are implementation details that don't tell you objects are _for_. In my
+opinion, they even hinder people's understanding of objects because they keep
+you focused on the wrong thing. Objects are experts on a particular problem
+space, that's all.
 
 # Recommendations
 
-I could talk about [SOLID](https://en.wikipedia.org/wiki/SOLID),
+We could talk about [SOLID](https://en.wikipedia.org/wiki/SOLID),
 [GRASP](https://en.wikipedia.org/wiki/GRASP_\(object-oriented_design\)), the
 [Liskov substitution
 principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle), the
 [Law of Demeter](https://en.wikipedia.org/wiki/Law_of_Demeter), and so on, but
-while those are important, you can read about those on your own. Instead, I'll
-get right to the heart of many common issues.
+while those are important, you can read about those on your own. Instead, we'll
+cover recommendations and common problems. You'll need to use your best judgment
+to decide how (or if) they apply to your codebase.
+
+> Note: if this article makes your eyes glaze over, but you love the Moose OOP
+system, you might skip ahead to [Dr.  Frankenstein](#dr-frankenstein) to see a
+small module built on top of Moose that implements some of the recommendations
+in this article.
 
 ## Immutable Objects
 
@@ -61,7 +81,7 @@ used an instance of your object is, if it's mutable, the more likely that code
 
 ### Recommendation
 
-Even if you're not convinced, try writing and using immutability objects. Like
+Even if you're not convinced, try writing and using immutable objects. Like
 anything new, it can take some getting used to, but there's a payoff there. Just
 don't insist that everything be immutable. Your colleagues will hate you.
 
@@ -94,19 +114,18 @@ overkill.  Others call it safety. Your mileage may vary.
 If you prefer, you can deeply clone the data structure before returning it. By
 presenting a copy, different consumers calling that method will always have the
 same results, but if the returned reference itself is shared, you could have
-issues. That being said, this is an issue with any large-scale code, not just
-OOP.
+issues. That being said, this is an issue with all code, not just OOP.
 
 ## Small Interfaces and Encapsulation
 
 The interface that your class presents is your "contract" with everyone who uses
 your class. You should design that interface with care, but you shouldn't expose
-what you don't need to. Using one of my "go to" examples of Corinna code that
-will be available in upcoming releases (but not in the immediate future), here's
-an LRU (least recently used) cache:
+what you don't need to. Using one of my "go to" examples of the Corinna OOP
+system that will be available in upcoming releases (but not in the immediate
+future), here's a basic LRU (least recently used) cache:
 
 ```perl
-class Cache::LRU :version(v0.1.0) {
+class Cache::LRU {
     use Hash::Ordered;
 
     field $cache                   { Hash::Ordered->new };
@@ -187,11 +206,12 @@ sub new {
 For both Moose and core Perl, it's hard to encapsulate your objects and minimize
 your interface. For both of those, you can call `$object->{_cache}` to get the
 underlying cache. For Moose, you can also call `$object->_cache` (it's very
-cumbersome in Moose or Moo to not offer private methods for private data).  This
-means that you have exposed that data, no matter how nicely you've asked people
-to "stay out of the kitchen." This means that later on, if you want to switch
-your internal cache to use Redis, SQLite, you can easily break the code of
-others who are relying on it.
+cumbersome in Moose or Moo to not expose methods for what should be private
+data).  This means that you have exposed that data, no matter how nicely you've
+asked people to "stay out of the kitchen." This means that if someone is
+accessing your "private" data, if you want to switch your internal cache to use
+Redis, SQLite, or something else, you can easily break the code of others who
+are relying on it.
 
 We almost always see `$object->_private_method` or `$object->{private_data}` in
 client codebases and that's one of the first things we try to fix, if we have
@@ -206,7 +226,7 @@ default. For now, this means prefixing methods with an underscore to make them
 `:writer` attributes:
 
 ```perl
-class Cache::LRU :version(v0.1.0) {
+class Cache::LRU {
     use Hash::Ordered;
 
     field $cache                   { Hash::Ordered->new };
@@ -216,15 +236,17 @@ class Cache::LRU :version(v0.1.0) {
 
 In the above, you can read (but not write) the max size, but there's no direct
 access possible to the `$cache` (this will be possible via the MOP, the
-meta-object protocol, but we want violating encapsulation to be a natural
-default).
+meta-object protocol, but we do not want violating encapsulation to be a natural
+default. Hitting the MOP to violate encapsulation will stand out like a coal
+pile in a ballroom in code reviews).
 
-> Note: some Perl developers still use "inside-out" objects to enforce
+> Note: some Perl developers use "inside-out" objects to enforce
 > encapsulation. The CPAN has
 > [Object::InsideOut](https://metacpan.org/pod/Object::InsideOut) and
 > [Class::InsideOut](https://metacpan.org/pod/Class::InsideOut), amongst others.
 > While it's easy to use instances of these classes, they were cumbersome to write
-> and sometimes buggy.
+> and sometimes buggy. As a result, we do not experience them often in client
+> code.
 
 ## Type Library
 
@@ -250,9 +272,9 @@ sub get_part_by_id ($self, $id) {
 }
 ```
 
-Do you really want to write that? Do you really want to debug that? (I
-deliberately added a bug). If you use UUIDs frequently, you don't want to write
-that again.
+Do you really want to write that? Do you really want to debug that? (there's a
+small bug in that example, if you care to look for it). If you use UUIDs
+frequently, you don't want to write that again.
 
 If you've used Moose, you know how easy it is to use type constraints:
 
@@ -310,6 +332,7 @@ Using it is simple.
 
 ```perl
 use My::Personal::Types qw(compile UUID);
+
 sub get_part_by_id ($self, $id) {
     state $check = compile(UUID);
     ($id) = $check->($id);
@@ -317,11 +340,12 @@ sub get_part_by_id ($self, $id) {
 }
 ```
 
-And in Moose, use these constraints to turn misspelled types into
-compile time failures (and to get a much richer set of allowed types):
+In Moose, use these constraints to turn misspelled types into
+compile-time failures (and to get a much richer set of allowed types):
 
 ```perl
 use My::Personal::Types qw(ArrayRef HashRef);
+
 has 'order_items' => (
     is     => 'ro',
     isa    => ArrayRef [HashRef],
@@ -377,14 +401,15 @@ sub test_setup {
 ```
 
 In the above example, the `$test->next::method` is used to call the parent
-`test_setup` to ensure that all setup is ready before you try to call your
-setup. In fact, you might have your `test_setup` call a parent `test_setup`
-which in turns calls _its_ parent `test_setup`. This is common in xUnit testing
-and the order in which events fire is important. With roles, this is often done
-with method modifiers, but the order in which they fire is often dependent on
-their load order and that is *not* guaranteed. If you find yourself using lots
-of method modifiers in roles, you might want to think about inheritance to
-ensure that you have complete control over the sequencing of commands.
+`test_setup` to ensure that all setup is ready before you try to handle this
+class's setup. In fact, you might have your `test_setup` call a parent
+`test_setup` which in turns calls _its_ parent `test_setup`. This is common in
+xUnit testing and the order in which events fire is important. With roles, this
+is often done with method modifiers, but the order in which they fire is often
+dependent on their load order and that is *not* guaranteed. If you find yourself
+using lots of method modifiers in roles, you might want to think about
+inheritance to ensure that you have complete control over the sequencing of
+commands.
 
 ### Recommendation
 
@@ -398,8 +423,9 @@ scope of this article.
 
 ## Performance
 
-Don't stress about performance, really. It's not the code. It's the database. Or
-it's the network. Or it's disk I/O. Or, or, or ...
+Don't stress about performance, really. It's not the code. It's the database.
+It's always the database.  Unless it's the network. Or it's disk I/O. Or, or, or
+...
 
 Steve McConnell, in his fantastic book Code Complete, 2nd edition, writes:
 
@@ -412,7 +438,7 @@ Steve McConnell, in his fantastic book Code Complete, 2nd edition, writes:
 
 Unless you know, at design time, you'll have performance critical code (don't
 write ray-tracing software in Perl, folks!), design a great system and worry
-about performance only when it's proven to be a real problem.
+about performance only when it's proven to be an actual problem.
 [Devel::NYTProf](https://metacpan.org/pod/Devel::NYTProf) is your friend here.
 Be aware that benchmarking can be an arcane art.
 
@@ -489,25 +515,323 @@ to profile your code:
 
 # Problems
 
-## Too many responsibilities
+The above were general recommendations for OO code, but now let's talk about
+common problems we encounter with our clients.
 
-## Immutable
+## Too Many Responsibilities
 
-## accessors for attributes
+For our [Project 500](/articles/project-500.html) contract, our client was
+providing online credit card services for a major, well-publicized event.
+However, they had a serious problem: their code could only handle 39 credit card
+transactions per second per server. For this event, they had to improve
+performance by an order of magnitude. We had two weeks to develop a proof of
+concept (spoiler: we succeeded).
 
-## namespace::autoclean and make_immutable
+In digging in, it turns out that they had developed an in-house OO system and an
+in-house ORM. We quickly discovered that a single "charge $x to the credit card"
+transaction generated almost 200 calls to the database! This was one of their
+major bottlenecks.
 
-## Consistent return types
+For our client's ORM, every time a request was made it would gather a
+bunch of metadata, check permissions, make decisions based on whether or not
+it was using Oracle or PostgreSQL, check to see if the data was cached, and
+_then_ check to see if the data was in the database. Instantiating
+every object was very slow, even if there was no data available. And the code
+was creating—and throwing away without using—hundreds of these
+objects per request.
 
-Return empty types [] {}
+We considered using a "pre-flight" check to see if the data was there
+before creating the objects, but there was so much business logic
+embedded in the ORM layer that this was not a practical solution. And we
+couldn't simply fetch the data directly because, again, the ORM had too many
+non-ORM responsibilities built into it.
 
-## Strict constructor
+On another system, we had an immutable object (yay!) that had a lot of disk I/O
+and heavy data validation every time it was instantiated. Yet that data never
+changed between releases, so I was tasked with caching the object data. I
+restructured to class to separate the validation of instance data and the
+setting of instance data. Then I added a few lines of code to the class to
+handle this and it worked like a charm, but my tests missed an edge case where
+*some* data wasn't cached properly because one bit of data was set during
+validation. I had made the classic mistake of putting too much logic in that
+class.
 
-## Small interfaces
+Instead, I built a simple class to properly cache objects on web server restart
+and it cached the object for me. Not only did it work right this time, I now had
+a flexible in-memory cache for other objects. Further, because the cache
+internals were encapsulated, if we want to switch the cache out for Redis or
+something else, it becomes trivial.[% Ovid.add_note('Er, I should have just used
+<a href="https://metacpan.org/pod/CHI">CHI</a>') %].
 
-## Roles
-    modifiers
-    abstract classes
+### Recommendation
+
+Don't have your objects try to do too much. The "single-responsibility"
+principle generally means there should only be a single reason to change a
+class. In the real-world, this is easy to miss, but it will save you much grief
+if you get this right.
+
+## Use Methods for Attribute Data
+
+In old-school OOP code for Perl, you might see something like this:
+
+```perl
+package Customer;
+
+use strict;
+use warnings;
+use Carp 'croak';
+
+sub new {
+    my ( $class, $name, $title ) = @_;
+    craok("Name required") unless defined $name;
+    return bless {
+        name  => $name,
+        title => $title,
+    }, $class;
+}
+
+sub name  { $_[0]->{name} }
+sub title { $_[0]->{title} }
+
+# more code here
+
+1;
+```
+
+So far, so good. But the business rules state that if the customer has a title,
+they must always be referred to by both their title and name, never just one or
+the other. Developers keep getting it wrong, but remember: your object is
+supposed to be the expert here and it won't get it wrong, so the object should
+handle this responsibility.
+
+Now you're rewritten the class to remover the `title` accessor and to provide a
+`name` method to encapsulate this logic:
+
+```perl
+package Customer;
+
+use strict;
+use warnings;
+use Carp 'croak';
+
+sub new {
+    my ( $class, $name, $title ) = @_;
+    craok("Name required") unless defined $name;
+    return bless {
+        name  => $name,
+        title => $title,
+    }, $class;
+}
+
+# always prefix their name with a title if it exists
+sub name {
+    my $self = shift;
+    return $self->{title}
+        ? "$self->{title} $self->{name}"
+        : $self->{name};
+}
+
+# more code here
+
+1;
+```
+
+Again, this code looks correct, but by eliminating accessor for our `title`
+attribute, if we were forced to subclass this, how do we override it, especially
+if it's used elsewhere in the class? We _could_ just overwrite the `name` and
+`title` values in the blessed hash of the subclass and that might be good
+enough, but if we need to convert an attribute to a method—as we did with `name`
+we can't easily do that now.
+
+### Recommendation
+
+This is one of the advantages of Moose and Moo. You automatically get method
+accessors for data attributes, so users of those OO systems will rarely notice
+this unless they also get in the bad habit of doing `$self->{title}`.
+
+Otherwise, if you're writing core Perl, just include simple accessors/mutators
+for your data:
+
+```perl
+sub title ($self) {
+    return $self->{title};
+}
+
+sub set_title ($self, $title) {
+    $self->{title} = $title;
+}
+```
+
+Whether you prefer to overload a method to be both an accessor and a mutator, or
+to return the invocant on mutation are arguments that are far beyond the scope
+of this article, so we would recommend following the current style of your
+codebase. If it doesn't exist, define it and stick to it (predictable interfaces
+are fantastic!).
+
+## Confusing Subroutines and Methods
+
+Your Moose/Moo classes should generally resemble the following:
+
+```perl
+package Some::Class {
+    use Moose;
+    use namespace::autoclean;
+
+    # class definition here
+
+    __PACKAGE__->meta->make_immutable; # significant performance boost
+}
+```
+
+I was writing some client software that could cache some objects (it's a
+coincidence that I've had to do this so often) and for one for some edge cases,
+it was good if we could clone the objects first. Many things cannot be easily
+cloned, so if the object provides its own `clone` method, we used that instead
+of simply returning the object from the cache. It looked sort of like this:
+
+```perl
+sub fetch ( $class, %arg_for ) {
+    my $object = $class->_fetch_for_identifier($arg_for{identifier};
+    if ($object) {
+        return $object->can('clone') ? $object->clone : $object;
+    }
+    else {
+        return $class->_instantiate_and_cache($arg_for);
+    }
+}
+```
+
+That failed miserably because some objects were importing a `clone` subroutine
+and because Perl doesn't have a distinction because subroutines and methods
+(though it will when Corinna is implemented), `clone` was in the
+namespace and the `can('clone')` method returned true. We tried to call a
+subroutine as a method, even though it wasn't.
+
+### Recommendation
+
+Using [namespace::autoclean](https://metacpan.org/pod/namespace::autoclean) or
+[namespace::clean](https://metacpan.org/pod/namespace::clean) will remove the
+imported subroutines from the namespace and make it much harder for code to call
+subroutines as methods. Read the documentation for each to decide which will
+work better for you.
+
+Note that as of this writing, there is an outstanding RFC for Perl to allow a
+lexical importing mechanism which should make this less of a problem in the
+future if it's adopted.
+
+## Inconsistent Return Types
+
+This isn't just an OOP problem, but it's a common issue I see in code in dynamic
+languages, so it's worth mentioning here. If you're going to return an array
+reference or a hash reference, you usually want to ensure that's _all_ you
+return. For example:
+
+```perl
+my $results = $object->get_results;
+if ($results) {
+    foreach my $result ($result->@*) {
+        # do something
+    }
+}
+```
+
+But what if you forget the `if`?
+
+
+```perl
+my $results = $object->get_results;
+foreach my $result ($result->@*) {
+    # do something
+}
+```
+
+If `get_results` returns `undef` when there are no results, the code blows up.
+However, if it returns an empty array reference, the loop is simply skipped.
+You don't have to remember to check the return value type (unless returning
+nothing is an actual error).  This is easy to fix in methods, but be wary of a
+similar trap with attributes:
+
+```perl
+has 'results' => (
+    is  => 'ro',
+    isa => Maybe[ ArrayRef ],
+);
+```
+
+### Recommendation
+
+There are several ways to handle this, including defining coerced types, but
+one of the simplest and safest:
+
+```perl
+has 'results' => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+```
+
+In the above, we drop the `Maybe` and default to an array reference if no
+argument is supplied to the constructor. With that, if they pass an arrayref of
+hashrefs for `results`, it works. If they _don't_ pass `results` at all, it
+still works. However, if they pass anything else for `results`, including
+`undef`, it fails. That's great safety because while you want the types you
+return to be predictable, it's also good to allow the types you accept to be
+predictable. There are definitely exceptions to this, but they should be used
+with care.
+
+## Ignored Constructor Arguments
+
+Going back to our `results` example:
+
+```perl
+package Some::Class;
+use Moose;
+
+has 'results' => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+```
+
+What happens if we do `my $object = Some::Class->new( result => $result );`.
+
+No matter what the type of `$result` is, the value is thrown away because by
+default, Moose and Moo simply discard unknown arguments to the constructor. If
+you misspell a constructor argument, this can be a frustrating source of errors.
+
+### Recommendation
+
+Fortunately, the fix for this is simple, too:
+[MooseX::StrictConstructor](https://metacpan.org/pod/MooseX::StrictConstructor).  
+(Or [MooX::StrictConstructor](https://metacpan.org/pod/MooX::StrictConstructor) 
+for Moo):
+
+```perl
+package Some::Class;
+use Moose;
+use MooseX::StrictConstructor;
+
+has 'results' => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+```
+
+Now, passing unknown arguments is a fatal error.
+
+If you're using traditional `bless` syntax, you'll have to manually validate the
+arguments to the constructor yourself, but the type library we outlined above
+can be used.
+
+# Leftovers
+
+There's a huge amount more we can say, including useful design patters,
+being cautious with method modifiers in roles, when to use abstract classes
+instead of roles, but we're starting to get into the long tail of code smells in
+object-oriented code bases, so perhaps those are good for another article.
 
 # Dr. Frankenstein
 
@@ -518,27 +842,31 @@ have laying around. By ensuring everyone uses this object system, we can have
 greater consistency in our code.
 
 Let's pretend you've settled on the Moose OOP system as the basis of your own.
-You'd like to ensure several things are true (I'm not saying these are the best 
-defaults, but this can get you started):
+You'd like to ensure several things are true and you've come up with the
+following list:
 
 * Unknown arguments to the constructor are fatal
-* It should be easier to see which attributes are or are not required in the
+* It should be easy to see which attributes are or are not required in the
 constructor
+* Attributes should default to read-only
 * `namespace::autoclean` must always be used
 * You want signatures and types
 * The `Carp` module's `carp`, `croak`, and `confess` functions should always be
 present
+* You want the C3 MRO (though you should avoid multiple inheritance)
+* Your work uses v5.22, so you'll enforce those features
 
 For this, you've decided that `param` should replace `has` if the parameter is
 required in the constructor, and `field` should replace `has` if the parameter
 is not allowed in the constructor. Let's use
 [Moose::Exporter](https://metacpan.org/pod/Moose::Exporter) to set this up.
 
+We won't explain how all of this works, so you have some homework to do.
+
 ```perl
 package My::Personal::Moose;
-package MooseX::Fields;
 
-use 5.22.0;
+use v5.22.0;
 use Moose                     ();
 use MooseX::StrictConstructor ();
 use Moose::Exporter;
@@ -608,11 +936,17 @@ use lib 'lib';
 use Test::Most;
 
 package My::Names {
-    use v5.22.0;
     use My::Personal::Moose;
-    use My::Personal::Types
-      qw(compile Num NonEmptyStr Str PositiveInt ArrayRef);
-    use List::Util 'sum'; # this gets removed my namespace::autoclean
+    use My::Personal::Types qw(
+      compile
+      Num
+      NonEmptyStr
+      Str
+      PositiveInt
+      ArrayRef
+    );
+
+    use List::Util 'sum'; # removed my namespace::autoclean
 
     param _name   => ( isa => NonEmptyStr, init_arg => 'name' );
     param title   => ( isa => Str,         required => 0 );
@@ -651,5 +985,16 @@ cmp_ok $doctor->created, '>=',        $person->created,
 
 done_testing;
 ```
+
+Obviously, the above code probably won't be fit for purpose, but it shows you 
+the basics of how you can build an OO system to fit your company's needs, rather 
+than allowing everyone to just "do their own thing."
+
+# Hire Us
+
+We do code reviews, development, testing, and design, focused on reliability and
+scalability. Even if you're just exploring possibilities, feel free to [contact
+us](mailto:info@allaroundtheworld.fr?subject=Consulting) and let's see what we
+can do to make your software better.
 
 [%- END %]

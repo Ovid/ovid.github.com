@@ -88,7 +88,7 @@
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>Common Problems in Object-Oriented Code</h1>
-        <time>2022-04-17</time>
+        <time>2022-04-20</time>
         <hr>
         <div class="twelve columns header">
         </div>
@@ -206,6 +206,7 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 <p><nav role="navigation" class="table-of-contents">
     <ul>
+    <li class="indent-1"><a href="#preface">Preface</a></li>
     <li class="indent-1"><a href="#whats-an-object">What’s an Object?</a></li>
     <li class="indent-1"><a href="#recommendations">Recommendations</a></li>
     <li class="indent-2"><a href="#immutable-objects">Immutable Objects</a></li>
@@ -219,51 +220,77 @@ role for an experienced Python developer with OpenAPI + ORM experience.
     <li class="indent-2"><a href="#performance">Performance</a></li>
     <li class="indent-3"><a href="#recommendation-5">Recommendation</a></li>
     <li class="indent-1"><a href="#problems">Problems</a></li>
-    <li class="indent-2"><a href="#too-many-responsibilities">Too many responsibilities</a></li>
-    <li class="indent-2"><a href="#immutable">Immutable</a></li>
-    <li class="indent-2"><a href="#accessors-for-attributes">accessors for attributes</a></li>
-    <li class="indent-2"><a href="#namespaceautoclean-and-make-immutable">namespace::autoclean and make_immutable</a></li>
-    <li class="indent-2"><a href="#consistent-return-types">Consistent return types</a></li>
-    <li class="indent-2"><a href="#strict-constructor">Strict constructor</a></li>
-    <li class="indent-2"><a href="#small-interfaces">Small interfaces</a></li>
-    <li class="indent-2"><a href="#roles">Roles</a></li>
+    <li class="indent-2"><a href="#too-many-responsibilities">Too Many Responsibilities</a></li>
+    <li class="indent-3"><a href="#recommendation-6">Recommendation</a></li>
+    <li class="indent-2"><a href="#use-methods-for-attribute-data">Use Methods for Attribute Data</a></li>
+    <li class="indent-3"><a href="#recommendation-7">Recommendation</a></li>
+    <li class="indent-2"><a href="#confusing-subroutines-and-methods">Confusing Subroutines and Methods</a></li>
+    <li class="indent-3"><a href="#recommendation-8">Recommendation</a></li>
+    <li class="indent-2"><a href="#inconsistent-return-types">Inconsistent Return Types</a></li>
+    <li class="indent-3"><a href="#recommendation-9">Recommendation</a></li>
+    <li class="indent-2"><a href="#ignored-constructor-arguments">Ignored Constructor Arguments</a></li>
+    <li class="indent-3"><a href="#recommendation-10">Recommendation</a></li>
+    <li class="indent-1"><a href="#leftovers">Leftovers</a></li>
     <li class="indent-1"><a href="#dr-frankenstein">Dr. Frankenstein</a></li>
+    <li class="indent-1"><a href="#hire-us">Hire Us</a></li>
     </ul>
 </nav>
 <hr></p>
 
-<p>After spending almost three years as the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna
-object system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, I’m quite
-delighted that work on including this in the Perl language will start soon.
-Until it’s there, <a href="https://allaroundtheworld.fr/" target="_blank">our company</a> <span class="fa fa-external-link fa_custom"></span> still does lot
-of work with object-oriented code (OOP) and we’ve seen some very common causes
-of failures.  Much of what follows deals with the issues we’ve had with client
-code, so this is a practical guide.</p>
+<h1><a name="preface"></a>Preface</h1>
 
-<p>This is not an exhaustive list of best practices, but it covers many common
-problems and offers tips for avoiding these problems. Note that much of what
-follows are rules of thumb, not absolute laws.</p>
+<p>After spending almost three years as the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna
+object system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, I’m delighted
+that work on including this in the Perl language will start soon.
+Until it’s there, <a href="https://allaroundtheworld.fr/" target="_blank">our company</a> <span class="fa fa-external-link fa_custom"></span> still does a lot
+of work with clients, fixing their object-oriented code (OOP) and we’ve seen
+some very common causes of failures. Some say that our recommendations are too
+strict, and for personal projects, they might be. But we work with large-scale
+codebases, often written in Perl, and often containing over a million lines of
+code. When you’re working at that scale, especially when coordinating with many
+developers who may not know your code well, you need to be more rigorous.</p>
+
+<p>This is not a tutorial on OOP design. That in itself is a complex topic
+(and perhaps one of the strongest arguments against OOP). So we’ll assume you
+need to fix an existing OOP codebase rather than design a new one.</p>
+
+<p>Note: while these examples are in Perl, many of these problems apply to
+codebases we’ve worked on in other OO languages.</p>
+
+<p><strong>Warning</strong>: whenever we link to a module on the CPAN, please read the 
+documentation of that module if you decide to use it. There are often caveats, 
+such as with the “strict constructor” modules we mention later.</p>
 
 <h1><a name="whats-an-object"></a>What’s an Object?</h1>
 
-<p>First and foremost, we must keep in mind what an object is. <a href="/articles/why-is-object-oriented-programming-bad.html">I cover this a
-bit more in-depth in other
+<p>First and foremost, we must keep in mind what an object is. <a href="/articles/why-is-object-oriented-programming-bad.html">This is covered
+more in other
 articles</a>, but for this
 one, just keep in mind that an object is an expert about a particular topic.
 Forget all of those other explanations about objects being “structs with
 behavior”, or “a reference to a data type that knows what class it belongs to.”
-Those are implementation details that don’t tell you objects are <em>for</em>. Objects
-are experts on a particular problem space, that’s all.</p>
+Those are implementation details that don’t tell you objects are <em>for</em>. In my
+opinion, they even hinder people’s understanding of objects because they keep
+you focused on the wrong thing. Objects are experts on a particular problem
+space, that’s all.</p>
 
 <h1><a name="recommendations"></a>Recommendations</h1>
 
-<p>I could talk about <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
+<p>We could talk about <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
 <a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP</a> <span class="fa fa-external-link fa_custom"></span>, the
 <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov substitution
 principle</a> <span class="fa fa-external-link fa_custom"></span>, the
 <a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter</a> <span class="fa fa-external-link fa_custom"></span>, and so on, but
-while those are important, you can read about those on your own. Instead, I’ll
-get right to the heart of many common issues.</p>
+while those are important, you can read about those on your own. Instead, we’ll
+cover recommendations and common problems. You’ll need to use your best judgment
+to decide how (or if) they apply to your codebase.</p>
+
+<blockquote>
+  <p>Note: if this article makes your eyes glaze over, but you love the Moose OOP
+  system, you might skip ahead to <a href="#dr-frankenstein">Dr.  Frankenstein</a> to see a
+  small module built on top of Moose that implements some of the recommendations
+  in this article.</p>
+</blockquote>
 
 <h2><a name="immutable-objects"></a>Immutable Objects</h2>
 
@@ -277,7 +304,7 @@ used an instance of your object is, if it’s mutable, the more likely that code
 
 <h3><a name="recommendation"></a>Recommendation</h3>
 
-<p>Even if you’re not convinced, try writing and using immutability objects. Like
+<p>Even if you’re not convinced, try writing and using immutable objects. Like
 anything new, it can take some getting used to, but there’s a payoff there. Just
 don’t insist that everything be immutable. Your colleagues will hate you.</p>
 
@@ -308,18 +335,17 @@ overkill.  Others call it safety. Your mileage may vary.</p>
 <p>If you prefer, you can deeply clone the data structure before returning it. By
 presenting a copy, different consumers calling that method will always have the
 same results, but if the returned reference itself is shared, you could have
-issues. That being said, this is an issue with any large-scale code, not just
-OOP.</p>
+issues. That being said, this is an issue with all code, not just OOP.</p>
 
 <h2><a name="small-interfaces-and-encapsulation"></a>Small Interfaces and Encapsulation</h2>
 
 <p>The interface that your class presents is your “contract” with everyone who uses
 your class. You should design that interface with care, but you shouldn’t expose
-what you don’t need to. Using one of my “go to” examples of Corinna code that
-will be available in upcoming releases (but not in the immediate future), here’s
-an LRU (least recently used) cache:</p>
+what you don’t need to. Using one of my “go to” examples of the Corinna OOP
+system that will be available in upcoming releases (but not in the immediate
+future), here’s a basic LRU (least recently used) cache:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU :version(v0.1.0) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
     use Hash::Ordered;
 
     field $cache                   { Hash::Ordered-&gt;new };
@@ -398,11 +424,12 @@ sub new {
 <p>For both Moose and core Perl, it’s hard to encapsulate your objects and minimize
 your interface. For both of those, you can call <code>$object-&gt;{_cache}</code> to get the
 underlying cache. For Moose, you can also call <code>$object-&gt;_cache</code> (it’s very
-cumbersome in Moose or Moo to not offer private methods for private data).  This
-means that you have exposed that data, no matter how nicely you’ve asked people
-to “stay out of the kitchen.” This means that later on, if you want to switch
-your internal cache to use Redis, SQLite, you can easily break the code of
-others who are relying on it.</p>
+cumbersome in Moose or Moo to not expose methods for what should be private
+data).  This means that you have exposed that data, no matter how nicely you’ve
+asked people to “stay out of the kitchen.” This means that if someone is
+accessing your “private” data, if you want to switch your internal cache to use
+Redis, SQLite, or something else, you can easily break the code of others who
+are relying on it.</p>
 
 <p>We almost always see <code>$object-&gt;_private_method</code> or <code>$object-&gt;{private_data}</code> in
 client codebases and that’s one of the first things we try to fix, if we have
@@ -416,7 +443,7 @@ default. For now, this means prefixing methods with an underscore to make them
 “private by convention.” With Corinna, you simply don’t provide <code>:reader</code> or
 <code>:writer</code> attributes:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU :version(v0.1.0) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
     use Hash::Ordered;
 
     field $cache                   { Hash::Ordered-&gt;new };
@@ -426,16 +453,18 @@ default. For now, this means prefixing methods with an underscore to make them
 
 <p>In the above, you can read (but not write) the max size, but there’s no direct
 access possible to the <code>$cache</code> (this will be possible via the MOP, the
-meta-object protocol, but we want violating encapsulation to be a natural
-default).</p>
+meta-object protocol, but we do not want violating encapsulation to be a natural
+default. Hitting the MOP to violate encapsulation will stand out like a coal
+pile in a ballroom in code reviews).</p>
 
 <blockquote>
-  <p>Note: some Perl developers still use “inside-out” objects to enforce
+  <p>Note: some Perl developers use “inside-out” objects to enforce
   encapsulation. The CPAN has
   <a href="https://metacpan.org/pod/Object::InsideOut" target="_blank">Object::InsideOut</a> <span class="fa fa-external-link fa_custom"></span> and
   <a href="https://metacpan.org/pod/Class::InsideOut" target="_blank">Class::InsideOut</a> <span class="fa fa-external-link fa_custom"></span>, amongst others.
   While it’s easy to use instances of these classes, they were cumbersome to write
-  and sometimes buggy.</p>
+  and sometimes buggy. As a result, we do not experience them often in client
+  code.</p>
 </blockquote>
 
 <h2><a name="type-library"></a>Type Library</h2>
@@ -459,9 +488,9 @@ you have to rewrite that:</p>
 }
 </code></pre></div>
 
-<p>Do you really want to write that? Do you really want to debug that? (I
-deliberately added a bug). If you use UUIDs frequently, you don’t want to write
-that again.</p>
+<p>Do you really want to write that? Do you really want to debug that? (there’s a
+small bug in that example, if you care to look for it). If you use UUIDs
+frequently, you don’t want to write that again.</p>
 
 <p>If you’ve used Moose, you know how easy it is to use type constraints:</p>
 
@@ -515,6 +544,7 @@ BEGIN {
 <p>Using it is simple.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use My::Personal::Types qw(compile UUID);
+
 sub get_part_by_id ($self, $id) {
     state $check = compile(UUID);
     ($id) = $check-&gt;($id);
@@ -522,10 +552,11 @@ sub get_part_by_id ($self, $id) {
 }
 </code></pre></div>
 
-<p>And in Moose, use these constraints to turn misspelled types into
-compile time failures (and to get a much richer set of allowed types):</p>
+<p>In Moose, use these constraints to turn misspelled types into
+compile-time failures (and to get a much richer set of allowed types):</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use My::Personal::Types qw(ArrayRef HashRef);
+
 has 'order_items' =&gt; (
     is     =&gt; 'ro',
     isa    =&gt; ArrayRef [HashRef],
@@ -582,14 +613,15 @@ test class has finished running. A <code>test_setup</code> method might look lik
 </code></pre></div>
 
 <p>In the above example, the <code>$test-&gt;next::method</code> is used to call the parent
-<code>test_setup</code> to ensure that all setup is ready before you try to call your
-setup. In fact, you might have your <code>test_setup</code> call a parent <code>test_setup</code>
-which in turns calls <em>its</em> parent <code>test_setup</code>. This is common in xUnit testing
-and the order in which events fire is important. With roles, this is often done
-with method modifiers, but the order in which they fire is often dependent on
-their load order and that is <em>not</em> guaranteed. If you find yourself using lots
-of method modifiers in roles, you might want to think about inheritance to
-ensure that you have complete control over the sequencing of commands.</p>
+<code>test_setup</code> to ensure that all setup is ready before you try to handle this
+class’s setup. In fact, you might have your <code>test_setup</code> call a parent
+<code>test_setup</code> which in turns calls <em>its</em> parent <code>test_setup</code>. This is common in
+xUnit testing and the order in which events fire is important. With roles, this
+is often done with method modifiers, but the order in which they fire is often
+dependent on their load order and that is <em>not</em> guaranteed. If you find yourself
+using lots of method modifiers in roles, you might want to think about
+inheritance to ensure that you have complete control over the sequencing of
+commands.</p>
 
 <h3><a name="recommendation-4"></a>Recommendation</h3>
 
@@ -603,8 +635,9 @@ scope of this article.</p>
 
 <h2><a name="performance"></a>Performance</h2>
 
-<p>Don’t stress about performance, really. It’s not the code. It’s the database. Or
-it’s the network. Or it’s disk I/O. Or, or, or ...</p>
+<p>Don’t stress about performance, really. It’s not the code. It’s the database.
+It’s always the database.  Unless it’s the network. Or it’s disk I/O. Or, or, or
+...</p>
 
 <p>Steve McConnell, in his fantastic book Code Complete, 2nd edition, writes:</p>
 
@@ -619,7 +652,7 @@ it’s the network. Or it’s disk I/O. Or, or, or ...</p>
 
 <p>Unless you know, at design time, you’ll have performance critical code (don’t
 write ray-tracing software in Perl, folks!), design a great system and worry
-about performance only when it’s proven to be a real problem.
+about performance only when it’s proven to be an actual problem.
 <a href="https://metacpan.org/pod/Devel::NYTProf" target="_blank">Devel::NYTProf</a> <span class="fa fa-external-link fa_custom"></span> is your friend here.
 Be aware that benchmarking can be an arcane art.</p>
 
@@ -696,27 +729,310 @@ to profile your code:</p>
 
 <h1><a name="problems"></a>Problems</h1>
 
-<h2><a name="too-many-responsibilities"></a>Too many responsibilities</h2>
+<p>The above were general recommendations for OO code, but now let’s talk about
+common problems we encounter with our clients.</p>
 
-<h2><a name="immutable"></a>Immutable</h2>
+<h2><a name="too-many-responsibilities"></a>Too Many Responsibilities</h2>
 
-<h2><a name="accessors-for-attributes"></a>accessors for attributes</h2>
+<p>For our <a href="/articles/project-500.html">Project 500</a> contract, our client was
+providing online credit card services for a major, well-publicized event.
+However, they had a serious problem: their code could only handle 39 credit card
+transactions per second per server. For this event, they had to improve
+performance by an order of magnitude. We had two weeks to develop a proof of
+concept (spoiler: we succeeded).</p>
 
-<h2><a name="namespaceautoclean-and-make-immutable"></a>namespace::autoclean and make_immutable</h2>
+<p>In digging in, it turns out that they had developed an in-house OO system and an
+in-house ORM. We quickly discovered that a single “charge $x to the credit card”
+transaction generated almost 200 calls to the database! This was one of their
+major bottlenecks.</p>
 
-<h2><a name="consistent-return-types"></a>Consistent return types</h2>
+<p>For our client’s ORM, every time a request was made it would gather a
+bunch of metadata, check permissions, make decisions based on whether or not
+it was using Oracle or PostgreSQL, check to see if the data was cached, and
+<em>then</em> check to see if the data was in the database. Instantiating
+every object was very slow, even if there was no data available. And the code
+was creating—and throwing away without using—hundreds of these
+objects per request.</p>
 
-<p>Return empty types [] {}</p>
+<p>We considered using a “pre-flight” check to see if the data was there
+before creating the objects, but there was so much business logic
+embedded in the ORM layer that this was not a practical solution. And we
+couldn’t simply fetch the data directly because, again, the ORM had too many
+non-ORM responsibilities built into it.</p>
 
-<h2><a name="strict-constructor"></a>Strict constructor</h2>
+<p>On another system, we had an immutable object (yay!) that had a lot of disk I/O
+and heavy data validation every time it was instantiated. Yet that data never
+changed between releases, so I was tasked with caching the object data. I
+restructured to class to separate the validation of instance data and the
+setting of instance data. Then I added a few lines of code to the class to
+handle this and it worked like a charm, but my tests missed an edge case where
+<em>some</em> data wasn’t cached properly because one bit of data was set during
+validation. I had made the classic mistake of putting too much logic in that
+class.</p>
 
-<h2><a name="small-interfaces"></a>Small interfaces</h2>
+<p>Instead, I built a simple class to properly cache objects on web server restart
+and it cached the object for me. Not only did it work right this time, I now had
+a flexible in-memory cache for other objects. Further, because the cache
+internals were encapsulated, if we want to switch the cache out for Redis or
+something else, it becomes trivial.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>.</p>
 
-<h2><a name="roles"></a>Roles</h2>
+<h3><a name="recommendation-6"></a>Recommendation</h3>
 
-<pre><code>modifiers
-abstract classes
-</code></pre>
+<p>Don’t have your objects try to do too much. The “single-responsibility”
+principle generally means there should only be a single reason to change a
+class. In the real-world, this is easy to miss, but it will save you much grief
+if you get this right.</p>
+
+<h2><a name="use-methods-for-attribute-data"></a>Use Methods for Attribute Data</h2>
+
+<p>In old-school OOP code for Perl, you might see something like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Customer;
+
+use strict;
+use warnings;
+use Carp 'croak';
+
+sub new {
+    my ( $class, $name, $title ) = @_;
+    craok(&quot;Name required&quot;) unless defined $name;
+    return bless {
+        name  =&gt; $name,
+        title =&gt; $title,
+    }, $class;
+}
+
+sub name  { $_[0]-&gt;{name} }
+sub title { $_[0]-&gt;{title} }
+
+# more code here
+
+1;
+</code></pre></div>
+
+<p>So far, so good. But the business rules state that if the customer has a title,
+they must always be referred to by both their title and name, never just one or
+the other. Developers keep getting it wrong, but remember: your object is
+supposed to be the expert here and it won’t get it wrong, so the object should
+handle this responsibility.</p>
+
+<p>Now you’re rewritten the class to remover the <code>title</code> accessor and to provide a
+<code>name</code> method to encapsulate this logic:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Customer;
+
+use strict;
+use warnings;
+use Carp 'croak';
+
+sub new {
+    my ( $class, $name, $title ) = @_;
+    craok(&quot;Name required&quot;) unless defined $name;
+    return bless {
+        name  =&gt; $name,
+        title =&gt; $title,
+    }, $class;
+}
+
+# always prefix their name with a title if it exists
+sub name {
+    my $self = shift;
+    return $self-&gt;{title}
+        ? &quot;$self-&gt;{title} $self-&gt;{name}&quot;
+        : $self-&gt;{name};
+}
+
+# more code here
+
+1;
+</code></pre></div>
+
+<p>Again, this code looks correct, but by eliminating accessor for our <code>title</code>
+attribute, if we were forced to subclass this, how do we override it, especially
+if it’s used elsewhere in the class? We <em>could</em> just overwrite the <code>name</code> and
+<code>title</code> values in the blessed hash of the subclass and that might be good
+enough, but if we need to convert an attribute to a method—as we did with <code>name</code>
+we can’t easily do that now.</p>
+
+<h3><a name="recommendation-7"></a>Recommendation</h3>
+
+<p>This is one of the advantages of Moose and Moo. You automatically get method
+accessors for data attributes, so users of those OO systems will rarely notice
+this unless they also get in the bad habit of doing <code>$self-&gt;{title}</code>.</p>
+
+<p>Otherwise, if you’re writing core Perl, just include simple accessors/mutators
+for your data:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">sub title ($self) {
+    return $self-&gt;{title};
+}
+
+sub set_title ($self, $title) {
+    $self-&gt;{title} = $title;
+}
+</code></pre></div>
+
+<p>Whether you prefer to overload a method to be both an accessor and a mutator, or
+to return the invocant on mutation are arguments that are far beyond the scope
+of this article, so we would recommend following the current style of your
+codebase. If it doesn’t exist, define it and stick to it (predictable interfaces
+are fantastic!).</p>
+
+<h2><a name="confusing-subroutines-and-methods"></a>Confusing Subroutines and Methods</h2>
+
+<p>Your Moose/Moo classes should generally resemble the following:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class {
+    use Moose;
+    use namespace::autoclean;
+
+    # class definition here
+
+    __PACKAGE__-&gt;meta-&gt;make_immutable; # significant performance boost
+}
+</code></pre></div>
+
+<p>I was writing some client software that could cache some objects (it’s a
+coincidence that I’ve had to do this so often) and for one for some edge cases,
+it was good if we could clone the objects first. Many things cannot be easily
+cloned, so if the object provides its own <code>clone</code> method, we used that instead
+of simply returning the object from the cache. It looked sort of like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">sub fetch ( $class, %arg_for ) {
+    my $object = $class-&gt;_fetch_for_identifier($arg_for{identifier};
+    if ($object) {
+        return $object-&gt;can('clone') ? $object-&gt;clone : $object;
+    }
+    else {
+        return $class-&gt;_instantiate_and_cache($arg_for);
+    }
+}
+</code></pre></div>
+
+<p>That failed miserably because some objects were importing a <code>clone</code> subroutine
+and because Perl doesn’t have a distinction because subroutines and methods
+(though it will when Corinna is implemented), <code>clone</code> was in the
+namespace and the <code>can('clone')</code> method returned true. We tried to call a
+subroutine as a method, even though it wasn’t.</p>
+
+<h3><a name="recommendation-8"></a>Recommendation</h3>
+
+<p>Using <a href="https://metacpan.org/pod/namespace::autoclean" target="_blank">namespace::autoclean</a> <span class="fa fa-external-link fa_custom"></span> or
+<a href="https://metacpan.org/pod/namespace::clean" target="_blank">namespace::clean</a> <span class="fa fa-external-link fa_custom"></span> will remove the
+imported subroutines from the namespace and make it much harder for code to call
+subroutines as methods. Read the documentation for each to decide which will
+work better for you.</p>
+
+<p>Note that as of this writing, there is an outstanding RFC for Perl to allow a
+lexical importing mechanism which should make this less of a problem in the
+future if it’s adopted.</p>
+
+<h2><a name="inconsistent-return-types"></a>Inconsistent Return Types</h2>
+
+<p>This isn’t just an OOP problem, but it’s a common issue I see in code in dynamic
+languages, so it’s worth mentioning here. If you’re going to return an array
+reference or a hash reference, you usually want to ensure that’s <em>all</em> you
+return. For example:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $results = $object-&gt;get_results;
+if ($results) {
+    foreach my $result ($result-&gt;@*) {
+        # do something
+    }
+}
+</code></pre></div>
+
+<p>But what if you forget the <code>if</code>?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $results = $object-&gt;get_results;
+foreach my $result ($result-&gt;@*) {
+    # do something
+}
+</code></pre></div>
+
+<p>If <code>get_results</code> returns <code>undef</code> when there are no results, the code blows up.
+However, if it returns an empty array reference, the loop is simply skipped.
+You don’t have to remember to check the return value type (unless returning
+nothing is an actual error).  This is easy to fix in methods, but be wary of a
+similar trap with attributes:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has 'results' =&gt; (
+    is  =&gt; 'ro',
+    isa =&gt; Maybe[ ArrayRef ],
+);
+</code></pre></div>
+
+<h3><a name="recommendation-9"></a>Recommendation</h3>
+
+<p>There are several ways to handle this, including defining coerced types, but
+one of the simplest and safest:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has 'results' =&gt; (
+    is      =&gt; 'ro',
+    isa     =&gt; ArrayRef,
+    default =&gt; sub { [] },
+);
+</code></pre></div>
+
+<p>In the above, we drop the <code>Maybe</code> and default to an array reference if no
+argument is supplied to the constructor. With that, if they pass an arrayref of
+hashrefs for <code>results</code>, it works. If they <em>don’t</em> pass <code>results</code> at all, it
+still works. However, if they pass anything else for <code>results</code>, including
+<code>undef</code>, it fails. That’s great safety because while you want the types you
+return to be predictable, it’s also good to allow the types you accept to be
+predictable. There are definitely exceptions to this, but they should be used
+with care.</p>
+
+<h2><a name="ignored-constructor-arguments"></a>Ignored Constructor Arguments</h2>
+
+<p>Going back to our <code>results</code> example:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class;
+use Moose;
+
+has 'results' =&gt; (
+    is      =&gt; 'ro',
+    isa     =&gt; ArrayRef,
+    default =&gt; sub { [] },
+);
+</code></pre></div>
+
+<p>What happens if we do <code>my $object = Some::Class-&gt;new( result =&gt; $result );</code>.</p>
+
+<p>No matter what the type of <code>$result</code> is, the value is thrown away because by
+default, Moose and Moo simply discard unknown arguments to the constructor. If
+you misspell a constructor argument, this can be a frustrating source of errors.</p>
+
+<h3><a name="recommendation-10"></a>Recommendation</h3>
+
+<p>Fortunately, the fix for this is simple, too:
+<a href="https://metacpan.org/pod/MooseX::StrictConstructor" target="_blank">MooseX::StrictConstructor</a> <span class="fa fa-external-link fa_custom"></span>. <br />
+(Or <a href="https://metacpan.org/pod/MooX::StrictConstructor" target="_blank">MooX::StrictConstructor</a> <span class="fa fa-external-link fa_custom"></span> 
+for Moo):</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class;
+use Moose;
+use MooseX::StrictConstructor;
+
+has 'results' =&gt; (
+    is      =&gt; 'ro',
+    isa     =&gt; ArrayRef,
+    default =&gt; sub { [] },
+);
+</code></pre></div>
+
+<p>Now, passing unknown arguments is a fatal error.</p>
+
+<p>If you’re using traditional <code>bless</code> syntax, you’ll have to manually validate the
+arguments to the constructor yourself, but the type library we outlined above
+can be used.</p>
+
+<h1><a name="leftovers"></a>Leftovers</h1>
+
+<p>There’s a huge amount more we can say, including useful design patters,
+being cautious with method modifiers in roles, when to use abstract classes
+instead of roles, but we’re starting to get into the long tail of code smells in
+object-oriented code bases, so perhaps those are good for another article.</p>
 
 <h1><a name="dr-frankenstein"></a>Dr. Frankenstein</h1>
 
@@ -727,17 +1043,20 @@ have laying around. By ensuring everyone uses this object system, we can have
 greater consistency in our code.</p>
 
 <p>Let’s pretend you’ve settled on the Moose OOP system as the basis of your own.
-You’d like to ensure several things are true (I’m not saying these are the best 
-defaults, but this can get you started):</p>
+You’d like to ensure several things are true and you’ve come up with the
+following list:</p>
 
 <ul>
 <li>Unknown arguments to the constructor are fatal</li>
-<li>It should be easier to see which attributes are or are not required in the
+<li>It should be easy to see which attributes are or are not required in the
 constructor</li>
+<li>Attributes should default to read-only</li>
 <li><code>namespace::autoclean</code> must always be used</li>
 <li>You want signatures and types</li>
 <li>The <code>Carp</code> module’s <code>carp</code>, <code>croak</code>, and <code>confess</code> functions should always be
 present</li>
+<li>You want the C3 MRO (though you should avoid multiple inheritance)</li>
+<li>Your work uses v5.22, so you’ll enforce those features</li>
 </ul>
 
 <p>For this, you’ve decided that <code>param</code> should replace <code>has</code> if the parameter is
@@ -745,10 +1064,11 @@ required in the constructor, and <code>field</code> should replace <code>has</co
 is not allowed in the constructor. Let’s use
 <a href="https://metacpan.org/pod/Moose::Exporter" target="_blank">Moose::Exporter</a> <span class="fa fa-external-link fa_custom"></span> to set this up.</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Personal::Moose;
-package MooseX::Fields;
+<p>We won’t explain how all of this works, so you have some homework to do.</p>
 
-use 5.22.0;
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Personal::Moose;
+
+use v5.22.0;
 use Moose                     ();
 use MooseX::StrictConstructor ();
 use Moose::Exporter;
@@ -817,11 +1137,17 @@ use lib 'lib';
 use Test::Most;
 
 package My::Names {
-    use v5.22.0;
     use My::Personal::Moose;
-    use My::Personal::Types
-      qw(compile Num NonEmptyStr Str PositiveInt ArrayRef);
-    use List::Util 'sum'; # this gets removed my namespace::autoclean
+    use My::Personal::Types qw(
+      compile
+      Num
+      NonEmptyStr
+      Str
+      PositiveInt
+      ArrayRef
+    );
+
+    use List::Util 'sum'; # removed my namespace::autoclean
 
     param _name   =&gt; ( isa =&gt; NonEmptyStr, init_arg =&gt; 'name' );
     param title   =&gt; ( isa =&gt; Str,         required =&gt; 0 );
@@ -838,10 +1164,6 @@ package My::Names {
         ($args) = $check-&gt;($args);
         carp(&quot;no numbers supplied to add()&quot;) unless $args-&gt;@*;
         return sum( $args-&gt;@* );
-    }
-
-    sub warnit ($self) {
-        carp(&quot;this is a warning&quot;);
     }
 
     __PACKAGE__-&gt;meta-&gt;make_immutable;
@@ -864,6 +1186,17 @@ cmp_ok $doctor-&gt;created, '&gt;=',        $person-&gt;created,
 
 done_testing;
 </code></pre></div>
+
+<p>Obviously, the above code probably won’t be fit for purpose, but it shows you 
+the basics of how you can build an OO system to fit your company’s needs, rather 
+than allowing everyone to just “do their own thing.”</p>
+
+<h1><a name="hire-us"></a>Hire Us</h1>
+
+<p>We do code reviews, development, testing, and design, focused on reliability and
+scalability. Even if you’re just exploring possibilities, feel free to <a href="mailto:info@allaroundtheworld.fr?subject=Consulting">contact
+us</a> and let’s see what we
+can do to make your software better.</p>
 
 
 
@@ -925,6 +1258,26 @@ done_testing;
     <script src="/static/js/prism.js"></script>
     
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Er, I should have just used
+<a href="https://metacpan.org/pod/CHI">CHI</a></div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 
