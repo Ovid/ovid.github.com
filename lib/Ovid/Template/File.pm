@@ -209,7 +209,9 @@ package Ovid::Template::File {
                 my $title = $p->peek(1);
                 my $slug  = make_slug($title);
                 if ( $seen->{$file}{$slug}++ ) {
-                    croak("Already seen heading '$title/$slug' in '$file'");
+                    # we've already seen it, so let's prepend the number on the 
+                    # heading slug so we can have unique links
+                    $slug = "$slug-$seen->{$file}{$slug}";
                 }
                 $rewritten .= qq{<a name="$slug"></a>};
                 push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
