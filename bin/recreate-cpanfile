@@ -64,11 +64,12 @@ sub get_modules ( $filenames, $is_local ) {
     my %modules = (
         'YAML::LibYAML'         => 0.83,
         'HTML::SimpleLinkExtor' => 1.273,
+        'App::HTTPThis'         => 0,
     );
     my $current = 1;
     my $total   = @$filenames;
     PACKAGE: foreach my $filename ( sort @$filenames ) {
-        say "Processing $current out of $total";
+        say "Processing $current out of $total files ($filename)";
         $current++;
         my $module_name = filename_to_module($filename) or next PACKAGE;
         next PACKAGE if $is_local->{$module_name};
