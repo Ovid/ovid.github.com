@@ -1,0 +1,327 @@
+[%
+    title            = 'Introducing MooseX::Extended for Perl';
+    type             = 'articles';
+    slug             = 'introducing-moosexextended-for-perl';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-05-26';
+    mathjax          = 0;
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+
+{{TAGS oop perl corinna programming}}
+
+# Introduction
+
+If you're waiting for [the Corinna OOP project](https://github.com/Ovid/Cor) to 
+land in the Perl core, you'll have to wait. [Paul 
+Evans](http://leonerds-code.blogspot.com/) will start working on the 
+implementation after Perl version 5.36 is released. However, it's a lot of work 
+and it's not clear that if it will be ready by 5.38 and even then, it will be 
+experimental. You've a couple of years to wait.
+
+To bridge the gap, I've released 
+[MooseX::Extended](https://metacpan.org/pod/MooseX::Extended). It's not really 
+"Corinna-lite" because the way [Moose](https://metacpan.org/pod/Moose) works and 
+the way Corinna works aren't quite compatible, but it will make your Moose code 
+easier to write.
+
+# Less Boilerplate
+
+The bane of many programmer's existence is boilerplate. We hate boilerplate. Not 
+only do we have to _type_ the boilerplate, but we also have to remember it. For 
+a simple, "read only" 2D point class in Moose, the class and my boilerplate 
+looks something like this:
+
+```perl
+package My::Point::Moose;
+
+use v5.20.0;
+use Moose;
+use MooseX::StrictConstructor;
+
+use Types::Standard qw(Num);
+use feature qw( signatures postderef postderef_qq );
+no warnings qw( experimental::signatures experimental::postderef );
+use namespace::autoclean;
+use mro 'c3';
+
+has [ 'x', 'y' ] => ( is => 'ro', isa => Num );
+
+__PACKAGE__->meta->make_immutable;
+
+1;
+```
+
+That's a lot of boilerplate. Some of it's not needed for this module, so I am 
+often lazy and don't write the boilerplate I don't need, meaning I have to go 
+back and add it later as the class grows.
+
+Here's the same code with `MooseX::Extended`:
+
+```perl
+package My::Point;
+use MooseX::Extended types => [qw/Num/];
+
+param [ 'x', 'y' ] => ( isa => Num );
+```
+
+That's right, you don't have to declare it immutable or end it with a true 
+value. `MooseX::Extended` handles that for you (though you can disable this).
+
+Hmm, what if I want to subclass that and make it mutable?
+
+```perl
+package My::Point::Mutable::Moose;
+use v5.20.0;
+use Moose;
+extends 'My::Point::Moose';
+use MooseX::StrictConstructor;
+use feature qw( signatures postderef postderef_qq );
+no warnings qw( experimental::signatures experimental::postderef );
+use namespace::autoclean;
+use mro 'c3';
+
+has '+x' => (
+    is      => 'ro',
+    writer  => 'set_x',
+    clearer => 'clear_x',
+    default => 0,
+);
+
+has '+y' => (
+    is      => 'ro',
+    writer  => 'set_y',
+    clearer => 'clear_y',
+    default => 0,
+);
+
+sub invert ($self) {
+    my ( $x, $y ) = ( $self->x, $self->y );
+    $self->set_x($y);
+    $self->set_y($x);
+}
+
+__PACKAGE__->meta->make_immutable;
+1;
+```
+
+Here it is in `MooseX::Extended`:
+
+```perl
+package My::Point::Mutable;
+use MooseX::Extended;
+extends 'My::Point';
+
+param [ '+x', '+y' ] => ( writer => 1, clearer => 1, default => 0 );
+
+sub invert ($self) {
+    my ( $x, $y ) = ( $self->x, $self->y );
+    $self->set_x($y);
+    $self->set_y($x);
+}
+```
+
+Again, it lets me focus on writing code that _works_, rather than all the 
+scaffolding that's usually needed.
+
+Note: we also provide 
+[MooseX::Extended::Role](https://metacpan.org/pod/MooseX::Extended::Role) which 
+behaves similarly.
+
+# param and field
+
+You can still use the `has` function to declare your Moose attributes, but I
+recommend using `param` and `field` instead. Why? We've regularly face the 
+following problem:
+
+```perl
+package Some::Class;
+
+use Moose;
+
+has name     => (...);
+has uuid     => (...);
+has id       => (...);
+has backlog  => (...);
+has auth     => (...);
+has username => (...);
+has password => (...);
+has cache    => (...);
+has this     => (...);
+has that     => (...);
+```
+
+Which of those should be passed to the constructor and which should not? Just
+because you _can_ pass something to the constructor doesn't mean you
+_should_. Unfortunately, Moose defaults to "opt-out" rather than "opt-in" for
+constructor arguments. This makes it really easy to build objects, but means
+that you can pass unexpected things to the constructor and it won't always work 
+the way you want it to.
+
+There's an arcane `init_arg => undef` pair to pass to each to say "this
+cannot be set via the constructor," but many developers are either unaware of
+this is simply forget about it. `MooseX::Extended` solves with by separating
+`has` into `param` (allowed in the constructor, but you can also use
+`default` or `builder`) and `field`, which is forbidden in the constructor.
+
+We can rewrite the above as this:
+
+```perl
+package Some::Class;
+
+use Moose;
+
+param name     => (...);
+param backlog  => (...);
+param auth     => (...);
+param username => (...);
+param password => (...);
+
+field cache    => (...);
+field this     => (...);
+field that     => (...);
+field uuid     => (...);
+field id       => (...);
+```
+
+And now you can instantly see what is and is not _intended_ to be allowed in
+the constructor.
+
+There's a lot more I can say about that, but you can read [the 
+manual](https://metacpan.org/pod/MooseX::Extended#MANUAL) for more information.
+
+# Attribute Shortcuts
+
+When using `field` or `param`, we have some attribute shortcuts:
+
+```perl
+param name => (
+    isa       => NonEmptyStr,
+    writer    => 1,   # set_name
+    reader    => 1,   # get_name
+    predicate => 1,   # has_name
+    clearer   => 1,   # clear_name
+    builder   => 1,   # _build_name
+);
+
+sub _build_name ($self) {
+    ...
+}
+```
+
+These can also be used when you pass an array reference to the function:
+
+```perl
+package Point {
+    use MooseX::Extended types => ['Int'];
+
+    param [ 'x', 'y' ] => (
+        isa     => Int,
+        clearer => 1,     # clear_x and clear_y available
+        default => 0,
+    );
+}
+```
+
+Note that these are _shortcuts_ and they make attributes easier to write and more consistent.
+However, you can still use full names:
+
+```perl
+field authz_delegate => (
+    builder => '_build_my_darned_authz_delegate',
+);
+```
+
+# Cloning
+
+`MooseX::Extended` offers optional, **EXPERIMENTAL** support for attribute
+cloning, but differently from how we see it typically done. You can just pass
+the `clone => 1` argument to your attribute and it will be clone with
+`Storable`'s `dclone` function every time you read or write that attribute,
+it will be cloned if it's a reference, ensuring that your object is
+effectively immutable.
+
+If you prefer, you can also pass a code reference or the name of a method you
+will use to clone the object. Each will receive three arguments:
+`$self, $attribute_name, $value_to_clone`. Here's a full example, taken
+from our test suite.
+
+```perl
+package My::Event;
+use MooseX::Extended types => [qw(NonEmptyStr HashRef InstanceOf)];
+
+param name => ( isa => NonEmptyStr );
+
+param payload => (
+    isa    => HashRef,
+    clone  => 1,  # uses Storable::dclone
+    writer => 1,
+);
+
+param start_date => (
+    isa   => InstanceOf ['DateTime'],
+    clone => sub ( $self, $name, $value ) {
+        return $value->clone;
+    },
+);
+
+param end_date => (
+    isa    => InstanceOf ['DateTime'],
+    clone  => '_clone_end_date',
+);
+
+sub _clone_end_date ( $self, $name, $value ) {
+    return $value->clone;
+}
+
+sub BUILD ( $self, @ ) {
+    if ( $self->end_date < $self->start_date ) {
+        croak("End date must not be before start date");
+    }
+}
+```
+
+# Customization
+
+Not everyone likes `MooseX::StrictConstructor`. It's useful to prevent this 
+error:
+
+```perl
+my $name = My::Name->new( naem => 'Ovid' );
+```
+
+In bog-standard Moose, the misspelled attribute will be discarded, leading to 
+bugs that can be hard to track down. However, some code (such as 
+[DBIx::Class](https://metacpan.org/pod/DBIx::Class)), breaks with a strict 
+constructor. You can skip that:
+
+```perl
+use MooseX::Extended excludes => [qw/StrictConstructor/];
+```
+
+Both `MooseX::Extended` and `MooseX::Extended::Role` have a variety of features 
+you can exclude if they don't work for you. Again, see the documentation.
+
+Note that at the present time, this customization is _per class_ and cannot be 
+inherited. This may change in a future release.
+
+# Conclusion
+
+There's a lot more packed into `MooseX::Extended`, but this covers the 
+highlights. I think `MooseX::Extended` will make many Perl programmer's life 
+easier if they use Moose, but want a better set of defaults.  It's still in 
+ALPHA, but it' close to a feature-complete BETA release. I _think_ it's 
+relatively solid, but no guarantees. The [github 
+repo](https://github.com/Ovid/moosex-extreme) has Linux and Windows CI workflows 
+set up to catch errors quickly and the test suite is coming along nicely.
+
+If you're interested in starting any new projects using Moose, please give 
+`MooseX::Extended` a try and let me know what you think.
+
+[%- END %]
