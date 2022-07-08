@@ -1,0 +1,588 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A computer terminal with code on it." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/understanding-class-inheritance.html" />
+  
+  <meta property="og:title" content="Understanding Class Inheritance" />
+  <meta property="og:description" content="Inheritance has been problematic in object-oriented programming for over five decades. We will explore why." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Understanding Class Inheritance</title>
+  <meta name="description" content="Understanding Class Inheritance">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Understanding Class Inheritance</h1>
+        <time>2022-07-07</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            
+            
+            <li><a href="/tags/business.html" data-weight="9">Business</a></li>
+        
+            
+            
+            <li><a href="/tags/corinna.html" data-weight="8">Corinna</a></li>
+        
+            
+            
+            <li><a href="/tags/databases.html" data-weight="8">Databases</a></li>
+        
+            
+            
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            
+            
+            <li><a href="/tags/family.html" data-weight="4">Family</a></li>
+        
+            
+            
+            <li><a href="/tags/math.html" data-weight="4">Math</a></li>
+        
+            
+            
+            <li><a href="/tags/oop.html" data-weight="9">OOP</a></li>
+        
+            
+            
+            <li><a href="/tags/perl.html" data-weight="8">Perl</a></li>
+        
+            
+            
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            
+            
+            <li><a href="/tags/politics.html" data-weight="6">Politics</a></li>
+        
+            
+            
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            
+            
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            
+            
+            <li><a href="/tags/writing.html" data-weight="7">Writing</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/introducing-moosexextended-for-perl.html" class="prevPost">&laquo; Introducing MooseX::Extended for Perl</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/corinna.html">Corinna</a> </li>
+
+    <li><a href="/tags/oop.html">OOP</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <blockquote> We're hiring experienced Perl developers for full-time
+<em>remote</em> contracts on a number of projects. If you are interested, <a
+href="mailto:curtis.poe@gmail.com">email me</a>. We also have one potential
+role for an experienced Python developer with OpenAPI + ORM experience.
+</blockquote> 
+
+<hr/>
+
+
+
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#the-proposal">The Proposal</a></li>
+    <li class="indent-1"><a href="#a-little-background">A Little Background</a></li>
+    <li class="indent-1"><a href="#what-is-inheritance">What is Inheritance?</a></li>
+    <li class="indent-1"><a href="#a-bank-account-example">A Bank Account Example</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="the-proposal"></a>The Proposal</h1>
+
+<p>There has been some discussion of whether or not the new Perl OO model, 
+<a href="https://github.com/Ovid/Cor" target="_blank">Corinna</a> <span class="fa fa-external-link fa_custom"></span>, should support exposing <code>field</code> 
+variables to subclasses:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Parent {
+    field $name :inheritable;
+}
+
+class Child :isa(Parent) {
+    field $name :inherited;
+}
+</code></pre></div>
+
+<p>There are a few benefits cited there. </p>
+
+<ol>
+<li>If <code>field $name</code> doesn’t exist in the parent, the child class throws a 
+compile-time error.</li>
+<li>If the child can access <code>$name</code> directly, it’s a performance win (no method 
+call).</li>
+<li>By being explicit about <code>:inheritable</code> and <code>:inherited</code>, we’re not exposing 
+data by accident.</li>
+</ol>
+
+<p>It seems like a win, but it’s not.</p>
+
+<h1><a name="a-little-background"></a>A Little Background</h1>
+
+<p>Most OO developers today use class-based OO, but JavaScript is popular enough 
+that prototype-based OO is getting better known. Then there’s Dr. Alan Kay, <a href="/articles/alan-kay-and-oo-programming.html">the 
+man who coined the term “object-oriented 
+programming”</a> five decades ago and 
+is considered one of the fathers of the concept. For him, OOP is actually about:</p>
+
+<ul>
+<li>Message passing</li>
+<li>Isolation</li>
+<li>Extreme late binding of everything</li>
+</ul>
+
+<p>So that’s another way of looking at OOP. And by “isolation”, Kay actually said 
+“local retention and protection and hiding of state-process.” He would <em>not</em> 
+approve of exposing <code>field</code> variables because it’s explicitly exposing the 
+state, not hiding it.</p>
+
+<p><figure class="image">
+    <img src="/static/images/opinion.gif" width="600" alt="An image from the movie, 'The Big Leboski'">
+    <figcaption>Yeah, well, you know, that’s just like your opinion, man. </figcaption>
+</figure></p>
+
+<p>So clearly there are different ideas about how OOP should be <em>implemented</em>, but 
+Kay is focusing on how to do it <em>safely</em>. He has a maths and biology background 
+and he thought about the billions of cells in our body which die every day, but 
+we don’t. He wants that sort of robustness in object-oriented code. To him, the 
+only truly successful demonstration of OOP is the internet. Tons of servers 
+crash every day, but the internet does not.</p>
+
+<p>In fact, before he got to this conception of OOP, his original description of 
+OOP left out inheritance because it was so problematic. The way I like to 
+describe it is the <code>Person :isa(Invoice)</code> problem. Even if you can get that to 
+work, it simply doesn’t make <em>sense</em> and until AI becomes a hell of a lot 
+better, the software has no way of knowing if what you’re doing makes sense.</p>
+
+<h1><a name="what-is-inheritance"></a>What is Inheritance?</h1>
+
+<p>Per Wikipedia, 
+<a href="https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)" target="_blank">inheritance</a> <span class="fa fa-external-link fa_custom"></span> 
+is:</p>
+
+<blockquote>
+  <p>In object-oriented programming, inheritance is the mechanism of basing an
+  object or class upon another object (prototype-based inheritance) or class 
+  (class-based inheritance), retaining similar implementation.</p>
+</blockquote>
+
+<p>Some languages, such as Perl, allow multiple inheritance (Corinna does not).
+Other languages, such as Java and Ruby, only allow single inheritance, but 
+provide you with tools (interfaces and mixins, respectively) as a substitute. In 
+fact, inheritance is widely viewed as so problematic that Go and some Visual 
+Basic variants don’t provide inheritance at all!</p>
+
+<p>What’s worse, I’ve found that many developers kind of assume that behavioral 
+inheritance and subtype inheritance are the same thing, but they’re not.
+Behavioral inheritance (which is what Perl tends to use), merely uses syntax to 
+say “hey, I’m borrowing my parent class’s behavior.” There are no guarantees.
+Subtype inheritance, however, ... wait? What’s a subtype?</p>
+
+<p>In <a href="https://raku.org/" target="_blank">the Raku language</a> <span class="fa fa-external-link fa_custom"></span>, here are two subtypes of <code>Int</code>:
+<code>Odd</code> and <code>Even</code>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">subset Even of Int where * %% 2;
+subset Odd  of Int where !(* %% 2);
+
+my Odd $x = 4;  # we get an exception here
+</code></pre></div>
+
+<p>You can use the <code>Even</code> and <code>Odd</code> subtypes <em>anywhere</em> you can use an <code>Int</code> and
+your program is still guaranteed to be correct, but with the added safety of
+knowing that those variables will <em>always</em> be even or odd if they’re set.</p>
+
+<p>Here’s an <strong>imporant concept</strong> to remember (you’ll be tested on it later!): the 
+parent type does not know, or care, about what subtypes will be created from it.
+You can subtype anything in Raku (or other OO languages) and while subtypes know 
+about their parents, the reverse is not true.</p>
+
+<p>So subtype inheritance, used by languages such as Eiffel or Beta, guarantees
+that you can use an instance of a subclass anywhere you can use an instance of
+a parent class and the program still works.</p>
+
+<p>Of course, that’s what <a href="https://blog.knoldus.com/what-is-liskov-substitution-principle-lsp-with-real-world-examples/" target="_blank">the Liskov Substitution 
+Principle</a> <span class="fa fa-external-link fa_custom"></span> 
+is all about.</p>
+
+<p>If you’re subclassing, you probably want to enforce subtype subclasses, but 
+neither current Perl OO (nor Corinna, to be fair), can do that easily (when/if 
+we get types/type constraints in Perl, it will help).</p>
+
+<p>So that gives you an idea about divergent views on inheritance and was probably 
+boring as heck. So forget about that for now and let’s move on to an example.</p>
+
+<h1><a name="a-bank-account-example"></a>A Bank Account Example</h1>
+
+<p>You need to create a simple, in-memory <code>Bank::Account</code> class. Obviously, this is 
+a toy example, but bear with me.</p>
+
+<ul>
+<li>You instantiate it with a customer name</li>
+<li>Initial balance is zero</li>
+<li>You can withdraw money, but throw an exception if the balance would go below zero</li>
+<li>You can deposit unlimited amounts of money</li>
+</ul>
+
+<p>Because Corinna, does not (yet) support type constraints, we’ll ignore them for 
+now.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Bank::Account {
+
+    # Of *course* this is too simplistic. The first pedant who points
+    # this out loses 500 internet points.
+
+    use My::Exceptions qw(InsufficientFunds)
+    field $customer :param :reader;
+    field $balance  :reader {0};
+
+    method deposit ($amount) {
+        $balance += $amount;
+    }
+
+    method withdraw ($amount) {
+        if ( ( $balance - $amount ) &lt; 0 ) {
+            InsufficientFunds-&gt;throw(&quot;Naughty, naughty&quot;);
+        }
+        $balance -= $amount;
+    }
+}
+</code></pre></div>
+
+<p>OK, so far, so good. The code works fine and everyone is pleased. Later, 
+business requirements are updated because Mr. Moneybags has tons of money, but 
+sometimes he wants to be overdrawn a bit. Since Mr. Moneybags is an important 
+customer, you need to create a <code>Bank::Account::Premium</code> class to allow premium 
+customers to be overdrawn.</p>
+
+<p>You’re a good programmer, you know you shouldn’t rewrite code, so you just want 
+to subclass it:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Bank::Account::Premium :isa(Bank::Account) {
+    sub withdraw($amount) {
+        ...
+    }
+}
+</code></pre></div>
+
+<p>But what goes in the <code>withdraw</code> method? You properly encapsulated your first 
+class, so now you can’t get around that. In your <code>Bank::Account</code> class, you make 
+a tiny change:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">field $balance :inheritable :reader {0};
+</code></pre></div>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Bank::Account::Premium :isa(Bank::Account) {
+    field $balance :inherited;
+    sub withdraw($amount) {
+        $balance -= $amount;
+    }
+}
+</code></pre></div>
+
+<p>And now, everything works fine and you move your code into production.</p>
+
+<p>You them immediately move it back out of production because production is 
+throwing exceptions left and right. Why? Your system knows that if <code>$instance 
+isa Bank::Account</code> holds true, the balance can never be less than zero and 
+because the code knows it can trust your <code>Bank::Account</code> class, it’s safe.</p>
+
+<p><code>Bank::Account::Premium</code> is a <em>behavioral</em> subclass, not a <em>subtype</em> subclass 
+because the behavior of the child differs from that of the parent. It allows 
+negative balances and the parent does not.</p>
+
+<p>Oh, but maybe that <em>doesn’t</em> happen. I’m just being paranoid, right? Or maybe it 
+only happens in one place and you can write a workaround rather than remove this 
+valuable functionality.</p>
+
+<p>Months pass and your code is running fine and you’ve moved on to another 
+department, when you get a frantic call to find out why everything is failing.
+After investigation, you discover the bug. Someone’s released a module allowing 
+<code>:isa</code> type constraints and the person maintaining the <code>Bank::Account</code> module 
+has realized that it’s safer to constrain the <code>$balance</code>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">field $balance :inheritable :reader :isa(ZeroOrPositiveNum) {0};
+</code></pre></div>
+
+<p>But your code which <em>does</em> allow negative balances blows up because it’s 
+inherited this field.</p>
+
+<p>Remember: the parent classes don’t know how they’re going to be subclassed and 
+they shouldn’t care. Instead, they should do everything in their power to be as 
+correct as possible and honestly, the <code>:isa(ZeroOrPositiveNum)</code> constraint is 
+perfectly appropriate.</p>
+
+<p>By exposing our internal state to our subclass, we’ve tightly coupled them 
+because the cheap <code>:inheritable</code> workaround <em>seems so easy</em>.</p>
+
+<p>Here’s the real issue: ignoring encapsulation because it’s “easy” means we don’t 
+have to think about our object design. Instead, we should have had something 
+like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Bank::Account :abstract {
+    field $customer :param :reader;
+    field $balance  :reader {0};
+
+    method deposit ($amount) {
+        $balance += $amount;
+    }
+
+    method withdraw ($amount) {
+        $balance -= $amount;
+    }
+}
+
+class Bank::Account::Regular :isa(Bank::Account) {
+    use My::Exceptions qw(InsufficientFunds)
+
+    method withdraw ($amount) {
+        if ( ( $self-&gt;balance - $amount ) &lt; 0 ) {
+            InsufficientFunds-&gt;throw(&quot;Naughty, naughty&quot;);
+        }
+        $self-&gt;next::method($amount);
+    }
+}
+
+class Bank::Account::Premium :isa(Bank::Account) {
+    # no need to override any behavior, but we could
+    # provide more behavior as needed
+}
+</code></pre></div>
+
+<p>Seems like more work up front, but we have known for a long time that fixing 
+broken code in the design stage is far cheaper than fixing it after it’s in 
+production. But we’re so used to violating encapsulation, often without even 
+realizing it, that we fall back on this rather than using proper design.</p>
+
+<p>Yes, this example is contrived, but it’s based on my decades of OO programming.
+I also started off as a rubbish OO developer, having learned the syntax and not 
+the theory. My punishment was spending years working with multiple clients, 
+cleaning up the messes of other developers with the same background.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>Encapsulation has been accepted best practice for OOP developers for decades.
+For <em>Perl</em> developers, it’s a contentious issue, due in part to how easy it is 
+to apply “quick fixes” without having to revisit our design. And then, everyone 
+quotes Larry. <a href="https://www.goodreads.com/quotes/81807-perl-doesn-t-have-an-infatuation-with-enforced-privacy-it-would" target="_blank">Larry Wall famously 
+said</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>Perl doesn’t have an infatuation with enforced privacy. It would prefer that 
+  you stayed out of its living room because you weren’t invited, not because it 
+  has a shotgun.</p>
+</blockquote>
+
+<p>That might work for disciplined developers who understand OOP. But we’re often 
+undisciplined. We often don’t understand OOP. We’re often under time pressure 
+and it’s easy to make mistakes then.</p>
+
+<p>Larry has done great things with Perl, but this saying has outlived its 
+usefulness.  For small, quick hacks, or proofs-of-concept, that’s fine. But as 
+systems grow, it’s not fine. There’s a saying that wise men make saying so fools 
+can repeat them. I have long been one of those fools, but years of fixing broken 
+OOP systems in many shops have taught me that I was wrong.</p>
+
+<p>Corinna likely <em>will</em> allow encapsulation violation via a cumbersome meta-object 
+protocol (MOP), but this will glaringly stand out like a sore thumb as a code 
+smell. It will be clear that there’s a design flaw and the design should be 
+revisited.</p>
+
+<p>Not being able to easily violate encapsulation seems like a burden, but only 
+because we’ve grown lazy and have skipped thinking about design. In reality, it 
+will help us build more robust systems and <em>teach</em> us when our design is flawed.
+Far from being a limitation, encapsulation will be a powerful tool.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/introducing-moosexextended-for-perl.html" class="prevPost">&laquo; Introducing MooseX::Extended for Perl</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2022 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/understanding-class-inheritance.html";
+            this.page.identifier = "articles/understanding-class-inheritance";
+            this.page.title      = "Understanding Class Inheritance";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
