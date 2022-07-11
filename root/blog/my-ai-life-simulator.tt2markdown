@@ -1,0 +1,57 @@
+[%
+    title            = 'My AI Life Simulator';
+    type             = 'blog';
+    slug             = 'my-ai-life-simulator';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-07-11';
+    mathjax          = 0;
+    facebook         = 'code.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    facebook_alt     = 'A computer terminal with code on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS writing}}
+
+I've been wanting to get back to playing around with AI life simulation. Years
+ago I was writing a small simulation in Perl. I was going to "evolve" tigers,
+cows, and grass in a simple food-chain simulation.
+
+The tigers would learn to hunt cows, the cows would learn to eat grass and
+avoid tigers, and the grass, well, the grass would grow.
+
+I wrote a lot of code. The brains were simple "winner take all" neural networks
+and  the animals could eat, move forward, or turn.
+
+What sort of amazing strategies would these animals evolve? After they evolved,
+what sort of new animals and constraints could I add to make the simulation
+more interesting?
+
+I had written plenty of code, lots of tests, and was quite proud of my work.
+Except it didn't work.
+
+The cows wandered around aimlessly. The tigers wandered around aimlessly. The
+grass grew. My animals would not evolve.
+
+I wrote more tests. Maybe they couldn't see? No, they could see. Maybe eating
+wasn't giving them enough energy? No, eating was giving them enough energy.
+
+Maybe their brains didn't work? No, their brains worked just fine. Mine,
+however, didn't. I was stumped.
+
+I kept poking and prodding and theorizing and moaning and finally had an
+epiphany. I had, once again, written unit tests for everything.
+
+I hadn't written integration tests. Amongst other things, I teach software
+testing and over and over again, I warn people how critical integration tests
+are. But here I was, making the same mistake.
+
+So I wrote integration tests. And that's when I discovered it.
+
+My animals could think. My animals could see. But I never connected their eyes
+to their brain. They never thought about what they were seeing.
+
+I had written a voter simulator.
+
+[%- END %]
