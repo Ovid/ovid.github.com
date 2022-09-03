@@ -1,0 +1,513 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/naming-and-object-oriented-code.html" />
+  
+  <meta property="og:title" content="Naming and Object-Oriented Code" />
+  <meta property="og:description" content="I recently had an issue in a code review where developers disagreed about naming, but it was a subtle trap." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Naming and Object-Oriented Code</title>
+  <meta name="description" content="Naming and Object-Oriented Code">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Naming and Object-Oriented Code</h1>
+        <time>2022-09-02</time>
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            
+            
+            <li><a href="/tags/business.html" data-weight="9">Business</a></li>
+        
+            
+            
+            <li><a href="/tags/corinna.html" data-weight="8">Corinna</a></li>
+        
+            
+            
+            <li><a href="/tags/databases.html" data-weight="8">Databases</a></li>
+        
+            
+            
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            
+            
+            <li><a href="/tags/family.html" data-weight="5">Family</a></li>
+        
+            
+            
+            <li><a href="/tags/math.html" data-weight="4">Math</a></li>
+        
+            
+            
+            <li><a href="/tags/oop.html" data-weight="9">OOP</a></li>
+        
+            
+            
+            <li><a href="/tags/perl.html" data-weight="8">Perl</a></li>
+        
+            
+            
+            <li><a href="/tags/personal.html" data-weight="4">Personal</a></li>
+        
+            
+            
+            <li><a href="/tags/politics.html" data-weight="6">Politics</a></li>
+        
+            
+            
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            
+            
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            
+            
+            <li><a href="/tags/writing.html" data-weight="8">Writing</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/understanding-class-inheritance.html" class="prevPost">&laquo; Understanding Class Inheritance</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/oop.html">OOP</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <blockquote>We're hiring experienced <strong>Java</strong> and
+<strong>Perl</strong> developers for full-time <em>remote</em> contracts on a
+number of projects. If you are interested, <a
+href="mailto:curtis.poe@gmail.com">email me</a>. We also have one potential
+role for an experienced Python developer with OpenAPI + ORM experience.
+</blockquote> 
+
+<hr/>
+
+
+
+<p>As every developer learns, it’s easy to get naming wrong. For example, if you
+have a variable named <code>temperature</code>, but your system handles both imperial and
+metric, is that temperature in Fahrenheit or Celsius? Getting that wrong could
+lead to all sorts of problems. A similar situation exists for subroutine and
+method names. What does the method <code>scale</code> do? Who knows? If it’s named
+<code>scale_size</code>, you have a much better idea.</p>
+
+<p>But let’s discuss predicate methods in object-oriented code. A predicate method
+is a method that returns true or false. In Ruby, you can end a method name with
+a question mark and by convention, it should return true or false.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-ruby">class Point
+  @@number_of_points = 0
+
+  def initialize(x,y)
+    @x = x
+    @y = y
+    @@number_of_points += 1
+  end
+
+  def self.too_many?
+    return @@number_of_points &gt; 2
+  end
+end
+
+point1 = Point.new(3,3)
+point2 = Point.new(4,0)
+puts Point.too_many?  # prints false
+
+point3 = Point.new(4,8)
+puts Point.too_many?  # prints true
+</code></pre></div>
+
+<p>This is a lovely feature because writing <code>if Point.too_many?</code> reads like a
+question. However, most popular languages tend to only allow alphanumerics and
+underscores in method names. So in a recent code review for our free-to-play
+game, Tau Station (<a href="https://taustation.space/" target="_blank">Sign up here! It’s fun.</a> <span class="fa fa-external-link fa_custom"></span>), I
+called out a case where a predicate method was poorly named. Sadly, it was a
+predicate method I had written a long time ago and it’s a mistake I still make
+today. The following examples are made up, but keep to the spirit of the issue.</p>
+
+<p>Quick: what does the following line of code return? Make a guess. <code>vip</code> stands
+for “very important person” and means the character has used a VIP pack and they
+receive in-game benefits.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $character-&gt;vip ) {
+    # do something
+}
+</code></pre></div>
+
+<p>Does <code>vip</code> return how much time is left on their VIP status? Does it return a
+VIP pack? Does it return a boolean indicating if the character has VIP? We can
+rename that function to make it very clear.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $character-&gt;is_vip ) {
+    # do something
+}
+</code></pre></div>
+
+<p>Now it’s crystal clear what that means. Predicate functions should generally
+start with a verb that implies true or false: <code>is_</code>, <code>can_</code>, <code>has_</code>, and so on.
+So it was with a bit of surprise on a later code review that I read two
+developers disagreeing about a predicate method name. One named it
+<code>can_purchase</code> and the reviewer was suggesting <code>allow_purchase</code>. They didn’t
+budge in their respective positions and both are very good developers, so I was
+asked to take a look.</p>
+
+<p>In glancing at the code snippet, I immediately agreed that the predicate method
+should be named <code>can_purchase</code>. But after I wrote that on the review, I had
+doubts because the answer was <em>too</em> obvious. Why on earth would their be a
+dispute about this? I decided to dig further. The problem stemmed from an
+unfortunate feature provided by <a href="https://github.com/moose/Moose" target="_blank">Moose</a> <span class="fa fa-external-link fa_custom"></span> (an
+object-oriented framework for Perl) and perhaps a subtle misunderstanding of
+object-oriented code.</p>
+
+<p>This is worth an explanation of the confusion.</p>
+
+<p>The code in question was providing an API response for purchase a visa to visit
+<a href="https://taustation.space/coretechs/archive/affiliations#/gaule" target="_blank">Gaule-affiliated
+stations</a> <span class="fa fa-external-link fa_custom"></span>. The
+API returned a list of areas where you can go to purchase a visa. However, if
+the character meets certain conditions, we need to let the code know that
+the API call should provide additional information allowing a purchase of the
+visa.</p>
+
+<p>The code sort of looked like this:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Veure::Model::API::Visa;
+
+use Veure::Moose;
+use Veure::Types qw(Bool);
+use Veure::Util::Data qw(:json);
+with qw(Veure::Model::API::Role::Composable);
+
+has can_purchase =&gt; (
+  isa      =&gt; Bool,
+  required =&gt; 1,
+);
+
+sub _build_api_content ($self) {
+    my $character = $self-&gt;viewer;
+
+    my %api_response (
+        area_actions =&gt; {
+            renew_visa    =&gt; { available =&gt; json_false },
+            purchase_visa =&gt; { available =&gt; json_false },
+        },
+    );
+    if ( $self-&gt;can_purchase ) {
+        # add additional data
+    }
+    return \%api_response;
+}
+
+__PACKAGE__-&gt;_finalize;
+</code></pre></div>
+
+<p>That’s the code that I glanced at which made me think that <code>can_purchase</code> is
+a perfectly acceptable predicate method, until I realized the mistake I made.</p>
+
+<p>Let’s take another look at <code>can_purchase</code>.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has can_purchase =&gt; (
+  isa      =&gt; Bool,
+  required =&gt; 1,
+);
+</code></pre></div>
+
+<p>In the Moose OO Framework, the above creates a method named <code>can_purchase</code>, in
+our version of Moose, that method is read-only, it returns a boolean, and it’s
+required to be passed to the constructor. So far, so good.</p>
+
+<p>However, the interface for the module is called in a very standard way:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">return Veure::Model::API::Visa-&gt;new(
+    viewer       =&gt; $character,
+    can_purchase =&gt; $can_purchase
+)-&gt;api_content;
+</code></pre></div>
+
+<p>The <code>can_purchase</code> data isn’t intended to be exposed to the outside world. The
+method should have been written like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has can_purchase =&gt; (
+  isa      =&gt; Bool,
+  reader   =&gt; '_can_purchase',
+  required =&gt; 1,
+);
+</code></pre></div>
+
+<p>I’ve written before about <a href="/articles/common-problems-in-object-oriented-code.html#small-interfaces-and-encapsulation">needing to keep interfaces
+small</a>
+and here we were, violating that rule. Unfortunately, Moose, by default,
+provides public methods for all instance data and it gets annoyingly hard to
+avoid this. It’s annoying enough that I often don’t even call that out on code
+reviews.</p>
+
+<p>This should not be a predicate method. Instead, this is a constructor argument
+that directs the instance on its behavior. It’s an <em>order</em>, giving a command
+to the instance.  By convention in our code, we like to write our constructor
+arguments such that orders use active verbs to indicate what’s going on.
+This is why the reviewer suggested <code>allow_purchase</code>. <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>This might seem petty or trivial, but the distinction is important because not
+making said distinction can lead to subtle errors in reasoning. In this case, a
+predicate method returns a boolean indicating something about the state of the
+object. It’s only doing a single thing. But objects aren’t just about state.
+They’re <strong>state plus behavior</strong>. Predicates return information about the state
+<em>after</em> the behavior has occurred. This constructor argument tells the object to 
+do something <em>before</em> the behavior has occurred. They look similar, but they’re 
+not.</p>
+
+<p>Because Moose makes everything public by default (because it’s hard not to do
+this in Perl), including creating methods for your instance data, it’s natural
+that <code>can_purchase</code> seems like the correct name since it’s public and asking if
+the character can purchase a visa. But the <em>consumer</em> is making an API calls and
+receives a data structure, not the instance itself. The data it receives tells
+the consumer what information to present, not a predicate method call.</p>
+
+<p>I expect that when <a href="https://github.com/Ovid/Cor" target="_blank">the Corinna OOP system</a> <span class="fa fa-external-link fa_custom"></span> finally
+becomes core to Perl, much of this confusion will go away.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Veure::Model::API::Visa :does(Veure::Model::API::Role::Composable) {
+    use Veure::Util::API qw(format_price);
+    use Veure::Util::Data qw(:json);
+
+    field $allow_purchase :new;
+
+    method build_api_content :private () {
+        my %api_response (
+            area_actions =&gt; {
+                renew_visa    =&gt; { available =&gt; json_false },
+                purchase_visa =&gt; { available =&gt; json_false },
+            },
+        );
+        if ( $allow_purchase ) {
+            # add additional data
+        }
+        return \%api_response;
+    }
+}
+</code></pre></div>
+
+<p>In the above, <code>$allow_purchase</code> is not exposed in the interface and it’s much
+clearer what its role is.</p>
+
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/understanding-class-inheritance.html" class="prevPost">&laquo; Understanding Class Inheritance</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2022 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/naming-and-object-oriented-code.html";
+            this.page.identifier = "articles/naming-and-object-oriented-code";
+            this.page.title      = "Naming and Object-Oriented Code";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>All of the code examples are
+oversimplifications of a complex system.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>'Allow' 
+tends to be used in the passive voice, so in retrospect, I think 
+<tt>add_purchase_data</tt> would be a better choice, though that's getting a bit 
+wordy (as I tend to do).</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+</body>
+</html>
+
+
