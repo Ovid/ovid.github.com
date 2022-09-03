@@ -1,5 +1,5 @@
 [%
-    title            = 'Naming and Object Oriented Code';
+    title            = 'Naming and Object-Oriented Code';
     type             = 'articles';
     slug             = 'naming-and-object-oriented-code';
     include_comments = 1;
@@ -12,15 +12,225 @@
 %]
 [% WRAPPER include/wrapper.tt blogdown=1 -%]
 
-In our free-to-play game, [Tau Station](https://taustation.space/), you can 
-acquire VIP (very important person) status.
+{{TAGS oop programming}}
 
-Quick: what does the following line of code from the [Tau 
-Station](https://taustation.space/) codebase return? Make a guess. `vip` stands 
-for `very important person` and means the character has purchased and used a 
+As every developer learns, it's easy to get naming wrong. For example, if you
+have a variable named `temperature`, but your system handles both imperial and
+metric, is that temperature in Fahrenheit or Celsius? Getting that wrong could
+lead to all sorts of problems. A similar situation exists for subroutine and
+method names. What does the method `scale` do? Who knows? If it's named
+`scale_size`, you have a much better idea.
+
+But let's discuss predicate methods in object-oriented code. A predicate method
+is a method that returns true or false. In Ruby, you can end a method name with
+a question mark and by convention, it should return true or false.
+
+```ruby
+class Point
+  @@number_of_points = 0
+
+  def initialize(x,y)
+    @x = x
+    @y = y
+    @@number_of_points += 1
+  end
+
+  def self.too_many?
+    return @@number_of_points > 2
+  end
+end
+
+point1 = Point.new(3,3)
+point2 = Point.new(4,0)
+puts Point.too_many?  # prints false
+
+point3 = Point.new(4,8)
+puts Point.too_many?  # prints true
+```
+
+This is a lovely feature because writing `if Point.too_many?` reads like a
+question. However, most popular languages tend to only allow alphanumerics and
+underscores in method names. So in a recent code review for our free-to-play
+game, Tau Station ([Sign up here! It's fun.](https://taustation.space/)), I
+called out a case where a predicate method was poorly named. Sadly, it was a
+predicate method I had written a long time ago and it's a mistake I still make
+today. The following examples are made up, but keep to the spirit of the issue.
+
+Quick: what does the following line of code return? Make a guess. `vip` stands
+for "very important person" and means the character has used a VIP pack and they
+receive in-game benefits.
 
 ```perl
-$character->vip;
+if ( $character->vip ) {
+    # do something
+}
 ```
+
+Does `vip` return how much time is left on their VIP status? Does it return a
+VIP pack? Does it return a boolean indicating if the character has VIP? We can
+rename that function to make it very clear.
+
+```perl
+if ( $character->is_vip ) {
+    # do something
+}
+```
+
+Now it's crystal clear what that means. Predicate functions should generally
+start with a verb that implies true or false: `is_`, `can_`, `has_`, and so on.
+So it was with a bit of surprise on a later code review that I read two
+developers disagreeing about a predicate method name. One named it
+`can_purchase` and the reviewer was suggesting `allow_purchase`. They didn't
+budge in their respective positions and both are very good developers, so I was
+asked to take a look.
+
+In glancing at the code snippet, I immediately agreed that the predicate method
+should be named `can_purchase`. But after I wrote that on the review, I had
+doubts because the answer was _too_ obvious. Why on earth would their be a
+dispute about this? I decided to dig further. The problem stemmed from an
+unfortunate feature provided by [Moose](https://github.com/moose/Moose) (an
+object-oriented framework for Perl) and perhaps a subtle misunderstanding of
+object-oriented code.
+
+This is worth an explanation of the confusion.
+
+The code in question was providing an API response for purchase a visa to visit
+[Gaule-affiliated
+stations](https://taustation.space/coretechs/archive/affiliations#/gaule). The
+API returned a list of areas where you can go to purchase a visa. However, if
+the character meets certain conditions, we need to let the code know that
+the API call should provide additional information allowing a purchase of the
+visa.
+
+
+The code sort of looked like this:[% Ovid.add_note('All of the code examples are
+oversimplifications of a complex system.') %]
+
+```perl
+package Veure::Model::API::Visa;
+
+use Veure::Moose;
+use Veure::Types qw(Bool);
+use Veure::Util::Data qw(:json);
+with qw(Veure::Model::API::Role::Composable);
+
+has can_purchase => (
+  isa      => Bool,
+  required => 1,
+);
+
+sub _build_api_content ($self) {
+    my $character = $self->viewer;
+
+    my %api_response (
+        area_actions => {
+            renew_visa    => { available => json_false },
+            purchase_visa => { available => json_false },
+        },
+    );
+    if ( $self->can_purchase ) {
+        # add additional data
+	}
+    return \%api_response;
+}
+
+__PACKAGE__->_finalize;
+```
+
+That's the code that I glanced at which made me think that `can_purchase` is
+a perfectly acceptable predicate method, until I realized the mistake I made.
+
+Let's take another look at `can_purchase`.
+
+```perl
+has can_purchase => (
+  isa      => Bool,
+  required => 1,
+);
+```
+
+In the Moose OO Framework, the above creates a method named `can_purchase`, in
+our version of Moose, that method is read-only, it returns a boolean, and it's
+required to be passed to the constructor. So far, so good.
+
+However, the interface for the module is called in a very standard way:
+
+```perl
+return Veure::Model::API::Visa->new(
+    viewer       => $character,
+    can_purchase => $can_purchase
+)->api_content;
+```
+
+The `can_purchase` data isn't intended to be exposed to the outside world. The
+method should have been written like this:
+
+```perl
+has can_purchase => (
+  isa      => Bool,
+  reader   => '_can_purchase',
+  required => 1,
+);
+```
+
+I've written before about [needing to keep interfaces
+small](/articles/common-problems-in-object-oriented-code.html#small-interfaces-and-encapsulation)
+and here we were, violating that rule. Unfortunately, Moose, by default,
+provides public methods for all instance data and it gets annoyingly hard to
+avoid this. It's annoying enough that I often don't even call that out on code
+reviews.
+
+This should not be a predicate method. Instead, this is a constructor argument
+that directs the instance on its behavior. It's an _order_, giving a command
+to the instance.  By convention in our code, we like to write our constructor
+arguments such that orders use active verbs to indicate what's going on.
+This is why the reviewer suggested `allow_purchase`. [% Ovid.add_note("'Allow' 
+tends to be used in the passive voice, so in retrospect, I think 
+<tt>add_purchase_data</tt> would be a better choice, though that's getting a bit 
+wordy (as I tend to do).") %]
+
+This might seem petty or trivial, but the distinction is important because not
+making said distinction can lead to subtle errors in reasoning. In this case, a
+predicate method returns a boolean indicating something about the state of the
+object. It's only doing a single thing. But objects aren't just about state.
+They're **state plus behavior**. Predicates return information about the state
+_after_ the behavior has occurred. This constructor argument tells the object to 
+do something _before_ the behavior has occurred. They look similar, but they're 
+not.
+
+Because Moose makes everything public by default (because it's hard not to do
+this in Perl), including creating methods for your instance data, it's natural
+that `can_purchase` seems like the correct name since it's public and asking if
+the character can purchase a visa. But the _consumer_ is making an API calls and
+receives a data structure, not the instance itself. The data it receives tells
+the consumer what information to present, not a predicate method call.
+
+I expect that when [the Corinna OOP system](https://github.com/Ovid/Cor) finally
+becomes core to Perl, much of this confusion will go away.
+
+```perl
+class Veure::Model::API::Visa :does(Veure::Model::API::Role::Composable) {
+    use Veure::Util::API qw(format_price);
+    use Veure::Util::Data qw(:json);
+
+    field $allow_purchase :new;
+
+	method build_api_content :private () {
+		my %api_response (
+			area_actions => {
+				renew_visa    => { available => json_false },
+				purchase_visa => { available => json_false },
+			},
+		);
+		if ( $allow_purchase ) {
+			# add additional data
+		}
+		return \%api_response;
+    }
+}
+```
+
+In the above, `$allow_purchase` is not exposed in the interface and it's much
+clearer what its role is.
 
 [%- END %]
