@@ -246,7 +246,7 @@ called out a case where a predicate method was poorly named. Sadly, it was a
 predicate method I had written a long time ago and it’s a mistake I still make
 today. The following examples are made up, but keep to the spirit of the issue.</p>
 
-<p>Quick: what does the following line of code return? Make a guess. <code>vip</code> stands
+<p>Quick: what does the following bit of code do? Make a guess. <code>vip</code> stands
 for “very important person” and means the character has used a VIP pack and they
 receive in-game benefits.</p>
 
@@ -282,13 +282,12 @@ object-oriented code.</p>
 
 <p>This is worth an explanation of the confusion.</p>
 
-<p>The code in question was providing an API response for purchase a visa to visit
-<a href="https://taustation.space/coretechs/archive/affiliations#/gaule" target="_blank">Gaule-affiliated
-stations</a> <span class="fa fa-external-link fa_custom"></span>. The
-API returned a list of areas where you can go to purchase a visa. However, if
-the character meets certain conditions, we need to let the code know that
-the API call should provide additional information allowing a purchase of the
-visa.</p>
+<p>The code in question was providing an API response for purchasing a visa to 
+visit <a href="https://taustation.space/coretechs/archive/affiliations#/gaule" target="_blank">Gaule-affiliated 
+stations</a> <span class="fa fa-external-link fa_custom"></span>. The 
+API returns actions you can take regarding a purchase. However, if the character 
+meets certain conditions, the API call should provide additional information 
+allowing a purchase of the visa, including its duration and price.</p>
 
 <p>The code sort of looked like this:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
@@ -333,7 +332,7 @@ a perfectly acceptable predicate method, until I realized the mistake I made.</p
 );
 </code></pre></div>
 
-<p>In the Moose OO Framework, the above creates a method named <code>can_purchase</code>, in
+<p>In the Moose OO framework, the above creates a method named <code>can_purchase</code>. In
 our version of Moose, that method is read-only, it returns a boolean, and it’s
 required to be passed to the constructor. So far, so good.</p>
 

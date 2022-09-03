@@ -56,7 +56,7 @@ called out a case where a predicate method was poorly named. Sadly, it was a
 predicate method I had written a long time ago and it's a mistake I still make
 today. The following examples are made up, but keep to the spirit of the issue.
 
-Quick: what does the following line of code return? Make a guess. `vip` stands
+Quick: what does the following bit of code do? Make a guess. `vip` stands
 for "very important person" and means the character has used a VIP pack and they
 receive in-game benefits.
 
@@ -94,14 +94,12 @@ object-oriented code.
 
 This is worth an explanation of the confusion.
 
-The code in question was providing an API response for purchase a visa to visit
-[Gaule-affiliated
-stations](https://taustation.space/coretechs/archive/affiliations#/gaule). The
-API returned a list of areas where you can go to purchase a visa. However, if
-the character meets certain conditions, we need to let the code know that
-the API call should provide additional information allowing a purchase of the
-visa.
-
+The code in question was providing an API response for purchasing a visa to 
+visit [Gaule-affiliated 
+stations](https://taustation.space/coretechs/archive/affiliations#/gaule). The 
+API returns actions you can take regarding a purchase. However, if the character 
+meets certain conditions, the API call should provide additional information 
+allowing a purchase of the visa, including its duration and price.
 
 The code sort of looked like this:[% Ovid.add_note('All of the code examples are
 oversimplifications of a complex system.') %]
@@ -149,7 +147,7 @@ has can_purchase => (
 );
 ```
 
-In the Moose OO Framework, the above creates a method named `can_purchase`, in
+In the Moose OO framework, the above creates a method named `can_purchase`. In
 our version of Moose, that method is read-only, it returns a boolean, and it's
 required to be passed to the constructor. So far, so good.
 
