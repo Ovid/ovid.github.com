@@ -125,7 +125,7 @@
         
             
             
-            <li><a href="/tags/corinna.html" data-weight="8">Corinna</a></li>
+            <li><a href="/tags/corinna.html" data-weight="9">Corinna</a></li>
         
             
             
@@ -149,7 +149,7 @@
         
             
             
-            <li><a href="/tags/perl.html" data-weight="8">Perl</a></li>
+            <li><a href="/tags/perl.html" data-weight="9">Perl</a></li>
         
             
             
@@ -355,21 +355,21 @@ future), here’s a basic LRU (least recently used) cache:</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
     use Hash::Ordered;
 
-    field $cache                   { Hash::Ordered-&gt;new };
-    field $max_size :param :reader { 20 };
+    field $cache    :handles(exists) { Hash::Ordered-&gt;new };
+    field $max_size :param :reader   { 20 };
 
     method set ( $key, $value ) {
         if ( $cache-&gt;exists($key) ) {
             $cache-&gt;delete($key);
         }
-        elsif ( $cache-&gt;keys &gt; $max_size ) {
+        elsif ( $cache-&gt;keys &gt;= $max_size ) {
             $cache-&gt;shift;
         }
         $cache-&gt;set( $key, $value );  # add to front
     }
 
     method get ($key) {
-        if ( $cache&gt;exists($key) ) {
+        if ( $cache-&gt;exists($key) ) {
             my $value = $cache-&gt;get($key);
             $self-&gt;set( $key, $value ); # add to front
             return $value;

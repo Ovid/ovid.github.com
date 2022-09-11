@@ -12,10 +12,10 @@
   
   <meta property="og:type" content="article" />
   
-  <meta property="og:url" content="https://ovid.github.io/blog/the-easy-solution-to-quadratic-equations.html" />
+  <meta property="og:url" content="https://ovid.github.io/articles/current-corinna-status.html" />
   
-  <meta property="og:title" content="The Easy Solution to Quadratic Equations" />
-  <meta property="og:description" content="The mathmetician Po-Shen Loh has created a much easier way to solve quadratic equations. Let's take a look." />
+  <meta property="og:title" content="Current Corinna Status" />
+  <meta property="og:description" content="Demonstrating the current state of the Perl Corinna OOP project by implementing a simple cache" />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -35,8 +35,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>The Easy Solution to Quadratic Equations</title>
-  <meta name="description" content="The Easy Solution to Quadratic Equations">
+  <title>Current Corinna Status</title>
+  <meta name="description" content="Current Corinna Status">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
@@ -53,13 +53,8 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
-      <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-  </script>
-  <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML">
-  </script>
-  
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -89,11 +84,11 @@
 			</ul>
         </div>
     </div>
-    <div class="row title blog">
+    <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>The Easy Solution to Quadratic Equations</h1>
-        <time>2020-03-01</time>
+        <h1><a name="-title-no-title-found-"></a>Current Corinna Status</h1>
+        <time>2022-09-11</time>
         <hr>
         <div class="twelve columns header">
         </div>
@@ -181,17 +176,21 @@
 
         <div class="prevNext">
         
-        <a href="/blog/moose-has-a-problem.html" class="prevPost">&laquo; Moose &quot;has&quot; a Problem</a>
+        <a href="/articles/naming-and-object-oriented-code.html" class="prevPost">&laquo; Naming and Object Oriented Code</a>
         
-        <a href="/blog/coronavirus-fake-news.html" class="nextPost">Coronavirus Fake News &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
     
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
 
-    <li><a href="/tags/math.html">Math</a> </li>
+    <li><a href="/tags/corinna.html">Corinna</a> </li>
+
+    <li><a href="/tags/oop.html">OOP</a> </li>
+
+    <li><a href="/tags/perl.html">Perl</a> </li>
 
 </ul>
 
@@ -208,172 +207,132 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 
-<p>If you have an interest in math, by now you may have hear that the
-mathematician Po-Shen Loh has found an easy way to solve quadratic equations.
-Those equations looked like this:</p>
+<p>For those curious about the current status of <a href="https://github.com/Ovid/Cor" target="_blank">the Corinna OOP project for 
+Perl</a> <span class="fa fa-external-link fa_custom"></span>, Paul Evans is working on it in the 
+<a href="https://github.com/leonerd/perl5/tree/feature-class" target="_blank">feature-class branch</a> <span class="fa fa-external-link fa_custom"></span>. <br />
+Today I decided to see how much of my 
+<a href="/articles/common-problems-in-object-oriented-code.html#small-interfaces-and-encapsulation">Cache::LRU</a> 
+example I could get working.</p>
 
-<p>$$ax^2 + bx + c = 0$$</p>
+<p>Under the full proposal, <code>Cache::LRU</code> looks like this (it’s unclear if the 
+<code>:handles</code> modifier will be implemented for the MVP):</p>
 
-<p>And they were <em>every</em> student’s nightmare in algebra class, because when
-factoring the equation didn’t work, you learned this solution:</p>
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
+    use Hash::Ordered;
 
-<p>$$x={-b\pm\sqrt{b^2-4ac} \over 2a}$$</p>
+    field $cache    :handles(exists) { Hash::Ordered-&gt;new };
+    field $max_size :param :reader   { 20 };
 
-<p>Finding the solution for many quadratic equations was a difficult chore,
-especially if the answers involved imaginary numbers. Thanks to Loh, it’s now
-easy. Unfortunately, many of the sites I’ve visited seem to have rather
-cumbersome descriptions of this relatively easy solution. So to help <em>myself</em>
-remember the solution, and thus help you learn the solution, let me skip <a href="https://arxiv.org/abs/1910.06709" target="_blank">the proof of this novel
-solution</a> <span class="fa fa-external-link fa_custom"></span> and just show you how to solve it. If you wish to know how it
-works, there are many sites on the web which will get into the details. Just
-hit your favorite search engine for something like “Po-Shen Loh quadratic
-equation”.</p>
+    method set ( $key, $value ) {
+        if ( $cache-&gt;exists($key) ) {
+            $cache-&gt;delete($key);
+        }
+        elsif ( $cache-&gt;keys &gt;= $max_size ) {
+            $cache-&gt;shift;
+        }
+        $cache-&gt;set( $key, $value );  # add to front
+    }
 
-<p>You’ll only need basic algebra to understand this.</p>
+    method get ($key) {
+        if ( $cache-&gt;exists($key) ) {
+            my $value = $cache-&gt;get($key);
+            $self-&gt;set( $key, $value ); # add to front
+            return $value;
+        }
+        return;
+    }
+}
+</code></pre></div>
 
-<h1><a name="step-1-getting-x"></a>Step 1: Getting x<sup>2</sup></h1>
+<p>This is what I currently have working:</p>
 
-<p>Loh’s solution requires that the first term, $x^2$, is always just $x^2$, and
-never multiplied or divided by anything. So we don’t want the first term to be
-$3x^2$ or $x^2 \over 4$.</p>
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
+    use Hash::Ordered;
 
-<p>That’s fine, because we can just multiply or divide, as needed, so get to
-$x^2$. For example, if we start with this equation:</p>
+    field $cache;    ADJUST { $cache    = Hash::Ordered-&gt;new };
+    field $max_size; ADJUST { $max_size = $_[0]-&gt;{max_size} // 20 }
 
-<p>$${x^2 \over 2} - 3.5x + 6 = 0$$</p>
+    # we don't yet process constructor arguments, so all are 
+    # fatal if they exist
+    ADJUST { delete $_[0]-&gt;{$_} for keys $_[0]-&gt;%* }
 
-<p>We can just multiply by $2$ to get:</p>
+    method max_size { $max_size }
 
-<p>$$x^2 - 7x + 12 = 0$$</p>
+    method set( $key, $value ) {
+        if ( $cache-&gt;exists($key) ) {
+            $cache-&gt;delete($key);
+        }
+        elsif ( $self-&gt;num_elements &gt;= $max_size ) {
+            $cache-&gt;shift;
+        }
+        $cache-&gt;set( $key, $value );    # add to front
+    }
 
-<h1><a name="step-2-getting-b-and-c"></a>Step 2: Getting $-b$ and $c$</h1>
+    method get($key) {
+        if ( $cache-&gt;exists($key) ) {
+            my $value = $cache-&gt;get($key);
+            $cache-&gt;set( $key, $value );    # add to front
+            return $value;
+        }
+        return;
+    }
 
-<p>Next, we need to isolate the <em>opposite</em> of $b$. Since quadratic equations are
-in the form $ax^2 + bx + c = 0$, and we have $x^2 - 7x + 12 = 0$, we know that
-the <em>opposite</em> of $b$ is $7$ (since it’s $-7$ in the equation).</p>
+    method num_elements() {
+        return scalar $cache-&gt;keys;
+    }
 
-<p>Next, we need $c$. In the equation $x^2 - 7x + 12 = 0$, we can see that $c = 12$.</p>
+    method exists($key) {
+        return $cache-&gt;exists($key);
+    }
+}
+</code></pre></div>
 
-<p>The key insight in Loh’s work is that we’re searching for numbers which <em>add</em>
-to $-b$ and <em>multiply</em> to $c$. Thus, for our example:</p>
+<p>A few things to note:</p>
 
 <ul>
-<li>Sum ($-b$) is $7$</li>
-<li>Product ($c$) is $12$</li>
+<li>Default initializer blocks are not yet implemented</li>
+<li>You cannot yet pass arguments to the constructor, so you must clear it</li>
+<li>Everything else works quite nicely</li>
 </ul>
 
-<p>If you remember the above, you’ll remember this in no time because that’s the
-key to making everything work.</p>
+<p>And here are the tests for it:</p>
 
-<h1><a name="step-3-finding-the-roots"></a>Step 3: Finding the roots</h1>
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $cache = Cache::LRU-&gt;new;
+is $cache-&gt;max_size,     20, 'Value of $max_size set by ADJUST';
+is $cache-&gt;num_elements, 0,  '... and our cache starts out empty';
 
-<p>So we need two numbers which add to $7$ and multiply to $12$. Rather than
-guessing, we start with the addition.</p>
+ok !defined $cache-&gt;get('foo'),
+  'We should not be able to fetch values we have not defined';
+ok !$cache-&gt;exists('foo'),   '... and our exists() method should confirm this';
+ok $cache-&gt;set( foo =&gt; 42 ), 'We should be able to set cache values';
+ok $cache-&gt;exists('foo'),
+  '... and our exists() method should show the new key exists';
+is $cache-&gt;get('foo'),   42, '... and get the value back';
+is $cache-&gt;num_elements, 1,  '... and we should have one element in our cache';
 
-<p>First, we know that two numbers, added together, will equal any number if their
-<em>average</em> is half of that number. So let’s take half of that $7$, or $3.5$ (or
-$3{1 \over 2}$ if you prefer fractions).</p>
+$cache = Cache::LRU-&gt;new( max_size =&gt; 2 );
+is $cache-&gt;max_size, 2,
+  'We should be able to set the max_size with a constructor argument';
+ok !defined $cache-&gt;get('foo'),
+  'We should not be able to fetch values we have not defined';
+ok $cache-&gt;set( foo =&gt; 42 ), 'We should be able to set cache values';
+is $cache-&gt;get('foo'), 42, '... and get the value back';
+ok $cache-&gt;set( bar =&gt; 'asdf' ), 'We can set a different key';
+is $cache-&gt;get('bar'), 'asdf', '... and get back a different value';
+is $cache-&gt;get('foo'), 42,     '... and get the value back';
+is $cache-&gt;num_elements, $cache-&gt;max_size,
+  '... and we see that our cache is now full';
+ok $cache-&gt;set( new_element =&gt; 3 ), 'We can set a new item in our cache';
+is $cache-&gt;num_elements, $cache-&gt;max_size,
+  '... and we see that our cache is still full';
+ok !$cache-&gt;exists('foo'),
+  '... and older elements in our cache should be ejected';
+</code></pre></div>
 
-<p>So we know that the two numbers are (using $u$ for a placeholder) are $3.5 - u$
-and $3.5 + u$.</p>
-
-<p>Since <em>multiplying</em> them gives us $c$, or $12$, we have:</p>
-
-<p>$$(3.5 - u)(3.5 + u) = 12$$</p>
-
-<p>Using the difference of squares, left hand side becomes $3.5^2 - u^2$, or
-$12.25 - u^2$. So we have:</p>
-
-<p>$$12.25 - u^2 = 12$$</p>
-
-<p>And that gives us:</p>
-
-<p>$$.25 = u^2$$.</p>
-
-<p>Taking the square root of each side gives us $.5 = u$. Since we that the
-numbers are $3.5 - u$ and $3.5 + u$ we know that the solutions are 3 and 4.</p>
-
-<p>You can substitute those numbers into this equation to check the answers:</p>
-
-<p>$${x^2 \over 2} - 3.5x + 6 = 0$$</p>
-
-<h1><a name="simplifying"></a>Simplifying</h1>
-
-<p>Skipping over many mathematical steps, let’s take this:</p>
-
-<p>$$4x^2 - 8x - 16 = 0$$</p>
-
-<p>We want $x^2$ as the first term, so divide each side by four: $x^2 - 2x - 4$.</p>
-
-<p>We know that $-b$ is $2$ an $c$ is $-4$, so we have $(1 - u)$ multiplied by
-$(1 + u)$ = $-4$.</p>
-
-<p>$$1 - u^2 = -4$$
-$$5 = u^2$$
-$$\sqrt{5} = u$$</p>
-
-<p>So the roots are $1 \pm \sqrt{5}$.</p>
-
-<h1><a name="lets-do-it-again"></a>Let’s do it again</h1>
-
-<p>Let’s use this equation:</p>
-
-<p>$$x^2 - 2x - 24 = 0$$</p>
-
-<p>We know that $-b$ is $2$ an $c$ is $-24$.</p>
-
-<p>So <em>half</em> of $-b$ is $1$, we have:</p>
-
-<p>$$(1 - u)(1 + u) = 24$$</p>
-
-<p>That reduces to:</p>
-
-<p>$$1 - u^2 = 24$$</p>
-
-<p>Which becomes:</p>
-
-<p>$$25 = u^2$$</p>
-
-<p>So we can see that $u$ is $5$ and $(1 - u)$ is $-4$ and $1 + u$ is $6$, giving
-us the roots of the equation. See how simple that is? It takes practice,
-though.</p>
-
-<h1><a name="a-harder-example"></a>A harder example</h1>
-
-<p>Let’s take this equation:</p>
-
-<p>$${x^2 \over 2} - x + 12 = 0$$</p>
-
-<p>We need $x^2$, so let’s multiply both sides by $2$, giving us:</p>
-
-<p>$$x^2 - 2x + 24 = 0$$</p>
-
-<p>We know that $-b$ is $2$ an $c$ is $24$.</p>
-
-<p>So <em>half</em> of $-b$ is $1$, we have:</p>
-
-<p>$$(1 - u)(1 + u) = 24$$</p>
-
-<p>That reduces to:</p>
-
-<p>$$1 - u^2 = 24$$</p>
-
-<p>Which becomes:</p>
-
-<p>$$-23 = u^2$$</p>
-
-<p>So $u$ is $\sqrt{-23}$, or $i\sqrt{23}$.</p>
-
-<p>Thus, the two possible solutions are $1 \pm i\sqrt{23}$.</p>
-
-<p>That’s not a fun problem to solve with the traditional quadratic equation
-solution.</p>
-
-<p>If you want more practice watch Loh’s video on the topic.</p>
-
-<div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/XKBX0r3J-9Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+<p>The tests revealed an “off by one” error in my original code (caches would 
+contain up to <code>max_size + 1</code> elements), along with a syntax error (both now 
+fixed), but as it stands, I think everyone should be pleased with the progress 
+Paul is making. Exciting times for Perl!</p>
 
 
 
@@ -385,9 +344,9 @@ solution.</p>
 <hr>
     <div class="prevNext">
         
-        <a href="/blog/moose-has-a-problem.html" class="prevPost">&laquo; Moose &quot;has&quot; a Problem</a>
+        <a href="/articles/naming-and-object-oriented-code.html" class="prevPost">&laquo; Naming and Object Oriented Code</a>
         
-        <a href="/blog/coronavirus-fake-news.html" class="nextPost">Coronavirus Fake News &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
 <hr>
@@ -415,9 +374,9 @@ solution.</p>
       
         <script>
         var disqus_config = function () {
-            this.page.url        = "https://ovid.github.io/blog/the-easy-solution-to-quadratic-equations.html";
-            this.page.identifier = "blog/the-easy-solution-to-quadratic-equations";
-            this.page.title      = "The Easy Solution to Quadratic Equations";
+            this.page.url        = "https://ovid.github.io/articles/current-corinna-status.html";
+            this.page.identifier = "articles/current-corinna-status";
+            this.page.title      = "Current Corinna Status";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -431,6 +390,8 @@ solution.</p>
         </div>
     </div>
     </div>
+    
+    <script src="/static/js/prism.js"></script>
     
 	
 </body>
