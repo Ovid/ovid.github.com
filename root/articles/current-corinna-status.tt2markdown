@@ -1,0 +1,146 @@
+[%
+    title            = 'Current Corinna Status';
+    type             = 'articles';
+    slug             = 'current-corinna-status';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-09-11';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS oop corinna perl}}
+
+For those curious about the current status of [the Corinna OOP project for 
+Perl](https://github.com/Ovid/Cor), Paul Evans is working on it in the 
+[feature-class branch](https://github.com/leonerd/perl5/tree/feature-class).  
+Today I decided to see how much of my 
+[Cache::LRU](/articles/common-problems-in-object-oriented-code.html#small-interfaces-and-encapsulation) 
+example I could get working.
+
+
+Under the full proposal, `Cache::LRU` looks like this (it's unclear if the 
+`:handles` modifier will be implemented for the MVP):
+
+```perl
+class Cache::LRU {
+    use Hash::Ordered;
+
+    field $cache    :handles(exists) { Hash::Ordered->new };
+    field $max_size :param :reader   { 20 };
+
+    method set ( $key, $value ) {
+        if ( $cache->exists($key) ) {
+            $cache->delete($key);
+        }
+        elsif ( $cache->keys >= $max_size ) {
+            $cache->shift;
+        }
+        $cache->set( $key, $value );  # add to front
+    }
+
+    method get ($key) {
+        if ( $cache->exists($key) ) {
+            my $value = $cache->get($key);
+            $self->set( $key, $value ); # add to front
+            return $value;
+        }
+        return;
+    }
+}
+```
+
+This is what I currently have working:
+
+```perl
+class Cache::LRU {
+    use Hash::Ordered;
+
+    field $cache;    ADJUST { $cache    = Hash::Ordered->new };
+    field $max_size; ADJUST { $max_size = $_[0]->{max_size} // 20 }
+
+    # we don't yet process constructor arguments, so all are 
+    # fatal if they exist
+    ADJUST { delete $_[0]->{$_} for keys $_[0]->%* }
+
+    method max_size { $max_size }
+
+    method set( $key, $value ) {
+        if ( $cache->exists($key) ) {
+            $cache->delete($key);
+        }
+        elsif ( $self->num_elements >= $max_size ) {
+            $cache->shift;
+        }
+        $cache->set( $key, $value );    # add to front
+    }
+
+    method get($key) {
+        if ( $cache->exists($key) ) {
+            my $value = $cache->get($key);
+            $cache->set( $key, $value );    # add to front
+            return $value;
+        }
+        return;
+    }
+
+    method num_elements() {
+        return scalar $cache->keys;
+    }
+
+    method exists($key) {
+        return $cache->exists($key);
+    }
+}
+```
+
+A few things to note:
+
+* Default initializer blocks are not yet implemented
+* You cannot yet pass arguments to the constructor, so you must clear it
+* Everything else works quite nicely
+
+And here are the tests for it:
+
+```perl
+my $cache = Cache::LRU->new;
+is $cache->max_size,     20, 'Value of $max_size set by ADJUST';
+is $cache->num_elements, 0,  '... and our cache starts out empty';
+
+ok !defined $cache->get('foo'),
+  'We should not be able to fetch values we have not defined';
+ok !$cache->exists('foo'),   '... and our exists() method should confirm this';
+ok $cache->set( foo => 42 ), 'We should be able to set cache values';
+ok $cache->exists('foo'),
+  '... and our exists() method should show the new key exists';
+is $cache->get('foo'),   42, '... and get the value back';
+is $cache->num_elements, 1,  '... and we should have one element in our cache';
+
+$cache = Cache::LRU->new( max_size => 2 );
+is $cache->max_size, 2,
+  'We should be able to set the max_size with a constructor argument';
+ok !defined $cache->get('foo'),
+  'We should not be able to fetch values we have not defined';
+ok $cache->set( foo => 42 ), 'We should be able to set cache values';
+is $cache->get('foo'), 42, '... and get the value back';
+ok $cache->set( bar => 'asdf' ), 'We can set a different key';
+is $cache->get('bar'), 'asdf', '... and get back a different value';
+is $cache->get('foo'), 42,     '... and get the value back';
+is $cache->num_elements, $cache->max_size,
+  '... and we see that our cache is now full';
+ok $cache->set( new_element => 3 ), 'We can set a new item in our cache';
+is $cache->num_elements, $cache->max_size,
+  '... and we see that our cache is still full';
+ok !$cache->exists('foo'),
+  '... and older elements in our cache should be ejected';
+```
+
+The tests revealed an "off by one" error in my original code (caches would 
+contain up to `max_size + 1` elements), along with a syntax error (both now 
+fixed), but as it stands, I think everyone should be pleased with the progress 
+Paul is making. Exciting times for Perl!
+
+[%- END %]

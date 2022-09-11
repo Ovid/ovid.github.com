@@ -128,21 +128,21 @@ future), here's a basic LRU (least recently used) cache:
 class Cache::LRU {
     use Hash::Ordered;
 
-    field $cache                   { Hash::Ordered->new };
-    field $max_size :param :reader { 20 };
+    field $cache    :handles(exists) { Hash::Ordered->new };
+    field $max_size :param :reader   { 20 };
 
     method set ( $key, $value ) {
         if ( $cache->exists($key) ) {
             $cache->delete($key);
         }
-        elsif ( $cache->keys > $max_size ) {
+        elsif ( $cache->keys >= $max_size ) {
             $cache->shift;
         }
         $cache->set( $key, $value );  # add to front
     }
 
     method get ($key) {
-        if ( $cache>exists($key) ) {
+        if ( $cache->exists($key) ) {
             my $value = $cache->get($key);
             $self->set( $key, $value ); # add to front
             return $value;
