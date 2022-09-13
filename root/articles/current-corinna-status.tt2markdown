@@ -59,12 +59,11 @@ This is what I currently have working:
 class Cache::LRU {
     use Hash::Ordered;
 
+    # Delete arguments to constructor or else they'll cause a fatal
+    # error when new() is called. When :param is added, this will
+    # no longer be needed.
+    field $max_size; ADJUST { $max_size = delete($_[0]->{max_size}) // 20 }
     field $cache;    ADJUST { $cache    = Hash::Ordered->new };
-    field $max_size; ADJUST { $max_size = $_[0]->{max_size} // 20 }
-
-    # we don't yet process constructor arguments, so all are 
-    # fatal if they exist
-    ADJUST { delete $_[0]->{$_} for keys $_[0]->%* }
 
     method max_size { $max_size }
 
