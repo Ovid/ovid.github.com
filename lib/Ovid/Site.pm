@@ -325,14 +325,14 @@ END
 
     sub _run_ttree ($self) {
         my $ttree = which('ttree');
-        my @args = (
-            'perl', '-Ilib',    # make sure we can find out plugins
-            $ttree, '-a',       # process all files
-            '-s'         => 'tmp',                     # use tmp/ as a source
-            '-d'         => '.',                       # use . as the target
-            '--copy'     => '\.(gif|png|jpg|pdf)$',    # copy, don't process images
-            '--binmode'  => 'utf8',                    # encoding of output file
-            '--encoding' => 'utf8',                    # encoding of input files
+        my @args  = (
+            'perl', '-Ilib',                                # make sure we can find out plugins
+            $ttree, '-a',                                   # process all files
+            '-s'         => 'tmp',                          # use tmp/ as a source
+            '-d'         => '.',                            # use . as the target
+            '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
+            '--binmode'  => 'utf8',                         # encoding of output file
+            '--encoding' => 'utf8',                         # encoding of input files
         );
         my ( $stdout, $stderr, $exit ) = capture { system(@args) };
 
