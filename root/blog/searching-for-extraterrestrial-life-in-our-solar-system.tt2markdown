@@ -1,0 +1,672 @@
+[%
+    title            = 'Searching for Extraterrestrial Life in Our Solar System';
+    type             = 'blog';
+    slug             = 'searching-for-extraterrestrial-life-in-our-solar-system';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-09-13';
+    mathjax          = 1;
+    facebook         = 'venus.jpg';
+    facebook_alt     = 'The Planet Venus';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS space}}
+
+{{TOC}}
+
+# Introduction
+
+The question of whether or not we're alone in the universe is a profound one.
+There is something terribly sad at the idea that our star is the only one that
+shines down on life. [With a possible lower bound of $10^{22}$ stars in our
+universe](https://www.esa.int/Science_Exploration/Space_Science/Herschel/How_many_stars_are_there_in_the_Universe)[%
+Ovid.add_note("That's 10,000,000,000,000,000,000,000 stars!") %] and a
+universe almost 14 billion years old, that's an average of almost two million
+stars created _every day_. While estimates of the number of planets vary, we
+think there are probably at least as many "Earth-like" planets as there are
+stars, that seems like two million chances _per day_ of life being created. Of
+course, it's much more than that because for every day that a planet doesn't
+have life evolve, it has plenty of additional days, years, _eons_ for life to
+evolve.
+
+Given the preceding, many people are convinced that life is plentiful in the
+universe, but so far, we've never detected extraterrestrial life amongst the
+stars. Are we alone?  Maybe. However, we should look closer to home. In fact,
+there are many intriguing clues in our own solar system which are worth
+examining. I'll cover some of them, but I'll save the best for last because
+it's very exciting, even if we did overlook it for decades.
+
+First, I want a to give a some background information for those who are
+curious about the search for extraterrestrial life but haven't dug into the
+topic, just how complex it is. If that's less interesting to you, [you can
+skip ahead to the best candidates for life in our solar
+system](#searching-for-life-off-world).
+
+# Caveats
+
+As with any writing on this topic, everything here is going to be a gross
+oversimplification. Unlike many other writings on this topic, I'm going to try
+to give a broad (but not deep) background into many of the issues involved.
+Sometimes I'll provide additional caveats that might distract from the text, so
+you can click on the "[% Ovid.add_note("Hey, you clicked!") %]" symbol for more
+context.
+
+## Life (as we know it)
+
+First, when I write "life," mentally add the words "as we know it" after that. I
+get tired of typing it. The definition of life is muddled, to put it kindly, and
+we only have one tree of life as a sample. We have no idea what alien
+lifeforms might be like.
+
+## Aliens?
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/aliens-on-mars.png"
+   alt      = "An image of aliens in weird spacesuits standing on Mars."
+   source   = 'https://stability.ai/blog/stable-diffusion-public-release'
+   caption  = "Not gonna happen."
+   position = 'right'
+%]
+
+Always remember that if the question is aliens, the answer is "no." This might
+seem surprising to some who've attended my talks and heard me warn about those
+who use words like "always" and "never" in describing complex topics. People
+who use those words are often zealots. I don't _think_ I'm a zealot, but the
+default position of those who understand science is that extraordinary claims
+require extraordinary evidence.  The existence of extraterrestrial life would
+be one of the most extraordinary claims of all time. So far, there's no
+evidence of aliens. Thus, your default position should be "no aliens."[%
+Ovid.add_note("This still might make me look dogmatic and I'd be delighted to
+be proven wrong. I want to believe.")
+%]
+
+## Organic Compounds
+
+You often hear the term "organic compounds" or "organic molecules" in connection
+with the search for life. Be careful.
+
+In chemistry, organic compounds are just chemical compounds that contain
+carbon-hydrogen covalent bonds. In the popular press, we tend to use the term to
+mean any compound containing carbon, but it's widely misinterpreted as
+"molecules related to life." They _are_ often related to life, but "organic," in
+this context, does not mean life.
+
+# The Drake Equation
+
+Before we can search for life, we have to define it. But before we get there,
+let's think about the [Drake
+Equation](https://en.wikipedia.org/wiki/Drake_equation). This was created in the
+1960s by the late Dr. Frank Drake as a _thought experiment_. Like "organic
+compounds," this is also widely misunderstood. I've often seen it referred to as
+an equation that helps us understand the prevalence of life in the universe. In
+reality, it's a tool to help us understand the possible number of currently
+communicating extraterrestrial civilizations that
+[SETI](https://en.wikipedia.org/wiki/Search_for_extraterrestrial_intelligence)
+might be able to detect. For the equation, the number $N$ is the number of
+civilizations we might be able to detect. The equation looks like this:
+
+$$N = R_{*} ~ \times ~ f_{p} ~ \times ~ n_{e} ~ \times ~ f_{l} ~ \times ~ f_{i} ~ \times ~ f_{c} ~ \times ~ L$$
+
+Those terms are:
+
+* $R_∗$: the average rate of star formation in our galaxy
+* $f_p$: the fraction of those stars that have planets
+* $n_e$: the average number of planets that can potentially support life per star that has planets
+* $f_l$: the fraction of planets that could support life that actually develop life at some point
+* $f_i$: the fraction of planets with life that actually go on to develop intelligent life (civilizations)
+* $f_c$: the fraction of civilizations that develop a technology that releases detectable signs of their existence into space
+* $L$: the length of time for which such civilizations release detectable signals into space
+
+Depending on how you fill in those numbers, we could be alone in the universe,
+or we could have many advanced extraterrestrial civilizations within our galaxy.
+
+For our purposes, we're most interested in $f_l$: how often does life evolve? In
+fact, we're not even interested in just planets because life could possibly
+evolve on a moon (there are several interesting candidates). Some
+[panspermia](https://en.wikipedia.org/wiki/Panspermia) advocates even claim that
+life could have evolved in space, though this isn't taken seriously by most
+scientists.
+
+To be more specific, we're asking "what are the odds of life spontaneously
+originating from simple organic compounds?"[% Ovid.add_note('The Earth is
+roughly 4.5 billion yeas old. <a
+href="https://www.science.org/content/article/how-ancient-cataclysm-may-have-jump-started-life-earth">Life
+on Earth may have started a mere 60 million years after that</a>, or shortly
+after the Earth calmed down enough for life to form. Some argue that this
+proves it’s easy for life to evolve. The counter-argument is that it’s easy to
+win the lottery if you just pick the right numbers.') %] This is known as
+[abiogenesis](https://en.wikipedia.org/wiki/Abiogenesis) and is the subject of
+much research. The current consensus on an answer is, "we have no fucking
+idea." What's particularly maddening about this is that we're not likely to
+have a clue _until_ we detect other life. If we don't detect life, that
+doesn't mean it's not plentiful (absence of evidence is not evidence of
+absence).
+
+But if detect a [biosignature](https://en.wikipedia.org/wiki/Biosignature) or
+[technosignature](https://en.wikipedia.org/wiki/Technosignature) of life on a
+star on the other side of our galaxy, that might only put a lower bound on the
+amount of life out there, not an upper. We'll need multiple detections of life
+to get a good sense of its ubiquity. Nonetheless, detecting _any_ other life
+outside our solar system suggests that it's common throughout the universe.
+
+So now it's time to ask the hard question: What is life?
+
+# What Is Life?
+
+Again, this must be prefaced with the "life as we know it" caveat. And I'll
+come right out and say what's on my mind: most definitions of life are a
+steaming pile of shit.
+
+[One definition of life](https://www.merriam-webster.com/dictionary/life), as
+taken from Merriam-Webster, is "an organismic state characterized by capacity
+for metabolism, growth, reaction to stimuli, and reproduction."
+
+Right off the bat we see a problem. Mules, for example, don't reproduce.[%
+Ovid.add_note("There are mules which have been known to reproduce, but this is
+exceedingly rare. Some might have genetic abnormalities which might even
+categorize them as “not mules,” but for the purpose of this argument, if we
+imagine that no mules can reproduce, the argument holds.") %] Would you say
+they're not alive? Of course not.
+
+And what about fire? [It reacts to stimuli and
+grows](https://newworlds.colorado.edu/search/life.htm). We could even argue that
+it metabolizes what it consumes for energy to keep growing, but we don't think
+of it as "alive."
+
+There are other properties of life, however.
+[Homeostasis](https://en.wikipedia.org/wiki/Homeostasis) is the body's ability
+to internally regulate itself and keep functioning. Does fire exhibit
+homeostasis? It's hard to argue that it does. However, warm-blooded and
+cold-blooded animals have completely different approaches to homeostasis and
+[homeostasis evolved over
+time](https://www.sciencedirect.com/science/article/abs/pii/S0169534712002947),
+so there are different levels of homeostasis. Maybe we can argue that humans
+have a homeostasis level of ten while fire has a homeostasis level of one? A
+piece of flint, however, might have a homeostasis level of zero.
+
+But why would we argue that?
+
+## Life as Biopresentation
+
+When I was working on
+[ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) systems to
+reduce the cost of [Phase III clinical
+trials](https://en.wikipedia.org/wiki/Clinical_trial#Phases), I often found
+myself working with data supplied by many pharmaceutical companies. Company A
+might refer to "Dr. Robert Smith, St. Mary's Hospital, Arlington, Virginia."
+Company B might refer to "Dr. Bob Smith, St. May's Hospital, Arlington,
+Virginia." Are they the same person? "St. May's Hospital" might be a typo.
+"Bob" is short for "Robert." Maybe they _are_ the same person.
+
+In reality, it's hard to definitively state "yes" or "no." Instead, I had
+access to tons of information about each researcher, including email
+addresses, phone numbers, ages, and so on. I would assign scores (how
+reliable) and weights (how important) to each piece of data and if two
+researchers crosses a certain threshold, they were _probably_ the same
+researcher.
+
+This same approach should be taken to the definition of life. Instead of life
+being a binary "yes or no," we should describe its "biopresentation,"[%
+Ovid.add_note("As far as I can tell, this is the first use of the word
+'biopresentation.'") %] or "how present are the signs of life in a 'thing.'"
+So for a virus:
+
+Property      | Score | Weight | Value
+--------------|-------|--------|------
+Metabolism    | 1     | 5      | 3
+Homeostasis   | 0     | 4      | 0
+Growth        | 0     | 2      | 0
+Reproduction  | 3     | 4      | 12
+Communication | 1     | 5      | 5
+
+In the above, a virus might have a biopresentation of 20. A human,
+however, would be radically different:
+
+Property      | Score | Weight | Value
+--------------|-------|--------|------
+Metabolism    | 5     | 5      | 25
+Homeostasis   | 5     | 4      | 20
+Growth        | 5     | 2      | 10
+Reproduction  | 5     | 4      | 20
+Communication | 5     | 5      | 25
+
+A human might have a biopresentation score of 100.[% Ovid.add_note("The number
+100 looks like I fudged the numbers, but it's a coincidence.") %]
+
+This would be particularly useful in describing abiogenesis. [One hypothesis of
+abiogenesis is](https://sciencing.com/abiogenesis-definition-theory-evidence-examples-13719058.html):
+
+1. Prebiotic atmosphere with ammonia, carbon dioxide and water vapor.
+1. Lightning produces simple organic compounds that fall into solution in shallow water.
+1. The compounds react further in a prebiotic broth, forming amino acids.
+1. The amino acids link up with peptide bonds to form polypeptide chain proteins.
+1. The proteins combine into more complex molecules that can replicate and metabolize simple substances.
+1. Complex molecules and organic compounds form lipid membranes around themselves and start acting like living cells.
+
+At all steps along the way, we could have something closer to what we call
+"life," though the initial steps might have a biopresentation level of zero.
+Instead of life being a fixed point, it's a gradual process. We don't point to
+a thing and say "this is alive" because that gets us back to the arguments of
+what life is or isn't. We simply describe it's biopresentation.
+
+This would be useful for biology today, too. Consider the endless arguments
+about whether or not [viruses are
+live](https://www.google.com/search?q=are+viruses+alive&oq=are+viruses+alive).
+It's often argued that viruses aren't alive because they can't metabolize
+outside of their host. That reduces metabolism to the primary (or sole)
+attribute of life.[% Ovid.add_note("Imagine life on Pluto. Depending on how we
+defined metabolism, life on Pluto might have a metabolism so slow that we
+don't recognize it, thereby discounting life as life.") %] But [metabolism is
+the global term for anabolism and
+catabolism](https://www.thoughtco.com/anabolism-catabolism-definition-examples-4178390).
+Catobolism is just breaking complex stuff into simpler stuff while anabolism
+is using that simpler stuff to do more complex stuff. Fire catabolizes, but
+doesn't anabolize. Viruses do both. So maybe they're alive? But some still
+reject that because, again, they can't do that without a suitable host.
+
+But what's a host? Obligate parasites such as the protozoan Plasmodium[%
+Ovid.add_note("Some kinds of Plasmodium are responsible for malaria.") %]
+can't survive outside of their hosts. Or consider humans. If I drop you
+into the middle of interstellar space without a space suit, you'll stop
+metabolizing, too. So the context in which we can biopresent is also a
+spectrum. Viruses are starting to look more alive.
+
+But wait! There's more!
+
+Most living beings have some ability to communicate with one another. Maybe
+all do. As it turns out, [we've know for a few years that viruses can do this,
+too](https://www.scientificamerican.com/article/do-you-speak-virus-phages-caught-sending-chemical-messages1/).
+The human communication score might be at a "ten," while viral communication
+might be a "one," but fire's communication is "zero." The weight of this
+factor is probably pretty high, so fire's biopresentation would be pretty low,
+but viruses could be easily crossing the threshold.
+
+Pragmatist that I am, I want to skip the philosophical debates about whether
+or not something is alive and go with the pragmatic discussion of how closely
+something resembles life. However, we can't ignore the philosophical
+implications.
+
+## Philosophical Objections to Biopresentation
+
+At this point, I can see many biologists howling at the above. In a 2013 Wired
+article entitled [It's (Almost) Alive! Scientists Create a Near-Living
+Crystal](https://www.wired.com/2013/01/living-crystal/), the lede reads:
+
+> Three billion years after inanimate chemistry first became animate life, a
+> newly synthesized laboratory compound is behaving in uncannily lifelike
+> ways. The particles aren't truly alive — but they’re not far off, either.
+
+The crystals created had metabolism and mobility, but couldn't reproduce. [You
+can read the original study at The Royal Society
+website](https://royalsocietypublishing.org/doi/10.1098/rsta.2013.0372).
+
+For these crystals, one could argue that a), they're not alive, or b), what
+their relative biopresentation level is. Some people would be uncomfortable
+describing crystals as alive, but if we're to search for life elsewhere in the
+universe, are we going to argue that life which doesn't share the same
+biochemical basis as our own isn't alive?
+
+Or consider [self-replicating Von Neumann
+machine](https://en.wikipedia.org/wiki/Self-replicating_machine). By the
+biopresentation argument, they would likely score very high, but are machines
+"alive"? Or apply biopresentation to [The Gaia
+Hypothesis](https://www.sciencedirect.com/topics/earth-and-planetary-sciences/gaia-hypothesis).
+Is our planet alive? That's definitely a philosophical question, but in light
+of biopresentation, depending on what factors to include, we could make a
+strong argument that it is.
+
+## Why is rethinking life important?
+
+What does this have to do with searching for life off Earth? It's simple.  If
+we go with a binary "yes/no" for life, it means that we have defined a limited,
+possibly incorrect, set of properties necessary to define life.  Something not
+meeting those conditions might be disregarded. If, however, biopresentation is
+adopted, we can start defining "lifelike" properties and perhaps not be so
+quick to dismiss something that is otherwise alive.
+
+If that seems stretched, consider the "Shadow Biosphere," an idea that there
+may be another biosphere on Earth that we've not yet detected. The idea's not
+popular, but it seems persistent. Here's Fraser Cain, the founder and
+publisher of Universe Today, describing it.
+
+[% Ovid.youtube('2brd-3OVgn8') %]
+
+Ultimately, if there is a shadow biosphere on Earth and we can't detect it,
+this doesn't bode well for detecting life off Earth.
+
+# Searching for Life Off-World
+
+We can search for biosignatures in other star systems, but until we can
+visit[% Ovid.add_note("There's an excellent chance we will never be able to
+visit other star systems. 😢") %], it's likely to be controversial.
+Technosignatures are more promising because a receiving a radio transmission
+of a sequence of prime numbers followed by an encoded message is pretty
+conclusive. But in the absence of technosignatures, we need to fall back on
+biosignatures and in our own solar system, we can definitely visit.
+
+First, let's remove a few unlikely candidates. They're candidates because we
+can envision life being there. They're unlikely because it may not be "life as
+we know it" and thus are less likely to recognize it as life. We might even
+exclude them for a practical reason: it's hard to visit them with current
+technology and we're unlikely to be able to detect life if we do so due to the
+limited equipment we can bring.
+
+## Unlikely Candidates
+
+If you're looking for information on extraterrestrial candidates for life in
+our solar system, they're plentiful. I'm of the opinion that we should
+investigate all of them, given how hugely important I value the idea of
+finding a second (and third, and fourth, ...) abiogenesis, but as a practical
+matter, we need to consider the cost (biosignatures on Pluto wouldn't
+necessarily justify the resources needed to launch a mission there) and
+whether we have detected biosignatures. When it comes to searching for life,
+low-cost targets with biosignatures _must_ be our first priority.
+
+### Triton
+
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/triton.gif"
+   source   = 'https://commons.wikimedia.org/wiki/File:Triton_Rotation_Movie.gif'
+   alt      = "Neptune's moon, Triton"
+   caption  = "Neptune's moon, Triton"
+   position = 'left'
+%]
+
+The moon Triton orbits the [ice
+giant](https://en.wikipedia.org/wiki/Ice_giant) Neptune. It's the largest
+Neptunian moon and along with the Jovian moons Io and Europa, along with the
+Saturnian moons Titan and Enceladus, [is one of the five geologically active
+moons in the solar
+system](https://www.technologyreview.com/2021/06/16/1026473/best-worlds-extraterrestrial-life-solar-system-ranked/).[%
+Ovid.add_note('<a
+href="https://phys.org/news/2019-05-moon-geologically.html">Earth’s moon may
+also be geologically active</a>, but not to a degree we antipicate life
+could be supported. Again, I would love to be wrong.') %] Triton is
+fascinating because it orbits Neptune _opposite_ of Neptune's orbit (it's the
+largest moon in the solar system to do so) and it might have an ocean
+underneath its ice covering. [This suggests that ocean existed prior to it
+being
+captured](https://www.skyatnightmagazine.com/space-missions/trident-mission-neptune-moon-triton/),
+which might make that ocean older than Earth. However, [it takes years to get
+to
+Saturn](https://www.universetoday.com/15312/how-long-does-it-take-to-get-to-saturn/)
+and the amount of fuel necessary (and the complexity of slowing down once you
+reach the planet) limit out ability to look for life. Given that the extreme
+cold suggests that life can't exist, it's probably a low priority for us.
+
+### Ceres
+
+Ceres, orbiting in our asteroid belt, is the largest dwarf planet. [It might
+have an underground saltwater
+ocean](https://www.technologyreview.com/2020/08/11/1006447/ceres-largest-asteroid-dwarf-planet-underground-ocean-salty-water/).
+[It might also have abundant organic
+compounds](https://www.space.com/40934-dwarf-planet-ceres-more-organic-molecules.html).
+However, many things unrelated to life are "organic compounds," so this isn't
+particularly inspiring. If the ocean does exist, we don't know how it came
+about and the data is still unconfirmed. Ceres is interesting and accessible,
+but as a candidate for life, it seems poor.[% Ovid.add_note("Mi no
+sasa why milowda not go.") %]
+
+### Europa
+
+Yeah, I've seen the [dive
+Europa](https://www.redbubble.com/i/poster/Dive-Europa-Space-Art-by-lynxcollection/41258071.LVTDI)
+art. This moon of Jupiter is tiny, but it apparently has more water than all
+of Earth's ocean's combined. [It almost certainly has an ocean beneath its ice
+crust](https://geology.com/stories/13/life-on-europa/), but I rate it a poor
+candidate in the search for life because its constantly getting blasted by
+radiation from Jupiter and we've seen no biosignatures. The ingredients for
+life seem to be there, but I'd rather we focus our attention on worlds which
+are giving us hints something is there.
+
+Of course, [2010: Odyssey
+Two](https://en.wikipedia.org/wiki/2010:_Odyssey_Two), by Arthur C. Clarke
+contained the warning "ALL THESE WORLDS ARE YOURS – EXCEPT EUROPA.
+ATTEMPT NO LANDING THERE." I'm just the sort of guy who would be tempted to
+visit just because I'm told not to.
+
+### Ganymede
+
+The Jovian moon Ganymede, the largest moon in our solar system, is
+particularly intriguing because it's large, it has a subsurface ocean, it has
+a magnetic field to ward off Jovian radiation, and appears to have many of
+what we think are likely prerequisites for life. [This article by
+astrophysicist Ethan Siegel lays out a case for investing Ganymede for
+life](https://www.forbes.com/sites/startswithabang/2021/07/28/is-ganymede---not-mars-or-europa---the-best-nearby-place-to-look-for-alien-life/?sh=14b0ca1f41d9).
+However, I'm unconvinced for the same reasons as Europa: no biosignatures have
+yet been detected.
+
+## Interesting Candidates
+
+### Enceladus
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/enceladus.jpg"
+   alt      = "Saturn's moon, Enceladus"
+   source   = 'https://carnegiescience.edu/news/how-enceladus-got-its-stripes'
+   caption  = "Saturn's Moon, Enceladus"
+   position = 'right'
+%]
+
+At first glance, Enceladus does not seem like a likely candidate for life as
+it's a small, icy moon of Saturn. However, it's geologically active, with
+cryovolcanoes (they spew water), a subsurface ocean, and probably hot vents in
+those oceans. More importantly, [something is pumping out a lot of methane
+from that ocean](https://www.popsci.com/science/saturn-ocean-moon/). [Methane
+is considered a
+biosignature](https://news.ucsc.edu/2022/03/methane-biosignatures.html)
+because it's usually generated by life (on Earth, of course) and tends to
+degrade quickly, meaning that a large amount of methane suggests that
+something is replenishing it.
+
+The team that analyzed the methane data studied a geological process known as
+[serpentinization](http://jersey.uoregon.edu/~mstrick/AskGeoMan/geoQuerry45.html)
+which could generate methane, but came to the conclusion that it would be
+impossible to generate as much methane as was seen. [A sample return mission
+was proposed for
+Enceladus](https://en.wikipedia.org/wiki/Life_Investigation_For_Enceladus),
+but sadly, NASA did not accept the proposal. Enceladus is a wonderful
+candidate for sample return because ...
+
+* Its low gravity makes the mission easier
+* Methane is a biosignature
+* The cryovolcanoes spew the samples high enough to easily collect on a flyby
+* The potential for discovering life makes this a very high reward mission
+
+We'll probably have to wait a few decades for the answer to this one, which is
+why I was tempted to put it in the "Unlikely Candidate" category (e.g.,
+pragmatism).
+
+### Venus
+
+Venus, despite having a hellish surface, has long been viewed as a candidate
+for extraterrestrial life. In 1967, [Carl Sagan argued that life was unlikely
+on the surface of
+Venus](https://www.nature.com/articles/2161198a0.epdf?sharing_token=6hkVV0fizhD5pFcPQKejHtRgN0jAjWel9jnR3ZoTv0PLG2fvIiRC7fWvVhqds2yTl5hRhPfBTu4FF5X4-GFsbAAGDhzjlmfV3rlisYV_Kx6FQH-Q-YAWTW-VZ989SAwTR3HmgQe-DXo0eToHXNY5Ca8eZ2c3KIR28YCakz5Ke1uiRjlyqCUfTlP5aiZdZbFSrZcbyjj9Tdmem2Fh63dbkw%3D%3D&tracking_referrer=mashable.com).
+However, in the same year, [he argued that life might exist in the clouds of
+Venus](https://mashable.com/article/venus-life-theory-carl-sagan). We've also
+found [dark streaks in the Venusian atmosphere that can't be easily
+explained](https://www.space.com/35294-alien-life-venus-mission-concept.html).
+We have no idea what the dark streaks are. We don't know their origin or
+composition. We don't know why they don't mix with the rest of the atmosphere
+and we don't know why they absorb ultraviolet life. From the article:
+
+> However, in a region beginning around 31 miles (50 km) in altitude and
+> extending 7.5 miles (12 km) outward is a sweet spot where the temperature
+> ranges between 86 degrees F and 158 degrees F (30 degrees C and 70 degrees
+> C), and the pressure is similar to that on Earth's surface. Life could
+> potentially survive in this zone where the dark-streaking UV absorber is
+> found.
+
+Microbial life could easily explain those dark streaks. Further, we now know
+that the unusual Venusian magnetic field is created by an interaction between
+the solar wind and [Venus'
+ionosphere](https://www.jhuapl.edu/NewsStory/210603-Solar-Orbiter-unveils-new-details-Venus-magnetosphere).
+Venus' ionosphere starts about 120 kilometers above the ground, so we have a
+magnetic field to help protect potential life against cosmic rays. Without
+such a field, those rays could sterilize the planet.
+
+But again, aliens? No. There's probably a non-biological explanation (there
+always has been, once it's found). However, until life is ruled out, Venus is
+relatively easy to visit (easier than Mars, actually), and if a sample return
+mission could be arranged, it's worth the effort. Even if we didn't find life,
+the scientific knowledge we would gain would be tremendous.
+
+More exciting is the recent detection of phosphine in the atmosphere.  Since
+phosphine is generally produced by life on Earth, and we struggle to describe
+any geological process on Venus that could produce phosphine, the news created
+a lot of excitement because [phosphine is a considered to be an excellent
+candidate for a biosignature in anoxic (low oxygen)
+atmospheres](https://www.liebertpub.com/doi/10.1089/ast.2018.1954). In
+particular:
+
+> Phosphine is a promising biosignature gas, as it has no known abiotic false
+> positives on terrestrial planets from any source that could generate the
+> high fluxes required for detection.
+
+Phosphine on Venus would be stunning news, but others have come out to say
+[there's no phosphine after
+all](https://www.mpg.de/17209676/0716-aero-no-phosphine-in-venus-clouds-151060-x),
+and others have disputed [the original
+research](https://www.nature.com/articles/s41550-020-1174-4) led by [Professor
+of Astronomy Jean
+Greaves](https://www.cardiff.ac.uk/people/view/913804-greaves-jane) and her
+team at Cardiff University in Wales. [She's had to post follow-up papers to
+explain flaws in some of the objections to her
+work](https://www.nature.com/articles/s41550-021-01423-y). The overall
+consensus in the popular press seems to be that there no phosphine detected in
+the Venus atmosphere and Greaves and her team simply misinterpreted the data.
+
+If Greaves is right, this could be huge news. If she's wrong, that's how
+science works. However, in what should be a major story, but has largely been
+unreported in the press, [The Planetary Society](https://www.planetary.org/)
+has [published a recent podcast with Professor
+Greaves](https://www.planetary.org/planetary-radio/2022-jane-greaves-more-venus-phosphine)
+where she announces that [another telescope has apparently confirmed the
+existence of
+phosphine](https://www.planetary.org/planetary-radio/2022-jane-greaves-more-venus-phosphine),
+meaning two telescopes and at least three different instruments confirming its
+existence. This is not proof (and we need more teams than just Greave's team
+reporting this), but it certainly suggests we need to follow this up.
+
+For more information, check out the [Life on
+Venus](https://en.wikipedia.org/wiki/Life_on_Venus) page on Wikipedia.
+
+### Mars
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/planet-mars.jpg"
+   alt      = "The planet Mars."
+   caption  = "The planet Mars."
+%]
+
+If I could only choose one place in the solar system to search for
+extraterrestrial life, it would be Mars, hands down. However, my reasoning is
+due to some research which, sadly, has been largely ignored. It was research
+conducted in the 1970s, but we'll get back to that.
+
+We now know that Mars was relatively like Earth early in its history, with a
+large ocean covering its northern hemisphere and a generally warm climate.
+However, due to the lack of a magnetosphere, [Mars' atmosphere was stripped
+away by the solar
+wind](https://www.science.org/doi/full/10.1126/science.aai7721). With that, it
+lost the ability to trap heat and it turned into a cold, apparently lifeless
+rock. We don't know the exact timing, but it may have been about [1 to 1.5
+billion years ago that Mars lost its
+magnetosphere](https://www.deccanherald.com/science-and-environment/indian-scientists-find-how-mars-lost-its-atmosphere-952775.html),
+giving life plenty of time to evolve, given that life was well-established on
+Earth at this time.
+
+However, that's not all. Methane has possibly been detected on Mars, but [the
+Trace Gas Orbiter did not find any
+methane](https://www.space.com/exomars-orbiter-no-methane-on-mars). However,
+[some recent studies suggest that there _may_ still be methane produced on
+Mars](https://eos.org/editors-vox/the-mystery-of-methane-on-mars-thickens) by
+unknown sources. The existence of methane on Mars is still highly
+controversial, but I consider three things:
+
+1. Mars was very Earth-like for billions of years
+2. We might have detected a key biosignature
+3. We are considering colonizing Mars
+
+Those three things together make Mars a strong candidate for searching for
+life simply because we can do this as a side-effect of other ongoing efforts.
+
+That is not, however, the primary reason we should choose Mars as our primary
+candidate in the search for life. Yes, we have a potential biosignature, but
+you might remember my biopresentation discussion above. We might have
+discovered _metabolism_ on Mars, and that happened back in the 1970s.
+
+From [this phys.org
+article](https://phys.org/news/2016-10-year-old-viking-life-mars.html):
+
+> In 1976, two Viking landers became the first US spacecraft from Earth to
+> touch down on Mars. They took the first high-resolution images of the
+> planet, surveyed the planet's geographical features, and analyzed the
+> geological composition of the atmosphere and surface. Perhaps most
+> intriguingly, they also performed experiments that searched for signs of
+> microbial life in Martian soil.
+
+In the experiment, these two landers, thousands of kilometers apart, each
+injected a $C_{14}$-laced (carbon 14) nutrient solution and then examined the
+air. They each detected that _something_ had released the $C_{14}$ from the
+solution.  They also heated each sample of 50 degrees Celsius (122 degrees
+Fahrenheit) and repeated the experiment. Each detected significantly reduced
+amounts of $C_{14}$, as would be expected if the heat killed off organisms.
+
+Previously, this experiment had been repeated extensively on Earth to verify
+that it was indeed a solid indication of life. It was also tested with known
+sterile samples to see if some other effect were causing the release of
+$C_{14}$.
+
+So in 1976, we had a _strong_ indicator of life, or "biopresenter," as I like
+to think of it. However, there were some problems. The biggest obstacle could
+be if some natural chemical process could replicate these results. A type of
+salt called "formate" could possibly be responsible, but it's not thought that
+formate is heavily present on Mars. Perchlorate, which we know is heavily
+present on Mars, can produce similar results, but it does so even when
+heated to above 160 degrees Celsius, so it's not consistent with what we've
+seen. Hypochlorite might be present on Mars and it breaks down when heated to
+above 160 degrees, but its behavior has not been tested at 50 degrees,[%
+Ovid.add_note("Why the <em>hell</em> hasn't someone performed this test yet?")
+%]. It's currently the best explanation for the observed biopresentation, but
+even if the 50 degree test is carried out, that doesn't rule out microbes on
+Mars. Of course, I remind you of the answer to the "aliens?" question. [Read
+the article in full to understand
+more](https://phys.org/news/2016-10-year-old-viking-life-mars.html). It's a
+complex question and there are no clear answers.
+
+# Conclusion
+
+For Mars, we had suitable conditions that life _could_ have evolved in.
+Given the ubiquity of extremophiles on Earth, it's not a stretch to imagine
+ancient Martian life evolving to exist in their current harsh climate. We have
+a potential biosignature _and_ a potential biopresenter. Mars is our best bet
+for looking for extraterrestrial life.
+
+However, there are so many other interesting questions here. [Recent research
+bolsters the case for
+panspermia](https://www.frontiersin.org/articles/10.3389/fmicb.2020.02050/full),
+so if we discover life on Mars, did it originate on Earth? Or, since we know
+Martian meteorites have landed on Earth, are we Martians? I certainly hope
+not. I have nothing against the idea of of originating on Mars, but I want to
+find _many_ examples of abiogenesis. That would tell us that our universe is
+probably filled with life. The more life there is, the more chances for
+intelligent life to exist somewhere else. Of course, that brings up the Fermi
+Paradox.
+
+With the [the new space industry taking
+off](/blog/time-to-invest-in-space.html), it's a very exciting time to be
+alive and exobiologists might turn from biologists who write science fiction
+to one of our most important scientific disciplines.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/get-your-ass-to-mars.jpeg"
+   alt      = "Arnold Schwarzeneggar, from 'Total Recall', saying 'get your ass to Mars.'"
+   caption  = "It’s Time."
+%]
+
+[%- END %]
