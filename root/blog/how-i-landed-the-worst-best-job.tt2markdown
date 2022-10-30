@@ -1,0 +1,327 @@
+[%
+    title            = 'How I Landed the Worst Best Job';
+    type             = 'blog';
+    slug             = 'how-i-landed-the-worst-best-job';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-10-29';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS personal}}
+
+# The Early Days
+
+Note: As usual, much of the below is from decades ago and my memory isn't
+perfect. In the unlikely event you are mentioned here, it's possible your
+memory will be different from mine.
+
+---
+
+I am often asked how I got into writing software for a living. This is the story
+of my first real programming job and the strange path that took me there.
+
+In 1982 I was attending [Keystone School](https://www.keystoneschool.org/) in
+San Antonio, Texas. It was a very dark time in my life and my geometry teacher
+recognized that I was in trouble, so she allowed me to play in the computer room
+that was reserved for older students. I learned BASIC programming and discovered
+something in school that I loved.  After I left that school to go back to a
+public school, I started writing (bad) games in BASIC and laboriously typing in
+programs I found in magazines.
+
+I had begun with Commodore PET computers and moved on to the technological
+marvel that was the TRS-80 (called the "trash 80").  By 1985, I already written
+a fully-featured graphics program (lo-res) for the TRS-80 that allowed users to
+create images, saved across multiple files (I didn't understand data compression
+back then) and stitch those files together to print the images on a dot matrix
+printer.
+
+Those were the days. I had demo images with that, including a nice, but
+pixelated, minotaur's head
+
+One would think that after I graduated high school in '85 that I would go on to
+college and do something with my life, but one would be wrong. We were dirt
+poor and at the time, to qualify for financial aid for college, I had to first
+apply for a Pell Grant.[% Ovid.add_note("It may still be the same way today.
+I've no idea.") %] _That_ required that my parents provide several years of past
+tax returns to show what level of financial support they could provide. My
+mother explained to me that my step father did the taxes. He had failed to file
+them for years, so no Pell Grant for me. No financial aid for me. No college for
+me.
+
+The next several years were me bouncing around from odd job to odd job, mostly
+fast food. At one point I had worked at [Wendy's](https://www.wendys.com/)
+restaurant in Anchorage, Alaska, Kingsville, Texas, Universal City, Texas,
+Longview, Washington, and Honolulu, Hawaii. I was a pathetic peripatetic,
+wandering from state to state, deeply embarrassed that the "Most Intelligent of
+the Class of '85" of Marion High School was an itinerant burger flipper.
+
+Years later, I eventually went to a community college in Portland, Oregon and
+managed to get an Associate of Science degree with a 4.0 GPA[%
+Ovid.add_note("That means I scored top marks in every class.") %], having taken
+every economics class they offered with a specialization in international
+relations.
+
+An Associate's Degree, is a two-year degree and unless you use it to go on to a
+four-year college, it's worthless for many jobs.
+
+# Barista
+
+Which is how I found myself working as a barista (espresso bartender) when a
+young, pretty lady walked up and placed her order, leaving a large tip in my tip
+jar. I was proud of the fact that I was the highest tipped (male) barista in our
+chain of stores and I accomplished this by flirting. So I flirted with her, in
+my naïveté thinking it was innocent fun.  I had known her and her boyfriend as
+regular customers, but that's all. And that's when she made me a rather curious
+offer.
+
+I declined, pointing out I had a girlfriend, to which she replied that my
+girlfriend could join us.
+
+Er, no. So when her boyfriend arrived later to place an order, I apologized,
+explaining that while I didn't know him well, he should know what happened.
+
+He swore, thanked me, and explained that their lifestyle was a bit different.
+However, they agreed not to proposition people without the other's knowledge. I
+still wasn't going there, but he and I started talking more and eventually we
+became friends. Turns out he was a software developer and when he found out I
+used to write software, we started talking about this frequently.
+
+One day, he came in to place an order and say he was quitting his job and he'd
+be happy to recommend me. The software was written in something called
+[UniBasic](https://www.unibasic.com/) and he was sure I could handle it. He
+would stay on for three months to train me.
+
+I got the job and it got my foot in the door, but to my surprise, it was often
+less professional than the fast food restaurants I worked at.
+
+# My First Test
+
+My friend was leaving his job on the last day of December. I had been on the job
+for just three months, learning their software, but only being allowed to work
+on it part-time. Otherwise, I made sure all of the employees were turning in
+their paperwork correctly. On that last day, the controller called me into his
+office. He explained that they needed to increase the price of everything by X%,
+varying per category, and have it ready for tomorrow.
+
+This wasn't just running a bunch of SQL. We were using a [UniData multivalue
+database](https://www.uniware.com.au/multivalue-database/unidata/), prices were
+scattered all over the place, and I wasn't very good with their query language.
+Worse, our license allowed us to write code to read the data, but not change it.
+Updating this data was done through software running on a terminal and it
+created audit trails for everything. I needed audit trails, too.
+
+This was a bad idea on _many_ fronts. First, my friend made it clear how much he
+despised the place and he was leaving at 5PM because he had a New Year's
+Eve party to attend. He explained to me _how_ to do the job and I knew
+enough about the design of our database to figure it out, but it should not have
+been a rush job.
+
+Next, since software I wrote could only read data, not change it, we had a huge
+risk.  If we changed the data and were caught, we'd have to pay $25,000 (almost
+$50,000 in today's money) to buy a copy of the software outright.  We were a
+small company and that would have hurt us. We'd also lose all technical support
+from the company that "designed" this software.[% Ovid.add_note("If that sounded
+snarky, it's well-deserved. At one point, a salesperson went through a nasty
+divorce and wanted her login name to be changed back to her maiden name. This
+wasn't possible because her login name was used as a primary key throughout the
+database. Every day she had to stare at her hated ex's name. It was not good.")
+%] and we'd no longer get free upgrades. Having a few hours heads-up on New
+Year's Eve that I needed to risk destroying the company's business wasn't fun,
+but this was how the company worked. So I worked.
+
+After writing the software to update the prices, I ran it. If it worked, it
+would _look_ like people had spent days manually updating all of the prices,
+complete with audit logs. I had done it in hours. But if I—a junior
+developer—corrupted the data, I might be fired.  Happy F'ing New Year.
+
+It was getting late in the evening and I was tired and stressed. I ran the
+software. I corrupted the data.
+
+The only reason I didn't get fired is that I wrote the software to terminate
+after the first change and I had _printed out_ all of the data that would be
+altered by the first run (this seeming much easier than the alternatives in
+those early days of software development). The controller and I manually fixed
+the data, I figured out what I did wrong, and ran my software again. This time
+it worked.
+
+I went over all of the data carefully. I double-checked everything I could.  The
+database was complex and prices for different kinds of goods were stored in
+different ways, but I couldn't see anything wrong with what I did. I explained
+everything to the controller (who, to be fair, had become a friend of mine. He
+was also surprised by this last minute request). I told him I could remove the
+code that caused the software to halt after the first change. The software would
+run overnight and we wouldn't know until the morning if it worked. The
+controller told me to do it and get to my party.
+
+January 1st, I get a phone call early in the morning. I'm hung over and not
+looking forward to this call. It seems they had been checking all of the data
+they could.
+
+The software worked.
+
+# How I Became a Bill Collector
+
+This was a small, family-owned business, with several stores offering a variety
+of products, many of which had to be ordered months in advance to be handmade in
+Europe and shipped to the US. The business wasn't struggling financially, but as
+far as I could tell, they weren't getting rich. They needed more money. In fact,
+I needed more money. I asked for a raise.
+
+At the time, I was paid $x dollars an hour for my administrative role and a
+couple of dollars an hour more for when I wrote software, capped at 15 hours a
+week. This wasn't legal, but I wasn't slinging espresso or burgers. I never
+complained, but I still asked for that raise.
+
+We had a new office manager who was not well-liked, was a rubbish manager, but
+knew our products like the back of his hand, having recently been promoted from
+warehouse manager. He listened to me, nodded, and explained that they were
+having trouble with customers ordering goods and not paying, leaving the company
+with a huge accounts receivable (AR) balance. The company simply didn't have the
+money to pay me.
+
+Oh. That's interesting. In my prior life, I had also worked in car sales. I knew
+exactly what this was: a negotiation. The manager probably thought he had told
+me "no," but I heard his objection and [I isolated
+it](https://www.salestraininganddevelopment.com/isolating-objections.html).
+
+Me: "You don't think I deserve a raise?"
+
+Him: "Yes, you do, but we can't afford it."
+
+Me: "And this is all because of the outstanding accounts receivable?"
+
+Him: "Yup, sorry about that."
+
+Me: "So if I can get those people to pay, you can afford to pay me."
+
+He was trapped by his own words, but to get out of that, he made me an offer I
+couldn't refuse, but couldn't win. If I could get AR to _zero_ by a certain
+date, I'd get a raise. He wouldn't budge from zero. We had a lot of outstanding
+accounts, but not an insurmountable number. However, the goods we sold weren't
+cheap and getting people to pay wasn't going to be easy. I was allowed to take
+any reasonable steps to enforce this.
+
+That's how I became a bill collector.
+
+The first thing I did was, of course, write software to produce daily reports
+for me on the next accounts I would go after, and the steps I had taken to
+collect on those accounts.
+
+I sent email to everyone I could, and called the others (all customers gave us
+phone numbers). An astonishingly large number of those people had no idea they
+owed money and paid up. No one had bothered to contact them! I was surprised at
+how easy it was. But a large number of them simply didn't answer.
+
+My next step: I received permission to contract with an actual bill collector.
+They would buy the debt from us, paying a fraction, and then it was their
+problem. That's when I discovered the world of potential clients wining and
+dining you to win your business. I only accepted lunch from them, but now I
+realize that even that is dubious.
+
+I chose a bill collector, the company signed the contract, and another large
+subset of accounts were cleared. But there will still more.
+
+One, in particular, was someone who told me on the phone that she owed nothing.
+But she did, and I had the paper to prove it. In fact, I often went back to the
+paper because if this went further, I wanted more than just ones and zeros on a
+hard disk. She clearly owed the money and it was a lot, so I tried to collect
+directly rather than hand her off to the bill collector.
+
+Turns out she was a lawyer and immediately replied that we were going to be sued
+for harassment. The company agreed to write her debt off and the grounds that a
+trial would cause more pain than her debt. Another account cleared.
+
+On the day of my deadline, the manager greeted me with a smile. He was very
+happy with the work that I had done but, unfortunately, I hadn't reduced AR to
+zero. No raise.
+
+I handed him the AR report. If the owners of the company paid _their_ bills for
+the products they bought, our AR would actually be positive. Should I send them
+to collections?
+
+I got my raise.
+
+# Sexual Harassment
+
+The worst nightmare at this job, though, was the sexual harassment.
+
+Three people, Alice, Bob, and Charlie. All of them were nice people and friends
+of mine. I was still very young and not understanding how business was supposed
+to work, so I flirted with Alice. She flirted back. We liked each other, but she
+was also an extremely devout Christian, so my atheism was an issue.
+
+Nonetheless, we continued to flirt. A little harmless fun, right? Bob didn't
+flirt with her, but he cracked lots of jokes, was well-liked, and he and I
+started hanging out after work. He was a great guy; we'll get back to him. I
+liked Charlie, too, but Alice didn't. So when Charlie would make inappropriate
+comments to her, _just like I did_, she ignored them.
+
+One day she came to me with a problem. The company was driven by
+testosterone-fueled cronyism and she didn't trust upper management. She said she
+was being sexually harassed by Charlie and didn't know what to do.
+
+Oh, shit. I wasn't entirely sure of the law, but a few thoughts crossed my mind.
+
+1. I stopped flirting instantly
+2. If I didn't act, I could be culpable
+3. I had to talk to upper management
+4. She probably knew she was about to be fired for being our worst salesperson
+
+She reluctantly agreed to let me explain the issue to management, but wouldn't
+tell me details. After speaking with management, they were _incredibly_ pissed
+that they couldn't fire her. However, they would take no action against Charlie
+because he was our number one salesperson.  They eventually agreed that Alice
+and I would have meetings to work the situation out, with me being the
+intermediary between her and upper management.  I was not happy about this,
+but that was that. So some evenings, Alice would leave the sales floor and have
+private meetings with me in a locked back office, trying to find a way forward.
+This was not professional, but I didn't know that. And remember, I left the
+sales floor and locked myself in an office with a pretty woman who wasn't
+selling anything but still kept her job.
+
+Bad optics. Really bad. Bob, my new friend who I was hanging out with a lot,
+joked in front of Alice and myself that he hoped we were having a good time in
+the back office. He knew nothing about the sexual harassment allegations and I
+couldn't tell him. I just turned to him and replied, "never say that again."
+
+I lost a friend that day. It hurt.
+
+It was Charlie's flirting with her that she objected to. She found him
+repulsive. At this point, I knew Alice well enough that I pointed out that I had
+said similar things (a phenomenally stupid thing to say), but she explained that
+she knew I didn't mean anything. Charlie, in her eyes, was a creep.
+
+In reality, Charlie was gay and had no interest in Alice, but he still liked to
+joke around. Of course, that in no way excused his behavior any more than I had
+an excuse for my behavior. Alice didn't know Charlie was gay, but as a devout,
+conservative Christian, it certainly wouldn't have made the situation better.
+
+Eventually, Alice left the company (I don't know the circumstances), and I
+learned a hard lesson about my personal behavior and what is and is not
+appropriate in the work place. I also began to get an understanding of how
+horribly women are often treated and realized that, even if she liked me, I had
+a hand in that treatment. It's not a fun lesson to learn about oneself, but the
+most painful lessons are often the best.
+
+My flirting played a role in my landing that job, and now it played a huge
+role in several people being hurt.
+
+# Leaving
+
+I started going back to college to take COBOL classes and after six months,
+leveraged that knowledge and my limited experience to get a full-time job at an
+insurance company. At the time, it was the best paying job in my life. I was a
+finally a professional software developer.
+
+My first programming job is still my "best" worst job because it was the
+platform that launched my career, but it was a nightmare. Good people, bad
+people, and cronyism galore. And decades later, I still feel bad about my role
+in the mess.
+
+[%- END %]
