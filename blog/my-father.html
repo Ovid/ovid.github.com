@@ -88,6 +88,9 @@
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>A Eulogy for My Father</h1>
         <time>2019-08-01</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
         <hr>
         <div class="twelve columns header">
         </div>
@@ -209,6 +212,7 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 
+<article id="article">
 <p><nav role="navigation" class="table-of-contents">
     <ul>
     <li class="indent-1"><a href="#early-life">Early Life</a></li>
@@ -820,12 +824,32 @@ in Germany was very efficient in helping us), and Jim’s ashes are now buried
 and a tree should grow from it in the years to come. And in a parting gift, <a href="/blog/missing-siblings.html">it turns out we may have one or two
 more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 
+</article>
 
 
 
           <p><strong>Please leave a comment below!</strong></p>
 
 
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
 
 <hr>
     <div class="prevNext">

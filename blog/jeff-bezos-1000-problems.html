@@ -91,6 +91,9 @@
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>What’s Wrong with Blue Origin?</h1>
         <time>2021-10-01</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
         <hr>
         <div class="twelve columns header">
         </div>
@@ -210,6 +213,7 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 
+<article id="article">
 <p><figure class="captioned">
     <img src="/static/images/new-shepard.jpg" width="600" alt="Blue Origin’s New Shepard rocket launching">
     <figcaption>An unusual event for Blue Origin <a href="https://en.wikipedia.org/wiki/Blue_Origin#/media/File:Blue_Origin_New_Shepard_Launch_april_2015.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
@@ -404,12 +408,32 @@ time to fire Bob Smith and bring in someone who can fix this damned mess.
 Everyone already knows he’s gone. Let’s get this done and give Blue Origin a
 chance to compete.</p>
 
+</article>
 
 
 
           <p><strong>Please leave a comment below!</strong></p>
 
 
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
 
 <hr>
     <div class="prevNext">
