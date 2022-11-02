@@ -89,6 +89,9 @@
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>Making Complex Software Simple</h1>
         <time>2020-04-05</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
         <hr>
         <div class="twelve columns header">
         </div>
@@ -210,6 +213,7 @@ role for an experienced Python developer with OpenAPI + ORM experience.
 
 
 
+<article id="article">
 <p><a href="https://allaroundtheworld.fr/" target="blank" style="color: #eaf2fa">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img src="/static/images/logo-shadow.png" width="600" alt="Company logo for 'All Around the World">
@@ -570,12 +574,32 @@ Architecture For Rails”, suggesting a tight coupling. That being said, it has
 fantastic testimonials which match our internal experience with exchanges. I
 expect we might see more of this type of code in the future.</p>
 
+</article>
 
 
 
           <p><strong>Please leave a comment below!</strong></p>
 
 
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
 
 <hr>
     <div class="prevNext">

@@ -78,7 +78,7 @@
   [% IF use_starmap %]
   <!-- starmap controls -->
   <link rel="stylesheet" type="text/css" href="/css/starmap.css"/> 
-    
+
   <!-- I can almost get rid of this now, thanks to refactoring -->
   <script type="text/javascript" src="/static/js/prototype.js"></script>
 
@@ -118,6 +118,9 @@
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1>[% title || "No Title Found" %]</h1>
         [% IF date %]<time>[% date %]</time>[% END %]
+		[% IF type == 'articles' or type == 'blog' %]
+		<p><span id="time"></span> minute read</p>
+		[% END %]
         <hr>
         <div class="twelve columns header">
         </div>
