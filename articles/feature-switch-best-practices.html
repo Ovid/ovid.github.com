@@ -1,0 +1,589 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/feature-switch-best-practices.html" />
+  
+  <meta property="og:title" content="Feature Switch Best Practices" />
+  <meta property="og:description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let's discuss best practices." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Feature Switch Best Practices</title>
+  <meta name="description" content="Feature Switch Best Practices">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Feature Switch Best Practices</h1>
+        <time>2022-11-23</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Professional Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a h,ef="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            
+            
+            <li><a href="/tags/business.html" data-weight="9">Business</a></li>
+        
+            
+            
+            <li><a href="/tags/corinna.html" data-weight="9">Corinna</a></li>
+        
+            
+            
+            <li><a href="/tags/databases.html" data-weight="8">Databases</a></li>
+        
+            
+            
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            
+            
+            <li><a href="/tags/family.html" data-weight="5">Family</a></li>
+        
+            
+            
+            <li><a href="/tags/math.html" data-weight="4">Math</a></li>
+        
+            
+            
+            <li><a href="/tags/oop.html" data-weight="9">OOP</a></li>
+        
+            
+            
+            <li><a href="/tags/perl.html" data-weight="9">Perl</a></li>
+        
+            
+            
+            <li><a href="/tags/personal.html" data-weight="6">Personal</a></li>
+        
+            
+            
+            <li><a href="/tags/politics.html" data-weight="6">Politics</a></li>
+        
+            
+            
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            
+            
+            <li><a href="/tags/science.html" data-weight="3">Science</a></li>
+        
+            
+            
+            <li><a href="/tags/space.html" data-weight="4">Space</a></li>
+        
+            
+            
+            <li><a href="/tags/writing.html" data-weight="8">Writing</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/current-corinna-status.html" class="prevPost">&laquo; Current Corinna Status</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#programming-a-new-feature">Programming A New Feature</a></li>
+    <li class="indent-1"><a href="#use-control-panels">Use Control Panels</a></li>
+    <li class="indent-1"><a href="#dont-use-control-panels">Don’t Use Control Panels</a></li>
+    <li class="indent-1"><a href="#permanent-features">Permanent Features</a></li>
+    <li class="indent-1"><a href="#sampled-switches">“Sampled” Switches</a></li>
+    <li class="indent-1"><a href="#naming-conventions">Naming Conventions</a></li>
+    <li class="indent-1"><a href="#operations">Operations</a></li>
+    <li class="indent-2"><a href="#errors">Errors</a></li>
+    <li class="indent-2"><a href="#communications">Communications</a></li>
+    <li class="indent-2"><a href="#simplicity">Simplicity</a></li>
+    <li class="indent-2"><a href="#clean-features-regularly">Clean Features Regularly</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>One of the best things to come out of the modern DevOps movement is the
+aggressive push for “feature switches.” At <a href="https://allaroundtheworld.fr/" target="_blank">All Around the
+World</a> <span class="fa fa-external-link fa_custom"></span>, we strongly recommend them for our
+clients and sometimes we implement them, but I’m still surprised that many
+companies don’t use them. They’re dead-simple to build and they’re a powerful
+tool for site reliability. Unfortunately, many articles discuss how to build
+them or use them, but best practices are neglected. So we’ll skip the
+implementation and instead focus on using feature switches effectively.</p>
+
+<p><em>Note: the discussion below refers to “sites” because this is in the context of
+websites. Obviously, it doesn’t have to be.</em></p>
+
+<p>A couple of decades ago when I was working for a small web-development firm in
+Portland, Oregon, we released a new version of our software that had a critical
+bug in a new feature. The bug was serious enough that it took down the entire
+web site. We had to revert to an earlier version (from CVS, the good ‘ol days!)
+and redeploy the web site. Our largest client’s site was down for an hour and
+that was not good. Had we used feature switches, we could simply have turned the
+feature off and the client might not have even noticed.</p>
+
+<p>Note that you don’t need to implement everything I suggest in your first pass;
+you just need to get up and running and comfortable with feature switches. Once
+you do, you can better understand the additional tooling support needed for your
+use case.</p>
+
+<h1><a name="programming-a-new-feature"></a>Programming A New Feature</h1>
+
+<p>For the developer, using feature switches is straight-forward. Imagine that you
+always show a list of categories for products you sell, but you’re fetching it
+from the database every time. Developers argue for caching the list, but
+sometimes it changes and arguments over cache invalidation stall development.
+Finally, an agreement is reached, but you don’t want to roll the new
+functionality out blindly, so you use a feature switch. Here’s some pseudo-code
+in Perl.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
+if ( feature_on('cached_categories') ) {
+    $categories = $cache-&gt;category_names;
+}
+else {
+    $categories = $app-&gt;category_names;
+}
+</code></pre></div>
+
+<blockquote>
+  <p>Side note: the above is shown for simplicity. In reality, <code>$app</code> variables
+  often imply some kind of global state and if it’s mutable, that can be
+  dangerous, but we’re keeping it simple.</p>
+</blockquote>
+
+<p>In the above, if the <code>cached_categories</code> feature is on, we fetch features from
+the cache. If it’s not, we fetch it from the database. There are numerous ways
+this can be done on the front-end, but we’ll skip those for the purposes of this
+article.</p>
+
+<p>Why would you bother to use a feature switch for the above? You’ve tested it.
+The customer won’t see a difference. You <em>know</em> it works. Right?</p>
+
+<p>No, you don’t. What if your cache invalidation doesn’t work quite as expected?
+What if your cache isn’t loaded? What if your brand-new caching system
+isn’t as reliable as you thought and you actually need the following?</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
+if ( feature_on('cached_categories') ) {
+    $categories = $cache-&gt;category_names || $app-&gt;category_names;
+}
+else {
+    $categories = $app-&gt;category_names;
+}
+</code></pre></div>
+
+<p>Sound paranoid? One definition of a good programmer is someone who looks both
+ways before crossing a one-way street. So you roll out your new code with your
+feature turned <em>off</em> and after you verify everything is good, you turn on your
+feature. How?</p>
+
+<h1><a name="use-control-panels"></a>Use Control Panels</h1>
+
+<p>Typically, a good system for feature switches should have a
+web-based control panel that lists each feature and shows, amongst other things:</p>
+
+<ul>
+<li>The name of the feature</li>
+<li>A description of what the feature is for</li>
+<li>The current on-off state</li>
+<li>Whether the feature is permanent (more on that later)</li>
+<li>An “on-off” history of the feature</li>
+</ul>
+
+<p>The “on-off” history is simply an audit log. At minimum, you want:</p>
+
+<ul>
+<li>Who toggled the feature</li>
+<li>The date it was turned on/off</li>
+<li>Why it was turned on/off</li>
+<li>Possibly the release-tag of the software</li>
+</ul>
+
+<p>An audit log of the history can be immensely useful if you want to turn on a
+feature that was turned off for several months and you don’t remember why.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> For companies that make heavy use of feature switches,
+this can be invaluable. If your company is structured well enough, you might
+even want to include what team the feature belongs to, or what departments are
+responsible for it. Because so many companies are structured differently, it’s
+hard to give clear guidance without knowing the specifics.</p>
+
+<h1><a name="dont-use-control-panels"></a>Don’t Use Control Panels</h1>
+
+<p>Yes, feature switches are usually used via control panels and they make it easy
+to turn features on and off, but there are caveats. It sometimes happens that
+enabling a new feature cause every page on your site to crash, taking down the
+control panel! Oops. Having a control panel running on a dedicated server,
+separate from the servers using the features can help to mitigate this. Having
+command-line tools to turn features on or off can also be useful. <strong>Do not rely
+on control panels alone</strong>. Nothing’s worse than having everything web-based and
+losing web access.</p>
+
+<h1><a name="permanent-features"></a>Permanent Features</h1>
+
+<p>One thing often overlooked for features switches is that some of them should be
+permanent. Imagine that your site goes viral and you’re hitting unprecedented
+amounts of load and you’re struggling. Some sites handle this by having optional
+features on the site wrapped in permanent feature switches. If your site is
+struggling under a heavy load, being able to toggle off optional features such
+as autocomplete or “related searches” that aren’t critical can help you manage
+that load. Your site experience degrades gracefully instead of simply crashing.</p>
+
+<h1><a name="sampled-switches"></a>“Sampled” Switches</h1>
+
+<p>Before turning on a switch, it’s often useful to turn it on only for a subset of
+requests. For example, you might only want 10% of users to experience it. If a
+feature turns out to be disastrous, this can limit the impact.
+However, this can be odd for someone who sees a new feature, refreshes a web
+page, and that feature disappears because they are no longer in the randomly
+selected subset. Making such features persistent per user can be tricky, though.
+Do you rely on cookies? Your mobile app may not use cookies. Or someone might
+switch browsers, such as switch from their work to their personal computer.</p>
+
+<p>Don’t stress about this (unless you’re doing A/B testing). “Sampled” features
+are short-lived. As feature switches are primarily a site reliability tool, the
+limited sample run is just there to avoid disaster and you should go 100% as
+soon as is feasible.</p>
+
+<h1><a name="naming-conventions"></a>Naming Conventions</h1>
+
+<p>For one of our clients, they have no naming convention for their features, but
+they use features heavily. We wrote code to scan our <code>CODEOWNERS</code> file to dump a
+list of all features in our code in order to regularly monitor them. This
+allowed us to do heavy cleanup when we found many features that had been running
+successfully for years, but were never cleaned. Even this was limited because
+many of “our” features were scattered in other parts of the codebase.</p>
+
+<p>To deal with this, establishing a naming convention early on can make it easier
+to search for features. Are you on the advertising team and you have a new
+feature offering a discount for first-time buyers? You use <code>ADV-</code> as a prefix:
+<code>ADV-FIRST_TIME_BUYER</code>. Searching for all features prefixed with <code>ADV-</code> gives
+you an overview of the features your team has running.</p>
+
+<p>When you identify a naming convention, do not put ticket numbers in the feature
+name. Many companies switch ticketing systems and old ticket numbers become
+useless. Instead, having a “Ticket URL” field on your form when you create a
+feature allows others to click through and understand the intent of that
+feature.</p>
+
+<h1><a name="operations"></a>Operations</h1>
+
+<h2><a name="errors"></a>Errors</h2>
+
+<p>If you dump out rich error data to error logs, include a list of running
+features, sorted by last start time. Frequently, new errors show up due to
+recently introduced features and this makes it much easier to debug, especially
+if first time buyers sometimes can’t place orders and you see the
+<code>ADV-FIRST_TIME_BUYER</code> feature was just switched on. This makes life much
+easier.</p>
+
+<h2><a name="communications"></a>Communications</h2>
+
+<p>Let other teams know when you’re about to start a new features, especially your
+site reliability engineers (or equivalent). Give them a heads-up about the
+intent of the feature and what to look for if their are issues. Such
+communication can allow tracking down issues faster.</p>
+
+<h2><a name="simplicity"></a>Simplicity</h2>
+
+<p>Feature switches are a site reliability tool. Keep them simple. You don’t want
+your site to break because someone made the feature switch tool too complicated.
+This is one of the reasons I prefer features to be “booleans” (in other words,
+“on or off”). Some recommend feature tools that allow you to do this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
+if ( 'enhanced' eq feature_on('SOME_FEATURE') ) {
+    $categories = $app-&gt;categories_enhanced;
+}
+elsif ( 'expanded' eq feature_on('SOME_FEATURE') ) {
+    $categories = $app-&gt;categories_expanded;
+}
+elsif ( feature_on('SOME_FEATURE') ) {
+    warn &quot;Unknown feature category for SOME_FEATURE&quot;;
+}
+$categories //= $app-&gt;category_names;
+</code></pre></div>
+
+<p>Does the above start to look complicated? Well, kinda. If you allow more than
+just “on” or “off”, you need to check for the case where the feature value
+doesn’t match expectations. Maybe someone added a new value to the feature?
+Maybe <code>expanded</code> was actually <code>expandable</code> and you misspelled it in your code.
+By allowing these multiple values, you’re complicating code that’s a site
+reliability tool. KISS: Keep it simple, stupid. Feature switches are there to
+make life easier. Don’t overthink them.</p>
+
+<h2><a name="clean-features-regularly"></a>Clean Features Regularly</h2>
+
+<p>Aside from “permanent” features that you want to always be able to switch off,
+it’s important to regularly clean features. Otherwise, you get into messes like
+this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if (feature_on('FEATURE_1')) {
+    # do something
+    if (feature_on('FEATURE_2')) {
+        # do something else
+    }
+    elsif (feature_on('FEATURE_3') {
+        # do yet another thing
+        if (feature_on('FEATURE_4')) {
+            ...
+        }
+    }
+}
+</code></pre></div>
+
+<p>Not only does that make the code harder to read, you can wind up with cases
+where features work well on their own, but there could be some unknown
+interaction between conflicting features that won’t be noticed unless you have
+the right combination of features toggled on or off. This is miserable to debug.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>Feature switches are an incredibly powerful site reliability tool which can
+often eliminate the need to redeploy your software if something goes wrong. This
+can improve your customer experience and dramatically cut costs. However, like
+any new system you implement, you want to take some time up front deciding how
+it will be used and what your best practices are.</p>
+
+<p>You will probably find that the best practices you develop for your company
+differ from what I describe above. That’s OK. I’m not dogmatic. But planning for
+this in advance can give you greater confidence in pushing new code that might
+otherwise be cause for concern.</p>
+
+<p>If you’d like top-notch experienced developers with decades of experience to
+come in and make your life easier, <a href="mailto:curtis.poe@gmail.com?subject=Consulting">let me
+know</a>. Our work at <a href="https://allaroundtheworld.fr/" target="_blank">All Around
+the World</a> <span class="fa fa-external-link fa_custom"></span>, is focused on pragmatic development
+custom-tailored to client needs.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/current-corinna-status.html" class="prevPost">&laquo; Current Corinna Status</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2022 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/feature-switch-best-practices.html";
+            this.page.identifier = "articles/feature-switch-best-practices";
+            this.page.title      = "Feature Switch Best Practices";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>In practice, I've often seen the 'why' field is left blank,
+leaving me to wonder if it's safe to re-enable the feature. Make the field
+<tt>NOT NULL</tt>.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+</body>
+</html>
+
+
