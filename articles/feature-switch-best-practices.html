@@ -224,6 +224,7 @@
     <li class="indent-2"><a href="#communications">Communications</a></li>
     <li class="indent-2"><a href="#simplicity">Simplicity</a></li>
     <li class="indent-2"><a href="#clean-features-regularly">Clean Features Regularly</a></li>
+    <li class="indent-2"><a href="#dont-check-features-at-compiletime">Don’t Check Features at Compile=Time</a></li>
     <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
     </ul>
 </nav>
@@ -231,14 +232,14 @@
 
 <h1><a name="introduction"></a>Introduction</h1>
 
-<p>One of the best things to come out of the modern DevOps movement is the 
-aggressive push for “feature switches” (also known as “feature flags” or 
-“feature toggles”). At <a href="https://allaroundtheworld.fr/" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>, we 
-strongly recommend them for our clients and sometimes we implement them, but I’m 
-still surprised that many companies don’t use them. They’re dead-simple to build 
-and they’re a powerful tool for site reliability. Unfortunately, many articles 
-discuss how to build them or use them, but best practices are neglected. So 
-we’ll skip the implementation and instead focus on using feature switches 
+<p>One of the best things to come out of the modern DevOps movement is the
+aggressive push for “feature switches” (also known as “feature flags” or
+“feature toggles”). At <a href="https://allaroundtheworld.fr/" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>, we
+strongly recommend them for our clients and sometimes we implement them, but I’m
+still surprised that many companies don’t use them. They’re dead-simple to build
+and they’re a powerful tool for site reliability. Unfortunately, many articles
+discuss how to build them or use them, but best practices are neglected. So
+we’ll skip the implementation and instead focus on using feature switches
 effectively.</p>
 
 <p><em>Note: the discussion below refers to “sites” because this is in the context of
@@ -465,6 +466,37 @@ this:</p>
 where features work well on their own, but there could be some unknown
 interaction between conflicting features that won’t be noticed unless you have
 the right combination of features toggled on or off. This is miserable to debug.</p>
+
+<h2><a name="dont-check-features-at-compiletime"></a>Don’t Check Features at Compile=Time</h2>
+
+<p>This one is a subtle trap. Feature switches are designed to allow you to quickly
+turn a feature on or off while the system is still running. However, if your
+code that checks the feature does so too early and <em>not</em> at runtime, you may
+find that you can’t turn your feature on or off! Here’s an example in Perl:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Package;
+
+sub import ($class) {
+    if ( feature_on('MY_COOL_FEATURE') ) {
+        ...
+    }
+}
+
+# elsewhere
+package Another::Package;
+
+use Some::Package;
+...
+</code></pre></div>
+
+<p>In the above, the <code>use Some::Package</code> statement will cause <code>Some::Package</code> to
+call <code>import</code> and that will check the feature switch, but that will happen only
+once. Toggling the feature switch later will likely not affect the code while
+<code>Another::Package</code> is resident in memory.</p>
+
+<p>Worse, if some other code is loaded <em>later</em>, but the feature switch has been
+toggled, you may find that different parts of your codebase do not agree on
+whether or not a feature is running. This is not a good place to be.</p>
 
 <h1><a name="conclusion"></a>Conclusion</h1>
 

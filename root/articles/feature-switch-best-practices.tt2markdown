@@ -17,14 +17,14 @@
 
 # Introduction
 
-One of the best things to come out of the modern DevOps movement is the 
-aggressive push for "feature switches" (also known as "feature flags" or 
-"feature toggles"). At [All Around the World](https://allaroundtheworld.fr/), we 
-strongly recommend them for our clients and sometimes we implement them, but I'm 
-still surprised that many companies don't use them. They're dead-simple to build 
-and they're a powerful tool for site reliability. Unfortunately, many articles 
-discuss how to build them or use them, but best practices are neglected. So 
-we'll skip the implementation and instead focus on using feature switches 
+One of the best things to come out of the modern DevOps movement is the
+aggressive push for "feature switches" (also known as "feature flags" or
+"feature toggles"). At [All Around the World](https://allaroundtheworld.fr/), we
+strongly recommend them for our clients and sometimes we implement them, but I'm
+still surprised that many companies don't use them. They're dead-simple to build
+and they're a powerful tool for site reliability. Unfortunately, many articles
+discuss how to build them or use them, but best practices are neglected. So
+we'll skip the implementation and instead focus on using feature switches
 effectively.
 
 _Note: the discussion below refers to "sites" because this is in the context of
@@ -252,6 +252,38 @@ Not only does that make the code harder to read, you can wind up with cases
 where features work well on their own, but there could be some unknown
 interaction between conflicting features that won't be noticed unless you have
 the right combination of features toggled on or off. This is miserable to debug.
+
+## Don't Check Features at Compile=Time
+
+This one is a subtle trap. Feature switches are designed to allow you to quickly
+turn a feature on or off while the system is still running. However, if your
+code that checks the feature does so too early and _not_ at runtime, you may
+find that you can't turn your feature on or off! Here's an example in Perl:
+
+```perl
+package Some::Package;
+
+sub import ($class) {
+    if ( feature_on('MY_COOL_FEATURE') ) {
+        ...
+    }
+}
+
+# elsewhere
+package Another::Package;
+
+use Some::Package;
+...
+```
+
+In the above, the `use Some::Package` statement will cause `Some::Package` to
+call `import` and that will check the feature switch, but that will happen only
+once. Toggling the feature switch later will likely not affect the code while
+`Another::Package` is resident in memory.
+
+Worse, if some other code is loaded _later_, but the feature switch has been
+toggled, you may find that different parts of your codebase do not agree on
+whether or not a feature is running. This is not a good place to be.
 
 # Conclusion
 
