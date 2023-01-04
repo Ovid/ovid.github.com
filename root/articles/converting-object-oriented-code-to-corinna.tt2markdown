@@ -20,7 +20,7 @@
 This post is mainly my findings on finally porting some real code to Corinna,
 but I confess I was concerned when I first started.
 
-I recently tried to make a convert a `bless` object hierarchy to
+I recently tried to convert a `bless` object hierarchy to
 [Corinna](https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod) and I
 failed, badly. The code worked, but the design was a mess. As the lead
 designer of Corinna, after years of effort, I found that Corinna was flawed.
@@ -204,7 +204,7 @@ Even ignoring the fact that my objects were mutable, my code is flawed. The
 "Tag" classes need to be able to access the `$token` from the parent class.  I
 have no way to do that, so I have a `_get_token` method. Untrusted code can call
 `$token->_get_token` and change the array reference in unexpected ways.  That
-kills one of of major points of Corinna, but I've no easy way of sharing that
+kills one of the major points of Corinna, but I've no easy way of sharing that
 data otherwise.
 
 Realizing I could not fix this was my crushing blow, leading me to naïvely
@@ -494,10 +494,7 @@ class HTML::TokeParser::Corinna::Exception {
   method message ()     {$message}
   method stack_trace () {$trace}
 
-  # The `@` is needed in the signature because overload
-  # passes additional arguments to the method, but we
-  # don't care about those.
-  method to_string (@) {
+  method to_string {
     # error() can be overridden
     my $error = $self->error;
     # but $message is universal
@@ -562,7 +559,7 @@ with that.
 
 So far, the Corinna code is simpler, easier to read, provides strong
 encapsulation, and was generally a pleasure to write. I'm looking forward to the
-day it's production ready. I expect here will be teething pain for others,
+day it's production ready. I expect there will be teething pain for others,
 since thinking in terms of blessed hashes is ingrained in Perl culture, but if
 we keep living in the past, Perl will become a thing of the past.
 
