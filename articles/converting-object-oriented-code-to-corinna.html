@@ -1,0 +1,870 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/converting-object-oriented-code-to-corinna.html" />
+  
+  <meta property="og:title" content="Converting Object-Oriented Code to Corinna" />
+  <meta property="og:description" content="I was recently humbled when I converted some code to Corinna and Corinna's constraints showed the design flaws in my code." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129723079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-129723079-1');
+  </script>
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Converting Object-Oriented Code to Corinna</title>
+  <meta name="description" content="Converting Object-Oriented Code to Corinna">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Converting Object-Oriented Code to Corinna</h1>
+        <time>2022-12-29</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Professional Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            
+            
+            <li><a href="/tags/business.html" data-weight="9">Business</a></li>
+        
+            
+            
+            <li><a href="/tags/corinna.html" data-weight="9">Corinna</a></li>
+        
+            
+            
+            <li><a href="/tags/databases.html" data-weight="8">Databases</a></li>
+        
+            
+            
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            
+            
+            <li><a href="/tags/family.html" data-weight="5">Family</a></li>
+        
+            
+            
+            <li><a href="/tags/math.html" data-weight="4">Math</a></li>
+        
+            
+            
+            <li><a href="/tags/oop.html" data-weight="9">OOP</a></li>
+        
+            
+            
+            <li><a href="/tags/perl.html" data-weight="9">Perl</a></li>
+        
+            
+            
+            <li><a href="/tags/personal.html" data-weight="7">Personal</a></li>
+        
+            
+            
+            <li><a href="/tags/politics.html" data-weight="6">Politics</a></li>
+        
+            
+            
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            
+            
+            <li><a href="/tags/science.html" data-weight="3">Science</a></li>
+        
+            
+            
+            <li><a href="/tags/space.html" data-weight="5">Space</a></li>
+        
+            
+            
+            <li><a href="/tags/writing.html" data-weight="9">Writing</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/feature-switch-best-practices.html" class="prevPost">&laquo; Feature Switch Best Practices</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/corinna.html">Corinna</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#programming-in-the-wrong-language">Programming in the Wrong Language</a></li>
+    <li class="indent-1"><a href="#i-failed-at-corinna">I Failed at Corinna</a></li>
+    <li class="indent-1"><a href="#what-i-was-trying-to-do">What I Was Trying to Do</a></li>
+    <li class="indent-1"><a href="#how-i-fixed-it">How I Fixed It</a></li>
+    <li class="indent-1"><a href="#types-or-the-lack-thereof">Types (or the lack thereof)</a></li>
+    <li class="indent-1"><a href="#exceptions">Exceptions</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>This post is mainly my findings on finally porting some real code to Corinna,
+but I confess I was concerned when I first started.</p>
+
+<p>I recently tried to make a convert a <code>bless</code> object hierarchy to
+<a href="https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod" target="_blank">Corinna</a> <span class="fa fa-external-link fa_custom"></span> and I
+failed, badly. The code worked, but the design was a mess. As the lead
+designer of Corinna, after years of effort, I found that Corinna was flawed.
+After hours of trying to write and rewrite the explanation of the flaw, I
+found the flaw: me.</p>
+
+<p>Corinna is not flawed. I was thinking in terms of blessed hashes, not Corinna.
+When I realized what was going on, my thoughts shifted. I started to see the old
+code was riddled with flaws. Admittedly, the code I was porting was something I
+designed (*cough*) two decades ago, but it was still humbling.</p>
+
+<h1><a name="programming-in-the-wrong-language"></a>Programming in the Wrong Language</h1>
+
+<p>It used to be that plenty of C developers flocked to the Perl language because
+it’s so quick-n-easy to whip up a prototype and test out an idea. Of course,
+experienced Perl programmers would point out that the C programmers were
+writing Perl as if it was C, not Perl. They’d look at this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">for ( my $i = 0; $i &lt;= @array; $i++ ) {
+    my $element = $array[$i];
+    ...
+}
+</code></pre></div>
+
+<p><em>By the way, did you spot the bug?</em></p>
+
+<p>And they’d say, “just use the elements directly”:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">for my $element (@array) {
+    ...
+}
+</code></pre></div>
+
+<p>That easier to read, more likely to be correct, and it’s faster.</p>
+
+<p>In the 90s, I didn’t have that problem when I started with Perl. At the time, it
+had been over a decade since I had done any serious C hacking, so I didn’t write
+my Perl like C. I wrote it like COBOL. Seriously! I’d declare all of my
+variables at the top of the program, as if I were setting up my
+<a href="https://www.microfocus.com/documentation/visual-cobol/30pu9/VC_30PU9_for_Eclipse_for_Windows_WH/BKCGCGRMCIS002F010.html" target="_blank"><code>WORKING-STORAGE
+SECTION</code></a> <span class="fa fa-external-link fa_custom"></span>.
+Then I’d set the appropriate variables and call the <strike>procedure</strike>
+subroutine I needed, though I at least returned data instead of setting a
+global.</p>
+
+<p>Needless to say, my early days in writing Perl were pretty awful, but it was
+still a hell of a lot easier than COBOL.</p>
+
+<p>Today, many Perl developers are excited about the Corinna project, for which I
+have written <a href="https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod" target="_blank">a short
+tutorial.</a> <span class="fa fa-external-link fa_custom"></span> Just as
+one should stop thinking in C or COBOL when writing Perl, one should stop
+thinking in terms of using <a href="https://perldoc.perl.org/functions/bless" target="_blank"><code>bless</code></a> <span class="fa fa-external-link fa_custom"></span>
+when writing Corinna. If that seems like it’s not too hard, I can assure you,
+many will stumble as I did.</p>
+
+<h1><a name="i-failed-at-corinna"></a>I Failed at Corinna</h1>
+
+<p>My
+<a href="https://metacpan.org/pod/HTML::TokeParser::Simple" target="_blank"><code>HTML::TokeParser::Simple</code></a> <span class="fa fa-external-link fa_custom"></span>
+module is modestly popular. <a href="https://metacpan.org/module/HTML::TokeParser::Simple/requires" target="_blank">There are over 30 distributions which depend on
+it</a> <span class="fa fa-external-link fa_custom"></span> and I
+frequently see it used in clients I assist, and given that it’s been around for
+over two decades with no bugs reported, I’m pretty happy with that module.
+So when <a href="https://github.com/Ovid/Cor/issues/64" target="_blank">Paul Evans created a PR for a subset of
+Corinna</a> <span class="fa fa-external-link fa_custom"></span>, I thought it was
+time to port something. Instead of <a href="https://github.com/Ovid/Cor" target="_blank">mocked-up code in the
+RFC</a> <span class="fa fa-external-link fa_custom"></span> or <a href="https://github.com/Ovid/Cor/blob/master/lib/Object/Types/Factory.pm" target="_blank">my experiments with
+<code>Object::Pad</code></a> <span class="fa fa-external-link fa_custom"></span>,
+I was going to write <em>real</em> Corinna code.</p>
+
+<p>I had been following along and giving Paul some feedback on development work. I
+found a couple of bugs (not many, which is impressive), but now it was time to
+really push things. Hell, as the lead designer of the Corinna project, based on
+<a href="https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede" target="_blank">my original 2019
+(mis)design</a> <span class="fa fa-external-link fa_custom"></span> and
+<em>that</em> was based on <a href="/blog/politics-in-programming.html">research and work I had done prior to
+that</a>, I’m pretty comfortable with saying
+that if anyone can port something to Corinna, I am that guy.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/DFbpEsjKPO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>And that’s when I discovered that I’m Prax, not Amos. I am not that guy. (If you
+haven’t watched or read The Expanse, you’re missing out. Trust me.)</p>
+
+<h1><a name="what-i-was-trying-to-do"></a>What I Was Trying to Do</h1>
+
+<p>The point of this module is that
+<a href="https://metacpan.org/pod/HTML::TokeParser" target="_blank"><code>HTML::TokeParser</code></a> <span class="fa fa-external-link fa_custom"></span> could parse
+HTML into a stream of tokens which look like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">[&quot;S&quot;,  $tag,    \%attr, \@attrseq, $text]
+[&quot;E&quot;,  $tag,    $text]
+[&quot;T&quot;,  $text,   $is_data]
+[&quot;PI&quot;, $token0, $text]
+[&quot;C&quot;,  $text]
+[&quot;D&quot;,  $text]
+</code></pre></div>
+
+<p>The code I wrote using that was constantly breaking, so I blessed those and put
+an OO wrapper on them so that <code>$token-&gt;as_is</code> (renamed to <code>$token-&gt;to_string</code> in
+my new code) always returned what it was supposed to return, instead of using
+<code>$token-&gt;[4]</code> (start tag), <code>$token-&gt;[2]</code> (end tag), <code>$token-&gt;[1]</code> (text), an so
+on. You can’t even use <code>$token-&gt;[-1]</code> to read the last item thanks to the <code>T</code>
+token (text) ironically being the token which had the plaintext in an
+unpredictable position.</p>
+
+<p>That’s <em>much</em> easier than using <code>HTML::TokeParser</code> directly. I did this by
+calling <code>bless</code> with the array references and blessing them into appropriate
+classes. This meant the array reference was still available and
+<code>HTML::TokeParser::Simple</code> was a drop-in replacement for the original module.
+You could switch from <code>HTML::TokeParser</code> to <code>HTML::TokeParser::Simple</code> with no
+other changes in your code. You then gradually converted array reference
+lookups to method calls. I was doing a lot of web scraping in the pre-API days
+of the Web and this saved me much grief.</p>
+
+<p>So when I started designing
+<a href="https://github.com/Ovid/html-tokeparser-corinna" target="_blank">HTML::TokeParser::Corinna</a> <span class="fa fa-external-link fa_custom"></span>, I
+hit my first snag.</p>
+
+<p>Since Corinna is designed to be encapsulated, you can’t call <code>$token-&gt;[1]</code>. No
+“reaching inside” the object is allowed. But that’s fine! Since
+<code>HTML::TokeParser::Corinna</code> is a new module, I can create any interface I want.
+That’s when I hit my next problem.</p>
+
+<p>For each of the array reference types listed above, I have a corresponding
+class:</p>
+
+<ul>
+<li><code>HTML::TokeParser::Corinna::Token::Tag::Start</code></li>
+<li><code>HTML::TokeParser::Corinna::Token::Tag::End</code></li>
+<li><code>HTML::TokeParser::Corinna::Token::Text</code></li>
+<li><code>HTML::TokeParser::Corinna::Token::Comment</code></li>
+<li><code>HTML::TokeParser::Corinna::Token::Declaration</code></li>
+<li><code>HTML::TokeParser::Corinna::Token::ProcessInstruction</code></li>
+</ul>
+
+<p>There are some common behaviors there and since we don’t yet have roles for
+Corinna, I used abstract base classes.  (We’ll shorten the prefix to the
+namespace to make it easier to read):</p>
+
+<ul>
+<li><code>HTC::Token</code></li>
+<li><code>HTC::Token::Tag :isa(HTC::Token)</code></li>
+</ul>
+
+<p>I can instantiate a corresponding class like this, with all constructors having
+the same interface:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $end_tag = HTC::Token::Tag::End-&gt;new(
+    token =&gt; $token
+);
+</code></pre></div>
+
+<p>Since <code>HTC::Token</code> is the base class for everything, I
+have this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTC::Token {
+    field $token :param;
+    method _get_token () {$token}
+    ...
+}
+</code></pre></div>
+
+<p>It also has the methods common to all token classes.</p>
+
+<p>Subclasses look like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTC::Token::Tag :isa(HTC::Token) {
+    ...
+}
+class HTC::Token::Tag::Start :isa(HTC::Token::Tag) {
+    ...
+}
+</code></pre></div>
+
+<p>Even ignoring the fact that my objects were mutable, my code is flawed. The
+“Tag” classes need to be able to access the <code>$token</code> from the parent class.  I
+have no way to do that, so I have a <code>_get_token</code> method. Untrusted code can call
+<code>$token-&gt;_get_token</code> and change the array reference in unexpected ways.  That
+kills one of of major points of Corinna, but I’ve no easy way of sharing that
+data otherwise.</p>
+
+<p>Realizing I could not fix this was my crushing blow, leading me to naïvely
+believe Corinna was flawed. What follows is how I worked through the issue, but
+it took longer for me to have clarity than what is shown here.</p>
+
+<h1><a name="how-i-fixed-it"></a>How I Fixed It</h1>
+
+<p>One way of handling this is the following:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTC::Token {
+    field $token :param;
+    method _get_token () {clone($token)}
+    ...
+}
+</code></pre></div>
+
+<p>But that still leaves <code>_get_token()</code> callable outside the class and it’s now
+part of the interface. It becomes an implementation detail I don’t have the
+freedom to change (classes should be open for extension, not modification). It’s
+part of the class contract and should not be violated.</p>
+
+<p>Corinna doesn’t have a clean way of handling this case, but it’s not a
+flaw. It’s a limitation and one we can easily fix.  Adding a <a href="https://github.com/Ovid/Cor/discussions/100" target="_blank"><code>:trusted</code>
+attribute</a> <span class="fa fa-external-link fa_custom"></span> to
+methods would make this much easier, but that’s still an open discussion.</p>
+
+<blockquote>
+  <p>A trusted method, whether provided by an abstract base class or a role, should
+  propagate to the first non-abstract subclass and become a private method in
+  that class. If it’s defined directly in a concrete (non-abstract) class, then
+  the first concrete class which inherits it gains it as a private method.</p>
+</blockquote>
+
+<p>This isn’t quite how trusted methods work in other languages, but that’s OK.
+Perl is not like other languages and we have to adapt.</p>
+
+<p>Lacking trusted methods, I cut-n-pasted the <code>field $token :param;</code> line into
+each of my concrete classes. That solved the problem, but if they each took
+multiple parameters, having to sync them across multiple classes would be
+fragile. A single role (or base class) providing those as <code>:trusted</code> would make
+this issue go away.</p>
+
+<p>So, bullet dodged. Corinna isn’t irrevocably broken, but it did give me a bit of
+a scare at first. However, it also pleased me. “No plan survives first contact
+with the enemy,” but I confess I had a small concern. Despite years of research
+and design, maybe we <em>had</em> missed something critical. Finding only a tiny
+limitation has been a relief (though whether this holds remains to be seen).</p>
+
+<h1><a name="types-or-the-lack-thereof"></a>Types (or the lack thereof)</h1>
+
+<p>This next part isn’t about a limitation of Corinna, but of my not
+understanding object-oriented design when I first wrote
+<code>HTML::TokeParser::Simple</code>.  This is related to type theory.</p>
+
+<p>A type system is nothing more than a way of evaluating expressions to ensure
+they do not produce unwanted behavior. Perl’s primary type system is based on
+data structures, not data <em>types</em>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> For example, you can’t access an array element the way you access a hash
+element (though Perl being Perl, there are ways you can change that, too). But
+what is two plus two?  We know that the answer is four, yet the
+computer often needs help.  Let’s look at the following:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my @array = qw(10 11 12);
+my $var   = \@array;
+say 2 + 2;                  # Int + Int
+say 2 + &quot;2&quot;;                # Int + String
+say &quot;2 pears&quot; + &quot;2 weeks&quot;;  # Str + Str
+say 2 + @array;             # Int + Int!
+say 2 + $var;               # Int + Ref
+</code></pre></div>
+
+<p>That prints something like:</p>
+
+<div class="shadow"><pre class="scrolled"><code>4
+4
+Argument &quot;2 weeks&quot; isn't numeric in addition (+) at two.pl line 8.
+Argument &quot;2 pears&quot; isn't numeric in addition (+) at two.pl line 8.
+4
+5
+5201037554
+</code></pre></div>
+
+<p>For many languages, only <code>2 + 2</code> would be valid in the above. Perl is heavily
+optimized for text manipulation, so if you’re reading in a bunch of data from a
+text file, you can often treat numeric <em>strings</em> as numbers. Thus, <code>2 + "2"</code> is
+<code>4</code>. The ASCII value of <code>"2"</code> is 50, but Perl understands what you mean and
+casts the string as an integer instead of calculating <code>2 + 50</code>.</p>
+
+<p>The <code>"2 pears" + "2 weeks"</code> is clearly nonsense, but at least you get a warning.</p>
+
+<p><code>2 + @array</code> surprises many people new to Perl, but it’s evaluating <code>@array</code> in
+scalar context. Since it has three elements, this reduces to <code>2 + 3</code>, printing
+<code>5</code>. I know several programmers who write this as <code>2 + scalar @array</code> to be
+explicit about the intent.</p>
+
+<p>But what’s with that <code>5201037554</code> in the output? Your number will vary if you
+run this code, but what’s happening is that <code>$var</code>, in the expression <code>2 +
+$var</code>, evaluates to the <em>address</em> of the reference <code>\@array</code>. You don’t even get
+a warning. This is useless (no pointer math in Perl) and yes, I’ve been bitten
+by this in production code.</p>
+
+<p>For many languages this expression would prevent your program from compiling,
+but Perl is Perl. For the poor maintenance programmer seeing <code>my $result =
+$var1 + $var2;</code> buried deep in the code, it may not be immediately obvious
+there’s an issue.</p>
+
+<p>So this gets us back to a fundamental question: what is a type? A type is
+nothing more than:</p>
+
+<ol>
+<li>A name for the type</li>
+<li>A set of allowed values for that type</li>
+<li>A set of operations allowed to be called on that type</li>
+</ol>
+
+<p>If we think of an integer as an object and addition as a method, let’s play with
+some pseudocode and pretend we have multimethods and a way of declaring data
+types.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Int {
+    field $int :isa(Int);
+
+    multimethod add ($value :isa(Int)) {
+        return $int + $value;
+    }
+    multimethod add ($value :isa(Str) :coerce(Int)) {
+        return $int + $value;
+    }
+}
+
+my $int = Int-&gt;new( int =&gt; 2 );
+say $int-&gt;add(3);    # 5
+say $int-&gt;add(&quot;4&quot;);  # 6
+
+# runtime error because we can't coerce
+say $int-&gt;add(&quot;4 apples&quot;);
+
+# problematic because arrays flatten to lists and
+# an array with one element will work here, but
+# zero or two or more elements are fatal
+say $int-&gt;add(@array);
+
+# fatal because there is no multimethod dispatch target
+say $int-&gt;add(\@array);
+</code></pre></div>
+
+<p>In the above, we simply don’t provide methods for behaviors we don’t want. Yes,
+the developer may very well have to check that they’re not passing in bad data,
+but this is not a bad thing. At their core, <a href="/articles/why-is-object-oriented-programming-bad.html">objects are experts about a problem
+domain</a> and you need to
+take care to get them right.</p>
+
+<p>This also fits with the principle that we want to minimize our interfaces as
+much as much as possible. The more methods you expose, the more methods you have
+to maintain. If you later need to change those methods, you may break existing
+code. So let’s look at my abstract <code>HTC::Token</code> base class, a more-or-less
+straight port of the original code:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTML::TokeParser::Corinna::Token {
+    field $token : param;
+
+    method to_string              { $token-&gt;[1] }
+    method _get_token             {$token}
+    method is_tag                 {false}
+    method is_start_tag           {false}
+    method is_end_tag             {false}
+    method is_text                {false}
+    method is_comment             {false}
+    method is_declaration         {false}
+    method is_pi                  {false}
+    method is_process_instruction {false}
+    method rewrite_tag            { }
+    method delete_attr            { }
+    method set_attr               { }
+    method tag                    { }
+    method attr (@)               { {} }
+    method attrseq                { [] }
+    method token0                 { }
+}
+</code></pre></div>
+
+<p>That ensures that every class has a stub of every method available to it, so
+you won’t get a “method not found” error. But what if you have a token
+representing text in your HTML? Why on earth would you want to call
+<code>$token-&gt;rewrite_tag</code> if it’s not a tag? It’s like the above example of adding
+an integer to a reference: you can do it, but it’s not helpful.</p>
+
+<p>What <em>is</em> helpful is knowing what kind of token you have. So my base class is
+now:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTML::TokeParser::Corinna::Token {
+    method is_tag                 {false}
+    method is_start_tag           {false}
+    method is_end_tag             {false}
+    method is_text                {false}
+    method is_comment             {false}
+    method is_declaration         {false}
+    method is_pi                  {false}
+    method is_process_instruction {false}
+}
+</code></pre></div>
+
+<p>This is cleaner and easier to maintain. In fact, I could delete this class, but
+those predicate methods are much easier to use.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $token isa 'HTC::Token::Tag::Start' ) { ... }
+# versus
+if ( $token-&gt;is_start_tag ) { ... }
+</code></pre></div>
+
+<p>I’ve also taken the trouble to make all tokens immutable. We generally want
+<a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">immutable
+objects</a>, but in
+reality, sometimes it’s cumbersome. If you want to replace the class <code>newz</code> with
+<code>news</code> everywhere, here’s what you do:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $parser = HTC-&gt;new( file =&gt; $file );
+while ( my $token = $parser-&gt;next ) {
+    if (   $token-&gt;is_start_tag
+        &amp;&amp; $token-&gt;attr('class') eq 'newz'
+    ) {
+        $token = $token-&gt;set_attrs( class =&gt; 'newz' );
+    }
+    print $token-&gt;to_string;
+}
+</code></pre></div>
+
+<p>The mutators such as <code>set_attrs</code> now return a new instance instead of mutating
+the token directly. That makes it safer because you don’t worry about unrelated
+code mutating your data. For example, if you call <code>$object-&gt;munge(3)</code>, you
+never worry that the value of <code>3</code> has suddenly changed in your code.
+However, <code>$object-&gt;munge($other_object)</code> offers no such guarantee.</p>
+
+<p>In the code snippet above, however, always having to remember to assign the
+return value feels, well, clumsy. In fact, if you call <code>set_attrs</code> in void
+context (i.e., you don’t assign the return value to anything), the code will
+throw a <code>HTML::TokeParser::Corinna::Exception::VoidContext</code> exception (yes, it
+now has true exceptions, but they’re part of this module, not part of Corinna).</p>
+
+<p>So my interfaces are smaller and we no longer provide useless, potentially
+confusing methods. I think that’s a win.</p>
+
+<h1><a name="exceptions"></a>Exceptions</h1>
+
+<p>As a final note, I was proud of an odd little trick. I wanted to use exceptions
+as much as possible. They fix a very common bug in production code. If someone
+calls <code>die</code> or <code>croak</code>, you often see code like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">try {
+    some_code();
+}
+catch ($e) {
+    if ( $e =~ /connection gone away/ ) {
+        # retry connection or rethrow exception
+    }
+    die $e;
+};
+</code></pre></div>
+
+<p>Now if some maintenance programmer renames the error message to <code>connection
+interrupted</code>, all code dependent on the previous error message breaks. But if
+they throw an exception in an <code>Exception::Connection::Lost</code> class, the code can
+check the <em>class</em> of the exception and the developers are free to change the
+actual error message any way they like.</p>
+
+<p>So here’s my exception base class:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTML::TokeParser::Corinna::Exception {
+  use overload '&quot;&quot;' =&gt; 'to_string', fallback =&gt; 1;
+  use Devel::StackTrace;
+
+  field $message :param = undef;
+  field $trace = Devel::StackTrace-&gt;new-&gt;as_string;
+
+  method error ()       {&quot;An unexpected error occurred&quot;}
+  method message ()     {$message}
+  method stack_trace () {$trace}
+
+  # The `@` is needed in the signature because overload
+  # passes additional arguments to the method, but we
+  # don't care about those.
+  method to_string (@) {
+    # error() can be overridden
+    my $error = $self-&gt;error;
+    # but $message is universal
+    if ($message) {
+      $error .= &quot;\n$message&quot;;
+    }
+    return &quot;Error: $error\n\nStack Trace:\n$trace&quot;;
+  }
+}
+</code></pre></div>
+
+<p>Because stringification is overloaded, I can print the exception or check it
+with a regex. Because it’s an object, you can check the class of the exception
+to decide what to do next.</p>
+
+<p>I used the above to provide a <code>MethodNotFound</code> exception:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class HTC::Exception::MethodNotFound
+:isa(HTC::Exception) {
+  field $method :param;
+  field $class  :param;
+
+  method error ()  {
+    &quot;No such method '$method' for class '$class'&quot;
+  }
+  method method () {$method}
+  method class ()  {$class}
+}
+</code></pre></div>
+
+<p>And in my base class, I have this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method AUTOLOAD {
+  our $AUTOLOAD;
+  my ( $class, $method )
+    = ( $AUTOLOAD =~ /^(.*)::(.*)$/ );
+  return if $method eq 'DESTROY';
+  throw(
+    'MethodNotFound',
+    method =&gt; $method,
+    class  =&gt; $class,
+  );
+}
+</code></pre></div>
+
+<p>And now, <code>$token-&gt;no_such_method</code> throws an exception instead of causing
+you to <code>die</code> inside.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>The earlier description of the hours of writing and rewriting to explain the
+flaw encompass much more than what I’ve discussed, but I wanted to keep this
+short. Of course, I threw in a few other things I noticed along the way.</p>
+
+<p>The encapsulation violation seemed to break the main strength of Corinna, but
+spending a few hours porting a class hierarchy quickly exposed the design
+limitation and a solution presented itself. Perhaps the Corinna design team or
+someone else might offer a more elegant solution than what I presented. I’m OK
+with that.</p>
+
+<p>So far, the Corinna code is simpler, easier to read, provides strong
+encapsulation, and was generally a pleasure to write. I’m looking forward to the
+day it’s production ready. I expect here will be teething pain for others,
+since thinking in terms of blessed hashes is ingrained in Perl culture, but if
+we keep living in the past, Perl will become a thing of the past.</p>
+
+<p><a href="https://github.com/Perl/perl5/pull/20647" target="_blank">The first PR for <code>use feature 'class'</code> is
+here</a> <span class="fa fa-external-link fa_custom"></span> and I’m sure any and all
+feedback would be appreciated.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/feature-switch-best-practices.html" class="prevPost">&laquo; Feature Switch Best Practices</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/converting-object-oriented-code-to-corinna.html";
+            this.page.identifier = "articles/converting-object-oriented-code-to-corinna";
+            this.page.title      = "Converting Object-Oriented Code to Corinna";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Yes, Perl has more than one
+type system. Taint checking is an example. However, I deleted most of that
+discussion from this article because it's a distraction from the core issues.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+</body>
+</html>
+
+

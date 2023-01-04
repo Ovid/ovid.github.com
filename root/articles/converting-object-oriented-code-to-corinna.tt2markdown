@@ -1,0 +1,574 @@
+[%
+    title            = 'Converting Object-Oriented Code to Corinna';
+    type             = 'articles';
+    slug             = 'converting-object-oriented-code-to-corinna';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2022-12-29';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS corinna programming}}
+{{TOC}}
+
+# Introduction
+
+This post is mainly my findings on finally porting some real code to Corinna,
+but I confess I was concerned when I first started.
+
+I recently tried to make a convert a `bless` object hierarchy to
+[Corinna](https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod) and I
+failed, badly. The code worked, but the design was a mess. As the lead
+designer of Corinna, after years of effort, I found that Corinna was flawed.
+After hours of trying to write and rewrite the explanation of the flaw, I
+found the flaw: me.
+
+Corinna is not flawed. I was thinking in terms of blessed hashes, not Corinna.
+When I realized what was going on, my thoughts shifted. I started to see the old
+code was riddled with flaws. Admittedly, the code I was porting was something I
+designed (\*cough\*) two decades ago, but it was still humbling.
+
+# Programming in the Wrong Language
+
+It used to be that plenty of C developers flocked to the Perl language because
+it's so quick-n-easy to whip up a prototype and test out an idea. Of course,
+experienced Perl programmers would point out that the C programmers were
+writing Perl as if it was C, not Perl. They'd look at this:
+
+```perl
+for ( my $i = 0; $i <= @array; $i++ ) {
+    my $element = $array[$i];
+    ...
+}
+```
+
+_By the way, did you spot the bug?_
+
+And they'd say, "just use the elements directly":
+
+```perl
+for my $element (@array) {
+    ...
+}
+```
+
+That easier to read, more likely to be correct, and it's faster.
+
+In the 90s, I didn't have that problem when I started with Perl. At the time, it
+had been over a decade since I had done any serious C hacking, so I didn't write
+my Perl like C. I wrote it like COBOL. Seriously! I'd declare all of my
+variables at the top of the program, as if I were setting up my
+[`WORKING-STORAGE
+SECTION`](https://www.microfocus.com/documentation/visual-cobol/30pu9/VC_30PU9_for_Eclipse_for_Windows_WH/BKCGCGRMCIS002F010.html).
+Then I'd set the appropriate variables and call the <strike>procedure</strike>
+subroutine I needed, though I at least returned data instead of setting a
+global.
+
+Needless to say, my early days in writing Perl were pretty awful, but it was
+still a hell of a lot easier than COBOL.
+
+Today, many Perl developers are excited about the Corinna project, for which I
+have written [a short
+tutorial.](https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod) Just as
+one should stop thinking in C or COBOL when writing Perl, one should stop
+thinking in terms of using [`bless`](https://perldoc.perl.org/functions/bless)
+when writing Corinna. If that seems like it's not too hard, I can assure you,
+many will stumble as I did.
+
+# I Failed at Corinna
+
+My
+[`HTML::TokeParser::Simple`](https://metacpan.org/pod/HTML::TokeParser::Simple)
+module is modestly popular. [There are over 30 distributions which depend on
+it](https://metacpan.org/module/HTML::TokeParser::Simple/requires) and I
+frequently see it used in clients I assist, and given that it's been around for
+over two decades with no bugs reported, I'm pretty happy with that module.
+So when [Paul Evans created a PR for a subset of
+Corinna](https://github.com/Ovid/Cor/issues/64), I thought it was
+time to port something. Instead of [mocked-up code in the
+RFC](https://github.com/Ovid/Cor) or [my experiments with
+`Object::Pad`](https://github.com/Ovid/Cor/blob/master/lib/Object/Types/Factory.pm),
+I was going to write _real_ Corinna code.
+
+I had been following along and giving Paul some feedback on development work. I
+found a couple of bugs (not many, which is impressive), but now it was time to
+really push things. Hell, as the lead designer of the Corinna project, based on
+[my original 2019
+(mis)design](https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede) and
+_that_ was based on [research and work I had done prior to
+that](/blog/politics-in-programming.html), I'm pretty comfortable with saying
+that if anyone can port something to Corinna, I am that guy.
+
+[% Ovid.youtube('DFbpEsjKPO8') %]
+
+And that's when I discovered that I'm Prax, not Amos. I am not that guy. (If you
+haven't watched or read The Expanse, you're missing out. Trust me.)
+
+# What I Was Trying to Do
+
+The point of this module is that
+[`HTML::TokeParser`](https://metacpan.org/pod/HTML::TokeParser) could parse
+HTML into a stream of tokens which look like this:
+
+```perl
+["S",  $tag,    \%attr, \@attrseq, $text]
+["E",  $tag,    $text]
+["T",  $text,   $is_data]
+["PI", $token0, $text]
+["C",  $text]
+["D",  $text]
+```
+
+The code I wrote using that was constantly breaking, so I blessed those and put
+an OO wrapper on them so that `$token->as_is` (renamed to `$token->to_string` in
+my new code) always returned what it was supposed to return, instead of using
+`$token->[4]` (start tag), `$token->[2]` (end tag), `$token->[1]` (text), an so
+on. You can't even use `$token->[-1]` to read the last item thanks to the `T`
+token (text) ironically being the token which had the plaintext in an
+unpredictable position.
+
+That's _much_ easier than using `HTML::TokeParser` directly. I did this by
+calling `bless` with the array references and blessing them into appropriate
+classes. This meant the array reference was still available and
+`HTML::TokeParser::Simple` was a drop-in replacement for the original module.
+You could switch from `HTML::TokeParser` to `HTML::TokeParser::Simple` with no
+other changes in your code. You then gradually converted array reference
+lookups to method calls. I was doing a lot of web scraping in the pre-API days
+of the Web and this saved me much grief.
+
+So when I started designing
+[HTML::TokeParser::Corinna](https://github.com/Ovid/html-tokeparser-corinna), I
+hit my first snag.
+
+Since Corinna is designed to be encapsulated, you can't call `$token->[1]`. No
+"reaching inside" the object is allowed. But that's fine! Since
+`HTML::TokeParser::Corinna` is a new module, I can create any interface I want.
+That's when I hit my next problem.
+
+For each of the array reference types listed above, I have a corresponding
+class:
+
+* `HTML::TokeParser::Corinna::Token::Tag::Start`
+* `HTML::TokeParser::Corinna::Token::Tag::End`
+* `HTML::TokeParser::Corinna::Token::Text`
+* `HTML::TokeParser::Corinna::Token::Comment`
+* `HTML::TokeParser::Corinna::Token::Declaration`
+* `HTML::TokeParser::Corinna::Token::ProcessInstruction`
+
+There are some common behaviors there and since we don't yet have roles for
+Corinna, I used abstract base classes.  (We'll shorten the prefix to the
+namespace to make it easier to read):
+
+
+* `HTC::Token`
+* `HTC::Token::Tag :isa(HTC::Token)`
+
+I can instantiate a corresponding class like this, with all constructors having
+the same interface:
+
+```perl
+my $end_tag = HTC::Token::Tag::End->new(
+    token => $token
+);
+```
+
+Since `HTC::Token` is the base class for everything, I
+have this:
+
+```perl
+class HTC::Token {
+    field $token :param;
+    method _get_token () {$token}
+    ...
+}
+```
+
+It also has the methods common to all token classes.
+
+Subclasses look like this:
+
+```perl
+class HTC::Token::Tag :isa(HTC::Token) {
+    ...
+}
+class HTC::Token::Tag::Start :isa(HTC::Token::Tag) {
+    ...
+}
+```
+
+Even ignoring the fact that my objects were mutable, my code is flawed. The
+"Tag" classes need to be able to access the `$token` from the parent class.  I
+have no way to do that, so I have a `_get_token` method. Untrusted code can call
+`$token->_get_token` and change the array reference in unexpected ways.  That
+kills one of of major points of Corinna, but I've no easy way of sharing that
+data otherwise.
+
+Realizing I could not fix this was my crushing blow, leading me to naïvely
+believe Corinna was flawed. What follows is how I worked through the issue, but
+it took longer for me to have clarity than what is shown here.
+
+# How I Fixed It
+
+One way of handling this is the following:
+
+```perl
+class HTC::Token {
+    field $token :param;
+    method _get_token () {clone($token)}
+    ...
+}
+```
+
+But that still leaves `_get_token()` callable outside the class and it's now
+part of the interface. It becomes an implementation detail I don't have the
+freedom to change (classes should be open for extension, not modification). It's
+part of the class contract and should not be violated.
+
+Corinna doesn't have a clean way of handling this case, but it's not a
+flaw. It's a limitation and one we can easily fix.  Adding a [`:trusted`
+attribute](https://github.com/Ovid/Cor/discussions/100) to
+methods would make this much easier, but that's still an open discussion.
+
+> A trusted method, whether provided by an abstract base class or a role, should
+> propagate to the first non-abstract subclass and become a private method in
+> that class. If it's defined directly in a concrete (non-abstract) class, then
+> the first concrete class which inherits it gains it as a private method.
+
+This isn't quite how trusted methods work in other languages, but that's OK.
+Perl is not like other languages and we have to adapt.
+
+Lacking trusted methods, I cut-n-pasted the `field $token :param;` line into
+each of my concrete classes. That solved the problem, but if they each took
+multiple parameters, having to sync them across multiple classes would be
+fragile. A single role (or base class) providing those as `:trusted` would make
+this issue go away.
+
+So, bullet dodged. Corinna isn't irrevocably broken, but it did give me a bit of
+a scare at first. However, it also pleased me. "No plan survives first contact
+with the enemy," but I confess I had a small concern. Despite years of research
+and design, maybe we _had_ missed something critical. Finding only a tiny
+limitation has been a relief (though whether this holds remains to be seen).
+
+# Types (or the lack thereof)
+
+This next part isn't about a limitation of Corinna, but of my not
+understanding object-oriented design when I first wrote
+`HTML::TokeParser::Simple`.  This is related to type theory.
+
+A type system is nothing more than a way of evaluating expressions to ensure
+they do not produce unwanted behavior. Perl's primary type system is based on
+data structures, not data _types_.[% Ovid.add_note("Yes, Perl has more than one
+type system. Taint checking is an example. However, I deleted most of that
+discussion from this article because it's a distraction from the core issues.")
+%] For example, you can't access an array element the way you access a hash
+element (though Perl being Perl, there are ways you can change that, too). But
+what is two plus two?  We know that the answer is four, yet the
+computer often needs help.  Let's look at the following:
+
+
+```perl
+my @array = qw(10 11 12);
+my $var   = \@array;
+say 2 + 2;                  # Int + Int
+say 2 + "2";                # Int + String
+say "2 pears" + "2 weeks";  # Str + Str
+say 2 + @array;             # Int + Int!
+say 2 + $var;               # Int + Ref
+```
+
+That prints something like:
+
+```
+4
+4
+Argument "2 weeks" isn't numeric in addition (+) at two.pl line 8.
+Argument "2 pears" isn't numeric in addition (+) at two.pl line 8.
+4
+5
+5201037554
+```
+
+For many languages, only `2 + 2` would be valid in the above. Perl is heavily
+optimized for text manipulation, so if you're reading in a bunch of data from a
+text file, you can often treat numeric _strings_ as numbers. Thus, `2 + "2"` is
+`4`. The ASCII value of `"2"` is 50, but Perl understands what you mean and
+casts the string as an integer instead of calculating `2 + 50`.
+
+The `"2 pears" + "2 weeks"` is clearly nonsense, but at least you get a warning.
+
+`2 + @array` surprises many people new to Perl, but it's evaluating `@array` in
+scalar context. Since it has three elements, this reduces to `2 + 3`, printing
+`5`. I know several programmers who write this as `2 + scalar @array` to be
+explicit about the intent.
+
+But what's with that `5201037554` in the output? Your number will vary if you
+run this code, but what's happening is that `$var`, in the expression `2 +
+$var`, evaluates to the _address_ of the reference `\@array`. You don't even get
+a warning. This is useless (no pointer math in Perl) and yes, I've been bitten
+by this in production code.
+
+For many languages this expression would prevent your program from compiling,
+but Perl is Perl. For the poor maintenance programmer seeing `my $result =
+$var1 + $var2;` buried deep in the code, it may not be immediately obvious
+there's an issue.
+
+So this gets us back to a fundamental question: what is a type? A type is
+nothing more than:
+
+1. A name for the type
+2. A set of allowed values for that type
+3. A set of operations allowed to be called on that type
+
+If we think of an integer as an object and addition as a method, let's play with
+some pseudocode and pretend we have multimethods and a way of declaring data
+types.
+
+```perl
+class Int {
+    field $int :isa(Int);
+
+    multimethod add ($value :isa(Int)) {
+        return $int + $value;
+    }
+    multimethod add ($value :isa(Str) :coerce(Int)) {
+        return $int + $value;
+    }
+}
+
+my $int = Int->new( int => 2 );
+say $int->add(3);    # 5
+say $int->add("4");  # 6
+
+# runtime error because we can't coerce
+say $int->add("4 apples");
+
+# problematic because arrays flatten to lists and
+# an array with one element will work here, but
+# zero or two or more elements are fatal
+say $int->add(@array);
+
+# fatal because there is no multimethod dispatch target
+say $int->add(\@array);
+```
+
+In the above, we simply don't provide methods for behaviors we don't want. Yes,
+the developer may very well have to check that they're not passing in bad data,
+but this is not a bad thing. At their core, [objects are experts about a problem
+domain](/articles/why-is-object-oriented-programming-bad.html) and you need to
+take care to get them right.
+
+This also fits with the principle that we want to minimize our interfaces as
+much as much as possible. The more methods you expose, the more methods you have
+to maintain. If you later need to change those methods, you may break existing
+code. So let's look at my abstract `HTC::Token` base class, a more-or-less
+straight port of the original code:
+
+```perl
+class HTML::TokeParser::Corinna::Token {
+    field $token : param;
+
+    method to_string              { $token->[1] }
+    method _get_token             {$token}
+    method is_tag                 {false}
+    method is_start_tag           {false}
+    method is_end_tag             {false}
+    method is_text                {false}
+    method is_comment             {false}
+    method is_declaration         {false}
+    method is_pi                  {false}
+    method is_process_instruction {false}
+    method rewrite_tag            { }
+    method delete_attr            { }
+    method set_attr               { }
+    method tag                    { }
+    method attr (@)               { {} }
+    method attrseq                { [] }
+    method token0                 { }
+}
+```
+
+That ensures that every class has a stub of every method available to it, so
+you won't get a "method not found" error. But what if you have a token
+representing text in your HTML? Why on earth would you want to call
+`$token->rewrite_tag` if it's not a tag? It's like the above example of adding
+an integer to a reference: you can do it, but it's not helpful.
+
+What _is_ helpful is knowing what kind of token you have. So my base class is
+now:
+
+
+```perl
+class HTML::TokeParser::Corinna::Token {
+    method is_tag                 {false}
+    method is_start_tag           {false}
+    method is_end_tag             {false}
+    method is_text                {false}
+    method is_comment             {false}
+    method is_declaration         {false}
+    method is_pi                  {false}
+    method is_process_instruction {false}
+}
+```
+
+This is cleaner and easier to maintain. In fact, I could delete this class, but
+those predicate methods are much easier to use.
+
+```perl
+if ( $token isa 'HTC::Token::Tag::Start' ) { ... }
+# versus
+if ( $token->is_start_tag ) { ... }
+```
+
+I've also taken the trouble to make all tokens immutable. We generally want
+[immutable
+objects](/articles/using-immutable-datetime-objects-with-dbixclass.html), but in
+reality, sometimes it's cumbersome. If you want to replace the class `newz` with
+`news` everywhere, here's what you do:
+
+```perl
+my $parser = HTC->new( file => $file );
+while ( my $token = $parser->next ) {
+    if (   $token->is_start_tag
+        && $token->attr('class') eq 'newz'
+    ) {
+        $token = $token->set_attrs( class => 'newz' );
+    }
+    print $token->to_string;
+}
+```
+
+The mutators such as `set_attrs` now return a new instance instead of mutating
+the token directly. That makes it safer because you don't worry about unrelated
+code mutating your data. For example, if you call `$object->munge(3)`, you
+never worry that the value of `3` has suddenly changed in your code.
+However, `$object->munge($other_object)` offers no such guarantee.
+
+In the code snippet above, however, always having to remember to assign the
+return value feels, well, clumsy. In fact, if you call `set_attrs` in void
+context (i.e., you don't assign the return value to anything), the code will
+throw a `HTML::TokeParser::Corinna::Exception::VoidContext` exception (yes, it
+now has true exceptions, but they're part of this module, not part of Corinna).
+
+So my interfaces are smaller and we no longer provide useless, potentially
+confusing methods. I think that's a win.
+
+# Exceptions
+
+As a final note, I was proud of an odd little trick. I wanted to use exceptions
+as much as possible. They fix a very common bug in production code. If someone
+calls `die` or `croak`, you often see code like this:
+
+```perl
+try {
+    some_code();
+}
+catch ($e) {
+    if ( $e =~ /connection gone away/ ) {
+		# retry connection or rethrow exception
+	}
+	die $e;
+};
+```
+
+Now if some maintenance programmer renames the error message to `connection
+interrupted`, all code dependent on the previous error message breaks. But if
+they throw an exception in an `Exception::Connection::Lost` class, the code can
+check the _class_ of the exception and the developers are free to change the
+actual error message any way they like.
+
+So here's my exception base class:
+
+```perl
+class HTML::TokeParser::Corinna::Exception {
+  use overload '""' => 'to_string', fallback => 1;
+  use Devel::StackTrace;
+
+  field $message :param = undef;
+  field $trace = Devel::StackTrace->new->as_string;
+
+  method error ()       {"An unexpected error occurred"}
+  method message ()     {$message}
+  method stack_trace () {$trace}
+
+  # The `@` is needed in the signature because overload
+  # passes additional arguments to the method, but we
+  # don't care about those.
+  method to_string (@) {
+    # error() can be overridden
+    my $error = $self->error;
+    # but $message is universal
+    if ($message) {
+      $error .= "\n$message";
+    }
+    return "Error: $error\n\nStack Trace:\n$trace";
+  }
+}
+```
+
+Because stringification is overloaded, I can print the exception or check it
+with a regex. Because it's an object, you can check the class of the exception
+to decide what to do next.
+
+I used the above to provide a `MethodNotFound` exception:
+
+```perl
+class HTC::Exception::MethodNotFound
+:isa(HTC::Exception) {
+  field $method :param;
+  field $class  :param;
+
+  method error ()  {
+    "No such method '$method' for class '$class'"
+  }
+  method method () {$method}
+  method class ()  {$class}
+}
+```
+
+And in my base class, I have this:
+
+```perl
+method AUTOLOAD {
+  our $AUTOLOAD;
+  my ( $class, $method )
+    = ( $AUTOLOAD =~ /^(.*)::(.*)$/ );
+  return if $method eq 'DESTROY';
+  throw(
+    'MethodNotFound',
+    method => $method,
+    class  => $class,
+  );
+}
+```
+
+And now, `$token->no_such_method` throws an exception instead of causing
+you to `die` inside.
+
+# Conclusion
+
+The earlier description of the hours of writing and rewriting to explain the
+flaw encompass much more than what I've discussed, but I wanted to keep this
+short. Of course, I threw in a few other things I noticed along the way.
+
+The encapsulation violation seemed to break the main strength of Corinna, but
+spending a few hours porting a class hierarchy quickly exposed the design
+limitation and a solution presented itself. Perhaps the Corinna design team or
+someone else might offer a more elegant solution than what I presented. I'm OK
+with that.
+
+So far, the Corinna code is simpler, easier to read, provides strong
+encapsulation, and was generally a pleasure to write. I'm looking forward to the
+day it's production ready. I expect here will be teething pain for others,
+since thinking in terms of blessed hashes is ingrained in Perl culture, but if
+we keep living in the past, Perl will become a thing of the past.
+
+[The first PR for `use feature 'class'` is
+here](https://github.com/Perl/perl5/pull/20647) and I'm sure any and all
+feedback would be appreciated.
+
+[%- END %]
+
