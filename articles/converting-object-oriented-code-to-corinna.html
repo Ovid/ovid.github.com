@@ -101,7 +101,7 @@
       <div class="three columns">
         <ul>
           <li><a href="/index.html">Home</a></li>
-          <li><a href="/articles.html">Professional Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
           Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
           <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
           <li><a href="/hireme.html">Hire Me</a></li>
@@ -227,7 +227,7 @@
 <p>This post is mainly my findings on finally porting some real code to Corinna,
 but I confess I was concerned when I first started.</p>
 
-<p>I recently tried to make a convert a <code>bless</code> object hierarchy to
+<p>I recently tried to convert a <code>bless</code> object hierarchy to
 <a href="https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod" target="_blank">Corinna</a> <span class="fa fa-external-link fa_custom"></span> and I
 failed, badly. The code worked, but the design was a mess. As the lead
 designer of Corinna, after years of effort, I found that Corinna was flawed.
@@ -410,7 +410,7 @@ class HTC::Token::Tag::Start :isa(HTC::Token::Tag) {
 “Tag” classes need to be able to access the <code>$token</code> from the parent class.  I
 have no way to do that, so I have a <code>_get_token</code> method. Untrusted code can call
 <code>$token-&gt;_get_token</code> and change the array reference in unexpected ways.  That
-kills one of of major points of Corinna, but I’ve no easy way of sharing that
+kills one of the major points of Corinna, but I’ve no easy way of sharing that
 data otherwise.</p>
 
 <p>Realizing I could not fix this was my crushing blow, leading me to naïvely
@@ -632,7 +632,7 @@ while ( my $token = $parser-&gt;next ) {
     if (   $token-&gt;is_start_tag
         &amp;&amp; $token-&gt;attr('class') eq 'newz'
     ) {
-        $token = $token-&gt;set_attrs( class =&gt; 'newz' );
+        $token = $token-&gt;set_attrs( class =&gt; 'news' );
     }
     print $token-&gt;to_string;
 }
@@ -689,10 +689,7 @@ actual error message any way they like.</p>
   method message ()     {$message}
   method stack_trace () {$trace}
 
-  # The `@` is needed in the signature because overload
-  # passes additional arguments to the method, but we
-  # don't care about those.
-  method to_string (@) {
+  method to_string {
     # error() can be overridden
     my $error = $self-&gt;error;
     # but $message is universal
@@ -755,7 +752,7 @@ with that.</p>
 
 <p>So far, the Corinna code is simpler, easier to read, provides strong
 encapsulation, and was generally a pleasure to write. I’m looking forward to the
-day it’s production ready. I expect here will be teething pain for others,
+day it’s production ready. I expect there will be teething pain for others,
 since thinking in terms of blessed hashes is ingrained in Perl culture, but if
 we keep living in the past, Perl will become a thing of the past.</p>
 
