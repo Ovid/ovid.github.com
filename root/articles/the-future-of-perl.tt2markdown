@@ -1,0 +1,389 @@
+[%
+    title            = 'The Future of Perl';
+    type             = 'articles';
+    slug             = 'the-future-of-perl';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2023-03-09';
+    mathjax          = 0;
+    facebook         = 'corinna.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    facebook_alt     = 'An ancient painting of Ovid and Corinna';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS programming corinna perl}}
+
+# The first Corinna commits
+
+Recently, [some of the first commits of the new Corinna object
+system](https://github.com/Perl/perl5/commit/8cf9e0b7ee) for Perl have been
+merged into the Perl core. If you're not familiar with it, [I wrote a brief
+tutorial](https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod).
+
+Around the same time as those commits were merged, I was rummaging around on an
+old computer and discovered, to my shock, that I had an _old_ implementation of
+what I was trying to do, before that fateful day at a conference when Sawyer X,
+the man driving Perl development, [saw my work, liked it, but urged me to to
+stop the implementation and just design something
+great](/blog/politics-in-programming.html). (As an aside, it also doesn't quite
+appear to match my previous descriptions of it. Oops).
+
+With my initial commit of that code on September 2, 2018, the Corinna project
+has been roughly four and a halt years from conception to the initial core
+implementation.  Since that time, I worked on design, made an initial
+announcement, and led a design team of some of the top experts in Perl, with
+much feedback coming from others who've designed object systems such as Moose or
+Moo, and from that effort, Corinna was accepted and the Perl core will have
+clean, mature OOP system for the first time (and one whose prototype,
+[Object::Pad](https://metacpan.org/pod/Object::Pad) has been running in
+production at more than one company).
+
+Keep in mind that `bless` and `@ISA` will still be there. We're not taking
+anything away because the Perl 5 Porters (a.k.a., P5P) strive hard to not break
+backwards-compatibility.
+
+If you're curious, here's what a simple 2D point class looked like;
+
+```perl
+class Point {
+    has [qw/x y/] => ( default => sub { 0 } );
+
+    sub clear ($self) {
+        $self->@{ 'x', 'y' } = ( 0, 0 );
+    }
+}
+```
+
+That's not good at all, but I was trying to work _within_ Perl's limitations. It
+was also largely a response to improve upon
+[Moxie](https://metacpan.org/pod/Moxie):
+
+```perl
+package Point {
+    use Moxie;
+
+    extends 'Moxie::Object';
+
+    has x => ( default => sub { 0 } );
+    has y => ( default => sub { 0 } );
+
+    sub x : ro;
+    sub y : ro;
+
+    sub clear ($self) {
+        $self->@{ 'x', 'y' } = (0, 0);
+    }
+}
+```
+
+I quite liked the intent of some of the ideas in Moxie, but that syntax is what
+pushed me to finally build Corinna. By contrast, here's the same code in
+Corinna:
+
+```perl
+class Point {
+    field ( $x, $y ) :param = 0;
+
+	method clear () {
+        ( $x, $y ) = ( 0, 0 );
+    }
+}
+```
+
+There will be an adjustment period while people learn a new way to program in
+Corinna, the same way that learning a new programming requires learning to think
+a different way, but overall, the Perl community is very happy about the
+project. Some are not, but that's OK. Having a perfectly homogeneous community,
+marching in lockstep, no questions asked, would be a creepy thing. It would also
+be a useless thing. Diversity of opinion is not only healthy, but needed.
+
+# What's Next?
+
+That's a great question. I've co-written one book on Perl and written another
+(linked in the images at the top of the page), [I served two decades at The Perl
+Foundation](/blog/resigning-from-the-perl-foundation.html), the last several
+years as a member of the board, I have [a bunch of modules on the
+CPAN](https://metacpan.org/author/OVID), and our company, [All Around the
+World](https://allaroundtheworld.fr), is still doing well, with multiple
+contracts. I'm currently having fun building an
+[OpenAPI](https://www.openapis.org/) system using
+[Dancer2](https://metacpan.org/pod/Dancer2) (something I've not had much chance
+to play with before), and another company inquired about help from us to go in
+and fix their object-oriented mess, including cleaning up a bunch of old code to
+use [Moose](https://metacpan.org/pod/Moose).
+
+So we're doing fine, but whither Perl? Or to abuse Shakespeare:
+
+```
+To Perl or not to Perl, that is the question:
+Whether 'tis nobler in the code to suffer
+The slings and arrows of outrageous criticism,
+Or to add commits against a sea of troubles,
+And by rebasing, end them? To die(), to sleep(),
+No more; and by a sleep() to say we end
+The heartache and the thousand natural shocks
+That Perl is heir to. 'Tis a consummation
+Devoutly to be wished. To die(), to sleep();
+To sleep–perchance to dream–ay, there's the 'no strict.'
+```
+
+Sue me. I like poetry. Why do you think my nickname is "Ovid"?
+
+Let's be honest, Perl isn't as popular as it used to be. There's a lot of angst
+in the Perl community expressed over this. There's also a lot of
+finger-pointing. There are many reasons that Perl is not as popular as it once
+was, but rather than ruminate on history and stir up debates over things we
+cannot change, I want to look to the future.
+
+Fix the problem, not the blame.
+
+So what's the problem?
+
+Sure, we can talk about fewer Perl developers or fewer companies starting new
+projects in Perl, but those are _symptoms_. Instead, I want to focus on _one_
+problem that Perl has and I think it's both important and solvable.
+
+Perl 5 was released in October of 1994 and there's a misconception that Perl
+hasn't changed much since then. I still remember a Linux conference in
+Prague where a programmer was telling me that Perl hasn't been updated in
+decades and this is a widespread misconception that hurts Perl (we suck at
+marketing).
+
+Just looking at the stable releases in the last decades:
+
+| Pumpking | Version | Release Date
+---|---|----
+Ricardo | 5.16.0 | 2012-May-20
+Ricardo | 5.18.0 | 2013-May-18
+Ricardo | 5.20.0 | 2014-May-27
+Ricardo | 5.22.0 | 2015-Jun-01
+Ricardo | 5.24.0 | 2016-May-09
+Sawyer X | 5.26.0 | 2017-May-30
+Sawyer X | 5.28.0 | 2018-Jun-22
+Sawyer X | 5.30.0 | 2019-May-22
+Sawyer X | 5.32.0 | 2020-Jun-20
+Sawyer X | 5.34.0 | 2021-May-20
+Ricardo | 5.36.0 | 2022-May-27
+
+As you can see, Perl gets a regular, major release every year. Some of the new
+features introduced into Perl include native `try/catch` blocks.  Function
+signatures are now on by default. Unicode 14.0 is supported. True booleans are
+supported. Some older misfeatures, such as indirect object syntax and
+`multidimensional` are disabled (they're still available, but if you don't know
+what they are, don't worry). There are some amazing improvements to the regular
+expression engine, [widely considered the best in the programming
+world](https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions).
+
+There's much more, but many issues are very Perl-specific and even many Perl
+programmers are not away of the work done by of the porters.  The Perl 5.36.0
+release alone represents approximately a year of development since Perl 5.34.0
+and contains approximately 250,000 lines of changes across 2,000 files from 82
+authors (taken from the `perldelta` file for 5.36.0).
+
+Note that 82 developers might seem like a lot, but it's also incomplete. Many
+people who've contributed haven't done so by committing directly to the Perl
+repository.
+
+So Perl is still under heavy development, but it's hard to argue that we've done
+a great job communicating that, so how can we communicate that?
+
+# Perl 7
+
+The excellent [Raku Programming Language](https://www.raku.org/) was known as
+"Perl 6" for many years, but it diverged far enough from its Perl roots to merit
+a separate name. So when there was much excitement about a new release of Perl
+called Perl 7, [there was great news coverage of
+it](https://www.zdnet.com/article/perl-will-finally-make-the-jump-from-perl-5-to-7/).
+
+In short, even with a fresh Perl install, to use Perl effectively today, you
+often get the behavior of an older version of Perl and you have to ask for the
+modern features. If you're new to Perl, there's good chance you wouldn't know
+that.
+
+Unfortunately, that work was halted amidst disagreements over direction and the
+[Perl Steering Council (PSC) later released a discussion of about what it would
+take to get to Perl
+7](https://blogs.perl.org/users/psc/2022/05/what-happened-to-perl-7.html). Is
+Corinna going to be part of Perl 7? [The PSC recently announced that it
+might](https://www.nntp.perl.org/group/perl.perl5.porters/2022/07/msg264336.html).
+I think it should, but asking my opinion is like asking a parent if their
+newborn is cute, so you can ignore me.
+
+But on the off chance you don't want to ignore me (you're reading this, right?),
+Perl 7 will likely be a newsworthy release, showing the world that Perl is still
+in active development, but the features in the language are rather marginal in
+value, in the eyes of many. Corinna is the single-largest change to the Perl
+language in three decades, and that might make a splash, but again, I'm biased.
+Nonetheless, releasing Perl 7 is not
+trivial and Corinna might not be the top priority of the developers who will
+actually get the work done. I can live with that.
+
+At the risk of offending a few people, barring Corinna, any release of Perl 7 is
+likely to be much of what we have in Perl right now, but with easier defaults.
+It will simply make it easier to write Perl, but not offer much "new" to current
+developers, beyond a message to the programming world.
+
+For technical and political reasons,[% Ovid.add_note("'Politics' is not a dirty
+word. It's merely the art of getting concensus in a group.") %] Perl 7 without
+Corinna might be exactly what Perl needs. But even then, Perl 7 will be a far
+cry from the Perl released back in 1994. Perl's been evolving rapidly over the
+years, but without people hearing about it.
+
+But how can we push this further? That's what I've been thinking about.
+
+# Perl 8
+
+Perl's regular expression engine is world-class, but it's hardly the reason to
+choose a language. Or to keep it. What else does Perl offer? With Corinna, Perl
+will have one of the nicest OOP systems of popular dynamic languages (er, I may
+be biased, but when I look at other "popular" dynamic languages, I wince). So
+that can be two killer features. But we need more, but to get to "more," we need
+to address the fact that the Perl core is missing a few features that other
+languages provide. We need to fix that.
+
+## Installation Manager
+
+Recently, I hit an issue with a client. My code was correct, but failed in the
+test environment due to a "Can't locate object method" error. As it turns out,
+the actively maintained CPAN module I was using was last updated in 2022, but
+the version the client had was released over two decades ago! Worse, my attempt
+to locally debug this was frustrated by some particulars in the client setup
+which caused me to find a current local version of the module and not the
+archaic version the client had. Fortunately, it was a trivial fix, but spending
+time debugging this issue cost our client money they should not have had to
+spend.
+
+Per the [nodejs
+blog](https://nodejs.org/fr/blog/uncategorized/development-environment/):
+
+> CPAN and RubyGems have blurred the lines between development tools and system
+> package managers. With `npm` we wish to draw a clear line: it is not a system
+> package manager. It is not for installing firefox or ffmpeg or OpenSSL; it is
+> for rapidly downloading, building, and setting up Node packages. `npm` is a
+> development tool. When a program written in Node becomes sufficiently mature it
+> should be distributed as a tarball, `.deb`, `.rpm`, or other package system. It
+> should not be distributed to end users with `npm`.
+
+Out of the box, Perl has a `cpan` client which lets you install Perl modules.
+It's great for developing libraries, but we don't offer great support for
+developing _applications_. When I `cd` into a client directory, I want to run
+something like `perl-local .` and have it pick up the version of Perl for _this
+project_ and use _this project's CPAN modules_. Having this completely isolated
+from other Perl projects which might have different needs. We have many Perl
+tools designed to solve various parts of the problem, but it's time to put them
+into the core. [There's now a discussion on the P5P mailing list about
+addressing
+this](https://www.nntp.perl.org/group/perl.perl5.porters/2023/03/msg265923.html).
+
+To put this as a simplistic user story:
+
+1. As a developer
+2. I want to easily set up multiple isolated Perl environments
+3. So I can support multiple isolated clients/projects
+4. Because my work shouldn't have the fragility of picking up the wrong
+dependencies
+
+There's a lot of work there, but a developer installing Perl for the first time
+should be able to solve this, just as developers downloading other languages for
+the first time can.
+
+## Concurrency
+
+&lt;snark&gt;Promises, promises.&lt;/snark&gt;
+
+Much of the programming world today is dealing with concurrency in some form.
+There are serious problems this solves, including:
+
+1. CPU-intensive work can be split across multiple CPUs (or GPUs!).
+2. Don't wait on code that might block due to external resource constraints.
+
+P5P has long preferred that new ideas for Perl be tested on the CPAN before
+incorporating these ideas into the core. This allows us to see what is an isn't
+working (or in some cases, just to better understand the syntax people prefer).
+There are multiple attempts to solve the concurrency issue on the CPAN and given
+that this feature is being used more and more, and becoming a default feature in
+many languages, I think the core needs to support his.
+
+## Data Constraints
+
+As with an installation manager and concurrency, the CPAN offers many solutions
+for constraining your data. You might notice I avoided the word "type." Computer
+scientists have reasonable disagreements about types and type system. Computer
+programmers have shouting matches.
+
+I know what I want from types. Others strongly disagree. However, a very
+workable compromise has emerged in Perl. This is largely based on
+[`Type::Tiny`](https://metacpan.org/pod/Type::Tiny) and similar modules. For
+Moose, for example, I can define an attribute like this:
+
+```perl
+has expires_at => (
+    is  => 'rw',
+    isa => InstanceOf ['DateTime' ],
+);
+```
+
+With that, I can read and write the `expires_at` value and know that the value
+_must_ be a `DateTime` instance or a subclass (er, or anything that overloaded
+the `isa` method to lie and say it's a `DateTime` class, but we'll ignore that
+because it opens up a fascinating discussion well beyond the scope of this
+post).
+
+For a subroutine, I might do this:
+
+```perl
+sub reset_totals ($count, $totals) {
+    state $check = compile(Int, HashRef[Int]);
+    ($count, $totals) = $check->($count, $totals);
+
+    $count = constrain($count);
+
+    foreach my $key (keys $totals->%*) {
+        $totals->{$key} = $count;
+    }
+}
+```
+
+Unlike the attribute approach, the `sub` solution only guarantees the kind of
+data you have in variables at the time of the `$check->()`. In the above
+subroutine, if `constrain` returned an array reference instead of an integer,
+the above code would not only continue to run, but it would do so without
+warning, to the point of corrupting the data in the code calling this function!
+
+Note that the above is not a hypothetical problem. It happens, but we kid
+ourselves that our test suite will protect us. In reality, attaching a data
+constraint to variables instead of statements would fix the above. TypeScript
+isn't perfect, but I've enjoyed the fact that many of these errors simply don't
+occur (though TypeScript handles this differently).
+
+We are not, however, there yet. `Type::Tiny` and related tools are great ways of
+minimizing the issue, but their syntax is clumsy and their features are limited,
+largely because they're working within the limitations of Perl. This is not a
+criticism of these modules, though. We have to start somewhere. However, [our
+company](https://allaroundtheworld.fr) is finding more and more clients relying
+on `Type::Tiny` due to the safety it provides. More work is needed here.
+
+## Miscellaneous
+
+I think Perl needs native exceptions. It needs native stack traces. Native
+constants, including deep structures. Copy-on-write would be useful, but it's
+not clear how feasible this is. There's a lot more, but what I've written might
+already be controversial enough that stopping is probably good.
+
+# Conclusion
+
+We need a vision of Perl's future. Many of the things we need in the Perl core
+are things we've re-implemented many times on the CPAN. Not having them in core
+means developers have to learn their current environment's way of handling this,
+and makes it easier to choose a module that might be inappropriate, or worse,
+unmaintained. This increases the cognitive burden on all developers who, I'm
+sure, are more interested in building solutions than arguing over them.
+
+Perl 7 is going to be wonderful, but it's time to start thinking about Perl 8.
+
+If you have ideas about what Perl needs for the future, please leave a comment
+below.
+
+[% END %]
