@@ -4,6 +4,7 @@ use Less::Boilerplate;
 use Less::Pager;
 use aliased 'Ovid::Template::File::Collection';
 use Mojo::JSON 'decode_json';
+use List::Util qw(sum0 max min);
 use Less::Config 'config';
 use base 'Template::Plugin';
 
@@ -54,6 +55,18 @@ sub name_for_tag ( $self, $tag ) {
     return $name;
 }
 
+sub weight_for_tag ( $self, $tag ) {
+    state $counts     = [ map { $self->count_for_tag($_) } $self->tags ];
+    state $min        = min @$counts;
+    state $max        = max @$counts;
+    state $weight_max = 9;
+    state $weight_min = 1;
+    my $count  = $self->count_for_tag($tag);
+    my $weight = $weight_min + ( ( $weight_max - $weight_min ) * ( $count - $min ) ) / ( $max - $min );
+    $weight = int( $weight + .5 );
+    return $weight;
+}
+
 sub count_for_tag ($self, $tag) {
     my $count = $self->{tagmap}{$tag}{count}
         or croak("Cannot find count for unknown tag '$tag'");
@@ -74,7 +87,6 @@ sub title_for_tag_file ($self, $tag, $file) {
 
 sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
     $name =~ s/\s+/-/g;
-    my $return = "$name-return";
     my $number = $self->{footnote_number}++;
     if ( exists $self->{footnote_names}{$name} ) {
         croak("Footnote '$name' already used");
