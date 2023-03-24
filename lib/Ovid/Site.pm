@@ -326,8 +326,9 @@ END
     sub _run_ttree ($self) {
         my $ttree = which('ttree');
         my @args  = (
-            'perl', '-Ilib',                                # make sure we can find out plugins
-            $ttree, '-a',                                   # process all files
+            'perl', '-Ilib',                                # make sure we can find our plugins
+            $ttree,                                         # the ttree command
+            '-a',                                           # process all files
             '-s'         => 'tmp',                          # use tmp/ as a source
             '-d'         => '.',                            # use . as the target
             '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
