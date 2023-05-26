@@ -346,10 +346,10 @@ END
     }
 
     sub _run_ttree ($self) {
-        # XXX my $ttree = which('ttree');
+        my $ttree = which('ttree');
         my @args  = (
             'perl', '-Ilib',                                # make sure we can find our plugins
-            'bin/otree',                                    # the ttree command
+            $ttree,                                         # the ttree command
             '-a',                                           # process all files
             '-s'         => 'tmp',                          # use tmp/ as a source
             '-d'         => '.',                            # use . as the target
