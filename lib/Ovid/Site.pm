@@ -9,6 +9,7 @@ package Ovid::Site {
     use Less::Config qw(config);
     use Ovid::Types qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
+    use Template::Plugin::Ovid;
     use aliased 'Ovid::Template::File::Collection';
 
     use Capture::Tiny 'capture';
@@ -47,6 +48,7 @@ package Ovid::Site {
         $self->_preprocess_files;
         $self->_write_tag_templates;
         $self->_write_tagmap;
+        $self->_build_tag_js;
         $self->_rebuild_article_pagination;
         $self->_rebuild_rss_feeds;
         $self->_run_ttree;
