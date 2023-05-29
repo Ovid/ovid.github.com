@@ -1,0 +1,513 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/using-github-copilot-with-vim.html" />
+  
+  <meta property="og:title" content="Using Github Copilot with Vim" />
+  <meta property="og:description" content="I've started using Github Copilot. Color me impressed." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Using Github Copilot with Vim</title>
+  <meta name="description" content="Using Github Copilot with Vim">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+			<ul>
+			<li><a
+            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
+            target="_blank"><img src="/static/images/perl-hacks.jpg"
+            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+			<li><a
+            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
+            target="_blank"><img src="/static/images/beginning-perl.jpg"
+            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+			<li><img class="book" src="/static/images/profile.png" alt="An
+            image of Curtis Poe, holding some electronic equipment in front of
+            his face."></li>
+			</ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Using Github Copilot with Vim</h1>
+        <time>2023-05-26</time>
+		
+		<p><span id="time"></span> minute read</p>
+		
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <hr>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            
+            
+            <li><a href="/tags/business.html" data-weight="9">Business</a></li>
+        
+            
+            
+            <li><a href="/tags/corinna.html" data-weight="9">Corinna</a></li>
+        
+            
+            
+            <li><a href="/tags/databases.html" data-weight="8">Databases</a></li>
+        
+            
+            
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            
+            
+            <li><a href="/tags/family.html" data-weight="5">Family</a></li>
+        
+            
+            
+            <li><a href="/tags/math.html" data-weight="4">Math</a></li>
+        
+            
+            
+            <li><a href="/tags/oop.html" data-weight="9">OOP</a></li>
+        
+            
+            
+            <li><a href="/tags/perl.html" data-weight="9">Perl</a></li>
+        
+            
+            
+            <li><a href="/tags/personal.html" data-weight="7">Personal</a></li>
+        
+            
+            
+            <li><a href="/tags/politics.html" data-weight="6">Politics</a></li>
+        
+            
+            
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            
+            
+            <li><a href="/tags/science.html" data-weight="3">Science</a></li>
+        
+            
+            
+            <li><a href="/tags/space.html" data-weight="5">Space</a></li>
+        
+            
+            
+            <li><a href="/tags/writing.html" data-weight="9">Writing</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/all-around-the-world-celebrating-ten-years.html" class="prevPost">&laquo; All Around the World: Celebrating Ten Years</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<blockquote>
+  <p>Full disclosure: I just found out that because of my contributions to
+  significant open source projects, I get access to Github Copilot for free. That
+  being said, even before I realized that, I was using the free trial and I was
+  impressed.</p>
+</blockquote>
+
+<p>A few years ago, a client contracted with us to build out a system where they’d
+be automating many common tasks their people did. However, it was a political
+minefield. The employees thought management was trying to automate them out of
+jobs, so they were not always cooperative. Management insisted they were trying
+to free up employee time for more complex tasks, but the employees were
+suspicious.</p>
+
+<p>Today’s AI revolution is having similar effects. People are losing their jobs to
+ChatGPT. Companies are turning to Stable Diffusion and other AI systems to
+generate images. And now <a href="https://github.com/features/copilot" target="_blank">Github Copilot</a> <span class="fa fa-external-link fa_custom"></span>
+is here to write code for us.</p>
+
+<p>I tend to be a late adopter of software. It’s not that I’m a Luddite. I just
+prefer to focus on building things rather than learning the hot new technology
+du jour. But my explorations into ChatGPT taught me pretty quickly that if
+you’re willing to accept the quirks, AI can be an amazing tool. So I decided to
+give Copilot a try.</p>
+
+<p>I use vim. If you have a different setup, you’ll need to hit your favorite
+search engine for instructions.</p>
+
+<p>First, you’ll need neovim or a relatively recent vim and install the <a href="https://github.com/github/copilot.vim" target="_blank">Github
+Copilot vim plugin</a> <span class="fa fa-external-link fa_custom"></span>. I confess that after
+two decades with vim, and having a <em>highly</em> customized vim setup, I was a bit
+nervous about whether or not Copilot was going to play well with my setup. There
+were a few slight bumps in the road.</p>
+
+<p>First, I wanted to make sure Copilot was only active in certain filetypes. I
+added the following to the bottom of my <code>~/.vimrc</code>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-vim">let g:copilot_filetypes = {
+    \ 'gitcommit': v:true,
+    \ 'markdown': v:true,
+    \ 'yaml': v:true,
+    \ 'perl': v:true
+    \ }
+</code></pre></div>
+
+<p>That gives me Copilot in git commit messages, markdown files, YAML files, and
+Perl.</p>
+
+<p>If you have extremely large files, <a href="https://til.codeinthehole.com/posts/how-to-automatically-disable-github-copilot-in-vim-when-editing-large-files/" target="_blank">you may want to disable Copilot in
+those</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-vim"> autocmd BufReadPre *
+     \ let f=getfsize(expand(&quot;&lt;afile&gt;&quot;))
+     \ | if f &gt; 100000 || f == -2
+     \ | let b:copilot_enabled = v:false
+     \ | endif
+</code></pre></div>
+
+<p>I was pretty sure that my auto-completion hack wouldn’t work, so I disabled that
+first:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-vim">&quot; function! CleverTab() &quot; I need to be cleverer
+&quot;    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+&quot;       return &quot;\&lt;Tab&gt;&quot;
+&quot;    else
+&quot;       return &quot;\&lt;C-N&gt;&quot;
+&quot; endfunction
+&quot; inoremap &lt;Tab&gt; &lt;C-R&gt;=CleverTab()&lt;CR&gt;
+</code></pre></div>
+
+<p>Yeah, I should use a plugin for that, but I’m lazy. It worked for me.</p>
+
+<p>Then I started playing around with Copilot, but for some reason, sometimes it
+would show me the code it was suggesting, but when I hit “tab”, it wouldn’t
+insert it.  It was frustrating, until I remembered I had this in my
+<code>~/.vimrc</code>:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-vim">noremap &lt;leader&gt;pp  :set invpaste&lt;cr&gt;
+</code></pre></div>
+
+<p>I’m often cutting-n-drooling things into my editor, so I hit <code>,pp</code> to toggle
+paste mode. When I realized that, I knew I just needed to hit <code>,pp</code> again to
+let Copilot work its magic.</p>
+
+<p>I’ve seen quite a few people talk about how Copilot is going to put programmers
+out of work, but I was pretty sure that while it could write simple code, it
+wasn’t going to be able to write code for complex business logic. I was <em>sort
+of</em> wrong. Copilot quickly picked up my style and if I named things
+intelligently, it often offered perfect suggestions. In fact, a few times it was
+offering suggestions that were better than what I thought of at the time.
+Humbling.</p>
+
+<p>Of course, like ChatGPT and friends, Copilot is prone to hallucinations. It’s
+tried to write documentation for methods that don’t exist. It’s tried to write
+code calling methods that don’t exist. Sometimes it writes code that works, but
+has nothing to do with what I need. However, so long as I’m vigilant, I can
+catch those errors. And sometimes, it’s just a matter of hitting “tab” a few
+times to get the code I want.</p>
+
+<p>This morning, I was working on an immutable ORM I’m building for a client. At
+one point, Copilot added the following comment to my code:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">METHOD: foreach my $method (keys %methods) {
+    my $new_method = $self-&gt;metadata('columns')-&gt;{$method};
+    if ( $method eq $new_method ) {
+
+        # don't install methods if they already exist
+        next METHOD;
+        ...
+</code></pre></div>
+
+<p>I chuckled at comment. It was code being used to auto-generate methods and of
+<em>course</em> I wanted to install those methods.</p>
+
+<p>And then I read the comment again. That <code>next METHOD;</code> meant I’d be skipping
+that method. I had a bug in my code and Copilot caught it for me. It was a
+silly, obvious bug. I was knee-deep in a huge change that impacted 27 files and
+tiny bugs like this are easy to miss. Thank goodness for tests, but doubly-thank
+goodness for Copilot.</p>
+
+<p>Did I say “humbling” already? Yeah, humbling.</p>
+
+<p>And then what blew me away happened this weekend. I was porting the <a href="https://github.com/openskynetwork/opensky-api" target="_blank">OpenSky
+API</a> <span class="fa fa-external-link fa_custom"></span> from Python to Perl. What I
+often do when porting code is to take the code and paste it into my editor as a
+comment and follow along while porting. I was using the following Python:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-python">def get_flights_from_interval(self, begin, end):
+    &quot;&quot;&quot;
+    Retrieves data of flights for certain time interval [begin, end].
+
+    :param int begin: Start of time interval to retrieve flights for as Unix time (seconds since epoch).
+    :param int end: End of time interval to retrieve flights for as Unix time (seconds since epoch).
+    :return: list of FlightData objects if request was successful, None otherwise.
+    :rtype: FlightData | None
+    &quot;&quot;&quot;
+    if begin &gt;= end:
+        raise ValueError(&quot;The end parameter must be greater than begin.&quot;)
+    if end - begin &gt; 7200:
+        raise ValueError(&quot;The time interval must be smaller than 2 hours.&quot;)
+
+    params = {&quot;begin&quot;: begin, &quot;end&quot;: end}
+    states_json = self._get_json(
+        &quot;/flights/all&quot;, self.get_flights_from_interval, params=params
+    )
+
+    if states_json is not None:
+        return [FlightData(list(entry.values())) for entry in states_json]
+    return None
+</code></pre></div>
+
+<p>As soon as I typed <code>sub get_flights_from_interval</code>, Copilot suggested this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">sub get_flights_from_interval ( $self, $begin, $end ) {
+    if ( $begin &gt;= $end ) {
+        croak 'The end time must be greater than or equal to the start time.';
+    }
+    if ( ( $end - $begin ) &gt; 7200 ) {
+        croak 'The time interval must be smaller than two hours.';
+    }
+
+    my %params   = ( begin =&gt; $begin, end =&gt; $end );
+    my $route    = '/flights/all';
+    my $response = $self-&gt;_get_response( route =&gt; $route, params =&gt; \%params ) // [];
+
+    if ( $self-&gt;raw ) {
+        return $response;
+    }
+    return OpenSky::API::Flights-&gt;new($response);
+}
+</code></pre></div>
+
+<p>The only change I made to it was rewriting the error messages.</p>
+
+<p>There are a two interesting this about this. One, it worked perfectly the first
+time. Two, notice that <code>$self-&gt;raw</code>? That’s something I added to other methods
+to return the raw data structures instead of objects. Copilot knew to add it
+there.</p>
+
+<p>Also, the Python code returns <code>None</code> if it doesn’t find anything, meaning that
+you always have to remember to guard your code with an <code>if</code> check. My code
+always returns an <code>OpenSky::API::Flights</code> object, but with an empty iterator
+if there are no results. If you forget an <code>if</code> check, the consuming code will
+still work. If you <em>need</em> to check if you have results, you can still call
+<code>$flights-&gt;count</code> to see if anything is there. Copilot knew to add that, too.</p>
+
+<p>Copilot is not only suggesting code, but accommodating my style.</p>
+
+<p>To be fair, there are serious concerns about Copilot. It’s trained on code from
+a variety of sources, including code that is copyrighted. <a href="https://www.techtarget.com/searchsoftwarequality/news/252526359/Developers-warned-GitHub-Copilot-code-may-be-licensed" target="_blank">There’s an ongoing
+class action lawsuit as a result of
+this</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>But rather go into a number of issues with Copilot, I’ll point to the elephant
+in the room: developers are going to lose jobs because of this. This technology
+is in its infancy and it’s already writing code that’s better than many
+developers I’ve met. As the technology matures, more and more developers will
+find that simply writing good prompts will take care of much of their work for
+them. Already I’m finding that Copilot is increasing my productivity, but at the
+same time, I need to be on guard for subtle bugs that it might introduce. Since
+I’m not <em>writing</em> the code, I risk not thinking about it as much as I should.
+Fortunately, I’m fanatical about testing, so this limits the risk.</p>
+
+<p>But as more companies shift to tools like this, they’ll be looking at senior
+developers like myself, developers with decades of experience, and they’ll be
+asking themselves why they’re paying us so much when Copilot can do the work for
+them. Junior devs might be finding it easier to get work since they don’t charge
+as much money and I think it’s currently unknown if the quality of our software
+will improve as a result.</p>
+
+<p>I don’t know what the future holds, but one part is clear: we’re getting closer
+to being able to describe our software and having it written for us.</p>
+
+<p>Note: <a href="https://github.com/Ovid/opensky-api" target="_blank">the OpenSky code I wrote using Copilot is available on
+github</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://metacpan.org/pod/OpenSky::API" target="_blank">the
+CPAN</a> <span class="fa fa-external-link fa_custom"></span>. I’ve already had one bug report
+(my bug, not Copilot’s) and I fixed it and released this morning, along with
+more tests.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/all-around-the-world-celebrating-ten-years.html" class="prevPost">&laquo; All Around the World: Celebrating Ten Years</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/using-github-copilot-with-vim.html";
+            this.page.identifier = "articles/using-github-copilot-with-vim";
+            this.page.title      = "Using Github Copilot with Vim";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
