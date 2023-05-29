@@ -54,7 +54,7 @@ package Ovid::Site {
         $self->_run_ttree;
     }
 
-    sub _write_tags_js ($self) {
+    sub _write_tag_js ($self) {
         my $ovid = Template::Plugin::Ovid->new(undef);
         my $tags = '';
         foreach my $tag ( $ovid->tags ) {
