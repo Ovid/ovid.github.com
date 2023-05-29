@@ -6,19 +6,236 @@
     syntax_highlight = 1;
     date             = '2023-05-26';
     mathjax          = 0;
-    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
-    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
     USE Ovid;
 %]
 [% WRAPPER include/wrapper.tt blogdown=1 -%]
 
 {{TAGS programming}}
 
-> Disclaimer: I just found out that because of my contributions to significant
-open source projects, I get access to Github Copilot for free. That being said,
-even before I realized that, I was using the free trial and I was impressed.
+> Full disclosure: I just found out that because of my contributions to
+significant open source projects, I get access to Github Copilot for free. That
+being said, even before I realized that, I was using the free trial and I was
+impressed.
 
-A few years ago, a client contracted with us to build out a system where they'd 
-be automating many common tasks their people did. 
+A few years ago, a client contracted with us to build out a system where they'd
+be automating many common tasks their people did. However, it was a political
+minefield. The employees thought management was trying to automate them out of
+jobs, so they were not always cooperative. Management insisted they were trying
+to free up employee time for more complex tasks, but the employees were
+suspicious.
+
+Today's AI revolution is having similar effects. People are losing their jobs to
+ChatGPT. Companies are turning to Stable Diffusion and other AI systems to
+generate images. And now [Github Copilot](https://github.com/features/copilot)
+is here to write code for us.
+
+I tend to be a late adopter of software. It's not that I'm a Luddite. I just
+prefer to focus on building things rather than learning the hot new technology
+du jour. But my explorations into ChatGPT taught me pretty quickly that if
+you're willing to accept the quirks, AI can be an amazing tool. So I decided to
+give Copilot a try.
+
+I use vim. If you have a different setup, you'll need to hit your favorite
+search engine for instructions.
+
+First, you'll need neovim or a relatively recent vim and install the [Github
+Copilot vim plugin](https://github.com/github/copilot.vim). I confess that after
+two decades with vim, and having a _highly_ customized vim setup, I was a bit
+nervous about whether or not Copilot was going to play well with my setup. There
+were a few slight bumps in the road.
+
+First, I wanted to make sure Copilot was only active in certain filetypes. I
+added the following to the bottom of my `~/.vimrc`:
+
+```vim
+let g:copilot_filetypes = {
+    \ 'gitcommit': v:true,
+    \ 'markdown': v:true,
+    \ 'yaml': v:true,
+    \ 'perl': v:true
+    \ }
+```
+
+That gives me Copilot in git commit messages, markdown files, YAML files, and
+Perl.
+
+If you have extremely large files, [you may want to disable Copilot in
+those](https://til.codeinthehole.com/posts/how-to-automatically-disable-github-copilot-in-vim-when-editing-large-files/):
+
+```vim
+ autocmd BufReadPre *
+     \ let f=getfsize(expand("<afile>"))
+     \ | if f > 100000 || f == -2
+     \ | let b:copilot_enabled = v:false
+     \ | endif
+```
+
+I was pretty sure that my auto-completion hack wouldn't work, so I disabled that
+first:
+
+```vim
+" function! CleverTab() " I need to be cleverer
+"    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+"       return "\<Tab>"
+"    else
+"       return "\<C-N>"
+" endfunction
+" inoremap <Tab> <C-R>=CleverTab()<CR>
+```
+
+Yeah, I should use a plugin for that, but I'm lazy. It worked for me.
+
+Then I started playing around with Copilot, but for some reason, sometimes it
+would show me the code it was suggesting, but when I hit "tab", it wouldn't
+insert it.  It was frustrating, until I remembered I had this in my
+`~/.vimrc`:
+
+```vim
+noremap <leader>pp  :set invpaste<cr>
+```
+
+I'm often cutting-n-drooling things into my editor, so I hit `,pp` to toggle
+paste mode. When I realized that, I knew I just needed to hit `,pp` again to
+let Copilot work its magic.
+
+I've seen quite a few people talk about how Copilot is going to put programmers
+out of work, but I was pretty sure that while it could write simple code, it
+wasn't going to be able to write code for complex business logic. I was _sort
+of_ wrong. Copilot quickly picked up my style and if I named things
+intelligently, it often offered perfect suggestions. In fact, a few times it was
+offering suggestions that were better than what I thought of at the time.
+Humbling.
+
+Of course, like ChatGPT and friends, Copilot is prone to hallucinations. It's
+tried to write documentation for methods that don't exist. It's tried to write
+code calling methods that don't exist. Sometimes it writes code that works, but
+has nothing to do with what I need. However, so long as I'm vigilant, I can
+catch those errors. And sometimes, it's just a matter of hitting "tab" a few
+times to get the code I want.
+
+This morning, I was working on an immutable ORM I'm building for a client. At
+one point, Copilot added the following comment to my code:
+
+```perl
+METHOD: foreach my $method (keys %methods) {
+    my $new_method = $self->metadata('columns')->{$method};
+    if ( $method eq $new_method ) {
+
+        # don't install methods if they already exist
+        next METHOD;
+        ...
+```
+
+I chuckled at comment. It was code being used to auto-generate methods and of
+_course_ I wanted to install those methods.
+
+And then I read the comment again. That `next METHOD;` meant I'd be skipping
+that method. I had a bug in my code and Copilot caught it for me. It was a
+silly, obvious bug. I was knee-deep in a huge change that impacted 27 files and
+tiny bugs like this are easy to miss. Thank goodness for tests, but doubly-thank
+goodness for Copilot.
+
+Did I say "humbling" already? Yeah, humbling.
+
+And then what blew me away happened this weekend. I was porting the [OpenSky
+API](https://github.com/openskynetwork/opensky-api) from Python to Perl. What I
+often do when porting code is to take the code and paste it into my editor as a
+comment and follow along while porting. I was using the following Python:
+
+```python
+def get_flights_from_interval(self, begin, end):
+    """
+    Retrieves data of flights for certain time interval [begin, end].
+
+    :param int begin: Start of time interval to retrieve flights for as Unix time (seconds since epoch).
+    :param int end: End of time interval to retrieve flights for as Unix time (seconds since epoch).
+    :return: list of FlightData objects if request was successful, None otherwise.
+    :rtype: FlightData | None
+    """
+    if begin >= end:
+        raise ValueError("The end parameter must be greater than begin.")
+    if end - begin > 7200:
+        raise ValueError("The time interval must be smaller than 2 hours.")
+
+    params = {"begin": begin, "end": end}
+    states_json = self._get_json(
+        "/flights/all", self.get_flights_from_interval, params=params
+    )
+
+    if states_json is not None:
+        return [FlightData(list(entry.values())) for entry in states_json]
+    return None
+```
+
+As soon as I typed `sub get_flights_from_interval`, Copilot suggested this:
+
+```perl
+sub get_flights_from_interval ( $self, $begin, $end ) {
+    if ( $begin >= $end ) {
+        croak 'The end time must be greater than or equal to the start time.';
+    }
+    if ( ( $end - $begin ) > 7200 ) {
+        croak 'The time interval must be smaller than two hours.';
+    }
+
+    my %params   = ( begin => $begin, end => $end );
+    my $route    = '/flights/all';
+    my $response = $self->_get_response( route => $route, params => \%params ) // [];
+
+    if ( $self->raw ) {
+        return $response;
+    }
+    return OpenSky::API::Flights->new($response);
+}
+```
+
+The only change I made to it was rewriting the error messages.
+
+There are a two interesting this about this. One, it worked perfectly the first
+time. Two, notice that `$self->raw`? That's something I added to other methods
+to return the raw data structures instead of objects. Copilot knew to add it
+there.
+
+Also, the Python code returns `None` if it doesn't find anything, meaning that
+you always have to remember to guard your code with an `if` check. My code
+always returns an `OpenSky::API::Flights` object, but with an empty iterator
+if there are no results. If you forget an `if` check, the consuming code will
+still work. If you _need_ to check if you have results, you can still call
+`$flights->count` to see if anything is there. Copilot knew to add that, too.
+
+Copilot is not only suggesting code, but accommodating my style.
+
+To be fair, there are serious concerns about Copilot. It's trained on code from
+a variety of sources, including code that is copyrighted. [There's an ongoing
+class action lawsuit as a result of
+this](https://www.techtarget.com/searchsoftwarequality/news/252526359/Developers-warned-GitHub-Copilot-code-may-be-licensed).
+
+But rather go into a number of issues with Copilot, I'll point to the elephant
+in the room: developers are going to lose jobs because of this. This technology
+is in its infancy and it's already writing code that's better than many
+developers I've met. As the technology matures, more and more developers will
+find that simply writing good prompts will take care of much of their work for
+them. Already I'm finding that Copilot is increasing my productivity, but at the
+same time, I need to be on guard for subtle bugs that it might introduce. Since
+I'm not _writing_ the code, I risk not thinking about it as much as I should.
+Fortunately, I'm fanatical about testing, so this limits the risk.
+
+But as more companies shift to tools like this, they'll be looking at senior
+developers like myself, developers with decades of experience, and they'll be
+asking themselves why they're paying us so much when Copilot can do the work for
+them. Junior devs might be finding it easier to get work since they don't charge
+as much money and I think it's currently unknown if the quality of our software
+will improve as a result.
+
+I don't know what the future holds, but one part is clear: we're getting closer
+to being able to describe our software and having it written for us.
+
+Note: [the OpenSky code I wrote using Copilot is available on
+github](https://github.com/Ovid/opensky-api) and [the
+CPAN](https://metacpan.org/pod/OpenSky::API). I've already had one bug report
+(my bug, not Copilot's) and I fixed it and released this morning, along with
+more tests.
 
 [%- END %]
