@@ -1,0 +1,265 @@
+[%
+    title            = "Tracking Elon Musk's Plane with Perl";
+    type             = 'articles';
+    slug             = 'tracking-elon-musks-plane-with-perl-perl-and-opensky-network-data-to-track-elon-musk';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2023-06-05';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS perl programming}}
+
+You may recall that one Jack Sweeney created
+[ElonJet](https://en.wikipedia.org/wiki/ElonJet), a service to track Elon Musk's
+jet in real time. This led to his account being suspended by Twitter, but you
+can find him on [Mastodon](https://mastodon.social/@ElonJet).
+
+He has a public repository [for tracking
+planes](https://github.com/Jxck-S/plane-notify), but it's written in Python. I
+wanted to do the same for Perl, so I did. I wrote
+[WebSerive::OpenSky](https://metacpan.org/pod/WebService::OpenSky) (also
+[available on GitHub](https://github.com/Ovid/opensky-api)), which is a Perl
+wrapper around the [OpenSky Network
+API](https://openskynetwork.github.io/opensky-api/). From [OpenSky Network's
+home page](https://opensky-network.org/):
+
+> The OpenSky Network is a non-profit community-based receiver network which has
+been continuously collecting air traffic surveillance data since 2013. Unlike
+other networks, OpenSky keeps the complete unfiltered raw data and makes it
+accessible to academic and institutional researchers. With over 30 trillion
+ADS-B, Mode S, TCAS and FLARM messages collected from more than 5000 sensors
+around the world, the OpenSky Network exhibits the largest air traffic
+surveillance dataset of its kind. The mission of our non-profit association is
+to support open global air traffic research by universities and other
+not-for-profit institutions. [You can find more information on our
+blog](https://opensky-network.org/community/blog/item/10-welcome-to-opensky).
+
+I won't go into great detail about the API, but it's pretty simple. You can read
+the docs to understand more, but here's a quick example:
+
+```perl
+use WebService::OpenSky;
+
+my $musks_jet = 'a835af';
+my $openapi   = WebService::OpenSky->new;
+
+my $days = shift @ARGV || 7;
+my $now  = time;
+my $then = $now - 86400 * $days;
+
+my $flight_data = $openapi
+  ->get_flights_by_aircraft( $musks_jet, $then, $now );
+say "Jet $musks_jet has "
+  . $flight_data->count . " flights";
+```
+
+As of this writing, that prints out: `Jet a835af has 3 flights`
+
+The `$flight_data` object allows you to iterate over the flights, but it's
+pretty limited. I wanted more. I wanted something like this:
+
+```
+Flight #1. Departed Monday, 29 May, 10:42 AM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #1. Arrived Monday, 29 May, 04:34 PM UTC
+	at Ted Stevens Anchorage International Airport, Anchorage, Alaska, US
+
+Flight #2. Departed Thursday, 01 Jun, 04:32 AM UTC
+	from unknown airport, unknown city
+Flight #2. Arrived Thursday, 01 Jun, 04:45 PM UTC
+	at Austin-Bergstrom International Airport, Austin, Texas, US
+
+Flight #3. Departed Thursday, 01 Jun, 04:32 AM UTC
+	from unknown airport, unknown city
+Flight #3. Arrived Thursday, 01 Jun, 04:45 PM UTC
+	at unknown airport, unknown city
+```
+
+As you can see, the data itself is spotty, but the older the data, the more
+accurate it appears to be. So how did we get there?
+
+First, we need to get the [ICAO 24-bit hexadecimal
+code](https://en.wikipedia.org/wiki/Aviation_transponder_interrogation_modes#ICAO_24-bit_address)
+for Musk's private jet. It turns out he has three of them, but I'm only tracking
+the one he's using the most. A quick search for "icao 24 Elon Musk's jet"
+revealed this [Hacker News discussion of
+it](https://news.ycombinator.com/item?id=34037780). Various other sources
+confirmed this, with the N628TS registrations having the icao number of
+`a835af`.
+
+Next, we need to get the flight data. The OpenSky API allows you to get flight
+data and that's shown in the script above. However, it's not very useful. I
+wanted to see the actual airport names and times (the times returned by the API
+are [Unix epochs](https://en.wikipedia.org/wiki/Unix_time)).
+
+Getting the ICAO codes for the airports is was a bit harder. Since I'm doing
+this open source, I eventually tracked down [a fairly active GitHub repository
+with airport data](https://github.com/mborsetti/airportsdata). I wanted to use
+the [Geo::ICAO](https://metacpan.org/pod/Geo::ICAO) module to convert the ICAO
+data, but it's out-of-date and missing a lot of airports. Thus, I wrote this
+code:
+
+```perl
+sub get_icao_data {
+  my $url
+    = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
+  my $ua = Mojo::UserAgent->new;
+  return eval {
+    my $response = $ua->get($url)->res;
+    my %lookup;
+    if ( $response->is_success ) {
+      my ( $fh, $filename ) = tempfile();
+      print {$fh} $response->body;
+      close $fh;
+      my $data = csv(
+        in      => $filename,
+        headers => "auto",
+      );
+      %lookup = map { $_->{icao} => $_ } @$data;
+    }
+    \%lookup;
+  };
+}
+```
+
+If any airports are missing from that (and it appears there may be some issues),
+I fall back to `Geo::ICAO`. The solution has been working well so far.
+Obviously, paid services are more accurate, but this is good enough for my
+needs.
+
+I'll skip explaining the rest of the code, [but here's a link to the full
+script](https://gist.github.com/Ovid/cedd9186d1ae6a97f1e6f1b9dc355909). Running
+that as `perl lights.pl --days 30` outputs:
+
+```
+Flight #1. Departed Sunday, 07 May, 08:39 PM UTC
+	from Miami-Opa Locka Exec Airport, Miami, Florida, US
+Flight #1. Arrived Sunday, 07 May, 11:01 PM UTC
+	at Austin-Bergstrom International Airport, Austin, Texas, US
+
+Flight #2. Departed Monday, 08 May, 06:40 PM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #2. Arrived Monday, 08 May, 07:13 PM UTC
+	at Corpus Christi International Airport, Corpus Christi, Texas, US
+
+Flight #3. Departed Monday, 08 May, 07:47 PM UTC
+	from Corpus Christi International Airport, Corpus Christi, Texas, US
+Flight #3. Arrived Monday, 08 May, 08:21 PM UTC
+	at Austin-Bergstrom International Airport, Austin, Texas, US
+
+Flight #4. Departed Monday, 08 May, 08:59 PM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #4. Arrived Monday, 08 May, 09:29 PM UTC
+	at Corpus Christi International Airport, Corpus Christi, Texas, US
+
+Flight #5. Departed Monday, 08 May, 09:55 PM UTC
+	from Corpus Christi International Airport, Corpus Christi, Texas, US
+Flight #5. Arrived Monday, 08 May, 10:10 PM UTC
+	at Farm Services Inc Airport, Rio Hondo, Texas, US
+
+Flight #6. Departed Tuesday, 09 May, 02:07 PM UTC
+	from unknown airport, unknown city
+Flight #6. Arrived Tuesday, 09 May, 05:19 PM UTC
+	at Napa County Airport, Napa, California, US
+
+Flight #7. Departed Tuesday, 09 May, 06:37 PM UTC
+	from Napa County Airport, Napa, California, US
+Flight #7. Arrived Tuesday, 09 May, 07:06 PM UTC
+	at Norman Y Mineta San Jose International Airport, San Jose, California, US
+
+Flight #8. Departed Friday, 12 May, 06:25 AM UTC
+	from Norman Y Mineta San Jose International Airport, San Jose, California, US
+Flight #8. Arrived Friday, 12 May, 07:15 AM UTC
+	at Jack Northrop Field/Hawthorne Municipal Airport, Hawthorne, California, US
+
+Flight #9. Departed Saturday, 13 May, 04:18 AM UTC
+	from Jack Northrop Field/Hawthorne Municipal Airport, Hawthorne, California, US
+Flight #9. Arrived Saturday, 13 May, 05:27 AM UTC
+	at unknown airport, unknown city
+
+Flight #10. Departed Sunday, 14 May, 10:27 PM UTC
+	from unknown airport, unknown city
+Flight #10. Arrived Monday, 15 May, 07:38 AM UTC
+	at Paris-Le Bourget Airport, Paris, Ile-de-France, FR
+
+Flight #11. Departed Monday, 15 May, 06:19 PM UTC
+	from Paris-Le Bourget Airport, Paris, Ile-de-France, FR
+Flight #11. Arrived Tuesday, 16 May, 03:48 AM UTC
+	at Seidel Ranch Airport, Elroy, Texas, US
+
+Flight #12. Departed Friday, 19 May, 01:10 PM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #12. Arrived Friday, 19 May, 03:59 PM UTC
+	at Norman Y Mineta San Jose International Airport, San Jose, California, US
+
+Flight #13. Departed Saturday, 20 May, 06:35 AM UTC
+	from Norman Y Mineta San Jose International Airport, San Jose, California, US
+Flight #13. Arrived Saturday, 20 May, 11:12 AM UTC
+	at Rhode Island Tf Green International Airport, Providence, Rhode Island, US
+
+Flight #14. Departed Saturday, 20 May, 07:54 PM UTC
+	from unknown airport, unknown city
+Flight #14. Arrived Saturday, 20 May, 11:17 PM UTC
+	at Seidel Ranch Airport, Elroy, Texas, US
+
+Flight #15. Departed Sunday, 21 May, 12:12 AM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #15. Arrived Sunday, 21 May, 02:45 AM UTC
+	at Los Angeles International Airport, Los Angeles, California, US
+
+Flight #16. Departed Sunday, 21 May, 06:03 PM UTC
+	from Los Angeles International Airport, Los Angeles, California, US
+Flight #16. Arrived Sunday, 21 May, 08:32 PM UTC
+	at Seidel Ranch Airport, Elroy, Texas, US
+
+Flight #17. Departed Tuesday, 23 May, 02:41 PM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #17. Arrived Tuesday, 23 May, 05:38 PM UTC
+	at Norman Y Mineta San Jose International Airport, San Jose, California, US
+
+Flight #18. Departed Thursday, 25 May, 03:40 PM UTC
+	from Norman Y Mineta San Jose International Airport, San Jose, California, US
+Flight #18. Arrived Thursday, 25 May, 04:27 PM UTC
+	at Jack Northrop Field/Hawthorne Municipal Airport, Hawthorne, California, US
+
+Flight #19. Departed Friday, 26 May, 01:08 AM UTC
+	from Jack Northrop Field/Hawthorne Municipal Airport, Hawthorne, California, US
+Flight #19. Arrived Friday, 26 May, 01:55 AM UTC
+	at Norman Y Mineta San Jose International Airport, San Jose, California, US
+
+Flight #20. Departed Friday, 26 May, 07:00 AM UTC
+	from Norman Y Mineta San Jose International Airport, San Jose, California, US
+Flight #20. Arrived Friday, 26 May, 09:37 AM UTC
+	at Seidel Ranch Airport, Elroy, Texas, US
+
+Flight #21. Departed Monday, 29 May, 10:42 AM UTC
+	from Austin-Bergstrom International Airport, Austin, Texas, US
+Flight #21. Arrived Monday, 29 May, 04:34 PM UTC
+	at Ted Stevens Anchorage International Airport, Anchorage, Alaska, US
+
+Flight #22. Departed Thursday, 01 Jun, 04:32 AM UTC
+	from unknown airport, unknown city
+Flight #22. Arrived Thursday, 01 Jun, 04:45 PM UTC
+	at Austin-Bergstrom International Airport, Austin, Texas, US
+
+Flight #23. Departed Thursday, 01 Jun, 04:32 AM UTC
+	from unknown airport, unknown city
+Flight #23. Arrived Thursday, 01 Jun, 04:45 PM UTC
+	at unknown airport, unknown city
+```
+
+
+As you can see, he arrived in Paris on Monday, 15 May, 2023 at 07:38 AM UTC. He
+spent a few hours there before flying back to the Seidel Ranch airport in Texas
+(that was the first airport which let me know that `Geo::ICAO` data was
+incomplete). A quick search revealed he was in Paris to meet with French
+president Emmanuel Macron.
+
+Have fun!
+
+[%- END %]
