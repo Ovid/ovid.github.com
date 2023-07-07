@@ -1,0 +1,299 @@
+[%
+    title            = 'Corinna in the Perl Core';
+    type             = 'articles';
+    slug             = 'corinna-in-the-perl-core';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2023-07-04';
+    mathjax          = 0;
+    facebook         = 'corinna.jpg';
+    facebook_alt     = 'An ancient painting of Ovid and Corinna';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS oop corinna perl}}
+
+# Corinna in the Perl Core!
+
+It's been a years-long, painful process, but [with the release of Perl
+v.5.38,0](https://www.reddit.com/r/perl/comments/14p3moz/perl_v5380_is_now_available/),
+the first bits of Corinna have been added to the Perl core. For those who have
+not been following along, Corinna is a project to add a new object system to the
+Perl core. Note that it's not taking anything away from Perl; it's adding a core
+object system for better memory consumption, performance, and elegance.
+
+If you don't have v5.38.0, you can still install
+[Feature::Compat::Class](https://metacpan.org/pod/Feature::Compat::Class) on
+Perl v5.14.0 and above and get the same features.
+
+The [MVP](https://github.com/Ovid/Cor/blob/master/rfc/mvp.md) for the Perl core
+is in seven stages, three of which are done and one of which (convenience
+attributes) is started (there is a `:param` attribute for `field`).
+
+1. Classes (done)
+1. Inheritance (done)
+1. Roles
+1. Convenience attributes
+1. Field initializer blocks (done)
+1. MOP
+1. Method modifiers
+
+We need at least six of those to be implemented to really have something decent
+out of the box, but the MOP, while important, is not something that most OOP
+developers reach for on a regular basis.
+
+[You can read what's currently implemented at `perldoc
+perlclass`](https://perldoc.perl.org/perlclass), but here's a 2D point
+class using the existing features. We'll make the default of the point be the
+graph origin.
+
+```
+class Point::2D {
+    field $x :param = 0;
+    field $y :param = 0;
+
+    field $orig_x = $x;
+    field $orig_y = $y;
+
+    method x () { $x }
+    method y () { $y }
+
+    method reset () {
+        $x = $orig_x;
+        $y = $orig_y;
+    }
+
+    method move ($dx, $dy) {
+        $x += $dx;
+        $y += $dy;
+    }
+
+    method description () {
+        return "($x, $y)";
+    }
+}
+my $point = Point::2D->new( x => 10, y => 20 );
+$point->move( 5, 5 );
+say $point->description; # (15, 25)
+```
+
+When the full Corinna is implemented, the `method x` and `method y` will be
+replaced with:
+
+```
+    field $x :param :reader = 0;
+    field $y :param :reader = 0;
+```
+
+# The Teams
+
+Here's a partial list of the main contributors and/or influencers to Corinna:
+
+* Damian Conway
+* Dan Book (Grinnz)
+* Graham Knop (haarg)
+* Harald Jörg
+* Matt Trout
+* Paul Evans
+* Sawyer X
+* Stevan Little
+
+Note that Corinna was largely inspired by the work of Stevan Little. Damian
+Conway was also a huge contributor, but he was mostly behind the scenes sharing
+email with me and [posting to
+blogs.perl.org](https://blogs.perl.org/users/damian_conway/);
+
+Sawyer X's main contribution was being the pumpking who encouraged me to stop
+trying to implement Corinna, but instead focusing on building something great
+without worrying about the current limitations of Perl.
+
+Paul Evans is doing the actual implementation work and he's doing a fantastic
+job.
+
+The others (not to slight them, I can't remember _all_ the details of a
+multi-year project) were also huge contributors. They helped suss out design
+flaws, called me on my bullshit, and helped me understand the limitations of
+what we were trying to accomplish.
+
+It's also worth noting that due to this team effort, Corinna is *not* what I
+wanted. I wanted more. Much more. But it wasn't just about trimming Corinna down
+to what P5P would accept, it was also vetoing many of my ideas about what I
+thought _should_ be in Corinna. I was wrong about a lot of things and I'm sure
+I'm right about about some others, but the team effort is what made Corinna what
+it is today and I'm immensely grateful for that.
+
+# Other Languages
+
+In the process of developing the Corinna MVP, many other languages were looked
+at. I was particularly curious about [Beta](https://beta.cs.au.dk/), but there
+was nothing that fit. I also looked at Smalltalk, Java, Raku, Python, Eiffel,
+and Ruby (and probably others I'm forgetting right now). There are many
+interesting ideas, but given that we were trying to
+get something that fit Perl, the biggest influences were Raku, Moo/se, and yes,
+Java. Primarily, I was interested in protected methods and inner classes, but
+the former seemed problematic and the latter wasn't something appropriate for
+the MVP. However, reading about OOP design (so many examples are in Java),
+helped quite a bit with Corinna.
+
+# What We're Losing
+
+There are, of course, trade-offs in something this huge.
+
+## You Can't Violate Encapsulation
+
+The biggest concern amongst developers is that we can no longer violate
+encapsulation (well, you can via the MOP, but it will be more work, as it should
+be. Emergency patches sometimes require violating encapsulation).
+
+However, I don't know many developers who can define encapsulation. People keep
+saying it's about hiding state, but that's not true. It's about hiding state
+*and* process because the two are intimately linked in classes. If you can
+change the state without going through the interface, you have no guarantees the
+process is correct. That's a bad thing.
+
+Fortunately, this has been well-understood for decades, so there's a wealth of
+information about proper OOP design on how handle this. I expect there will be
+changes to Corinna to help with this, but we don't know what they are yet.
+
+## No Multiple Inheritance
+
+To my surprise, no one on the design team strongly argued against this change.
+There were discussions, but nothing too serious. There are many OOP languages
+which do not allow multiple inheritance and it's not a big deal.  In fact, there
+are some OOP language which don't allow inheritance at all.
+
+Most languages which forbid multiple inheritance offer some sort of alternative.
+In our case, it's roles.
+
+## No Inheriting from Blessed Classes
+
+Your new Corinna class cannot inherit from anything not declared as a `class`.
+This was a slightly contentious issue, but there are simply too many
+differences. Corinna doesn't allow you to "reach inside" and manipulate the
+data. Corinna is single-inheritance, so it's unclear how that would have worked
+with classes allowing multiple inheritance. And ultimately, we'd like Corinna to
+have the option of having a different `UNIVERSAL::` base class, offering
+different capabilities.
+
+This, of course, means that developers will have to understand "composition over
+inheritance."  This is a good thing.
+
+# What We're Gaining
+
+Object-oriented programming will be "first class" in Perl, not just a hacked on
+solution. Methods and subroutines will no longer be the same thing.  We'll have
+private methods. We already have a much more concise, and clear way of writing
+classes. Companies using the [Object::Pad](https://metacpan.org/pod/Object::Pad)
+prototype have reported a 10% reduction in CPU usage and that's _without_
+optimization. We have have potential for a much more efficient implementation of
+objects than we've had before.
+
+# The Principle of Parsimony
+
+Given all of the above, I have confession to make about the new `class` syntax
+for Perl: we made a mistake. It's a whopping huge mistake.
+
+The problem is that we don't know what that mistake is. There's probably more
+than one of them.
+
+---
+
+In the README of the Corinna repository is a section entitled [The Principle of
+Parsimony](https://github.com/Ovid/Cor#principle-of-parsimony), it states:
+
+> Many things in the proposal are deliberately restrictive, such as Corinna
+only allowing single inheritance. This is to allow Corinna to be cautious in
+not promising too much. If we later find this too restrictive, we can allow
+multiple inheritance. However, if we start with multiple inheritance and
+discover we don't need or want multiple inheritance, we would break existing
+code by taking it away.
+
+> Any proposals to change the RFC must consider the principle of parsimony.
+
+The design team really should have highlighted this more because **it's the
+single most important thing** (outside of the new `class` syntax itself).
+
+---
+
+Most people seem happy with the changes. They're new. They're exciting. They're
+a step towards a new future for the language.
+
+Some people are unhappy. Some are unhappy for reasons that are, well, silly.
+Case in point: I've had a developer angrily tell me they're nearing retirement
+and they don't want to keep up with a bunch of changes in the Perl language
+(more than one, but the other wasn't quite so strident in this position).
+
+Some are unhappy because Corinna didn't go far enough.
+
+Some are unhappy because Corinna has gone too far.
+
+Others are unhappy because _« insert reason here »_.
+
+I get that. I really do.
+
+So why doesn't Corinna have multiple inheritance? Because if it did and it's a
+mistake, we can't easily walk it back without breaking existing code.
+
+So why doesn't Corinna allow inheriting from non-Corinna objects? Because if it
+did and it's a mistake, we can't easily walk it back without breaking existing
+code.
+
+So why doesn't Corinna have native support for `field` (attribute) builders
+like Moo/se? Because if it did and it's a mistake, we can't easily walk it back
+without breaking existing code.
+
+The counter-argument is that the new `class` syntax is experimental and we
+should have that freedom. My counter-counter-argument is that I know of
+large code-bases which haven't upgraded past 5.26 because [5.28
+swapped the order of attributes and signatures
+bodies](https://perldoc.perl.org/5.28.0/perldelta#Subroutine-attribute-and-signature-order).
+
+Companies can and do rely on experimental features.
+
+The design team agreed (generally) to follow the Principle of Parsimony to
+ensure we didn't paint ourselves into corners more than we already had. We
+expect that in the real-world, people are going to make compelling arguments
+for changes based on limitations they discover.  We know mistakes are going to
+be found. We'd like to see if those are mistakes in our design, or mistakes in
+how people (ab)use OOP code in Perl.
+
+I might add that the Principle of Parsimony hasn't been an absolute, even in
+the design stage. For example, originally Corinna required a postfix block:
+
+```
+class Foo {
+    ...
+}
+```
+
+
+The extremely tight scoping of the postfix block would make it much harder for
+Corinna keywords to bleed into an unwanted scope. I argued for that, but I was
+overruled. The postfix block is not required.
+
+So please keep this in mind about future discussions of the new `class` syntax.
+
+We made mistakes. We don't know what they are. We worked very hard to try to
+ensure that fixing those mistakes means extending Corinna, not breaking it.
+
+# Conclusion
+
+Corinna, for now, is experimental and incomplete. The biggest obstacle for its
+adoption is likely to be the fact that developers are going to have to learn new
+ways of programming. The most annoying might be that `field` variables aren't
+available in subclasses (encapsulation!), so you'll find it convenient to make a
+public accessor to fetch this data. There's a similar issue with roles. The Java
+notion of `protected` methods is not available.
+
+There are ways we could potentially address these issues, but we need to see
+what people are doing with Corinna and what their real pain points are.
+
+Fortunately, the `Object::Pad` project shows that the new approach plays quite
+well with existing code, so we are pretty sure we have the basics right, but we
+don't know what we don't know.
+
+Interesting times are ahead.
+
+[%- END %]
