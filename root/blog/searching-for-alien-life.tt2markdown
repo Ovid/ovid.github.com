@@ -5,7 +5,7 @@
     include_comments = 1;
     syntax_highlight = 1;
     date             = '2023-09-16';
-    mathjax          = 0;
+    mathjax          = 1;
     # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
     # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
     USE Ovid;
@@ -13,7 +13,7 @@
 [% WRAPPER include/wrapper.tt blogdown=1 -%]
 
 {{TOC}}
-{{TAGS space}}
+{{TAGS space science}}
 
 # Introduction
 
@@ -26,7 +26,198 @@ Finland released an hour-long talk I gave on the subject.
 I've also [previously written on this
 topic](/blog/searching-for-extraterrestrial-life-in-our-solar-system.html) and
 the above talk is an in-depth expansion of what I've written earlier, but hardly
-scratches the surface.
+scratches the surface. But to understand a bit more about whether or not there
+is life elsewhere in the universe, let's look at some of the background.
 
+# The Drake Equation
+
+The Drake Equation is a famous _probablistic_ equation created by Dr. Frank
+Drake in 1961. In this equation $N$ is the estimated number of intelligent
+civilizations we might be able to detect.
+
+$$N = R_* \times f_p \times n_e \times f_l \times f_i \times f_c \times L$$
+
+* $R_*$ – Average rate of annual star formation in the Milky Way galaxy
+* $f_p$ – Fraction of those with planets
+* $n_e$ – Fraction of those planets which can support life
+* $f_l$ – Fraction of those which _develop_ life
+* $f_i$ – Fraction of those which develop _intelligent_ life
+* $f_c$ – Fraction of those generating detectable signals
+* $L$ – Lifespan of those signals
+
+The variables $R_{*}$ through $f_{c}$, when multiplied together, tell us how
+many intelligent civilizations "mature" per year, to the point where they can be
+detected. Multiply that by $L$, the last term, and you have an estimate of the
+total number of intelligent civilizations we might detect at any one time.
+
+At the time the equation was created, we didn't know any of those numbers, but
+[Drake himself estimated that $N$ was around
+10,000](https://www.seti.org/drake-equation-index). Today, we have been slowly
+knocking those numbers down, one by one. Of those we think we know the what the
+values are, we have:
+
+* $R_*$ – Average rate of annual star formation in the Milky Way galaxy (6-7)
+* $f_p$ – Fraction of those with planets (50% to 100%; probably closer to 100%)
+* $n_e$ – Fraction of those planets which can support life (1?)
+
+The last number, "Fraction of planets which can support life", is often reported
+as $1$, but we already know that [many moons in our solar system might support
+life](/blog/searching-for-extraterrestrial-life-in-our-solar-system.html). So we
+could easily have multiple "planets" per system which could support life. We
+think there are between [100 to 400 _billion_ stars in our
+galaxy](https://www.space.com/25959-how-many-stars-are-in-the-milky-way.html),
+so that could easily lead to over a _trillion_ heavenly bodies which could
+support life in our galaxy alone!
+
+We don't know how many stars are in our universe, but [current estimate suggest
+there might be between $10^{22}$ to $10^{24}$
+stars](https://www.esa.int/Science_Exploration/Space_Science/Herschel/How_many_stars_are_there_in_the_Universe).
+That's up to 1,000,000,000,000,000,000,000,000 stars!
+
+So what about the number of planets which develop life, have intelligent life,
+and so on? We have no idea what those numbers are. However, that doesn't mean we
+know nothing about those numbers. We exist, Therefore, all of those numbers are
+greater than zero. The first, $f_l$ (fraction of planets which develop life) is
+what we'll focus on here because if that number is too low, none of the others
+matter.
+
+# (Not) Detecting Life
+
+You may have read in the news lately about a new method of detecting life on
+Mars: [DNA sequencing at the picogram level to investigate life on Mars and
+Earth](https://www.nature.com/articles/s41598-023-42170-6). This is remarkable
+work, but to point out the obvious—which the authors of the work are certainly
+aware of—what if the alien life doesn't have DNA?[% Ovid.add_note('As a
+counterargument, the paper points out that "DNA is an "incontrovertible
+biosignature." So while looking for DNA might limit what we can find, it would
+almost certainly be accepted as proof of life if found.') %] In a paper entitled
+[Is There a Common Chemical Model for Life in the
+Universe?](https://www.researchgate.net/publication/8171722_Is_There_a_Common_Chemical_Model_for_Life_in_the_Universe),
+by Benner, Steven & Ricardo, Alonso and Carrigan, Matthew. (2005), point out
+that most "universal" probes for life target the ribosome, present in virtually
+all life on Earth. Again, what if the life doesn't have ribosomes? Using this
+as a tool to detect life won't work and we know nothing about alien life (if it
+exists), so can't make strong statements about what that life is likely to be.
+
+There might be another approach, though. Two Viking landers arrived on Mars in
+the 1970s and [their labeled release experiment might have detected
+life](/blog/searching-for-extraterrestrial-life-in-our-solar-system.html#mars).
+In short, in separate experiments conduction over 6,000 kilometers apart, the
+landers injected Martian regolith (the surface material on Mars) with a
+radioactive nutrient solution and _something_ interacted with the solution and
+released the radioactive carbon-14. It looked an awful lot like metabolism. It
+might just have been a chemical reaction. We don't know.
+
+What's interesting about the Viking Lander experiments is that they weren't
+searching for specific chemicals. They were looking for a _biosignature_
+indicative of life. Yes, we made assumptions about the "nutrient" solution,
+using [seven molecules found in the Miller-Urey
+experiment](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6445182/), but trying
+to have an agnostic approach to detecting life was promising. That brings us to
+Assembly Theory.
+
+# Assembly Theory
+
+Detecting alien life is a tricky business because:
+
+1. We don't know if it exists
+2. If it does exist, we have no idea what it's composed of
+
+Assembly Theory was first proposed by [Professor Leroy
+Cronin](https://en.wikipedia.org/wiki/Leroy_Cronin), the Regius Chair of
+Chemistry in the School of Chemistry at the University of Glasgow. Instead of
+just asking what a molecule _is_, he asked how it came to be. In other words,
+how was it assembled? He's established the notion of a "molecular assembly
+index" (MA) which represents the minimum number of steps necessary to assemble a
+given molecule.[% Ovid.add_note('Of course, there are <a
+href="https://hectorzenil.medium.com/the-8-fallacies-of-assembly-theory-ba54428b0b45">critics
+of assembly theory</a> and <a
+href="https://colemathis.github.io/blog/2022-10-25-SalientMisunderstandings">critics
+of the critics</a>, but such is science.') %]
+
+Consider the word "going." Imagine that each letter is an atom floating around which can freely attach to other atoms to form words. The MA of a single letter is zero because it already exists. However, when you add the letter "o" to the letter "g"—forming "go"—you have an MA of 1, because one step has occurred.  When you then add the letter "i"—forming "goi"—you have an MA of 2, and so on.  The word "going" therefore has an MA of 4. Of course, by the constraints we've listed, all other possible combinations, such as "oin" (MA of 2), "in" (MA of 1), and so on, are floating around in our primordial soup.
+
+But consider the word "hodgepodge." By the time we've assembled "hodgep", we
+have an MA of 5. You might think the word "hopgepodge" has an MA of 9, but
+remember that substrings of "hodgepodge" are floating around, too. One of those
+substrings is "odge" and can attach to "hodgep" in a single step, giving us a
+final MA of 6, not 9.
+
+Of course, chemistry is much harder than spelling. Molecules are 3D structures
+and individual atoms don't form bonds randomly with all other atoms. But you get
+the basic idea.
+
+In the paper, [Identifying molecules as biosignatures with assembly theory and
+mass spectrometry](https://www.nature.com/articles/s41467-021-23258-x),
+(Marshall, S.M., Mathis, C., Carrick, E. et al.), Professor Cronin and his
+colleagues took the time to:
+
+> calculate the complexity of several million molecules and validate that their
+> complexity can be experimentally determined by mass spectrometry.
+
+Their findings?
+
+> These results demonstrate that we can identify the living systems by looking
+> for mixtures with an MA greater than a certain threshold. In the case of the
+> analysis presented here it appears that only living samples produced MA
+> measurement above ~15.
+
+In short, molecules with an MA above 15 were invariably produced by life, while
+molecules below that might be produced by both abiotic or biotic processes. If
+these results hold, we might have a "universal" method of detecting life, with
+the caveat that if there's life that only generates molecules with lower MA
+numbers, we'll still not detect it. However, this approach seems rather
+promising.
+
+To give some context, sometimes you'll read breathless news articles proclaiming
+that we've found "complex" organic molecules in space. For context, organic
+molecules are just molecules with carbon-hydrogen or carbon-carbon bonds
+They're all over the place because carbon is one of the
+easiest molecules to form bonds with. One of those "complex" organic molecules
+found in space is ethyl
+formate. It has an MA of 3. The molecule n-propyl cyanide has also been seen in
+space. It also has an MA of 3.
+
+In fact, most complex organic molecules in space have rather low MA numbers and
+it's not hard to imagine abiotic processes producing them. On the other hand,
+[we may have detected tryptophan around the IC348 star
+system](https://phys.org/news/2023-06-evidence-amino-acid-tryptophan-space.html),
+about 1,000 light years away. Tryptophan has an MA of 11.
+
+_(If you'd like to check these numbers, [I wrote a script to do that for
+you](https://gist.github.com/Ovid/a2e828965ce3586a83bfedd7e86a8d20), but it
+requires the [Molecular Assembly REST
+API](http://molecular-assembly.com/query/). That doesn't always seem to return
+results. In correspondence with Dr. Cronin, he confirms they're working on a new
+version)_
+
+Throughout all of the above, keep in mind that Assembly Theory, like all new
+scientific endeavors, has its detractors.
+
+# What If We Find Life?
+
+Three things. Given that there are possibly a trillion or more candidate places
+for life to come into being in just our galaxy, given that we know $f_l$ is
+greater than zero, and given that we're seeing more and more complex chemistry
+in our own solar system which would be easy to explain biologically (were we to
+know the biology is there), I'm gradually leaning to the idea that we are
+probably not alone in the universe. Of course, that's a hunch, not science.
+
+In the fifth century BCE, the Greek philosopher-scientist [Anaxagorus speculated
+that there was life on the
+moon](https://bigthink.com/the-past/aliens-greek-philosophers-history/). Many
+have speculated about this throughout history and certainly in pre-history. That
+we have so many religions asserting non-human intelligences with whom we can
+communicate is part of this longing of ours to know that we're not alone in the
+universe.
+
+Finding life, but not intelligent life, will not be enough to satisfy us, but it
+will be an amazing step forwards in filling in the last of the variables in the
+Drake Equation.
+
+For those wondering about abiogenesis (the origin of life from non-life), here's 
+a video by Sabine Hossenfelder describing our current thinking on the topic.
+
+[% Ovid.youtube("7yOiZLHDV3U") %]
 
 [%- END %]
