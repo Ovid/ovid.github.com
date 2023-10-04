@@ -44,7 +44,7 @@ sub tags_for_url ( $self, $url ) {
 
 sub tags_by_weight($self) {
     my %tags = map { $_ => $self->weight_for_tag($_) } $self->tags;
-    return sort { $tags{$b} <=> $tags{$a} } keys %tags;
+    return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
 }
 
 sub has_articles_for_tag ( $self, $tag ) {
