@@ -24,6 +24,7 @@ package Ovid::Site {
     use File::Spec::Functions qw(catfile);
     use HTML::TokeParser::Simple;
     use Mojo::DOM;
+
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
 
@@ -330,9 +331,9 @@ END
     sub _run_ttree ($self) {
         my $ttree = which('ttree');
         my @args  = (
-            'perl', '-Ilib',                                # make sure we can find our plugins
-            $ttree,                                         # the ttree command
-            '-a',                                           # process all files
+            'perl', '-Ilib',    # make sure we can find our plugins
+            $ttree,             # the ttree command
+            '-a',               # process all files
             '-s'         => 'tmp',                          # use tmp/ as a source
             '-d'         => '.',                            # use . as the target
             '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
@@ -368,6 +369,10 @@ END
         my @index;
         foreach my $file (@files) {
             my ( $title, $text ) = $self->_html_to_text($file);
+
+            # I can't get tinysearch to handle the UTF-8 correctly
+            $title =~ s/[”“]/"/g;
+            $title =~ s/[‘’]/'/g;
             my $url = $file =~ /^\// ? $file : "/$file";
             push @index => { url => $url, title => $title, body => $text };
         }
@@ -381,8 +386,9 @@ END
         system("cp wasm_output/* static/js/search");
     }
 
-    sub _html_to_text ( $self, $html ) {
-        my $parser = HTML::TokeParser::Simple->new( file => $html );
+    sub _html_to_text ( $self, $file ) {
+        my $html   = slurp($file);                                       # This handles UTF8 correctly
+        my $parser = HTML::TokeParser::Simple->new( string => $html );
 
         my $title;
         my $text = '';
@@ -404,7 +410,7 @@ END
         return ( $title, $text );
     }
 
-    sub _clean_text ($self, $text) {
+    sub _clean_text ( $self, $text ) {
         $text =~ s/^\s+//;
         $text =~ s/\s+$//;
         $text =~ s/\s+/ /g;
