@@ -69,19 +69,11 @@
   <div class="container">
     <div class="row books">
         <div class="twelve columns header">
-			<ul>
-			<li><a
-            href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/"
-            target="_blank"><img src="/static/images/perl-hacks.jpg"
-            alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-			<li><a
-            href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/"
-            target="_blank"><img src="/static/images/beginning-perl.jpg"
-            alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-			<li><img class="book" src="/static/images/profile.png" alt="An
-            image of Curtis Poe, holding some electronic equipment in front of
-            his face."></li>
-			</ul>
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
         </div>
     </div>
     <div class="row title blog">
@@ -89,9 +81,9 @@
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
         <h1><a name="-title-no-title-found-"></a>The Reluctant Prince: An Unfinished Novel</h1>
         <time>2022-03-17</time>
-		
-		<p><span id="time"></span> minute read</p>
-		
+        
+        <p><span id="time"></span> minute read</p>
+        
         <hr>
         <div class="twelve columns header">
         </div>
@@ -99,6 +91,84 @@
     <div class="row">
       
       <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
         <ul>
           <li><a href="/index.html">Home</a></li>
           <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
@@ -118,7 +188,6 @@
           <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
           <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
         </ul>
-        <hr>
         <strong>Tags</strong>
         <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
         
@@ -128,19 +197,19 @@
         
             <li><a href="/tags/oop.html" data-weight="6">OOP</a></li>
         
-            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
-        
             <li><a href="/tags/corinna.html" data-weight="5">Corinna</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
         
             <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
         
-            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
-        
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
-            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
-        
             <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -178,6 +247,8 @@
     <!-- nada -->
 
 
+
+<article>
 
 <article id="article">
 <h1><a name="telling-stories"></a>Telling Stories</h1>
@@ -312,6 +383,8 @@ her. Imagine that! A sole copy of a book, written just for you, my angel.</p>
 <p>My daughter, however, insists I try to get it published.</p>
 
 <p>One day, perhaps, one day.</p>
+
+</article>
 
 </article>
 

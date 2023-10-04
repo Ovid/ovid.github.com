@@ -12,6 +12,7 @@ package Ovid::Site {
     use Template::Plugin::Ovid;
     use aliased 'Ovid::Template::File::Collection';
 
+    use autodie ':all';
     use Capture::Tiny 'capture';
     use DateTime::Format::SQLite;
     use DateTime;
@@ -25,6 +26,9 @@ package Ovid::Site {
     use Mojo::DOM;
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
+
+    use Readonly;
+    Readonly my $BASE_URL => 'https://ovid.github.io/';
 
     has _files => (
         traits  => ['Array'],
@@ -51,6 +55,7 @@ package Ovid::Site {
         $self->_rebuild_article_pagination;
         $self->_rebuild_rss_feeds;
         $self->_run_ttree;
+        $self->_build_tinysearch;
     }
 
     sub _set_files ( $self, $location ) {
@@ -139,8 +144,6 @@ package Ovid::Site {
     }
 
     sub _rebuild_rss_feeds ($self) {
-        my $base_url = 'https://ovid.github.io/';
-
         my $types = dbh()->selectall_arrayref(
             'SELECT name, type, directory, description FROM article_types',
             { Slice => {} }
@@ -163,13 +166,13 @@ package Ovid::Site {
             );
             $rss->channel(
                 title       => $type->{description},
-                link        => "$base_url$directory",
+                link        => "$BASE_URL$directory",
                 description => $type->{description},
                 language    => 'en-us',
                 copyright   => "Copyright $year, Curtis \"Ovid\" Poe",
                 atom        => {
                     'link' => {
-                        'href' => "$base_url$type->{type}.rss",
+                        'href' => "$BASE_URL$type->{type}.rss",
                         'rel'  => 'self',
                         'type' => 'application/rss+xml'
                     }
@@ -193,7 +196,7 @@ SQL
             my $new_links = 0;
             foreach my $article ( $articles->@* ) {
                 my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
-                my $url     = "$base_url$directory/$article->{slug}.html";
+                my $url     = "$BASE_URL$directory/$article->{slug}.html";
 
                 # Every time we changed an article, we kept updating the
                 # publication date of the entire RSS feed. Now we only do this if
@@ -336,7 +339,7 @@ END
             '--binmode'  => 'utf8',                         # encoding of output file
             '--encoding' => 'utf8',                         # encoding of input files
         );
-        my ( $stdout, $stderr, $exit ) = capture { system(@args) };
+        my ( $stdout, undef, undef ) = capture { system(@args) };
 
         if ( $stdout =~ /!.*file error/ ) {
 
@@ -345,6 +348,67 @@ END
             croak($stdout);
         }
         say $stdout;
+    }
+
+    sub _build_tinysearch($self) {
+
+        # see https://github.com/tinysearch/tinysearch
+        # needed to run `cargo install --features="bin" tinysearch` for installation
+        # and rerun `cargo install wasm-pack` for wasm-pack
+        my @files = qw(
+          hireme.html
+          index.html
+          publicspeaking.html
+          starmap.html
+          tau-station.html
+          wildagile.html
+        );
+        push @files => File::Find::Rule->file()->name('*.html')->in(qw/blog articles/);
+
+        my @index;
+        foreach my $file (@files) {
+            my ( $title, $text ) = $self->_html_to_text($file);
+            my $url = $file =~ /^\// ? $file : "/$file";
+            push @index => { url => $url, title => $title, text => $text };
+        }
+        my $json = encode_json( \@index );
+        splat( 'fixtures/index.json', $json );
+
+        # building search engine
+        system("tinysearch fixtures/index.json");
+
+        # copying neccessary files to static/js/search
+        system("cp wasm_output/* static/js/search");
+    }
+
+    sub _html_to_text ( $self, $html ) {
+        my $parser = HTML::TokeParser::Simple->new( file => $html );
+
+        my $title;
+        my $text = '';
+        my $in_article;
+        while ( my $token = $parser->get_token ) {
+            if ( $token->is_start_tag('article') ) {
+                $in_article = 1;
+            }
+            elsif ( $token->is_end_tag('article') ) {
+                $in_article = 0;
+            }
+            if ( $token->is_start_tag('title') ) {
+                $title = $parser->get_trimmed_text;
+            }
+            elsif ( $in_article && $token->is_text ) {
+                $text .= ' ' . $self->_clean_text( $token->as_is );
+            }
+        }
+        return ( $title, $text );
+    }
+
+    sub _clean_text ($self, $text) {
+        $text =~ s/^\s+//;
+        $text =~ s/\s+$//;
+        $text =~ s/\s+/ /g;
+        return $text;
     }
 
     __PACKAGE__->meta->make_immutable;
