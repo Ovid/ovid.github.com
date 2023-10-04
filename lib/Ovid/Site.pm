@@ -369,7 +369,7 @@ END
         foreach my $file (@files) {
             my ( $title, $text ) = $self->_html_to_text($file);
             my $url = $file =~ /^\// ? $file : "/$file";
-            push @index => { url => $url, title => $title, text => $text };
+            push @index => { url => $url, title => $title, body => $text };
         }
         my $json = encode_json( \@index );
         splat( 'fixtures/index.json', $json );
@@ -398,7 +398,7 @@ END
                 $title = $parser->get_trimmed_text;
             }
             elsif ( $in_article && $token->is_text ) {
-                $text .= ' ' . $self->_clean_text( $token->as_is );
+                $text .= $self->_clean_text( $token->as_is ) . ' ';
             }
         }
         return ( $title, $text );
