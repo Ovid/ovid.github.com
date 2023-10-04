@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/blue-marble.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="Our beautiful planet Earth. It would be a shame if something were to happen to it." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/blog/rocket-physics-101.html" />
+  
+  <meta property="og:title" content="Rocket Physics 101" />
+  <meta property="og:description" content="Want to learn the basics of how rockets work?" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Rocket Physics 101</title>
+  <meta name="description" content="Rocket Physics 101">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Rocket Physics 101</h1>
+        <time>2023-10-04</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="6">OOP</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="5">Corinna</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/searching-for-alien-life.html" class="prevPost">&laquo; Searching for Alien Life</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/science.html">Science</a> </li>
+
+    <li><a href="/tags/space.html">Space</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-2"><a href="#the-tyranny-of-the-rocket-equation">The Tyranny of the Rocket Equation</a></li>
+    <li class="indent-2"><a href="#how-to-get-to-mars">How to Get to Mars</a></li>
+    <li class="indent-2"><a href="#how-to-get-to-mars-extra-credit">How to Get to Mars, Extra Credit</a></li>
+    <li class="indent-2"><a href="#the-physics-of-perseverance">The Physics of Perseverance</a></li>
+    <li class="indent-2"><a href="#rocket-engineering">Rocket Engineering</a></li>
+    <li class="indent-2"><a href="#rocket-fuels">Rocket Fuels</a></li>
+    <li class="indent-2"><a href="#nuclear-thermal-rockets">Nuclear Thermal Rockets</a></li>
+    <li class="indent-2"><a href="#max-q-and-bernoullis-principle">Max q and Bernoulli’s Principle</a></li>
+    <li class="indent-2"><a href="#re-entry-and-hypersonic-flight">Re-entry and Hypersonic Flight</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>The old space race was driven by governments, desperate to bolster national
+pride. The new space race, known in the industry as “NewSpace”, is driven by
+entrepreneurs, looking to make record profits. Science fiction is replete with
+stories of the horrors of corporate space colonies, charging workers for the
+very air they breathe and denying them basic rights. These seem far-fetched, but
+our <a href="https://explorethearchive.com/company-towns" target="_blank">history shows the dangers</a> <span class="fa fa-external-link fa_custom"></span>.
+Even if well-intentioned, what happens when you’re living in a mining colony
+asteroid owned by Asteroids, Inc. and they go bankrupt?</p>
+
+<p>There’s plenty to be concerned about, but nonetheless, we’re charging into this
+future and I confess, I love it. My sister, Gayle, taught
+me to read at a young age and while in the first grade, other students would be
+sounding out “see Spot run” while I was reading National Geographic. At home, my
+mother had stacks of old pulp magazines such as Astounding Magazine, The
+Magazine of Fantasy and Science Fiction, and so on. Ever since I can remember,
+I’ve dreamed of the stars and, despite the concerns, I’m delighted we’re finally
+taking the next steps to get there.</p>
+
+<p>But how does it all work? Why is it so hard? What the hell is “max q”?</p>
+
+<p><a href="https://www.marssociety.ca/" target="_blank">The Mars Society of Canada</a> <span class="fa fa-external-link fa_custom"></span> has published a series
+of blog posts by <a href="https://www.marssociety.ca/author/jinmars/" target="_blank">Jin Sing Sia</a> <span class="fa fa-external-link fa_custom"></span>
+about rocket physics. They’re introductory articles, but they’ll get you up
+to speed pretty quickly on the basics. You don’t even need to know advanced
+math.</p>
+
+<p>There is, however, a slight problem with the articles. <strong>They didn’t include a
+table of contents!</strong> We don’t even have “previous” or “next” links for the
+articles. So allow me to do that, along with providing a summary for each. Note
+that these articles should probably be read in order, but it’s not strictly
+necessary.</p>
+
+<h2><a name="the-tyranny-of-the-rocket-equation"></a>The Tyranny of the Rocket Equation</h2>
+
+<p><a href="https://www.marssociety.ca/2021/01/07/rocket-physics-the-rocket-equation/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>If you follow space news, you may have heard about the tyranny of the rocket
+equation. In short, if you have a small amount of fuel, your thrust won’t last
+long enough for you to leave the planet. However, if you add more fuel, it’s not
+just lifting the rocket, it’s lifting the rest of the fuel! The more fuel you
+add, the harder it is to lift the rocket.</p>
+
+<h2><a name="how-to-get-to-mars"></a>How to Get to Mars</h2>
+
+<p><a href="https://www.marssociety.ca/2021/01/22/rocket-physics-how-to-go-to-mars/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Ever wonder why Mars only has “launch windows” every 26 months? What’s a
+“Hohmann transfer orbit”? Can we get to Mars faster than the projected nine
+months?</p>
+
+<h2><a name="how-to-get-to-mars-extra-credit"></a>How to Get to Mars, Extra Credit</h2>
+
+<p><a href="https://www.marssociety.ca/2021/02/04/rocket-physics-the-hard-way-how-to-go-to-mars-extra-credit/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Discover the basics of orbital mechanics. They were touched on in the previous
+article, but this one goes a bit more in-depth. You can skip it if you want, but
+why would you want to?</p>
+
+<p>Light physics and mathematics knowledge is recommended. Maybe you’ll finally
+learn what “perigee” and “apogee” are!</p>
+
+<h2><a name="the-physics-of-perseverance"></a>The Physics of Perseverance</h2>
+
+<p><a href="https://www.marssociety.ca/2021/02/17/rocket-physics-physics-of-perseverance/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>By now, you know the Perseverance rover is cruising around Mars, taking selfies,
+doing amazing science and generally having a blast—up until the point when she
+realizes she doesn’t have a ride home.</p>
+
+<p><figure class="image">
+    <img src="/static/images/perserverence.gif" width="600" alt="The Perserverence Rover on Mars.">
+    <figcaption>The Perserverence Rover on Mars took a selfie. </figcaption>
+</figure></p>
+
+<p>The fact that Perseverance was able to land on Mars at all is amazing. The “sky
+crane” that lowered her to the surface was a thing of beauty. This article
+explains the approach, atmospheric entry, descent, and landing.</p>
+
+<h2><a name="rocket-engineering"></a>Rocket Engineering</h2>
+
+<p><a href="https://www.marssociety.ca/2021/03/04/rocket-engine-engineering/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Did you know that your car’s engine is more mechanically complicated than most
+rocket engines? On the other hand, your car’s engine doesn’t burn hot enough to
+melt the engine. Learn why rocket science ain’t easy.</p>
+
+<h2><a name="rocket-fuels"></a>Rocket Fuels</h2>
+
+<p><a href="https://www.marssociety.ca/2021/03/25/rocket-fuel/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Liquid hydrogen is one of the best fuels for rockets, so why don’t more rockets
+use it? What is hydrazine? Why do we use hypergolic fuels when they’re so
+dangerous? Wait, what’s a hypergolic fuel?</p>
+
+<h2><a name="nuclear-thermal-rockets"></a>Nuclear Thermal Rockets</h2>
+
+<p><a href="https://www.marssociety.ca/2021/04/08/nuclear-thermal-rockets/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Nuclear rocket engines are amazingly powerful. Their exhaust also tends to be
+amazingly radioactive. And if a launch goes poorly, you can’t just use your FTS
+(Flight Termination System) to blow it into little pieces lest you shower
+everyone with radioactive waste. So why are we considering them?</p>
+
+<h2><a name="max-q-and-bernoullis-principle"></a>Max q and Bernoulli’s Principle</h2>
+
+<p><a href="https://www.marssociety.ca/2021/05/13/max-q-and-bernoullis-principle/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Max q and Bernoulli’s Principle are two terms you often hear when space nuts
+discuss rockets. Understanding them helps to explain, amongst other things, why
+the opening scene to the otherwise excellent film (and book), “The Martian”, was
+so unrealistic.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/ej3ioOneTy8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<h2><a name="re-entry-and-hypersonic-flight"></a>Re-entry and Hypersonic Flight</h2>
+
+<p><a href="https://www.marssociety.ca/2021/06/24/rocket-physics-the-hard-way-re-entry-and-hypersonic-flight/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>You know space capsules have heat shields to protect them from the heat of
+reentry to our atmosphere, right? It’s not because of friction.</p>
+
+<p>You’ll also learn why sound travels much faster under water.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>Space is amazing. And it’s hard. I hope you enjoyed reading through all of the
+linked articles.</p>
+
+<p>The NewSpace race is well under way and we’re finally going to get to the
+planets, even if we don’t colonize them. I am hopeful, however, that eventually
+we will.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/searching-for-alien-life.html" class="prevPost">&laquo; Searching for Alien Life</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/rocket-physics-101.html";
+            this.page.identifier = "blog/rocket-physics-101";
+            this.page.title      = "Rocket Physics 101";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
