@@ -44,6 +44,9 @@ sub tags_for_url ( $self, $url ) {
 
 sub tags_by_weight($self) {
     my %tags = map { $_ => $self->weight_for_tag($_) } $self->tags;
+
+    # Perl's sort is stable, so by sorting the keys, we ensure
+    # that tags with equal weight are sorted alphabetically.
     return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
 }
 
