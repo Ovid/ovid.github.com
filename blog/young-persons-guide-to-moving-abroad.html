@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/blog/young-persons-guide-to-moving-abroad.html" />
+  
+  <meta property="og:title" content="Young Person's Guide to Moving Abroad" />
+  <meta property="og:description" content="If you're a highly skilled professional, moving abroad is easier. Here's a guide for those who don't have those skills." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Young Person's Guide to Moving Abroad</title>
+  <meta name="description" content="Young Person's Guide to Moving Abroad">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Young Person's Guide to Moving Abroad</h1>
+        <time>2023-10-08</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="6">OOP</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="5">Corinna</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="2">Politics</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/rocket-physics-101.html" class="prevPost">&laquo; Rocket Physics 101</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/expat.html">Moving Abroad</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-2"><a href="#forget-europe">Forget Europe</a></li>
+    <li class="indent-2"><a href="#working-holidays">Working Holidays</a></li>
+    <li class="indent-2"><a href="#teaching-english">Teaching English</a></li>
+    <li class="indent-2"><a href="#volunteer-work">Volunteer Work</a></li>
+    <li class="indent-2"><a href="#au-pair">Au Pair</a></li>
+    <li class="indent-2"><a href="#studying-abroad">Studying Abroad</a></li>
+    <li class="indent-2"><a href="#joining-the-military">Joining the Military</a></li>
+    <li class="indent-2"><a href="#french-foreign-legion">French Foreign Legion</a></li>
+    <li class="indent-2"><a href="#foreign-service-exam">Foreign Service Exam</a></li>
+    <li class="indent-2"><a href="#fantasy-versus-reality">Fantasy versus Reality</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>Constantly on <a href="https://www.reddit.com/r/IWantOut/" target="_blank">Reddit’s IWantOut community</a> <span class="fa fa-external-link fa_custom"></span>, or if they’re a bit clued in, in expat forums, I see variations of the following question (the following was a real post on the now-defunct “Yahoo Answers” forums):</p>
+
+<blockquote>
+  <p>I would mainly like to move to Germany but I am wanting to move to Europe and learn fashion design. I don’t know what sort of job I can get over there being so young and not speaking another language. I don’t feel at home in the USA and finally did in Europe and I have to go back ! what should I do?</p>
+</blockquote>
+
+<p>I call these fairy tale posts.</p>
+
+<p>To figure out how to move to another country, you have to take stock of what you skills you possess which might help to make this happen. Here’s the typical profile of people making fairy tale posts:</p>
+
+<ul>
+<li>No life experience</li>
+<li>No work experience</li>
+<li>No education</li>
+<li>No language skills</li>
+<li>No money</li>
+</ul>
+
+<p>This does not bode well for your chances, but you might have the one skill necessary to pull this off: determination.</p>
+
+<p>To start with, read <a href="/blog/why-you-will-say-no-to-living-abroad.html">Why you’ll say “no” to living abroad</a>. I consider this the foundation post of the <a href="/tags/expat.html">expat posts</a> because it’s critical to understanding the process. You have to make sure that you can seize any opportunity which comes along (this doesn’t mean you should take any opportunity).</p>
+
+<p>The very first thing you need to do is apply for your passport. If you don’t have a passport, you’re not serious about moving abroad. If you can’t be bothered to get a passport, you may as well stop reading.</p>
+
+<p>The second thing you need to do is take stock of your life and stop doing anything which might land you in legal trouble. Of course, that’s a very personal decision, but if you wind up with a criminal record, your limited chances of living abroad are approaching zero. Maybe you don’t think the government should outlaw drugs, but your personal beliefs are meaningless when another country sees you have a drug conviction. You need to decide what’s more important to you.</p>
+
+<p>The third thing you need to do is set your life up so you can leave as soon as is feasible. Long-term leases or owning pets might be an obstacle. However, working towards a college degree is a benefit, even if you don’t get to leave tomorrow. Always ask yourself, “what’s stopping me from leaving now?” As agonizing as this may sound, it also means considering your partner, if you have one. Would you leave a girlfriend/boyfriend for a chance to move to New Zealand? You have to understand your motivations here and you should be prepared for tough choices.</p>
+
+<p>If you do have serious work skills, and by “serious” I mean “highly skilled labor”, I’ll later be sharing a “How to get a work permit” series, but if you’re young and unskilled, you probably don’t have a chance at a work permit. So what do you have?</p>
+
+<h2><a name="forget-europe"></a>Forget Europe</h2>
+
+<p>I don’t really mean that, but if you think “where can I move” instead of “I want to move to Europe”, you’ll have many more opportunities. The biggest mistake I see many would-be expatriates make is forgetting that the world is round. For example, Montevideo is a large, cosmopolitan city and Uruguay is relatively easy to emigrate to, <a href="https://immigrantinvest.com/blog/uruguay-residence-permit-by-investment-en/" target="_blank">basically requiring around $1,500 a month income and a lot of paperwork</a> <span class="fa fa-external-link fa_custom"></span>. Can you find a remote job that pays more than $1,500 a month? Maybe you can get to Uruguay. However, one person who could have done this told me “I don’t want to live in the sticks” (US slang for “middle of nowhere”). Montevideo is not “the sticks”, but if you don’t do your research, how would you know?</p>
+
+<h2><a name="working-holidays"></a>Working Holidays</h2>
+
+<p>For young people, you might want to consider <a href="https://overseas-exile.blogspot.com/2010/12/australia-work-and-holiday-visa.html" target="_blank">working holiday schemes</a> <span class="fa fa-external-link fa_custom"></span>. Australia and New Zealand offer them and while they aren’t designed to allow you to permanently live there, once you’re there, your options will open up tremendously.</p>
+
+<h2><a name="teaching-english"></a>Teaching English</h2>
+
+<p>Many young people complain that they don’t want to <a href="https://overseas-exile.blogspot.com/2010/12/what-if-you-have-no-skills-teaching.html" target="_blank">teach English abroad</a> <span class="fa fa-external-link fa_custom"></span>. Too bad. It’s one of the most popular ways that young, unskilled workers can move to another country. Many people report heading to countries with a strong demand for English teachers and finding work under the table, but this is very risky. You might not find work and, if you do, you’re probably an illegal immigrant and risk deportation. Being deported from a country means you probably can’t get back in for many years. In fact, some countries won’t let you in if they find out that you’ve been deported from another country.</p>
+
+<h2><a name="volunteer-work"></a>Volunteer Work</h2>
+
+<p>Many people are surprised to find out that volunteer positions around the world often require you to pay for the privilege of being a volunteer. Sadly, this is not a scam. Many volunteer organizations are poor and simply can’t afford to fly you to Paris, put you up in a flat and feed you while you work for two hours a day baby sitting someone. Do your research as some “volunteer” organizations are scams, but if you find a reputable volunteer organization, you can at least have a short time in another country and gain valuable life and work skills. Plus, it looks great on your résumé/CV.</p>
+
+<h2><a name="au-pair"></a>Au Pair</h2>
+
+<p>An au pair is basically a young person (usually a woman) who travels to a new country, stays with a host family and looks after the children for a time. It’s usually a short-stay trip and an au pair is not a nanny. Families do this to expose their children to other cultures and, sometimes, because they enjoy giving people from other countries an opportunity to see the world. Be careful, though. While it’s rare, some au pairs find themselves horribly abused by their host families. Work through a reputable agency and be safe.</p>
+
+<h2><a name="studying-abroad"></a>Studying Abroad</h2>
+
+<p>Studying abroad offers you not only the chance to live in another country, it allows you to earn a degree which makes staying abroad much easier. In fact, many countries give preferential immigration treatment to students who have graduated from that country’s universities.</p>
+
+<p>Many foreign universities are eligible for US federal financial aid. Other countries, such as Germany and Norway, have free university programs which foreigners are eligible for. This probably means staying in the US for a couple of years, going to university and earning good enough grades to qualify for foreign universities. If you can do this, it’s one of the best ways of getting out and staying out.</p>
+
+<h2><a name="joining-the-military"></a>Joining the Military</h2>
+
+<p>This one is controversial, but yes, the military will often send you abroad. It’s one of the easiest ways of gaining life skills, work experience, seeing the world and saving money for college. Of course, you might have to kill the foreigners you meet. Your own values/political beliefs will have to be examined strongly before you consider this.</p>
+
+<h2><a name="french-foreign-legion"></a>French Foreign Legion</h2>
+
+<p>Sorry ladies, this one is for the men only.</p>
+
+<p>I used to run a very popular (now defunct) expat blog and every week, searches for “French Foreign Legion” showed up in the list of most popular searches on the site. I did quite a bit of reading about them and learned that many people think the Foreign Legion of today is the Foreign Legion you saw in black-and-white movies, or read about in Soldier of Fortune magazine. In particular, there are three myths I want to dispel about the modern Legion:</p>
+
+<ul>
+<li>They no longer accept felons</li>
+<li>The now longer grant French citizenship under new identity</li>
+<li>Most applicants are rejected</li>
+</ul>
+
+<p>To join them, you need to be a young man, in good health, and buy a plane ticket to France. And be willing to kill people.</p>
+
+<p><a href="https://www.legion-recrute.com/en" target="_blank">Here’s their web site</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<h2><a name="foreign-service-exam"></a>Foreign Service Exam</h2>
+
+<p>This is not as widely discussed and I should write more about it, but if you are interested in the US Foreign Service, the qualifications are:</p>
+
+<ul>
+<li>U.S. citizens on the date they submit their registration package</li>
+<li>At least 20 years old and no older than 59 years of age on the day you submit your registration</li>
+<li>At least 21 years old and not yet 60 on the day you are appointed as a Foreign Service Officer</li>
+</ul>
+
+<p>Note that neither foreign language skills nor a college degree are required. However, very few people pass their selection criteria. Prepare to do a lot of reading about <a href="https://careers.state.gov/career-paths/foreign-service/officer/" target="_blank">being a foreign service officer</a> <span class="fa fa-external-link fa_custom"></span> and know that very few people pass the entrance exam. It takes a lot of study and discipline, but it’s one of many strategies available to you.</p>
+
+<h2><a name="fantasy-versus-reality"></a>Fantasy versus Reality</h2>
+
+<p>When people as me what it’s like to be an expat, I often reply “how do you feel about immigrants”? It’s hard being an expat. Don’t underestimate homesickness. Many people want to be expats so they can tell their friends what wonderful and exciting lives they have but their friends are thousands of miles away. And the expat life is not glamorous. The French have a saying, metro, boulot, dodo. That means “subway, work, sleep”. It’s a typical “day in the life”. Being an expat means that you’ll get up, go to work, go home, have dinner, and sleep. That’s the majority of your existence at home and that will be the majority of your existence abroad. It’s the things outside of metro, boulot, dodo which make being an expat so rewarding, but those aren’t the bulk of your existence.</p>
+
+<p>It’s not a magical, fairy-tale world out there, but it’s an incredible one. Immersing yourself in other cultures and understanding how other people see the world is one of the most wonderful things you can do in life.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>If you’re young and determined, you have multiple avenues to live abroad, either permanently or temporarily. I would strongly recommend that you pursue several at the same time, maximizing your flexibility. Living in another country is not a right, it’s a privilege that you have to earn. If you’re determined enough, you can do it.</p>
+
+<p>And keep reading this blog. As I research more ways to get out, I’ll post them here, along with my personal experiences. I’ve helped others leave their countries and I want to help you, too.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/rocket-physics-101.html" class="prevPost">&laquo; Rocket Physics 101</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/young-persons-guide-to-moving-abroad.html";
+            this.page.identifier = "blog/young-persons-guide-to-moving-abroad";
+            this.page.title      = "Young Person's Guide to Moving Abroad";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
