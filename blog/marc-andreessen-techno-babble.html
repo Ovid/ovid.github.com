@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/blog/marc-andreessen-techno-babble.html" />
+  
+  <meta property="og:title" content="Marc Andreessen: Techno Babble" />
+  <meta property="og:description" content="By now, if you pay attention to tech, you may have seen Marc Andreessen's The Techno-Optimist Manifesto. While it's not all bad, it's almost breathtaking how thoroughly he misunderstands what's going on." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Marc Andreessen: Techno Babble</title>
+  <meta name="description" content="Marc Andreessen: Techno Babble">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Marc Andreessen: Techno Babble</h1>
+        <time>2023-10-18</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="6">OOP</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="5">Corinna</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/young-persons-guide-to-moving-abroad.html" class="prevPost">&laquo; Young Person's Guide to Moving Abroad</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/politics.html">Politics</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#forward">Forward</a></li>
+    <li class="indent-1"><a href="#accelerationism">Accelerationism</a></li>
+    <li class="indent-1"><a href="#techno-lust">Techno-lust</a></li>
+    <li class="indent-1"><a href="#free-markets">Free Markets</a></li>
+    <li class="indent-1"><a href="#capitalism">Capitalism</a></li>
+    <li class="indent-1"><a href="#market-discipline">Market Discipline</a></li>
+    <li class="indent-1"><a href="#luddites">Luddites</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="forward"></a>Forward</h1>
+
+<p>In the vein of Ted Kazinsky, Karl Marx, and others before him, Marc Andreessen
+has proudly penned a manifesto, <a href="https://pmarca.substack.com/p/the-techno-optimist-manifesto" target="_blank">The Techno-Optimist
+Manifesto</a> <span class="fa fa-external-link fa_custom"></span>. Or more
+properly, “a rant.”</p>
+
+<p>I chose the word “rant” with care. He’s ranting against something, but it’s a
+terrible essay riddled with citations from racist writers (whom he admires),
+straw men, false dilemmas, and reads like a high school sophomore barely
+squeaked out a passing grade in a macroeconomics course.</p>
+
+<p>Were it not for the fact that it’s authored by a famous billionaire, it would
+just be another screed on another blog no one reads (like this one).</p>
+
+<h1><a name="accelerationism"></a>Accelerationism</h1>
+
+<p>The central thesis is the call for “accelerationism”:</p>
+
+<blockquote>
+  <p>We believe in accelerationism – the conscious and deliberate propulsion of
+  technological development – to ensure the fulfillment of the Law of Accelerating
+  Returns. To ensure the techno-capital upward spiral continues forever.</p>
+</blockquote>
+
+<p>It’s possible that Andreessen isn’t aware that <a href="https://www.vox.com/the-highlight/2019/11/11/20882005/accelerationism-white-supremacy-christchurch" target="_blank">fascists and white
+supremacists love
+accelerationism</a> <span class="fa fa-external-link fa_custom"></span>,
+but given all of the authors he cites, including admiration for “the father of
+accelerationsim,” Nick Land, I strongly doubt this. Nick Land, in particular,
+<a href="https://openlibrary.org/authors/OL771427A/Nick_Land" target="_blank">is often accused of advocating for “scientific racism” and
+eugenics</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>Andreessen also calls for free markets and for people to stop hating technology.
+The following assumes that he’s arguing in good faith and not deliberately using
+deceptive arguments. Also, libertarians are, demographically, overwhelmingly
+white males from rich countries and have <a href="https://inthesetimes.com/article/charles-koch-economics-nancy-maclean-book-james-buchanan-racism-education" target="_blank">long harbored white
+supremacists</a> <span class="fa fa-external-link fa_custom"></span>,
+but there’s too much to unpack there, so that is (unfortunately) being left
+out of this response.</p>
+
+<h1><a name="techno-lust"></a>Techno-lust</h1>
+
+<p>Let’s get the easy one out of the way.</p>
+
+<p>Andreessen uses the word “technology” 48 times in his rant. He opens with this:</p>
+
+<blockquote>
+  <p>We are told that technology takes our jobs, reduces our wages, increases
+  inequality, threatens our health, ruins the environment, degrades our society,
+  corrupts our children, impairs our humanity, threatens our future, and is ever
+  on the verge of ruining everything.</p>
+</blockquote>
+
+<p>This encompasses two central themes in his work: the role of technology in
+society and Andreessen’s inability to understand what people are complaining
+about.</p>
+
+<p>Let’s say I visit Andreessen’s house and I see a nail gun lying around. It’s a
+bit of technology which either makes carpenter’s lives simpler or takes work
+away from them, depending one’s point of view. I wouldn’t care if Andreessen has
+a nail gun.</p>
+
+<p>If, however, Andreessen was using that nail gun to kill puppies, I would
+definitely care and Andreessen would apparently assume I have a problem with
+nail guns.</p>
+
+<p>Dear Marc: it’s not the thing we object to, it’s the abuse. As we read this on a
+smart phone or a computer, as we ride our bikes to work, as MRIs diagnose
+diseases and save our lives, few of us are objecting to those things.</p>
+
+<p>Yes, there are certain <em>forms</em> of technology we object to because they’re
+inherently harmful—internal combustion engines (ICE), for example—but until we
+have a suitable replacement, no one’s calling for outlawing ICE tomorrow. Even
+when <a href="https://www.energyintel.com/00000187-28b5-df45-a9df-7cf51aac0000" target="_blank">Europe banned the sale of new ICE after
+2035</a> <span class="fa fa-external-link fa_custom"></span>,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> the time frame was an explicit acknowledgement of the benefits of this
+technology, while also pointing out the obvious dangers of it.</p>
+
+<p>It’s not technology people object to. Andreessen’s argument is a straw man. He
+extols the virtues of technology with drooling ecstasy, ignoring that virtue
+stems from humanity, not tools.</p>
+
+<h1><a name="free-markets"></a>Free Markets</h1>
+
+<p>Andreessen writes, “We believe free markets are the most effective way to
+organize a technological economy.” Two paragraphs later he then rails against
+central planning.</p>
+
+<blockquote>
+  <p>We believe Hayek’s Knowledge Problem overwhelms any centralized economic
+  system. All actual information is on the edges, in the hands of the people
+  closest to the buyer. The center, abstracted away from both the buyer and the
+  seller, knows nothing. Centralized planning is doomed to fail, the system of
+  production and consumption is too complex. Decentralization harnesses complexity
+  for the benefit of everyone; centralization will starve you to death.</p>
+</blockquote>
+
+<p>Hayek’s “Knowledge Problem” refers to the famous article <a href="https://www.kysq.org/docs/Hayek_45.pdf" target="_blank">The Use of Knowledge
+in Society</a> <span class="fa fa-external-link fa_custom"></span> (pdf), by Friedrich Hayek.
+In this writing, he skewers the notion that central planning can lead to
+effective economic outcomes. It’s a good, important work and should be read by
+anyone who wishes a better understanding of the limits of central planning.</p>
+
+<p>Andreessen sets up the great debate, writing “centralized planning is doomed to
+fail, the system of production and consumption is too complex.” He attacks
+communism several times, to make it clear that it’s the communist bogeyman he’s
+warning us about. He also positively cites libertarian works to let us know that
+<em>laissez-faire</em> is our Savior and Lord.</p>
+
+<p>There are two little problems with him setting up the epic battle of free
+markets versus central planning. The most obvious is that no one is arguing
+for central planning. Marx’s ideas, like Marx himself, are dead. There are
+few economists who take him seriously. Even the Chinese Communist Party <a href="https://www.intereconomics.eu/contents/year/2018/number/5/article/chinas-socialist-market-economy-a-systemic-trade-issue.html" target="_blank">has
+shifted to a “socialist market
+economy”</a> <span class="fa fa-external-link fa_custom"></span>,
+recognizing that central planning doesn’t work. Communism and central planning
+are safely in the hands of barstool philosophers and pose no threat.</p>
+
+<p>The other problem is that he’s setting up a <a href="https://www.dictionary.com/browse/false-dichotomy" target="_blank">false
+dichotomy</a> <span class="fa fa-external-link fa_custom"></span>. In a tremendously
+complex world with radically different value systems across its face and
+mounting climate and ecological chaos, reducing one of the core debates to naïve
+dualism isn’t enlightening anyone.</p>
+
+<p>However, his writing isn’t always bad.</p>
+
+<blockquote>
+  <p>We believe there is no conflict between capitalist profits and a social
+  welfare system that protects the vulnerable. In fact, they are aligned – the
+  production of markets creates the economic wealth that pays for everything else
+  we want as a society.</p>
+</blockquote>
+
+<p>I’ve met many a libertarian who argues strongly against welfare on the grounds
+that people should tend their own estates and government handouts take away our
+incentive to succeed. Tell that to a single mom working at McDonalds to support
+two children.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> So Kudos to Andreessen for suggesting
+that social welfare systems are OK.</p>
+
+<p>Curiously, Andreessen later writes, “We believe a Universal Basic Income would
+turn people into zoo animals to be farmed by the state.” This was stuck in the
+middle of the manifesto like a porcupine in a petting zoo. I read the text
+around that several times and I still have no idea what it means, but like most
+of the rant, it was a bizarre assertion without justification.</p>
+
+<h1><a name="capitalism"></a>Capitalism</h1>
+
+<p>While ranting about communism, telling us that only free market capitalism can
+save us, he blithely ignores the central problem with capitalism today. Yes, he
+is correct about the power of markets. Prior to capitalism, the world was
+largely guided by
+<a href="https://www.britannica.com/money/topic/mercantilism" target="_blank">mercantilism</a> <span class="fa fa-external-link fa_custom"></span>. Capitalism
+supplanted mercantilism by proving that economics wasn’t a zero-sum game.
+Eventually, we should hope for a post-capitalist society that addresses the
+fatal flaw of capitalism: it has no mechanism for handling
+<a href="https://www.imf.org/external/pubs/ft/fandd/2010/12/basics.htm" target="_blank">externalities</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>I don’t know what a successful post-capitalist economic system would look like
+any more than a mercantilist would have predicted capitalism. Two of the most
+significant externalities we face today are climate change and ecosystem
+collapse, but we clearly see that laissez-faire capitalism can’t deal with it
+effectively. This isn’t just some lefty idea. <a href="https://www.defense.gov/spotlights/tackling-the-climate-crisis/" target="_blank">The US Department of Defense
+considers climate change a national security
+priority</a> <span class="fa fa-external-link fa_custom"></span> The
+US military isn’t traditionally associated with radicals or lefties.</p>
+
+<p>So Andreessen, by pulling the typical libertarian trick of ignoring the central
+problem with capitalism, successfully guts his own screed.</p>
+
+<h1><a name="market-discipline"></a>Market Discipline</h1>
+
+<p>This part is just bizarre. Andreessen writes:</p>
+
+<blockquote>
+  <p>We believe in market discipline. The market naturally disciplines – the seller either learns and changes when the buyer fails to show, or exits the market. When market discipline is absent, there is no limit to how crazy things can get. The motto of every monopoly and cartel, every centralized institution not subject to market discipline: “We don’t care, because we don’t have to.” Markets prevent monopolies and cartels.</p>
+</blockquote>
+
+<p>I confess that I laughed myself silly at that last sentence.</p>
+
+<p>OK, before we unpack this, we need to understand what “market discipline” is. Per <a href="https://www.investopedia.com/terms/m/market-discipline.asp" target="_blank">Investopedia</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>Market discipline is the onus on banks, financial institutions, sovereigns, and other major players in the financial industry to conduct business while considering the risks to their stakeholders. Market discipline is a market-based promotion of the transparency and disclosure of the risks associated with a business or entity. It works in concert with regulatory systems to increase the safety and soundness of the market.</p>
+</blockquote>
+
+<p>There are a couple of interesting things to note about this. First, it talks
+about risks to <em>stakeholders</em>, nobody else. Risks to customers can become risks
+to stakeholders, but only if the customers realize that risk. Risks to
+non-customers, such as from pollution? Who cares? Not their problem. And while
+Andreessen approvingly quotes Adam Smith about the nature of “self-interest,”
+<a href="https://scholarlycommons.law.case.edu/cgi/viewcontent.cgi?article=1588&amp;context=caselrev" target="_blank">there’s another quote of Smith’s which Andreessen didn’t bother to
+include</a> <span class="fa fa-external-link fa_custom"></span>
+(pdf):</p>
+
+<blockquote>
+  <p>People of the same trade seldom meet together, even for merriment and
+  diversion, but the conversation ends in a conspiracy against the public, or in
+  some contrivance to raise prices.</p>
+</blockquote>
+
+<p>That, by the way, is from a law review paper entitled “Adam Smith on the
+Inevitability of Price Fixing.” The quote further reads:</p>
+
+<blockquote>
+  <p>It is impossible indeed to prevent such meetings, by any law
+  which either could be executed, or would be consistent with
+  liberty and justice. But though the law cannot hinder people
+  of the same trade from sometimes assembling together, it
+  ought to do nothing to facilitate such assemblies; much less to
+  render them necessary.</p>
+</blockquote>
+
+<p>There is no market mechanism to protect against this. The only recourse is in
+the second interesting thing in Investopedia’s definition of market discipline:
+regulatory systems. The market’s internal mechanisms for protecting the public
+have a core problem: businesses are comprised of people and sometimes people
+think they can get away with stuff and, sometimes, they can. If you decide that
+Coke, Pepsi, and other products are bad, you can easily switch to water. But
+what if there is no substitute? Think “insulin.”</p>
+
+<p>And if the market is so great at preventing cartels, <a href="https://www.justice.gov/atr/chapter-4" target="_blank">why is the US Department
+of Justice on a tear, prosecuting so many of
+them</a> <span class="fa fa-external-link fa_custom"></span>?</p>
+
+<p>This naïvete about “market discpline” is a symptom of libertarian groupthink.</p>
+
+<p>It’s also worth reading <a href="https://www.sfu.ca/~wainwrig/Econ400/akerlof.pdf" target="_blank">The Market for
+Lemons</a> <span class="fa fa-external-link fa_custom"></span> (pdf), an economic
+paper that won the author a Nobel Prize. It describes how markets degrade when
+the seller has more information about their product than the buyer. This is
+called “information asymmetry” and there is, again, nothing in the market
+mechanism which can guard against this. Even in our “information age,” the buyer
+often has little way of knowing if the product they’re buying has defects.</p>
+
+<p>Or you can read about <a href="https://www.consumerreports.org/consumerist/dealerships-rip-you-off-with-the-four-square-heres-how-to-beat-it/" target="_blank">the
+four-square</a> <span class="fa fa-external-link fa_custom"></span>,
+an unethical, but perfectly legal technique into pressuring people to pay too
+much money for a car. Again, the market can’t prevent this. In fact, it
+<em>incentivizes</em> this unethical behavior to the detriment of the consumer.</p>
+
+<h1><a name="luddites"></a>Luddites</h1>
+
+<p>In addition to railing against the non-existent communist threat, he implies
+that those who object to our current situation are Luddites:</p>
+
+<blockquote>
+  <p>This upward [techno-capital economic] spiral has been running for hundreds of
+  years, despite continuous howling from Communists and Luddites.</p>
+</blockquote>
+
+<p>Luddites? In the early 19<sup>th</sup> century, <a href="https://www.historic-uk.com/HistoryUK/HistoryofBritain/The-Luddites/" target="_blank">the Luddites
+were</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>British weavers and textile workers who objected to the introduction of mechanised looms and knitting frames. As highly trained artisans, the new machinery posed a threat to their livelihood and after receiving no support from government, they took matters into their own hands.</p>
+</blockquote>
+
+<p>They were being replaced by low-skilled workers and many of the skilled workers
+found themselves out of work and starving.</p>
+
+<p>At first blush, this <em>does</em> seem to resemble people like me, <a href="/articles/using-github-copilot-with-vim.html">worried that my
+skilled labor is going to be replaced by
+AI</a>, but this is a faulty
+comparison.</p>
+
+<p>Eventually, the financial boom created by the Industrial Revolution translated
+into <a href="https://www.econlib.org/library/Enc/IndustrialRevolutionandtheStandardofLiving.html" target="_blank">new jobs and an increased standard of
+living</a> <span class="fa fa-external-link fa_custom"></span>.
+The interim was rough for workers because the government was only acting in the
+interest of the wealthy and it took decades before those workers found skilled
+work that the machines could not do.</p>
+
+<p>With how powerful the new AI is <strong>in its infancy</strong>, where will be the skilled
+work the AI can’t do? <a href="https://www.zdnet.com/article/how-to-use-chatgpt-to-create-an-app/" target="_blank">People are already using ChatGPT to help them build
+entire apps</a> <span class="fa fa-external-link fa_custom"></span>
+and <a href="https://www.google.com/search?q=lost+my+job+to+chatgpt" target="_blank">plenty of people are losing their jobs to
+ChatGPT</a> <span class="fa fa-external-link fa_custom"></span>. As this new
+technology improves, more jobs will be lost. Unlike the Luddites of old, today’s
+Luddites are facing a future where there will be few jobs this technology cannot
+do. When we fully combine it with robotics to replace manual labor, the future
+looks grim.</p>
+
+<p>What are we to do when we’re losing our homes and can’t afford to eat?
+Presumably, Andreessen’s answer will be something along the lines of “let them
+eat cake.”</p>
+
+<p>More likely, since he’s a billionaire, he adheres to the unofficial libertarian
+motto: “screw you; I got mine.”</p>
+
+<hr />
+
+<p><em>Note: because there’s simply too much to cover here, <a href="https://docs.google.com/document/d/1t1HfS-iOZ1VsJX8ka82N7yhtmoKhbWdmDs4TWN14bkI/edit" target="_blank">I’ve included an
+annotated copy of his manifesto
+here</a> <span class="fa fa-external-link fa_custom"></span>.
+Comments are open, so feel free to leave them there or here.</em></p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/young-persons-guide-to-moving-abroad.html" class="prevPost">&laquo; Young Person's Guide to Moving Abroad</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/marc-andreessen-techno-babble.html";
+            this.page.identifier = "blog/marc-andreessen-techno-babble";
+            this.page.title      = "Marc Andreessen: Techno Babble";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>A move that's been slightly scaled back due to Germany objecting
+to
+it.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>For simplicity, I'll skip the “taxation is theft”
+idiocy that comes up all the time.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>I won't go into detail because this is going on long enough.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
+</body>
+</html>
+
+
