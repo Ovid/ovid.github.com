@@ -255,7 +255,7 @@
 <article id="article">
 <p><nav role="navigation" class="table-of-contents">
     <ul>
-    <li class="indent-1"><a href="#i-bombed-the-interview-but-won-the-contract">I Bombed the Interview but Won the Contract</a></li>
+    <li class="indent-1"><a href="#i-wrecked-the-interview">I Wrecked the Interview</a></li>
     <li class="indent-1"><a href="#defining-microservices">Defining Microservices</a></li>
     <li class="indent-1"><a href="#should-you-choose-microservices">Should You Choose Microservices?</a></li>
     <li class="indent-2"><a href="#benefits-of-microservices">Benefits of Microservices</a></li>
@@ -273,22 +273,23 @@
     <li class="indent-3"><a href="#communication-overhead">Communication Overhead</a></li>
     <li class="indent-3"><a href="#data-consistency">Data Consistency</a></li>
     <li class="indent-3"><a href="#other-drawbacks">Other Drawbacks</a></li>
-    <li class="indent-1"><a href="#the-complexity-argument">The Complexity Argument</a></li>
+    <li class="indent-1"><a href="#complexity">Complexity</a></li>
+    <li class="indent-2"><a href="#the-bbc-atlas-project">The BBC “Atlas” Project</a></li>
     <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
     </ul>
 </nav>
 <hr></p>
 
-<h1><a name="i-bombed-the-interview-but-won-the-contract"></a>I Bombed the Interview but Won the Contract</h1>
+<h1><a name="i-wrecked-the-interview"></a>I Wrecked the Interview</h1>
 
 <p>The interview was going well. Questions were asked and answered and we were all
 smiling. But the interviewers kept talking about their company’s transformation
-into “microservices” but were awful vague about it. So I asked them how they
+into “microservices” but were awfully vague about it. So I asked them how they
 defined microservices.</p>
 
 <p>The interview was no longer going well. The company had issued a directive that
 they were going to break up the monolith into microservices, but no one agreed
-on what microservices were. But I got the contract.</p>
+on what microservices were. I got the contract.</p>
 
 <p>This was not the first time this happened to me.</p>
 
@@ -296,36 +297,39 @@ on what microservices were. But I got the contract.</p>
 
 <p>Microservices seems to be the “buzzword du jour” (after AI). When I mention
 microservices online, almost invariably I have people chime in that “the
-architecture is too complex,” “it’s just a fad,” or “they don’t solve the real
-business problems.”</p>
+architecture is too complex,” “it’s just a fad,” “they don’t solve the real
+business problems,” and so on.</p>
 
-<p>Those complains, oddly, are often right, but that doesn’t mean microservices
+<p>Those complaints are often right, but that doesn’t mean microservices
 don’t provide value. But to get to that value, we need a working definition.
-I’ll provide one that is short, sweet, and will surely be objectionable to
+I’ll provide one that is short, sweet, and will be objectionable to
 some. We’ll also skip the differences between microservices and SOA because the
 latter also has plenty of contradictory descriptions, some of whom curiously
 resemble microservices.</p>
 
-<p>A microservice is a small, self-contained process which exposes an API to solve
-a single business need.</p>
+<blockquote>
+  <p>A microservice is a small, self-contained process which exposes an API to
+  solve a single business need.</p>
+</blockquote>
 
-<p>OK, not helpful. More buzzwords. In actual practice, here’s a few more things
+<p>OK, not helpful. Too vague. In actual practice, here are a few more things
 to consider.</p>
 
-<p>The API is often exposed via OpenAPI and typically uses REST, EDA (event-driven
-architectures), or WebSockets, depending on the need. Different services are
-loosely coupled (in theory) and communicate by sending data back and forth.
-There is no directly shared memory, though state is often shared via data
-stores.</p>
+<p>The processes can be on the same or different servers. The API is often exposed
+via OpenAPI and typically uses REST, EDA (event-driven architectures), or
+WebSockets, depending on the need. GraphQL is also sometimes in the mix.
+Different services are loosely coupled (in theory) and communicate by sending
+data back and forth.  There is no directly shared memory, though state is often
+shared via data stores.</p>
 
 <p>OK, so that’s far too brief and entire books can be written on the topic, but
 this is a blog post. Are they a good idea or not?</p>
 
 <h1><a name="should-you-choose-microservices"></a>Should You Choose Microservices?</h1>
 
-<p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies, an online
+<p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> an online
 machine parts supplier. She’s been brought in because their legacy platform is
-struggling and their SAFe® agile project failed, turning out to be <a href="https://premieragile.com/problems-with-scaled-agile-framework/" target="_blank">neither be
+struggling and their SAFe® agile project failed, turning out to be <a href="https://jeffgothelf.com/blog/safe-is-not-agile/" target="_blank">neither be
 safe nor
 agile</a> <span class="fa fa-external-link fa_custom"></span>. Now she
 has people arguing over cloud-first, containerization, and microservices as
@@ -345,13 +349,13 @@ drawbacks. Let’s talk about the benefits first.</p>
 
 <h3><a name="scalability"></a>Scalability</h3>
 
-<p>One of the single most cited benefits is scalability. If you’re running a
+<p>One of the most cited benefits is scalability. If you’re running a
 monolith and one part of your code is bogging down the system, scaling that
-often means scaling everything, regardless of whether or not it needs it. With
-microservices, if you find that your reservation service is slow, you can often
-just scale up that service. Move it to a beefier server or move its data store
-to a beefier server. There’s no need to spend the money on faster hardware for
-everything.</p>
+often means scaling everything, regardless of whether or not it needs it. That
+can quickly get expensive. With microservices, if you find that your reservation
+service is slow, you can often just scale up that service. Move it to a beefier
+server or move its data store to a beefier server. There’s no need to spend the
+money on faster hardware for everything.</p>
 
 <h3><a name="learning-the-code-base"></a>Learning the Code Base</h3>
 
@@ -362,7 +366,7 @@ and exploring code paths later, I found that, far, far away from my code,
 someone had created a custom “user” object which only provided the two methods
 they needed. It was being passed to my code. I later found tons of user
 objects, lovingly hand-crafted for different parts of the system, all of which
-presented different behaviors and subtly different bugs. It was a mess, but
+presented different behaviors and different bugs. It was a mess, but
 given the size of the codebase, there was no reasonable way our team could have
 anticipated this up front. You become more productive by learning the entire
 code base, but that’s not possible.</p>
@@ -376,16 +380,17 @@ intractable problem becomes manageable.</p>
 <p>In the year 2000, Joel Spolsky wrote a famous blog post entitled, <a href="https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/" target="_blank">Things You
 Should Never Do, Part
 1</a> <span class="fa fa-external-link fa_custom"></span>.
-Two decades later, we’re waiting for part 2, but part 1 implies, in part, that
-you should <em>never</em> rewrite an existing application. Today we know that’s not
-true, but only because we have new patterns which allow us to do this and a
-microservice is one of those patterns. Yes, you might call it “refactoring”
+Two decades later, we’re waiting for part 2, but part 1 says you should <em>never</em>
+rewrite an existing application. Today we know that’s not true, but only because
+we have new patterns which allow us to do this and a microservice is one of
+those patterns. Yes, you might call it “refactoring”
 instead.</p>
 
-<p>I won’t begrudge the correction, but microservices allow you to gradually tear
+<p>I won’t begrudge the correction, but microservices allow you to tear
 chunks out of your monolith, piece by piece. You can even stop and leave the
-monolith in place if your approach is wrong. You always have working code and
-you can approach it in small steps. One approach, the unfortunately named
+remainder of the monolith in place if your approach is wrong, or if the
+remainder is “good enough.” With this strategy, you always have working code and
+you can take small steps forward. One approach, the unfortunately-named
 <a href="https://www.geeksforgeeks.org/strangler-pattern-in-micro-services-system-design/" target="_blank">strangler
 pattern</a> <span class="fa fa-external-link fa_custom"></span>
 is great when you’re first dipping your toe in the microservice waters.</p>
@@ -396,17 +401,17 @@ is great when you’re first dipping your toe in the microservice waters.</p>
 objects. For him the key benefits are <a href="/articles/alan-kay-and-oo-programming.html">messaging, isolation, and extreme
 late-binding</a>. While microservices
 can provide all of these benefits, for this point, we’ll talk about messaging.
-You send a message to a service (<code>GET /products/42</code>) and the service sends back
-a message, often in the form of a JSON data structure. Who’s sending the
-message? It might be another service. In a monolith, the analogous code might
-get a reference to data back and if it’s mutable, you can wind up with strange
-action at a distance. Having <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">mutable data can introduce subtle bugs in your
-code</a>.</p>
+You send a message to a service (<code>GET /products/{productId}</code>) and the service
+sends back a message, often in the form of a JSON data structure.
+It might be another service. In a monolith, the analogous code
+might get a reference to data back and if it’s mutable, you can wind up with
+strange action at a distance. Having <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">mutable data is a constant source of bugs
+in your code</a>.</p>
 
 <p>When you’re sending a stream of data and not using shared memory, whole classes
 of bugs go away. You don’t need to worry as much about mutating an incoming
 data structure because you know the sender won’t be affected. Because we’re
-only data back and forth, you can minimize action at a distance.</p>
+only sending data back and forth, you can minimize action at a distance.</p>
 
 <h3><a name="asynchronous-code"></a>Asynchronous Code</h3>
 
@@ -418,7 +423,7 @@ this comes at the cost of making the code more complex.</p>
 <p>With microservices, calls are often asynchronous, minimizing blockage. You can
 fire off requests to several services at once, requesting a response or a
 change, and aggregate the results when they complete. Asynchronous requests,
-when possible, can do a fantastic job of taking a load off of a server.</p>
+when possible, can do a fantastic job of taking a load off a server.</p>
 
 <h3><a name="new-business-products"></a>New Business Products</h3>
 
@@ -451,7 +456,7 @@ controversial, but many developers are proud of the languages they prefer and
 suggesting that it’s not the best tool for the job rankles them, but our job
 isn’t to provide a particular programming language, it’s to provide solutions.
 A solid microservice system with services isolated behind well-defined APIs
-gives us possibilities to transform the system in ways we previously never
+gives us possibilities to transform the system in ways we never
 thought possible. It’s a huge benefit that should not be overlooked.</p>
 
 <h2><a name="drawbacks-of-microservices"></a>Drawbacks of Microservices</h2>
@@ -466,11 +471,11 @@ account.</p>
 authentication. You’ve already got feature switches in place so your
 <code>authenticate( user, pass )</code> method looks like this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-python">def authenticate (self, user, pass):
-    if feature_runnning('auth_service'):
+<div class="shadow"><pre class="scrolled"><code class="language-python">def authenticate (self, username, password):
+    if feature_running('auth_service'):
         # use authentication service
     else:
-        # use monolithic service
+        # use monolithic code
 </code></pre></div>
 
 <p>Now, if something goes wrong, just switch off the feature and fix it.</p>
@@ -488,11 +493,11 @@ problem.</p>
 <h3><a name="monitoring-and-debugging"></a>Monitoring and Debugging</h3>
 
 <p>Oops. Something failed. Hard. Everything is humming along nicely, but nobody
-can actually buy your products. Maybe they get a confirmation of purchase.
+can buy your products. Maybe they get a confirmation of purchase.
 Maybe they’ve been charged for the purchase. But no inventory was deducted or
 scheduled to be sent. So it’s the purchase service, right? Maybe not. Maybe
 there was an unexpected failure in your authz service. Maybe your product
-service which went down. Maybe there was something else going on.</p>
+service went down. Maybe there was something else going on.</p>
 
 <p>Now you realized you needed better monitoring and nobody thought about log
 aggregation. The logs are there, but you can’t connect an individual service’s
@@ -501,12 +506,19 @@ weren’t great before, they need to be now, to surface issues quickly. Log
 aggregation is also critical. When you have a failed request, you want to have
 a full log reply of everything for that request show up on a single
 page/console/file/whatever. There are COTS tools to let you do this. You
-probably want them.</p>
+want them.</p>
+
+<p>One the upside, one benefit of microservices is that you can deploy your service
+without waiting for the “weekly” release (or whatever the time frame is). As a
+result, when something goes wrong, you can often spot when it went wrong and
+while you might not know what caused it, you can check what was deployed and
+you’ll often see a much smaller set of code deployed, making many bugs easier to
+track down.</p>
 
 <h3><a name="communication-overhead"></a>Communication Overhead</h3>
 
 <p>This one’s a huge issue. Now, instead of me passing a user object and a
-purchase request into a method, I have to make send a message with the relevant
+purchase request into a method, I have to send a message with the relevant
 data to a service. A service, which in turn, is probably sending messages to
 other services, which might be sending messages to other services, and so on.
 You might worry about cycles in the data calls, but in reality, they’re no
@@ -519,8 +531,8 @@ this.</p>
 <h3><a name="data-consistency"></a>Data Consistency</h3>
 
 <p>Many developers might be nodding along at many of these points, until they come
-to the hill they’re willing to die on. This has been my hill and it’s probably
-the most challenging aspect of microservices.</p>
+to the hill they’re willing to die on. The following has been my hill and it’s
+probably the most challenging aspect of microservices (for me).</p>
 
 <p>I teach developers how to design databases.</p>
 
@@ -542,10 +554,14 @@ no longer exist.</p>
 
 <p>I have to admit that this is helpful for me. It means I sometimes get paid more
 to fix these bugs, until the client points out that yeah, it’s a problem, but
-not a serious one.</p>
+not a serious one. Despite data integrity issues, in many cases, clients
+consider ease of use to be a fair trade off. I’ll go cry into my beer, but I
+need to rethink my absolutist position about data integrity. Maybe
+I’ll eventually come around to eventual consistency.</p>
 
 <p>If you’re breaking up a monolithic codebase, but you decide to stick with a
-monolithic database, you have a potential bottleneck. Large databases can be
+monolithic database, you have a potential bottleneck. The code will be easier to
+maintain, but the scaling promises aren’t kept. Large databases can be
 <em>hard</em> to scale. Large transactions can guarantee ACID compliance at the cost of
 potentially blocking, something you’re trying to avoid with microservices.</p>
 
@@ -567,37 +583,52 @@ initial development effort. They’re not a step to take lightly, though if my
 past experience is anything to go on, many companies look at the benefits,
 ignore the costs, and don’t have a clear plan of attack.</p>
 
-<h1><a name="the-complexity-argument"></a>The Complexity Argument</h1>
+<h1><a name="complexity"></a>Complexity</h1>
 
 <p>For the drawbacks of microservices, once you read through them, many of them go
 away or are diminished after the first microservices are successfully launched.
 Unfortunately, the added complexity of the system will always be there and this
 is where the critical argument lies.</p>
 
+<p>When I first learned to program, back in the 80s, I wrote something like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>10 PRINT &quot;HELLO, WORLD!&quot;
+20 GOTO 10
+</code></pre></div>
+
+<p>Needless to say, as our business demands grow, the complexity of our software
+grows, too. CGI, which would have been unthinkably complex to me in the 80s, is
+unthinkably simplistic in dealing with modern requirements. We have greater
+needs and with that comes greater complexity. So let’s take a diversion.</p>
+
+<h2><a name="the-bbc-atlas-project"></a>The BBC “Atlas” Project</h2>
+
 <p>I worked for the BBC for several years. Were it not for the fact that my wife
 and I had decided we didn’t want to raise our child in London, I might still be
-there. I <em>loved</em> working for the BBC. But one day, they announced the Atlas
-project. As a rule of thumb, when a company announces a grand project named
-“Atlas,” “Leviathon,” “V2,” and so on, running becomes a serious option. Atlas
-was no different (today, I don’t know, but then, it was a mess).</p>
+there. I <em>loved</em> working for the BBC.</p>
+
+<p>One day they announced the Atlas project. As a rule of thumb, when a company
+announces a grand project named “Atlas,” “Leviathon,” “V2,” and so on, looking
+for a new job becomes a serious option. Atlas was no different (today, I don’t
+know, but then, it was a mess).</p>
 
 <p>The Atlas project stemmed out of a simple problem: the BBC used tons of
 different programming languages and it was getting harder to find developers
 for them, or to train developers for those systems. So the BBC decreed that all
 backend development would be in Java and all front-end development would be in
-PHP.</p>
+PHP.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
-<p>One day, on the Atlas internal mailing list, an experienced PHP developer
+<p>On the Atlas internal mailing list, an experienced PHP developer
 complained that he couldn’t figure out how to run “Hello, World!” on the new
 framework that had been built. No matter how many times he read the
 instructions, he couldn’t get it working. The admins held his hand and walked
 him through the process, but it was a mess. When I pointed out that running
-“Hello, World!” shouldn’t be that difficult, one of the admins privately sent
-me an email telling me that obviously I didn’t know how to write code that
-scaled.</p>
+“Hello, World!” shouldn’t be so difficult that a senior developer can’t figure
+it out, one of the admins privately sent me an email telling me that obviously I
+didn’t know how to write code that scaled.</p>
 
-<p>We’ll skip the resulting discussion, but this is part of the issue with emerging complexity. When it
-first arrives, we’re not sure of the best way to contain it. Microservices, in
+<p>This is part of the issue with emerging complexity. When it
+first arrives, we’re not sure of the best way to manage it. Microservices, in
 the grand scheme of things, are still relatively new. We’re going to find new
 patterns to manage them (a future blog post) and new ways of hiding the
 complexity behind abstractions. The fits with the history of programming.
@@ -607,18 +638,17 @@ painful until mark and sweep, reference counting, and other imperfect tools
 came along to make it automatic. Rust is now blowing the doors off of them.</p>
 
 <p>Microservices will undergo the same process. Many common patterns will become
-first class constructs (and sadly, language like Erlang and Elixer, which
-natively offer many of the benefits, struggle to gain traction). It will take
-many years, perhaps a generation or more, until we better understand how to
-manage the new complexities.</p>
+first class constructs.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> It
+will take many years, perhaps a generation or more, until we better understand
+how to manage the new complexities.</p>
 
-<p>But are they worth it? Alan Kay states that the internet is the only large
-scale OOP system which matches his expectations. If a server goes down, your
-browser doesn’t spontaneously crash; you find another server. Biological
-systems like what Kay had in mind, evolved over billions of years to a
-robustness we can only dream of. But we’re getting closer and microservices are
-yet another attempt to get closer to that robustness. You might have a system
-complex enough that it needs this extra robustness.</p>
+<p>But are they worth it? Alan Kay states that the internet is the only large scale
+OOP system which matches his expectations. If a server goes down, your browser
+doesn’t spontaneously crash; you find another server. Kay was thinking about the
+robustness of biological systems. You have <em>billions</em> of cells in your body die
+every day, but you don’t. We evolved over billions of years to a robustness we
+can only dream of for software. Microservices are yet another attempt to get
+closer to that robustness.</p>
 
 <h1><a name="conclusion"></a>Conclusion</h1>
 
@@ -631,10 +661,17 @@ understanding the trade offs.</p>
 needs this kind of scalability (and perhaps breaking down of a monolith) and is
 100% committed to it. <a href="/articles/estimating-development-costs-is-almost-useless.html">The actual development costs aren’t the important
 argument</a> here.
-It’s the maintenance costs and a clear, goal-driven approach. Of course, if 
-microservices are the course a company decides, they had darned well be able to 
-tell the team what they mean by them. I’ll be able to avoid future interview 
+Of course, if
+microservices are the course a company decides, they had damned well be able to
+tell the team what they mean by them. I’ll be able to avoid future interview
 fiascos that way.</p>
+
+<p>If you’d like to see a deeper dive into handling microservices at scale, here’s
+a great video about how Netflix handles them.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/CZ3wIuvmHeM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
 
 </article>
 
@@ -718,6 +755,55 @@ fiascos that way.</p>
     <script src="/static/js/prism.js"></script>
     
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Not the musical group. It's the name of a company I tried to
+start years ago in the US.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Actually, the BBC messsed up. The backend devs were
+required to provide JAR files for deployment. Several teams realized you don't
+need Java to create JAR files, so they skipped the hated Java mandate.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>Sadly, language like Erlang and Elixer,
+which natively offer many of the benefits, struggle to gain traction.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
 </body>
 </html>
 
