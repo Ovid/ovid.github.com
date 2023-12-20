@@ -147,7 +147,7 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbg_new_08236689f0afb357 = function() {
+    imports.wbg.__wbg_new_ffc6d4d085022169 = function() {
         const ret = new Array();
         return addHeapObject(ret);
     };
@@ -155,7 +155,7 @@ function __wbg_get_imports() {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_set_0ac78a2bc07da03c = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_set_f2740edb12e318cd = function(arg0, arg1, arg2) {
         getObject(arg0)[arg1 >>> 0] = takeObject(arg2);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {

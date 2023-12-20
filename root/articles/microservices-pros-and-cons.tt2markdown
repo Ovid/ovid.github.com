@@ -1,0 +1,375 @@
+[%
+    title            = 'Microservices Pros and Cons';
+    type             = 'articles';
+    slug             = 'microservices-pros-and-cons';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2023-12-20';
+    mathjax          = 0;
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS business programming}}
+
+# I Bombed the Interview but Won the Contract
+
+The interview was going well. Questions were asked and answered and we were all
+smiling. But the interviewers kept talking about their company's transformation
+into "microservices" but were awful vague about it. So I asked them how they
+defined microservices.
+
+The interview was no longer going well. The company had issued a directive that
+they were going to break up the monolith into microservices, but no one agreed
+on what microservices were. But I got the contract.
+
+This was not the first time this happened to me.
+
+# Defining Microservices
+
+Microservices seems to be the "buzzword du jour" (after AI). When I mention
+microservices online, almost invariably I have people chime in that "the
+architecture is too complex," "it's just a fad," or "they don't solve the real
+business problems."
+
+Those complains, oddly, are often right, but that doesn't mean microservices
+don't provide value. But to get to that value, we need a working definition.
+I'll provide one that is short, sweet, and will surely be objectionable to
+some. We'll also skip the differences between microservices and SOA because the
+latter also has plenty of contradictory descriptions, some of whom curiously
+resemble microservices.
+
+A microservice is a small, self-contained process which exposes an API to solve
+a single business need.
+
+OK, not helpful. More buzzwords. In actual practice, here's a few more things
+to consider.
+
+The API is often exposed via OpenAPI and typically uses REST, EDA (event-driven
+architectures), or WebSockets, depending on the need. Different services are
+loosely coupled (in theory) and communicate by sending data back and forth.
+There is no directly shared memory, though state is often shared via data
+stores.
+
+OK, so that's far too brief and entire books can be written on the topic, but
+this is a blog post. Are they a good idea or not?
+
+# Should You Choose Microservices?
+
+Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies, an online
+machine parts supplier. She's been brought in because their legacy platform is
+struggling and their SAFe® agile project failed, turning out to be [neither be
+safe nor
+agile](https://premieragile.com/problems-with-scaled-agile-framework/). Now she
+has people arguing over cloud-first, containerization, and microservices as
+some of the approaches that can save the company. How is she going to decide?
+
+There's much Abadi can do and one of those things is to isolate the underlying
+problem(s), determine what can be fixed, and how various approaches are going
+to fix them. What are the risks and benefits to the customers, company,
+vendors, and employees? Are the various approaches complementary or not? Can
+they be done in isolation, prioritizing greater benefits first? We'll just look
+at microservices.
+
+## Benefits of Microservices
+
+Advocates of microservices tout their benefits, but often downplay the
+drawbacks. Let's talk about the benefits first.
+
+### Scalability
+
+One of the single most cited benefits is scalability. If you're running a
+monolith and one part of your code is bogging down the system, scaling that
+often means scaling everything, regardless of whether or not it needs it. With
+microservices, if you find that your reservation service is slow, you can often
+just scale up that service. Move it to a beefier server or move its data store
+to a beefier server. There's no need to spend the money on faster hardware for
+everything.
+
+### Learning the Code Base
+
+For one project I was on, with a monolithic code base of tens of millions of
+lines of code, I found that the authentication system we were building was
+sometimes throwing a "method not found" exception. Lots of digging through logs
+and exploring code paths later, I found that, far, far away from my code,
+someone had created a custom "user" object which only provided the two methods
+they needed. It was being passed to my code. I later found tons of user
+objects, lovingly hand-crafted for different parts of the system, all of which
+presented different behaviors and subtly different bugs. It was a mess, but
+given the size of the codebase, there was no reasonable way our team could have
+anticipated this up front. You become more productive by learning the entire
+code base, but that's not possible.
+
+With microservices, you only need to learn the code for your service, and the
+contracts provided by the services you interact with. All of a sudden, a huge,
+intractable problem becomes manageable.
+
+### Gradual Migration
+
+In the year 2000, Joel Spolsky wrote a famous blog post entitled, [Things You
+Should Never Do, Part
+1](https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/).
+Two decades later, we're waiting for part 2, but part 1 implies, in part, that
+you should _never_ rewrite an existing application. Today we know that's not
+true, but only because we have new patterns which allow us to do this and a
+microservice is one of those patterns. Yes, you might call it "refactoring"
+instead.
+
+I won't begrudge the correction, but microservices allow you to gradually tear
+chunks out of your monolith, piece by piece. You can even stop and leave the
+monolith in place if your approach is wrong. You always have working code and
+you can approach it in small steps. One approach, the unfortunately named
+[strangler
+pattern](https://www.geeksforgeeks.org/strangler-pattern-in-micro-services-system-design/)
+is great when you're first dipping your toe in the microservice waters.
+
+### It's All Data
+
+When Alan Kay talks about OO programming, he thinks we got things wrong about
+objects. For him the key benefits are [messaging, isolation, and extreme
+late-binding](/articles/alan-kay-and-oo-programming.html). While microservices
+can provide all of these benefits, for this point, we'll talk about messaging.
+You send a message to a service (`GET /products/42`) and the service sends back
+a message, often in the form of a JSON data structure. Who's sending the
+message? It might be another service. In a monolith, the analogous code might
+get a reference to data back and if it's mutable, you can wind up with strange
+action at a distance. Having [mutable data can introduce subtle bugs in your
+code](/articles/using-immutable-datetime-objects-with-dbixclass.html).
+
+When you're sending a stream of data and not using shared memory, whole classes
+of bugs go away. You don't need to worry as much about mutating an incoming
+data structure because you know the sender won't be affected. Because we're
+only data back and forth, you can minimize action at a distance.
+
+### Asynchronous Code
+
+In legacy monolith systems, calls to other parts of the code tend to be
+blocking. It's not always a big deal because with everything running in the
+same process, you can do deep work to resolve performance bottlenecks. However,
+this comes at the cost of making the code more complex.
+
+With microservices, calls are often asynchronous, minimizing blockage. You can
+fire off requests to several services at once, requesting a response or a
+change, and aggregate the results when they complete. Asynchronous requests,
+when possible, can do a fantastic job of taking a load off of a server.
+
+### New Business Products
+
+When you can start isolating different business concerns into microservices,
+those services might become stand-alone products you can expose to customers.
+Some of those customers might be internal.  For one client, I rewrote how they
+generated search results to return a JSON data structure instead of an HTML
+document. Afterwards, one of their mobile developers thanked me. For years they
+provided limited search results because the HTML document was useless to them.
+By being able to request JSON, they said it took them 15 minutes to have a
+brand new, much more useful search engine on mobile. Well-designed services
+give _flexibility_.
+
+### Partial Failures
+
+In a monolith, an unexpected exception can often result in the dreaded `500 -
+Internal Server Error` being sent to a browser. With microservices, you often
+see a degradation in services instead of a complete failure. Maybe your
+recommendation system doesn't show a list of related products for a while. The
+software itself still runs!
+
+### The Darkest Secret
+
+It's one that not everyone is happy with, but sometimes your beloved
+programming language isn't the best choice for a given task. Maybe you need
+your authentication system to be lightning fast and you can't risk bugs. When it's
+safely encapsulated behind an OpenAPI front end, you can consider rewriting the
+implementation in a faster, more secure language. This one shouldn't be
+controversial, but many developers are proud of the languages they prefer and
+suggesting that it's not the best tool for the job rankles them, but our job
+isn't to provide a particular programming language, it's to provide solutions.
+A solid microservice system with services isolated behind well-defined APIs
+gives us possibilities to transform the system in ways we previously never
+thought possible. It's a huge benefit that should not be overlooked.
+
+## Drawbacks of Microservices
+
+Given the benefits of microservices, you might think it insane to not switch to
+them. But there's a cost to everything and those costs need to be taken into
+account.
+
+### Infrastructure
+
+So you've decided that the first microservice you want to create is for
+authentication. You've already got feature switches in place so your
+`authenticate( user, pass )` method looks like this:
+
+```python
+def authenticate (self, user, pass):
+    if feature_runnning('auth_service'):
+        # use authentication service
+    else:
+        # use monolithic service
+```
+
+Now, if something goes wrong, just switch off the feature and fix it.
+
+But how do you get the authentication service running in the first place? How
+do you dispatch to it? How do you deploy it? Using the strangler pattern can
+allow you to take a small, isolated bit of code and transform it into a
+service, but there has to be something for it to run on. So now you're looking
+at something like [the gateway
+pattern](https://www.geeksforgeeks.org/what-is-the-api-gateway-pattern/) to
+dispatch to your new service and you have to deal with the complexity _that_
+introduces. There are many yaks you'll need to shave before you can solve this
+problem.
+
+### Monitoring and Debugging
+
+Oops. Something failed. Hard. Everything is humming along nicely, but nobody
+can actually buy your products. Maybe they get a confirmation of purchase.
+Maybe they've been charged for the purchase. But no inventory was deducted or
+scheduled to be sent. So it's the purchase service, right? Maybe not. Maybe
+there was an unexpected failure in your authz service. Maybe your product
+service which went down. Maybe there was something else going on.
+
+Now you realized you needed better monitoring and nobody thought about log
+aggregation. The logs are there, but you can't connect an individual service's
+logs to the logs of the services which called it! If your monitoring systems
+weren't great before, they need to be now, to surface issues quickly. Log
+aggregation is also critical. When you have a failed request, you want to have
+a full log reply of everything for that request show up on a single
+page/console/file/whatever. There are COTS tools to let you do this. You
+probably want them.
+
+### Communication Overhead
+
+This one's a huge issue. Now, instead of me passing a user object and a
+purchase request into a method, I have to make send a message with the relevant
+data to a service. A service, which in turn, is probably sending messages to
+other services, which might be sending messages to other services, and so on.
+You might worry about cycles in the data calls, but in reality, they're no
+worse than this possibility in a monolithic code base. No, the problem is that
+you're now generating much more internal network traffic than you did
+previously. This is a trade-off that is often acceptable, but it needs to be
+known up front and dealt with. You might need to buy new hardware to deal with
+this.
+
+### Data Consistency
+
+Many developers might be nodding along at many of these points, until they come
+to the hill they're willing to die on. This has been my hill and it's probably
+the most challenging aspect of microservices.
+
+I teach developers how to design databases.
+
+[% Ovid.youtube("y1tcbhWLiUM") %]
+
+It's a thankless task because developers get this wrong so often and I've
+noticed an interesting pattern. When I go into clients using PostgreSQL, their
+database is usually in decent shape. That's because developers who choose
+PostgreSQL often understand and even obsess over data quality. MySQL fans,
+however, often obsess about ease of use. When I go into a client who uses
+MySQL, I often find it doesn't use strict mode, or if it does, they're often
+sloppy about `NULL` values or foreign key (FK) constraints. When I find a
+database not using FK constraints, I look for dangling records and I have
+_never_ found a large database skipping FK constraints which doesn't have
+dangling data, unconnected to anything else, or ids pointing to records which
+no longer exist.
+
+I have to admit that this is helpful for me. It means I sometimes get paid more
+to fix these bugs, until the client points out that yeah, it's a problem, but
+not a serious one.
+
+If you're breaking up a monolithic codebase, but you decide to stick with a
+monolithic database, you have a potential bottleneck. Large databases can be
+_hard_ to scale. Large transactions can guarantee ACID compliance at the cost of
+potentially blocking, something you're trying to avoid with microservices.
+
+So many microservice strategies involve creating micro data services, each with
+their tiny, backend data store. That's a problem if you're buying licences for
+proprietary systems such as Oracle. It's also a problem when people object to
+eventual consistency, even though they don't need perfectly up-to-date
+information, such as for a product search.
+
+However, if you're doing financial transactions, there are plenty of places
+where eventual consistency is not acceptable, so you'll have to feel your own
+way here.
+
+### Other Drawbacks
+
+Microservices create issues with testing complexity, deployments, dependency
+management, security management, permanent operational overheard, and the
+initial development effort. They're not a step to take lightly, though if my
+past experience is anything to go on, many companies look at the benefits,
+ignore the costs, and don't have a clear plan of attack.
+
+# The Complexity Argument
+
+For the drawbacks of microservices, once you read through them, many of them go
+away or are diminished after the first microservices are successfully launched.
+Unfortunately, the added complexity of the system will always be there and this
+is where the critical argument lies.
+
+I worked for the BBC for several years. Were it not for the fact that my wife
+and I had decided we didn't want to raise our child in London, I might still be
+there. I _loved_ working for the BBC. But one day, they announced the Atlas
+project. As a rule of thumb, when a company announces a grand project named
+"Atlas," "Leviathon," "V2," and so on, running becomes a serious option. Atlas
+was no different (today, I don't know, but then, it was a mess).
+
+The Atlas project stemmed out of a simple problem: the BBC used tons of
+different programming languages and it was getting harder to find developers
+for them, or to train developers for those systems. So the BBC decreed that all
+backend development would be in Java and all front-end development would be in
+PHP.
+
+One day, on the Atlas internal mailing list, an experienced PHP developer
+complained that he couldn't figure out how to run "Hello, World!" on the new
+framework that had been built. No matter how many times he read the
+instructions, he couldn't get it working. The admins held his hand and walked
+him through the process, but it was a mess. When I pointed out that running
+"Hello, World!" shouldn't be that difficult, one of the admins privately sent
+me an email telling me that obviously I didn't know how to write code that
+scaled.
+
+We'll skip the resulting discussion,[% Ovid.note("I don't remember it, to be
+honest") %] but this is part of the issue with emerging complexity. When it
+first arrives, we're not sure of the best way to contain it. Microservices, in
+the grand scheme of things, are still relatively new. We're going to find new
+patterns to manage them (a future blog post) and new ways of hiding the
+complexity behind abstractions. The fits with the history of programming.
+Subroutines and pushing their arguments to the stack were a "design pattern"
+until they became first class constructs. Memory management was manual and
+painful until mark and sweep, reference counting, and other imperfect tools
+came along to make it automatic. Rust is now blowing the doors off of them.
+
+Microservices will undergo the same process. Many common patterns will become
+first class constructs (and sadly, language like Erlang and Elixer, which
+natively offer many of the benefits, struggle to gain traction). It will take
+many years, perhaps a generation or more, until we better understand how to
+manage the new complexities.
+
+But are they worth it? Alan Kay states that the internet is the only large
+scale OOP system which matches his expectations. If a server goes down, your
+browser doesn't spontaneously crash; you find another server. Biological
+systems like what Kay had in mind, evolved over billions of years to a
+robustness we can only dream of. But we're getting closer and microservices are
+yet another attempt to get closer to that robustness. You might have a system
+complex enough that it needs this extra robustness.
+
+# Conclusion
+
+All systems become more complex over time. Whether or not the benefits of
+microservices override the drawbacks of their added complexity is not something
+I can answer for you, but I hope this has given you a starting point for
+understanding the trade offs.
+
+I don't think suggesting microservices is a great fit until the company truly
+needs this kind of scalability (and perhaps breaking down of a monolith) and is
+100% committed to it. [The actual development costs aren't the important
+argument](/articles/estimating-development-costs-is-almost-useless.html) here.
+It's the maintenance costs and a clear, goal-driven approach. Of course, if 
+microservices are the course a company decides, they had darned well be able to 
+tell the team what they mean by them. I'll be able to avoid future interview 
+fiascos that way.
+
+[%- END %]
