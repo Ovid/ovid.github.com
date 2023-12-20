@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/microservices-pros-and-cons.html" />
+  
+  <meta property="og:title" content="Microservices Pros and Cons" />
+  <meta property="og:description" content="Advocates and adversaries of microservices pitch their points of view. Let's look at both." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Microservices Pros and Cons</title>
+  <meta name="description" content="Microservices Pros and Cons">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Microservices Pros and Cons</h1>
+        <time>2023-12-20</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="6">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/what-to-know-before-debating-type-systems.html" class="prevPost">&laquo; What to Know Before Debating Type Systems </a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#i-wrecked-the-interview">I Wrecked the Interview</a></li>
+    <li class="indent-1"><a href="#defining-microservices">Defining Microservices</a></li>
+    <li class="indent-1"><a href="#should-you-choose-microservices">Should You Choose Microservices?</a></li>
+    <li class="indent-2"><a href="#benefits-of-microservices">Benefits of Microservices</a></li>
+    <li class="indent-3"><a href="#scalability">Scalability</a></li>
+    <li class="indent-3"><a href="#learning-the-code-base">Learning the Code Base</a></li>
+    <li class="indent-3"><a href="#gradual-migration">Gradual Migration</a></li>
+    <li class="indent-3"><a href="#its-all-data">It’s All Data</a></li>
+    <li class="indent-3"><a href="#asynchronous-code">Asynchronous Code</a></li>
+    <li class="indent-3"><a href="#new-business-products">New Business Products</a></li>
+    <li class="indent-3"><a href="#partial-failures">Partial Failures</a></li>
+    <li class="indent-3"><a href="#the-darkest-secret">The Darkest Secret</a></li>
+    <li class="indent-2"><a href="#drawbacks-of-microservices">Drawbacks of Microservices</a></li>
+    <li class="indent-3"><a href="#infrastructure">Infrastructure</a></li>
+    <li class="indent-3"><a href="#monitoring-and-debugging">Monitoring and Debugging</a></li>
+    <li class="indent-3"><a href="#communication-overhead">Communication Overhead</a></li>
+    <li class="indent-3"><a href="#data-consistency">Data Consistency</a></li>
+    <li class="indent-3"><a href="#other-drawbacks">Other Drawbacks</a></li>
+    <li class="indent-1"><a href="#complexity">Complexity</a></li>
+    <li class="indent-2"><a href="#the-bbc-atlas-project">The BBC “Atlas” Project</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="i-wrecked-the-interview"></a>I Wrecked the Interview</h1>
+
+<p>The interview was going well. Questions were asked and answered and we were all
+smiling. But the interviewers kept talking about their company’s transformation
+into “microservices” but were awfully vague about it. So I asked them how they
+defined microservices.</p>
+
+<p>The interview was no longer going well. The company had issued a directive that
+they were going to break up the monolith into microservices, but no one agreed
+on what microservices were. I got the contract.</p>
+
+<p>This was not the first time this happened to me.</p>
+
+<h1><a name="defining-microservices"></a>Defining Microservices</h1>
+
+<p>Microservices seems to be the “buzzword du jour” (after AI). When I mention
+microservices online, almost invariably I have people chime in that “the
+architecture is too complex,” “it’s just a fad,” “they don’t solve the real
+business problems,” and so on.</p>
+
+<p>Those complaints are often right, but that doesn’t mean microservices
+don’t provide value. But to get to that value, we need a working definition.
+I’ll provide one that is short, sweet, and will be objectionable to
+some. We’ll also skip the differences between microservices and SOA because the
+latter also has plenty of contradictory descriptions, some of whom curiously
+resemble microservices.</p>
+
+<blockquote>
+  <p>A microservice is a small, self-contained process which exposes an API to
+  solve a single business need.</p>
+</blockquote>
+
+<p>OK, not helpful. Too vague. In actual practice, here are a few more things
+to consider.</p>
+
+<p>The processes can be on the same or different servers. The API is often exposed
+via OpenAPI and typically uses REST, EDA (event-driven architectures), or
+WebSockets, depending on the need. GraphQL is also sometimes in the mix.
+Different services are loosely coupled (in theory) and communicate by sending
+data back and forth.  There is no directly shared memory, though state is often
+shared via data stores.</p>
+
+<p>OK, so that’s far too brief and entire books can be written on the topic, but
+this is a blog post. Are they a good idea or not?</p>
+
+<h1><a name="should-you-choose-microservices"></a>Should You Choose Microservices?</h1>
+
+<p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> an online
+machine parts supplier. She’s been brought in because their legacy platform is
+struggling and their SAFe® agile project failed, turning out to be <a href="https://jeffgothelf.com/blog/safe-is-not-agile/" target="_blank">neither be
+safe nor
+agile</a> <span class="fa fa-external-link fa_custom"></span>. Now she
+has people arguing over cloud-first, containerization, and microservices as
+some of the approaches that can save the company. How is she going to decide?</p>
+
+<p>There’s much Abadi can do and one of those things is to isolate the underlying
+problem(s), determine what can be fixed, and how various approaches are going
+to fix them. What are the risks and benefits to the customers, company,
+vendors, and employees? Are the various approaches complementary or not? Can
+they be done in isolation, prioritizing greater benefits first? We’ll just look
+at microservices.</p>
+
+<h2><a name="benefits-of-microservices"></a>Benefits of Microservices</h2>
+
+<p>Advocates of microservices tout their benefits, but often downplay the
+drawbacks. Let’s talk about the benefits first.</p>
+
+<h3><a name="scalability"></a>Scalability</h3>
+
+<p>One of the most cited benefits is scalability. If you’re running a
+monolith and one part of your code is bogging down the system, scaling that
+often means scaling everything, regardless of whether or not it needs it. That
+can quickly get expensive. With microservices, if you find that your reservation
+service is slow, you can often just scale up that service. Move it to a beefier
+server or move its data store to a beefier server. There’s no need to spend the
+money on faster hardware for everything.</p>
+
+<h3><a name="learning-the-code-base"></a>Learning the Code Base</h3>
+
+<p>For one project I was on, with a monolithic code base of tens of millions of
+lines of code, I found that the authentication system we were building was
+sometimes throwing a “method not found” exception. Lots of digging through logs
+and exploring code paths later, I found that, far, far away from my code,
+someone had created a custom “user” object which only provided the two methods
+they needed. It was being passed to my code. I later found tons of user
+objects, lovingly hand-crafted for different parts of the system, all of which
+presented different behaviors and different bugs. It was a mess, but
+given the size of the codebase, there was no reasonable way our team could have
+anticipated this up front. You become more productive by learning the entire
+code base, but that’s not possible.</p>
+
+<p>With microservices, you only need to learn the code for your service, and the
+contracts provided by the services you interact with. All of a sudden, a huge,
+intractable problem becomes manageable.</p>
+
+<h3><a name="gradual-migration"></a>Gradual Migration</h3>
+
+<p>In the year 2000, Joel Spolsky wrote a famous blog post entitled, <a href="https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/" target="_blank">Things You
+Should Never Do, Part
+1</a> <span class="fa fa-external-link fa_custom"></span>.
+Two decades later, we’re waiting for part 2, but part 1 says you should <em>never</em>
+rewrite an existing application. Today we know that’s not true, but only because
+we have new patterns which allow us to do this and a microservice is one of
+those patterns. Yes, you might call it “refactoring”
+instead.</p>
+
+<p>I won’t begrudge the correction, but microservices allow you to tear
+chunks out of your monolith, piece by piece. You can even stop and leave the
+remainder of the monolith in place if your approach is wrong, or if the
+remainder is “good enough.” With this strategy, you always have working code and
+you can take small steps forward. One approach, the unfortunately-named
+<a href="https://www.geeksforgeeks.org/strangler-pattern-in-micro-services-system-design/" target="_blank">strangler
+pattern</a> <span class="fa fa-external-link fa_custom"></span>
+is great when you’re first dipping your toe in the microservice waters.</p>
+
+<h3><a name="its-all-data"></a>It’s All Data</h3>
+
+<p>When Alan Kay talks about OO programming, he thinks we got things wrong about
+objects. For him the key benefits are <a href="/articles/alan-kay-and-oo-programming.html">messaging, isolation, and extreme
+late-binding</a>. While microservices
+can provide all of these benefits, for this point, we’ll talk about messaging.
+You send a message to a service (<code>GET /products/{productId}</code>) and the service
+sends back a message, often in the form of a JSON data structure.
+It might be another service. In a monolith, the analogous code
+might get a reference to data back and if it’s mutable, you can wind up with
+strange action at a distance. Having <a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">mutable data is a constant source of bugs
+in your code</a>.</p>
+
+<p>When you’re sending a stream of data and not using shared memory, whole classes
+of bugs go away. You don’t need to worry as much about mutating an incoming
+data structure because you know the sender won’t be affected. Because we’re
+only sending data back and forth, you can minimize action at a distance.</p>
+
+<h3><a name="asynchronous-code"></a>Asynchronous Code</h3>
+
+<p>In legacy monolith systems, calls to other parts of the code tend to be
+blocking. It’s not always a big deal because with everything running in the
+same process, you can do deep work to resolve performance bottlenecks. However,
+this comes at the cost of making the code more complex.</p>
+
+<p>With microservices, calls are often asynchronous, minimizing blockage. You can
+fire off requests to several services at once, requesting a response or a
+change, and aggregate the results when they complete. Asynchronous requests,
+when possible, can do a fantastic job of taking a load off a server.</p>
+
+<h3><a name="new-business-products"></a>New Business Products</h3>
+
+<p>When you can start isolating different business concerns into microservices,
+those services might become stand-alone products you can expose to customers.
+Some of those customers might be internal.  For one client, I rewrote how they
+generated search results to return a JSON data structure instead of an HTML
+document. Afterwards, one of their mobile developers thanked me. For years they
+provided limited search results because the HTML document was useless to them.
+By being able to request JSON, they said it took them 15 minutes to have a
+brand new, much more useful search engine on mobile. Well-designed services
+give <em>flexibility</em>.</p>
+
+<h3><a name="partial-failures"></a>Partial Failures</h3>
+
+<p>In a monolith, an unexpected exception can often result in the dreaded <code>500 -
+Internal Server Error</code> being sent to a browser. With microservices, you often
+see a degradation in services instead of a complete failure. Maybe your
+recommendation system doesn’t show a list of related products for a while. The
+software itself still runs!</p>
+
+<h3><a name="the-darkest-secret"></a>The Darkest Secret</h3>
+
+<p>It’s one that not everyone is happy with, but sometimes your beloved
+programming language isn’t the best choice for a given task. Maybe you need
+your authentication system to be lightning fast and you can’t risk bugs. When it’s
+safely encapsulated behind an OpenAPI front end, you can consider rewriting the
+implementation in a faster, more secure language. This one shouldn’t be
+controversial, but many developers are proud of the languages they prefer and
+suggesting that it’s not the best tool for the job rankles them, but our job
+isn’t to provide a particular programming language, it’s to provide solutions.
+A solid microservice system with services isolated behind well-defined APIs
+gives us possibilities to transform the system in ways we never
+thought possible. It’s a huge benefit that should not be overlooked.</p>
+
+<h2><a name="drawbacks-of-microservices"></a>Drawbacks of Microservices</h2>
+
+<p>Given the benefits of microservices, you might think it insane to not switch to
+them. But there’s a cost to everything and those costs need to be taken into
+account.</p>
+
+<h3><a name="infrastructure"></a>Infrastructure</h3>
+
+<p>So you’ve decided that the first microservice you want to create is for
+authentication. You’ve already got feature switches in place so your
+<code>authenticate( user, pass )</code> method looks like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-python">def authenticate (self, username, password):
+    if feature_running('auth_service'):
+        # use authentication service
+    else:
+        # use monolithic code
+</code></pre></div>
+
+<p>Now, if something goes wrong, just switch off the feature and fix it.</p>
+
+<p>But how do you get the authentication service running in the first place? How
+do you dispatch to it? How do you deploy it? Using the strangler pattern can
+allow you to take a small, isolated bit of code and transform it into a
+service, but there has to be something for it to run on. So now you’re looking
+at something like <a href="https://www.geeksforgeeks.org/what-is-the-api-gateway-pattern/" target="_blank">the gateway
+pattern</a> <span class="fa fa-external-link fa_custom"></span> to
+dispatch to your new service and you have to deal with the complexity <em>that</em>
+introduces. There are many yaks you’ll need to shave before you can solve this
+problem.</p>
+
+<h3><a name="monitoring-and-debugging"></a>Monitoring and Debugging</h3>
+
+<p>Oops. Something failed. Hard. Everything is humming along nicely, but nobody
+can buy your products. Maybe they get a confirmation of purchase.
+Maybe they’ve been charged for the purchase. But no inventory was deducted or
+scheduled to be sent. So it’s the purchase service, right? Maybe not. Maybe
+there was an unexpected failure in your authz service. Maybe your product
+service went down. Maybe there was something else going on.</p>
+
+<p>Now you realized you needed better monitoring and nobody thought about log
+aggregation. The logs are there, but you can’t connect an individual service’s
+logs to the logs of the services which called it! If your monitoring systems
+weren’t great before, they need to be now, to surface issues quickly. Log
+aggregation is also critical. When you have a failed request, you want to have
+a full log reply of everything for that request show up on a single
+page/console/file/whatever. There are COTS tools to let you do this. You
+want them.</p>
+
+<p>One the upside, one benefit of microservices is that you can deploy your service
+without waiting for the “weekly” release (or whatever the time frame is). As a
+result, when something goes wrong, you can often spot when it went wrong and
+while you might not know what caused it, you can check what was deployed and
+you’ll often see a much smaller set of code deployed, making many bugs easier to
+track down.</p>
+
+<h3><a name="communication-overhead"></a>Communication Overhead</h3>
+
+<p>This one’s a huge issue. Now, instead of me passing a user object and a
+purchase request into a method, I have to send a message with the relevant
+data to a service. A service, which in turn, is probably sending messages to
+other services, which might be sending messages to other services, and so on.
+You might worry about cycles in the data calls, but in reality, they’re no
+worse than this possibility in a monolithic code base. No, the problem is that
+you’re now generating much more internal network traffic than you did
+previously. This is a trade-off that is often acceptable, but it needs to be
+known up front and dealt with. You might need to buy new hardware to deal with
+this.</p>
+
+<h3><a name="data-consistency"></a>Data Consistency</h3>
+
+<p>Many developers might be nodding along at many of these points, until they come
+to the hill they’re willing to die on. The following has been my hill and it’s
+probably the most challenging aspect of microservices (for me).</p>
+
+<p>I teach developers how to design databases.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/y1tcbhWLiUM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>It’s a thankless task because developers get this wrong so often and I’ve
+noticed an interesting pattern. When I go into clients using PostgreSQL, their
+database is usually in decent shape. That’s because developers who choose
+PostgreSQL often understand and even obsess over data quality. MySQL fans,
+however, often obsess about ease of use. When I go into a client who uses
+MySQL, I often find it doesn’t use strict mode, or if it does, they’re often
+sloppy about <code>NULL</code> values or foreign key (FK) constraints. When I find a
+database not using FK constraints, I look for dangling records and I have
+<em>never</em> found a large database skipping FK constraints which doesn’t have
+dangling data, unconnected to anything else, or ids pointing to records which
+no longer exist.</p>
+
+<p>I have to admit that this is helpful for me. It means I sometimes get paid more
+to fix these bugs, until the client points out that yeah, it’s a problem, but
+not a serious one. Despite data integrity issues, in many cases, clients
+consider ease of use to be a fair trade off. I’ll go cry into my beer, but I
+need to rethink my absolutist position about data integrity. Maybe
+I’ll eventually come around to eventual consistency.</p>
+
+<p>If you’re breaking up a monolithic codebase, but you decide to stick with a
+monolithic database, you have a potential bottleneck. The code will be easier to
+maintain, but the scaling promises aren’t kept. Large databases can be
+<em>hard</em> to scale. Large transactions can guarantee ACID compliance at the cost of
+potentially blocking, something you’re trying to avoid with microservices.</p>
+
+<p>So many microservice strategies involve creating micro data services, each with
+their tiny, backend data store. That’s a problem if you’re buying licences for
+proprietary systems such as Oracle. It’s also a problem when people object to
+eventual consistency, even though they don’t need perfectly up-to-date
+information, such as for a product search.</p>
+
+<p>However, if you’re doing financial transactions, there are plenty of places
+where eventual consistency is not acceptable, so you’ll have to feel your own
+way here.</p>
+
+<h3><a name="other-drawbacks"></a>Other Drawbacks</h3>
+
+<p>Microservices create issues with testing complexity, deployments, dependency
+management, security management, permanent operational overheard, and the
+initial development effort. They’re not a step to take lightly, though if my
+past experience is anything to go on, many companies look at the benefits,
+ignore the costs, and don’t have a clear plan of attack.</p>
+
+<h1><a name="complexity"></a>Complexity</h1>
+
+<p>For the drawbacks of microservices, once you read through them, many of them go
+away or are diminished after the first microservices are successfully launched.
+Unfortunately, the added complexity of the system will always be there and this
+is where the critical argument lies.</p>
+
+<p>When I first learned to program, back in the 80s, I wrote something like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>10 PRINT &quot;HELLO, WORLD!&quot;
+20 GOTO 10
+</code></pre></div>
+
+<p>Needless to say, as our business demands grow, the complexity of our software
+grows, too. CGI, which would have been unthinkably complex to me in the 80s, is
+unthinkably simplistic in dealing with modern requirements. We have greater
+needs and with that comes greater complexity. So let’s take a diversion.</p>
+
+<h2><a name="the-bbc-atlas-project"></a>The BBC “Atlas” Project</h2>
+
+<p>I worked for the BBC for several years. Were it not for the fact that my wife
+and I had decided we didn’t want to raise our child in London, I might still be
+there. I <em>loved</em> working for the BBC.</p>
+
+<p>One day they announced the Atlas project. As a rule of thumb, when a company
+announces a grand project named “Atlas,” “Leviathon,” “V2,” and so on, looking
+for a new job becomes a serious option. Atlas was no different (today, I don’t
+know, but then, it was a mess).</p>
+
+<p>The Atlas project stemmed out of a simple problem: the BBC used tons of
+different programming languages and it was getting harder to find developers
+for them, or to train developers for those systems. So the BBC decreed that all
+backend development would be in Java and all front-end development would be in
+PHP.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>On the Atlas internal mailing list, an experienced PHP developer
+complained that he couldn’t figure out how to run “Hello, World!” on the new
+framework that had been built. No matter how many times he read the
+instructions, he couldn’t get it working. The admins held his hand and walked
+him through the process, but it was a mess. When I pointed out that running
+“Hello, World!” shouldn’t be so difficult that a senior developer can’t figure
+it out, one of the admins privately sent me an email telling me that obviously I
+didn’t know how to write code that scaled.</p>
+
+<p>This is part of the issue with emerging complexity. When it
+first arrives, we’re not sure of the best way to manage it. Microservices, in
+the grand scheme of things, are still relatively new. We’re going to find new
+patterns to manage them (a future blog post) and new ways of hiding the
+complexity behind abstractions. The fits with the history of programming.
+Subroutines and pushing their arguments to the stack were a “design pattern”
+until they became first class constructs. Memory management was manual and
+painful until mark and sweep, reference counting, and other imperfect tools
+came along to make it automatic. Rust is now blowing the doors off of them.</p>
+
+<p>Microservices will undergo the same process. Many common patterns will become
+first class constructs.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> It
+will take many years, perhaps a generation or more, until we better understand
+how to manage the new complexities.</p>
+
+<p>But are they worth it? Alan Kay states that the internet is the only large scale
+OOP system which matches his expectations. If a server goes down, your browser
+doesn’t spontaneously crash; you find another server. Kay was thinking about the
+robustness of biological systems. You have <em>billions</em> of cells in your body die
+every day, but you don’t. We evolved over billions of years to a robustness we
+can only dream of for software. Microservices are yet another attempt to get
+closer to that robustness.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>All systems become more complex over time. Whether or not the benefits of
+microservices override the drawbacks of their added complexity is not something
+I can answer for you, but I hope this has given you a starting point for
+understanding the trade offs.</p>
+
+<p>I don’t think suggesting microservices is a great fit until the company truly
+needs this kind of scalability (and perhaps breaking down of a monolith) and is
+100% committed to it. <a href="/articles/estimating-development-costs-is-almost-useless.html">The actual development costs aren’t the important
+argument</a> here.
+Of course, if
+microservices are the course a company decides, they had damned well be able to
+tell the team what they mean by them. I’ll be able to avoid future interview
+fiascos that way.</p>
+
+<p>If you’d like to see a deeper dive into handling microservices at scale, here’s
+a great video about how Netflix handles them.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/CZ3wIuvmHeM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/what-to-know-before-debating-type-systems.html" class="prevPost">&laquo; What to Know Before Debating Type Systems </a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2023 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/microservices-pros-and-cons.html";
+            this.page.identifier = "articles/microservices-pros-and-cons";
+            this.page.title      = "Microservices Pros and Cons";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Not the musical group. It's the name of a company I tried to
+start years ago in the US.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Actually, the BBC messsed up. The backend devs were
+required to provide JAR files for deployment. Several teams realized you don't
+need Java to create JAR files, so they skipped the hated Java mandate.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>Sadly, language like Erlang and Elixer,
+which natively offer many of the benefits, struggle to gain traction.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
+</body>
+</html>
+
+
