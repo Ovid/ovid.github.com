@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,15 +17,17 @@
 
   <meta property="fb:app_id" content="329861788447703" />
   
-  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
-  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
   
   <meta property="og:type" content="article" />
   
-  <meta property="og:url" content="https://ovid.github.io/articles/estimating-development-costs-is-almost-useless.html" />
+  <meta property="og:url" content="https://ovid.github.io/articles/dont-start-with-microservices.html" />
   
-  <meta property="og:title" content="Estimating Development Costs is Almost Useless" />
-  <meta property="og:description" content="Every manager wants an estimate of the cost of developing a new software project. That estimate is almost worthless. Here's what you should really be measuring." />
+  <meta property="og:title" content="Don't Start with Microservices" />
+  <meta property="og:description" content="There are many mistakes people make with microservices. Starting with them is a big one." />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -34,8 +37,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Estimating Development Costs is Almost Useless</title>
-  <meta name="description" content="Estimating Development Costs is Almost Useless">
+  <title>Don't Start with Microservices</title>
+  <meta name="description" content="Don't Start with Microservices">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
@@ -52,6 +55,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -77,8 +81,8 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Estimating Development Costs is Almost Useless</h1>
-        <time>2019-02-01</time>
+        <h1><a name="-title-no-title-found-"></a>Don't Start with Microservices</h1>
+        <time>2023-12-27</time>
         
         <p><span id="time"></span> minute read</p>
         
@@ -224,9 +228,9 @@
 
         <div class="prevNext">
         
-        <a href="/articles/the-surprises-of-ab-testing.html" class="prevPost">&laquo; The Surprises of A/B Testing</a>
+        <a href="/articles/microservices-pros-and-cons.html" class="prevPost">&laquo; Microservices Pros and Cons</a>
         
-        <a href="/articles/avoid-common-software-project-mistakes.html" class="nextPost">Avoid Common Software Project Mistakes &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
     
@@ -235,6 +239,8 @@
     <li>Tags:</li>
 
     <li><a href="/tags/business.html">Business</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
 
 </ul>
 
@@ -246,157 +252,114 @@
 
 <article>
 
+<article id="article">
+<h1><a name="the-epiphany"></a>The Epiphany</h1>
 
+<p>Years ago on the <a href="https://blogs.perl.org/" target="_blank">blogs.perl.org</a> <span class="fa fa-external-link fa_custom"></span> site, I wrote about 
+<a href="https://blogs.perl.org/users/ovid/2010/05/sharding-your-database.html" target="_blank">problems with sharding your 
+database</a> <span class="fa fa-external-link fa_custom"></span> 
+and JT Smith, the founder of <a href="https://help.thegamecrafter.com/article/148-about-us" target="_blank">The Game 
+Crafter</a> <span class="fa fa-external-link fa_custom"></span> wrote:</p>
 
-<p>I may not win many friends by commenting on the emperor's nudity, but let's
-charge ahead anyway. I am not a clever man.</p>
+<blockquote>
+  <p>I’m developing a fairly massive system, and designed it to be sharded from the get go, but that started creating all sorts of development problems, and ultimately performance problems. That’s right, because of the way the data is accessed in the database, sharding actually slowed down the system rather than speeding it up.</p>
+</blockquote>
 
-<p>Possibly you've not heard of <a
-href="https://en.wikipedia.org/wiki/Douglas_W._Hubbard"
-target="_blank">Douglas Hubbard</a>. If you're interested at all in estimating
-the value of IT projects, his works should be required reading. In fact, <a
-href="https://www.soa.org/Education/Exam-Req/Syllabus-Study-Materials/exam-book-list.aspx"
-target="_blank">his books are required reading for the Society of
-Actuaries</a> if you want to pass their exams and become an actuary. Douglas
-Hubbard is a clever man.</p>
+<p>Years later, <a href="/articles/microservices-pros-and-cons.html">I’m writing about
+microservices</a> when the epiphany
+struck me: they share a similar problem with sharding. Choosing this approach
+when you’re unsure about your overall architecture is not a good idea.</p>
 
-<p>But we'll come back to him in a moment.</p>
+<h1><a name="what-agile-means"></a>What Agile Means</h1>
 
-<p>If there's one key thing I've learned in consulting, it's that potential
-clients who start discussions by talking about building value for their
-customers have usually been better clients than those who start conversations
-with "what's your rate?" Why? Because the "what's your rate" clients are
-focused on controlling costs, not building value. I've found that their
-approach problems is different and those who are paying more attention to
-minimizing risk than maximizing value simply have different ideas about how to
-approach a project.</p>
+<p><a href="/articles/when-to-choose-agile.html">Choosing to go agile</a> requires that you
+understand the maturity of your product and its market. Mature projects need
+lean or structured project management. Projects with lots of change and
+uncertainty should probably use agile. This is because agile’s strength is
+controlling the cost of change and uncertainty. That poses a problem for
+microservices.</p>
 
-<p>And you know what? I get it. If you want to go out to dinner and you only
-have £15 in your pocket, you're probably not going to a fancy restaurant. You
-just might grab a pint at a pub and hit a kebab shop after. Budget constraints
-are real.</p>
+<p>In microservices, you simplify code maintenance tremendously by tremendously
+reducing the scope of code in each service. The trade-off is that you’ve
+<em>increased</em> the architecture complexity. Your code is much easier to develop,
+maintain, and scale, but you pay for that with architecture overhead. For
+larger, well-established code bases, this is a good trade-off. But what if it’s
+a new codebase?</p>
 
-<p>But curiously, while development costs on a project are one of the first
-things we look at, they're also one of the worst metrics you can use to judge
-the value of a project. It's part of a problem that Hubbard refers to as the
-<a
-href="https://www.cio.com/article/2438748/it-organization/the-it-measurement-inversion.html"
-target="_blank">IT Measurement Inversion</a>. Specifically:</p>
+<p><a href="https://martinfowler.com/bliki/MonolithFirst.html" target="_blank">Martin Fowler has written “Monolith
+First”</a> <span class="fa fa-external-link fa_custom"></span> in response to his
+discovery that:</p>
 
-<blockquote>The variables having the greatest impact on project success
-are the variables we measure the least.</blockquote>
+<ol>
+<li>Almost all the successful microservice stories have started with a monolith
+that got too big and was broken up</li>
+<li>Almost all the cases where I’ve heard of a system that was built as a
+microservice system from scratch, it has ended up in serious trouble.</li>
+</ol>
 
-<p>So what sort of variables are there? There are the ongoing development and
-maintenance costs when the project is delivered. There are marketing costs.
-There are costs to have your people learn the new system. And so on.  The
-costs are myriad and complex, but if we're going to judge the <em>value</em>
-of a new system, which variables matter the most?  Those are the ones we
-should be focusing on.</p>
+<p>There’s an obvious reason for this. First, I’ll be blunt: software engineering
+isn’t engineering. Engineers use lots of math and established science to design,
+build, and test solutions to problems. Software “engineers” rarely apply such
+standards of care. Our problems are too complex and ephemeral to have clear
+guidance in the face of rapidly evolving technology. Today’s perfect solution
+may turn out to be our Achille’s Heel when the market shifts.</p>
 
-<div class="video-responsive">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/w4fHGTsZZD8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+<p>Even if clear guidance on best practices existed, we often don’t follow it.
+Worse, sometimes we can’t follow it.  When business and technical needs clash,
+the technical side often suffers because we need to deliver <em>now</em>.</p>
 
+<p>Even if we follow “best practices,” we might find that “best” has changed.
+Again. Or we might find that the business needs to pivot in a different
+direction and the well-planned architecture needs to be replanned.</p>
 
-<p>Hubbard's work will guide you here. In particular, you might want to
-consider his book <a
-href="https://www.amazon.com/How-Measure-Anything-Intangibles-Business/dp/1118539273"
-target="_blank">How to Measure Anything</a> (that's not an affiliate link, by
-the way), where he teaches you how to break problems down to <em>things that
-can be measured</em> and <em>how to measure them</em>. You'll learn quite a
-bit about statistical analysis and running <a
-href="https://en.wikipedia.org/wiki/Monte_Carlo_method" target="_blank">Monte
-Carlo simulations</a>. In fact, one of the things you'll learn is that of the
-various techniques which have been developed to estimate project success,
-Monte Carlo simulations win hands down.</p>
+<p>For microservices, much of our current best practices revolve around
+domain-driven design, clear bounded contexts. The latter can be hard to achieve
+when you’re rapidly pushing for your initial releases. You’ve conflated your
+business and data models.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Your perfectly normalized database
+needs to be renormalized in the face of new business constraints. New legal
+requirements require you to implement a new accounting system. I’ve hit all of
+these and more on projects and they often require extensive rewrites. When a
+project is new and built into a monolith, it’s often easier to deal with these.
+When it’s split up into microservices, having to coordinate a major rewrite and
+redesign of service contracts is a nightmare.</p>
 
-<p>In fact, Monte Carlo simulations are so powerful that Hubbard talks about
-research at NASA showing that, for over 100 projects, the accountants
-outperformed the subject matter experts (scientists and engineers) on project
-estimates because the accountants used Monte Carlo simulations rather than
-other methodologies.</p>
+<h1><a name="when-to-switch-to-microservices"></a>When to Switch to Microservices</h1>
 
-<p>But for the purposes of our article, the key takeaway is that Hubbard has
-done a lot of this work for you and has nailed down what your real risks are.
-And it's almost intuitive once you think of it. Let's start with the most
-important.</p>
+<p>The answer is simple, but deciding when to apply it is not:</p>
 
-<blockquote>The greatest risk to project success is whether or not it will
-be canceled.</blockquote>
+<blockquote>
+  <p>Don’t switch to microservices until the monolith both stabilizes and starts to
+  become too costly to maintain.</p>
+</blockquote>
 
-<p>That seems so brain-dead obvious that it's almost insulting to say, but
-when was the last time you quantified that risk? When was the last time you
-looked at the potential value of a large project and said "there's a 25% that
-this project will be canceled" and then factored that into your risk
-estimates? It's the single most important variable, but most people ignore it!
-Can you imagine running a company and discovering your managers are repeatedly
-ignoring the most valuable information at their disposal?</p>
+<p>There’s also another caveat, one that isn’t mentioned as often as it should be.
+Even if you switch to a microservice architecture, it can be just fine to leave
+much of your application in the monolith. Microservices don’t need to be an
+all-or-nothing approach.</p>
 
-<p>The next most important variable is system utilization. This is actually
-complex and includes how fast your product will roll out, whether people will
-use it, their rate of adoption, and so on. Again, this seems so obvious given
-20/20 hindsight. Sure, your project took six months to develop instead of
-three, but customers will be using it for many years. When it's put that way,
-it's obvious that estimating system utilization is more valuable than
-estimating development costs. But people still ignore it.</p>
+<p>Microservices have been around for about two decades (maybe four if you count
+the origin of Erlang), but we still haven’t nailed them down. I’ve written about
+<a href="/articles/microservices-pros-and-cons.html">microservice pros and cons</a> and
+that can give you some guidance on whether or not it’s the direction you want to
+go, but you probably don’t want to go there if you don’t have a product yet: you
+won’t know how to divide up your microservices or what parts are safe to
+leave in a monolith.</p>
 
-<p>So let's look at development costs.</p>
+<h1><a name="making-the-switch"></a>Making the Switch</h1>
 
-<p>Of <em>course</em> you have to factor in development costs; I'd be insane
-to suggest otherwise. You have a budget and when you're looking at backing
-your project with Oracle or PostgreSQL, most of the time you find that Oracle
-isn't a terribly cost-effective solution. So yes, costs are important, but
-consider this: if the first version of Amazon's code cost twice as much to
-develop, Jeff Bezos would probably still be insanely rich. Uber would still be
-dominating their space. Facebook would still be selling your pesonal data to
-dodgy companies. I can confidently say that because these companies are
-providing real <em>value</em> to people (you might disagree about Facebook,
-but <a
-href="https://www.statista.com/statistics/264810/number-of-monthly-active-facebook-users-worldwide/"
-target="_blank">I can offer you 2.32 billion rebuttals</a>). The fact that
-these projects weren't canceled and are being used far, far outweighs the
-initial project costs. Or to restate all of this:</p>
+<p>When you’re ready to make the switch to microservices, you’ll likely need to
+create a gateway and apply the strangler pattern to identify “safe” first
+targets. You’ll also want features switches to transparently switch between
+monolith code and the new service, disabling the change if it’s broken. Are you
+ready to do that? Do you know what the gateway and strangler patterns are? Do
+you have feature switches implemented? Not one of those is particularly hard,
+but implementing all of them at the same time is probably not a great idea.</p>
 
-<blockquote>Initial development costs are incurred once. Your revenue
-stream is continuous. That's why development costs are less
-important.</blockquote>
+<p>I’ll write up more about microservice patterns in a future article, but for now,
+don’t worry about making the switch until the monolith pain is forcing it. You
+can thank me later.</p>
 
-<p>"But Curtis, I don't know how to do Monte Carlo simulations or estimate
-projected system utilization!"</p>
-
-<p>Well ... that's actually a fair point. These articles are intended, if
-nothing else, to be practical.</p>
-
-<p>Since the two most importance variables in project success are the odds of
-it being canceled and system utilization, we need to reduce the risk of each
-of those. How do we do that?</p>
-
-<p>Simply put, you go lean/agile. Figure out the smallest possible work you
-can do which would add value and build that. Instead of a year-long project,
-you have a crazy one month race to get a simple prototype in front of your
-customers. If it turns out your customers have zero interest in your "Recycled
-Food" project, it's better to find out after a month instead of a year.</p>
-
-<p>But let's say there's some interest. What now? Well, you've greatly reduced
-the chance of project cancelation because it looks viable, so you need to
-focus on system utilization. Amongst the key factors, getting customers to
-actually use the damned thing is incredibly important.  You will be amazed at
-the ideas they come up with and the feedback they give you. As you push
-forward, you address customer concerns and have a lower risk of building
-features on top of things they say aren't working. You're constantly pushing
-new versions of the product in front of your customers and iterating based on
-their feedback. Every step of the way, you're improving your project based on
-customer behavior, not your hunches or market research.</p>
-
-<p>This, incidentally, is why <a href="http://theleanstartup.com/">Lean
-Startups</a> are such a powerful movement in business today. They assume
-they're not canceling their entire business, so they need to maximize system
-utilization. That means rolling the product out quickly and immediately
-responding to customer feedback. By doing this, assuming your product isn't
-canceled, you've now reduced the single greatest risk your project faces.</p>
-
-<p>If you have any thoughts about this, please leave a comment below.</p>
-
+</article>
 
 </article>
 
@@ -428,9 +391,9 @@ canceled, you've now reduced the single greatest risk your project faces.</p>
 <hr>
     <div class="prevNext">
         
-        <a href="/articles/the-surprises-of-ab-testing.html" class="prevPost">&laquo; The Surprises of A/B Testing</a>
+        <a href="/articles/microservices-pros-and-cons.html" class="prevPost">&laquo; Microservices Pros and Cons</a>
         
-        <a href="/articles/avoid-common-software-project-mistakes.html" class="nextPost">Avoid Common Software Project Mistakes &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
 <hr>
@@ -458,9 +421,9 @@ canceled, you've now reduced the single greatest risk your project faces.</p>
       
         <script>
         var disqus_config = function () {
-            this.page.url        = "https://ovid.github.io/articles/estimating-development-costs-is-almost-useless.html";
-            this.page.identifier = "articles/estimating-development-costs-is-almost-useless";
-            this.page.title      = "Estimating Development Costs is Almost Useless";
+            this.page.url        = "https://ovid.github.io/articles/dont-start-with-microservices.html";
+            this.page.identifier = "articles/dont-start-with-microservices";
+            this.page.title      = "Don't Start with Microservices";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -475,7 +438,30 @@ canceled, you've now reduced the single greatest risk your project faces.</p>
     </div>
     </div>
     
+    <script src="/static/js/prism.js"></script>
+    
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>I've see this on almost every project
+and it's a millstone around your neck.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
+
 
