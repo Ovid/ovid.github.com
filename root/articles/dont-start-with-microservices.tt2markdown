@@ -1,0 +1,118 @@
+[%
+    title            = "Don't Start with Microservices";
+    type             = 'articles';
+    slug             = 'dont-start-with-microservices';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2023-12-27';
+    mathjax          = 0;
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS business programming}}
+
+# The Epiphany
+
+Years ago on the [blogs.perl.org](https://blogs.perl.org/) site, I wrote about 
+[problems with sharding your 
+database](https://blogs.perl.org/users/ovid/2010/05/sharding-your-database.html) 
+and JT Smith, the founder of [The Game 
+Crafter](https://help.thegamecrafter.com/article/148-about-us) wrote:
+
+> I'm developing a fairly massive system, and designed it to be sharded from the get go, but that started creating all sorts of development problems, and ultimately performance problems. That's right, because of the way the data is accessed in the database, sharding actually slowed down the system rather than speeding it up.
+
+Years later, [I'm writing about
+microservices](/articles/microservices-pros-and-cons.html) when the epiphany
+struck me: they share a similar problem with sharding. Choosing this approach
+when you're unsure about your overall architecture is not a good idea.
+
+# What Agile Means
+
+[Choosing to go agile](/articles/when-to-choose-agile.html) requires that you
+understand the maturity of your product and its market. Mature projects need
+lean or structured project management. Projects with lots of change and
+uncertainty should probably use agile. This is because agile's strength is
+controlling the cost of change and uncertainty. That poses a problem for
+microservices.
+
+In microservices, you simplify code maintenance tremendously by tremendously
+reducing the scope of code in each service. The trade-off is that you've
+_increased_ the architecture complexity. Your code is much easier to develop,
+maintain, and scale, but you pay for that with architecture overhead. For
+larger, well-established code bases, this is a good trade-off. But what if it's
+a new codebase?
+
+[Martin Fowler has written "Monolith
+First"](https://martinfowler.com/bliki/MonolithFirst.html) in response to his
+discovery that:
+
+1. Almost all the successful microservice stories have started with a monolith
+that got too big and was broken up
+2. Almost all the cases where I've heard of a system that was built as a
+microservice system from scratch, it has ended up in serious trouble.
+
+There's an obvious reason for this. First, I'll be blunt: software engineering
+isn't engineering. Engineers use lots of math and established science to design,
+build, and test solutions to problems. Software "engineers" rarely apply such
+standards of care. Our problems are too complex and ephemeral to have clear
+guidance in the face of rapidly evolving technology. Today's perfect solution
+may turn out to be our Achille's Heel when the market shifts.
+
+Even if clear guidance on best practices existed, we often don't follow it.
+Worse, sometimes we can't follow it.  When business and technical needs clash,
+the technical side often suffers because we need to deliver _now_.
+
+Even if we follow "best practices," we might find that "best" has changed.
+Again. Or we might find that the business needs to pivot in a different
+direction and the well-planned architecture needs to be replanned.
+
+For microservices, much of our current best practices revolve around
+domain-driven design, clear bounded contexts. The latter can be hard to achieve
+when you're rapidly pushing for your initial releases. You've conflated your
+business and data models.[% Ovid.add_note("I've see this on almost every project
+and it's a millstone around your neck.") %] Your perfectly normalized database
+needs to be renormalized in the face of new business constraints. New legal
+requirements require you to implement a new accounting system. I've hit all of
+these and more on projects and they often require extensive rewrites. When a
+project is new and built into a monolith, it's often easier to deal with these.
+When it's split up into microservices, having to coordinate a major rewrite and
+redesign of service contracts is a nightmare.
+
+# When to Switch to Microservices
+
+The answer is simple, but deciding when to apply it is not:
+
+> Don't switch to microservices until the monolith both stabilizes and starts to
+> become too costly to maintain.
+
+There's also another caveat, one that isn't mentioned as often as it should be.
+Even if you switch to a microservice architecture, it can be just fine to leave
+much of your application in the monolith. Microservices don't need to be an
+all-or-nothing approach.
+
+Microservices have been around for about two decades (maybe four if you count
+the origin of Erlang), but we still haven't nailed them down. I've written about
+[microservice pros and cons](/articles/microservices-pros-and-cons.html) and
+that can give you some guidance on whether or not it's the direction you want to
+go, but you probably don't want to go there if you don't have a product yet: you
+won't know how to divide up your microservices or what parts are safe to
+leave in a monolith.
+
+# Making the Switch
+
+When you're ready to make the switch to microservices, you'll likely need to
+create a gateway and apply the strangler pattern to identify "safe" first
+targets. You'll also want features switches to transparently switch between
+monolith code and the new service, disabling the change if it's broken. Are you
+ready to do that? Do you know what the gateway and strangler patterns are? Do
+you have feature switches implemented? Not one of those is particularly hard,
+but implementing all of them at the same time is probably not a great idea.
+
+I'll write up more about microservice patterns in a future article, but for now,
+don't worry about making the switch until the monolith pain is forcing it. You
+can thank me later.
+
+[%- END %]
