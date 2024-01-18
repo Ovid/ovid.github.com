@@ -331,7 +331,7 @@ maybe you need to verify your verifications. Just because Wikipedia says it's so
 doesn't make it so.
 
 The easy hallucination is when you can easily verify it. For code, you run the
-code. Does it do what you want? Most errors are very easy to spot.
+code. Does it work? Most errors are very easy to spot.
 
 One error that wasn't easy to spot was that the frequency calculations were off.
 I had suspected that early on, but since I don't know Swift, I thought maybe
@@ -379,8 +379,9 @@ HStack {
 }
 ```
 
-Many newer developers might not seen an issue, but you probably do: there's a
-lot of duplicated code. Instead, you probably want that to look similar to this:
+Did you see the problem? It's not a bug. Many newer developers might not see an
+issue, but you probably do: there's a lot of duplicated code. Instead, you
+want that to look similar to this:
 
 ```
 HStack {
@@ -391,29 +392,30 @@ HStack {
 
 With the above, you can adjust the `SortButton` struct and have the behavior
 apply to both of your sort buttons. Otherwise, you'll have to manually keep
-those two buttons in synch.
+those two buttons in sync.
 
-Also, I had a few imports in the code which I didn't need and a couple of unused
+I also had imports in the code which I didn't need and a couple of unused
 methods generated, but how is a junior developer going to know that? From a
 programmer's standpoint, this is bad. From a business standpoint?  So what? "It
-works; ship it," will be the refrain. I suspect bad code confuses humans more
+works; ship it," will be the refrain. Bad code confuses humans more
 than language models.
 
 # The Near Future
 
-Programmers will still be keeping their jobs, but Copilot and ChatGPT allow us
-to write code faster. When working on a monolithic application, language models
-will work, but will be less useful because the massive size means they won't be
-able to have enough context.
+Programmers will be keep their jobs for the time being (unless you work at
+StackOverflow), but Copilot and ChatGPT allow us to write code faster. When
+working on a monolithic application, language models will help, but the massive
+size means they won't be able to have enough context, reducing their
+effectiveness.
 
 One clear use case for these tools is microservices. These are much smaller,
-self-contained programs and language models, even with a limited context, will
+self-contained programs. Language models, even with a limited context, will
 find them more tractable. With well-defined OpenAPI documents, microservices
 will be quick and easy to develop. [I've written about microservices
 before](/articles/microservices-pros-and-cons.html) and [they do have their
 challenges](/articles/dont-start-with-microservices.html), but combined with
 language models, I can see development teams reaching heretofore unknown levels
-of productivity. The language models aren't quite there yet, but they're close.
+of productivity.
 
 # The Far Future
 
@@ -426,9 +428,9 @@ for itself and trying to automatically fix them. Because it will have full
 access to the code, it can "look" for where the errors are coming from and
 figure out for itself how to fix them, without you needing to remind it.
 
-I expect it will be a couple of years before this is "production ready," but
-with this, the programmer's ivory tower will finish its collapse.[% Ovid.note("I
-say 'finish' because the collapse is starting now.") %]. Our jobs will be going
+I expect it will be a few years before this is "production ready," but with
+this, the programmer's ivory tower will finish its collapse.[% Ovid.note("I say
+'finish' because the collapse is starting now.") %]. Our jobs will be going
 away. The open question is whether we, like the Luddites, will find ourselves
 without work and losing our homes,[% Ovid.note("The Luddite rebellion ended in
 1816, in part because “frame-breaking” (destroying the machines) was made a
@@ -474,13 +476,14 @@ room-sized beast.
 Language models don't need something that humans can read. They'll be able to
 write machine code directly. They might still use an intermediate representation
 that can be easily translated to the machine code for a particular
-architecture—presumably using a translator they've written.
+architecture—presumably using a translator they've written. Or not. It's hard to
+predict the future.
 
-Programs could potentially run faster and more reliably, but many are not going
-to feel comfortable with code they can't verify, but this is where I think we're
+Programs could potentially run faster and more reliably, but many people are not
+going to feel comfortable with code they can't verify, but this is where we're
 heading.
 
-I also expect that many applications will simply go away, being replaced by a
+I also expect many applications will simply go away, being replaced by a
 single language model which can handle this for us. "Hey, ChatGPT! Send an email
 to mom, wishing her a happy birthday." And ChatGPT will do that, probably
 matching your conversational style.
@@ -492,15 +495,16 @@ yet, but it is. And for all the cries of "programming language X is dying," the
 truth is that _all_ programming languages are dying. We face an existential
 threat, but I see many programmers denying this, insisting that they're still
 better than the language models. It's true, they often are, but they're slower
-than the models and the models are getting better.
+than the models and the models are getting better. More to the point, they're
+getting better faster than we are.
 
-It's possible there will still be a role for programmers, though. In the 80s, I
-was tutoring college students in the C programming language. I met many
-brilliant people who simply couldn't _think_ about programming the way
-programmers do. Despite their intelligence, they just couldn't understand how to
-structure programs, but lacking this skill, they had others that programmers
-often don't.[% Ovid.note("I was tempted to finish that with, 'such as social
-skills,' but I didn't. See what a nice guy I am?") %]
+It's possible there will still be a role for programmers, though. In the 80s, I 
+was tutoring college students in the C programming language. I met many 
+brilliant people who simply couldn't _think_ about programming the way 
+programmers do. Despite their intelligence, they couldn't understand how to 
+structure programs, but lacking this skill, they had other skills that 
+programmers often don't.[% Ovid.note("I was tempted to finish that with, 'such 
+as social skills,' but I didn't. See what a nice guy I am?") %]
 
 This might spill over to prompt engineering. Note how detailed my original
 prompt was.  If you go back to that prompt, note the last item on the list about

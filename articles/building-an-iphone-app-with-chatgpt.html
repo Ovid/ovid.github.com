@@ -590,7 +590,7 @@ maybe you need to verify your verifications. Just because Wikipedia says it’s 
 doesn’t make it so.</p>
 
 <p>The easy hallucination is when you can easily verify it. For code, you run the
-code. Does it do what you want? Most errors are very easy to spot.</p>
+code. Does it work? Most errors are very easy to spot.</p>
 
 <p>One error that wasn’t easy to spot was that the frequency calculations were off.
 I had suspected that early on, but since I don’t know Swift, I thought maybe
@@ -637,8 +637,9 @@ buttons, side-by-side in a horizontal stack.</p>
 }
 </code></pre></div>
 
-<p>Many newer developers might not seen an issue, but you probably do: there’s a
-lot of duplicated code. Instead, you probably want that to look similar to this:</p>
+<p>Did you see the problem? It’s not a bug. Many newer developers might not see an
+issue, but you probably do: there’s a lot of duplicated code. Instead, you
+want that to look similar to this:</p>
 
 <div class="shadow"><pre class="scrolled"><code>HStack {
     SortButton(title: &quot;A to Z&quot;, action: viewModel.sortAlpha, selectedSort: $selectedSort)
@@ -648,29 +649,30 @@ lot of duplicated code. Instead, you probably want that to look similar to this:
 
 <p>With the above, you can adjust the <code>SortButton</code> struct and have the behavior
 apply to both of your sort buttons. Otherwise, you’ll have to manually keep
-those two buttons in synch.</p>
+those two buttons in sync.</p>
 
-<p>Also, I had a few imports in the code which I didn’t need and a couple of unused
+<p>I also had imports in the code which I didn’t need and a couple of unused
 methods generated, but how is a junior developer going to know that? From a
 programmer’s standpoint, this is bad. From a business standpoint?  So what? “It
-works; ship it,” will be the refrain. I suspect bad code confuses humans more
+works; ship it,” will be the refrain. Bad code confuses humans more
 than language models.</p>
 
 <h1><a name="the-near-future"></a>The Near Future</h1>
 
-<p>Programmers will still be keeping their jobs, but Copilot and ChatGPT allow us
-to write code faster. When working on a monolithic application, language models
-will work, but will be less useful because the massive size means they won’t be
-able to have enough context.</p>
+<p>Programmers will be keep their jobs for the time being (unless you work at
+StackOverflow), but Copilot and ChatGPT allow us to write code faster. When
+working on a monolithic application, language models will help, but the massive
+size means they won’t be able to have enough context, reducing their
+effectiveness.</p>
 
 <p>One clear use case for these tools is microservices. These are much smaller,
-self-contained programs and language models, even with a limited context, will
+self-contained programs. Language models, even with a limited context, will
 find them more tractable. With well-defined OpenAPI documents, microservices
 will be quick and easy to develop. <a href="/articles/microservices-pros-and-cons.html">I’ve written about microservices
 before</a> and <a href="/articles/dont-start-with-microservices.html">they do have their
 challenges</a>, but combined with
 language models, I can see development teams reaching heretofore unknown levels
-of productivity. The language models aren’t quite there yet, but they’re close.</p>
+of productivity.</p>
 
 <h1><a name="the-far-future"></a>The Far Future</h1>
 
@@ -683,8 +685,8 @@ for itself and trying to automatically fix them. Because it will have full
 access to the code, it can “look” for where the errors are coming from and
 figure out for itself how to fix them, without you needing to remind it.</p>
 
-<p>I expect it will be a couple of years before this is “production ready,” but
-with this, the programmer’s ivory tower will finish its collapse.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span>. Our jobs will be going
+<p>I expect it will be a few years before this is “production ready,” but with
+this, the programmer’s ivory tower will finish its collapse.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span>. Our jobs will be going
 away. The open question is whether we, like the Luddites, will find ourselves
 without work and losing our homes,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span> or whether this will open the way for more complex work the AIs can’t
 do (yet).</p>
@@ -724,13 +726,14 @@ room-sized beast.</p>
 <p>Language models don’t need something that humans can read. They’ll be able to
 write machine code directly. They might still use an intermediate representation
 that can be easily translated to the machine code for a particular
-architecture—presumably using a translator they’ve written.</p>
+architecture—presumably using a translator they’ve written. Or not. It’s hard to
+predict the future.</p>
 
-<p>Programs could potentially run faster and more reliably, but many are not going
-to feel comfortable with code they can’t verify, but this is where I think we’re
+<p>Programs could potentially run faster and more reliably, but many people are not
+going to feel comfortable with code they can’t verify, but this is where we’re
 heading.</p>
 
-<p>I also expect that many applications will simply go away, being replaced by a
+<p>I also expect many applications will simply go away, being replaced by a
 single language model which can handle this for us. “Hey, ChatGPT! Send an email
 to mom, wishing her a happy birthday.” And ChatGPT will do that, probably
 matching your conversational style.</p>
@@ -742,14 +745,15 @@ yet, but it is. And for all the cries of “programming language X is dying,” 
 truth is that <em>all</em> programming languages are dying. We face an existential
 threat, but I see many programmers denying this, insisting that they’re still
 better than the language models. It’s true, they often are, but they’re slower
-than the models and the models are getting better.</p>
+than the models and the models are getting better. More to the point, they’re
+getting better faster than we are.</p>
 
-<p>It’s possible there will still be a role for programmers, though. In the 80s, I
-was tutoring college students in the C programming language. I met many
-brilliant people who simply couldn’t <em>think</em> about programming the way
-programmers do. Despite their intelligence, they just couldn’t understand how to
-structure programs, but lacking this skill, they had others that programmers
-often don’t.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+<p>It’s possible there will still be a role for programmers, though. In the 80s, I 
+was tutoring college students in the C programming language. I met many 
+brilliant people who simply couldn’t <em>think</em> about programming the way 
+programmers do. Despite their intelligence, they couldn’t understand how to 
+structure programs, but lacking this skill, they had other skills that 
+programmers often don’t.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
 
 <p>This might spill over to prompt engineering. Note how detailed my original
 prompt was.  If you go back to that prompt, note the last item on the list about
@@ -950,8 +954,8 @@ writing.</div>
             <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7">
         <strong id="note-7">Footnotes</strong>
         <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>I
-say 'finish' because the collapse is starting now.</div>
+	    <div>I say
+'finish' because the collapse is starting now.</div>
         <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
     </div>
 
@@ -983,8 +987,8 @@ time.</div>
             <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9">
         <strong id="note-9">Footnotes</strong>
         <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>I was tempted to finish that with, 'such as social
-skills,' but I didn't. See what a nice guy I am?</div>
+	    <div>I was tempted to finish that with, 'such 
+as social skills,' but I didn't. See what a nice guy I am?</div>
         <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
     </div>
 
