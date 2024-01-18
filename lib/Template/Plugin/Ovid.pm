@@ -95,14 +95,9 @@ sub title_for_tag_file ( $self, $tag, $file ) {
     return $title;
 }
 
-sub add_note ( $self, $note, $name = $self->{footnote_number} ) {
-    $name =~ s/\s+/-/g;
+sub add_note ( $self, $note ) {
     my $number = $self->{footnote_number}++;
-    if ( exists $self->{footnote_names}{$name} ) {
-        croak("Footnote '$name' already used");
-    }
-    $self->{footnote_names}{$name} = 1;
-    my $id = "note-$number";
+    my $id     = "note-$number";
     my $dialog
       = qq{<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
     my $body = <<"HTML";
@@ -118,6 +113,9 @@ HTML
     push $self->{footnotes}->@* => { number => $number, body => $body };
     return $dialog;
 }
+
+# because I keep writing Ovid.note instead of Ovid.add_note
+sub note ($self, @args) { $self->add_note(@args) }
 
 sub youtube ( $self, $youtube_id ) {
     if ( $youtube_id =~ m{/} ) {

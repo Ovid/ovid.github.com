@@ -16,7 +16,7 @@ is $ovid->link( '/example.html', 'link name' ),
 
 my @hrefs = (
     $ovid->add_note('footnote 1'),
-    $ovid->add_note( 'footnote 2', 'named footnote' )
+    $ovid->add_note( 'footnote 2')
 );
 my @expected = (
 '<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>',
@@ -24,7 +24,7 @@ my @expected = (
 );
 
 eq_or_diff \@hrefs, \@expected,
-  'add_note() should return links for unnamed and named footnotes';
+  'add_note() should return links for footnotes';
 
 explain "I should fix this one day. It's currently coupled to my personal data";
 my $prev_post =
