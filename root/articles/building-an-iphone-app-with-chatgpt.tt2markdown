@@ -1,0 +1,529 @@
+[%
+    title            = 'Building an iPhone App with ChatGPT';
+    type             = 'articles';
+    slug             = 'building-an-iphone-app-with-chatgpt';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-01-17';
+    mathjax          = 0;
+    facebook         = 'code.jpg';
+    facebook_alt     = 'A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS programming business}}
+
+# Preface
+
+I've been asked to speak at the [2024 German Perl/Raku Workshop in
+Frankfurt](https://www.perl-workshop.de/) and the theme of this year's workshop
+is Generational AI. I've been using [Copilot for
+Vim](/articles/using-github-copilot-with-vim.html) and doing work with Python
+and the [Llama-2](https://ai.meta.com/llama/) large language model, so I figured
+I'd have no problem contributing, but first I had better brush up on my AI
+background. The ensuing rabbit hole was a nightmare, but worth it. [%
+Ovid.note("This includes discovering the
+world of Nick Land, and anti-democratic, white supremacist accelerationists who
+who are support AI as one of many ways to tear down our current institutions. No
+links, because you can go down that rabbit hole yourself, if you're so
+inclined.") %]
+
+I've been working with ChatGPT 4 long enough and seen enough articles about
+people building full applications with it that I thought it was time to give it
+a try, but I wanted an app I could use, not some toy for a demo.
+
+# My Shopping App
+
+When I go shopping, I use the Notes application on my iPhone. I've long hated
+it. I add items that I want to buy to a list. My list is long and when I search
+for an item and I don't see it, I add it again and I have duplicates. I
+frequently find I've added "rice" multiple times.
+
+I wanted a new app, but the App store was a joke. Asking a shopping list
+application not to track me across the Internet? Having to view ads if I don't
+pay for the privilege of making a shopping list? The opportunity to send my
+grocery list to my friends and family?
+
+I wanted a dead simple application to handle my grocery list, so I asked ChatGPT
+to build one for me. It was my first time building an app with ChatGPT and it
+took me about two hours. Much of that was my learning curve. Getting used to
+this means I can make these apps even faster.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/chatgpt-shopping.png"
+   alt      = "XCode project of my Shopping App"
+   caption  = "XCode project of my Shopping App"
+%]
+
+It's worth noting that while I've done Android development with Kotlin, I know
+nothing about the iOS ecosystem or the Swift programming language. The first
+time I thought about developing apps for the iPhone was back in the early days,
+when Objective-C was king and memory management was still manual. I took one
+look at the code and my wife had to stop me from jabbing a fork in my eye.
+I've never looked back. Until now.
+
+# Why Not Copilot?
+
+You might be wondering why I didn't just use Copilot? First, [Copilot
+integration with XCode is incredibly
+painful](https://github.com/intitni/CopilotForXcode?tab=readme-ov-file#installation-and-setup)
+and after a long time fighting with it, XCode finally had Copilot, but I
+couldn't get it to make any suggestions, so I just gave up. It wasn't the point
+of what I was trying to do.
+
+Second, Copilot's just not a good fit for this (yet). Putting aside—for the
+moment—the problems with hallucinations, you can think of Copilot as
+autocomplete for methods. Where do I put those methods in an XCode application?
+I had no clue. ChatGPT, however, is autocomplete for _ideas_. It's "top down"
+instead of "bottom up" and that's exactly what I needed.[% Ovid.note("However,
+at the present time, it's worth noting that Copilot usually has excellent editor
+integration and can “see” your entire project. This gives it a bird's-eye view
+of what you're doing, something that ChatGPT can't yet do.") %]
+
+# My First Prompt
+
+Since I've been doing a deep dive into this area, I had a pretty good idea of
+what to expect. The clearer and more structured your prompt is to ChatGPT, the
+better your output (note: this is all ChatGPT 4. Earlier versions are far less
+capable). So I approached this like a product owner, detailing the exact
+requirements for the application that the customer (me) would need.
+
+> I would like to create a small shopping list app in Swift for the iPhone. I have a newer version of XCode.
+>
+> 1. The app should allow me to enter and delete food items to buy.
+> 1. Each entry should have a checkbox to the left. Unchecked items should appear at the top, checked items at the bottom.[% Ovid.note("ChatGPT forgot this and gave me toggles on the right.  I decided to stick with them.") %]
+> 1. At the top of the screen should be a large title which says “Shopping.”
+> 1. At the bottom of the screen should be two buttons. One says “Alpha” and the other says “Frequency.”[% Ovid.note('I later changed those to "A to Z" and "Popular."') %]
+> 1. If I click on the button which says “Alpha”, all items should be sorted first by unchecked and the checked status. A secondary, alphabetical sort for each checked and unchecked section.
+> 1. If I click on the button which says “Frequency,” all items should be sorted first by unchecked and the checked status. A secondary, sort for the frequency with which I first entered or unchecked each item.
+> 1. The application needs storage to save the number of times I've entered or unchecked each item.
+> 1. After I close and reopen the app, it should show the list in the last state it was observed.
+> 1. If I delete an item from the list, it should also be deleted from storage.
+
+That might seem like a lot of work, but the up-front effort is pays off.
+
+ChatGPT responded quickly with a detailed outline. I've reproduced a shorter
+version below,
+but rather than overwhelm the reader, [I've included the full transcript in this
+Google
+document](https://docs.google.com/document/d/1gDMIBPKL2eb4ublOI0cgNeF2AqciNtF64mYpAqiUUOE/edit?usp=sharing).
+I've turned on commenting on that document, so feel free to add your own.
+
+> Creating a shopping list app with the features you've described in SwiftUI is a comprehensive project that will give you a good understanding of many SwiftUI concepts and data persistence. Here's a high-level overview of how you can implement it:
+>
+> Step 1: Define Your Data Model
+>
+> First, you need to create a data model for your shopping items. This model should include properties for the item's name, checked status, and frequency.
+
+```
+import Foundation
+
+struct ShoppingItem: Identifiable, Codable {
+    var id = UUID()
+    var name: String
+    var isChecked: Bool
+    var frequency: Int
+}
+```
+
+> (After this, I'll skip the detail)
+>
+> Step 2: Create a View Model
+>
+> Step 3: Build the User Interface
+>
+> Step 4: Implement Data Persistence
+>
+> Step 5: Handling State and Sort Logic
+>
+> Step 6: Testing and Refinement
+>
+> Conclusion
+>
+> This outline provides a framework to get started. Each step requires detailed
+> implementation, and you'll need to write Swift code in the view model and
+> ContentView to handle the specific behaviors like sorting and persistence.
+> Remember to test each part of your app as you develop it. Good luck!
+
+It was a clear, comprehensive outline of an approach I could take and I
+immediately hit my first bug:
+
+> That looks great! The ShoppingListViewModel is giving me the error "Cannot find 'saveItems' in scope". How do I fix that?
+
+And ChatGPT dutifully explained how to fix it.
+
+From there, it was a constant flow of me asking it to explain subsequent steps
+in more detail, prompting it for bug fixes, and gradually watching an iPhone app
+come to life before my eyes.
+
+# Challenges
+
+## No Editor Integration
+
+The single biggest problem currently is that ChatGPT has no direct integration
+with your editor. You need to constantly copy-n-paste the code. For a
+non-programmer, this could easily be a daunting task, unsure of where and how to
+do this. So for now, you can try this at home, but if you're not a software
+developer, you might struggle. However, you can always ask ChatGPT for more
+information on how to handle this. But that brings us to the problem of context
+length.
+
+## Context Length
+
+Early versions of ChatGPT had a "context length" of about 2,000 tokens. The
+context length is how much of the conversation the language model remembers.
+These aren't just words, they're tokens. Consider the sentence "I ain't done
+here." Four words, but five tokens:[% Ovid.note("The leading space before many
+tokens allows ChatGPT to recreate the actual text.") %]
+
+1. "I"
+2. " ain't"
+3. " done"
+4. " here"
+5. "."
+
+But some LLMs have much longer tokens!
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">&gt; open up the new
+~125k Baichuan2 vocab<br>&gt; find a single token just for &quot;Guided by Xi
+Jinping&#39;s thoughts of socialism with Chinese characteristics in the new
+era&quot;<br>&gt; 😬<br>&gt; finds another token just for &quot;On our journey
+to achieve beautiful ideals and big goals&quot;<br>&gt; 🥹 <a
+href="https://t.co/iJzlk0E1zi">pic.twitter.com/iJzlk0E1zi</a></p>&mdash; Susan
+Zhang (@suchenzang) <a
+href="https://twitter.com/suchenzang/status/1702126326369636631?ref_src=twsrc%5Etfw">September
+14, 2023</a></blockquote> <script async
+src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+As a general rule for ChatGPT, you can multiply token length by 75% to get a
+rough word count, so 2,000 tokens is about 1,500 words it "remembers" in the
+conversation.
+
+For ChatGPT 4, we're just over 4,000 tokens in context length. That's about
+3,000 words, or roughly the length of a standard book chapter. For long,
+extended work building an application, we need to resort to [prompt
+chaining](https://blog.gdeltproject.org/googles-bard-vs-openais-chatgpt-summarizing-an-abc-evening-news-broadcast/)
+(which can be very problematic because you still lose context) or embedding
+relevant snippets of code from previous parts of the conversation to help
+ChatGPT "remember" what it was doing. This requires more attention on the part
+of the developer and if you get it wrong, ChatGPT will, too.
+
+ChatGPT 4-turbo, which as of this writing, is listed as not ready for production
+use, has a whopping 128K context length! That's about 96 thousands words, the
+length of a decent-sized novel. Also, it's rumored that 4-turbo is two to three
+times faster than ChatGPT 4, so it will be much easier to build large
+applications and have ChatGPT follow along.
+
+That being said, I often work with codebases which have millions of lines of
+code. Even a 128K context length isn't going to follow that.
+
+As an aside, [people are having fun using ChatGPT to create text
+adventures](https://www.makeuseof.com/how-to-use-chatgpt-as-an-interactive-rpg/),
+but the 4K context length means ChatGPT will often "forget" previous parts of
+the story. ChatGPT 4-turbo will be a real game changer (heh) here.
+
+## XCode is Buggy
+
+Curiously, one of the biggest challenges wasn't ChatGPT, it was XCode. I had
+just updated to the latest version[% Ovid.note("Version 15.2, as of this
+writing.") %] and on several occasions, I found myself staring at what looked
+like perfectly valid code, but XCode was throwing an error about variables not
+being in scope, even though they appeared to be.  ChatGPT assured me my code was
+correct, so I'd back out changes and redo them, trying to be sure I hadn't
+missed anything. Finally, I used XCode's "Refactor" menu to rename a variable,
+and it told me the variable it had renamed wasn't in scope! I restarted XCode
+and everything worked just fine after that. I had to restart XCode a few times
+during this process, which slowed things down a bit.
+
+## Mansplaining as a Service
+
+One thing thing that annoyed me about the app was that I would type in the name
+of an item I wanted to buy and the item would be added, but it would
+also be left in the text field. I wanted that field to be cleared every
+time I hit "return." The code looked like this:
+
+```
+TextField("New item", text: $newItemName, onCommit: {
+	if !newItemName.isEmpty {
+		let newItem = ShoppingItem(name: newItemName, isChecked: false, frequency: 1)
+		if !viewModel.addItem(newItem) {
+			duplicateItemName = newItem.name
+			showingDuplicateItemAlert = true
+			fadeOutBackground = true
+
+			// Start a timer to reset the fade-out effect after 10 seconds
+			DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+				fadeOutBackground = false
+				duplicateItemName = ""
+			}
+		}
+		else {
+			duplicateItemName = ""
+			viewModel.applyLastSortAction()
+		}
+		newItemName = ""
+	}
+})
+```
+
+So I asked ChatGPT how to fix that. It confidently assured me that I merely
+needed to add `newItemName = ""` at the end of the closure and the field would
+be cleared. And then it said that since I already had that, my code was doing
+what I wanted.
+
+It was not doing what I wanted. I explained this to ChatGPT several times and it
+repeated the same incorrect information several times. While [StackOverflow is
+slowing being killed by
+AI](https://techcrunch.com/2023/10/17/stack-overflow-cuts-28-of-its-staff/), it
+gave me the answer that ChatGPT could not. I needed to add this:
+
+```
+.onSubmit {
+    newItemName = ""
+}
+```
+
+Also, due to context length issues, ChatGPT kept "forgetting" that I was using
+the latest version of the Swift programming language and was offering
+deprecated versions of various code snippets. I finally gave up correcting
+ChatGPT and made the corrections manually.
+
+# Criticisms
+
+## You Don't Need ChatGPT
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/finger-moon.png"
+   position = "right"
+   alt      = "A finger pointing at the moon. The fingernail is dirty."
+   caption  = 'Image by <a target="_blank" href="https://openai.com/dall-e-3">DALL-E</a>'
+%]
+
+When I've shared bits of this story before, I've had people tell me I can just
+use a spreadsheet or a pen and paper. I'm pointing at the moon and people are
+telling me my fingernails are dirty. I don't _want_ a spreadsheet or to use a
+pen and paper. I always have my phone in my pocket and I want an app that
+does exactly what I want and that's what I now have.
+
+What if I want to write an application that grabs [The Astronomy Picture of the
+Day](https://apod.nasa.gov/apod/astropix.html) from NASA and sets that as my
+phone's background?
+
+What if I want to write an application that grabs the headlines from
+[SpaceNews](https://spacenews.com/), presents them to me in a list, and let's me
+click through, but presents a short summary of each article instead (with a link
+to the full article) instead of the entire text?
+
+Spreadsheets or pen and paper aren't going to give me those. I have a world of
+possibilities that weren't open to me before without months of learning a new
+platform and programming language.
+
+## Hallucinations
+
+I'm also constantly reminded about hallucinations, as if I wasn't already aware
+of them.
+
+The thing is, hallucinations sort of come in two forms: hard and easy. The hard
+hallucination is when it writes a lot of plausible text, with many "facts." It
+can take a lot of time to wade through all of those and verify them. Then,
+maybe you need to verify your verifications. Just because Wikipedia says it's so
+doesn't make it so.
+
+The easy hallucination is when you can easily verify it. For code, you run the
+code. Does it do what you want? Most errors are very easy to spot.
+
+One error that wasn't easy to spot was that the frequency calculations were off.
+I had suspected that early on, but since I don't know Swift, I thought maybe
+there was something unusual about how it worked. It was manual testing that
+verified the calculations were off and ChatGPT fixed the issue quickly.
+
+Of course, ChatGPT will also help you write tests for your application. I
+confess that I didn't do that, despite my being a huge testing fanatic. I wanted
+to see how far I could push ChatGPT. For production code, even with ChatGPT,
+you'll want tests. ChatGPT _will_ lose context and you'll need those tests to
+verify you haven't broken anything.
+
+However, there's a thing to consider with "hallucinations" and code. What
+happens when you write code? You write it, you run your tests, you find the
+bugs, you fix them. It's the same thing with language models, just much faster!
+
+## "Bad" Code
+
+This one is subtle and junior devs will easily miss it.
+
+Much of our work in building large systems involves structuring code in such a
+way that we can understand it later. Maintainability is important for humans,
+but it's less important for AI which can follow the code in ways that we cannot.
+
+For example, can you see an issue with the following code? It displays two
+buttons, side-by-side in a horizontal stack.
+
+```
+HStack {
+	Button("A to Z") {
+		viewModel.sortAlpha()
+		selectedSort = .alpha
+		generateHapticFeedback()
+	}
+	.buttonStyle(CustomButtonStyle(isSelected: selectedSort == .alpha))
+	.frame(width: 150) // Set a specific width for the button
+
+	Button("Popular") {
+		viewModel.sortFrequency()
+		selectedSort = .frequency
+		generateHapticFeedback()
+	}
+	.buttonStyle(CustomButtonStyle(isSelected: selectedSort == .frequency))
+	.frame(width: 150) // Set a specific width for the button
+}
+```
+
+Many newer developers might not seen an issue, but you probably do: there's a
+lot of duplicated code. Instead, you probably want that to look similar to this:
+
+```
+HStack {
+    SortButton(title: "A to Z", action: viewModel.sortAlpha, selectedSort: $selectedSort)
+    SortButton(title: "Popular", action: viewModel.sortFrequency, selectedSort: $selectedSort)
+}
+```
+
+With the above, you can adjust the `SortButton` struct and have the behavior
+apply to both of your sort buttons. Otherwise, you'll have to manually keep
+those two buttons in synch.
+
+Also, I had a few imports in the code which I didn't need and a couple of unused
+methods generated, but how is a junior developer going to know that? From a
+programmer's standpoint, this is bad. From a business standpoint?  So what? "It
+works; ship it," will be the refrain. I suspect bad code confuses humans more
+than language models.
+
+# The Near Future
+
+Programmers will still be keeping their jobs, but Copilot and ChatGPT allow us
+to write code faster. When working on a monolithic application, language models
+will work, but will be less useful because the massive size means they won't be
+able to have enough context.
+
+One clear use case for these tools is microservices. These are much smaller,
+self-contained programs and language models, even with a limited context, will
+find them more tractable. With well-defined OpenAPI documents, microservices
+will be quick and easy to develop. [I've written about microservices
+before](/articles/microservices-pros-and-cons.html) and [they do have their
+challenges](/articles/dont-start-with-microservices.html), but combined with
+language models, I can see development teams reaching heretofore unknown levels
+of productivity. The language models aren't quite there yet, but they're close.
+
+# The Far Future
+
+Eventually ChatGPT is going to have native desktop integration. Given that it
+already has [a speech recognition
+model](https://platform.openai.com/docs/models/whisper), you'll be able to speak
+to it. You can ask it to build an application and because it will have full
+integration, it will be writing and running the code for you, seeing the errors
+for itself and trying to automatically fix them. Because it will have full
+access to the code, it can "look" for where the errors are coming from and
+figure out for itself how to fix them, without you needing to remind it.
+
+I expect it will be a couple of years before this is "production ready," but
+with this, the programmer's ivory tower will finish its collapse.[% Ovid.note("I
+say 'finish' because the collapse is starting now.") %]. Our jobs will be going
+away. The open question is whether we, like the Luddites, will find ourselves
+without work and losing our homes,[% Ovid.note("The Luddite rebellion ended in
+1816, in part because “frame-breaking” (destroying the machines) was made a
+capital offense and soldiers were shooting into crowds of
+protestors.<br/><br/>Depending on the source, the economic damage to the
+protestors wasn't fully corrected until sometimes between 1820 and 1850. That's
+a long time to suffer, but the business owners were getting richer the entire
+time.")%] or whether this will open the way for more complex work the AIs can't
+do (yet).
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/preferences-pane.png"
+   alt      = "Just a few of the preferences available for iTerm 2"
+   caption  = "Just a few of the preferences available for iTerm 2"
+%]
+
+As a bonus, you will get exactly the applications _you_ want. No more
+bewildering array of preference selections. The app is for you, not for the
+masses.  You won't have to ask the app not to track. You won't have annoying ads
+until you pay for a premium service. Need a new feature? "Hey, ChatGPT, I need
+you to change the novel writing app we created."
+
+We will finally have "programming for the masses."
+
+For all those who disagree, Dr. Matt Welsh would like to have a word.
+
+[% Ovid.youtube('JhCl-GeT4jw') %]
+
+What will the code look like? In the early days of programming, we were setting
+switches and pushing buttons on huge machines. Later, we were writing Fortran on
+punch cards. Today, we have easy languages like Python and hard languages like
+Rust, but consider even very difficult languages such as APL. The following is
+[Conway's Game of Life written in
+APL](https://aplwiki.com/wiki/John_Scholes%27_Conway%27s_Game_of_Life):
+
+```
+life ← {⊃1 ⍵ ∨.∧ 3 4 = +/ +⌿ ¯1 0 1 ∘.⊖ ¯1 0 1 ⌽¨ ⊂⍵}
+```
+
+That's still far easier than entering ones and zeros by toggling switches on a
+room-sized beast.
+
+Language models don't need something that humans can read. They'll be able to
+write machine code directly. They might still use an intermediate representation
+that can be easily translated to the machine code for a particular
+architecture—presumably using a translator they've written.
+
+Programs could potentially run faster and more reliably, but many are not going
+to feel comfortable with code they can't verify, but this is where I think we're
+heading.
+
+I also expect that many applications will simply go away, being replaced by a
+single language model which can handle this for us. "Hey, ChatGPT! Send an email
+to mom, wishing her a happy birthday." And ChatGPT will do that, probably
+matching your conversational style.
+
+# Conclusion
+
+The programming profession, as we practice is today, is dying. We may not see it
+yet, but it is. And for all the cries of "programming language X is dying," the
+truth is that _all_ programming languages are dying. We face an existential
+threat, but I see many programmers denying this, insisting that they're still
+better than the language models. It's true, they often are, but they're slower
+than the models and the models are getting better.
+
+It's possible there will still be a role for programmers, though. In the 80s, I
+was tutoring college students in the C programming language. I met many
+brilliant people who simply couldn't _think_ about programming the way
+programmers do. Despite their intelligence, they just couldn't understand how to
+structure programs, but lacking this skill, they had others that programmers
+often don't.[% Ovid.note("I was tempted to finish that with, 'such as social
+skills,' but I didn't. See what a nice guy I am?") %]
+
+This might spill over to prompt engineering. Note how detailed my original
+prompt was.  If you go back to that prompt, note the last item on the list about
+deleting items from storage when I remove them from my list.  If I didn't
+have that, I'd eventually risk filling up my storage over time, but not know
+why. It's little details like that which will keep programmers in business for a
+while...until the AI learn to anticipate situations like this and ask us how to
+address it.
+
+"Prompt engineering" might be renamed "programming" in the future.
+However, as language models increase in power, I expect that even this strength
+might go away. If language models can ever incorporate [system 2
+thinking](https://thedecisionlab.com/reference-guide/philosophy/system-1-and-system-2-thinking),
+all bets are off. That might also be what leads us to [artificial general
+intelligence](https://en.wikipedia.org/wiki/Artificial_general_intelligence).
+
+The AI boom today is like the internet boom in the 90s. There will be "bust"
+periods as many AI companies offer products with no value. There will be
+detractors who call AI "just a fad." And AI will continue regardless. I'm both
+excited and concerned by the future.
+
+[You can check out the github project for my code
+here](https://github.com/Ovid/chatgpt-shopping).
+
+[%- END %]
