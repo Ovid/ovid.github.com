@@ -1,0 +1,1002 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/code.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="A laptop computer with Ruby on Rails code displayed on the monitor. Source: https://www.pexels.com/photo/black-and-gray-laptop-computer-546819/" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/building-an-iphone-app-with-chatgpt.html" />
+  
+  <meta property="og:title" content="Building an iPhone App with ChatGPT" />
+  <meta property="og:description" content="I'm still regularly amazed at how many developers dismiss Copilot and ChatGPT as 'stochastic parrots.' These parrots are much smarter than they think." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Building an iPhone App with ChatGPT</title>
+  <meta name="description" content="Building an iPhone App with ChatGPT">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Building an iPhone App with ChatGPT</h1>
+        <time>2024-01-17</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/dont-start-with-microservices.html" class="prevPost">&laquo; Don't Start with Microservices</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#preface">Preface</a></li>
+    <li class="indent-1"><a href="#my-shopping-app">My Shopping App</a></li>
+    <li class="indent-1"><a href="#why-not-copilot">Why Not Copilot?</a></li>
+    <li class="indent-1"><a href="#my-first-prompt">My First Prompt</a></li>
+    <li class="indent-1"><a href="#challenges">Challenges</a></li>
+    <li class="indent-2"><a href="#no-editor-integration">No Editor Integration</a></li>
+    <li class="indent-2"><a href="#context-length">Context Length</a></li>
+    <li class="indent-2"><a href="#xcode-is-buggy">XCode is Buggy</a></li>
+    <li class="indent-2"><a href="#mansplaining-as-a-service">Mansplaining as a Service</a></li>
+    <li class="indent-1"><a href="#criticisms">Criticisms</a></li>
+    <li class="indent-2"><a href="#you-dont-need-chatgpt">You Don’t Need ChatGPT</a></li>
+    <li class="indent-2"><a href="#hallucinations">Hallucinations</a></li>
+    <li class="indent-2"><a href="#bad-code">“Bad” Code</a></li>
+    <li class="indent-1"><a href="#the-near-future">The Near Future</a></li>
+    <li class="indent-1"><a href="#the-far-future">The Far Future</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="preface"></a>Preface</h1>
+
+<p>I’ve been asked to speak at the <a href="https://www.perl-workshop.de/" target="_blank">2024 German Perl/Raku Workshop in
+Frankfurt</a> <span class="fa fa-external-link fa_custom"></span> and the theme of this year’s workshop
+is Generational AI. I’ve been using <a href="/articles/using-github-copilot-with-vim.html">Copilot for
+Vim</a> and doing work with Python
+and the <a href="https://ai.meta.com/llama/" target="_blank">Llama-2</a> <span class="fa fa-external-link fa_custom"></span> large language model, so I figured
+I’d have no problem contributing, but first I had better brush up on my AI
+background. The ensuing rabbit hole was a nightmare, but worth it. <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>I’ve been working with ChatGPT 4 long enough and seen enough articles about
+people building full applications with it that I thought it was time to give it
+a try, but I wanted an app I could use, not some toy for a demo.</p>
+
+<h1><a name="my-shopping-app"></a>My Shopping App</h1>
+
+<p>When I go shopping, I use the Notes application on my iPhone. I’ve long hated
+it. I add items that I want to buy to a list. My list is long and when I search
+for an item and I don’t see it, I add it again and I have duplicates. I
+frequently find I’ve added “rice” multiple times.</p>
+
+<p>I wanted a new app, but the App store was a joke. Asking a shopping list
+application not to track me across the Internet? Having to view ads if I don’t
+pay for the privilege of making a shopping list? The opportunity to send my
+grocery list to my friends and family?</p>
+
+<p>I wanted a dead simple application to handle my grocery list, so I asked ChatGPT
+to build one for me. It was my first time building an app with ChatGPT and it
+took me about two hours. Much of that was my learning curve. Getting used to
+this means I can make these apps even faster.</p>
+
+<p><figure class="image">
+    <img src="/static/images/chatgpt-shopping.png" width="600" alt="XCode project of my Shopping App">
+    <figcaption>XCode project of my Shopping App </figcaption>
+</figure></p>
+
+<p>It’s worth noting that while I’ve done Android development with Kotlin, I know
+nothing about the iOS ecosystem or the Swift programming language. The first
+time I thought about developing apps for the iPhone was back in the early days,
+when Objective-C was king and memory management was still manual. I took one
+look at the code and my wife had to stop me from jabbing a fork in my eye.
+I’ve never looked back. Until now.</p>
+
+<h1><a name="why-not-copilot"></a>Why Not Copilot?</h1>
+
+<p>You might be wondering why I didn’t just use Copilot? First, <a href="https://github.com/intitni/CopilotForXcode?tab=readme-ov-file#installation-and-setup" target="_blank">Copilot
+integration with XCode is incredibly
+painful</a> <span class="fa fa-external-link fa_custom"></span>
+and after a long time fighting with it, XCode finally had Copilot, but I
+couldn’t get it to make any suggestions, so I just gave up. It wasn’t the point
+of what I was trying to do.</p>
+
+<p>Second, Copilot’s just not a good fit for this (yet). Putting aside—for the
+moment—the problems with hallucinations, you can think of Copilot as
+autocomplete for methods. Where do I put those methods in an XCode application?
+I had no clue. ChatGPT, however, is autocomplete for <em>ideas</em>. It’s “top down”
+instead of “bottom up” and that’s exactly what I needed.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<h1><a name="my-first-prompt"></a>My First Prompt</h1>
+
+<p>Since I’ve been doing a deep dive into this area, I had a pretty good idea of
+what to expect. The clearer and more structured your prompt is to ChatGPT, the
+better your output (note: this is all ChatGPT 4. Earlier versions are far less
+capable). So I approached this like a product owner, detailing the exact
+requirements for the application that the customer (me) would need.</p>
+
+<blockquote>
+  <p>I would like to create a small shopping list app in Swift for the iPhone. I have a newer version of XCode.</p>
+  
+  <ol>
+  <li>The app should allow me to enter and delete food items to buy.</li>
+  <li>Each entry should have a checkbox to the left. Unchecked items should appear at the top, checked items at the bottom.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span></li>
+  <li>At the top of the screen should be a large title which says “Shopping.”</li>
+  <li>At the bottom of the screen should be two buttons. One says “Alpha” and the other says “Frequency.”<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span></li>
+  <li>If I click on the button which says “Alpha”, all items should be sorted first by unchecked and the checked status. A secondary, alphabetical sort for each checked and unchecked section.</li>
+  <li>If I click on the button which says “Frequency,” all items should be sorted first by unchecked and the checked status. A secondary, sort for the frequency with which I first entered or unchecked each item.</li>
+  <li>The application needs storage to save the number of times I’ve entered or unchecked each item.</li>
+  <li>After I close and reopen the app, it should show the list in the last state it was observed.</li>
+  <li>If I delete an item from the list, it should also be deleted from storage.</li>
+  </ol>
+</blockquote>
+
+<p>That might seem like a lot of work, but the up-front effort is pays off.</p>
+
+<p>ChatGPT responded quickly with a detailed outline. I’ve reproduced a shorter
+version below,
+but rather than overwhelm the reader, <a href="https://docs.google.com/document/d/1gDMIBPKL2eb4ublOI0cgNeF2AqciNtF64mYpAqiUUOE/edit?usp=sharing" target="_blank">I’ve included the full transcript in this
+Google
+document</a> <span class="fa fa-external-link fa_custom"></span>.
+I’ve turned on commenting on that document, so feel free to add your own.</p>
+
+<blockquote>
+  <p>Creating a shopping list app with the features you’ve described in SwiftUI is a comprehensive project that will give you a good understanding of many SwiftUI concepts and data persistence. Here’s a high-level overview of how you can implement it:</p>
+  
+  <p>Step 1: Define Your Data Model</p>
+  
+  <p>First, you need to create a data model for your shopping items. This model should include properties for the item’s name, checked status, and frequency.</p>
+</blockquote>
+
+<div class="shadow"><pre class="scrolled"><code>import Foundation
+
+struct ShoppingItem: Identifiable, Codable {
+    var id = UUID()
+    var name: String
+    var isChecked: Bool
+    var frequency: Int
+}
+</code></pre></div>
+
+<blockquote>
+  <p>(After this, I’ll skip the detail)</p>
+  
+  <p>Step 2: Create a View Model</p>
+  
+  <p>Step 3: Build the User Interface</p>
+  
+  <p>Step 4: Implement Data Persistence</p>
+  
+  <p>Step 5: Handling State and Sort Logic</p>
+  
+  <p>Step 6: Testing and Refinement</p>
+  
+  <p>Conclusion</p>
+  
+  <p>This outline provides a framework to get started. Each step requires detailed
+  implementation, and you’ll need to write Swift code in the view model and
+  ContentView to handle the specific behaviors like sorting and persistence.
+  Remember to test each part of your app as you develop it. Good luck!</p>
+</blockquote>
+
+<p>It was a clear, comprehensive outline of an approach I could take and I
+immediately hit my first bug:</p>
+
+<blockquote>
+  <p>That looks great! The ShoppingListViewModel is giving me the error “Cannot find ‘saveItems' in scope”. How do I fix that?</p>
+</blockquote>
+
+<p>And ChatGPT dutifully explained how to fix it.</p>
+
+<p>From there, it was a constant flow of me asking it to explain subsequent steps
+in more detail, prompting it for bug fixes, and gradually watching an iPhone app
+come to life before my eyes.</p>
+
+<h1><a name="challenges"></a>Challenges</h1>
+
+<h2><a name="no-editor-integration"></a>No Editor Integration</h2>
+
+<p>The single biggest problem currently is that ChatGPT has no direct integration
+with your editor. You need to constantly copy-n-paste the code. For a
+non-programmer, this could easily be a daunting task, unsure of where and how to
+do this. So for now, you can try this at home, but if you’re not a software
+developer, you might struggle. However, you can always ask ChatGPT for more
+information on how to handle this. But that brings us to the problem of context
+length.</p>
+
+<h2><a name="context-length"></a>Context Length</h2>
+
+<p>Early versions of ChatGPT had a “context length” of about 2,000 tokens. The
+context length is how much of the conversation the language model remembers.
+These aren’t just words, they’re tokens. Consider the sentence “I ain’t done
+here.” Four words, but five tokens:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<ol>
+<li>“I”</li>
+<li>" ain’t”</li>
+<li>" done”</li>
+<li>" here”</li>
+<li>“.”</li>
+</ol>
+
+<p>But some LLMs have much longer tokens!</p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">&gt; open up the new
+~125k Baichuan2 vocab<br>&gt; find a single token just for &quot;Guided by Xi
+Jinping&#39;s thoughts of socialism with Chinese characteristics in the new
+era&quot;<br>&gt; 😬<br>&gt; finds another token just for &quot;On our journey
+to achieve beautiful ideals and big goals&quot;<br>&gt; 🥹 <a
+href="https://t.co/iJzlk0E1zi">pic.twitter.com/iJzlk0E1zi</a></p>&mdash; Susan
+Zhang (@suchenzang) <a
+href="https://twitter.com/suchenzang/status/1702126326369636631?ref_src=twsrc%5Etfw">September
+14, 2023</a></blockquote>
+
+<p><script async
+src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>As a general rule for ChatGPT, you can multiply token length by 75% to get a
+rough word count, so 2,000 tokens is about 1,500 words it “remembers” in the
+conversation.</p>
+
+<p>For ChatGPT 4, we’re just over 4,000 tokens in context length. That’s about
+3,000 words, or roughly the length of a standard book chapter. For long,
+extended work building an application, we need to resort to <a href="https://blog.gdeltproject.org/googles-bard-vs-openais-chatgpt-summarizing-an-abc-evening-news-broadcast/" target="_blank">prompt
+chaining</a> <span class="fa fa-external-link fa_custom"></span>
+(which can be very problematic because you still lose context) or embedding
+relevant snippets of code from previous parts of the conversation to help
+ChatGPT “remember” what it was doing. This requires more attention on the part
+of the developer and if you get it wrong, ChatGPT will, too.</p>
+
+<p>ChatGPT 4-turbo, which as of this writing, is listed as not ready for production
+use, has a whopping 128K context length! That’s about 96 thousands words, the
+length of a decent-sized novel. Also, it’s rumored that 4-turbo is two to three
+times faster than ChatGPT 4, so it will be much easier to build large
+applications and have ChatGPT follow along.</p>
+
+<p>That being said, I often work with codebases which have millions of lines of
+code. Even a 128K context length isn’t going to follow that.</p>
+
+<p>As an aside, <a href="https://www.makeuseof.com/how-to-use-chatgpt-as-an-interactive-rpg/" target="_blank">people are having fun using ChatGPT to create text
+adventures</a> <span class="fa fa-external-link fa_custom"></span>,
+but the 4K context length means ChatGPT will often “forget” previous parts of
+the story. ChatGPT 4-turbo will be a real game changer (heh) here.</p>
+
+<h2><a name="xcode-is-buggy"></a>XCode is Buggy</h2>
+
+<p>Curiously, one of the biggest challenges wasn’t ChatGPT, it was XCode. I had
+just updated to the latest version<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span> and on several occasions, I found myself staring at what looked
+like perfectly valid code, but XCode was throwing an error about variables not
+being in scope, even though they appeared to be.  ChatGPT assured me my code was
+correct, so I’d back out changes and redo them, trying to be sure I hadn’t
+missed anything. Finally, I used XCode’s “Refactor” menu to rename a variable,
+and it told me the variable it had renamed wasn’t in scope! I restarted XCode
+and everything worked just fine after that. I had to restart XCode a few times
+during this process, which slowed things down a bit.</p>
+
+<h2><a name="mansplaining-as-a-service"></a>Mansplaining as a Service</h2>
+
+<p>One thing thing that annoyed me about the app was that I would type in the name
+of an item I wanted to buy and the item would be added, but it would
+also be left in the text field. I wanted that field to be cleared every
+time I hit “return.” The code looked like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>TextField(&quot;New item&quot;, text: $newItemName, onCommit: {
+    if !newItemName.isEmpty {
+        let newItem = ShoppingItem(name: newItemName, isChecked: false, frequency: 1)
+        if !viewModel.addItem(newItem) {
+            duplicateItemName = newItem.name
+            showingDuplicateItemAlert = true
+            fadeOutBackground = true
+
+            // Start a timer to reset the fade-out effect after 10 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                fadeOutBackground = false
+                duplicateItemName = &quot;&quot;
+            }
+        }
+        else {
+            duplicateItemName = &quot;&quot;
+            viewModel.applyLastSortAction()
+        }
+        newItemName = &quot;&quot;
+    }
+})
+</code></pre></div>
+
+<p>So I asked ChatGPT how to fix that. It confidently assured me that I merely
+needed to add <code>newItemName = ""</code> at the end of the closure and the field would
+be cleared. And then it said that since I already had that, my code was doing
+what I wanted.</p>
+
+<p>It was not doing what I wanted. I explained this to ChatGPT several times and it
+repeated the same incorrect information several times. While <a href="https://techcrunch.com/2023/10/17/stack-overflow-cuts-28-of-its-staff/" target="_blank">StackOverflow is
+slowing being killed by
+AI</a> <span class="fa fa-external-link fa_custom"></span>, it
+gave me the answer that ChatGPT could not. I needed to add this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>.onSubmit {
+    newItemName = &quot;&quot;
+}
+</code></pre></div>
+
+<p>Also, due to context length issues, ChatGPT kept “forgetting” that I was using
+the latest version of the Swift programming language and was offering
+deprecated versions of various code snippets. I finally gave up correcting
+ChatGPT and made the corrections manually.</p>
+
+<h1><a name="criticisms"></a>Criticisms</h1>
+
+<h2><a name="you-dont-need-chatgpt"></a>You Don’t Need ChatGPT</h2>
+
+<p><figure class="captioned">
+    <img src="/static/images/finger-moon.png" width="600" alt="A finger pointing at the moon. The fingernail is dirty.">
+    <figcaption>Image by <a target="_blank" href="https://openai.com/dall-e-3">DALL-E</a> </figcaption>
+</figure></p>
+
+<p>When I’ve shared bits of this story before, I’ve had people tell me I can just
+use a spreadsheet or a pen and paper. I’m pointing at the moon and people are
+telling me my fingernails are dirty. I don’t <em>want</em> a spreadsheet or to use a
+pen and paper. I always have my phone in my pocket and I want an app that
+does exactly what I want and that’s what I now have.</p>
+
+<p>What if I want to write an application that grabs <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">The Astronomy Picture of the
+Day</a> <span class="fa fa-external-link fa_custom"></span> from NASA and sets that as my
+phone’s background?</p>
+
+<p>What if I want to write an application that grabs the headlines from
+<a href="https://spacenews.com/" target="_blank">SpaceNews</a> <span class="fa fa-external-link fa_custom"></span>, presents them to me in a list, and let’s me
+click through, but presents a short summary of each article instead (with a link
+to the full article) instead of the entire text?</p>
+
+<p>Spreadsheets or pen and paper aren’t going to give me those. I have a world of
+possibilities that weren’t open to me before without months of learning a new
+platform and programming language.</p>
+
+<h2><a name="hallucinations"></a>Hallucinations</h2>
+
+<p>I’m also constantly reminded about hallucinations, as if I wasn’t already aware
+of them.</p>
+
+<p>The thing is, hallucinations sort of come in two forms: hard and easy. The hard
+hallucination is when it writes a lot of plausible text, with many “facts.” It
+can take a lot of time to wade through all of those and verify them. Then,
+maybe you need to verify your verifications. Just because Wikipedia says it’s so
+doesn’t make it so.</p>
+
+<p>The easy hallucination is when you can easily verify it. For code, you run the
+code. Does it do what you want? Most errors are very easy to spot.</p>
+
+<p>One error that wasn’t easy to spot was that the frequency calculations were off.
+I had suspected that early on, but since I don’t know Swift, I thought maybe
+there was something unusual about how it worked. It was manual testing that
+verified the calculations were off and ChatGPT fixed the issue quickly.</p>
+
+<p>Of course, ChatGPT will also help you write tests for your application. I
+confess that I didn’t do that, despite my being a huge testing fanatic. I wanted
+to see how far I could push ChatGPT. For production code, even with ChatGPT,
+you’ll want tests. ChatGPT <em>will</em> lose context and you’ll need those tests to
+verify you haven’t broken anything.</p>
+
+<p>However, there’s a thing to consider with “hallucinations” and code. What
+happens when you write code? You write it, you run your tests, you find the
+bugs, you fix them. It’s the same thing with language models, just much faster!</p>
+
+<h2><a name="bad-code"></a>“Bad” Code</h2>
+
+<p>This one is subtle and junior devs will easily miss it.</p>
+
+<p>Much of our work in building large systems involves structuring code in such a
+way that we can understand it later. Maintainability is important for humans,
+but it’s less important for AI which can follow the code in ways that we cannot.</p>
+
+<p>For example, can you see an issue with the following code? It displays two
+buttons, side-by-side in a horizontal stack.</p>
+
+<div class="shadow"><pre class="scrolled"><code>HStack {
+    Button(&quot;A to Z&quot;) {
+        viewModel.sortAlpha()
+        selectedSort = .alpha
+        generateHapticFeedback()
+    }
+    .buttonStyle(CustomButtonStyle(isSelected: selectedSort == .alpha))
+    .frame(width: 150) // Set a specific width for the button
+
+    Button(&quot;Popular&quot;) {
+        viewModel.sortFrequency()
+        selectedSort = .frequency
+        generateHapticFeedback()
+    }
+    .buttonStyle(CustomButtonStyle(isSelected: selectedSort == .frequency))
+    .frame(width: 150) // Set a specific width for the button
+}
+</code></pre></div>
+
+<p>Many newer developers might not seen an issue, but you probably do: there’s a
+lot of duplicated code. Instead, you probably want that to look similar to this:</p>
+
+<div class="shadow"><pre class="scrolled"><code>HStack {
+    SortButton(title: &quot;A to Z&quot;, action: viewModel.sortAlpha, selectedSort: $selectedSort)
+    SortButton(title: &quot;Popular&quot;, action: viewModel.sortFrequency, selectedSort: $selectedSort)
+}
+</code></pre></div>
+
+<p>With the above, you can adjust the <code>SortButton</code> struct and have the behavior
+apply to both of your sort buttons. Otherwise, you’ll have to manually keep
+those two buttons in synch.</p>
+
+<p>Also, I had a few imports in the code which I didn’t need and a couple of unused
+methods generated, but how is a junior developer going to know that? From a
+programmer’s standpoint, this is bad. From a business standpoint?  So what? “It
+works; ship it,” will be the refrain. I suspect bad code confuses humans more
+than language models.</p>
+
+<h1><a name="the-near-future"></a>The Near Future</h1>
+
+<p>Programmers will still be keeping their jobs, but Copilot and ChatGPT allow us
+to write code faster. When working on a monolithic application, language models
+will work, but will be less useful because the massive size means they won’t be
+able to have enough context.</p>
+
+<p>One clear use case for these tools is microservices. These are much smaller,
+self-contained programs and language models, even with a limited context, will
+find them more tractable. With well-defined OpenAPI documents, microservices
+will be quick and easy to develop. <a href="/articles/microservices-pros-and-cons.html">I’ve written about microservices
+before</a> and <a href="/articles/dont-start-with-microservices.html">they do have their
+challenges</a>, but combined with
+language models, I can see development teams reaching heretofore unknown levels
+of productivity. The language models aren’t quite there yet, but they’re close.</p>
+
+<h1><a name="the-far-future"></a>The Far Future</h1>
+
+<p>Eventually ChatGPT is going to have native desktop integration. Given that it
+already has <a href="https://platform.openai.com/docs/models/whisper" target="_blank">a speech recognition
+model</a> <span class="fa fa-external-link fa_custom"></span>, you’ll be able to speak
+to it. You can ask it to build an application and because it will have full
+integration, it will be writing and running the code for you, seeing the errors
+for itself and trying to automatically fix them. Because it will have full
+access to the code, it can “look” for where the errors are coming from and
+figure out for itself how to fix them, without you needing to remind it.</p>
+
+<p>I expect it will be a couple of years before this is “production ready,” but
+with this, the programmer’s ivory tower will finish its collapse.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span>. Our jobs will be going
+away. The open question is whether we, like the Luddites, will find ourselves
+without work and losing our homes,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span> or whether this will open the way for more complex work the AIs can’t
+do (yet).</p>
+
+<p><figure class="image">
+    <img src="/static/images/preferences-pane.png" width="600" alt="Just a few of the preferences available for iTerm 2">
+    <figcaption>Just a few of the preferences available for iTerm 2 </figcaption>
+</figure></p>
+
+<p>As a bonus, you will get exactly the applications <em>you</em> want. No more
+bewildering array of preference selections. The app is for you, not for the
+masses.  You won’t have to ask the app not to track. You won’t have annoying ads
+until you pay for a premium service. Need a new feature? “Hey, ChatGPT, I need
+you to change the novel writing app we created.”</p>
+
+<p>We will finally have “programming for the masses.”</p>
+
+<p>For all those who disagree, Dr. Matt Welsh would like to have a word.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/JhCl-GeT4jw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>What will the code look like? In the early days of programming, we were setting
+switches and pushing buttons on huge machines. Later, we were writing Fortran on
+punch cards. Today, we have easy languages like Python and hard languages like
+Rust, but consider even very difficult languages such as APL. The following is
+<a href="https://aplwiki.com/wiki/John_Scholes%27_Conway%27s_Game_of_Life" target="_blank">Conway’s Game of Life written in
+APL</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<div class="shadow"><pre class="scrolled"><code>life ← {⊃1 ⍵ ∨.∧ 3 4 = +/ +⌿ ¯1 0 1 ∘.⊖ ¯1 0 1 ⌽¨ ⊂⍵}
+</code></pre></div>
+
+<p>That’s still far easier than entering ones and zeros by toggling switches on a
+room-sized beast.</p>
+
+<p>Language models don’t need something that humans can read. They’ll be able to
+write machine code directly. They might still use an intermediate representation
+that can be easily translated to the machine code for a particular
+architecture—presumably using a translator they’ve written.</p>
+
+<p>Programs could potentially run faster and more reliably, but many are not going
+to feel comfortable with code they can’t verify, but this is where I think we’re
+heading.</p>
+
+<p>I also expect that many applications will simply go away, being replaced by a
+single language model which can handle this for us. “Hey, ChatGPT! Send an email
+to mom, wishing her a happy birthday.” And ChatGPT will do that, probably
+matching your conversational style.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>The programming profession, as we practice is today, is dying. We may not see it
+yet, but it is. And for all the cries of “programming language X is dying,” the
+truth is that <em>all</em> programming languages are dying. We face an existential
+threat, but I see many programmers denying this, insisting that they’re still
+better than the language models. It’s true, they often are, but they’re slower
+than the models and the models are getting better.</p>
+
+<p>It’s possible there will still be a role for programmers, though. In the 80s, I
+was tutoring college students in the C programming language. I met many
+brilliant people who simply couldn’t <em>think</em> about programming the way
+programmers do. Despite their intelligence, they just couldn’t understand how to
+structure programs, but lacking this skill, they had others that programmers
+often don’t.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>This might spill over to prompt engineering. Note how detailed my original
+prompt was.  If you go back to that prompt, note the last item on the list about
+deleting items from storage when I remove them from my list.  If I didn’t
+have that, I’d eventually risk filling up my storage over time, but not know
+why. It’s little details like that which will keep programmers in business for a
+while...until the AI learn to anticipate situations like this and ask us how to
+address it.</p>
+
+<p>“Prompt engineering” might be renamed “programming” in the future.
+However, as language models increase in power, I expect that even this strength
+might go away. If language models can ever incorporate <a href="https://thedecisionlab.com/reference-guide/philosophy/system-1-and-system-2-thinking" target="_blank">system 2
+thinking</a> <span class="fa fa-external-link fa_custom"></span>,
+all bets are off. That might also be what leads us to <a href="https://en.wikipedia.org/wiki/Artificial_general_intelligence" target="_blank">artificial general
+intelligence</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>The AI boom today is like the internet boom in the 90s. There will be “bust”
+periods as many AI companies offer products with no value. There will be
+detractors who call AI “just a fad.” And AI will continue regardless. I’m both
+excited and concerned by the future.</p>
+
+<p><a href="https://github.com/Ovid/chatgpt-shopping" target="_blank">You can check out the github project for my code
+here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/dont-start-with-microservices.html" class="prevPost">&laquo; Don't Start with Microservices</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/building-an-iphone-app-with-chatgpt.html";
+            this.page.identifier = "articles/building-an-iphone-app-with-chatgpt";
+            this.page.title      = "Building an iPhone App with ChatGPT";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>This includes discovering the
+world of Nick Land, and anti-democratic, white supremacist accelerationists who
+who are support AI as one of many ways to tear down our current institutions. No
+links, because you can go down that rabbit hole yourself, if you're so
+inclined.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>However,
+at the present time, it's worth noting that Copilot usually has excellent editor
+integration and can “see” your entire project. This gives it a bird's-eye view
+of what you're doing, something that ChatGPT can't yet do.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>ChatGPT forgot this and gave me toggles on the right.  I decided to stick with them.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4">
+        <strong id="note-4">Footnotes</strong>
+        <p id="note-description-4" class="sr-only">Note number 4</p>
+	    <div>I later changed those to "A to Z" and "Popular."</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog4 = new Dialog(document.querySelector('#dialog-4'), dialogOverlay);
+        myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
+    </script>
+      
+            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5">
+        <strong id="note-5">Footnotes</strong>
+        <p id="note-description-5" class="sr-only">Note number 5</p>
+	    <div>The leading space before many
+tokens allows ChatGPT to recreate the actual text.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog5 = new Dialog(document.querySelector('#dialog-5'), dialogOverlay);
+        myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
+    </script>
+      
+            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6">
+        <strong id="note-6">Footnotes</strong>
+        <p id="note-description-6" class="sr-only">Note number 6</p>
+	    <div>Version 15.2, as of this
+writing.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog6 = new Dialog(document.querySelector('#dialog-6'), dialogOverlay);
+        myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
+    </script>
+      
+            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7">
+        <strong id="note-7">Footnotes</strong>
+        <p id="note-description-7" class="sr-only">Note number 7</p>
+	    <div>I
+say 'finish' because the collapse is starting now.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog7 = new Dialog(document.querySelector('#dialog-7'), dialogOverlay);
+        myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
+    </script>
+      
+            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8">
+        <strong id="note-8">Footnotes</strong>
+        <p id="note-description-8" class="sr-only">Note number 8</p>
+	    <div>The Luddite rebellion ended in
+1816, in part because “frame-breaking” (destroying the machines) was made a
+capital offense and soldiers were shooting into crowds of
+protestors.<br/><br/>Depending on the source, the economic damage to the
+protestors wasn't fully corrected until sometimes between 1820 and 1850. That's
+a long time to suffer, but the business owners were getting richer the entire
+time.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog8 = new Dialog(document.querySelector('#dialog-8'), dialogOverlay);
+        myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
+    </script>
+      
+            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9">
+        <strong id="note-9">Footnotes</strong>
+        <p id="note-description-9" class="sr-only">Note number 9</p>
+	    <div>I was tempted to finish that with, 'such as social
+skills,' but I didn't. See what a nice guy I am?</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog9 = new Dialog(document.querySelector('#dialog-9'), dialogOverlay);
+        myDialog9.addEventListeners('#open-dialog-9', '#close-dialog-9');
+    </script>
+      
+    
+</body>
+</html>
+
+
