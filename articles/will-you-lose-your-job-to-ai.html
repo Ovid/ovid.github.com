@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/will-you-lose-your-job-to-ai.html" />
+  
+  <meta property="og:title" content="Will You Lose Your Job to AI?" />
+  <meta property="og:description" content="Given the current worries about AI, people are worried about losing their jobs to it. You probably won't. Yet." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Will You Lose Your Job to AI?</title>
+  <meta name="description" content="Will You Lose Your Job to AI?">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Will You Lose Your Job to AI?</h1>
+        <time>2024-02-18</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/building-an-iphone-app-with-chatgpt.html" class="prevPost">&laquo; Building an iPhone App with ChatGPT</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p>Do you wonder how AI is going to impact your job? Your company? Your industry? Read on.</p>
+
+<p>Years ago I was at a conference in Prague and listening to some guy literally
+yelling at me that Perl should die. He gave plenty of reasons why it should die
+and I noted with amusement that every complaint he had about the language was
+factually incorrect (not updated since last century, can’t protect against
+misspelled variables, etc.). When faced with naysayers, there’s a huge
+difference in opinion between those who know a topic well and those who don’t.</p>
+
+<p>I see something similar happening with AI. People with a superficial knowledge
+of the subject matter are opining on the subject. I call them “ignoracles.” As
+I was one of them, I decided I didn’t want to be that guy in Prague, so I’ve
+been doing a deep-dive into AI. For the purposes of this, I’ll largely mean
+“large language models” when I refer to AI, and I’ll mostly be focusing on
+generative AI which handles text.</p>
+
+<p>Further, if you’re going to research this yourself, make sure that you’re not
+pulling old articles. This field is moving insanely fast and articles published
+just six months ago are often wildly out of date.</p>
+
+<p>AI is going through a “boom” period similar to the 90s' dot-com boom, the recent
+SPAC-fueled NewSpace<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> boom, or “Tulip Mania.” AI, like these
+booms, is headed for a crash as companies rushing with confused business plans
+and investors forget about sound business principles and throw money at those
+companies. However, unlike Tulip Mania, there is real value here. AI is changing
+the business landscape forever.</p>
+
+<p>For many of you, you’re worried about your jobs. Currently, many job losses are
+based around the text capabilities of AI. <a href="https://bestmediainfo.com/2024/01/should-advertising-and-marketing-professionals-worry-about-losing-their-jobs-to-ai" target="_blank">Marketing,
+advertising</a> <span class="fa fa-external-link fa_custom"></span>,
+<a href="https://edition.cnn.com/2023/03/01/media/axel-springer-ai-job-cuts/index.html" target="_blank">journalism</a> <span class="fa fa-external-link fa_custom"></span>,
+etc., are all under threat for a variety of reasons, and not just because “AI
+can write it for you.” (a common misconception of ignoracles). One curious
+source of job loss, however, isn’t that AI will replace the roles, but the
+<a href="https://www.nytimes.com/2024/02/05/technology/why-is-big-tech-still-cutting-jobs.html" target="_blank">companies need to fire employees to free up cash to invest in
+AI</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>And yes, programmers: AI is coming for your jobs, too. But not just yet. We’re
+getting better at having AI write software for us, even without human
+intervention. Because modern AI is still in its infancy, it’s not (yet) great
+at writing this software, but tools like
+<a href="https://github.com/OpenBMB/ChatDev" target="_blank">ChatDev</a> <span class="fa fa-external-link fa_custom"></span> are showing us that there’s
+tremendous scope here. ChatDev uses AI “agents” to simulate multiple roles,
+including CEOs, marketing professionals, developers, testers, art designers,
+etc.</p>
+
+<p>In short, you can give ChatDev a prompt, such as “Create an ebook reader for
+me,” and it will go off and create one. Most apps it creates are rather
+simple, but remember, this technology is in its infancy and rapidly evolving.
+Many in the field who are knowledgeable about the topic are bluntly asserting
+programming jobs are ending, but their timescales vary wildly. Ten years is a
+common figure, but assume there are wide error bars. We just don’t know.</p>
+
+<p>For software development, the ignoracles point out that AI-written software is
+bad. Yes, it often is, but AI writes code and order or two of magnitude faster
+than humans and that makes it easy to test and iterate. Humans write software
+much slower and we also need to test and iterate. AI lets us do that much
+faster.</p>
+
+<p>One CEO reported that he will fire any developer not using Copilot. Another CEO
+gave paid OpenAI accounts to all employees, offering cash incentives to
+employees who created the best workflows. After 30 days he fired everyone who
+didn’t use it. AI is impacting programmers <em>now</em>.</p>
+
+<p>Currently, the safest jobs are those requiring a body, not a mind. Carpenters,
+barbers, truck drivers, and so on. There’s a lot of work in robotics to
+incorporate AI and it looks promising,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> but it’s a long way from being ready for prime-time.</p>
+
+<p>I see companies falling into three camps around AI. One is simply ignoring it.
+I live in France and despite French AI companies such as <a href="https://huggingface.co" target="_blank">Hugging
+Face</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://mistral.ai" target="_blank">Mistral AI</a> <span class="fa fa-external-link fa_custom"></span> being huge,
+<a href="https://www.unleash.ai/artificial-intelligence/french-companies-wont-use-ai/" target="_blank">half of French companies have no plans on using
+AI</a> <span class="fa fa-external-link fa_custom"></span>.
+The other two camps are tactical and strategic adoption. Tactical responses are largely companies using AI to augment the capabilities of their employees and this is an area where AI shines. For strategic adoption, it’s a whole new ballgame.</p>
+
+<p>Search engines are already using AI to make it much easier to search for what
+you want, but companies such as Anthropic, DeepL, AI21 labs, Databricks,
+Inworld AI and others are creating new products built on top of this new
+industry. I’m particularly interested in <a href="https://inworld.ai/" target="_blank">Inworld AI</a> <span class="fa fa-external-link fa_custom"></span>.
+Amongst other things, they can create NPCs and you can talk to them and have an
+intelligent conversation about the world you’re in. Gaming is huge and adding
+modern AI is going to drive development significantly.</p>
+
+<p>But don’t just take my word for it. Take the word of almost <a href="https://arxiv.org/abs/2401.02843" target="_blank">3,000 researchers
+who’ve published on the topic</a> <span class="fa fa-external-link fa_custom"></span>. (emphasis
+mine)</p>
+
+<blockquote>
+  <p>If science continues undisrupted, the chance of unaided machines outperforming 
+  humans in every possible task was estimated at 10% by 2027, and 50% by 2047 
+  [...] However, <strong>the chance of all human occupations becoming fully automatable 
+  was forecast to reach 10% by 2037, and 50% as late as 2116</strong>.</p>
+</blockquote>
+
+<p>Meanwhile, prompt engineering is a thing and most people are very bad at it. In
+a later post, I’ll talk more about it and why and how you should create a
+prompt library for your business.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/building-an-iphone-app-with-chatgpt.html" class="prevPost">&laquo; Building an iPhone App with ChatGPT</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/will-you-lose-your-job-to-ai.html";
+            this.page.identifier = "articles/will-you-lose-your-job-to-ai";
+            this.page.title      = "Will You Lose Your Job to AI?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>This is the commercial space industry, another
+topic I'm quite passionate about.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>It looks promising for
+employers, not employees, but it's a long way from being ready for
+prime-time.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+</body>
+</html>
+
+
