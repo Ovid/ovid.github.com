@@ -1,17 +1,17 @@
 [% USE Ovid;
-   # positio = type of image (left, center, right) (default = 'center')
+   # align   = (left, center, right) (default = 'center')
    # src     = path to image
    # alt     = alt text (a11y)
    # source  = URL of source
    # caption = caption to appear under image (optional)
-   IF ( (position == 'center') || (!position.defined) );
+   IF ( (align == 'center') || (!align.defined) );
      class = 'image';
-   ELSIF ( position == 'left' );
+   ELSIF ( align == 'left' );
      class = 'captioned-left';
-   ELSIF ( position == 'right' );
+   ELSIF ( align == 'right' );
      class = 'captioned';
    ELSE;
-     THROW "Unknown position argument for image $src: $position";
+     THROW "Unknown 'align' argument for image $src: $align";
    END;
 -%]
 <figure class="[% class %]">
