@@ -1,0 +1,718 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/mars.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="The beautiful planet Mars, floating in space." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/blog/a-city-on-mars-review.html" />
+  
+  <meta property="og:title" content="“A City on Mars” Review" />
+  <meta property="og:description" content="Should we settle Mars? Is this 'rush to space' a good thing? Kelly and Zach Weinersmith wrote a book about it." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>“A City on Mars” Review</title>
+  <meta name="description" content="“A City on Mars” Review">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>“A City on Mars” Review</h1>
+        <time>2024-02-25</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by 
+          Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <li><a href="/tau-station.html">Tau Station</a></li>
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/marc-andreessen-techno-babble.html" class="prevPost">&laquo; Marc Andreessen: Techno Babble</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/space.html">Space</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#prologue">Prologue</a></li>
+    <li class="indent-1"><a href="#the-premise">The Premise</a></li>
+    <li class="indent-1"><a href="#the-space-settlement-questions">The Space Settlement Questions</a></li>
+    <li class="indent-2"><a href="#ethical-and-scientific-issues">Ethical and Scientific Issues</a></li>
+    <li class="indent-2"><a href="#can-mars-turn-a-profit">Can Mars Turn a Profit?</a></li>
+    <li class="indent-2"><a href="#a-colony-on-the-moon">A Colony on the Moon?</a></li>
+    <li class="indent-2"><a href="#lets-live-on-space-stations">Let’s Live on Space Stations!</a></li>
+    <li class="indent-1"><a href="#verdict">Verdict?</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="prologue"></a>Prologue</h1>
+
+<p><figure class="captioned">
+    <img src="/static/images/city-on-mars-cover.jpg" width="600" alt="&quot;A City on Mars&quot; book cover.">
+    <figcaption>A City on Mars <a href="https://www.acityonmars.com/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure></p>
+
+<p>This review is late in coming, as the book <a href="https://www.acityonmars.com/" target="_blank">A City on
+Mars</a> <span class="fa fa-external-link fa_custom"></span> was released on November 7, 2023. Despite
+having pre-ordered it from Amazon <em>and</em> being an Amazon Prime customer, I had
+one slight problem: Amazon is “first come, first served” and by “first,” Amazon
+means “America first, baby!” I live in France, so I
+waited months for my next-day delivery.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Also, I’ll
+handle the review by summarizing a few of their key points. Where citations are
+not present, they’re in the book.</p>
+
+<p>Anyone who knows me knows that <a href="/tags/space.html">I love space</a> and <a href="https://www.youtube.com/watch?v=rjAFqqHR6vc&amp;t=1897s&amp;ab_channel=CurtisPoe" target="_blank">I’ve even
+give talks about the
+topic</a> <span class="fa fa-external-link fa_custom"></span>,
+so I feel like I’m fairly well-read on subject. In fact, at the last talk,
+despite wearing my “Occupy Mars” polo and being a huge proponent of space, I
+said:</p>
+
+<blockquote>
+  <p>To be honest, with the ethical, financial, legal, political, engineering, and
+  scientific challenges, we will not be colonizing Mars within the next generation
+  or so, though the moon’s actually interesting.</p>
+</blockquote>
+
+<p>I was so, so wrong. We won’t be colonizing the moon or Mars within my lifetime
+(or yours). We might get more-or-less permanently manned
+scientific stations on the moon and we might get boots on Mars, but people won’t
+be going to either of those places to live.</p>
+
+<h1><a name="the-premise"></a>The Premise</h1>
+
+<p>The book “A City on Mars” is written by the wife and husband team, Kelly and
+Zach Weinersmith. Dr. Kelly Weinersmith is adjunct faculty in the biosciences at
+Rice University who studies parasitic manipulation of host behavior. Zach
+Weinersmith <a href="https://www.smbc-comics.com/" target="_blank">draws funny pictures</a> <span class="fa fa-external-link fa_custom"></span>.  For this
+book, they actually set out to write a book explaining <em>how</em> we were going to
+colonize space. Both of them are huge fans of space. However, as they did their
+research, they kept hitting problem after problem. Five years later, they
+(perhaps somewhat reluctantly), produced a book explaining why we not only won’t
+be settling space in the near future, but why this is possibly a good thing.
+Their list more or less matched my own, but despite my being well-read on the
+topic, their knowledge dwarfs my own. They even killed my thoughts on our first
+rotating space stations.</p>
+
+<p>Despite the Weinersmith’s obvious delight in grinding my dreams under their
+collective heels<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span>, the
+book is a joy to read. It’s well-paced, hilarious, and the arguments are
+well-researched, with a thick bibliography in the back of the book. But don’t
+take my word for. Of the many glowing reviews, this one stood out to me.</p>
+
+<blockquote>Of the many books and extensive literature on space-mission architectures,
+technical and otherwise, this is the only one that is a must read to understand
+the deep financial, physiological, ad technical constraints of one of the
+largest and most ambitious endeavors of our time: enabling humans to become a
+multiplanetary species.
+<div class="attribution"><a
+href="https://www.iafastro.org/biographie/sinead-o%E2%80%99sullivan.html">Sinéad
+O’Sullivan, Advisory Council of the European Space Policy Institute</a></div>
+</blockquote>
+
+<p>When you have members of the Advisory Council of the European Space Policy
+Institute recommending your pop-sci book, that’s some pretty heavy-duty street
+cred.</p>
+
+<p>Which brings us to the obvious question: what are they arguing? My list of
+objections seemed kind of long, but they sailed past them, waving merrily as
+they covered far more ground than I ever imagined. Clearly in a short review, I
+won’t cover them all, but I’ll touch on some highlights and start with some
+important questions for understanding if we might colonize space.</p>
+
+<h1><a name="the-space-settlement-questions"></a>The Space Settlement Questions</h1>
+
+<p>When it comes to the possibility of humanity settling space, it’s sometimes
+framed in the context of two questions.</p>
+
+<ol>
+<li>Will a space settlement have enough local resources to survive?</li>
+<li>Will a space settlement be financially self-sufficient?</li>
+</ol>
+
+<p>If the answer to both of those questions is “no,” we can kiss space settlement
+goodbye. If the answer to both is “yes,” get your radiation-hardened suitcase
+ready. If the answer to one is “no” and the other is “yes,” depending on which
+way it goes, we’ll have radically different space settlements.</p>
+
+<p>Those are great questions, but they’re not enough.</p>
+
+<h2><a name="ethical-and-scientific-issues"></a>Ethical and Scientific Issues</h2>
+
+<p>There are several questions missing from the previous ones, which this book
+makes clear, but I’ll just touch on two.</p>
+
+<ol>
+<li>Can humans survive in micro- or low-gravity environments long-term?</li>
+<li>Can we have babies in those environments?</li>
+</ol>
+
+<p>We might naïvely assume we have the answer to the gravity question, but we
+don’t. Astronauts, cosmonauts, and taikonauts living on space stations do so for
+relatively short periods of time. Further, they’re on stations protected from
+most radiation by <a href="https://science.nasa.gov/biological-physical/stories/van-allen-belts/" target="_blank">the Van Allen
+belts</a> <span class="fa fa-external-link fa_custom"></span>.
+We simply have no information here. You might think we can just throw a bunch of
+people on Mars and hope it all works out, but that’s ethically dubious, at best.</p>
+
+<p><figure class="image">
+    <img src="/static/images/space-radiation-effects.jpg" width="600" alt="NASA diagram showing some space radiation effects on ISS astronauts">
+    <figcaption>Space Radiation Effects <a href="https://www.nasa.gov/image-detail/gender-differences-diagram-from-nsbri-nasa/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure></p>
+
+<p>Even if they know the risks they’ll be taking are considerable, potential babies
+(gotta have babies if you want a colony), won’t know, or agree to, those risks.
+Can we conceive on Mars? Will the embryos be healthy? Will the children be able
+to grow into adulthood? Even if they grow up to be adults, if there’s a
+catastrophe, will they be physically capable of returning to Earth, or have we
+doomed them to exile?</p>
+
+<p>Oh, and let’s not forget that Mars is covered in perchlorate. Perchlorate
+inhibits the thyroid hormone. We can treat this.</p>
+
+<p>It also appears to effect brain development in children, starting at the
+embryonic stage. We cannot treat this.</p>
+
+<p>We don’t know the answers to any of these questions and even if adults agree to
+the risks, we can’t accept the potential horror of raising a generation of
+underdeveloped children with learning disabilities, or worse, severe brain
+damage.</p>
+
+<p>The only way we can get the answers to the “space babies” question is doing
+<em>generations</em> of micro- or low-gravity research with smaller animals before we
+work our way up to anything remotely analogous to humans. And we’ll need control
+groups, and have some of this research happen <em>outside</em> the Van Allen Belts. Oh,
+and don’t forget to factor in the perchlorate exposure.</p>
+
+<p>But who’s going to pay for this? I can’t imagine US taxpayers will be keen on
+spending billions of dollars on multi-generational studies of lab rats having
+sexy time in space. Will corporations? Maybe. If they can turn a profit. And
+while people might not be upset if mice don’t survive this, imagine the PR
+nightmare of breeding primates in space, only have cute little monkey babies
+with severe brain damage.</p>
+
+<p>But we still have to do this. Dodging ethical questions by ignoring them
+is ... checks notes ... bad.</p>
+
+<p><figure class="captioned-left">
+    <img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars.">
+    <figcaption>The planet Mars. </figcaption>
+</figure></p>
+
+<p>From my perspective, I also think we need to consider what our response should
+be if we discover extant life on Mars. Though it’s a distant possibility,
+<a href="/blog/searching-for-extraterrestrial-life-in-our-solar-system.html#mars">native life might exist on the Red
+planet</a>.
+If so, any plans on colonizing Mars need to grind to a halt while we consider
+the moral and scientific questions that would arise. The Wienersmiths only touch
+on this briefly, on page 146,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> but
+given how unlikely life is on Mars, this is hardly a critique.</p>
+
+<h2><a name="can-mars-turn-a-profit"></a>Can Mars Turn a Profit?</h2>
+
+<p><figure class="captioned">
+    <img src="/static/images/uhaul-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a U-Haul rocket traveling to Mars.">
+    <figcaption>Mars or Bust! <a href="https://openai.com/dall-e-3" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure></p>
+
+<p>OK, so there is some medical research we have to do, but we can make a profit
+off of our colonies, right? For Mars, that’s very unclear. Sure, Musk has a plan
+to send people to Mars <a href="https://www.inverse.com/article/53169-elon-musk-reveals-future-price-plan-for-a-return-ticket-to-mars" target="_blank">with ticket prices as low as
+$100,000</a> <span class="fa fa-external-link fa_custom"></span>,
+but he views SpaceX as a transportation company. It would be up to the aspiring
+colonists to do almost everything else, including being self-sustaining.</p>
+
+<p>But how are they going to do that “everything else” if they can’t pay for it?
+Space geeks like to claim that they settlers will be incredibly resourceful and
+come up with plenty of intellectual property they can sell to Earth.</p>
+
+<p><figure class="captioned-left">
+    <img src="/static/images/colonist-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a Martian colonist hitching a ride back to Earth.">
+    <figcaption>Earth or Bust! <a href="https://openai.com/dall-e-3" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</figure></p>
+
+<p>Bullshit. With even our limited understanding of what it takes to build and
+maintain a self-sustaining environment, those settlers are going to be working
+10- to 12-hour days just trying to stay alive. Farming, cooking, cleaning,
+exercising, monitoring life support,and constantly repairing the habitats will
+be most of their day, with maybe a little exploration done on the side. And any
+“colony” will be so ridiculously small that it’s hard to imagine they’ll have
+significant intellectual capital to sell back to Earth. Musk has said that
+colonists will have free trips back to Earth. I think he would be surprised at
+how many take him up on that.</p>
+
+<p>And no, they’re not going to be shipping tons of physical goods back to Earth,
+either. There’s not much that’s apparently valuable on Mars that we can’t make
+or find cheaper on Earth.</p>
+
+<h2><a name="a-colony-on-the-moon"></a>A Colony on the Moon?</h2>
+
+<p>What about the moon? Helium-3 is incredibly valuable and plentiful, right?</p>
+
+<p>Nope. Aside from some obscure medical uses, helium-3 is only valuable to us for
+fusion energy. For a fusion reactor we can’t build. A <em>more advanced</em> version of
+the fusion reactors we have failed to build for decades. And how would we get
+that helium-3 on the moon? It’s only in a concentration of a few parts per
+billion and we’d be strip-mining the surface of our satellite. Oh, and we’d have
+to build and maintain huge mining and processing facilities, along with mass
+drivers to launch them from the surface. All of those would have to withstand
+the intense radiation and the extreme high and low temperatures of the lunar
+day-night cycle. All to harvest something for a reactor we don’t have and we’re
+not even sure we can build.</p>
+
+<p>It should be noted that, if it works, the payoffs could be huge. According to
+the paper <a href="https://space.nss.org/wp-content/uploads/NSS-JOURNAL-Nuclear-Fuel-Resources-of-the-Moon-2021-June.pdf" target="_blank">Nuclear Fuel Resources of the Moon: A Broad Analysis of Future Lunar
+Nuclear Fuel
+Utilization</a> <span class="fa fa-external-link fa_custom"></span>,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span> we might have enough
+helium-3 to provide anywhere between 500 to 1,400 years of Earth’s <em>total</em>
+energy consumption ... if we were to strip mine the entire surface of the moon
+about three meters deep.</p>
+
+<p>Brilliant plan, eh?</p>
+
+<p>So, what about the water? There’s enough for a small lake. When it’s used up,
+it’s done.</p>
+
+<p>To add insult to injury, you can forget about harvesting carbon or nitrogen on
+the moon, meaning that the elements which are, um, critical for life and
+building and maintaining an ecosystem, aren’t there. We need to ship them in.
+The moon will be a money sink, not a money source.</p>
+
+<p>That’s OK if we’re committed to make that effort, but scaling up to a colony?
+Not gonna happen in our lifetimes. Small science stations? Sure, but that’s
+about it.</p>
+
+<h2><a name="lets-live-on-space-stations"></a>Let’s Live on Space Stations!</h2>
+
+<p><figure class="captioned">
+    <img src="/static/images/stanford-torus.png" width="600" alt="A black and white cartoon, 1940s style, of a Standord Torus orbiting Earth.">
+    <figcaption>If you lived here, you’d be home by now. </figcaption>
+</figure></p>
+
+<p>So at this point, we’re pretty much left with space stations. No O’Neill
+Cylinders, but maybe we can get a <a href="https://en.wikipedia.org/wiki/Stanford_torus" target="_blank">Stanford
+Torus</a> <span class="fa fa-external-link fa_custom"></span>?</p>
+
+<p>The answer is “no.” To build a large enough station for people to settle
+on—something even remotely close to our sci-fi dreams—, we have to consider the
+mass is the structural material, the water, the soil, the atmosphere, and so on.
+It’s going to be millions of tons of mass, and we’ll also need to consider the
+logistics and construction.</p>
+
+<p>It’s easy to do the math and try to figure out the number of rocket launches
+from Earth to launch enough rockets to build the station, but it becomes clear
+that even with the upcoming Starship, it’s not feasible to launch from Earth. So
+we need something in space (probably the moon) which launches much of the raw
+material towards where we want the station built, and something at that location
+to catch the material. We really don’t know how to do that, and that’s
+<em>before</em> we consider that we don’t know how to build a large, self-sustaining
+radiation-hardened hamster wheel.</p>
+
+<p>Remember those first two space settlement questions above?</p>
+
+<ol>
+<li>Will a space settlement have enough local resources to survive?</li>
+<li>Will a space settlement be financially self-sufficient?</li>
+</ol>
+
+<p>There’s a good argument to be made that the answers are “no” and “no” for a
+Stanford Torus, but by the time we have the engineering ability to construct
+one, perhaps we’ll have enough of a space industry where those answers will
+change. For that, it’s simply not possible, and probably not possible for the
+foreseeable future.</p>
+
+<h1><a name="verdict"></a>Verdict?</h1>
+
+<p>This is a damned amazing book. It’s hugely informative and very funny. Weighing
+in at almost 400 pages, with an extensive bibliography,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span> it’s clear that this review
+barely scrapes the surface of what’s in there. I didn’t get a chance to talk
+about the legal and political issues. Or the space sex. Or the space
+cannibalism. You know, the parts you’re dying to read about.</p>
+
+<p>If you, like me, have the slightest interest in what it will take to become a
+multiplanetary species, <a href="https://www.acityonmars.com/" target="_blank">this is the book you should 
+buy</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/marc-andreessen-techno-babble.html" class="prevPost">&laquo; Marc Andreessen: Techno Babble</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/a-city-on-mars-review.html";
+            this.page.identifier = "blog/a-city-on-mars-review";
+            this.page.title      = "“A City on Mars” Review";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>I understand this is a
+rather common issue for Amazon. Amazon also gave plenty of excuses why they
+couldn't deliver the book in a timely fashion, most of which involved blaming
+the problem on anybody but Amazon, such as Amazon subsidiaries.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Are 'collective heels' a thing?</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>The book has a great index!</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4">
+        <strong id="note-4">Footnotes</strong>
+        <p id="note-description-4" class="sr-only">Note number 4</p>
+	    <div>This paper is recommended in the book.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog4 = new Dialog(document.querySelector('#dialog-4'), dialogOverlay);
+        myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
+    </script>
+      
+            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5">
+        <strong id="note-5">Footnotes</strong>
+        <p id="note-description-5" class="sr-only">Note number 5</p>
+	    <div>And an
+fantastic index! Did I mention the index?</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog5 = new Dialog(document.querySelector('#dialog-5'), dialogOverlay);
+        myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
+    </script>
+      
+    
+</body>
+</html>
+
+

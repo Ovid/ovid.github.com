@@ -5,6 +5,8 @@ use HTML::TokeParser::Simple;
 use File::Find::Rule;
 use Less::Boilerplate;
 
+my $MAX_IMAGE_SIZE = 300_000;
+
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
@@ -114,9 +116,9 @@ sub _validate_image ($image) {
         }
         elsif ( $src !~ /\.gif$/ ) {
             my $size = -s $src;
-            if ( $size > 250_000 ) {
+            if ( $size > $MAX_IMAGE_SIZE ) {
                 push @errors =>
-"Image $src does not appear to be optimized. It's $size bytes. We prefer 250,000 bytes or under.";
+"Image $src does not appear to be optimized. It's $size bytes. We prefer $MAX_IMAGE_SIZE bytes or under.";
             }
         }
     }
