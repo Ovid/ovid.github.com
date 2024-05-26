@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/blog/being-a-keynote-speaker.html" />
+  
+  <meta property="og:title" content="Being a Keynote Speaker" />
+  <meta property="og:description" content="I've been asked to give the opening keynote at the 25th anniversary of The Perl Conference/YAPC. It should be Larry, but he's not able to attend." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Being a Keynote Speaker</title>
+  <meta name="description" content="Being a Keynote Speaker">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Being a Keynote Speaker</h1>
+        <time>2024-05-26</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/a-city-on-mars-review.html" class="prevPost">&laquo; &quot;A City on Mars&quot; Review</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/perl.html">Perl</a> </li>
+
+    <li><a href="/tags/personal.html">Personal</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><em>The following is an early morning ramble. Nothing particularly amazing and
+certainly not well-structured, but it’s been occupying my thoughts.</em></p>
+
+<h1><a name="opening-keynote"></a>Opening Keynote</h1>
+
+<p>I am extremely humbled to have been asked to be the opening keynote speaker at
+<a href="https://tprc.us/tprc-2024-las/" target="_blank">The 2024 Perl and Raku Conference in Las Vegas</a> <span class="fa fa-external-link fa_custom"></span>
+This is the 25th anniversary of the YAPC/Perl Conference and the opening
+keynote, of course, should go to <a href="http://www.wall.org/~larry/" target="_blank">Larry Wall</a> <span class="fa fa-external-link fa_custom"></span>, but
+he’s not able to attend.</p>
+
+<p>Damian Conway will also be giving a keynote (remotely). Here’s the first part of
+the
+description:</p>
+
+<blockquote>
+  <p>Retroemotions, statistical outliers, lunar excursions, climatology, Lorentz
+  contraction, extrasolar planets, atomic clocks, lucky bullets, Greek mythology,
+  political commentary, true crime, artificial intelligence, time travel,
+  neofuturism, The Prince, British SF of the 1970s, dwimmery, poetry, Pride and
+  Prejudice and Profit, English grammar, Perlish syntax, cleverness, satire, a
+  better Turing test, keywords, really smart comments, getting what you mean by
+  saying what you want, marionette etiquette roulette, welcoming our new robot
+  overlords, object orientation, multiple dispatch ...</p>
+</blockquote>
+
+<p>This, of course, is typical Conway and anything I say will pale in comparison.</p>
+
+<p>For the 25th anniversary, a keynote needs to be big. Well, a keynote <em>always</em>
+needs to be “big,” but this is an important milestone and honestly, it’s
+intimidating. Usually when I give a presentation, I suggest a topic and the
+conference agrees. For keynotes, I usually ask them what topic they want and I
+agree. So my topic is a retrospective of the past 25 years.</p>
+
+<p>This is not easy. There have been amazing moments, painful moments, and
+stretches where nothing much has happened. How do I put that into a talk?</p>
+
+<p>As part of my research, I created a Google Map of the conferences over the past
+25 years.</p>
+
+<iframe src="https://www.google.com/maps/d/embed?mid=1Zj8xg48zi2AY7Whau6pfQlaN8QvGq3w&ehbc=2E312F" width="640" height="480"></iframe>
+
+<p>That was a huge amount of fun and in the spirit of open source, <a href="https://www.google.com/maps/d/edit?mid=1Zj8xg48zi2AY7Whau6pfQlaN8QvGq3w&amp;usp=sharing" target="_blank">I’ve opened the
+map up for
+editing</a> <span class="fa fa-external-link fa_custom"></span>.
+It only has bare-bones information, it does not include O’Reilly events,
+workshops, summits, FOSDEM, or many other things which should be there. I’d be
+grateful if you can add them.</p>
+
+<h1><a name="creating-a-keynote"></a>Creating a Keynote</h1>
+
+<p>But how do you create a keynote? It’s not easy. As a speaker at a tech
+conference, you have a topic and you talk about it. You might announce if your
+topic requires beginner, intermediate, or advanced knowledge, but that’s about
+it. Create your slides. Have fun.</p>
+
+<p>For a keynote, you should go beyond the technical. Do you want to inform? Do you
+want to entertain? What’s the <em>theme</em> of your talk? The topic is what it’s
+about, but the theme is the spine that you build your talk on. It’s the central
+conceit, if you will. And to make matters worse, you often have to realize that
+many in your audience will have different skillsets, so a deeply technical talk
+might be painful. For example, if I were to give a talk about economics, I’d
+love to discuss the negative externalities of government regulation of illicit
+markets, vis-a-vis the cross-price elasticity of demand of imperfect
+substitutes.</p>
+
+<p>Um, yeah. That won’t fly for most audiences. What <em>would</em> fly is this:</p>
+
+<blockquote>
+  <p>What happens when the government cracks down on cocaine? People switch to
+  crack and a bad situation just got worse.</p>
+</blockquote>
+
+<p>Same thing, but now people can understand it. That’s my job. Get up on stage and
+take complicated topics and make them understandable to everyone.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>But how to summarize 25 years of conferences? How to make it <em>interesting</em>? I’ve
+been a regular public speaker for two decades now, but this is a daunting
+challenge. Read off the names and locations of all of the conferences? BORING!
+Read off the names of the attendees and who’s arrived and who’s left? BORING!
+Read off <code>perldoc perlhist</code>? BORING (and not really relevant).</p>
+
+<p>I pride myself on good talks and I put a lot of energy into them, but I was
+stumped for a while. I was, to be honest, stressed? How can I make this
+interesting?</p>
+
+<p>The breakthrough came, as they often do, via something completely unrelated. I
+was reading a series of articles about <a href="https://plato.stanford.edu/entries/quantum-bayesian/" target="_blank">the Quantum-Bayesian (QBism) approach to
+quantum physics</a> <span class="fa fa-external-link fa_custom"></span> (as one
+does), when the epiphany hit. QBism is concerned with actors making
+measurements. Or more simply, “people looking at stuff.” People. Humans. That’s
+what my keynote is really about. Perl isn’t about the technology; it’s about the
+community; the language is the focal point, but not the main event. And like any
+community, we have fun, we have fights, we have
+friendships.</p>
+
+<p>We don’t seem to have a lot of forgiveness, but I’m unsure that will make it
+into the keynote. We’ll see.</p>
+
+<p>I can’t say it’s going to be a great keynote, but I think it will be an
+important one. All too often people see email or IRC/Discord/Slack messages and
+they forget there are people at the other end.</p>
+
+<p>I now have the first draft of the keynote written. I suspect what I will deliver
+in Las Vegas won’t be the same as what I have now, but it’s been an interesting
+journey. But it should have been Larry.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/a-city-on-mars-review.html" class="prevPost">&laquo; &quot;A City on Mars&quot; Review</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/blog/being-a-keynote-speaker.html";
+            this.page.identifier = "blog/being-a-keynote-speaker";
+            this.page.title      = "Being a Keynote Speaker";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Honestly, I would love to give that talk.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+</body>
+</html>
+
+
