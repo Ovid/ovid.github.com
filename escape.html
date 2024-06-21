@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Escape Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            display: flex;
+            width: 60%
+        }
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+        }
+        #gameCanvas {
+            border: 1px solid #000;
+        }
+        #hud, #instructions {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <h1><a name="escape"></a>Escape!</h1>
+            <div id="hud">
+                <div>Round: <span id="round">1</span></div>
+                <div>Level: <span id="level">1</span></div>
+                <div>Teleports: <span id="teleports">0</span></div>
+                <div id="pausedStatus">Paused: <span id="paused">Yes</span></div>
+            </div>
+            <div id="instructions">
+                <p>Instructions:</p>
+                <ul>
+                    <li>Use arrow keys to move.</li>
+                    <li>Press "T" to teleport.</li>
+                    <li>Press "Space" to pause/unpause.</li>
+                    <li>Escape the maze to advance to the next level.</li>
+                    <li>For each round, there are as many levels as the round number.</li>
+                    <li>You win the game after 5 rounds.</li>
+					<li>Copyright 2024, Curtis "Ovid" Poe</li>
+                </ul>
+                <p>This game was primarily built as an experiment with Claude 
+                3.5 Sonnet, and ChatGPT 4o. See <a 
+                 href="/articles/claude-sonnet-35-beats-chatgpt-40.html">this 
+                 article for more information.</a> Sometimes the monsters get 
+             stuck, but this is just a toy and it was fun to build, even though 
+             I wrote almost no code.</p>
+                </div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const hudRound = document.getElementById('round');
+        const hudLevel = document.getElementById('level');
+        const hudTeleports = document.getElementById('teleports');
+        const hudPaused = document.getElementById('paused');
+        const pausedStatus = document.getElementById('pausedStatus');
+
+        const CELL_SIZE = 40;
+        const ROWS = 15;
+        const COLS = 20;
+
+        let playerDirection = 'right';
+        let isPaused = true;
+        let round = 1;
+        let currentLevel = 1;
+        let player = { x: 1, y: 1 };
+        let monsters = [];
+        let maze = [];
+        let stairs = { x: 0, y: 0 };
+        let teleports = 0;
+        let monsterMoveCounter = 0;
+
+        function generateMaze(rows, cols) {
+            const maze = Array(rows).fill().map(() => Array(cols).fill(1));
+            
+            function isValid(x, y) {
+                return x >= 0 && x < cols && y >= 0 && y < rows;
+            }
+            
+            function carvePath(x, y) {
+                const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
+                
+                for (const [dx, dy] of directions) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (isValid(nx, ny) && maze[ny][nx] === 1) {
+                        maze[y + dy/2][x + dx/2] = 0;
+                        maze[ny][nx] = 0;
+                        carvePath(nx, ny);
+                    }
+                }
+            }
+            
+            carvePath(1, 1);
+            
+            for (let i = 0; i < rows * cols / 50; i++) {
+                const x = Math.floor(Math.random() * (cols - 2)) + 1;
+                const y = Math.floor(Math.random() * (rows - 2)) + 1;
+                if (maze[y][x] === 1) {
+                    maze[y][x] = 0;
+                    carvePath(x, y);
+                }
+            }
+            
+            maze[1][1] = 0;
+            maze[rows - 2][cols - 2] = 0;
+            
+            for (let i = 0; i < Math.max(rows, cols) / 8; i++) {
+                const x = Math.floor(Math.random() * (cols - 3)) + 1;
+                const y = Math.floor(Math.random() * (rows - 3)) + 1;
+                for (let dy = 0; dy <= 1; dy++) {
+                    for (let dx = 0; dx <= 1; dx++) {
+                        maze[y + dy][x + dx] = 0;
+                    }
+                }
+            }
+            
+            return maze;
+        }
+
+        function initGame() {
+            maze = generateMaze(ROWS, COLS);
+            player = { x: 1, y: 1 };
+            monsters = [];
+            const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
+
+            if (round > 1) {
+                for (let i = 0; i < round - 1; i++) {
+                    let monsterX, monsterY;
+                    do {
+                        monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
+                        monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
+                    } while (maze[monsterY][monsterX] !== 0 ||
+                             Math.abs(monsterX - player.x) < minDistance ||
+                             Math.abs(monsterY - player.y) < minDistance);
+
+                    monsters.push({ x: monsterX, y: monsterY });
+                }
+            }
+            stairs = { x: COLS - 2, y: ROWS - 2 };
+            maze[stairs.y][stairs.x] = 2;
+            teleports = Math.max(0, round - 1);
+            updateHUD();
+        }
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#8B4513';
+                        ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        ctx.strokeStyle = '#D2691E';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    } else if (maze[y][x] === 2) {
+                        // Draw a door for the exit
+                        ctx.fillStyle = '#654321'; // Dark brown for the door
+                        ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        ctx.fillStyle = '#D2691E'; // Lighter brown for the door details
+                        ctx.fillRect(x * CELL_SIZE + CELL_SIZE * 0.1, y * CELL_SIZE, CELL_SIZE * 0.8, CELL_SIZE);
+                        ctx.fillStyle = '#000'; // Black for the doorknob
+                        ctx.beginPath();
+                        ctx.arc(x * CELL_SIZE + CELL_SIZE * 0.75, y * CELL_SIZE + CELL_SIZE * 0.5, CELL_SIZE * 0.05, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        function drawPlayer() {
+            const x = (player.x + 0.5) * CELL_SIZE;
+            const y = (player.y + 0.5) * CELL_SIZE;
+            const radius = CELL_SIZE / 3;
+            const mouthAngle = Math.PI / 4; // Angle of Pacman's mouth opening
+
+            let startAngle, endAngle;
+            let eyeXOffset, eyeYOffset;
+
+            switch (playerDirection) {
+                case 'right':
+                    startAngle = mouthAngle;
+                    endAngle = -mouthAngle;
+                    eyeXOffset = radius / 2.5;
+                    eyeYOffset = -radius / 2.5;
+                    break;
+                case 'left':
+                    startAngle = Math.PI + mouthAngle;
+                    endAngle = Math.PI - mouthAngle;
+                    eyeXOffset = -radius / 2.5;
+                    eyeYOffset = -radius / 2.5;
+                    break;
+                case 'up':
+                    startAngle = -Math.PI / 2 + mouthAngle;
+                    endAngle = -Math.PI / 2 - mouthAngle;
+                    eyeXOffset = -radius / 2.5;
+                    eyeYOffset = -radius / 2.5;
+                    break;
+                case 'down':
+                    startAngle = Math.PI / 2 + mouthAngle;
+                    endAngle = Math.PI / 2 - mouthAngle;
+                    eyeXOffset = -radius / 2.5;
+                    eyeYOffset = radius / 2.5;
+                    break;
+            }
+
+            ctx.fillStyle = '#ff0'; // Yellow color for Pacman
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.arc(x, y, radius, startAngle, endAngle, false);
+            ctx.lineTo(x, y);
+            ctx.fill();
+
+            // Draw Pacman's eye
+            ctx.fillStyle = '#00f'; // Blue color for the eye
+            ctx.beginPath();
+            ctx.arc(x + eyeXOffset, y + eyeYOffset, radius / 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawMonsters() {
+            const ghostColors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f']; // Define colors for the ghosts
+            for (let i = 0; i < monsters.length; i++) {
+                const monster = monsters[i];
+                const color = ghostColors[i % ghostColors.length];
+                const x = (monster.x + 0.5) * CELL_SIZE;
+                const y = (monster.y + 0.5) * CELL_SIZE;
+                const radius = CELL_SIZE / 3;
+                
+                // Draw ghost body
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y - radius / 3, radius, Math.PI, 0, false); // Top half circle
+                ctx.lineTo(x + radius, y + radius / 3);
+                ctx.lineTo(x - radius, y + radius / 3);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw ghost "legs"
+                ctx.beginPath();
+                for (let j = -1; j <= 1; j++) {
+                    ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
+                }
+                ctx.fill();
+                
+                // Draw ghost eyes
+                ctx.fillStyle = '#fff';
+                const eyeRadius = radius / 5;
+                const eyeOffsetX = radius / 2.5;
+                const eyeOffsetY = radius / 5;
+                
+                ctx.beginPath();
+                ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeRadius, 0, Math.PI * 2, true);
+                ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeRadius, 0, Math.PI * 2, true);
+                ctx.fill();
+                
+                // Draw ghost pupils
+                ctx.fillStyle = '#000';
+                const pupilRadius = radius / 10;
+                
+                ctx.beginPath();
+                ctx.arc(x - eyeOffsetX, y - eyeOffsetY, pupilRadius, 0, Math.PI * 2, true);
+                ctx.arc(x + eyeOffsetX, y - eyeOffsetY, pupilRadius, 0, Math.PI * 2, true);
+                ctx.fill();
+            }
+        }
+
+
+        function moveMonsters() {
+            if (isPaused) return;
+            monsterMoveCounter++;
+            if (monsterMoveCounter % 20 !== 0) return; // Move every 20 frames
+
+            const newPositions = [];
+
+            for (const monster of monsters) {
+                const possibleMoves = [];
+
+                // Add all valid moves to possibleMoves array, ensuring they stay within bounds and move towards the player
+                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1) possibleMoves.push({ x: monster.x - 1, y: monster.y });
+                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1) possibleMoves.push({ x: monster.x + 1, y: monster.y });
+                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1) possibleMoves.push({ x: monster.x, y: monster.y - 1 });
+                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1) possibleMoves.push({ x: monster.x, y: monster.y + 1 });
+
+                // Sort possible moves to prioritize those that bring the monster closer to the player
+                possibleMoves.sort((a, b) => {
+                    const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
+                    const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
+                    return distA - distB;
+                });
+
+                // Move the monster to the best possible position
+                if (possibleMoves.length > 0) {
+                    const bestMove = possibleMoves[0];
+                    newPositions.push({ x: bestMove.x, y: bestMove.y });
+                } else {
+                    newPositions.push({ x: monster.x, y: monster.y });
+                }
+            }
+
+            // Verify no two monsters are in the same position
+            const positionSet = new Set();
+            let conflict = false;
+            for (const pos of newPositions) {
+                const posKey = `${pos.x},${pos.y}`;
+                if (positionSet.has(posKey)) {
+                    conflict = true;
+                    break;
+                }
+                positionSet.add(posKey);
+            }
+
+            // Commit the moves if no conflicts exist
+            if (!conflict) {
+                for (let i = 0; i < monsters.length; i++) {
+                    monsters[i].x = newPositions[i].x;
+                    monsters[i].y = newPositions[i].y;
+                }
+            }
+        }
+
+        function checkCollision() {
+            for (const monster of monsters) {
+                if (monster.x === player.x && monster.y === player.y) {
+                    alert('Game Over! You were caught by a monster.');
+                    round = 1;
+                    currentLevel = 1;
+                    initGame();
+                    return;
+                }
+            }
+        }
+
+        function updateHUD() {
+            hudRound.textContent = round;
+            hudLevel.textContent = currentLevel;
+            hudTeleports.textContent = teleports;
+            hudPaused.textContent = isPaused ? "Yes" : "No";
+
+            if (isPaused) {
+                pausedStatus.style.color = 'white';
+                pausedStatus.style.backgroundColor = 'black';
+            } else {
+                pausedStatus.style.color = '';
+                pausedStatus.style.backgroundColor = '';
+            }
+        }
+
+        function teleportPlayer() {
+            if (teleports > 0) {
+                let newPlayerPosition;
+                do {
+                    newPlayerPosition = {
+                        x: Math.floor(Math.random() * (COLS - 2)) + 1,
+                        y: Math.floor(Math.random() * (ROWS - 2)) + 1
+                    };
+                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 || 
+                         monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
+
+                player.x = newPlayerPosition.x;
+                player.y = newPlayerPosition.y;
+                teleports--;
+                isPaused = true;
+                updateHUD();
+            }
+        }
+
+        function gameLoop() {
+            drawMaze();
+            drawPlayer();
+            drawMonsters();
+            if (!isPaused) {
+                moveMonsters();
+                checkCollision();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+
+            if (key === 'ArrowRight') {
+                playerDirection = 'right';
+            } else if (key === 'ArrowLeft') {
+                playerDirection = 'left';
+            } else if (key === 'ArrowUp') {
+                playerDirection = 'up';
+            } else if (key === 'ArrowDown') {
+                playerDirection = 'down';
+            }
+
+            if (key === ' ') {
+                isPaused = !isPaused;
+                updateHUD();
+                return;
+            }
+
+            if (isPaused) return;
+
+            const newX = player.x + (key === 'ArrowRight' ? 1 : key === 'ArrowLeft' ? -1 : 0);
+            const newY = player.y + (key === 'ArrowDown' ? 1 : key === 'ArrowUp' ? -1 : 0);
+
+            if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
+                player.x = newX;
+                player.y = newY;
+
+                if (maze[newY][newX] === 2) {
+                    currentLevel++;
+                    isPaused = true;
+                    if (currentLevel > round) {
+                        round++;
+                        currentLevel = 1;
+                        if (round > 5) {
+                            alert('Congratulations! You won the game!');
+                            round = 1;
+                            currentLevel = 1;
+                        }
+                    }
+                    initGame();
+                }
+            }
+
+            if (e.key === 't' || e.key === 'T') {
+                teleportPlayer();
+            }
+        });
+
+        initGame();
+        gameLoop();
+    </script>
+</body>
+</html>

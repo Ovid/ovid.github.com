@@ -1,0 +1,57 @@
+[%
+    title            = 'Claude Sonnet 3.5 beats ChatGPT 4.0';
+    type             = 'articles';
+    slug             = 'claude-sonnet-35-beats-chatgpt-40';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-06-21';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS ai programming}}
+
+Short article this time. The new LLM from Anthropic, [Claude Sonnet
+3.5](https://www.anthropic.com/news/claude-3-5-sonnet), has just dropped and I'm
+impressed. It's fast, it's accurate, and the code it produces seems to work more
+reliably than ChatGPT 4.0.
+
+Claude immediately built a simple tic-tac-toe game for me as a one-page
+JavaScript app. It was fast and worked perfectly the first time. I did, however,
+have to update my prompt to make the computer player "think" about its moves.
+After that, the game was unwinnable. Then I tried something more ambitious,
+building an escape-the-maze game. Claude was very fast, very reliable, and the
+code never crashed. I had to prompt it a couple of times to improve gameplay and
+at one point, it forgot to increase the number of monsters, but quickly fixed
+that when I pointed it out.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/escape.png"
+   alt      = "A screenshot of a simple Javascript game"
+   caption  = "Escape!"
+%]
+
+Unfortunately, I pay for an OpenAI account, not an Anthropic account, so I
+quickly hit its limits on free requests. However, in that time, it was amazingly
+fast and accurate.
+
+To "finish" the game, I had to switch back to ChatGPT 4o and it was
+night-and-day different. I had to manually fix the orientation of the main
+character's mouth and it was _slow_. Very slow. However, it did a decent job of
+creating appropriate monsters and nicely handled a bug where sometimes the game
+would pause permanently.
+
+Historically, when things like this happen, [OpenAI](https://openai.com/)
+quickly releases an update of ChatGPT which reclaims the throne. Given how
+recently 4o was released, it will be very interesting to see if OpenAI matches
+this move. The general opinion around the web seems to be that despite Claude's
+limitations (for example, it can't run code), it's one of the fastest, most
+reliable GPTs around. [Anthropic](https://www.anthropic.com/) has really done a
+fine job here.
+
+If you want to try out the game, [click here](/escape.html).
+
+[%- END %]
