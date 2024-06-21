@@ -1,0 +1,28 @@
+[%
+    title      = 'Articles by Ovid, page 6';
+    identifier = 'articles_6';
+%]
+
+[% INCLUDE include/header.tt %]
+
+<ul id="articles">
+    <li><a href="/articles/going-agile-can-hurt-your-company.html">When going agile can hurt your company</a></li>
+</ul>
+<nav class="pagination">
+    <a href="/articles_5.html">&laquo;</a>
+    <a  href="/articles.html">1</a>
+    <a  href="/articles_2.html">2</a>
+    <a  href="/articles_3.html">3</a>
+    <a  href="/articles_4.html">4</a>
+    <a  href="/articles_5.html">5</a>
+    <a class="active" href="/articles_6.html">6</a>
+    <span class="inactive">&raquo;</span>
+</nav>
+[% IF 6 == 1 -%]
+<script>
+    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+</script>
+[%- END %]
+
+[% INCLUDE include/footer.tt %]
