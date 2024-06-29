@@ -29,7 +29,7 @@ package Ovid::Site {
     use XML::RSS;
 
     use Readonly;
-    Readonly my $BASE_URL => 'https://ovid.github.io/';
+    Readonly my $BASE_URL => 'https://curtispoe.org/';
 
     has _files => (
         traits  => ['Array'],
@@ -309,20 +309,20 @@ No $ENV{HOME}/.ttreerc file found
 
 It should have a structure like this:
 
-	verbose
-	recurse
+    verbose
+    recurse
 
-	color=1
+    color=1
 
-	src  = ~/Dropbox/Mine/projects/perl/ovid.github.com/root
-	dest  = ~/Dropbox/Mine/projects/perl/ovid.github.com/
+    src  = ~/website/root
+    dest  = ~/website
 
-	ignore = \b(CVS|RCS|sw[pot])\b
-	ignore = ^#
-	ignore = ^.git
+    ignore = \b(CVS|RCS|sw[pot])\b
+    ignore = ^#
+    ignore = ^.git
 
-	suffix tt=html
-	suffix tt2markdown=html
+    suffix tt=html
+    suffix tt2markdown=html
 END
             exit 1;
         }
