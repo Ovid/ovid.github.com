@@ -33,6 +33,7 @@ requires 'MetaCPAN::Client'          => 2.030000;
 requires 'Module::ScanDeps'          => 1.31;
 requires 'Mojolicious'               => 9.31;
 requires 'Moose'                     => 2.2201;
+requires 'Readonly'                  => 0;
 requires 'String::Util'              => 1.32;
 requires 'Template::Toolkit'         => 3.100;
 requires 'Test2::Suite'              => 0.000145;
