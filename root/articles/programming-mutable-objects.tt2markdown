@@ -1,0 +1,368 @@
+[%
+    title            = 'Programming Mutable Objects';
+    type             = 'articles';
+    slug             = 'programming-mutable-objects';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-07-13';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS perl corinna programming oop}}
+
+# Introduction
+
+[I've written before about why you want immutable
+objects](/articles/using-immutable-datetime-objects-with-dbixclass.html), but
+sometimes that's too restrictive. For example, if you're writing a caching
+class, having an immutable cache may not be what you want.
+
+This, it turns out, is relevant to the
+[Corinna :writer](https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268377.html)
+discussion being had on the Perl 5 Porter's mailing list.
+
+# A Simple Mutable Class
+
+For many cases, a cache can be immutable. Maybe I need to read a list of data
+from the database and cache that, and the underlying list doesn't change. Fine.
+However, there's one type of cache which pretty much has to be mutable. For
+cache replacement policies, the [least recently
+used](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) approach is
+easy to implement. You simply eject the least recently used items from the
+cache. This approach is not viable if cache hits are uniform, but if you have a
+subset of data much more likely to be needed than others, it's a good approach.
+So let's look at a basic example.
+
+```perl
+class Cache::LRU;
+
+use Hash::Ordered;
+field $cache = Hash::Ordered->new;
+field $max_size :param :reader = 20;
+
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+	if ( $cache->keys > $max_size ) {
+		$cache->pop;
+	}
+}
+
+method get($key) {
+	return unless $cache->exists($key);
+	my $value = $cache->get($key);
+    # most recently used, so put it at the front
+    $cache->unshift( $key, $value );
+	return $value;
+}
+```
+
+The above ensures that any time you get or set something, you push it to the
+head of the ordered hash since it's the most-recently used. It's fairly simple
+and illustrates some of the most common features of the Perl programming
+language's new `class` syntax.
+
+But that's just a tiny example. It is _not_ production-ready for large systems.
+For example, if you discover there are too many cache misses, you might want to
+increase the `$max_size`.
+
+Conversely, if you discover the cache is taking too much memory, you might want
+to decrease the `$max_size`.
+
+In a weird scenario, you might want to set `$max_size` to zero to effectively
+disable the cache, allowing it to be a effectively be a no-op in your code, but
+not having to change the rest of the code. So maybe we need a `:writer`
+attribute:
+
+```perl
+field $max_size = :param :reader :writer = 20;
+```
+
+And that's when Chris Prather surprised everyone—including me—by [suggesting
+that we don't want to support `:writer` at
+all](https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268387.html)!
+I'm very sympathetic to Chris' point of view, though I suspect we'll get
+`:writer` after all.
+
+Before we dig in, let's talk again about objects and encapsulation.
+
+# Encapsulation
+
+Many people say that encapsulation is about hiding the data of the instance.
+However, this is not correct. It's about hiding data _and_ behavior.
+Externally, classes should present as small a contract as possible. Internally,
+however, that might hide quite a bit of complexity. While our `Cache::LRU` class
+example is simple, it still shows how the data, `$max_size`, interacts with the
+maximum number of entries we hold in our cache. The cache might hold less than
+that and it's fine, but it shouldn't hold more than that.
+
+However, even for simple data classes with little to no behavior, this
+encapsulation is easy to get wrong. For example, if we add a `:writer`
+for `$max_size`, what is the return value of `$cache->set_max_size(10)`? Some
+argue that it should be the previous value of `$max_size`. So let's look at
+that:
+
+```perl
+class UserAccount;
+use Data::Printer;
+
+field $username :param :reader;
+field $password :param :writer;
+
+# more code here
+
+method _data_printer () {
+    return {
+        username => $username,
+        password => '<redacted>';
+    };
+}
+```
+
+In the above, I can create a `UserAccount` object to some other bit of code and
+it cannot read the password. For debugging, they can dump the object with
+[Data::Printer](https://metacpan.org/pod/Data::Printer), but still can't see the
+password.
+
+And then someone does this:
+
+```perl
+my $old_password = $user_account->set_password('Ha!');
+save($old_password);
+$user_account->set_password($old_password);
+```
+
+Now someone has managed to grab and save the old password from my "secure"
+object. Returning the old value of the field violates encapsulation and pretty
+much ruins the point of the `UserAccount` class.
+
+So encapsulation is easy to get wrong, but if the writer doesn't return the old
+value, we're good, right?
+
+# Adding a :writer to our cache
+
+Here we've added the `:writer` attribute to the `Cache::LRU` cache. Our goals
+are:
+
+1. Increase the max size to decrease cache misses
+2. Decrease the max size to decrease memory usage
+3. Set max size to zero to disable caching
+
+```perl
+class Cache::LRU;
+
+use Hash::Ordered;
+field $cache = Hash::Ordered->new;
+field $max_size :param :reader :writer = 20;
+
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+	if ( $cache->keys > $max_size ) {
+		$cache->pop;
+	}
+}
+
+method get($key) {
+	return unless $cache->exists($key);
+	my $value = $cache->get($key);
+    # most recently used, so put it at the front
+    $cache->unshift( $key, $value );
+	return $value;
+}
+```
+
+Do you see the bug? Or bugs? Think about it a moment before we move on.
+
+Of course you saw the bug. This is a simple example.  We've exposed state, but
+not behavior, and the encapsulation violation makes our code _more_ fragile,
+when classes should make our code _less_ fragile. So what do we have?
+
+1. Increasing cache size works
+2. Decreasing cache size doesn't
+
+Keep in mind that this is a simple example. In real-world code, classes are
+often large and complex, with weird little lines of code addressing issues
+maintenance programmers might not know about. They're easy to get wrong if
+designed poorly (trust me, I've designed plenty of awful classes).
+
+In this case, we have a bad `set` method:
+
+```perl
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+	if ( $cache->keys > $max_size ) {
+		$cache->pop;
+	}
+}
+```
+
+We only pop a single value off the cache if the cache is too big when we set the
+cache. So if we have twenty entries in our cache and we set `$max_size` to 10,
+it will never drop below twenty entries.  So the hapless maintenance programmer
+writes this:
+
+```perl
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+    $cache->pop while $cache->keys > $max_size;
+}
+```
+
+Looks better, right? Think about our use case here. We're decreasing cache size
+due to excessive memory consumption. However, our cache isn't resized until the
+_next_ time we call `set` and if that's infrequent, we might have to wait a
+while until the size of the cache is reduced.
+
+Worse, because data validation isn't (yet) handled in attributes, we can now get
+an infinite loop when we call `set()` if someone does
+`$cache->set_max_size(-1)`.
+
+So let's fix that:
+
+```perl
+class Cache::LRU;
+
+use Hash::Ordered;
+use Types::Common::Numeric qw(assert_PositiveOrZeroInt);
+
+field $cache = Hash::Ordered->new;
+field $max_size :param :reader = 20;
+
+method set_max_size($size) {
+    assert_PositiveOrZeroInt($size);
+    $max_size = $size;
+    $self->constrain_class_size;
+}
+
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+    $self->constrain_class_size;
+}
+
+# Note: the :private attribute is not yet implemented.
+# You probably want to use _constrain_class_size as a
+# temporary work-around
+method contrain_class_size :private {
+    if ( !$max_size ) {
+        # special case for performance
+        $cache = Hash::Ordered->new;
+    }
+    else {
+        # this can be slow for large caches
+        $cache->pop while $cache->keys > $max_size;
+    }
+}
+
+method get($key) {
+	return unless $cache->exists($key);
+	my $value = $cache->get($key);
+    # most recently used, so put it at the front
+    $cache->unshift( $key, $value );
+	return $value;
+}
+```
+
+By removing the `:writer` and creating the method manually, we can have the
+class properly properly address the fact that state and behavior must be handled
+at the same time.
+
+# MooseX::Extended
+
+This approach is powerful enough that my
+[MooseX::Extended](https://metacpan.org/pod/MooseX::Extended) module makes all
+attributes private by default. However, since the values are mutable, we'll use
+the special `is => 'rwp'` syntax stolen from
+[Moo](https://metacpan.org/pod/Moo). From the docs:
+
+> `rwp` stands for "read-write protected" and generates a reader like `ro`, but
+> also sets writer to `_set_${attribute_name}` for attributes that are designed
+> to be written from inside of the class, but read-only from outside.
+
+The LRU cache might thus be written like this (untested):
+
+```perl
+package Cache::LRU;
+
+use MooseX::Extended
+    types    => 'PositiveOrZeroInt',
+    includes => 'method';
+
+use Hash::Ordered;
+
+param max_size => (
+    is      => 'rwp',
+    isa     => PositiveOrZeroInt,
+    default => sub {20},
+);
+field _cache => (
+    is      => 'rwp',
+    default => sub { Hash::Ordered->new },
+);
+
+method set_max_size($size) {
+    $self->_set_max_size($size);
+    $self->_constrain_class_size;
+}
+
+method set( $key, $value ) {
+    # new values in front
+    $cache->unshift( $key, $value );
+    $self->_constrain_class_size;
+}
+
+method _contrain_class_size :private {
+    my $max_size = $self->max_size;
+    if ( !$max_size ) {
+        # special case for performance
+        $self->_set__cache(Hash::Ordered->new);
+    }
+    else {
+        # this can be slow for large caches
+        my $cache = $self->_cache;
+        $cache->pop while $cache->keys > $max_size;
+    }
+}
+
+method get($key) {
+    my $cache = $self->_cache;
+	return unless $cache->exists($key);
+	my $value = $cache->get($key);
+    # most recently used, so put it at the front
+    $cache->unshift( $key, $value );
+	return $value;
+}
+```
+
+So that's a bit cleaner than Moose or Moo, but a bit clumsier than the new
+`class` syntax, but ensures that `set_max_size` handles both state and behavior.
+
+# Conclusion
+
+My great aunt Catherine passed away in a mental institution before I was born.
+Seems she was a mathematician, but that's not why she was in a
+mental institution. It's because she was an addict. She passed away
+because her doctor, in their infinite wisdom, decided Catherine needed to quit
+cold turkey. Her body couldn't handle the withdrawals.
+
+OK, that's a pretty brutal and grossly unfair setup for an analogy. I'll run
+with it.
+
+OOP developers are so used to the idea of mutable objects and so _unused_ to the
+idea that state and behavior are often tightly coupled, that they're going to
+insist upon `:writer`. It will take years to wean them off it. So making them
+press the `:writer` lever to get their hit is a compromise.
+
+And I'm pretty sure I'll be pressing that lever too, from time to time. Maybe
+for personal use it's not so bad, but think twice before taking a hit in a
+professional environment.
+
+[%- END %]

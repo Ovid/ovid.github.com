@@ -1,0 +1,704 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/programming-mutable-objects.html" />
+  
+  <meta property="og:title" content="Programming Mutable Objects" />
+  <meta property="og:description" content="I've often noted that many objections to object-oriented programming go away if the objects are immutable. But sometimes, you want them to be mutable." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Programming Mutable Objects</title>
+  <meta name="description" content="Programming Mutable Objects">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Programming Mutable Objects</h1>
+        <time>2024-07-13</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html">Escape!</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/an-openai-chatbot-in-perl.html" class="prevPost">&laquo; An OpenAI Chatbot in Perl</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/corinna.html">Corinna</a> </li>
+
+    <li><a href="/tags/oop.html">OOP</a> </li>
+
+    <li><a href="/tags/perl.html">Perl</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#a-simple-mutable-class">A Simple Mutable Class</a></li>
+    <li class="indent-1"><a href="#encapsulation">Encapsulation</a></li>
+    <li class="indent-1"><a href="#adding-a-writer-to-our-cache">Adding a :writer to our cache</a></li>
+    <li class="indent-1"><a href="#moosexextended">MooseX::Extended</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p><a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">I’ve written before about why you want immutable
+objects</a>, but
+sometimes that’s too restrictive. For example, if you’re writing a caching
+class, having an immutable cache may not be what you want.</p>
+
+<p>This, it turns out, is relevant to the
+<a href="https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268377.html" target="_blank">Corinna :writer</a> <span class="fa fa-external-link fa_custom"></span>
+discussion being had on the Perl 5 Porter’s mailing list.</p>
+
+<h1><a name="a-simple-mutable-class"></a>A Simple Mutable Class</h1>
+
+<p>For many cases, a cache can be immutable. Maybe I need to read a list of data
+from the database and cache that, and the underlying list doesn’t change. Fine.
+However, there’s one type of cache which pretty much has to be mutable. For
+cache replacement policies, the <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU" target="_blank">least recently
+used</a> <span class="fa fa-external-link fa_custom"></span> approach is
+easy to implement. You simply eject the least recently used items from the
+cache. This approach is not viable if cache hits are uniform, but if you have a
+subset of data much more likely to be needed than others, it’s a good approach.
+So let’s look at a basic example.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU;
+
+use Hash::Ordered;
+field $cache = Hash::Ordered-&gt;new;
+field $max_size :param :reader = 20;
+
+method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    if ( $cache-&gt;keys &gt; $max_size ) {
+        $cache-&gt;pop;
+    }
+}
+
+method get($key) {
+    return unless $cache-&gt;exists($key);
+    my $value = $cache-&gt;get($key);
+    # most recently used, so put it at the front
+    $cache-&gt;unshift( $key, $value );
+    return $value;
+}
+</code></pre></div>
+
+<p>The above ensures that any time you get or set something, you push it to the
+head of the ordered hash since it’s the most-recently used. It’s fairly simple
+and illustrates some of the most common features of the Perl programming
+language’s new <code>class</code> syntax.</p>
+
+<p>But that’s just a tiny example. It is <em>not</em> production-ready for large systems.
+For example, if you discover there are too many cache misses, you might want to
+increase the <code>$max_size</code>.</p>
+
+<p>Conversely, if you discover the cache is taking too much memory, you might want
+to decrease the <code>$max_size</code>.</p>
+
+<p>In a weird scenario, you might want to set <code>$max_size</code> to zero to effectively
+disable the cache, allowing it to be a effectively be a no-op in your code, but
+not having to change the rest of the code. So maybe we need a <code>:writer</code>
+attribute:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">field $max_size = :param :reader :writer = 20;
+</code></pre></div>
+
+<p>And that’s when Chris Prather surprised everyone—including me—by <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268387.html" target="_blank">suggesting
+that we don’t want to support <code>:writer</code> at
+all</a> <span class="fa fa-external-link fa_custom"></span>!
+I’m very sympathetic to Chris' point of view, though I suspect we’ll get
+<code>:writer</code> after all.</p>
+
+<p>Before we dig in, let’s talk again about objects and encapsulation.</p>
+
+<h1><a name="encapsulation"></a>Encapsulation</h1>
+
+<p>Many people say that encapsulation is about hiding the data of the instance.
+However, this is not correct. It’s about hiding data <em>and</em> behavior.
+Externally, classes should present as small a contract as possible. Internally,
+however, that might hide quite a bit of complexity. While our <code>Cache::LRU</code> class
+example is simple, it still shows how the data, <code>$max_size</code>, interacts with the
+maximum number of entries we hold in our cache. The cache might hold less than
+that and it’s fine, but it shouldn’t hold more than that.</p>
+
+<p>However, even for simple data classes with little to no behavior, this
+encapsulation is easy to get wrong. For example, if we add a <code>:writer</code>
+for <code>$max_size</code>, what is the return value of <code>$cache-&gt;set_max_size(10)</code>? Some
+argue that it should be the previous value of <code>$max_size</code>. So let’s look at
+that:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class UserAccount;
+use Data::Printer;
+
+field $username :param :reader;
+field $password :param :writer;
+
+# more code here
+
+method _data_printer () {
+    return {
+        username =&gt; $username,
+        password =&gt; '&lt;redacted&gt;';
+    };
+}
+</code></pre></div>
+
+<p>In the above, I can create a <code>UserAccount</code> object to some other bit of code and
+it cannot read the password. For debugging, they can dump the object with
+<a href="https://metacpan.org/pod/Data::Printer" target="_blank">Data::Printer</a> <span class="fa fa-external-link fa_custom"></span>, but still can’t see the
+password.</p>
+
+<p>And then someone does this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $old_password = $user_account-&gt;set_password('Ha!');
+save($old_password);
+$user_account-&gt;set_password($old_password);
+</code></pre></div>
+
+<p>Now someone has managed to grab and save the old password from my “secure”
+object. Returning the old value of the field violates encapsulation and pretty
+much ruins the point of the <code>UserAccount</code> class.</p>
+
+<p>So encapsulation is easy to get wrong, but if the writer doesn’t return the old
+value, we’re good, right?</p>
+
+<h1><a name="adding-a-writer-to-our-cache"></a>Adding a :writer to our cache</h1>
+
+<p>Here we’ve added the <code>:writer</code> attribute to the <code>Cache::LRU</code> cache. Our goals
+are:</p>
+
+<ol>
+<li>Increase the max size to decrease cache misses</li>
+<li>Decrease the max size to decrease memory usage</li>
+<li>Set max size to zero to disable caching</li>
+</ol>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU;
+
+use Hash::Ordered;
+field $cache = Hash::Ordered-&gt;new;
+field $max_size :param :reader :writer = 20;
+
+method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    if ( $cache-&gt;keys &gt; $max_size ) {
+        $cache-&gt;pop;
+    }
+}
+
+method get($key) {
+    return unless $cache-&gt;exists($key);
+    my $value = $cache-&gt;get($key);
+    # most recently used, so put it at the front
+    $cache-&gt;unshift( $key, $value );
+    return $value;
+}
+</code></pre></div>
+
+<p>Do you see the bug? Or bugs? Think about it a moment before we move on.</p>
+
+<p>Of course you saw the bug. This is a simple example.  We’ve exposed state, but
+not behavior, and the encapsulation violation makes our code <em>more</em> fragile,
+when classes should make our code <em>less</em> fragile. So what do we have?</p>
+
+<ol>
+<li>Increasing cache size works</li>
+<li>Decreasing cache size doesn’t</li>
+</ol>
+
+<p>Keep in mind that this is a simple example. In real-world code, classes are
+often large and complex, with weird little lines of code addressing issues
+maintenance programmers might not know about. They’re easy to get wrong if
+designed poorly (trust me, I’ve designed plenty of awful classes).</p>
+
+<p>In this case, we have a bad <code>set</code> method:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    if ( $cache-&gt;keys &gt; $max_size ) {
+        $cache-&gt;pop;
+    }
+}
+</code></pre></div>
+
+<p>We only pop a single value off the cache if the cache is too big when we set the
+cache. So if we have twenty entries in our cache and we set <code>$max_size</code> to 10,
+it will never drop below twenty entries.  So the hapless maintenance programmer
+writes this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    $cache-&gt;pop while $cache-&gt;keys &gt; $max_size;
+}
+</code></pre></div>
+
+<p>Looks better, right? Think about our use case here. We’re decreasing cache size
+due to excessive memory consumption. However, our cache isn’t resized until the
+<em>next</em> time we call <code>set</code> and if that’s infrequent, we might have to wait a
+while until the size of the cache is reduced.</p>
+
+<p>Worse, because data validation isn’t (yet) handled in attributes, we can now get
+an infinite loop when we call <code>set()</code> if someone does
+<code>$cache-&gt;set_max_size(-1)</code>.</p>
+
+<p>So let’s fix that:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU;
+
+use Hash::Ordered;
+use Types::Common::Numeric qw(assert_PositiveOrZeroInt);
+
+field $cache = Hash::Ordered-&gt;new;
+field $max_size :param :reader = 20;
+
+method set_max_size($size) {
+    assert_PositiveOrZeroInt($size);
+    $max_size = $size;
+    $self-&gt;constrain_class_size;
+}
+
+method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    $self-&gt;constrain_class_size;
+}
+
+# Note: the :private attribute is not yet implemented.
+# You probably want to use _constrain_class_size as a
+# temporary work-around
+method contrain_class_size :private {
+    if ( !$max_size ) {
+        # special case for performance
+        $cache = Hash::Ordered-&gt;new;
+    }
+    else {
+        # this can be slow for large caches
+        $cache-&gt;pop while $cache-&gt;keys &gt; $max_size;
+    }
+}
+
+method get($key) {
+    return unless $cache-&gt;exists($key);
+    my $value = $cache-&gt;get($key);
+    # most recently used, so put it at the front
+    $cache-&gt;unshift( $key, $value );
+    return $value;
+}
+</code></pre></div>
+
+<p>By removing the <code>:writer</code> and creating the method manually, we can have the
+class properly properly address the fact that state and behavior must be handled
+at the same time.</p>
+
+<h1><a name="moosexextended"></a>MooseX::Extended</h1>
+
+<p>This approach is powerful enough that my
+<a href="https://metacpan.org/pod/MooseX::Extended" target="_blank">MooseX::Extended</a> <span class="fa fa-external-link fa_custom"></span> module makes all
+attributes private by default. However, since the values are mutable, we’ll use
+the special <code>is =&gt; 'rwp'</code> syntax stolen from
+<a href="https://metacpan.org/pod/Moo" target="_blank">Moo</a> <span class="fa fa-external-link fa_custom"></span>. From the docs:</p>
+
+<blockquote>
+  <p><code>rwp</code> stands for “read-write protected” and generates a reader like <code>ro</code>, but
+  also sets writer to <code>_set_${attribute_name}</code> for attributes that are designed
+  to be written from inside of the class, but read-only from outside.</p>
+</blockquote>
+
+<p>The LRU cache might thus be written like this (untested):</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Cache::LRU;
+
+use MooseX::Extended
+    types    =&gt; 'PositiveOrZeroInt',
+    includes =&gt; 'method';
+
+use Hash::Ordered;
+
+param max_size =&gt; (
+    is      =&gt; 'rwp',
+    isa     =&gt; PositiveOrZeroInt,
+    default =&gt; sub {20},
+);
+field _cache =&gt; (
+    is      =&gt; 'rwp',
+    default =&gt; sub { Hash::Ordered-&gt;new },
+);
+
+method set_max_size($size) {
+    $self-&gt;_set_max_size($size);
+    $self-&gt;_constrain_class_size;
+}
+
+method set( $key, $value ) {
+    # new values in front
+    $cache-&gt;unshift( $key, $value );
+    $self-&gt;_constrain_class_size;
+}
+
+method _contrain_class_size :private {
+    my $max_size = $self-&gt;max_size;
+    if ( !$max_size ) {
+        # special case for performance
+        $self-&gt;_set__cache(Hash::Ordered-&gt;new);
+    }
+    else {
+        # this can be slow for large caches
+        my $cache = $self-&gt;_cache;
+        $cache-&gt;pop while $cache-&gt;keys &gt; $max_size;
+    }
+}
+
+method get($key) {
+    my $cache = $self-&gt;_cache;
+    return unless $cache-&gt;exists($key);
+    my $value = $cache-&gt;get($key);
+    # most recently used, so put it at the front
+    $cache-&gt;unshift( $key, $value );
+    return $value;
+}
+</code></pre></div>
+
+<p>So that’s a bit cleaner than Moose or Moo, but a bit clumsier than the new
+<code>class</code> syntax, but ensures that <code>set_max_size</code> handles both state and behavior.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>My great aunt Catherine passed away in a mental institution before I was born.
+Seems she was a mathematician, but that’s not why she was in a
+mental institution. It’s because she was an addict. She passed away
+because her doctor, in their infinite wisdom, decided Catherine needed to quit
+cold turkey. Her body couldn’t handle the withdrawals.</p>
+
+<p>OK, that’s a pretty brutal and grossly unfair setup for an analogy. I’ll run 
+with it.</p>
+
+<p>OOP developers are so used to the idea of mutable objects and so <em>unused</em> to the
+idea that state and behavior are often tightly coupled, that they’re going to
+insist upon <code>:writer</code>. It will take years to wean them off it. So making them
+press the <code>:writer</code> lever to get their hit is a compromise.</p>
+
+<p>And I’m pretty sure I’ll be pressing that lever too, from time to time. Maybe
+for personal use it’s not so bad, but think twice before taking a hit in a
+professional environment.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/an-openai-chatbot-in-perl.html" class="prevPost">&laquo; An OpenAI Chatbot in Perl</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/programming-mutable-objects.html";
+            this.page.identifier = "articles/programming-mutable-objects";
+            this.page.title      = "Programming Mutable Objects";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
