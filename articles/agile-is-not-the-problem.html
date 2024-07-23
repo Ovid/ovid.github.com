@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/agile-is-not-the-problem.html" />
+  
+  <meta property="og:title" content="The Agile Industrial Complex" />
+  <meta property="og:description" content="Agile is getting a bad rap. It's not agile who's at fault, it's the agile industrial complex." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>The Agile Industrial Complex</title>
+  <meta name="description" content="The Agile Industrial Complex">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>The Agile Industrial Complex</h1>
+        <time>2024-07-23</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html">Escape!</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/programming-mutable-objects.html" class="prevPost">&laquo; Programming Mutable Objects</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#whoops-they-did-it-again">Whoops! They did it again!</a></li>
+    <li class="indent-1"><a href="#what-is-agile-lean-and-impact-engineering">What is Agile, Lean, and Impact Engineering?</a></li>
+    <li class="indent-1"><a href="#what-is-project-management">What is Project Management?</a></li>
+    <li class="indent-2"><a href="#agile">Agile</a></li>
+    <li class="indent-2"><a href="#lean">Lean</a></li>
+    <li class="indent-2"><a href="#structured">Structured</a></li>
+    <li class="indent-1"><a href="#enter-the-agile-industrial-complex">Enter The Agile Industrial Complex</a></li>
+    <li class="indent-1"><a href="#solution">Solution</a></li>
+    <li class="indent-1"><a href="#further-reading">Further Reading</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="whoops-they-did-it-again"></a>Whoops! They did it again!</h1>
+
+<p>Making the rounds is an article in The Register with the delightful title,
+<a href="https://www.theregister.com/2024/06/05/agile_failure_rates/" target="_blank">Study finds 268% higher failure rates for Agile software
+projects</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>So of <em>course</em> I had to dig in and find out what’s going on because almost every
+time I read an article like this, it turns out to be by some company selling
+their alternative to agile. This one was no exception. Though I can’t find the
+actual study, I did find <a href="https://www.engprax.com/post/268-higher-failure-rates-for-agile-software-projects-study-finds" target="_blank">a write-up of the study’s
+findings</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>It’s by an company called <a href="https://www.engprax.com/" target="_blank">Engprax</a> <span class="fa fa-external-link fa_custom"></span>. I’ll skip most of
+what’s in there and instead focus on one key paragraph:</p>
+
+<blockquote>
+  <p>Today, new research conducted for a new book, Impact Engineering, has shown
+  that 65% software projects adopting Agile requirements engineering practices
+  fail to be delivered on time and within budget, to a high standard of
+  quality. By contrast, projects adopting a new Impact Engineering approach
+  detailed in a new book released today only failed 10% of the time.</p>
+</blockquote>
+
+<p>Oh! That’s pretty horrifying! If true, we need to dump Agile and immediately
+switch to Impact Engineering!</p>
+
+<p>Hmm, what’s <a href="https://www.amazon.com/dp/106860574X" target="_blank">Impact Engineering</a> <span class="fa fa-external-link fa_custom"></span>? I’ve
+never heard of it. It turns out that it’s a new approach to project management
+detailed in a book published by “Engprax Ltd.”</p>
+
+<p>OK, so the study’s findings are very self-serving, but to be fair, it doesn’t
+mean they’re wrong. So let’s look at a key line from that paragraph:</p>
+
+<blockquote>
+  <p>65% software projects adopting Agile requirements engineering practices
+  fail to be delivered on time and within budget, to a high standard of
+  quality.</p>
+</blockquote>
+
+<p>First, what’s quality? I’ve been consulting for many years and “quality” is one
+of the worst catch-all terms I hear. It’s like “dysfunctional,” a word that many
+use but few define.</p>
+
+<p>Is quality lower defect rates? Higher performance? Satisfied customers?
+Perfectly designed code? Who knows? Not one of those metrics requires or
+excludes the others.</p>
+
+<p>Engprax did not define quality.</p>
+
+<p>So what about that “on time and within budget”? That’s pretty damning, eh? But
+what does it mean? A day late and a dollar short? Who knows?</p>
+
+<p>Because Engprax failed to show real numbers, for all we know, Impact Engineering
+might be more likely to be “on time and within budget,” but have everything cost
+twice as much and take twice as long. Because they didn’t link to the research,
+apparently you have to buy their book to find out. I’m not going to buy their
+book because I’ve seen so many of these fad methodologies come and go.</p>
+
+<h1><a name="what-is-agile-lean-and-impact-engineering"></a>What is Agile, Lean, and Impact Engineering?</h1>
+
+<p>To understand what’s going on, we need to know what agile, lean, and waterfall
+are. If we don’t have working definitions, we probably aren’t talking about them
+same thing. Fortunately, here Engprx provided working definitions.</p>
+
+<dl>
+  <dt>Agile</dt><dd>Development starts before clear requirements, no complete
+  specification, significant changes late in development.</dd>
+  <dt>Lean</dt><dd>Only working on one project at once.</dd>
+  <dt>Impact Engineering</dt><dd>Use of all engineering practices studied which
+  increase success rates.</dd>
+</dl>
+
+<p>This is so jaw-droppingly dishonest that I hope whoever wrote this has a sense
+of shame. It’s a straw man relying on the fact that agile snake-oil
+salesman have so sufficiently muddied the waters that we can’t see the bottom.</p>
+
+<p>I have been working in software for decades, using Agile, Lean, and Waterfall.
+While they don’t cover waterfall, I can address the agile and lean definitions:
+they’re total BS.</p>
+
+<p>First, read the <a href="https://agilemanifesto.org/" target="_blank">Agile Manisto</a> <span class="fa fa-external-link fa_custom"></span>. Read through
+<a href="https://agilemanifesto.org/principles.html" target="_blank">their agile princplies</a> <span class="fa fa-external-link fa_custom"></span>. In
+particular, read the part where they write:</p>
+
+<blockquote>
+  <p>We abhor clear requirements.</p>
+</blockquote>
+
+<p>Have you wondered why they wrote that? What? You can’t find where they wrote
+that? <em>Because they didn’t</em>.</p>
+
+<p>Out of the twelve principles they cite, this is, for our purposes, the most
+important:</p>
+
+<blockquote>
+  <p>Welcome changing requirements, even late in development. Agile processes
+  harness change for the customer’s competitive advantage.</p>
+</blockquote>
+
+<p>“Change” is key word here. The clear requirement is software that satisfies the
+customer’s needs, but those needs are not always clear up front. But to
+understand what that means, we have to go back to some basics.</p>
+
+<h1><a name="what-is-project-management"></a>What is Project Management?</h1>
+
+<p>There are many people who think that project management is about delivering
+projects on time and on budget. This is wrong and a simple thought experiment
+should make this clear.</p>
+
+<blockquote>
+  <p>You’re an experienced project manager working for Acme Corp. After completing
+  your fifth project, your pointy-haired-boss pulls you aside and informs you that
+  you’re about to be fired. He’s run the numbers and all of your projects have run
+  an average of 50% over budget. You’re costing the company money.</p>
+  
+  <p>So you failed as a project manager, right?</p>
+  
+  <p>Then the CEO steps in, livid, pointing out that while this is true, all of
+  your projects have been wildly successful in terms of customer happiness,
+  revenue, and employee retention. Your projects have driven the financial success
+  of the company.</p>
+</blockquote>
+
+<p>Of course you need to control costs, so <strong>project management is about delivering
+successful projects <em>while controlling costs</em>.</strong> And “successful” needs
+meaningful metrics to judge it. That metric is not “X amount over budget.”</p>
+
+<p>You build your project once. You keep your customers for years. It’s the latter
+point which defines success, not the former.</p>
+
+<p>So where’s the disconnect? And what costs are we controlling?</p>
+
+<p>The following is, like many things, a gross oversimplification.</p>
+
+<h2><a name="agile"></a>Agile</h2>
+
+<p>Speculative projects are going to risk having to pivot quickly when
+uncertainties arise. If they weren’t, they wouldn’t be speculative. This is
+where agile shines. I’ve been on plenty of these and yes, the best ones have
+clear requirements ... until they get into the areas where we don’t know how the
+customer is going to respond.</p>
+
+<p>The biggest cost threat is change and uncertainty. It’s appropriate when you are
+trying to create a new market or a novel product in that market.</p>
+
+<h2><a name="lean"></a>Lean</h2>
+
+<p>By contrast, lean projects are where the market and customer behavior are fairly
+well-known and you’re creating a proven project, but adding differentiators to
+distinguish your product from the competitors. So you build a well-defined MVP
+as your base and then iterate like mad, based on customer feedback, based on how
+they receive the differentiators.</p>
+
+<p>The biggest cost threat is waste: building something you don’t need. Hence, the
+focus on a well-defined MVP as the base of your work.</p>
+
+<h2><a name="structured"></a>Structured</h2>
+
+<p>Also known as “waterfall”, it’s appropriate where the market has solidified
+(ossified?) and you absolutely must not fail to meet requirements. Many utility
+services fall into this category. Telecoms, electricity, ISPs, and others which
+must have incredibly high reliability and predictability.</p>
+
+<p>The biggest cost threat is deviation from requirements. At this stage, you
+requirements are highly detailed, up front, and there is very little change or
+uncertainty. Agile needs to “fail fast,” but that’s probably not a great mantra
+when building a nuclear reactor.</p>
+
+<hr />
+
+<p>We can sum these up with the following image:</p>
+
+<p><figure class="image">
+    <img src="/static/images/agile-uncertainty.png" width="600" alt="A graph showing agile with the most uncertainty, lean with middle, and structured with the least uncertainty.">
+    <figcaption>The height of each bar conceptually illustrates the appropriate uncertainty level. </figcaption>
+</figure></p>
+
+<p>Thus, for a given cost threat, you choose an appropriate project management
+solution for that threat. If I’m an employee talking to HR, I don’t want a lot
+of change and uncertainty. I also don’t want that with the janitorial staff. Of
+course, there <em>are</em> janitors who have to deal with lots of change and
+uncertainty. They’re call Navy SEALs.</p>
+
+<p>This also has another implication: you have many different projects and those
+projects have different cost threats, so you don’t try to force everyone in the
+company to operate off of the same project management model.</p>
+
+<h1><a name="enter-the-agile-industrial-complex"></a>Enter The Agile Industrial Complex</h1>
+
+<p>Jon Kern, one of the authors of the Agile Manifesto, argues that today we’re
+struggling with what he calls the <a href="https://www.theregister.com/2024/07/16/jon_kern/" target="_blank">Agile Industrial
+Complex</a> <span class="fa fa-external-link fa_custom"></span>. I’ve seen them in
+action and they have several key faults:</p>
+
+<ul>
+<li>Overemphasis on certification over practical experience</li>
+<li>Proliferation of “Agile Coaches” with limited real-world experience</li>
+<li>Misinterpretation and rigid application of Agile principles</li>
+</ul>
+
+<p>A key driver behind the organizations who are all promoting different versions
+of “agile” is obvious: money. One Certified Scrum Trainer® (CST) wrote about
+how he lost his CST when he pointed out that Scrum is not always appropriate.
+This was apparently perceived as a threat to the Scrum Alliance and they have a
+clause in the license that you will not disparage them. However, as far as I can
+tell, you’re not allowed to <em>read</em> the license until you pay them a lot of money
+for one of their courses. (I can’t link to his writing because he quietly
+deleted that blog post)</p>
+
+<p>Others are churning out highly-paid consultants specializing in
+<a href="https://scaledagileframework.com/" target="_blank">SAFe</a> <span class="fa fa-external-link fa_custom"></span>, a framework I’ve never worked with,
+so I can’t directly comment on it, but it has many detractors, most focusing in
+the fact that SAFe isn’t agile. That being said, maybe it’s a solid approach.
+I’m not qualified to say if SAFe is good, but I’m qualified to say that it’s not
+agile.</p>
+
+<h1><a name="solution"></a>Solution</h1>
+
+<p>Pick an appropriate project management solution.</p>
+
+<p>Is your project highly speculative and you’re unsure how your customers will
+react? Go agile.</p>
+
+<p>Is it a quick internal project that can be safely corrected if it gets a few
+details off? Go lean.</p>
+
+<p>Is it a cloud service utility to take on Amazon and Google? Go structured.</p>
+
+<p><em>None</em> of these mean unclear requirements or specifications. However, the detail
+of your specification vis-a-vis areas of uncertainty will change depending on
+your approach.</p>
+
+<p>It’s true that agile focuses on outcomes more than process. It’s true that agile
+focuses more on building value than controlling costs. But if you choose a
+project management approach that emphasizes controlling the cost of change and
+uncertainty when your project has little change or uncertainty, it’s not agile
+that failed. It’s you.</p>
+
+<h1><a name="further-reading"></a>Further Reading</h1>
+
+<ul>
+<li><a href="/wildagile.html">WildAgile</a>, a lightweight agile approach that Alistair Cockburn, one of the founders of the agile movement, has said he supports.</li>
+<li><a href="/articles/estimating-development-costs-is-almost-useless.html">Estimating Development Costs is Almost Useless</a></li>
+<li><a href="/articles/the-tyranny-of-budgets.html">The Tyranny of Budgets</a></li>
+<li><a href="/articles/project-management-in-three-numbers.html">Project Management in Three Numbers</a></li>
+</ul>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/programming-mutable-objects.html" class="prevPost">&laquo; Programming Mutable Objects</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/agile-is-not-the-problem.html";
+            this.page.identifier = "articles/agile-is-not-the-problem";
+            this.page.title      = "The Agile Industrial Complex";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
