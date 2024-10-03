@@ -55,6 +55,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -203,6 +204,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -212,8 +215,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -311,8 +312,10 @@ took me about two hours. Much of that was my learning curve. Getting used to
 this means I can make these apps even faster.</p>
 
 <p><figure class="image">
-    <img src="/static/images/chatgpt-shopping.png" width="600" alt="XCode project of my Shopping App">
+    <div class="image-container">
+        <img src="/static/images/chatgpt-shopping.png" width="600" alt="XCode project of my Shopping App">
     <figcaption>XCode project of my Shopping App </figcaption>
+    </div>
 </figure></p>
 
 <p>It’s worth noting that while I’ve done Android development with Kotlin, I know
@@ -559,8 +562,10 @@ ChatGPT and made the corrections manually.</p>
 <h2><a name="you-dont-need-chatgpt"></a>You Don’t Need ChatGPT</h2>
 
 <p><figure class="captioned">
-    <img src="/static/images/finger-moon.png" width="600" alt="A finger pointing at the moon. The fingernail is dirty.">
+    <div class="image-container">
+        <img src="/static/images/finger-moon.png" width="600" alt="A finger pointing at the moon. The fingernail is dirty.">
     <figcaption>Image by <a target="_blank" href="https://openai.com/dall-e-3">DALL-E</a> </figcaption>
+    </div>
 </figure></p>
 
 <p>When I’ve shared bits of this story before, I’ve had people tell me I can just
@@ -696,8 +701,10 @@ without work and losing our homes,<span aria-label="Open Footnote" class="open-d
 do (yet).</p>
 
 <p><figure class="image">
-    <img src="/static/images/preferences-pane.png" width="600" alt="Just a few of the preferences available for iTerm 2">
+    <div class="image-container">
+        <img src="/static/images/preferences-pane.png" width="600" alt="Just a few of the preferences available for iTerm 2">
     <figcaption>Just a few of the preferences available for iTerm 2 </figcaption>
+    </div>
 </figure></p>
 
 <p>As a bonus, you will get exactly the applications <em>you</em> want. No more
@@ -809,6 +816,37 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>

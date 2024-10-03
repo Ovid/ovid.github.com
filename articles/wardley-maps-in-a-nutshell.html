@@ -1,0 +1,1194 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/wardley-maps-in-a-nutshell.html" />
+  
+  <meta property="og:title" content="Wardley Maps In a Nutshell" />
+  <meta property="og:description" content="Wardley Maps are an amazing business tool for planning, but you can suffer information overload when you read about them online. Read this quickstart to get up and running with them." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Wardley Maps In a Nutshell</title>
+  <meta name="description" content="Wardley Maps In a Nutshell">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Wardley Maps In a Nutshell</h1>
+        <time>2024-10-03</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html">Escape!</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/ai-generated-content-innovation-or-intellectual-theft.html" class="prevPost">&laquo; AI-Generated Content: Innovation or Intellectual Theft?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#wardley-maps">Wardley Maps</a></li>
+    <li class="indent-1"><a href="#the-lessons">The Lessons</a></li>
+    <li class="indent-2"><a href="#lesson-1-introduction">Lesson 1: Introduction</a></li>
+    <li class="indent-3"><a href="#key-elements">Key Elements</a></li>
+    <li class="indent-2"><a href="#lesson-2-components">Lesson 2: Components</a></li>
+    <li class="indent-3"><a href="#example">Example</a></li>
+    <li class="indent-2"><a href="#lesson-3-the-importance-of-evolution">Lesson 3: The Importance of Evolution</a></li>
+    <li class="indent-3"><a href="#the-four-stages">The Four Stages</a></li>
+    <li class="indent-3"><a href="#why-evolution-matters">Why Evolution Matters:</a></li>
+    <li class="indent-3"><a href="#example-2">Example:</a></li>
+    <li class="indent-2"><a href="#lesson-4-patterns-and-strategic-play">Lesson 4: Patterns and Strategic Play</a></li>
+    <li class="indent-3"><a href="#recognizing-patterns">Recognizing Patterns</a></li>
+    <li class="indent-3"><a href="#strategic-plays">Strategic Plays</a></li>
+    <li class="indent-3"><a href="#applying-strategy">Applying Strategy</a></li>
+    <li class="indent-2"><a href="#lesson-5-change-and-evolution">Lesson 5: Change and Evolution</a></li>
+    <li class="indent-3"><a href="#the-concept-of-anticipation">The Concept of Anticipation</a></li>
+    <li class="indent-3"><a href="#managing-evolution">Managing Evolution</a></li>
+    <li class="indent-3"><a href="#example-3">Example</a></li>
+    <li class="indent-2"><a href="#lesson-6-real-world-scenarios">Lesson 6: Real-World Scenarios</a></li>
+    <li class="indent-3"><a href="#example-scenario-building-a-new-product">Example Scenario: Building a New Product</a></li>
+    <li class="indent-3"><a href="#example-scenario-responding-to-competitors">Example Scenario: Responding to Competitors</a></li>
+    <li class="indent-3"><a href="#managing-multiple-maps">Managing Multiple Maps</a></li>
+    <li class="indent-3"><a href="#key-takeaways">Key Takeaways</a></li>
+    <li class="indent-2"><a href="#lesson-7-the-role-of-doctrine">Lesson 7: The Role of Doctrine</a></li>
+    <li class="indent-3"><a href="#what-is-doctrine">What is Doctrine?</a></li>
+    <li class="indent-3"><a href="#key-doctrines">Key Doctrines</a></li>
+    <li class="indent-3"><a href="#doctrine-in-action-example-scenario">Doctrine in Action: Example Scenario</a></li>
+    <li class="indent-3"><a href="#the-importance-of-doctrine-in-strategy">The Importance of Doctrine in Strategy</a></li>
+    <li class="indent-2"><a href="#lesson-8-strategic-advantage">Lesson 8: Strategic Advantage</a></li>
+    <li class="indent-3"><a href="#understanding-strategic-advantage">Understanding Strategic Advantage</a></li>
+    <li class="indent-3"><a href="#applying-strategic-advantage">Applying Strategic Advantage</a></li>
+    <li class="indent-2"><a href="#lesson-9-common-pitfalls">Lesson 9: Common Pitfalls</a></li>
+    <li class="indent-3"><a href="#summary">Summary</a></li>
+    <li class="indent-2"><a href="#lesson-10-emerging-trends">Lesson 10: Emerging Trends</a></li>
+    <li class="indent-3"><a href="#the-future-of-wardley-mapping">The Future of Wardley Mapping</a></li>
+    <li class="indent-2"><a href="#recap-of-wardley-mapping-concepts">Recap of Wardley Mapping Concepts:</a></li>
+    <li class="indent-2"><a href="#the-online-photo-storage-error">The Online Photo Storage Error</a></li>
+    <li class="indent-2"><a href="#conclusion">Conclusion:</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="wardley-maps"></a>Wardley Maps</h1>
+
+<p><a href="https://en.wikipedia.org/wiki/Wardley_map" target="_blank">Wardley Maps</a> <span class="fa fa-external-link fa_custom"></span> are an amazing
+business strategy tool, but there’s a lot to learn. I’m someone who likes to
+have a “quick start guide” to learning important concepts. With that, I can
+decide if I want to learn more. This is that guide, broken down into ten easy,
+bite-sized lessons.</p>
+
+<p>Note that this is only an introduction. There are plenty of advanced
+concepts we’ve not covered here, and some concepts we’ve covered are incomplete.</p>
+
+<p>By the time you’re finished reading this, you should easily spot the problem
+with this Wardley Map of an online photo storage business. (Note: for all
+images, you can click on them for a larger version).</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/wardley-map-photo-storage.png" width="600" alt="Wardley Map of an Online Photo Storage Business">
+    <figcaption>Can you spot the error? </figcaption>
+    </div>
+</figure></p>
+
+<p>If you want to play around with the above map, you can visit
+<a href="https://onlinewardleymaps.com/" target="_blank">onlinewardleymaps.com/</a> <span class="fa fa-external-link fa_custom"></span>
+and enter the following:</p>
+
+<div class="shadow"><pre class="scrolled"><code>title Online Photo Storage
+
+style wardley
+
+component Customer [1, 0.45]
+component Online Image Manipulation [.98, 0.34] (build) label [-75, 1]
+component Online Photo Storage [.91, 0.37] (build) label [-44, 23]
+
+Customer-&gt;Online Image Manipulation
+Customer-&gt;Online Photo Storage
+
+
+component Print [.88, 0.6] (buy)
+Customer-&gt;Print
+
+
+component Web Site [.82, 0.65] (buy)
+Customer-&gt;Web Site
+Online Photo Storage-&gt;Web Site
+
+component CRM [0.68, 0.68] (buy)
+Web Site-&gt;CRM
+
+component Platform [0.5, 0.58] (buy)
+Web Site-&gt;Platform
+
+component Compute [0.35, 0.69] (buy)
+Platform-&gt;Compute
+CRM-&gt;Compute
+
+component Data Centre [0.15, 0.20] (buy)
+Compute-&gt;Data Centre
+CRM-&gt;Compute
+
+component Power [0.1, 0.9] (outsource)
+Data Centre-&gt;Power
+Compute-&gt;Power
+</code></pre></div>
+
+<p>You can find other <a href="https://github.com/damonsk/wardley-maps-examples" target="_blank">Wardley Map examples on
+github</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>Note: to create the following, I used my <a href="https://chatgpt.com/g/g-uZXRFplUp-learn-anything" target="_blank">Learn Anything
+GPT</a> <span class="fa fa-external-link fa_custom"></span> at OpenAI to quickly
+create these lessons. It’s been lightly edited, with some helpful
+images to illustrate key concepts.</p>
+
+<h1><a name="the-lessons"></a>The Lessons</h1>
+
+<p>Wardley Mapping is a strategic tool used to understand and visualize how technology or any resources evolve over time. It helps in making better decisions by mapping the components of a system, identifying where innovation or improvements are needed, and ensuring that the right strategies are applied to different stages of evolution. Let’s break this down into a series of short lessons to understand the basics.</p>
+
+<h2><a name="lesson-1-introduction"></a>Lesson 1: Introduction</h2>
+
+<p>Wardley Maps are visual representations that combine the position of components within a value chain and the stage of evolution of those components. The two main axes of a Wardley Map are:</p>
+
+<p><strong>Value Chain (Vertical Axis)</strong>: Represents how visible or important a component
+is to the user. At the top, you find components that are directly experienced by
+the user, like a website interface. At the bottom, you find components that are
+less visible to the user but essential to deliver the service, like servers or
+power.</p>
+
+<p><strong>Evolution (Horizontal Axis)</strong>: Represents how a component evolves over time,
+starting from Genesis (brand new idea) to Commodity (widely available and
+standardized).</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/wardley-map-empty.png" width="600" alt="An empty Wardley Map showing the value chain on the vertical access and evolution on the horizontal access.">
+    <figcaption>An empty Wardley Map. </figcaption>
+    </div>
+</figure></p>
+
+<p>Let’s take a simple example. Imagine you’re mapping a service like an online store. The store’s <strong>website interface</strong> is highly visible to users, but it depends on things like <strong>payment processing</strong>, <strong>data storage</strong>, and <strong>server hosting</strong>, which are less visible but crucial for running the store. Over time, these underlying components evolve, like how servers might have started as custom-built (Genesis) and now are widely available as cloud services (Commodity).</p>
+
+<h3><a name="key-elements"></a>Key Elements</h3>
+
+<ul>
+<li><strong>Components</strong>: The building blocks of your system (like payment systems, servers, etc.).</li>
+<li><strong>Positioning</strong>: Where the components sit in terms of visibility and evolution.</li>
+<li><strong>Movement</strong>: As components evolve, they move from left (Genesis) to right (Commodity).</li>
+</ul>
+
+<p>This mapping process helps us understand not only where we are but where we should focus our efforts to improve or innovate.</p>
+
+<h2><a name="lesson-2-components"></a>Lesson 2: Components</h2>
+
+<p>Now that you have a basic understanding of Wardley Maps, let’s dive deeper into the key <strong>components</strong> that make up the map. These elements are crucial for visualizing and understanding the system.</p>
+
+<p><strong>Anchor (The User)</strong>: Every Wardley Map starts with an anchor, which is
+typically the user or the customer. Everything on the map is built around
+delivering value to this user. Understanding what the user needs or values is
+the starting point for mapping.</p>
+
+<p><strong>Value Chain</strong>: The value chain represents how different components or
+activities come together to serve the user. Each component or activity depends
+on others, forming a chain of dependencies. Some components are highly visible
+to the user (like a website), while others operate in the background (like data
+centers or cloud infrastructure).</p>
+
+<p><strong>Components</strong>: These are the building blocks that make up the system. They can
+be technologies, processes, services, or even ideas. Each component is placed on
+the map based on its visibility to the user (vertical axis) and its stage of
+evolution (horizontal axis).</p>
+
+<p><strong>Evolution Stages</strong>:
+   - <strong>Genesis</strong>: The beginning stage of a component’s life cycle, where it’s a novel idea or innovation.
+   - <strong>Custom-Built</strong>: Components that are tailored or built specifically for a purpose, often less standardized.
+   - <strong>Product</strong>: The component becomes more standardized but not yet fully commoditized. It may be a product that several companies offer but with some variations.
+   - <strong>Commodity</strong>: The final stage where the component is widely available, standardized, and often offered as a utility.</p>
+
+<p><strong>Movement</strong>: Components are not static—they evolve. As components evolve from
+Genesis to Commodity, their strategic significance changes. For example, early
+in their life cycle, they may offer a competitive advantage, but as they become
+commoditized, they no longer differentiate your offering.</p>
+
+<h3><a name="example"></a>Example</h3>
+
+<p>Let’s look at an example of a map for an e-commerce website:
+- The <strong>user</strong> is the anchor.
+- The <strong>website interface</strong> is highly visible to the user, so it is near the top of the vertical axis.
+- Behind the website, you have less visible components like <strong>payment processing</strong>, <strong>data storage</strong>, and <strong>servers</strong>. These are lower on the vertical axis but crucial for the service to function.</p>
+
+<p>Over time, components like <strong>servers</strong> might have evolved from Custom-Built data centers to Commodity cloud services, while newer components, like <strong>AI recommendations</strong>, might still be in the Genesis or Custom-Built stages.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/wardley-map-components-example.png" width="600" alt="Wardley Map of the components listed in the example.">
+    <figcaption>Components Example </figcaption>
+    </div>
+</figure></p>
+
+<p>By visualizing these, you can understand which parts of your system need innovation and which ones can be outsourced or standardized.</p>
+
+<h2><a name="lesson-3-the-importance-of-evolution"></a>Lesson 3: The Importance of Evolution</h2>
+
+<p>Now that you understand the basic components of a Wardley Map, let’s focus on the <strong>evolution</strong> aspect, which is one of the most critical elements of the map. Evolution helps you track how components change over time and why it matters for strategy.</p>
+
+<h3><a name="the-four-stages"></a>The Four Stages</h3>
+
+<p><strong>Genesis</strong>: This is where new ideas, technologies, or services emerge. At this
+stage, they are highly experimental, unique, and there’s often no clear market
+or standard. An example might be the first-ever development of cloud computing
+or artificial intelligence, where it’s unclear how useful the technology will be
+or how it will be applied.</p>
+
+<p><strong>Custom-Built</strong>: Once the idea proves its value, it moves into a more tailored,
+specific application. At this stage, companies are building custom solutions to
+suit their particular needs. An example might be early adopters of AI using
+custom algorithms developed for their specific industries.</p>
+
+<p><strong>Product</strong>: As the component becomes more widely understood and used, it moves
+toward becoming a standardized product. It’s now something multiple companies
+can offer, but there is still room for competition and differentiation. For
+instance, different AI tools designed for specific business functions can be
+bought and sold as products.</p>
+
+<p><strong>Commodity</strong>: Finally, the component becomes ubiquitous and standardized.  It’s
+now a basic service or utility that companies use without much thought because
+it’s available everywhere and at low cost. Cloud computing today is a good
+example, as it’s offered by many providers like AWS and Google Cloud, making it
+a commodity rather than a competitive advantage.</p>
+
+<h3><a name="why-evolution-matters"></a>Why Evolution Matters:</h3>
+
+<p><strong>Strategic Focus</strong>: Where a component sits in the evolution scale determines
+your strategy. If it’s in the <strong>Genesis</strong> stage, the focus is on innovation and
+experimentation. In the <strong>Commodity</strong> stage, it’s about efficiency, reducing
+costs, and potentially outsourcing.</p>
+
+<p><strong>Competitive Advantage</strong>: Components in the earlier stages (Genesis or
+Custom-Built) often offer a competitive advantage. However, once they reach the
+Commodity stage, they no longer offer the same edge, and companies need to
+innovate in other areas to maintain their competitiveness.</p>
+
+<p><strong>Outsourcing vs. Building</strong>: Components in the <strong>Commodity</strong> stage are often
+better outsourced to third-party providers because they are standardized and not
+a key differentiator. Components in <strong>Genesis</strong> or <strong>Custom-Built</strong> stages are
+typically worth building internally because they provide unique value.</p>
+
+<h3><a name="example-2"></a>Example:</h3>
+
+<p>Imagine you are managing an online streaming service. If you were starting this 10 years ago, cloud infrastructure might have been in the Custom-Built stage, requiring you to set up your own servers. Today, however, cloud services like AWS are a Commodity, so you would simply use existing providers and focus your efforts on innovating elsewhere, like improving content recommendation algorithms, which might still be in the Custom-Built or Product stage.</p>
+
+<p>By understanding where each component of your business falls along the evolution scale, you can make smarter decisions about where to innovate, where to save costs, and where to invest resources.</p>
+
+<h2><a name="lesson-4-patterns-and-strategic-play"></a>Lesson 4: Patterns and Strategic Play</h2>
+
+<p>Now that you understand how components evolve and connect in a system, let’s explore the strategic side of Wardley Maps—how recognizing <strong>patterns</strong> and using <strong>strategic plays</strong> can give your organization a competitive advantage.</p>
+
+<h3><a name="recognizing-patterns"></a>Recognizing Patterns</h3>
+
+<p>Over time, organizations can observe common patterns in the way technology and systems evolve. These patterns can help guide decision-making:</p>
+
+<p><strong>Component Evolution</strong>: Components inevitably evolve from Genesis to Commodity,
+but not all at the same speed. Recognizing which components are at risk of
+becoming commoditized can help you decide where to focus your resources.  For
+example, if your competitors are already using a commoditized service, it’s
+probably time to adopt it rather than building a custom solution.</p>
+
+<p><strong>Efficiency vs. Innovation</strong>: As components evolve toward the Commodity stage,
+the focus shifts from innovation to efficiency. Organizations often follow this
+pattern:
+   - Innovate (Genesis and Custom-Built stages) to gain competitive advantage.
+   - Standardize and commoditize successful components to reduce costs and increase reliability.</p>
+
+<p><strong>Innovation Clusters</strong>: Components in the Genesis and Custom-Built stages often
+cluster together. These are areas where experimentation and innovation are
+happening. They signal opportunities for differentiation and investment.</p>
+
+<h3><a name="strategic-plays"></a>Strategic Plays</h3>
+
+<p>Wardley Maps aren’t just passive tools; they allow for <strong>active strategy</strong> through strategic plays. These plays help you determine what actions to take depending on where your components lie in their evolution.</p>
+
+<p>Here are a few examples:</p>
+
+<p><strong>Outsource Commodities</strong>: Once a component reaches the Commodity stage, it no
+longer offers a competitive advantage. This is the perfect time to consider
+outsourcing it to a third party or switching to a utility service. For instance,
+as cloud hosting has become a commodity, many companies choose cloud providers
+rather than maintaining their own data centers.</p>
+
+<p><strong>Build vs. Buy</strong>: When components are in the early stages of evolution (Genesis
+or Custom-Built), you might want to build custom solutions in-house because they
+provide a unique advantage. As components move toward the Product stage, you
+might switch to buying them off the shelf.</p>
+
+<p><strong>Pioneering New Ideas</strong>: If you notice that a critical part of your system is
+still in the Genesis stage, and there’s an opportunity to pioneer it, you can
+invest in innovation and research to create a competitive edge. For example, in
+an online quiz system, an <strong>AI Suggestions</strong> component might be worth
+pioneering if it can greatly enhance the user experience.</p>
+
+<p><strong>Duplication and Ecosystem Play</strong>: In some cases, you might duplicate a system
+that’s reaching the Commodity stage to offer it as a service to others, turning
+it into an ecosystem play. Think of companies that developed cloud
+infrastructure for internal use and later turned it into a service for others
+(like Amazon with AWS).</p>
+
+<h3><a name="applying-strategy"></a>Applying Strategy</h3>
+
+<p>Let’s return think about an online quiz application and what some components
+might be:</p>
+
+<ul>
+<li><strong>AI Suggestions</strong> is still in the Genesis stage, meaning it’s an area where you might want to focus your innovation efforts to differentiate your quiz app from others.</li>
+<li><strong>Cloud Hosting</strong> and <strong>Database</strong> are already commodities. You should outsource these to established cloud service providers, allowing you to focus your resources on developing unique features like the user interface and question bank.</li>
+<li><strong>User Interface</strong> and <strong>Question Bank</strong> are in the Product stage, meaning they still have room for differentiation but might soon move toward becoming commodities as the market for quiz apps becomes saturated.</li>
+</ul>
+
+<p>By recognizing these patterns, you can decide where to innovate and where to cut costs by using existing services.</p>
+
+<h2><a name="lesson-5-change-and-evolution"></a>Lesson 5: Change and Evolution</h2>
+
+<p>In this lesson, we’ll focus on how to use Wardley Maps to <strong>anticipate changes</strong> in your environment and make strategic decisions. By understanding how components evolve, you can stay ahead of competitors, manage risks, and innovate effectively.</p>
+
+<h3><a name="the-concept-of-anticipation"></a>The Concept of Anticipation</h3>
+
+<p>One of the key strengths of Wardley Maps is their ability to help you <strong>anticipate change</strong>. As components evolve, their characteristics change, and this impacts the strategy you need to apply. By mapping your components and tracking their movement along the evolution axis, you can predict how changes in the market or technology will affect your organization.</p>
+
+<p>Here are key ways to anticipate change:</p>
+
+<p><strong>Recognizing Commoditization</strong>: When a component is moving toward the Commodity
+stage, it is becoming standardized and cheaper. If you’re relying on that
+component for differentiation, it’s time to rethink your strategy. For example,
+if competitors are commoditizing cloud infrastructure, it’s no longer a good
+idea to build your own servers—you should switch to a commodity service like
+AWS.</p>
+
+<p><strong>Tracking Industry Trends</strong>: Wardley Maps allow you to track industry trends
+and understand how components outside your organization might evolve. If an
+external technology or service (like artificial intelligence or 5G) is moving
+from Genesis to Custom-Built or Product, you can anticipate when it might impact
+your business and adjust accordingly.</p>
+
+<p><strong>Dealing with Disruption</strong>: Disruption often happens when a new technology or
+service (still in the Genesis or Custom-Built stages) radically changes how
+things are done. By keeping an eye on these early-stage innovations, you can
+prepare for or even lead the disruption.</p>
+
+<h3><a name="managing-evolution"></a>Managing Evolution</h3>
+
+<p>As components evolve, organizations need to <strong>adapt their approach</strong>. Managing this evolution effectively is key to staying competitive. Here’s how you can do that:</p>
+
+<p><strong>Pioneer, Settler, Town Planner Model</strong>: This model describes how different
+teams or individuals within an organization approach different stages of
+evolution:</p>
+
+<p><strong>Pioneers</strong> work on Genesis and Custom-Built components, innovating and
+experimenting with new ideas.</p>
+
+<p><strong>Settlers</strong> take proven innovations and refine them, making them more reliable
+and scalable as they move into the Product stage.</p>
+
+<p><strong>Town Planners</strong> focus on efficiency and standardization, turning mature
+components into Commodities.</p>
+
+<p>By having different teams focus on different stages of evolution, an
+organization can manage both innovation and efficiency without neglecting
+either.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/wardley-map-pst.png" width="600" alt="Wardley Map example of Pioneers, Settlers, and Planners">
+    <figcaption>Pioneers, Settlers, and Planners </figcaption>
+    </div>
+</figure></p>
+
+<p><strong>Refining Strategy Over Time</strong>: As components evolve, your strategy needs to
+shift. Early-stage components (Genesis and Custom-Built) require investment in
+innovation and R&amp;D, while later-stage components (Product and Commodity) benefit
+from efficiency improvements, outsourcing, and automation.</p>
+
+<p><strong>Mapping Competitors</strong>: You can use Wardley Maps to track not just your own
+evolution but also your competitors’. This helps you anticipate their moves and
+respond accordingly. If you see that competitors are adopting a new technology
+that you’re still experimenting with, it may be a sign to accelerate development
+or shift focus to other innovative areas.</p>
+
+<h3><a name="example-3"></a>Example</h3>
+
+<p>Let’s return to the example of the online quiz application. Suppose you’re tracking your competitors’ use of <strong>AI Suggestions</strong> (currently in the Genesis stage). By monitoring their progress, you may notice that this feature is moving into the Custom-Built stage in other companies. This signals that AI is becoming more common, and if you don’t invest in it soon, you might fall behind. On the other hand, if you see that other companies are outsourcing <strong>cloud hosting</strong> (now in the Commodity stage), it may confirm that maintaining your own servers is no longer worth the effort.</p>
+
+<p>By anticipating these changes, you can adjust your strategy to stay competitive and manage risk.</p>
+
+<h2><a name="lesson-6-real-world-scenarios"></a>Lesson 6: Real-World Scenarios</h2>
+
+<p>In this lesson, we’ll look at how Wardley Maps are applied to solve real-world business challenges. The focus is on making strategic decisions based on the evolution of components and their visibility to the user. Understanding how to apply these maps will help in scenarios ranging from product development to managing competition.</p>
+
+<h3><a name="example-scenario-building-a-new-product"></a>Example Scenario: Building a New Product</h3>
+
+<p>Imagine you’re developing a new product, like a <strong>mobile health app</strong>. You’re trying to decide what features to build in-house, what to outsource, and how to prioritize your resources.</p>
+
+<p>Let’s break it down using a Wardley Map:</p>
+
+<p><strong>The User as the Anchor</strong>: The users of this app are patients seeking health
+insights and professionals monitoring patient data. All components of your app
+must ultimately serve the user’s needs.</p>
+
+<p><strong>Core Components</strong>:</p>
+
+<ul>
+<li><strong>User Interface</strong>: Highly visible to the user, this component will likely be
+in the Product stage. It should offer a polished, user-friendly design, but
+there may still be room to differentiate it from other apps in the market.</li>
+<li><strong>Data Analysis Algorithm</strong>: This could be in the Custom-Built or Product
+stage, depending on how innovative the algorithm is. If it’s a standard feature
+like calculating basic health metrics, it might already be in the Product stage.
+However, if you’re pioneering new AI-driven insights, it might still be in the
+Custom-Built stage.</li>
+<li><strong>Cloud Storage</strong>: Storing health data is less visible to the user and is
+typically in the Commodity stage, meaning it’s best outsourced to a third-party
+cloud provider like AWS or Google Cloud.</li>
+</ul>
+
+<p><strong>Strategic Play</strong>:</p>
+
+<ul>
+<li><strong>Outsource Commodities</strong>: You don’t need to build your own cloud storage
+system, as it’s already a commoditized service. You can focus your resources
+elsewhere.</li>
+<li><strong>Innovate in Custom-Built Stages</strong>: The <strong>Data Analysis Algorithm</strong> may
+provide a competitive advantage, so investing in custom development and AI
+research could differentiate your app from competitors.</li>
+<li><strong>Iterate on User-Facing Features</strong>: While the <strong>User Interface</strong> is
+important, it may not be a unique differentiator unless you can offer a
+significantly better experience than competitors. You could consider using
+standard UI frameworks but put extra effort into how users interact with data
+insights.</li>
+</ul>
+
+<p>By mapping out your components and their stages of evolution, you can make smarter decisions about where to allocate resources, what to build in-house, and what to outsource. This ensures you focus on what truly matters for gaining a competitive edge.</p>
+
+<h3><a name="example-scenario-responding-to-competitors"></a>Example Scenario: Responding to Competitors</h3>
+
+<p>Now, imagine a competitor is entering your market with a similar mobile health app. Here’s how you can use Wardley Mapping to respond:</p>
+
+<p><strong>Analyze Competitors’ Map</strong>: Look at the components they are using, especially
+new features that might still be in the Genesis or Custom-Built stages (like a
+brand-new data visualization tool). These could signal future industry trends,
+giving you a chance to innovate or react quickly.</p>
+
+<p><strong>Anticipate Commoditization</strong>: If your competitor is developing custom data
+analysis algorithms, you may need to decide whether to invest in similar
+research or wait until that technology becomes commoditized. Investing too early
+may tie up resources, but waiting too long might leave you behind.</p>
+
+<p><strong>Outpace on Efficiency</strong>: If your competitor is focused on innovation, you
+might be able to outpace them by focusing on efficiency—standardizing features,
+lowering costs, and using commoditized infrastructure (like cloud hosting) to
+deliver faster and cheaper.</p>
+
+<h3><a name="managing-multiple-maps"></a>Managing Multiple Maps</h3>
+
+<p>In a real-world business, you won’t have just one Wardley Map; you may have multiple maps for different products or services. Some areas of your business might be focused on innovation (developing new AI tools), while others focus on cost-cutting and efficiency (using standardized cloud services).</p>
+
+<p>Wardley Maps allow you to visualize these different components and strategies in one place, helping you make informed decisions across multiple fronts. This is particularly useful when your business is diversifying or expanding into new markets.</p>
+
+<h3><a name="key-takeaways"></a>Key Takeaways</h3>
+
+<ul>
+<li><strong>Focus on Core Differentiators</strong>: Use Wardley Maps to identify where innovation can give you a competitive edge.</li>
+<li><strong>Outsource or Automate Commodities</strong>: Don’t waste resources on building or maintaining commodity services. Outsource these to third-party providers to focus on innovation.</li>
+<li><strong>Adapt to Competitor Moves</strong>: Track where competitors are innovating and decide whether to follow suit, innovate in different areas, or focus on efficiency.</li>
+</ul>
+
+<h2><a name="lesson-7-the-role-of-doctrine"></a>Lesson 7: The Role of Doctrine</h2>
+
+<p>In this lesson, we’ll explore the concept of <strong>doctrine</strong> within the context of Wardley Mapping. Doctrine refers to the universal principles and practices that guide how an organization operates, regardless of the specific industry or environment. These principles help ensure that an organization is adaptable, efficient, and capable of responding to changes.</p>
+
+<h3><a name="what-is-doctrine"></a>What is Doctrine?</h3>
+
+<p>Doctrine is a set of best practices or operational principles that are universally applicable across different industries and organizations. While strategy involves making decisions based on the specific environment or market, doctrine is about <strong>how</strong> to run the organization effectively no matter the circumstances. It’s like having a solid foundation of practices that keep the organization strong and responsive.</p>
+
+<p>In Wardley Mapping, doctrine typically focuses on:</p>
+
+<ul>
+<li><strong>Learning from your environment</strong>: Continuously observing and understanding changes in the market and technology.</li>
+<li><strong>Efficiency</strong>: Streamlining operations, reducing waste, and focusing on value creation.</li>
+<li><strong>Empowerment</strong>: Ensuring that teams are able to make decisions and act quickly in response to changes.</li>
+<li><strong>Communication</strong>: Maintaining open and clear communication channels so that different teams or departments can work together effectively.</li>
+</ul>
+
+<h3><a name="key-doctrines"></a>Key Doctrines</h3>
+
+<p>Here are some key doctrinal principles you might apply when using Wardley Maps to manage and grow your organization:</p>
+
+<p><strong>Know your users</strong>: Always anchor your Wardley Map to the needs of your users.
+Understanding who they are, what they need, and how your products or services
+deliver value to them is foundational.</p>
+
+<p><strong>Focus on user needs</strong>: Ensure that every component on your map contributes to
+solving user problems. If a component doesn’t serve a clear user need, it may
+not be worth investing in.</p>
+
+<p><strong>Optimize flow</strong>: As components evolve, make sure your processes are optimized
+for the stage they’re in. For example, focus on efficiency for commodity
+components and innovation for components in the Genesis or Custom-Built stages.</p>
+
+<p><strong>Think small and iterate</strong>: Break down larger problems into smaller ones that
+can be quickly iterated upon. This allows for faster innovation and learning in
+components that are still evolving.</p>
+
+<p><strong>Use appropriate methods</strong>: Different components in different stages of
+evolution require different approaches. Custom-built components might need
+agile, experimental methods, while commodity components may require lean,
+efficient approaches.</p>
+
+<p><strong>Challenge assumptions</strong>: Regularly question your assumptions about what your
+users need, what your competitors are doing, and how your components are
+evolving. This helps prevent complacency and keeps you adaptive.</p>
+
+<h3><a name="doctrine-in-action-example-scenario"></a>Doctrine in Action: Example Scenario</h3>
+
+<p>Let’s apply some of these doctrinal principles to a <strong>financial software company</strong> that is building an online budgeting tool for consumers.</p>
+
+<p><strong>Know your users</strong>: The primary users are consumers who want to track their
+expenses and savings in a user-friendly app. The organization needs to ensure
+that the entire value chain—from the user interface to the financial
+algorithms—is designed with the user’s needs in mind.</p>
+
+<p><strong>Focus on user needs</strong>: The company may decide that automated savings
+suggestions are important to users. This component is likely in the
+<strong>Custom-Built</strong> or <strong>Product</strong> stage, so investing in refining this feature
+could add significant value to the app.</p>
+
+<p><strong>Optimize flow</strong>: The <strong>cloud infrastructure</strong> that supports the app is already
+a <strong>Commodity</strong>, so the company can focus on optimizing efficiency and keeping
+costs low by using third-party services. Meanwhile, the <strong>savings algorithm</strong> is
+still evolving, so more agile, innovative methods should be applied there.</p>
+
+<p><strong>Think small and iterate</strong>: Instead of launching a large overhaul of the app,
+the team could start by releasing a small feature update, testing it with users,
+and gathering feedback. This iterative process helps ensure that user needs are
+met while minimizing risk.</p>
+
+<p><strong>Challenge assumptions</strong>: The company might assume that users only care about
+basic expense tracking, but upon further research, they discover that users also
+want investment tracking. This shift in understanding could lead to new features
+and components being added to the map.</p>
+
+<h3><a name="the-importance-of-doctrine-in-strategy"></a>The Importance of Doctrine in Strategy</h3>
+
+<p>While strategy deals with the unique aspects of competition, industry, and market conditions, doctrine helps an organization function effectively no matter what happens in the market. Following doctrinal principles like continuous learning, efficient operations, and clear communication ensures that your organization can rapidly adapt to changes, whether you’re innovating in new areas or optimizing existing processes.</p>
+
+<p>By applying doctrine, organizations can avoid costly mistakes, minimize risks, and ensure that they are always moving in the right direction, regardless of how the components of their value chain evolve.</p>
+
+<h2><a name="lesson-8-strategic-advantage"></a>Lesson 8: Strategic Advantage</h2>
+
+<p>Now that we’ve covered the fundamentals of Wardley Maps, evolution, and doctrine, let’s explore how to use Wardley Maps to gain a <strong>strategic advantage</strong>. This lesson focuses on <strong>gameplay</strong>—how to make strategic moves that put your organization ahead of competitors.</p>
+
+<h3><a name="understanding-strategic-advantage"></a>Understanding Strategic Advantage</h3>
+
+<p>Strategic advantage in Wardley Mapping is about making the right moves based on the position and evolution of the components in your system. By identifying where you can innovate, outsource, or disrupt, you can make decisions that put you ahead of the market.</p>
+
+<p>There are several strategic plays that organizations can use with Wardley Maps:</p>
+
+<p><strong>Ecosystem Play</strong>
+This involves turning parts of your business into a platform or ecosystem for others to use. Instead of just using a component for your own needs, you offer it as a service to other companies, creating a new revenue stream.</p>
+
+<p>For example, Amazon originally developed its cloud infrastructure (AWS) to meet its own needs but later turned it into a service for others. Now, AWS is a major business unit for Amazon, and many companies rely on it for cloud services.</p>
+
+<p>In this play, you’re turning a component that is already a Commodity for your organization into a new Product or service for others, essentially becoming a provider.</p>
+
+<p><strong>Build and Protect</strong>
+This strategy involves building something new or innovative in the Genesis or Custom-Built stages and defending it as it evolves. The goal is to create a <strong>unique differentiator</strong> that competitors cannot easily replicate.</p>
+
+<p>For example, Apple’s custom-built hardware (like its processors) and integration with its ecosystem are innovations that give it a competitive edge. By investing heavily in custom solutions early on, Apple maintains tight control over its products and user experience.</p>
+
+<p>This strategy works best when you can maintain your advantage as the component evolves, ensuring that competitors can’t easily commoditize or copy your innovations.</p>
+
+<p><strong>Accelerate Commoditization</strong>
+In some cases, you might want to <strong>accelerate</strong> the evolution of a component toward the Commodity stage, especially if it’s a key part of your competitors’ differentiation.</p>
+
+<p>For example, Google’s development of Kubernetes, an open-source container orchestration system, allowed businesses to deploy applications consistently across different environments. This move accelerated the commoditization of container management systems, removing the competitive advantage of companies who had custom-built their own solutions.</p>
+
+<p>By open-sourcing key components, Google shifted the competitive landscape, ensuring that Kubernetes became the standard, and competitors lost their advantage in custom-built systems.</p>
+
+<p><strong>Disrupt and Innovate</strong>
+This strategy focuses on finding <strong>Genesis-stage</strong> innovations that have the potential to disrupt established markets. If you invest in these areas before your competitors, you can seize the opportunity for significant growth or market leadership.</p>
+
+<p>For example, Tesla’s investment in electric vehicles (EVs) when the market was still in the Genesis stage allowed it to become a leader in the EV market. As other companies now try to catch up, Tesla benefits from its first-mover advantage.</p>
+
+<p>In this play, you’re betting on something that is still uncertain but could redefine the market if it succeeds.</p>
+
+<p><strong>Focus on Efficiency</strong>
+This strategy is useful when your competitors are heavily focused on innovation, and you need to <strong>outpace them on efficiency</strong>. By focusing on cost-cutting, automation, and leveraging commoditized components, you can offer similar products at a lower price or with faster delivery.</p>
+
+<p>For example, companies like Walmart focus on optimizing their supply chain and logistics to deliver goods at lower prices. They’re not necessarily innovating in the Genesis stage but instead using commoditized technologies to achieve operational efficiency.</p>
+
+<p>By leveraging well-established commodities, you can outcompete others on price and reliability.</p>
+
+<h3><a name="applying-strategic-advantage"></a>Applying Strategic Advantage</h3>
+
+<p>Let’s take an example using our online quiz application:</p>
+
+<p><strong>Ecosystem Play</strong>: You could turn your <strong>question bank</strong> into a service for
+other education platforms. This would allow other companies to use your
+well-developed content, and you could gain revenue from licensing it.</p>
+
+<p><strong>Build and Protect</strong>: If you’re developing a unique <strong>AI suggestion engine</strong>,
+you can keep this as a custom-built feature to differentiate your app from
+competitors. By focusing on continuous innovation and refinement, you can
+maintain a competitive edge.</p>
+
+<p><strong>Accelerate Commoditization</strong>: If a competitor is building custom <strong>hosting
+infrastructure</strong>, you might accelerate its commoditization by switching to cloud
+services and using them more efficiently. You could also adopt newer, faster
+commoditized solutions to outpace them.</p>
+
+<p><strong>Disrupt and Innovate</strong>: You might invest in developing new ways to
+<strong>personalize learning experiences</strong> using data-driven insights and AI,
+disrupting the traditional quiz application market.</p>
+
+<p><strong>Focus on Efficiency</strong>: Instead of focusing only on new features, you could
+optimize your app’s backend processes and infrastructure to reduce costs,
+allowing you to offer a better price or more reliable service.</p>
+
+<p>By understanding your environment and the evolution of the components in your system, you can decide which of these strategic plays will give you the greatest advantage.</p>
+
+<h2><a name="lesson-9-common-pitfalls"></a>Lesson 9: Common Pitfalls</h2>
+
+<p>Now that we’ve explored the various strategies and principles behind Wardley Mapping, let’s look at some of the <strong>common pitfalls</strong> that organizations may encounter when using Wardley Maps. Understanding these pitfalls can help you avoid mistakes and make better strategic decisions.</p>
+
+<p><strong>Failing to Understand User Needs</strong>
+One of the most common mistakes in Wardley Mapping is failing to accurately identify and prioritize user needs. Since the user is the anchor of the map, if you don’t fully understand what the user values, you may misplace components on the map or focus on the wrong areas.</p>
+
+<p>For example, if you think users prioritize flashy UI over data accuracy in a
+financial app, you might invest too much in user interface innovation and not
+enough in data management, leading to poor results.</p>
+
+<p>To avoid this, invest in user research and testing to ensure that you have a
+clear understanding of what your users actually need, rather than making
+assumptions.</p>
+
+<p><strong>Ignoring Component Evolution</strong>
+Another pitfall is neglecting to track the evolution of components over time. Technologies, markets, and competitors change rapidly, and what was once a custom-built innovation may become a commodity. Failing to adapt to this evolution can lead to inefficiencies and missed opportunities.</p>
+
+<p>For example, a company might continue investing in custom-built infrastructure
+long after it has become commoditized (like maintaining on-premise servers when
+cloud services are widely available). This ties up resources that could be spent
+elsewhere.</p>
+
+<p>To avoid this, regularly update your Wardley Maps and review the evolution of
+components to ensure that you’re adapting to changes in the market and
+technology landscape.</p>
+
+<p><strong>Overinvesting in Commodities</strong>
+A common mistake is investing too much in components that are already in the Commodity stage. These components no longer provide a competitive advantage, so spending time and resources on them can lead to wasted effort.</p>
+
+<p>For example, continuing to develop your own custom email servers when
+cloud-based email services like Gmail and Office 365 are cheaper and more
+reliable.</p>
+
+<p>To avoid this, recognize when a component has become commoditized and consider
+outsourcing or using third-party services to reduce costs.</p>
+
+<p><strong>Relying on Outdated Maps</strong>
+Wardley Maps are snapshots in time, but environments change. Some companies make the mistake of treating their maps as static, failing to update them as the components evolve or as new competitors enter the market.</p>
+
+<p>For example, you may have mapped out a winning strategy two years ago, but if
+your competitors have introduced new technologies, your map might now be out of
+date and no longer reflect the current landscape.</p>
+
+<p>To avoid this, continuously update your Wardley Maps to reflect the current
+environment, new trends, and evolving technologies.</p>
+
+<p><strong>Overlooking Strategic Gameplay</strong>
+Another pitfall is focusing too much on mapping components without considering the strategic plays you can make. Wardley Maps are not just analytical tools—they are meant to guide <strong>action</strong>. Simply identifying components and their evolution is not enough. You need to use the map to make strategic moves like accelerating commoditization, building ecosystems, or innovating.</p>
+
+<p>For example, an organization might map out all the components of its system but
+fail to capitalize on opportunities to commoditize non-critical components or to
+innovate in areas that could lead to competitive differentiation.</p>
+
+<p>To avoid this, use your map to actively shape your strategy. Once you’ve
+identified where your components are, think about how you can use gameplay (such
+as ecosystem play or building and protecting) to improve your position.</p>
+
+<p><strong>Overcomplicating the Map</strong>
+It’s easy to get carried away with adding too many details to a Wardley Map, especially when dealing with complex systems. Overcomplicating the map can make it hard to see the big picture and may lead to decision paralysis.</p>
+
+<p>For example, mapping every small technical detail of your infrastructure may
+lead to a cluttered map that makes it difficult to focus on key strategic areas.</p>
+
+<p>To avoid this, keep your map focused on the most important components and value
+chains.  While detailed maps can be useful for certain tasks, ensure that you
+always have a clear, simplified map for strategic decision-making.</p>
+
+<p><strong>Misinterpreting Evolution Stages</strong>
+Finally, misinterpreting where a component lies on the evolution axis is a common issue. It’s crucial to accurately assess whether a component is in the Genesis, Custom-Built, Product, or Commodity stage. Misplacement can lead to poor strategic decisions.</p>
+
+<p>For example, assuming a new technology like quantum computing is already a
+product when it’s still in the Genesis stage could lead to overinvestment too
+early, while misplacing a well-established service like cloud hosting as
+Custom-Built could lead to underinvestment in efficiency.</p>
+
+<p>To avoid this, make sure to critically evaluate the stage of evolution for each
+component, using research and industry trends to guide your decisions.</p>
+
+<h3><a name="summary"></a>Summary</h3>
+
+<p>Wardley Mapping is a powerful tool for strategy, but it’s important to use it correctly. By avoiding these common pitfalls—such as failing to update maps, overinvesting in commodities, and ignoring user needs—you can make better decisions and stay competitive in a rapidly evolving environment.</p>
+
+<h2><a name="lesson-10-emerging-trends"></a>Lesson 10: Emerging Trends</h2>
+
+<p>In this final lesson, we’ll look at how Wardley Mapping can be applied to future trends and emerging technologies. As the pace of technological change accelerates, Wardley Maps can help organizations navigate uncertainty and leverage new opportunities.</p>
+
+<p><strong>Emerging Technologies and Their Evolution</strong>
+Technologies like <strong>artificial intelligence (AI)</strong>, <strong>blockchain</strong>, <strong>quantum computing</strong>, and <strong>5G</strong> are at various stages of evolution. Understanding where these technologies fall on the Wardley Map can help organizations determine the best time to invest in them.</p>
+
+<p>For example:</p>
+
+<ul>
+<li><strong>Quantum computing</strong> is still largely in the <strong>Genesis</strong> stage. It’s experimental and unproven in many applications, but organizations should monitor its progress to anticipate when it might shift toward <strong>Custom-Built</strong> and eventually <strong>Product</strong>.</li>
+<li><strong>AI</strong> has components in both the <strong>Custom-Built</strong> and <strong>Product</strong> stages. For example, AI in speech recognition is already a widely available Product, but AI for complex tasks like creative design is still in earlier stages of evolution.</li>
+</ul>
+
+<p>By tracking the evolution of these technologies, companies can avoid the pitfalls of investing too early or too late.</p>
+
+<p><strong>Leveraging Ecosystems in the Digital Economy</strong>
+As organizations become more interconnected, <strong>ecosystem strategies</strong> are becoming more critical. Large platforms like Amazon, Google, and Apple have successfully used <strong>ecosystem plays</strong> to expand their influence. By offering services (like AWS or the App Store) to other companies, they have turned components into essential infrastructure for entire industries.</p>
+
+<p>For smaller companies, this might involve turning a component into an API or SaaS offering that others can build on. Leveraging ecosystems not only creates new revenue streams but also strengthens your position in the market by becoming a key player in the value chain.</p>
+
+<p><strong>Anticipating Disruption</strong>
+Wardley Maps can also help companies anticipate disruption. Disruption often occurs when a new technology in the <strong>Genesis</strong> or <strong>Custom-Built</strong> stage rapidly moves through the evolution cycle, displacing established players. For example, the rise of cloud computing disrupted traditional data centers.</p>
+
+<p>By mapping the technologies and processes in your industry, you can identify areas where disruption is likely to occur and either prepare for it or lead it yourself.</p>
+
+<p><strong>Example</strong>: In the automotive industry, electric vehicles (EVs) started in the <strong>Genesis</strong> stage with companies like Tesla, but now they are moving toward <strong>Product</strong> and <strong>Commodity</strong> stages as traditional car manufacturers rapidly adopt EV technology. Companies that saw this shift early were able to position themselves for success.</p>
+
+<p><strong>Sustainability and Ethical Considerations</strong>
+As sustainability and ethics become increasingly important, organizations can use Wardley Maps to incorporate these considerations into their strategic decisions. Components like <strong>green energy</strong>, <strong>supply chain transparency</strong>, and <strong>ethical AI</strong> are becoming part of the value chain. Mapping these emerging priorities can help organizations align with market trends and consumer expectations.</p>
+
+<p>For example, companies in industries like fashion or electronics may start mapping sustainability efforts as part of their value chain. Components such as <strong>carbon-neutral production</strong> or <strong>recyclable materials</strong> can evolve from early-stage innovations to mainstream requirements, driven by both regulation and consumer demand.</p>
+
+<p><strong>Adapting to Market Speed and Complexity</strong>
+In today’s fast-paced markets, the speed at which components evolve can vary widely. Some components may take decades to move through the evolution cycle, while others may commoditize rapidly due to technological breakthroughs. Wardley Maps help organizations keep track of these different speeds and adapt their strategies accordingly.</p>
+
+<p>For instance, technologies like <strong>machine learning</strong> are evolving quickly, and what was once a Custom-Built solution may now be widely available as a cloud service (Product or Commodity). In contrast, <strong>quantum computing</strong> may take much longer to evolve, requiring organizations to think carefully about when to invest.</p>
+
+<h3><a name="the-future-of-wardley-mapping"></a>The Future of Wardley Mapping</h3>
+
+<p>As organizations deal with increasing complexity and faster market cycles, Wardley Maps are evolving as well. They are being used not only to track technological evolution but also to:</p>
+
+<ul>
+<li><strong>Map entire ecosystems</strong> and industries.</li>
+<li>Understand the role of <strong>globalization</strong> and <strong>supply chains</strong>.</li>
+<li>Address new challenges like <strong>cybersecurity</strong> and <strong>data privacy</strong>.</li>
+</ul>
+
+<p>By applying Wardley Mapping to these emerging challenges, organizations can remain agile and competitive in a rapidly changing world.</p>
+
+<h2><a name="recap-of-wardley-mapping-concepts"></a>Recap of Wardley Mapping Concepts:</h2>
+
+<ul>
+<li><strong>Components</strong>: Key elements of a system, placed according to their visibility and evolution.</li>
+<li><strong>Evolution</strong>: How components move from Genesis (new and experimental) to Commodity (standardized and widely available).</li>
+<li><strong>Strategic Plays</strong>: Different ways to act based on your position in the map (e.g., build and protect, accelerate commoditization).</li>
+<li><strong>Doctrine</strong>: Universal principles that guide efficient and adaptive operations.</li>
+</ul>
+
+<p>By combining these elements, organizations can make more informed strategic decisions, anticipate changes in the market, and maintain a competitive advantage.</p>
+
+<h2><a name="the-online-photo-storage-error"></a>The Online Photo Storage Error</h2>
+
+<p>By now, you’ve probably forgotten about the problem I mentioned at the
+beginning, which is this error:</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/wardley-map-photo-storage.png" width="600" alt="Wardley Map of an Online Photo Storage Business">
+    <figcaption>Can you spot the error? </figcaption>
+    </div>
+</figure></p>
+
+<p>You might want to stop reading for a bit, click on the image above, and try to
+spot what’s wrong.</p>
+
+<p>Think about what you’ve learned. In particular, think about the evolution of
+components. If you’re very familiar with IT technology, you might ask an obvious
+question: why is the data center custom-built? Do you really want to handle the
+daily maintenance, upgrades, power management, cooling, monitoring, handling
+support 24/7 and so on? Cloud hosting, managed hosting, or even looking at edge
+computing can all reduce or eliminate the need for running your own data center
+and free up your staff for more valuable projects.</p>
+
+<h2><a name="conclusion"></a>Conclusion:</h2>
+
+<p>Wardley Mapping is not just a tool for visualizing your current position—it’s a dynamic system for shaping your organization’s future. By understanding how components evolve and where opportunities lie, you can stay ahead of competitors, capitalize on innovation, and build lasting success.</p>
+
+<p>To continue building your expertise in Wardley Mapping and strategic thinking, here are some next steps and learning resources you can explore:</p>
+
+<p><strong>Practice Mapping Real-World Scenarios</strong>
+Start applying Wardley Mapping to real-world situations relevant to your work or interests. Create maps for:</p>
+
+<ul>
+<li>Your organization’s product lines or services.</li>
+<li>Industry trends like artificial intelligence, sustainability, or digital transformation.</li>
+<li>Competitors’ strategies and how they’re evolving.</li>
+</ul>
+
+<p>This hands-on practice will deepen your understanding and make you more comfortable using Wardley Maps as a decision-making tool.</p>
+
+<p>From here, you should move to the free online book, <a href="https://medium.com/wardleymaps/on-being-lost-2ef5f05eb1ec" target="_blank">Wardley Maps–Topographical
+intelligence in
+business</a> <span class="fa fa-external-link fa_custom"></span> by Simon
+Wardley.</p>
+
+<p>I hope you’ve learned something. This was a lot of work to create, but it was a 
+huge amount of fun!</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/ai-generated-content-innovation-or-intellectual-theft.html" class="prevPost">&laquo; AI-Generated Content: Innovation or Intellectual Theft?</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/wardley-maps-in-a-nutshell.html";
+            this.page.identifier = "articles/wardley-maps-in-a-nutshell";
+            this.page.title      = "Wardley Maps In a Nutshell";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+

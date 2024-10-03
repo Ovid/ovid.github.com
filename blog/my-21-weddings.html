@@ -55,6 +55,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -203,6 +204,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -212,8 +215,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -282,8 +283,10 @@ well.</p>
 daughter, Lilly-Rose.</p>
 
 <p><figure class="image">
-    <img src="/static/images/our-wedding.jpg" width="600" alt="The author and his wife signing their wedding vows at in Tower Bridge, London.">
+    <div class="image-container">
+        <img src="/static/images/our-wedding.jpg" width="600" alt="The author and his wife signing their wedding vows at in Tower Bridge, London.">
     <figcaption>Our wedding. <a href="https://www.flickr.com/photos/publius_ovidius/5213848779/in/album-72157625484479548/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>Being a husband and father has been exhilarating, wonderful, and sometimes
@@ -319,8 +322,10 @@ of thing I’d wear for a Goth Night of clubbing. But Portland being Portland, o
 looks were all that came of that.</p>
 
 <p><figure class="captioned">
-    <img src="/static/images/revpoe.jpg" width="600" alt="Me, officiating at the lakeside wedding.">
+    <div class="image-container">
+        <img src="/static/images/revpoe.jpg" width="600" alt="Me, officiating at the lakeside wedding.">
     <figcaption>The first wedding I officiated at. </figcaption>
+    </div>
 </figure></p>
 
 <p>The wedding at the lake went off without a hitch and I got a good laugh when I
@@ -470,8 +475,10 @@ collar years ago for a Halloween party and was happy to discover that it was
 a real collar from a ministerial supply company.</p>
 
 <p><figure class="captioned-left">
-    <img src="/static/images/multnomah-building.jpg" width="600" alt="The Multnomah County Courthouse, also known as 'The Multnomah Building'">
+    <div class="image-container">
+        <img src="/static/images/multnomah-building.jpg" width="600" alt="The Multnomah County Courthouse, also known as 'The Multnomah Building'">
     <figcaption>The Multnomah County Courthouse <a href="https://en.wikipedia.org/wiki/Multnomah_County_Courthouse#/media/File:Multcocourthouse.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>One couple I married had been together for eight years and another for
@@ -607,6 +614,37 @@ failed marriages.</p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>

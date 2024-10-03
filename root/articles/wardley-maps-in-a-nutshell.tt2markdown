@@ -1,0 +1,749 @@
+[%
+    title            = 'Wardley Maps In a Nutshell';
+    type             = 'articles';
+    slug             = 'wardley-maps-in-a-nutshell';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-10-03';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS business ai}}
+
+# Wardley Maps
+
+[Wardley Maps](https://en.wikipedia.org/wiki/Wardley_map) are an amazing
+business strategy tool, but there's a lot to learn. I'm someone who likes to
+have a "quick start guide" to learning important concepts. With that, I can
+decide if I want to learn more. This is that guide, broken down into ten easy,
+bite-sized lessons.
+
+Note that this is only an introduction. There are plenty of advanced
+concepts we've not covered here, and some concepts we've covered are incomplete.
+
+By the time you're finished reading this, you should easily spot the problem
+with this Wardley Map of an online photo storage business. (Note: for all
+images, you can click on them for a larger version).
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/wardley-map-photo-storage.png"
+   alt      = "Wardley Map of an Online Photo Storage Business"
+   caption  = "Can you spot the error?"
+%]
+
+If you want to play around with the above map, you can visit
+[onlinewardleymaps.com/](https://onlinewardleymaps.com/)
+and enter the following:
+
+```
+title Online Photo Storage
+
+style wardley
+
+component Customer [1, 0.45]
+component Online Image Manipulation [.98, 0.34] (build) label [-75, 1]
+component Online Photo Storage [.91, 0.37] (build) label [-44, 23]
+
+Customer->Online Image Manipulation
+Customer->Online Photo Storage
+
+
+component Print [.88, 0.6] (buy)
+Customer->Print
+
+
+component Web Site [.82, 0.65] (buy)
+Customer->Web Site
+Online Photo Storage->Web Site
+
+component CRM [0.68, 0.68] (buy)
+Web Site->CRM
+
+component Platform [0.5, 0.58] (buy)
+Web Site->Platform
+
+component Compute [0.35, 0.69] (buy)
+Platform->Compute
+CRM->Compute
+
+component Data Centre [0.15, 0.20] (buy)
+Compute->Data Centre
+CRM->Compute
+
+component Power [0.1, 0.9] (outsource)
+Data Centre->Power
+Compute->Power
+```
+
+You can find other [Wardley Map examples on
+github](https://github.com/damonsk/wardley-maps-examples).
+
+Note: to create the following, I used my [Learn Anything
+GPT](https://chatgpt.com/g/g-uZXRFplUp-learn-anything) at OpenAI to quickly
+create these lessons. It's been lightly edited, with some helpful
+images to illustrate key concepts.
+
+# The Lessons
+
+Wardley Mapping is a strategic tool used to understand and visualize how technology or any resources evolve over time. It helps in making better decisions by mapping the components of a system, identifying where innovation or improvements are needed, and ensuring that the right strategies are applied to different stages of evolution. Let’s break this down into a series of short lessons to understand the basics.
+
+## Lesson 1: Introduction
+Wardley Maps are visual representations that combine the position of components within a value chain and the stage of evolution of those components. The two main axes of a Wardley Map are:
+
+**Value Chain (Vertical Axis)**: Represents how visible or important a component
+is to the user. At the top, you find components that are directly experienced by
+the user, like a website interface. At the bottom, you find components that are
+less visible to the user but essential to deliver the service, like servers or
+power.
+
+**Evolution (Horizontal Axis)**: Represents how a component evolves over time,
+starting from Genesis (brand new idea) to Commodity (widely available and
+standardized).
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/wardley-map-empty.png"
+   alt      = "An empty Wardley Map showing the value chain on the vertical access and evolution on the horizontal access."
+   caption  = "An empty Wardley Map."
+%]
+
+Let’s take a simple example. Imagine you're mapping a service like an online store. The store's **website interface** is highly visible to users, but it depends on things like **payment processing**, **data storage**, and **server hosting**, which are less visible but crucial for running the store. Over time, these underlying components evolve, like how servers might have started as custom-built (Genesis) and now are widely available as cloud services (Commodity).
+
+### Key Elements
+- **Components**: The building blocks of your system (like payment systems, servers, etc.).
+- **Positioning**: Where the components sit in terms of visibility and evolution.
+- **Movement**: As components evolve, they move from left (Genesis) to right (Commodity).
+
+This mapping process helps us understand not only where we are but where we should focus our efforts to improve or innovate.
+
+## Lesson 2: Components
+
+Now that you have a basic understanding of Wardley Maps, let's dive deeper into the key **components** that make up the map. These elements are crucial for visualizing and understanding the system.
+
+**Anchor (The User)**: Every Wardley Map starts with an anchor, which is
+typically the user or the customer. Everything on the map is built around
+delivering value to this user. Understanding what the user needs or values is
+the starting point for mapping.
+
+**Value Chain**: The value chain represents how different components or
+activities come together to serve the user. Each component or activity depends
+on others, forming a chain of dependencies. Some components are highly visible
+to the user (like a website), while others operate in the background (like data
+centers or cloud infrastructure).
+
+**Components**: These are the building blocks that make up the system. They can
+be technologies, processes, services, or even ideas. Each component is placed on
+the map based on its visibility to the user (vertical axis) and its stage of
+evolution (horizontal axis).
+
+**Evolution Stages**:
+   - **Genesis**: The beginning stage of a component's life cycle, where it’s a novel idea or innovation.
+   - **Custom-Built**: Components that are tailored or built specifically for a purpose, often less standardized.
+   - **Product**: The component becomes more standardized but not yet fully commoditized. It may be a product that several companies offer but with some variations.
+   - **Commodity**: The final stage where the component is widely available, standardized, and often offered as a utility.
+
+**Movement**: Components are not static—they evolve. As components evolve from
+Genesis to Commodity, their strategic significance changes. For example, early
+in their life cycle, they may offer a competitive advantage, but as they become
+commoditized, they no longer differentiate your offering.
+
+### Example
+Let’s look at an example of a map for an e-commerce website:
+- The **user** is the anchor.
+- The **website interface** is highly visible to the user, so it is near the top of the vertical axis.
+- Behind the website, you have less visible components like **payment processing**, **data storage**, and **servers**. These are lower on the vertical axis but crucial for the service to function.
+
+Over time, components like **servers** might have evolved from Custom-Built data centers to Commodity cloud services, while newer components, like **AI recommendations**, might still be in the Genesis or Custom-Built stages.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/wardley-map-components-example.png"
+   alt      = "Wardley Map of the components listed in the example."
+   caption  = "Components Example"
+%]
+
+By visualizing these, you can understand which parts of your system need innovation and which ones can be outsourced or standardized.
+
+## Lesson 3: The Importance of Evolution
+
+Now that you understand the basic components of a Wardley Map, let’s focus on the **evolution** aspect, which is one of the most critical elements of the map. Evolution helps you track how components change over time and why it matters for strategy.
+
+### The Four Stages
+**Genesis**: This is where new ideas, technologies, or services emerge. At this
+stage, they are highly experimental, unique, and there’s often no clear market
+or standard. An example might be the first-ever development of cloud computing
+or artificial intelligence, where it's unclear how useful the technology will be
+or how it will be applied.
+
+**Custom-Built**: Once the idea proves its value, it moves into a more tailored,
+specific application. At this stage, companies are building custom solutions to
+suit their particular needs. An example might be early adopters of AI using
+custom algorithms developed for their specific industries.
+
+**Product**: As the component becomes more widely understood and used, it moves
+toward becoming a standardized product. It’s now something multiple companies
+can offer, but there is still room for competition and differentiation. For
+instance, different AI tools designed for specific business functions can be
+bought and sold as products.
+
+**Commodity**: Finally, the component becomes ubiquitous and standardized.  It’s
+now a basic service or utility that companies use without much thought because
+it’s available everywhere and at low cost. Cloud computing today is a good
+example, as it’s offered by many providers like AWS and Google Cloud, making it
+a commodity rather than a competitive advantage.
+
+### Why Evolution Matters:
+**Strategic Focus**: Where a component sits in the evolution scale determines
+your strategy. If it’s in the **Genesis** stage, the focus is on innovation and
+experimentation. In the **Commodity** stage, it’s about efficiency, reducing
+costs, and potentially outsourcing.
+
+**Competitive Advantage**: Components in the earlier stages (Genesis or
+Custom-Built) often offer a competitive advantage. However, once they reach the
+Commodity stage, they no longer offer the same edge, and companies need to
+innovate in other areas to maintain their competitiveness.
+
+**Outsourcing vs. Building**: Components in the **Commodity** stage are often
+better outsourced to third-party providers because they are standardized and not
+a key differentiator. Components in **Genesis** or **Custom-Built** stages are
+typically worth building internally because they provide unique value.
+
+### Example:
+Imagine you are managing an online streaming service. If you were starting this 10 years ago, cloud infrastructure might have been in the Custom-Built stage, requiring you to set up your own servers. Today, however, cloud services like AWS are a Commodity, so you would simply use existing providers and focus your efforts on innovating elsewhere, like improving content recommendation algorithms, which might still be in the Custom-Built or Product stage.
+
+By understanding where each component of your business falls along the evolution scale, you can make smarter decisions about where to innovate, where to save costs, and where to invest resources.
+
+## Lesson 4: Patterns and Strategic Play
+
+Now that you understand how components evolve and connect in a system, let's explore the strategic side of Wardley Maps—how recognizing **patterns** and using **strategic plays** can give your organization a competitive advantage.
+
+### Recognizing Patterns
+Over time, organizations can observe common patterns in the way technology and systems evolve. These patterns can help guide decision-making:
+
+**Component Evolution**: Components inevitably evolve from Genesis to Commodity,
+but not all at the same speed. Recognizing which components are at risk of
+becoming commoditized can help you decide where to focus your resources.  For
+example, if your competitors are already using a commoditized service, it’s
+probably time to adopt it rather than building a custom solution.
+
+**Efficiency vs. Innovation**: As components evolve toward the Commodity stage,
+the focus shifts from innovation to efficiency. Organizations often follow this
+pattern:
+   - Innovate (Genesis and Custom-Built stages) to gain competitive advantage.
+   - Standardize and commoditize successful components to reduce costs and increase reliability.
+
+**Innovation Clusters**: Components in the Genesis and Custom-Built stages often
+cluster together. These are areas where experimentation and innovation are
+happening. They signal opportunities for differentiation and investment.
+
+### Strategic Plays
+Wardley Maps aren’t just passive tools; they allow for **active strategy** through strategic plays. These plays help you determine what actions to take depending on where your components lie in their evolution.
+
+Here are a few examples:
+
+**Outsource Commodities**: Once a component reaches the Commodity stage, it no
+longer offers a competitive advantage. This is the perfect time to consider
+outsourcing it to a third party or switching to a utility service. For instance,
+as cloud hosting has become a commodity, many companies choose cloud providers
+rather than maintaining their own data centers.
+
+**Build vs. Buy**: When components are in the early stages of evolution (Genesis
+or Custom-Built), you might want to build custom solutions in-house because they
+provide a unique advantage. As components move toward the Product stage, you
+might switch to buying them off the shelf.
+
+**Pioneering New Ideas**: If you notice that a critical part of your system is
+still in the Genesis stage, and there’s an opportunity to pioneer it, you can
+invest in innovation and research to create a competitive edge. For example, in
+an online quiz system, an **AI Suggestions** component might be worth
+pioneering if it can greatly enhance the user experience.
+
+**Duplication and Ecosystem Play**: In some cases, you might duplicate a system
+that’s reaching the Commodity stage to offer it as a service to others, turning
+it into an ecosystem play. Think of companies that developed cloud
+infrastructure for internal use and later turned it into a service for others
+(like Amazon with AWS).
+
+### Applying Strategy
+Let’s return think about an online quiz application and what some components
+might be:
+
+- **AI Suggestions** is still in the Genesis stage, meaning it’s an area where you might want to focus your innovation efforts to differentiate your quiz app from others.
+- **Cloud Hosting** and **Database** are already commodities. You should outsource these to established cloud service providers, allowing you to focus your resources on developing unique features like the user interface and question bank.
+- **User Interface** and **Question Bank** are in the Product stage, meaning they still have room for differentiation but might soon move toward becoming commodities as the market for quiz apps becomes saturated.
+
+By recognizing these patterns, you can decide where to innovate and where to cut costs by using existing services.
+
+## Lesson 5: Change and Evolution
+
+In this lesson, we’ll focus on how to use Wardley Maps to **anticipate changes** in your environment and make strategic decisions. By understanding how components evolve, you can stay ahead of competitors, manage risks, and innovate effectively.
+
+### The Concept of Anticipation
+One of the key strengths of Wardley Maps is their ability to help you **anticipate change**. As components evolve, their characteristics change, and this impacts the strategy you need to apply. By mapping your components and tracking their movement along the evolution axis, you can predict how changes in the market or technology will affect your organization.
+
+Here are key ways to anticipate change:
+
+**Recognizing Commoditization**: When a component is moving toward the Commodity
+stage, it is becoming standardized and cheaper. If you're relying on that
+component for differentiation, it’s time to rethink your strategy. For example,
+if competitors are commoditizing cloud infrastructure, it’s no longer a good
+idea to build your own servers—you should switch to a commodity service like
+AWS.
+
+**Tracking Industry Trends**: Wardley Maps allow you to track industry trends
+and understand how components outside your organization might evolve. If an
+external technology or service (like artificial intelligence or 5G) is moving
+from Genesis to Custom-Built or Product, you can anticipate when it might impact
+your business and adjust accordingly.
+
+**Dealing with Disruption**: Disruption often happens when a new technology or
+service (still in the Genesis or Custom-Built stages) radically changes how
+things are done. By keeping an eye on these early-stage innovations, you can
+prepare for or even lead the disruption.
+
+### Managing Evolution
+As components evolve, organizations need to **adapt their approach**. Managing this evolution effectively is key to staying competitive. Here’s how you can do that:
+
+**Pioneer, Settler, Town Planner Model**: This model describes how different
+teams or individuals within an organization approach different stages of
+evolution:
+
+**Pioneers** work on Genesis and Custom-Built components, innovating and
+experimenting with new ideas.
+
+**Settlers** take proven innovations and refine them, making them more reliable
+and scalable as they move into the Product stage.
+
+**Town Planners** focus on efficiency and standardization, turning mature
+components into Commodities.
+
+By having different teams focus on different stages of evolution, an
+organization can manage both innovation and efficiency without neglecting
+either.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/wardley-map-pst.png"
+   alt      = "Wardley Map example of Pioneers, Settlers, and Planners"
+   caption  = "Pioneers, Settlers, and Planners"
+%]
+
+**Refining Strategy Over Time**: As components evolve, your strategy needs to
+shift. Early-stage components (Genesis and Custom-Built) require investment in
+innovation and R&D, while later-stage components (Product and Commodity) benefit
+from efficiency improvements, outsourcing, and automation.
+
+**Mapping Competitors**: You can use Wardley Maps to track not just your own
+evolution but also your competitors’. This helps you anticipate their moves and
+respond accordingly. If you see that competitors are adopting a new technology
+that you’re still experimenting with, it may be a sign to accelerate development
+or shift focus to other innovative areas.
+
+### Example
+Let’s return to the example of the online quiz application. Suppose you're tracking your competitors’ use of **AI Suggestions** (currently in the Genesis stage). By monitoring their progress, you may notice that this feature is moving into the Custom-Built stage in other companies. This signals that AI is becoming more common, and if you don’t invest in it soon, you might fall behind. On the other hand, if you see that other companies are outsourcing **cloud hosting** (now in the Commodity stage), it may confirm that maintaining your own servers is no longer worth the effort.
+
+By anticipating these changes, you can adjust your strategy to stay competitive and manage risk.
+
+## Lesson 6: Real-World Scenarios
+
+In this lesson, we’ll look at how Wardley Maps are applied to solve real-world business challenges. The focus is on making strategic decisions based on the evolution of components and their visibility to the user. Understanding how to apply these maps will help in scenarios ranging from product development to managing competition.
+
+### Example Scenario: Building a New Product
+Imagine you're developing a new product, like a **mobile health app**. You’re trying to decide what features to build in-house, what to outsource, and how to prioritize your resources.
+
+Let’s break it down using a Wardley Map:
+
+**The User as the Anchor**: The users of this app are patients seeking health
+insights and professionals monitoring patient data. All components of your app
+must ultimately serve the user’s needs.
+
+**Core Components**:
+
+* **User Interface**: Highly visible to the user, this component will likely be
+in the Product stage. It should offer a polished, user-friendly design, but
+there may still be room to differentiate it from other apps in the market.
+* **Data Analysis Algorithm**: This could be in the Custom-Built or Product
+stage, depending on how innovative the algorithm is. If it's a standard feature
+like calculating basic health metrics, it might already be in the Product stage.
+However, if you’re pioneering new AI-driven insights, it might still be in the
+Custom-Built stage.
+* **Cloud Storage**: Storing health data is less visible to the user and is
+typically in the Commodity stage, meaning it’s best outsourced to a third-party
+cloud provider like AWS or Google Cloud.
+
+**Strategic Play**:
+
+* **Outsource Commodities**: You don’t need to build your own cloud storage
+system, as it’s already a commoditized service. You can focus your resources
+elsewhere.
+* **Innovate in Custom-Built Stages**: The **Data Analysis Algorithm** may
+provide a competitive advantage, so investing in custom development and AI
+research could differentiate your app from competitors.
+* **Iterate on User-Facing Features**: While the **User Interface** is
+important, it may not be a unique differentiator unless you can offer a
+significantly better experience than competitors. You could consider using
+standard UI frameworks but put extra effort into how users interact with data
+insights.
+
+By mapping out your components and their stages of evolution, you can make smarter decisions about where to allocate resources, what to build in-house, and what to outsource. This ensures you focus on what truly matters for gaining a competitive edge.
+
+### Example Scenario: Responding to Competitors
+Now, imagine a competitor is entering your market with a similar mobile health app. Here’s how you can use Wardley Mapping to respond:
+
+**Analyze Competitors’ Map**: Look at the components they are using, especially
+new features that might still be in the Genesis or Custom-Built stages (like a
+brand-new data visualization tool). These could signal future industry trends,
+giving you a chance to innovate or react quickly.
+
+**Anticipate Commoditization**: If your competitor is developing custom data
+analysis algorithms, you may need to decide whether to invest in similar
+research or wait until that technology becomes commoditized. Investing too early
+may tie up resources, but waiting too long might leave you behind.
+
+**Outpace on Efficiency**: If your competitor is focused on innovation, you
+might be able to outpace them by focusing on efficiency—standardizing features,
+lowering costs, and using commoditized infrastructure (like cloud hosting) to
+deliver faster and cheaper.
+
+### Managing Multiple Maps
+In a real-world business, you won’t have just one Wardley Map; you may have multiple maps for different products or services. Some areas of your business might be focused on innovation (developing new AI tools), while others focus on cost-cutting and efficiency (using standardized cloud services).
+
+Wardley Maps allow you to visualize these different components and strategies in one place, helping you make informed decisions across multiple fronts. This is particularly useful when your business is diversifying or expanding into new markets.
+
+### Key Takeaways
+- **Focus on Core Differentiators**: Use Wardley Maps to identify where innovation can give you a competitive edge.
+- **Outsource or Automate Commodities**: Don’t waste resources on building or maintaining commodity services. Outsource these to third-party providers to focus on innovation.
+- **Adapt to Competitor Moves**: Track where competitors are innovating and decide whether to follow suit, innovate in different areas, or focus on efficiency.
+
+## Lesson 7: The Role of Doctrine
+
+In this lesson, we’ll explore the concept of **doctrine** within the context of Wardley Mapping. Doctrine refers to the universal principles and practices that guide how an organization operates, regardless of the specific industry or environment. These principles help ensure that an organization is adaptable, efficient, and capable of responding to changes.
+
+### What is Doctrine?
+
+Doctrine is a set of best practices or operational principles that are universally applicable across different industries and organizations. While strategy involves making decisions based on the specific environment or market, doctrine is about **how** to run the organization effectively no matter the circumstances. It’s like having a solid foundation of practices that keep the organization strong and responsive.
+
+In Wardley Mapping, doctrine typically focuses on:
+
+* **Learning from your environment**: Continuously observing and understanding changes in the market and technology.
+* **Efficiency**: Streamlining operations, reducing waste, and focusing on value creation.
+* **Empowerment**: Ensuring that teams are able to make decisions and act quickly in response to changes.
+* **Communication**: Maintaining open and clear communication channels so that different teams or departments can work together effectively.
+
+### Key Doctrines
+Here are some key doctrinal principles you might apply when using Wardley Maps to manage and grow your organization:
+
+**Know your users**: Always anchor your Wardley Map to the needs of your users.
+Understanding who they are, what they need, and how your products or services
+deliver value to them is foundational.
+
+**Focus on user needs**: Ensure that every component on your map contributes to
+solving user problems. If a component doesn’t serve a clear user need, it may
+not be worth investing in.
+
+**Optimize flow**: As components evolve, make sure your processes are optimized
+for the stage they’re in. For example, focus on efficiency for commodity
+components and innovation for components in the Genesis or Custom-Built stages.
+
+**Think small and iterate**: Break down larger problems into smaller ones that
+can be quickly iterated upon. This allows for faster innovation and learning in
+components that are still evolving.
+
+**Use appropriate methods**: Different components in different stages of
+evolution require different approaches. Custom-built components might need
+agile, experimental methods, while commodity components may require lean,
+efficient approaches.
+
+**Challenge assumptions**: Regularly question your assumptions about what your
+users need, what your competitors are doing, and how your components are
+evolving. This helps prevent complacency and keeps you adaptive.
+
+### Doctrine in Action: Example Scenario
+
+Let’s apply some of these doctrinal principles to a **financial software company** that is building an online budgeting tool for consumers.
+
+**Know your users**: The primary users are consumers who want to track their
+expenses and savings in a user-friendly app. The organization needs to ensure
+that the entire value chain—from the user interface to the financial
+algorithms—is designed with the user’s needs in mind.
+
+**Focus on user needs**: The company may decide that automated savings
+suggestions are important to users. This component is likely in the
+**Custom-Built** or **Product** stage, so investing in refining this feature
+could add significant value to the app.
+
+**Optimize flow**: The **cloud infrastructure** that supports the app is already
+a **Commodity**, so the company can focus on optimizing efficiency and keeping
+costs low by using third-party services. Meanwhile, the **savings algorithm** is
+still evolving, so more agile, innovative methods should be applied there.
+
+**Think small and iterate**: Instead of launching a large overhaul of the app,
+the team could start by releasing a small feature update, testing it with users,
+and gathering feedback. This iterative process helps ensure that user needs are
+met while minimizing risk.
+
+**Challenge assumptions**: The company might assume that users only care about
+basic expense tracking, but upon further research, they discover that users also
+want investment tracking. This shift in understanding could lead to new features
+and components being added to the map.
+
+### The Importance of Doctrine in Strategy
+
+While strategy deals with the unique aspects of competition, industry, and market conditions, doctrine helps an organization function effectively no matter what happens in the market. Following doctrinal principles like continuous learning, efficient operations, and clear communication ensures that your organization can rapidly adapt to changes, whether you're innovating in new areas or optimizing existing processes.
+
+By applying doctrine, organizations can avoid costly mistakes, minimize risks, and ensure that they are always moving in the right direction, regardless of how the components of their value chain evolve.
+
+## Lesson 8: Strategic Advantage
+
+Now that we've covered the fundamentals of Wardley Maps, evolution, and doctrine, let’s explore how to use Wardley Maps to gain a **strategic advantage**. This lesson focuses on **gameplay**—how to make strategic moves that put your organization ahead of competitors.
+
+### Understanding Strategic Advantage
+Strategic advantage in Wardley Mapping is about making the right moves based on the position and evolution of the components in your system. By identifying where you can innovate, outsource, or disrupt, you can make decisions that put you ahead of the market.
+
+There are several strategic plays that organizations can use with Wardley Maps:
+
+**Ecosystem Play**
+This involves turning parts of your business into a platform or ecosystem for others to use. Instead of just using a component for your own needs, you offer it as a service to other companies, creating a new revenue stream.
+
+For example, Amazon originally developed its cloud infrastructure (AWS) to meet its own needs but later turned it into a service for others. Now, AWS is a major business unit for Amazon, and many companies rely on it for cloud services.
+
+In this play, you're turning a component that is already a Commodity for your organization into a new Product or service for others, essentially becoming a provider.
+
+**Build and Protect**
+This strategy involves building something new or innovative in the Genesis or Custom-Built stages and defending it as it evolves. The goal is to create a **unique differentiator** that competitors cannot easily replicate.
+
+For example, Apple’s custom-built hardware (like its processors) and integration with its ecosystem are innovations that give it a competitive edge. By investing heavily in custom solutions early on, Apple maintains tight control over its products and user experience.
+
+This strategy works best when you can maintain your advantage as the component evolves, ensuring that competitors can’t easily commoditize or copy your innovations.
+
+**Accelerate Commoditization**
+In some cases, you might want to **accelerate** the evolution of a component toward the Commodity stage, especially if it’s a key part of your competitors’ differentiation.
+
+For example, Google’s development of Kubernetes, an open-source container orchestration system, allowed businesses to deploy applications consistently across different environments. This move accelerated the commoditization of container management systems, removing the competitive advantage of companies who had custom-built their own solutions.
+
+By open-sourcing key components, Google shifted the competitive landscape, ensuring that Kubernetes became the standard, and competitors lost their advantage in custom-built systems.
+
+**Disrupt and Innovate**
+This strategy focuses on finding **Genesis-stage** innovations that have the potential to disrupt established markets. If you invest in these areas before your competitors, you can seize the opportunity for significant growth or market leadership.
+
+For example, Tesla’s investment in electric vehicles (EVs) when the market was still in the Genesis stage allowed it to become a leader in the EV market. As other companies now try to catch up, Tesla benefits from its first-mover advantage.
+
+In this play, you're betting on something that is still uncertain but could redefine the market if it succeeds.
+
+**Focus on Efficiency**
+This strategy is useful when your competitors are heavily focused on innovation, and you need to **outpace them on efficiency**. By focusing on cost-cutting, automation, and leveraging commoditized components, you can offer similar products at a lower price or with faster delivery.
+
+For example, companies like Walmart focus on optimizing their supply chain and logistics to deliver goods at lower prices. They’re not necessarily innovating in the Genesis stage but instead using commoditized technologies to achieve operational efficiency.
+
+By leveraging well-established commodities, you can outcompete others on price and reliability.
+
+### Applying Strategic Advantage
+Let’s take an example using our online quiz application:
+
+**Ecosystem Play**: You could turn your **question bank** into a service for
+other education platforms. This would allow other companies to use your
+well-developed content, and you could gain revenue from licensing it.
+
+**Build and Protect**: If you’re developing a unique **AI suggestion engine**,
+you can keep this as a custom-built feature to differentiate your app from
+competitors. By focusing on continuous innovation and refinement, you can
+maintain a competitive edge.
+
+**Accelerate Commoditization**: If a competitor is building custom **hosting
+infrastructure**, you might accelerate its commoditization by switching to cloud
+services and using them more efficiently. You could also adopt newer, faster
+commoditized solutions to outpace them.
+
+**Disrupt and Innovate**: You might invest in developing new ways to
+**personalize learning experiences** using data-driven insights and AI,
+disrupting the traditional quiz application market.
+
+**Focus on Efficiency**: Instead of focusing only on new features, you could
+optimize your app’s backend processes and infrastructure to reduce costs,
+allowing you to offer a better price or more reliable service.
+
+By understanding your environment and the evolution of the components in your system, you can decide which of these strategic plays will give you the greatest advantage.
+
+## Lesson 9: Common Pitfalls
+
+Now that we’ve explored the various strategies and principles behind Wardley Mapping, let’s look at some of the **common pitfalls** that organizations may encounter when using Wardley Maps. Understanding these pitfalls can help you avoid mistakes and make better strategic decisions.
+
+**Failing to Understand User Needs**
+One of the most common mistakes in Wardley Mapping is failing to accurately identify and prioritize user needs. Since the user is the anchor of the map, if you don’t fully understand what the user values, you may misplace components on the map or focus on the wrong areas.
+
+For example, if you think users prioritize flashy UI over data accuracy in a
+financial app, you might invest too much in user interface innovation and not
+enough in data management, leading to poor results.
+
+To avoid this, invest in user research and testing to ensure that you have a
+clear understanding of what your users actually need, rather than making
+assumptions.
+
+**Ignoring Component Evolution**
+Another pitfall is neglecting to track the evolution of components over time. Technologies, markets, and competitors change rapidly, and what was once a custom-built innovation may become a commodity. Failing to adapt to this evolution can lead to inefficiencies and missed opportunities.
+
+For example, a company might continue investing in custom-built infrastructure
+long after it has become commoditized (like maintaining on-premise servers when
+cloud services are widely available). This ties up resources that could be spent
+elsewhere.
+
+To avoid this, regularly update your Wardley Maps and review the evolution of
+components to ensure that you’re adapting to changes in the market and
+technology landscape.
+
+**Overinvesting in Commodities**
+A common mistake is investing too much in components that are already in the Commodity stage. These components no longer provide a competitive advantage, so spending time and resources on them can lead to wasted effort.
+
+For example, continuing to develop your own custom email servers when
+cloud-based email services like Gmail and Office 365 are cheaper and more
+reliable.
+
+To avoid this, recognize when a component has become commoditized and consider
+outsourcing or using third-party services to reduce costs.
+
+**Relying on Outdated Maps**
+Wardley Maps are snapshots in time, but environments change. Some companies make the mistake of treating their maps as static, failing to update them as the components evolve or as new competitors enter the market.
+
+For example, you may have mapped out a winning strategy two years ago, but if
+your competitors have introduced new technologies, your map might now be out of
+date and no longer reflect the current landscape.
+
+To avoid this, continuously update your Wardley Maps to reflect the current
+environment, new trends, and evolving technologies.
+
+**Overlooking Strategic Gameplay**
+Another pitfall is focusing too much on mapping components without considering the strategic plays you can make. Wardley Maps are not just analytical tools—they are meant to guide **action**. Simply identifying components and their evolution is not enough. You need to use the map to make strategic moves like accelerating commoditization, building ecosystems, or innovating.
+
+For example, an organization might map out all the components of its system but
+fail to capitalize on opportunities to commoditize non-critical components or to
+innovate in areas that could lead to competitive differentiation.
+
+To avoid this, use your map to actively shape your strategy. Once you’ve
+identified where your components are, think about how you can use gameplay (such
+as ecosystem play or building and protecting) to improve your position.
+
+**Overcomplicating the Map**
+It’s easy to get carried away with adding too many details to a Wardley Map, especially when dealing with complex systems. Overcomplicating the map can make it hard to see the big picture and may lead to decision paralysis.
+
+For example, mapping every small technical detail of your infrastructure may
+lead to a cluttered map that makes it difficult to focus on key strategic areas.
+
+To avoid this, keep your map focused on the most important components and value
+chains.  While detailed maps can be useful for certain tasks, ensure that you
+always have a clear, simplified map for strategic decision-making.
+
+**Misinterpreting Evolution Stages**
+Finally, misinterpreting where a component lies on the evolution axis is a common issue. It’s crucial to accurately assess whether a component is in the Genesis, Custom-Built, Product, or Commodity stage. Misplacement can lead to poor strategic decisions.
+
+For example, assuming a new technology like quantum computing is already a
+product when it’s still in the Genesis stage could lead to overinvestment too
+early, while misplacing a well-established service like cloud hosting as
+Custom-Built could lead to underinvestment in efficiency.
+
+To avoid this, make sure to critically evaluate the stage of evolution for each
+component, using research and industry trends to guide your decisions.
+
+### Summary
+Wardley Mapping is a powerful tool for strategy, but it’s important to use it correctly. By avoiding these common pitfalls—such as failing to update maps, overinvesting in commodities, and ignoring user needs—you can make better decisions and stay competitive in a rapidly evolving environment.
+
+## Lesson 10: Emerging Trends
+
+In this final lesson, we’ll look at how Wardley Mapping can be applied to future trends and emerging technologies. As the pace of technological change accelerates, Wardley Maps can help organizations navigate uncertainty and leverage new opportunities.
+
+**Emerging Technologies and Their Evolution**
+Technologies like **artificial intelligence (AI)**, **blockchain**, **quantum computing**, and **5G** are at various stages of evolution. Understanding where these technologies fall on the Wardley Map can help organizations determine the best time to invest in them.
+
+For example:
+
+* **Quantum computing** is still largely in the **Genesis** stage. It's experimental and unproven in many applications, but organizations should monitor its progress to anticipate when it might shift toward **Custom-Built** and eventually **Product**.
+* **AI** has components in both the **Custom-Built** and **Product** stages. For example, AI in speech recognition is already a widely available Product, but AI for complex tasks like creative design is still in earlier stages of evolution.
+
+By tracking the evolution of these technologies, companies can avoid the pitfalls of investing too early or too late.
+
+**Leveraging Ecosystems in the Digital Economy**
+As organizations become more interconnected, **ecosystem strategies** are becoming more critical. Large platforms like Amazon, Google, and Apple have successfully used **ecosystem plays** to expand their influence. By offering services (like AWS or the App Store) to other companies, they have turned components into essential infrastructure for entire industries.
+
+For smaller companies, this might involve turning a component into an API or SaaS offering that others can build on. Leveraging ecosystems not only creates new revenue streams but also strengthens your position in the market by becoming a key player in the value chain.
+
+**Anticipating Disruption**
+Wardley Maps can also help companies anticipate disruption. Disruption often occurs when a new technology in the **Genesis** or **Custom-Built** stage rapidly moves through the evolution cycle, displacing established players. For example, the rise of cloud computing disrupted traditional data centers.
+
+By mapping the technologies and processes in your industry, you can identify areas where disruption is likely to occur and either prepare for it or lead it yourself.
+
+**Example**: In the automotive industry, electric vehicles (EVs) started in the **Genesis** stage with companies like Tesla, but now they are moving toward **Product** and **Commodity** stages as traditional car manufacturers rapidly adopt EV technology. Companies that saw this shift early were able to position themselves for success.
+
+**Sustainability and Ethical Considerations**
+As sustainability and ethics become increasingly important, organizations can use Wardley Maps to incorporate these considerations into their strategic decisions. Components like **green energy**, **supply chain transparency**, and **ethical AI** are becoming part of the value chain. Mapping these emerging priorities can help organizations align with market trends and consumer expectations.
+
+For example, companies in industries like fashion or electronics may start mapping sustainability efforts as part of their value chain. Components such as **carbon-neutral production** or **recyclable materials** can evolve from early-stage innovations to mainstream requirements, driven by both regulation and consumer demand.
+
+**Adapting to Market Speed and Complexity**
+In today’s fast-paced markets, the speed at which components evolve can vary widely. Some components may take decades to move through the evolution cycle, while others may commoditize rapidly due to technological breakthroughs. Wardley Maps help organizations keep track of these different speeds and adapt their strategies accordingly.
+
+For instance, technologies like **machine learning** are evolving quickly, and what was once a Custom-Built solution may now be widely available as a cloud service (Product or Commodity). In contrast, **quantum computing** may take much longer to evolve, requiring organizations to think carefully about when to invest.
+
+### The Future of Wardley Mapping
+As organizations deal with increasing complexity and faster market cycles, Wardley Maps are evolving as well. They are being used not only to track technological evolution but also to:
+
+* **Map entire ecosystems** and industries.
+* Understand the role of **globalization** and **supply chains**.
+* Address new challenges like **cybersecurity** and **data privacy**.
+
+By applying Wardley Mapping to these emerging challenges, organizations can remain agile and competitive in a rapidly changing world.
+
+## Recap of Wardley Mapping Concepts:
+
+* **Components**: Key elements of a system, placed according to their visibility and evolution.
+* **Evolution**: How components move from Genesis (new and experimental) to Commodity (standardized and widely available).
+* **Strategic Plays**: Different ways to act based on your position in the map (e.g., build and protect, accelerate commoditization).
+* **Doctrine**: Universal principles that guide efficient and adaptive operations.
+
+By combining these elements, organizations can make more informed strategic decisions, anticipate changes in the market, and maintain a competitive advantage.
+
+## The Online Photo Storage Error
+
+By now, you've probably forgotten about the problem I mentioned at the
+beginning, which is this error:
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/wardley-map-photo-storage.png"
+   alt      = "Wardley Map of an Online Photo Storage Business"
+   caption  = "Can you spot the error?"
+%]
+
+You might want to stop reading for a bit, click on the image above, and try to
+spot what's wrong.
+
+Think about what you've learned. In particular, think about the evolution of
+components. If you're very familiar with IT technology, you might ask an obvious
+question: why is the data center custom-built? Do you really want to handle the
+daily maintenance, upgrades, power management, cooling, monitoring, handling
+support 24/7 and so on? Cloud hosting, managed hosting, or even looking at edge
+computing can all reduce or eliminate the need for running your own data center
+and free up your staff for more valuable projects.
+
+## Conclusion:
+Wardley Mapping is not just a tool for visualizing your current position—it’s a dynamic system for shaping your organization’s future. By understanding how components evolve and where opportunities lie, you can stay ahead of competitors, capitalize on innovation, and build lasting success.
+
+To continue building your expertise in Wardley Mapping and strategic thinking, here are some next steps and learning resources you can explore:
+
+**Practice Mapping Real-World Scenarios**
+Start applying Wardley Mapping to real-world situations relevant to your work or interests. Create maps for:
+
+* Your organization’s product lines or services.
+* Industry trends like artificial intelligence, sustainability, or digital transformation.
+* Competitors’ strategies and how they’re evolving.
+
+This hands-on practice will deepen your understanding and make you more comfortable using Wardley Maps as a decision-making tool.
+
+From here, you should move to the free online book, [Wardley Maps–Topographical
+intelligence in
+business](https://medium.com/wardleymaps/on-being-lost-2ef5f05eb1ec) by Simon
+Wardley.
+
+I hope you've learned something. This was a lot of work to create, but it was a 
+huge amount of fun!
+
+[%- END %]

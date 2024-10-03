@@ -55,6 +55,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -203,6 +204,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -212,8 +215,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -270,8 +271,10 @@
 <h1><a name="prologue"></a>Prologue</h1>
 
 <p><figure class="captioned">
-    <img src="/static/images/city-on-mars-cover.jpg" width="600" alt="&quot;A City on Mars&quot; book cover.">
+    <div class="image-container">
+        <img src="/static/images/city-on-mars-cover.jpg" width="600" alt="&quot;A City on Mars&quot; book cover.">
     <figcaption>A City on Mars <a href="https://www.acityonmars.com/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>This review is late in coming, as the book <a href="https://www.acityonmars.com/" target="_blank">A City on
@@ -378,8 +381,10 @@ We simply have no information here. You might think we can just throw a bunch of
 people on Mars and hope it all works out, but that’s ethically dubious, at best.</p>
 
 <p><figure class="image">
-    <img src="/static/images/space-radiation-effects.jpg" width="600" alt="NASA diagram showing some space radiation effects on ISS astronauts">
+    <div class="image-container">
+        <img src="/static/images/space-radiation-effects.jpg" width="600" alt="NASA diagram showing some space radiation effects on ISS astronauts">
     <figcaption>Space Radiation Effects <a href="https://www.nasa.gov/image-detail/gender-differences-diagram-from-nsbri-nasa/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>Even if they know the risks they’ll be taking are considerable, potential babies
@@ -417,8 +422,10 @@ with severe brain damage.</p>
 is ... checks notes ... bad.</p>
 
 <p><figure class="captioned-left">
-    <img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars.">
+    <div class="image-container">
+        <img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars.">
     <figcaption>The planet Mars. </figcaption>
+    </div>
 </figure></p>
 
 <p>From my perspective, I also think we need to consider what our response should
@@ -433,8 +440,10 @@ given how unlikely life is on Mars, this is hardly a critique.</p>
 <h2><a name="can-mars-turn-a-profit"></a>Can Mars Turn a Profit?</h2>
 
 <p><figure class="captioned">
-    <img src="/static/images/uhaul-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a U-Haul rocket traveling to Mars.">
+    <div class="image-container">
+        <img src="/static/images/uhaul-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a U-Haul rocket traveling to Mars.">
     <figcaption>Mars or Bust! <a href="https://openai.com/dall-e-3" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>OK, so there is some medical research we have to do, but we can make a profit
@@ -449,8 +458,10 @@ Space geeks like to claim that the settlers will be incredibly resourceful and
 come up with plenty of intellectual property they can sell to Earth.</p>
 
 <p><figure class="captioned-left">
-    <img src="/static/images/colonist-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a Martian colonist hitching a ride back to Earth.">
+    <div class="image-container">
+        <img src="/static/images/colonist-mars.png" width="600" alt="A black and white cartoon image, 1940s style, of a Martian colonist hitching a ride back to Earth.">
     <figcaption>Earth or Bust! <a href="https://openai.com/dall-e-3" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>Bullshit. With even our limited understanding of what it takes to build and
@@ -507,8 +518,10 @@ about it.</p>
 <h2><a name="lets-live-on-space-stations"></a>Let’s Live on Space Stations!</h2>
 
 <p><figure class="captioned">
-    <img src="/static/images/stanford-torus.png" width="600" alt="A black and white cartoon, 1940s style, of a Stanford Torus orbiting Earth.">
+    <div class="image-container">
+        <img src="/static/images/stanford-torus.png" width="600" alt="A black and white cartoon, 1940s style, of a Stanford Torus orbiting Earth.">
     <figcaption>If you lived here, you’d be home by now. </figcaption>
+    </div>
 </figure></p>
 
 <p>So at this point, we’re pretty much left with space stations. No O’Neill
@@ -582,6 +595,37 @@ buy</a> <span class="fa fa-external-link fa_custom"></span></p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>
