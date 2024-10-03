@@ -27,6 +27,37 @@
     readingTime();
 </script>
 
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
 <hr>
 [% INCLUDE include/pager.tt %]
 <hr>

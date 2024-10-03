@@ -53,6 +53,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -201,6 +202,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -210,8 +213,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -640,6 +641,37 @@ expect we might see more of this type of code in the future.</p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>

@@ -51,6 +51,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -199,6 +200,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -208,8 +211,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -319,8 +320,10 @@ time to give customers a "heads up" that they would need to make changes.</p>
 <h1><a name="getting-started"></a>Getting Started</h1>
 
 <figure class="captioned-left">
-    <img src="/static/images/starting-race.jpg" width="600" alt="A man about to start running around a race track.">
+    <div class="image-container">
+        <img src="/static/images/starting-race.jpg" width="600" alt="A man about to start running around a race track.">
     <figcaption><a href="https://www.pexels.com/photo/man-wearing-white-sweater-and-black-shorts-about-to-run-936094/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure>
 
 
@@ -671,8 +674,10 @@ ran flawlessly.</p>
 <h1><a name="what-we-delivered"></a>What We Delivered</h1>
 
 <figure class="image">
-    <img src="/static/images/wheelbarrow.jpg" width="600" alt="Two people loading salt into wheelbarrows.">
+    <div class="image-container">
+        <img src="/static/images/wheelbarrow.jpg" width="600" alt="Two people loading salt into wheelbarrows.">
     <figcaption><a href="https://www.pexels.com/photo/man-pushing-wheelbarrow-2163888/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure>
 
 
@@ -770,6 +775,37 @@ the exact sequence listed above.</p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>

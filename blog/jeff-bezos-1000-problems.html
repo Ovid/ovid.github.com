@@ -55,6 +55,7 @@
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -203,6 +204,8 @@
         
             <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
         
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
             <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
         
             <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
@@ -212,8 +215,6 @@
             <li><a href="/tags/space.html" data-weight="3">Space</a></li>
         
             <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
-        
-            <li><a href="/tags/ai.html" data-weight="2">Artificial Intelligence</a></li>
         
             <li><a href="/tags/family.html" data-weight="2">Family</a></li>
         
@@ -254,8 +255,10 @@
 
 <article id="article">
 <p><figure class="captioned">
-    <img src="/static/images/new-shepard.jpg" width="600" alt="Blue Origin’s New Shepard rocket launching">
+    <div class="image-container">
+        <img src="/static/images/new-shepard.jpg" width="600" alt="Blue Origin’s New Shepard rocket launching">
     <figcaption>An unusual event for Blue Origin <a href="https://en.wikipedia.org/wiki/Blue_Origin#/media/File:Blue_Origin_New_Shepard_Launch_april_2015.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>With the publication of the <a href="https://www.lioness.co/post/bezos-wants-to-create-a-better-future-in-space-his-company-blue-origin-is-stuck-in-a-toxic-past" target="_blank">open letter to Jeff Bezos from his
@@ -303,8 +306,10 @@ of space launches. Instead, Lockheed Martin Space and Boeing found a way to
 sidestep competition.</p>
 
 <p><figure class="image">
-    <img src="/static/images/vulcan-rocket.png" width="600" alt="Cutaway view of the ULA Vulcan rocket.">
+    <div class="image-container">
+        <img src="/static/images/vulcan-rocket.png" width="600" alt="Cutaway view of the ULA Vulcan rocket.">
     <figcaption>ULA’s Vulcan Rocket: Some assembly (still) required. <a href="https://en.wikipedia.org/wiki/Vulcan_Centaur#/media/File:ULA_Vulcan.png" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
 </figure></p>
 
 <p>Later, in 2014, facing the prospect of the upstart SpaceX starting to cut into
@@ -390,8 +395,10 @@ Honestly, Blue Origin <em>could</em> have been the one to watch in this space. A
 now we’re watching them, but not for the reasons they wanted.</p>
 
 <p><figure class="image">
-    <img src="/static/images/blue-moon-lander-deflated.jpg" width="600" alt="Blue Origin's Blue Moon lander, deflated.">
+    <div class="image-container">
+        <img src="/static/images/blue-moon-lander-deflated.jpg" width="600" alt="Blue Origin's Blue Moon lander, deflated.">
     <figcaption>Symbolism. </figcaption>
+    </div>
 </figure></p>
 
 <p>Ironically, part of the issue seems to be that Blue Origin employees know that
@@ -474,6 +481,37 @@ chance to compete.</p>
         document.getElementById("time").innerText = time;
     }
     readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
 </script>
 
 <hr>
