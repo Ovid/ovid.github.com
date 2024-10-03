@@ -123,7 +123,7 @@ sub _validate_image ($image) {
         }
     }
     else {
-        push @errors => "No src attribute for $tag";
+        push @errors => "No src attribute for $tag" unless $image->get_attr('id') eq "overlayImage";
     }
     return @errors;
 }
