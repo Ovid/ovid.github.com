@@ -1,0 +1,273 @@
+[%
+    title            = 'AI for Accessibility';
+    type             = 'articles';
+    slug             = 'ai-for-accessibility';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-10-05';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai perl}}
+
+# Accessibility
+
+Most software developers don't know or care about accessibility. In my decade or
+so of being a consultant, I've discovered that most developers either don't know
+or don't care about accessibility issues.
+
+They don't think about the fact that some people navigate the web with [a
+sip-and-puff
+device](https://accessibleweb.com/assistive-technologies/assistive-technology-focus-sip-and-puff-devices/).
+They don't think about the fact that many people are blind or visually impaired.
+Or they don't think about older people whose eyes aren't as good as they once
+were and can't handle poor contrast and small fonts.
+
+Worse, if they do care about this, I've seen management step in and shut them
+down. Building for accessibility (known as "a11y") takes more time and thus more
+money. It also can impose limits on your creative freedom. You've made the font
+large and high-contrast and someone overrules you, saying it's ugly. Sigh.
+
+What you probably don't know is that this site is accessible. From the start,
+when I built it, I had a friend who's an a11y expert review it. It's not
+perfect, but I'm not an a11y expert. However, if you're reading this on [a
+screen reader](https://en.wikipedia.org/wiki/Screen_reader), it's probably not
+too difficult.
+
+# The Dreaded "alt" Tag
+
+But I confess that if there's one thing I hate doing, it's filling out the `alt`
+attributes for images. If you're confused about `title` and `alt` attributes,
+you're not alone. Consider the following `img` tag in HTML:
+
+```html
+<img src="cat.jpg"
+  alt="A ginger cat sitting on a windowsill"
+  title="Mr.  Whiskers enjoying the sun">
+```
+
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/missing-image-alt-text.png"
+   alt      = "A typical 'missing image' on a Web site. The alt text is visible and reads 'The image is a self-portrait of a man with a striking red beard and mustache, capturing a moment of introspection.'"
+   caption  = "Alt text displayed for missing images"
+%]
+
+The `title` is what you see when you hover over an image. However, if that image
+fails to load (or takes a while to load), it's the `alt` attribute you'll see.
+Your experience is degraded, but not completely ruined. But if you're using a
+screen reader, when you encounter an image you'll hear something like "Image: A
+ginger cat sitting on a windowsill."
+
+But I confess: I was still forgetting to write my `alt` attributes. That's not
+good because I want all three of my readers to be able to enjoy this site. So in
+my [t/lint.t](https://github.com/Ovid/ovid.github.com/blob/master/t/lint.t) test
+for this site, I have the following snippet of code:
+
+```perl
+if ( !$image->get_attr('alt') ) {
+  push @errors =>
+    "a11y alert! Missing 'alt' attribute in image: $tag";
+}
+```
+
+Now, when I rebuild my site, my tests will fail if I forget that attribute.
+Plus, if you _can_ see, but the images are too small, you can now click on them
+to see a larger version (requires JavaScript).
+
+# Generative AI
+
+But I still hate writing `alt` attributes. It's one of those tedious things we
+should do, but either delay or take shortcuts on because what we'd like to do is
+write blog posts, not try to think about how to describe images for the visually
+impaired. Or we might wonder if we're describing it wrong. I freely confess to
+being guilty of this.
+
+[% INCLUDE include/image.tt
+   align   = 'left',
+   src      = "/static/images/van-gogh.jpg"
+   alt      = "The image is a self-portrait of a man with a prominent red beard and mustache, wearing a dark coat. The background is composed of vibrant, swirling colors, primarily blues and greens, creating a dynamic contrast with his facial features."
+   caption  = "Van Gogh self-portrait."
+%]
+
+This is one of the areas in which generative AI shines. Many people around the
+world are finding it's a huge time-saver for these tasks, so let's use
+generateive AI to describe this [public domain self-portrait of Vincent van
+Gogh](https://en.wikipedia.org/wiki/Vincent_van_Gogh#/media/File:Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg)
+we have on the left.  But first, imagine what you would write in that `alt`
+text.
+
+For what follows, you'll need to install the
+[OpenAPI::Client::OpenAI](https://metacpan.org/pod/OpenAPI::Client::OpenAI)
+module from the CPAN. For setting things up, you'll want to read my [OpenAI
+Chatbot in Perl](/articles/an-openai-chatbot-in-perl.html) article.
+
+Then we'll use the following code (due to limitations on the width of this
+site, you should see a scroll bar at the bottom of the code). If you prefer,
+[I've also provided a public gist for
+it](https://gist.github.com/Ovid/f7d60d1c5e55e23df1f44e505ac9d7b5).
+
+```perl
+package Image::Describe::OpenAI;
+
+use v5.40.0;
+use warnings;
+
+use Carp;
+use OpenAPI::Client::OpenAI;
+use Path::Tiny qw(path);
+use MIME::Base64;
+use Moo;
+use namespace::autoclean;
+
+has system_message => (
+  is => 'ro',
+  default =>
+    'You are an accessibility expert, able to describe images for the visually impaired'
+);
+
+# gpt-4o-mini is smaller and cheaper than gpt4o, but it's still very good.
+# Also, it's multi-modal, so it can handle images and some of the older
+# vision models have now been deprecated.
+has model       => ( is => 'ro', default => 'gpt-4o-mini' );
+has temperature => ( is => 'ro', default => .1 );
+has prompt      => (
+  is      => 'ro',
+  default => 'Describe the image in one or two sentences.',
+);
+has _client =>
+  ( is => 'ro', default => sub { OpenAPI::Client::OpenAI->new } );
+
+sub describe_image ( $self, $filename ) {
+  my $filetype = $filename =~ /\.png$/ ? 'png' : 'jpeg';
+  my $image    = $self->_read_image_as_base64($filename);
+  my $message  = {
+    body => {
+      model    => 'gpt-4o-mini',    # $self->model,
+      messages => [
+        {
+          role    => 'system',
+          content => $self->system_message,
+        },
+        {
+          role    => 'user',
+          content => [
+            {
+              text => $self->prompt,
+              type => 'text'
+            },
+            {
+              type      => "image_url",
+              image_url => {
+                url => "data:image/$filetype;base64, $image"
+              }
+            }
+          ],
+        }
+      ],
+      temperature => $self->temperature,
+    },
+  };
+  my $response = $self->_client->createChatCompletion($message);
+  return $self->_extract_description($response);
+}
+
+sub _extract_description ( $self, $response ) {
+  if ( $response->res->is_success ) {
+    my $result;
+    try {
+      my $json = $response->res->json;
+      $result = $json->{choices}[0]{message}{content};
+    }
+    catch ($e) {
+      croak("Error decoding JSON: $e");
+    }
+    return $result;
+  }
+  else {
+    my $error = $response->res;
+    croak( $error->to_string );
+  }
+}
+
+sub _read_image_as_base64 ( $self, $file ) {
+  my $content = Path::Tiny->new($file)->slurp_raw;
+
+  # second argument is the line ending, which we don't
+  # want as a newline because OpenAI doesn't like it
+  return encode_base64( $content, '' );
+}
+```
+
+To understand how the chat completion works, you can read [the official OpenAI
+OpenAPI spec](https://github.com/openai/openai-openapi/blob/master/openapi.yaml)
+and search for `operationId: createChatCompletion`.
+
+If you read the [chatbot article](/articles/an-openai-chatbot-in-perl.html),
+you'll notice that we're not keeping a message history here. That's because we
+don't need one. We can send a single image every time and get a decent
+description for our `alt` attribute.
+
+Here's a small test script:
+
+
+```perl
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Image::Describe::OpenAI;
+
+my $file = shift or die "Usage: $0 <image_filename>";
+
+my $chat     = Image::Describe::OpenAI->new;
+my $response = $chat->describe_image($file);
+say $response;
+```
+
+Running it on the van Gogh image gives us this:
+
+> The image is a self-portrait of a man with a prominent red beard and mustache,
+wearing a dark coat. The background is composed of vibrant, swirling colors,
+primarily blues and greens, creating a dynamic contrast with his facial
+features.
+
+You can run it several times and pick out the description you like best.
+
+# Automating This
+
+At this point, it would be trivial for me to integrate this directly in the
+[Ovid::Site](https://github.com/Ovid/ovid.github.com/blob/master/lib/Ovid/Site.pm)
+module I used to rebuild my site, but I won't do that. Why not?
+
+At this point, as you might have guessed, I do a lot of work with generative AI
+for clients. I've built out data pipelines, do image generation, built custom
+[LoRAs](https://civitai.com/articles/2099/lora-models-and-how-to-use-them-with-stable-diffusion-by-thinkdiffusion)
+to match image styles, and so on. If there is one thing you learn when building
+AI systems, it's that you have to know when to keep the human in the loop. For
+describing images, I'm using the multi-model `gpt-4o-mini` model. While it
+hasn't _yet_ done a poor job, it's often not done a great job. For the above
+`alt` text, I might want to add "An self-portrait of Vincent van Gogh," at the
+beginning of the text.
+
+Or maybe the generative AI gets wildly confused and describes a can of soup as a
+"small pillar" or something. We're not yet at the point where we can blindly
+trust its output.
+
+# Conclusion
+
+Generative AI is an amazing tool which, despite many problems, also offers many
+advantages, particularly at those marginal tasks that are easy enough, but that
+we tend to put off. But describing images for blind people is important and we
+shouldn't neglect them. And if you're developing a site that is legally required
+to be accessible, you _don't_ want to skip this.
+
+You can read more about [accessibility guidelines
+here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG).
+
+[%- END %]

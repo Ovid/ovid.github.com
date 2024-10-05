@@ -1,0 +1,636 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/ai-for-accessibility.html" />
+  
+  <meta property="og:title" content="AI for Accessibility" />
+  <meta property="og:description" content="Many people don't write alt tags for images, or they write bad ones. However, these are crucial for people using screenreaders to understand the image. AI can make this easier." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>AI for Accessibility</title>
+  <meta name="description" content="AI for Accessibility">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>AI for Accessibility</h1>
+        <time>2024-10-05</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html">Escape!</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/wardley-maps-in-a-nutshell.html" class="prevPost">&laquo; Wardley Maps In a Nutshell</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+    <li><a href="/tags/perl.html">Perl</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#accessibility">Accessibility</a></li>
+    <li class="indent-1"><a href="#the-dreaded-alt-tag">The Dreaded “alt” Tag</a></li>
+    <li class="indent-1"><a href="#generative-ai">Generative AI</a></li>
+    <li class="indent-1"><a href="#automating-this">Automating This</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="accessibility"></a>Accessibility</h1>
+
+<p>Most software developers don’t know or care about accessibility. In my decade or
+so of being a consultant, I’ve discovered that most developers either don’t know
+or don’t care about accessibility issues.</p>
+
+<p>They don’t think about the fact that some people navigate the web with <a href="https://accessibleweb.com/assistive-technologies/assistive-technology-focus-sip-and-puff-devices/" target="_blank">a
+sip-and-puff
+device</a> <span class="fa fa-external-link fa_custom"></span>.
+They don’t think about the fact that many people are blind or visually impaired.
+Or they don’t think about older people whose eyes aren’t as good as they once
+were and can’t handle poor contrast and small fonts.</p>
+
+<p>Worse, if they do care about this, I’ve seen management step in and shut them
+down. Building for accessibility (known as “a11y”) takes more time and thus more
+money. It also can impose limits on your creative freedom. You’ve made the font
+large and high-contrast and someone overrules you, saying it’s ugly. Sigh.</p>
+
+<p>What you probably don’t know is that this site is accessible. From the start,
+when I built it, I had a friend who’s an a11y expert review it. It’s not
+perfect, but I’m not an a11y expert. However, if you’re reading this on <a href="https://en.wikipedia.org/wiki/Screen_reader" target="_blank">a
+screen reader</a> <span class="fa fa-external-link fa_custom"></span>, it’s probably not
+too difficult.</p>
+
+<h1><a name="the-dreaded-alt-tag"></a>The Dreaded “alt” Tag</h1>
+
+<p>But I confess that if there’s one thing I hate doing, it’s filling out the <code>alt</code>
+attributes for images. If you’re confused about <code>title</code> and <code>alt</code> attributes,
+you’re not alone. Consider the following <code>img</code> tag in HTML:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-html">&lt;img src=&quot;cat.jpg&quot;
+  alt=&quot;A ginger cat sitting on a windowsill&quot;
+  title=&quot;Mr.  Whiskers enjoying the sun&quot;&gt;
+</code></pre></div>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/missing-image-alt-text.png" width="600" alt="A typical 'missing image' on a Web site. The alt text is visible and reads 'The image is a self-portrait of a man with a striking red beard and mustache, capturing a moment of introspection.'">
+    <figcaption>Alt text displayed for missing images </figcaption>
+    </div>
+</figure></p>
+
+<p>The <code>title</code> is what you see when you hover over an image. However, if that image
+fails to load (or takes a while to load), it’s the <code>alt</code> attribute you’ll see.
+Your experience is degraded, but not completely ruined. But if you’re using a
+screen reader, when you encounter an image you’ll hear something like “Image: A
+ginger cat sitting on a windowsill.”</p>
+
+<p>But I confess: I was still forgetting to write my <code>alt</code> attributes. That’s not
+good because I want all three of my readers to be able to enjoy this site. So in
+my <a href="https://github.com/Ovid/ovid.github.com/blob/master/t/lint.t" target="_blank">t/lint.t</a> <span class="fa fa-external-link fa_custom"></span> test
+for this site, I have the following snippet of code:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( !$image-&gt;get_attr('alt') ) {
+  push @errors =&gt;
+    &quot;a11y alert! Missing 'alt' attribute in image: $tag&quot;;
+}
+</code></pre></div>
+
+<p>Now, when I rebuild my site, my tests will fail if I forget that attribute.
+Plus, if you <em>can</em> see, but the images are too small, you can now click on them
+to see a larger version (requires JavaScript).</p>
+
+<h1><a name="generative-ai"></a>Generative AI</h1>
+
+<p>But I still hate writing <code>alt</code> attributes. It’s one of those tedious things we
+should do, but either delay or take shortcuts on because what we’d like to do is
+write blog posts, not try to think about how to describe images for the visually
+impaired. Or we might wonder if we’re describing it wrong. I freely confess to
+being guilty of this.</p>
+
+<p><figure class="captioned-left">
+    <div class="image-container">
+        <img src="/static/images/van-gogh.jpg" width="600" alt="The image is a self-portrait of a man with a prominent red beard and mustache, wearing a dark coat. The background is composed of vibrant, swirling colors, primarily blues and greens, creating a dynamic contrast with his facial features.">
+    <figcaption>Van Gogh self-portrait. </figcaption>
+    </div>
+</figure></p>
+
+<p>This is one of the areas in which generative AI shines. Many people around the
+world are finding it’s a huge time-saver for these tasks, so let’s use
+generateive AI to describe this <a href="https://en.wikipedia.org/wiki/Vincent_van_Gogh#/media/File:Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg" target="_blank">public domain self-portrait of Vincent van
+Gogh</a> <span class="fa fa-external-link fa_custom"></span>
+we have on the left.  But first, imagine what you would write in that <code>alt</code>
+text.</p>
+
+<p>For what follows, you’ll need to install the
+<a href="https://metacpan.org/pod/OpenAPI::Client::OpenAI" target="_blank">OpenAPI::Client::OpenAI</a> <span class="fa fa-external-link fa_custom"></span>
+module from the CPAN. For setting things up, you’ll want to read my <a href="/articles/an-openai-chatbot-in-perl.html">OpenAI
+Chatbot in Perl</a> article.</p>
+
+<p>Then we’ll use the following code (due to limitations on the width of this
+site, you should see a scroll bar at the bottom of the code). If you prefer,
+<a href="https://gist.github.com/Ovid/f7d60d1c5e55e23df1f44e505ac9d7b5" target="_blank">I’ve also provided a public gist for
+it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">package Image::Describe::OpenAI;
+
+use v5.40.0;
+use warnings;
+
+use Carp;
+use OpenAPI::Client::OpenAI;
+use Path::Tiny qw(path);
+use MIME::Base64;
+use Moo;
+use namespace::autoclean;
+
+has system_message =&gt; (
+  is =&gt; 'ro',
+  default =&gt;
+    'You are an accessibility expert, able to describe images for the visually impaired'
+);
+
+# gpt-4o-mini is smaller and cheaper than gpt4o, but it's still very good.
+# Also, it's multi-modal, so it can handle images and some of the older
+# vision models have now been deprecated.
+has model       =&gt; ( is =&gt; 'ro', default =&gt; 'gpt-4o-mini' );
+has temperature =&gt; ( is =&gt; 'ro', default =&gt; .1 );
+has prompt      =&gt; (
+  is      =&gt; 'ro',
+  default =&gt; 'Describe the image in one or two sentences.',
+);
+has _client =&gt;
+  ( is =&gt; 'ro', default =&gt; sub { OpenAPI::Client::OpenAI-&gt;new } );
+
+sub describe_image ( $self, $filename ) {
+  my $filetype = $filename =~ /\.png$/ ? 'png' : 'jpeg';
+  my $image    = $self-&gt;_read_image_as_base64($filename);
+  my $message  = {
+    body =&gt; {
+      model    =&gt; 'gpt-4o-mini',    # $self-&gt;model,
+      messages =&gt; [
+        {
+          role    =&gt; 'system',
+          content =&gt; $self-&gt;system_message,
+        },
+        {
+          role    =&gt; 'user',
+          content =&gt; [
+            {
+              text =&gt; $self-&gt;prompt,
+              type =&gt; 'text'
+            },
+            {
+              type      =&gt; &quot;image_url&quot;,
+              image_url =&gt; {
+                url =&gt; &quot;data:image/$filetype;base64, $image&quot;
+              }
+            }
+          ],
+        }
+      ],
+      temperature =&gt; $self-&gt;temperature,
+    },
+  };
+  my $response = $self-&gt;_client-&gt;createChatCompletion($message);
+  return $self-&gt;_extract_description($response);
+}
+
+sub _extract_description ( $self, $response ) {
+  if ( $response-&gt;res-&gt;is_success ) {
+    my $result;
+    try {
+      my $json = $response-&gt;res-&gt;json;
+      $result = $json-&gt;{choices}[0]{message}{content};
+    }
+    catch ($e) {
+      croak(&quot;Error decoding JSON: $e&quot;);
+    }
+    return $result;
+  }
+  else {
+    my $error = $response-&gt;res;
+    croak( $error-&gt;to_string );
+  }
+}
+
+sub _read_image_as_base64 ( $self, $file ) {
+  my $content = Path::Tiny-&gt;new($file)-&gt;slurp_raw;
+
+  # second argument is the line ending, which we don't
+  # want as a newline because OpenAI doesn't like it
+  return encode_base64( $content, '' );
+}
+</code></pre></div>
+
+<p>To understand how the chat completion works, you can read <a href="https://github.com/openai/openai-openapi/blob/master/openapi.yaml" target="_blank">the official OpenAI
+OpenAPI spec</a> <span class="fa fa-external-link fa_custom"></span>
+and search for <code>operationId: createChatCompletion</code>.</p>
+
+<p>If you read the <a href="/articles/an-openai-chatbot-in-perl.html">chatbot article</a>,
+you’ll notice that we’re not keeping a message history here. That’s because we
+don’t need one. We can send a single image every time and get a decent
+description for our <code>alt</code> attribute.</p>
+
+<p>Here’s a small test script:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Image::Describe::OpenAI;
+
+my $file = shift or die &quot;Usage: $0 &lt;image_filename&gt;&quot;;
+
+my $chat     = Image::Describe::OpenAI-&gt;new;
+my $response = $chat-&gt;describe_image($file);
+say $response;
+</code></pre></div>
+
+<p>Running it on the van Gogh image gives us this:</p>
+
+<blockquote>
+  <p>The image is a self-portrait of a man with a prominent red beard and mustache,
+  wearing a dark coat. The background is composed of vibrant, swirling colors,
+  primarily blues and greens, creating a dynamic contrast with his facial
+  features.</p>
+</blockquote>
+
+<p>You can run it several times and pick out the description you like best.</p>
+
+<h1><a name="automating-this"></a>Automating This</h1>
+
+<p>At this point, it would be trivial for me to integrate this directly in the
+<a href="https://github.com/Ovid/ovid.github.com/blob/master/lib/Ovid/Site.pm" target="_blank">Ovid::Site</a> <span class="fa fa-external-link fa_custom"></span>
+module I used to rebuild my site, but I won’t do that. Why not?</p>
+
+<p>At this point, as you might have guessed, I do a lot of work with generative AI
+for clients. I’ve built out data pipelines, do image generation, built custom
+<a href="https://civitai.com/articles/2099/lora-models-and-how-to-use-them-with-stable-diffusion-by-thinkdiffusion" target="_blank">LoRAs</a> <span class="fa fa-external-link fa_custom"></span>
+to match image styles, and so on. If there is one thing you learn when building
+AI systems, it’s that you have to know when to keep the human in the loop. For
+describing images, I’m using the multi-model <code>gpt-4o-mini</code> model. While it
+hasn’t <em>yet</em> done a poor job, it’s often not done a great job. For the above
+<code>alt</code> text, I might want to add “An self-portrait of Vincent van Gogh,” at the
+beginning of the text.</p>
+
+<p>Or maybe the generative AI gets wildly confused and describes a can of soup as a
+“small pillar” or something. We’re not yet at the point where we can blindly
+trust its output.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>Generative AI is an amazing tool which, despite many problems, also offers many
+advantages, particularly at those marginal tasks that are easy enough, but that
+we tend to put off. But describing images for blind people is important and we
+shouldn’t neglect them. And if you’re developing a site that is legally required
+to be accessible, you <em>don’t</em> want to skip this.</p>
+
+<p>You can read more about <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG" target="_blank">accessibility guidelines
+here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/wardley-maps-in-a-nutshell.html" class="prevPost">&laquo; Wardley Maps In a Nutshell</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/ai-for-accessibility.html";
+            this.page.identifier = "articles/ai-for-accessibility";
+            this.page.title      = "AI for Accessibility";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
