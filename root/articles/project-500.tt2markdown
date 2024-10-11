@@ -6,8 +6,8 @@
     include_comments = 1;
     syntax_highlight = 1;
     USE Ovid;
-    INCLUDE include/header.tt;
 %]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
 
 {{TOC}}
 {{TAGS business databases programming}}
@@ -19,26 +19,26 @@ He was in a bind 'cause he was way behind.<br>
 He was willing to make a deal.
 [%- END %]
 
-<p>Our client had just won a nice contract but were in a bind. Their legacy
+Our client had just won a nice contract but were in a bind. Their legacy
 codebase, while powerful, was slow. They could not process more than 39 credit
 card transactions per second. They needed to get to 500 transactions per
 second for an event lasting 30 minutes. Because the event was highly
 publicized, there was a tight deadline. They had two weeks to get a proof of
-concept running, improving their performance by an order of magnitude.</p>
+concept running, improving their performance by an order of magnitude.
 
-<p>They turned to our company, [% Ovid.cite('https://allaroundtheworld.fr',
-'All Around the World')%], because we have a proven track record with them.</p>
+They turned to our company, [% Ovid.cite('https://allaroundtheworld.fr',
+'All Around the World')%], because we have a proven track record with them.
 
-<p>We had a senior systems architect, Shawn, and a senior software architect,
+We had a senior systems architect, Shawn, and a senior software architect,
 Noel, on the project. Our managing director, Leïla, oversaw the project and
 ensured that if we had questions, she had answers. I was brought in from
 another project because there was simply too much work to do in two weeks.
 Fortunately, though I didn't know the project, Shawn and Noel knew the system
-well and helped get me up to speed.</p>
+well and helped get me up to speed.
 
-<h1>The Constraints</h1>
+# The Constraints
 
-<p>There were several key constraints we had to consider. Our overriding
+There were several key constraints we had to consider. Our overriding
 consideration was ensuring that PCI-compliance (Payment Card Industry
 compliance) was strictly adhered to to ensure that customer data was always
 protected. Second, the client had developed an in-house ORM (object-relational
@@ -47,13 +47,13 @@ was powerful, it was extremely slow and had a lot of business logic embedded
 in it. Third, because we only had two weeks for the first pass, we were given
 permission to take "shortcuts", where necessary, with the understanding that
 all work was to be thoroughly documented and tested, and easy to either merge,
-remove, or disable, as needed.</p>
+remove, or disable, as needed.
 
-<p>Finally, we could change anything we wanted so long as we didn't change the
+Finally, we could change anything we wanted so long as we didn't change the
 API or cause any breaking changes anywhere else in the code. There was no
-time to give customers a "heads up" that they would need to make changes.</p>
+time to give customers a "heads up" that they would need to make changes.
 
-<h1>Getting Started</h1>
+# Getting Started
 
 [% INCLUDE include/image.tt
    align    = 'left'
@@ -62,31 +62,31 @@ time to give customers a "heads up" that they would need to make changes.</p>
    source   = 'https://www.pexels.com/photo/man-wearing-white-sweater-and-black-shorts-about-to-run-936094/'
 %]
 
-<p>Because the event only lasted 30 minutes, whatever solution we implemented
+Because the event only lasted 30 minutes, whatever solution we implemented
 didn't have to stay up for long. This also meant that whatever solution we
 implemented had to be disabled quickly if needed. We also knew that only a few
 customers would use this new "fast" solution, and only one payment
-provider needed to be supported.</p>
+provider needed to be supported.
 
-<p>Noel immediately started tracing the full code path through the system,
+Noel immediately started tracing the full code path through the system,
 taking copious notes about any behavior we would need to be aware of. Shawn
 was investigating the databases, the servers, the network architecture, and
 assessing what additional resources could be brought online and tested in two
-weeks.</p>
+weeks.
 
-<p>I, being new to the project, started by taking a full-stack integration
+I, being new to the project, started by taking a full-stack integration
 test representing one of these transactions and studied it to learn the
 code and its behavior. In particular, I wanted to better understand the
 database behavior as this is often one of the most significant
-bottlenecks.</p>
+bottlenecks.
 
-<p>I was particularly concerned because the client was in the midst of a large
+I was particularly concerned because the client was in the midst of a large
 migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
 activity for a block of code.  It looked sort of like this:[%
 Ovid.add_note('These number are recreated from memory, but are roughly
-accurate.') %]</p>
+accurate.') %]
 
 [% WRAPPER include/code.tt language='perl' -%]
 explain dbitrace(
@@ -96,7 +96,7 @@ explain dbitrace(
 );
 [% END %]
 
-<p>The summary output looked similar to this:</p>
+The summary output looked similar to this:
 
 [% WRAPPER include/code.tt language='perl' -%]
 {
@@ -114,45 +114,45 @@ explain dbitrace(
 }
 [%- END %]
 
-<p>We had a problem. Even our client was surprised about the amount of
-database activity for a single "buy this thing" request.</p>
+We had a problem. Even our client was surprised about the amount of
+database activity for a single "buy this thing" request.
 
-<p>None of the database activity was particularly slow, but there was a lot of
+None of the database activity was particularly slow, but there was a lot of
 it. Deadlocks weren't an issue given that the changed data was only for the current
-request, but the ORM was killing us.</p>
+request, but the ORM was killing us.
 
-<h2>The Tyranny of ORMs</h2>
+## The Tyranny of ORMs
 
-<figure class="captioned">
-    <img src="/static/images/trainwreck.jpg" width="600" alt="A train train
-    has burst through the wall of a building and is resting, wrecked, on the
-    ground.">
-    <figcaption>How it feels to work on most in-house ORMs. [%
-    Ovid.cite('https://www.pexels.com/photo/accident-disaster-steam-locomotive-train-wreck-73821/',
-    'Source') %]</figcaption>
-</figure>
-<p>I love working with a good ORM, but ORMs generally trade execution speed
+[% INCLUDE include/image.tt
+   align    = 'right'
+   src      = "/static/images/trainwreck.jpg"
+   alt      = "A train has burst through the wall of a building and is resting, wrecked, on the ground."
+   caption  = 'How it feels to work on most in-house ORMs.'
+   source   = 'https://www.pexels.com/photo/accident-disaster-steam-locomotive-train-wreck-73821/'
+%]
+
+I love working with a good ORM, but ORMs generally trade execution speed
 for developer speed. You have to decide which is more important to you.
 Further, in two decades of working with ORMs, I have only once seen an
 in-house ORM which was on-par with, or superior to, commercial or open source
 products. And it was an ORM optimized for reporting, something many ORMs
-struggle with.</p>
+struggle with.
 
-<p>For our client's ORM, every time a request was made it would gather a
+For our client's ORM, every time a request was made it would gather a
 bunch of metadata, check permissions, make decisions based on whether or not
 it was using Oracle or PostgreSQL, check to see if the data was cached, and
 <em>then</em> check to see if the data was in the database. Instantiating
 every object was very slow, even if there was no data available. And the code
 was creating&mdash;and throwing away without using&mdash;hundreds of these
-objects per request.</p>
+objects per request.
 
-<p>We considered using a "pre-flight" check to see if the data was there
+We considered using a "pre-flight" check to see if the data was there
 before creating the objects, but there was so much business logic
 embedded in the ORM layer that this was not a practical solution. And we
 couldn't simply fetch the data directly because, again, the ORM had too much
-business logic. We had to reduce the calls to the database.</p>
+business logic. We had to reduce the calls to the database.
 
-<p>After an exhaustive analysis, we discovered several things.</p>
+After an exhaustive analysis, we discovered several things.
 
 <ul>
   <li>Some of the calls were for a "dead" part of the system that no one
@@ -163,76 +163,74 @@ business logic. We had to reduce the calls to the database.</p>
   relevant to our code path, so we could skip them.</li>
 </ul>
 
-<p>Our first step at addressing the problem was to ensure that everything was
+Our first step at addressing the problem was to ensure that everything was
 wrapped in configuration variables that allowed us to easily turn on or off
 different code paths for our project. Fortunately, the client had a
 system that allowed them to update the configuration data without restarting
-the application servers, so this made our choice much safer.</p>
+the application servers, so this made our choice much safer.
 
-<p>Once that was in place, our first pass cut our SQL calls roughly in half,
+Once that was in place, our first pass cut our SQL calls roughly in half,
 tremendously sped up the code, and the tests still passed. But we were nowhere
-near 500 transaction per second.</p>
+near 500 transaction per second.
 
-<h2>Caching</h2>
+## Caching
 
-<p>It's said that the three most common bugs in software are cache
-invalidation and off-by-one errors. And we had caching problems in spades.</p>
+It's said that the three most common bugs in software are cache
+invalidation and off-by-one errors. And we had caching problems in spades.
 
-<p>We couldn't afford cache misses during the event, so we needed to "preheat"
+We couldn't afford cache misses during the event, so we needed to "preheat"
 the caches by ensuring all information was loaded on server startup. Except
-that we had a few problems with this.</p>
+that we had a few problems with this.
 
-<p>First, it was <em>slow</em> because there was a lot of data to cache. If we
+First, it was <em>slow</em> because there was a lot of data to cache. If we
 needed to rapidly bring new servers online during the event, this was not an
-option.</p>
+option.
 
-<p>Second, it consumed a lot of memory and we were concerned about
-memory contention issues. Disk swapping was not an option.</p>
+Second, it consumed a lot of memory and we were concerned about
+memory contention issues. Disk swapping was not an option.
 
-<p>Third, the app caches primarily used per-server memcached instances, but
+Third, the app caches primarily used per-server memcached instances, but
 the data was global, not per-server, thus causing a lot of unnecessary
 duplication. Shawn already knew about this, so one of the first things he did
 was set up a secure Redis cluster with failover to replace memcached, where
 appropriate. Since we only had to heat the cache once, bringing up servers was
-faster, and we significantly reduced per-server memory consumption.</p>
+faster, and we significantly reduced per-server memory consumption.
 
-<figure class="image">
-    <img src="/static/images/searching.jpg" width="600" alt="A man on a beach,
-    with a life-preserver over his shoulder. He appears to be looking for
-    something.">
-    <figcaption>Now, where did I put that data? [%
-    Ovid.cite('https://www.pexels.com/photo/adult-beach-enjoyment-fat-319930/',
-    'Source') %]</figcaption>
-</figure>
+[% INCLUDE include/image.tt
+   src      = "/static/images/searching.jpg"
+   alt      = "A man on a beach, with a life-preserver over his shoulder. He appears to be looking for something."
+   caption  = 'Now, where did I put that data?'
+   source   = 'https://www.pexels.com/photo/adult-beach-enjoyment-fat-319930/'
+%]
 
-<p>The application itself also used heavy in-memory caching (implemented as
+The application itself also used heavy in-memory caching (implemented as
 hashes), which we replaced with pre-loaded shared cache entries, thereby
-lowering memory requirements even further.</p>
+lowering memory requirements even further.
 
-<p>As part of this work, we centralized all caching knowledge into a single
+As part of this work, we centralized all caching knowledge into a single
 namespace rather than the ad-hoc "per module" implementations. We also created
 a single configuration file to control all of it, making caching much simpler
 for our client. This is one of the many features we added that they still use
-today.</p>
+today.
 
-<h2>SOAP</h2>
+## SOAP
 
-<figure class="captioned">
-    <img src="/static/images/soap.jpg" width="600" alt="Three bars of soap in
-    a stack.">
-    <figcaption>Possibly not the most original image I've come up with ... [%
-    Ovid.cite('https://unsplash.com/photos/cxAZxTuL7Sk',
-    'Source') %]</figcaption>
-</figure>
+[% INCLUDE include/image.tt
+   align    = 'right'
+   src      = "/static/images/soap.jpg"
+   alt      = "Three bars of soap in a stack."
+   caption  = "Not the most original image I've come up with ..."
+   source   = 'https://unsplash.com/photos/cxAZxTuL7Sk'
+%]
 
-<p>Another serious bottleneck was their SOAP server.  Our client made good use
+Another serious bottleneck was their SOAP server.  Our client made good use
 of WSDL (Web Services Description Language) to help their customers understand
 how to create SOAP requests and SOAP was integral to their entire pipeline.
 The client would receive a SOAP request, parse it, extract the necessary data,
 process that data, create <em>another</em> SOAP request, pass this to back-end
-servers, which would repeat the process with the new SOAP request.</p>
+servers, which would repeat the process with the new SOAP request.
 
-<p>SOAP stands for "Simple Object Access Protocol." But SOAP isn't "objects",
+SOAP stands for "Simple Object Access Protocol." But SOAP isn't "objects",
 and it's not "simple." It's a huge XML document, with an outer envelope
 telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client's SOAP implementation had grown over the
@@ -243,9 +241,9 @@ Ovid.add_note('Many of the oldest SOAP versions had long been deprecated,
 so that helped.') %] most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
-us to skip updating the other SOAP versions.</p>
+us to skip updating the other SOAP versions.
 
-<p>We tried several approaches to fine-tuning the SOAP, including replacing
+We tried several approaches to fine-tuning the SOAP, including replacing
 many <code class="language-perl">AUTOLOAD</code> (dynamically generated)
 methods with static ones. In Perl, <code class="language-perl">AUTOLOAD</code>
 methods are optional "fallback" methods that are used when Perl cannot find a
@@ -253,17 +251,17 @@ method of the desired name. However, this means Perl must carefully walk
 through inheritance hierarchies to ensure the method requested isn't there
 before falling back to <code class="language-perl">AUTOLOAD</code>. This can
 add considerable overhead to a request. For this and other reasons, the use of
-<code class="language-perl">AUTOLOAD</code> is strongly discouraged.</p>
+<code class="language-perl">AUTOLOAD</code> is strongly discouraged.
 
-<p>Replacing these methods was extremely difficult work because the <code
+Replacing these methods was extremely difficult work because the <code
 class="language-perl">AUTOLOAD</code> methods were used heavily, often calling
 each other, and  had grown tremendously over the years. Many of them were
 extremely dangerous to pick apart due to their very complex logic. We managed
 to shave some more time with this approach but stopped before we tackled the
 most complicated ones. There was only so much risk we were willing to
-take.</p>
+take.
 
-<p>Noel, in carefully reading through the SOAP code, also found several code
+Noel, in carefully reading through the SOAP code, also found several code
 paths that were slow, but didn't apply to our requests. Unfortunately, we
 could not simply skip them because the SOAP code was tightly coupled with
 external business logic. Skipping these code paths would invariably break
@@ -273,52 +271,52 @@ of the code, when recognizing they were in "web context", could request this
 metadata and skip non-essential code paths. While singletons are frowned upon
 by experienced developers, we were under time pressure and in this case, our
 SOAP code and the code it called could all consult the singleton to coordinate
-their activity.</p>
+their activity.
 
-<p>The singleton is one of the many areas where deadlines and reality collide.
+The singleton is one of the many areas where deadlines and reality collide.
 Hence, the "Devil Went Down to Georgia" quote at the beginning of this case
 study. We were not happy with this solution, but sometimes you need to
 sacrifice "best practices" when you're in an emergency situation. We alerted
 our client to the concern so they could be aware that this was not a long-term
-solution.</p>
+solution.
 
-<p>We also leveraged that singleton to allow us to alert the back-end that
+We also leveraged that singleton to allow us to alert the back-end that
 encrypted transaction data was available directly via Redis. The back-end
 merely needed to decrypt that data without the need to first deserialize SOAP
 and <em>then</em> decrypt the data. Another great performance improvement.
 Sadly, like many others improvements, it was specific to this one customer and
-this one payment provider.</p>
+this one payment provider.
 
-<p>However, this approach allowed us to remove even more SQL calls, again
-providing a nice performance boost.</p>
+However, this approach allowed us to remove even more SQL calls, again
+providing a nice performance boost.
 
-<h2>Tax Server</h2>
+## Tax Server
 
-<figure class="captioned-left">
-    <img src="/static/images/ledger.jpg" width="600" alt="A hand-written
-    accounting ledger.">
-    <figcaption>In the 80s, I used to do accounting by hand. [%
-    Ovid.cite('https://www.pexels.com/photo/white-graphing-paper-164686/',
-    'Source') %]</figcaption>
-</figure>
+[% INCLUDE include/image.tt
+   align    = 'left'
+   src      = "/static/images/ledger.jpg"
+   alt      = "A hand-written accounting ledge."
+   caption  = "In the 80s, I used to do accounting by hand."
+   source   = 'https://www.pexels.com/photo/white-graphing-paper-164686/'
+%]
 
-<p>By this time, with the above and numerous other fixes in place, we were
+By this time, with the above and numerous other fixes in place, we were
 ready to do our initial QA runs. We didn't expect to hit our 500 TPS target,
 but we were pretty confident we had achieved some major speed gains. And, in
 fact, we did have some pretty impressive speed gains, except that periodically
 some of our requests would simply halt for several seconds. Due to the
 complicated nature of the system, it wasn't immediately clear what was going
-on, but we finally tracked down an issue with the tax server.</p>
+on, but we finally tracked down an issue with the tax server.
 
-<p>Our client was processing credit card transactions and for many of them,
+Our client was processing credit card transactions and for many of them,
 taxes had to be applied. Calculating taxes is complicated enough that there
 are companies that provide "tax calculation as a service" and our client was
 using one of them. Though the tax service assured us they could handle the
 amount of traffic we were sending, they would periodically block. It wasn't
 clear if this was a limitation of their test servers that we would avoid with
-their production servers, but we could not take this chance.</p>
+their production servers, but we could not take this chance.
 
-<p>We tried several approaches, including caching of tax rates, but the wide
+We tried several approaches, including caching of tax rates, but the wide
 diversity of data we relied on to calculate the tax meant a high cache miss
 rate, not allowing us to solve the problem. Finally, one of our client's
 developers who knew the tax system fairly well came up with a great solution.
@@ -326,79 +324,78 @@ He convinced the tax service to provide a "one-time" data dump of tax rates
 that would not be valid long but would be valid long enough for our short
 event.  We could load the data into memory, read it directly, and skip the
 tax server entirely. Though the resulting code was complicated, it worked, and
-our requests no longer blocked.</p>
+our requests no longer blocked.
 
-<h2>The Big Test</h2>
+## The Big Test
 
-<p>With the above, and many other optimizations, we felt confident in what we
+With the above, and many other optimizations, we felt confident in what we
 delivered and in a late-night test run, our client was ecstatic. We were
 handling 700 transactions per second, almost twenty times faster than when we
 started. Our client hired us because they knew we could deliver results like
 this. Now it was time for our first production run, using beefier servers and
-a much faster network.</p>
+a much faster network.
 
-<p>Cue the "sad trombone" music. We were only running about 200 to 300
+Cue the "sad trombone" music. We were only running about 200 to 300
 transactions per second. As you may recall, the client had been migrating from
 Oracle to PostgreSQL. The QA servers were far less powerful than the
 production servers, but they were running PostgreSQL. The production servers
 were running Oracle. Oracle is the fast, beastly sports car that will quickly
 outpace that Honda Accord you're driving ... so long as the sports car has an
 expert driver, constant maintenance, and an expensive, highly trained pit crew
-to look after it.</p>
+to look after it.
 
-<figure class="image">
-    <img src="/static/images/angry-cat.jpg" width="600" alt="An angry-looking
-    cat.">
-    <figcaption>How I felt after our first production test run. [%
-    Ovid.cite('https://unsplash.com/photos/tEMU4lzAL0w',
-    'Source') %]</figcaption>
-</figure>
+[% INCLUDE include/image.tt
+   src      = "/static/images/angry-cat.jpg"
+   alt      = "An angry-looking cat."
+   caption  = "How I felt after our first production test run."
+   source   = 'https://unsplash.com/photos/tEMU4lzAL0w'
+%]
 
-<p>Out of the box, PostgreSQL just tends to be fast. Often companies find that
+Out of the box, PostgreSQL just tends to be fast. Often companies find that
 a single PostgreSQL DBA working with competent developers is enough to easily
 handle their traffic. But we had Oracle. And it wasn't going away before the
 deadline. Our first two weeks was up and our proof of concept worked, but
-greatly exceeding client requirements still wasn't fast enough.</p>
+greatly exceeding client requirements still wasn't fast enough.
 
-<p>However, this was good enough for the proof of concept, so it was time to
+However, this was good enough for the proof of concept, so it was time to
 nail this down. It was going to be more nights and weekends for us, but we
-were having a huge amount of fun.</p>
+were having a huge amount of fun.
 
-<p>Oracle wasn't the only problem, as it turns out. This faster, higher
+Oracle wasn't the only problem, as it turns out. This faster, higher
 capacity network had switches that automatically throttled traffic surges.
 This was harder to diagnose and work around but alleviated the networking
 issues. Interestingly, it was Leïla who spotted that problem simply by
 listening carefully to what was being said in meetings. She has this amazing
-ability to hear when something isn't quite right.</p>
+ability to hear when something isn't quite right.
 
-<p>With the use of Oracle being a bottleneck, we had to figure out a way to
+With the use of Oracle being a bottleneck, we had to figure out a way to
 remove those final few SQL statements. Our client suggested we might be able to
-do something unusual and it's based on how credit cards work.</p>
+do something unusual and it's based on how credit cards work.
 
-<figure class="captioned">
-    <img src="/static/images/credit-card.jpg" width="600" alt="A hand holding a
-    credit card.">
-    <figcaption>[%
-    Ovid.cite('https://www.pexels.com/photo/shopping-business-money-pay-50987/',
-    'Source') %]</figcaption>
-</figure>
+[% INCLUDE include/image.tt
+   align    = 'right'
+   src      = "/static/images/credit-card.jpg"
+   alt      = "A hand holding a credit card"
+   caption  = "How I felt after our first production test run."
+   source   = 'https://www.pexels.com/photo/shopping-business-money-pay-50987/'
+%]
 
-<p>When you check into a hotel and reserve your room with a credit card, your
+When you check into a hotel and reserve your room with a credit card, your
 card is not charged for the room. Instead, they "authorize" (also known as
 "preauthorize") the charge. That lowers the credit limit on your card and
 reserves the money for the hotel. They will often preauthorize for over the
 amount of your bill to allow a small wiggle room for incidental charges, such
-as food you may have ordered during your stay.</p>
+as food you may have ordered during your stay.
 
-<p>Later, when you check out, they'll charge your card. Or, if you leave and
+Later, when you check out, they'll charge your card. Or, if you leave and
 forget to check out, they have a preauthorization, so they can still "capture"
 the preauthorization and get the money deposited to their account. This
-protects them from fraud or guests who are simply forgetful.</p>
+protects them from fraud or guests who are simply forgetful.
 
-<p>In our case, the client often used preauthorization for payments and after
-the preauthorization was successful, the card would be charged.</p>
+In our case, the client often used preauthorization for payments and after
+the preauthorization was successful, the card would be charged.
 
-<p>It worked like this: the front-end would receive the request and send it to
+It worked like this: the front-end would receive the request and send it to
 the back-end. The back-end would submit the request for preauthorization to the
 payment provide and the payment provider would respond. The back-end sent the
 response to the front-end and if the preauthorization was denied, the denial
@@ -408,23 +405,23 @@ Ovid.add_note("Of course, it was sent to the back-end via SOAP. SOAP, oh,
 how I hate thee. I'm never taking a bath again.") %] The back-end would then
 submit the preauthorized charge to the payment provider and lots of network
 and database activity helped to keep the server room warm. The entire process
-was about as fast as a snail crawling through mud.</p>
+was about as fast as a snail crawling through mud.
 
-<p>What the client pointed out is that the money was reserved, so we could
+What the client pointed out is that the money was reserved, so we could
 charge the card after the event because we had already preauthorized it.
 Instead, we could serialize the charge request and store it in an encrypted
 file on the front-end server (with the decryption key unavailable on those
 servers). Later, a utility we wrote read and batch processed those files
 <em>after</em> the event, allowing us to finish the transaction processing
-asynchronously.</p>
+asynchronously.
 
-<p>This worked very well and by the time we were done, our changes to the code
+This worked very well and by the time we were done, our changes to the code
 resulted in a single SQL <code>SELECT</code> statement. Further, after this
 and a few other tweaks, we were easily able to hit 500 transactions per second
 on their production system. When the event happened shortly after, the code
-ran flawlessly.</p>
+ran flawlessly.
 
-<h1>What We Delivered</h1>
+# What We Delivered
 
 [% INCLUDE include/image.tt
    src    = "/static/images/wheelbarrow.jpg"
@@ -432,30 +429,30 @@ ran flawlessly.</p>
    source = 'https://www.pexels.com/photo/man-pushing-wheelbarrow-2163888/'
 %]
 
-<h2>Overview</h2>
+## Overview
 
-<p>Increase the performance of Business Transactions from 39/sec to 500+/sec.</p>
+Increase the performance of Business Transactions from 39/sec to 500+/sec.
 
-<p>The overall implemented solution could not change the outward facing API calls
+The overall implemented solution could not change the outward facing API calls
 as end users of the service were not to be impacted by back-end changes. The
 solution could also not effect the traditional processing as clients would
-be issuing both traditional and streamlined transactions.</p>
+be issuing both traditional and streamlined transactions.
 
-<h3>New Caching Architecture</h3>
+### New Caching Architecture
 
-<p>Implement a new redundant shared caching architecture using Redis as a data
-store, to replace the existing on application server memcached instances.</p>
+Implement a new redundant shared caching architecture using Redis as a data
+store, to replace the existing on application server memcached instances.
 
-<p>Update existing application code to remove the use of internal application
+Update existing application code to remove the use of internal application
 caches (implemented as hashes), and replace with pre-loaded shared cache
-entries.</p>
+entries.
 
-<p>The new caching system caches items using both the legacy and the new
+The new caching system caches items using both the legacy and the new
 caching system, so that production systems can be transitioned to the unified
-caching system without downtime.</p>
+caching system without downtime.
 
-<p>Allowed a cache storage back-end to define its storage scope, so that caches
-can be managed based on the storage locality:</p>
+Allowed a cache storage back-end to define its storage scope, so that caches
+can be managed based on the storage locality:
 
 <ol>
     <li>"process": cache is stored in local per-process memory</li>
@@ -465,39 +462,39 @@ can be managed based on the storage locality:</p>
     server</li>
 </ol>
 
-<h3>Data Storage Performance</h3>
+### Data Storage Performance
 
-<p>Create an additional data storage path that replaces storing intermediate data
-in the back-end shared database with the shared caching architecture.</p>
+Create an additional data storage path that replaces storing intermediate data
+in the back-end shared database with the shared caching architecture.
 
-<p>Remove the use of a third party provider API call, and replace with a static
-table lookup.</p>
+Remove the use of a third party provider API call, and replace with a static
+table lookup.
 
-<h3>Implement Staged Processing</h3>
+### Implement Staged Processing
 
-<p>As data processing in real time is not a requirement, add a data path that
+As data processing in real time is not a requirement, add a data path that
 allows for separation of the front end API responses from the third party
 back-end processing. This allowed for heavy back-end processes to be deferred and
-processed in smaller batches.</p>
+processed in smaller batches.
 
-<h3>Process Streamlining</h3>
+### Process Streamlining
 
-<p>Worked closely with the client to determine which parts of the process are
-required during the processing, and which can be bypassed to save overhead.</p>
+Worked closely with the client to determine which parts of the process are
+required during the processing, and which can be bypassed to save overhead.
 
-<p>Code review and clean up. Refactor code base to remove extraneous or
-ill-performing legacy code.</p>
+Code review and clean up. Refactor code base to remove extraneous or
+ill-performing legacy code.
 
-<h3>Repeatable</h3>
+### Repeatable
 
-<p>The process was re-engineered to be configurable allowing the same pipeline to
+The process was re-engineered to be configurable allowing the same pipeline to
 be reimplemented for future events/customer requirement through simple
-documented configuration options, while not impacting traditional processing.</p>
+documented configuration options, while not impacting traditional processing.
 
-<h1>Caveat</h1>
+# Caveat
 
-<p>This information was compiled from our reports during this project and not
+This information was compiled from our reports during this project and not
 written while the project was ongoing. Some events may not have happened in
-the exact sequence listed above.</p>
+the exact sequence listed above.
 
-[% INCLUDE include/footer.tt %]
+[%- END %]
