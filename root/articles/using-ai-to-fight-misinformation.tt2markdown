@@ -1,0 +1,270 @@
+[%
+    title            = 'Using AI to Fight Misinformation';
+    type             = 'articles';
+    slug             = 'using-ai-to-fight-misinformation';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-11-04';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai programming}}
+
+# Using AI to Fight Misinformation
+
+## Introduction
+
+So your crazy Uncle Charlie sends you a link to a web site explaining our world
+leaders are actually lizard people. Yes, [there are people who actually believe
+this](https://en.wikipedia.org/wiki/David_Icke), but you shrug this off because
+"Charlie."
+
+But a friend of yours, someone you both like and respect, sends you a link to a
+web site which has a detailed explanation of why the world is actually flat.
+If you don't have the background to evaluate the information, you might just
+believe its true.
+
+It's no secret that the world is flooded with misinformation. From fake news to
+conspiracy theories, it's becoming increasingly difficult to separate fact from
+fiction online. Believing as I do that people are generally good, I assume that
+most of this information is by sincere, yet misinformed, people. But the damage
+is the same.
+
+AI tools can help us here. A couple of years ago when ChatGPT was first
+introduced, this would have been a ridiculous idea. But today, with the advances
+in generative AI, we're getting closer to being able to use AI to help us
+separate fact from fiction. [I've written a Chrome extension that does just
+that](https://github.com/Ovid/chrome-diogenes).
+
+Named "Diogenes," it uses the [Google Gemini API](https://ai.google.dev/) to do
+the work.  On a web site presenting an argument, you can run the "Diogenes"
+extension and then click on "Analyze." It starts with a disclaimer about the
+limitations of AI.  Then you get:
+
+* A summary
+* A list of factual errors detected
+* A list of logical fallacies detected
+* Reputable sources for better information (when available)
+* A conclusion of the strength of the article
+* Counter-arguments (when available)
+
+But there's a major caveat: you will still have to think for yourself. While
+newer AI tools are much better than their predecessors, they're still not
+perfect. But they can help you spot the most egregious errors.
+
+The extension is open source under the MIT license. It's also free to use, but
+the number of requests you can make is limited by the Google Gemini API unless
+you pay for more requests (instructions in both the README and the
+plugin).
+
+The extension collects no data on you. It sends the content of the page you're
+viewing to the Google Gemini API and then displays the results. That's it.
+
+## The Problem
+
+The internet is a double-edged sword. It's a treasure trove of information, but
+it's also a breeding ground for misinformation. With the rise of social media
+and online news outlets, it's easier than ever for false information to spread
+like wildfire. This has serious consequences, from influencing elections to
+fueling public health crises.
+
+The problem is compounded by the fact that many people lack the free times
+needed to evaluate the information they encounter online. When a good friend
+sends you fake news, you're more likely to believe it if you're unfamiliar with
+the background. I've seen very impressive sites presenting tons of "facts"
+which are not, in fact, facts. We know that vaccines don't cause autism, but
+there are sites which present convincing arguments that they do and most of us
+don't have the medical or logical background to evaluate the information.
+
+## The Solution
+
+This is where AI can help. Diogenes serves as a neutral fact-checker, analyzing
+the content of web pages and flagging potential errors. It can detect common
+logical fallacies, such as ad hominem attacks or false dichotomies, and provide
+you with a quick, easy-to-understand summary of the article's credibility.
+
+It's very straightforward, does not mock either the reader or the arguments'
+author, and is designed to be as user-friendly as possible.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/diogenes-screenshot.png"
+   alt      = "Sample output from Diogenes Chrome extension"
+%]
+
+I was hesitant to share the tool because, even though generative AI is much
+better than it was when it started, it's still making mistakes. However, I have
+used this tool often enough [as a custom GPT on
+chatpt.com](https://chatgpt.com/g/g-KaXfcfHaO-reason) that I've been impressed
+with how easily I am able to find the most serious errors in an argument. When I
+want to know if a site is credible, it's been a huge time-saver.
+
+I'm looking forward to the upcoming Gemini 2.0 which will (hopefully) be even
+better.
+
+## The Prompt
+
+I won't go into what it takes to write a Chrome extension, but I'll share with
+you the prompt I'm currently using with it.
+
+> You are an expert logician, skilled in finding the logical flaws in arguments.
+You will read the html after the {{HTML}} token and use that for the argument to
+analyze.
+
+> You will break the text up into factual claims and logical reasoning. For
+factual claims, it will ignore what appears accurate and check dubious claims
+against reliable sources, suggesting more accurate information when needed. For
+logical reasoning, it will identify EVERY logical fallacy and explain it.
+
+> You will present your findings in a friendly and accessible markdown format,
+including a brief summary of the opinion, lists for factual and logical
+accuracy, and a conclusion rating the argument's strength. It will also provide
+suggestions for improvement.
+
+> If the author is citing information that does not have a source listed, DO NOT
+include that in your response unless it is obviously false. This is because your
+analysis in the past appears to have listed some arguments as weak, even though
+if the information is true, the argument would be strong.
+
+> If the author is using an "appeal to authority", IGNORE THAT IN YOUR RESPONSE
+unless the authority is obviously not an expert in the field, or the claim made
+does not match what the authority would say.
+
+> If the author is making a dubious claim, IGNORE THAT IN YOUR RESPONSE if the
+claim is "close" to reality. For example, if the article says "Since the
+Industrial Revolution, the global annual temperature has increased in total by a
+little more than 1 degree Celsius, or about 2 degrees Fahrenheit.", the
+following would be a bad correction and should be excluded: "The global average
+temperature has increased by about 1.1 degrees Celsius, or about 2 degrees
+Fahrenheit, since the late 19th century."
+
+> If the author is using a "slippery slope" argument, IGNORE THAT IN YOUR
+RESPONSE if the conclusion is one that is widely accepted or supported by the
+authorities cited.
+
+> When correcting information, try to include a link to a reliable source.
+
+> Structure your response as follows:
+
+> All headers must on their own lines, start with a "##", and be followed by a
+blank line.
+
+> The response MUST start with the following disclaimer, using a "Disclaimer"
+header: "This analysis is provided by Google's Gemini. Generative AI can make
+mistakes, so please verify the information provided. Further, running this more
+than once can often give different results."
+
+> The Summary of the argument is next, and must have a "Summary" header. This
+should be a brief summary of the author's argument.
+
+> Next, we have "Factual Accuracy" and "Logical Accuracy" sections. In these
+sections, list the factual and logical errors you have found. If there are no
+errors, state that there are no errors. If there are errors, list them in bullet
+points. If there are multiple errors, separate them with a blank line.
+
+> Next is the conclusion which, after the "Conclusion" header, MUST start with
+"good argument," "average argument," or "weak argument," based on your
+perception. No argument is a "good argument" if it has a several factual errors,
+several logical errors, or if there are major, valid counter-arguments which
+have been ignored.  When writing the conclusion, do not claim or consider that
+there are logical or factual errors if you have not reported them. The
+conclusion must only be based on the information you have provided.
+
+> When coming to this conclusion, special attention must be paid to the logical
+flaws you have found. If there is additional information which is not included
+in the writing, but which would change the conclusion in the author's writing,
+please include that in your own conclusion. If there are particular arguments
+you are aware of which contradict the author's conclusion, please include those
+in a new section entitled "Counter-Arguments." Otherwise, feel free to omit this
+section.
+
+> Further, when writing the response, do not assume the user is the author.
+Instead of "you", write "the author" or something similar.
+
+> Please respond ONLY with Markdown.
+
+> {{HTML}}
+
+> ... the HTML goes here ...
+
+Whew! That's a huge prompt. You'll note a few things. First, we give the AI its
+role. "You are an expert logician, skilled in finding the logical flaws in
+arguments."
+
+Next, we explain how we want it to do that.  You'll note some very curious bits
+like this:
+
+> If the author is using an “appeal to authority”, IGNORE THAT IN YOUR RESPONSE
+> unless the authority is obviously not an expert in the field, or the claim
+> made does not match what the authority would say.
+
+The ALL CAPS is there to emphasize this section (turns out that generative AI
+recognizes all caps as being more important). But why do we have this in the
+first place? This, and few other custom exceptions for logical fallacies have
+been inserted because the AI would flag fallacies that weren't fallacies in the
+context of the argument. I did a lot of work rebuilding the prompt to avoid
+these kinds of errors. We had cases where leading climate scientists would have
+their own arguments listed as "weak arguments" without these kinds of
+corrections.
+
+In the final section of the prompt, we explain carefully how to structure the
+output. I can probably shorten this considerably by sending a Markdown example
+rather than spelling everything out.
+
+Originally I tried to have it generate HTML, but it kept mixing HTML and
+Markdown, so I just went with Markdown and included a Markdown parser in the
+extension.
+
+## Flaws
+
+There are technical flaws (I'm not a front-end dev and it shows), but the real
+flaws lie in the AI response. For example, in an older version of the prompt, we
+had the following:
+
+> **False Dichotomy:** The author presents a false dichotomy by suggesting that
+the only two possibilities are a round Earth and a flat Earth. This is a false
+dichotomy because there are other possibilities, such as a spherical Earth with
+a different shape than the one commonly accepted.
+
+Um, wow. That's awful. However, because this is generative AI, I thought it was
+important for you to see just how bad things can be. I've created this tool to
+show the potential of AI. I'm very curious to see how upgrades to the underlying
+model and tweaks to the prompt will improve this.
+
+Keep in mind that in the early days of generative AI, hallucinations were often
+at the spelling and grammar level. Today, those hallucinations are virtually
+non-existent. Hallucinations at the factual level are still a problem, but they
+are getting better, too.
+
+## Future Development
+
+In the future, I hope to upgrade the backend AIs to newer versions. I also hope
+to include Claude and ChatGPT backends. I believe both Anthropic and Google are
+planning to upgrade their foundation models, making these tools even better.
+
+I will be adding the extension to the Google Chrome store soon. The first
+version was rejected because I accidentally requested a permission I didn't
+need. I've fixed that and have resubmitted the extension.
+
+For power users, I am considering doing some more work on the extension to allow
+a more detailed breakdown of factual and logical errors and submitting those 
+with another prompt for further analysis. This would allow the AI to have a 
+"second chance" to get things right. For a concrete example, ask an AI about an 
+obscure topic that you know about and that it gets wrong. Then ask it, "is that 
+true?" I've found that many times it will correct itself.
+
+# Conclusion
+
+I am delighted with the progress we've made in AI. While it's not perfect, it's
+getting pretty good and use cases like this seem tailor-made for it, even if
+it's touching in areas where it traditionally hallucinates.
+
+In the early days of ChatGPT 2, we saw tremendous potential, even if the output
+was rubbish by today's standards. With the rate of AI acceleration, I expect
+we'll be saying the same thing about today's tools in a few years.
+
+[%- END %]

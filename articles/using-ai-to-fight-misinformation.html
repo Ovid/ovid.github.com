@@ -1,0 +1,649 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/using-ai-to-fight-misinformation.html" />
+  
+  <meta property="og:title" content="Using AI to Fight Misinformation" />
+  <meta property="og:description" content="Tired of people sending you pseudo-science articles, or 'opinion' pieces by biased journalists? AI can actually help." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Using AI to Fight Misinformation</title>
+  <meta name="description" content="Using AI to Fight Misinformation">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Using AI to Fight Misinformation</h1>
+        <time>2024-11-04</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/publicspeaking.html">Public Speaking</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html">Escape!</a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/ai-for-accessibility.html" class="prevPost">&laquo; AI for Accessibility</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#using-ai-to-fight-misinformation">Using AI to Fight Misinformation</a></li>
+    <li class="indent-2"><a href="#introduction">Introduction</a></li>
+    <li class="indent-2"><a href="#the-problem">The Problem</a></li>
+    <li class="indent-2"><a href="#the-solution">The Solution</a></li>
+    <li class="indent-2"><a href="#the-prompt">The Prompt</a></li>
+    <li class="indent-2"><a href="#flaws">Flaws</a></li>
+    <li class="indent-2"><a href="#future-development">Future Development</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="using-ai-to-fight-misinformation"></a>Using AI to Fight Misinformation</h1>
+
+<h2><a name="introduction"></a>Introduction</h2>
+
+<p>So your crazy Uncle Charlie sends you a link to a web site explaining our world
+leaders are actually lizard people. Yes, <a href="https://en.wikipedia.org/wiki/David_Icke" target="_blank">there are people who actually believe
+this</a> <span class="fa fa-external-link fa_custom"></span>, but you shrug this off because
+“Charlie.”</p>
+
+<p>But a friend of yours, someone you both like and respect, sends you a link to a
+web site which has a detailed explanation of why the world is actually flat.
+If you don’t have the background to evaluate the information, you might just
+believe its true.</p>
+
+<p>It’s no secret that the world is flooded with misinformation. From fake news to
+conspiracy theories, it’s becoming increasingly difficult to separate fact from
+fiction online. Believing as I do that people are generally good, I assume that
+most of this information is by sincere, yet misinformed, people. But the damage
+is the same.</p>
+
+<p>AI tools can help us here. A couple of years ago when ChatGPT was first
+introduced, this would have been a ridiculous idea. But today, with the advances
+in generative AI, we’re getting closer to being able to use AI to help us
+separate fact from fiction. <a href="https://github.com/Ovid/chrome-diogenes" target="_blank">I’ve written a Chrome extension that does just
+that</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>Named “Diogenes,” it uses the <a href="https://ai.google.dev/" target="_blank">Google Gemini API</a> <span class="fa fa-external-link fa_custom"></span> to do
+the work.  On a web site presenting an argument, you can run the “Diogenes”
+extension and then click on “Analyze.” It starts with a disclaimer about the
+limitations of AI.  Then you get:</p>
+
+<ul>
+<li>A summary</li>
+<li>A list of factual errors detected</li>
+<li>A list of logical fallacies detected</li>
+<li>Reputable sources for better information (when available)</li>
+<li>A conclusion of the strength of the article</li>
+<li>Counter-arguments (when available)</li>
+</ul>
+
+<p>But there’s a major caveat: you will still have to think for yourself. While
+newer AI tools are much better than their predecessors, they’re still not
+perfect. But they can help you spot the most egregious errors.</p>
+
+<p>The extension is open source under the MIT license. It’s also free to use, but
+the number of requests you can make is limited by the Google Gemini API unless
+you pay for more requests (instructions in both the README and the
+plugin).</p>
+
+<p>The extension collects no data on you. It sends the content of the page you’re
+viewing to the Google Gemini API and then displays the results. That’s it.</p>
+
+<h2><a name="the-problem"></a>The Problem</h2>
+
+<p>The internet is a double-edged sword. It’s a treasure trove of information, but
+it’s also a breeding ground for misinformation. With the rise of social media
+and online news outlets, it’s easier than ever for false information to spread
+like wildfire. This has serious consequences, from influencing elections to
+fueling public health crises.</p>
+
+<p>The problem is compounded by the fact that many people lack the free times
+needed to evaluate the information they encounter online. When a good friend
+sends you fake news, you’re more likely to believe it if you’re unfamiliar with
+the background. I’ve seen very impressive sites presenting tons of “facts”
+which are not, in fact, facts. We know that vaccines don’t cause autism, but
+there are sites which present convincing arguments that they do and most of us
+don’t have the medical or logical background to evaluate the information.</p>
+
+<h2><a name="the-solution"></a>The Solution</h2>
+
+<p>This is where AI can help. Diogenes serves as a neutral fact-checker, analyzing
+the content of web pages and flagging potential errors. It can detect common
+logical fallacies, such as ad hominem attacks or false dichotomies, and provide
+you with a quick, easy-to-understand summary of the article’s credibility.</p>
+
+<p>It’s very straightforward, does not mock either the reader or the arguments'
+author, and is designed to be as user-friendly as possible.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/diogenes-screenshot.png" width="600" alt="Sample output from Diogenes Chrome extension">
+    <figcaption></figcaption>
+    </div>
+</figure></p>
+
+<p>I was hesitant to share the tool because, even though generative AI is much
+better than it was when it started, it’s still making mistakes. However, I have
+used this tool often enough <a href="https://chatgpt.com/g/g-KaXfcfHaO-reason" target="_blank">as a custom GPT on
+chatpt.com</a> <span class="fa fa-external-link fa_custom"></span> that I’ve been impressed
+with how easily I am able to find the most serious errors in an argument. When I
+want to know if a site is credible, it’s been a huge time-saver.</p>
+
+<p>I’m looking forward to the upcoming Gemini 2.0 which will (hopefully) be even
+better.</p>
+
+<h2><a name="the-prompt"></a>The Prompt</h2>
+
+<p>I won’t go into what it takes to write a Chrome extension, but I’ll share with
+you the prompt I’m currently using with it.</p>
+
+<blockquote>
+  <p>You are an expert logician, skilled in finding the logical flaws in arguments.
+  You will read the html after the {{HTML}} token and use that for the argument to
+  analyze.</p>
+  
+  <p>You will break the text up into factual claims and logical reasoning. For
+  factual claims, it will ignore what appears accurate and check dubious claims
+  against reliable sources, suggesting more accurate information when needed. For
+  logical reasoning, it will identify EVERY logical fallacy and explain it.</p>
+  
+  <p>You will present your findings in a friendly and accessible markdown format,
+  including a brief summary of the opinion, lists for factual and logical
+  accuracy, and a conclusion rating the argument’s strength. It will also provide
+  suggestions for improvement.</p>
+  
+  <p>If the author is citing information that does not have a source listed, DO NOT
+  include that in your response unless it is obviously false. This is because your
+  analysis in the past appears to have listed some arguments as weak, even though
+  if the information is true, the argument would be strong.</p>
+  
+  <p>If the author is using an “appeal to authority”, IGNORE THAT IN YOUR RESPONSE
+  unless the authority is obviously not an expert in the field, or the claim made
+  does not match what the authority would say.</p>
+  
+  <p>If the author is making a dubious claim, IGNORE THAT IN YOUR RESPONSE if the
+  claim is “close” to reality. For example, if the article says “Since the
+  Industrial Revolution, the global annual temperature has increased in total by a
+  little more than 1 degree Celsius, or about 2 degrees Fahrenheit.“, the
+  following would be a bad correction and should be excluded: “The global average
+  temperature has increased by about 1.1 degrees Celsius, or about 2 degrees
+  Fahrenheit, since the late 19th century.”</p>
+  
+  <p>If the author is using a “slippery slope” argument, IGNORE THAT IN YOUR
+  RESPONSE if the conclusion is one that is widely accepted or supported by the
+  authorities cited.</p>
+  
+  <p>When correcting information, try to include a link to a reliable source.</p>
+  
+  <p>Structure your response as follows:</p>
+  
+  <p>All headers must on their own lines, start with a “##“, and be followed by a
+  blank line.</p>
+  
+  <p>The response MUST start with the following disclaimer, using a “Disclaimer”
+  header: “This analysis is provided by Google’s Gemini. Generative AI can make
+  mistakes, so please verify the information provided. Further, running this more
+  than once can often give different results.”</p>
+  
+  <p>The Summary of the argument is next, and must have a “Summary” header. This
+  should be a brief summary of the author’s argument.</p>
+  
+  <p>Next, we have “Factual Accuracy” and “Logical Accuracy” sections. In these
+  sections, list the factual and logical errors you have found. If there are no
+  errors, state that there are no errors. If there are errors, list them in bullet
+  points. If there are multiple errors, separate them with a blank line.</p>
+  
+  <p>Next is the conclusion which, after the “Conclusion” header, MUST start with
+  “good argument,” “average argument,” or “weak argument,” based on your
+  perception. No argument is a “good argument” if it has a several factual errors,
+  several logical errors, or if there are major, valid counter-arguments which
+  have been ignored.  When writing the conclusion, do not claim or consider that
+  there are logical or factual errors if you have not reported them. The
+  conclusion must only be based on the information you have provided.</p>
+  
+  <p>When coming to this conclusion, special attention must be paid to the logical
+  flaws you have found. If there is additional information which is not included
+  in the writing, but which would change the conclusion in the author’s writing,
+  please include that in your own conclusion. If there are particular arguments
+  you are aware of which contradict the author’s conclusion, please include those
+  in a new section entitled “Counter-Arguments.” Otherwise, feel free to omit this
+  section.</p>
+  
+  <p>Further, when writing the response, do not assume the user is the author.
+  Instead of “you”, write “the author” or something similar.</p>
+  
+  <p>Please respond ONLY with Markdown.</p>
+  
+  <p>{{HTML}}</p>
+  
+  <p>... the HTML goes here ...</p>
+</blockquote>
+
+<p>Whew! That’s a huge prompt. You’ll note a few things. First, we give the AI its
+role. “You are an expert logician, skilled in finding the logical flaws in
+arguments.”</p>
+
+<p>Next, we explain how we want it to do that.  You’ll note some very curious bits
+like this:</p>
+
+<blockquote>
+  <p>If the author is using an “appeal to authority”, IGNORE THAT IN YOUR RESPONSE
+  unless the authority is obviously not an expert in the field, or the claim
+  made does not match what the authority would say.</p>
+</blockquote>
+
+<p>The ALL CAPS is there to emphasize this section (turns out that generative AI
+recognizes all caps as being more important). But why do we have this in the
+first place? This, and few other custom exceptions for logical fallacies have
+been inserted because the AI would flag fallacies that weren’t fallacies in the
+context of the argument. I did a lot of work rebuilding the prompt to avoid
+these kinds of errors. We had cases where leading climate scientists would have
+their own arguments listed as “weak arguments” without these kinds of
+corrections.</p>
+
+<p>In the final section of the prompt, we explain carefully how to structure the
+output. I can probably shorten this considerably by sending a Markdown example
+rather than spelling everything out.</p>
+
+<p>Originally I tried to have it generate HTML, but it kept mixing HTML and
+Markdown, so I just went with Markdown and included a Markdown parser in the
+extension.</p>
+
+<h2><a name="flaws"></a>Flaws</h2>
+
+<p>There are technical flaws (I’m not a front-end dev and it shows), but the real
+flaws lie in the AI response. For example, in an older version of the prompt, we
+had the following:</p>
+
+<blockquote>
+  <p><strong>False Dichotomy:</strong> The author presents a false dichotomy by suggesting that
+  the only two possibilities are a round Earth and a flat Earth. This is a false
+  dichotomy because there are other possibilities, such as a spherical Earth with
+  a different shape than the one commonly accepted.</p>
+</blockquote>
+
+<p>Um, wow. That’s awful. However, because this is generative AI, I thought it was
+important for you to see just how bad things can be. I’ve created this tool to
+show the potential of AI. I’m very curious to see how upgrades to the underlying
+model and tweaks to the prompt will improve this.</p>
+
+<p>Keep in mind that in the early days of generative AI, hallucinations were often
+at the spelling and grammar level. Today, those hallucinations are virtually
+non-existent. Hallucinations at the factual level are still a problem, but they
+are getting better, too.</p>
+
+<h2><a name="future-development"></a>Future Development</h2>
+
+<p>In the future, I hope to upgrade the backend AIs to newer versions. I also hope
+to include Claude and ChatGPT backends. I believe both Anthropic and Google are
+planning to upgrade their foundation models, making these tools even better.</p>
+
+<p>I will be adding the extension to the Google Chrome store soon. The first
+version was rejected because I accidentally requested a permission I didn’t
+need. I’ve fixed that and have resubmitted the extension.</p>
+
+<p>For power users, I am considering doing some more work on the extension to allow
+a more detailed breakdown of factual and logical errors and submitting those 
+with another prompt for further analysis. This would allow the AI to have a 
+“second chance” to get things right. For a concrete example, ask an AI about an 
+obscure topic that you know about and that it gets wrong. Then ask it, “is that 
+true?” I’ve found that many times it will correct itself.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>I am delighted with the progress we’ve made in AI. While it’s not perfect, it’s
+getting pretty good and use cases like this seem tailor-made for it, even if
+it’s touching in areas where it traditionally hallucinates.</p>
+
+<p>In the early days of ChatGPT 2, we saw tremendous potential, even if the output
+was rubbish by today’s standards. With the rate of AI acceleration, I expect
+we’ll be saying the same thing about today’s tools in a few years.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/ai-for-accessibility.html" class="prevPost">&laquo; AI for Accessibility</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/using-ai-to-fight-misinformation.html";
+            this.page.identifier = "articles/using-ai-to-fight-misinformation";
+            this.page.title      = "Using AI to Fight Misinformation";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
