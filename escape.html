@@ -99,7 +99,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: 
+        background:
             linear-gradient(transparent 50%, rgba(0, 0, 0, 0.9) 50%),
             linear-gradient(90deg, #000046, #1CB5E0);
         background-size: 4px 4px, 100% 100%;
@@ -126,7 +126,7 @@
         font-size: 32px;
         margin-bottom: 50px;
         text-align: center;
-        text-shadow: 
+        text-shadow:
             0 0 10px rgba(255,255,255,0.8),
             0 0 20px rgba(255,255,255,0.8),
             0 0 30px rgba(255,255,255,0.8),
@@ -136,14 +136,14 @@
 
     @keyframes glow {
         from {
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(255,255,255,0.8),
                 0 0 20px rgba(255,255,255,0.8),
                 0 0 30px rgba(255,255,255,0.8),
                 4px 4px 0 #000;
         }
         to {
-            text-shadow: 
+            text-shadow:
                 0 0 20px rgba(255,255,255,0.8),
                 0 0 30px rgba(255,255,255,0.8),
                 0 0 40px rgba(255,255,255,0.8),
@@ -175,26 +175,26 @@
         text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
         box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
     }
-    
+
     .difficulty-btn::before {
         display: none;
     }
-    
+
     .difficulty-btn:hover {
         transform: translate(2px, 2px);
         box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
     }
-    
+
     #easy {
         background-color: #00ff00;
         border-color: #00cc00;
     }
-    
+
     #medium {
         background-color: #ffff00;
         border-color: #cccc00;
     }
-    
+
     #hard {
         background-color: #ff0000;
         border-color: #cc0000;
@@ -312,8 +312,17 @@
         const ctx                    = canvas.getContext('2d');
         const hudDifficulty          = document.getElementById('currentDifficulty');
         const announcementDifficulty = document.getElementById('announcementDifficulty');
-		const max_level              = 6;
+        const max_level              = 6;
         const door                   = 2;
+        const MOVEMENT_SPEED         = 5;
+
+        let lastMoveTime = 0;
+        let keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
 
         let CELL_SIZE = 40;
         let ROWS      = 15;
@@ -384,11 +393,10 @@
         let difficulty         = 'medium';
         let monsterSpeed       = 10; // Default speed (medium)
         let startingTeleports  = 2; // Default teleports (medium)
-		let playerPixelPos = { x: CELL_SIZE, y: CELL_SIZE };
-		let playerTargetPos = { x: CELL_SIZE, y: CELL_SIZE };
-		let monstersPixelPos = [];
-		let monstersTargetPos = [];
-		const MOVEMENT_SPEED = 5; 
+        let playerPixelPos = { x: CELL_SIZE, y: CELL_SIZE };
+        let playerTargetPos = { x: CELL_SIZE, y: CELL_SIZE };
+        let monstersPixelPos = [];
+        let monstersTargetPos = [];
 
         document.getElementById('easy').addEventListener('click', () => startGame('easy'));
         document.getElementById('medium').addEventListener('click', () => startGame('medium'));
@@ -472,18 +480,30 @@
             setTimeout(() => {
                 levelAnnouncement.classList.remove('visible');
             }, 3000);
-			playerPixelPos = {
-				x: player.x * CELL_SIZE,
-				y: player.y * CELL_SIZE
-			};
-			playerTargetPos = { ...playerPixelPos };
+            playerPixelPos = {
+                x: player.x * CELL_SIZE,
+                y: player.y * CELL_SIZE
+            };
+            playerTargetPos = { ...playerPixelPos };
 
-			// Initialize monster pixel positions
-			monstersPixelPos = monsters.map(m => ({
-				x: m.x * CELL_SIZE,
-				y: m.y * CELL_SIZE
-			}));
-			monstersTargetPos = monstersPixelPos.map(pos => ({ ...pos }));
+            // Initialize monster pixel positions
+            monstersPixelPos = monsters.map(m => ({
+                x: m.x * CELL_SIZE,
+                y: m.y * CELL_SIZE
+            }));
+            monstersTargetPos = monstersPixelPos.map(pos => ({ ...pos }));
+            playerPixelPos = {
+                x: player.x * CELL_SIZE,
+                y: player.y * CELL_SIZE
+            };
+            playerTargetPos = { ...playerPixelPos };
+
+            // Initialize monster pixel positions with proper alignment
+            monstersPixelPos = monsters.map(m => ({
+                x: m.x * CELL_SIZE,
+                y: m.y * CELL_SIZE
+            }));
+            monstersTargetPos = monstersPixelPos.map(pos => ({ ...pos }));
         }
 
         function generateMaze(rows, cols) {
@@ -568,10 +588,10 @@
             const y = playerPixelPos.y + CELL_SIZE / 2;
             const radius = CELL_SIZE / 3;
             const mouthAngle = Math.PI / 4;
-        
+
             let startAngle, endAngle;
             let eyeXOffset, eyeYOffset;
-        
+
             switch (playerDirection) {
                 case 'right':
                     startAngle = mouthAngle;
@@ -598,31 +618,31 @@
                     eyeYOffset = radius / 5.8;
                     break;
             }
-        
+
             ctx.fillStyle = '#ff0';
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.arc(x, y, radius, startAngle, endAngle, false);
             ctx.lineTo(x, y);
             ctx.fill();
-        
+
             ctx.fillStyle = '#00f';
             ctx.beginPath();
             ctx.arc(x + eyeXOffset, y + eyeYOffset, radius / 6, 0, Math.PI * 2);
             ctx.fill();
         }
-        
+
         // Update drawMonsters() to use pixel positions
         function drawMonsters() {
             const theme = getTheme(currentLevel);
             const ghostColors = theme.monsterColors;
-        
+
             for (let i = 0; i < monsters.length; i++) {
                 const x = monstersPixelPos[i].x + CELL_SIZE / 2;
                 const y = monstersPixelPos[i].y + CELL_SIZE / 2;
                 const color = ghostColors[i % ghostColors.length];
                 const radius = CELL_SIZE / 3;
-        
+
                 // Ghost body
                 ctx.fillStyle = color;
                 ctx.beginPath();
@@ -631,14 +651,14 @@
                 ctx.lineTo(x - radius, y + radius / 3);
                 ctx.closePath();
                 ctx.fill();
-        
+
                 // Ghost waves
                 ctx.beginPath();
                 for (let j = -1; j <= 1; j++) {
                     ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
                 }
                 ctx.fill();
-        
+
                 // Eyes
                 ctx.fillStyle = '#fff';
                 const eyeRadius = radius / 5;
@@ -646,7 +666,7 @@
                 ctx.arc(x - radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.arc(x + radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.fill();
-        
+
                 // Pupils
                 ctx.fillStyle = '#000';
                 const pupilRadius = radius / 10;
@@ -656,30 +676,128 @@
                 ctx.fill();
             }
         }
-        
-        // Add a new function to update positions
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key in keys) {
+                keys[e.key] = true;
+                e.preventDefault();
+            }
+
+            if (e.key === ' ') {
+                isPaused = !isPaused;
+                if (!isPaused) {
+                    levelAnnouncement.classList.remove('visible');
+                }
+                updateHUD();
+            } else if (e.key === 't' || e.key === 'T') {
+                teleportPlayer();
+            }
+
+            // Update player direction immediately on keypress
+            switch (e.key) {
+                case 'ArrowRight': playerDirection = 'right'; break;
+                case 'ArrowLeft': playerDirection = 'left'; break;
+                case 'ArrowUp': playerDirection = 'up'; break;
+                case 'ArrowDown': playerDirection = 'down'; break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key in keys) {
+                keys[e.key] = false;
+                e.preventDefault();
+            }
+        });
+
         function updatePositions() {
             if (isPaused) return;
-        
-            // Update player position
-            const dx = playerTargetPos.x - playerPixelPos.x;
-            const dy = playerTargetPos.y - playerPixelPos.y;
-            
-            if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
-                playerPixelPos.x += Math.sign(dx) * Math.min(Math.abs(dx), MOVEMENT_SPEED);
-                playerPixelPos.y += Math.sign(dy) * Math.min(Math.abs(dy), MOVEMENT_SPEED);
-            } else {
-                playerPixelPos = { ...playerTargetPos };
+
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastMoveTime;
+            lastMoveTime = currentTime;
+
+            const moveSpeed = MOVEMENT_SPEED * (deltaTime / 16.67); // 60fps normalized
+
+            // Calculate movement
+            let dx = 0;
+            let dy = 0;
+
+            // Only allow one direction at a time to maintain grid alignment
+            if (keys.ArrowRight) {
+                dx += moveSpeed;
+                playerDirection = 'right';
+            } else if (keys.ArrowLeft) {
+                dx -= moveSpeed;
+                playerDirection = 'left';
+            } else if (keys.ArrowDown) {
+                dy += moveSpeed;
+                playerDirection = 'down';
+            } else if (keys.ArrowUp) {
+                dy -= moveSpeed;
+                playerDirection = 'up';
             }
-        
+
+            // Apply movement
+            if (dx !== 0 || dy !== 0) {
+                const newPixelX = playerPixelPos.x + dx;
+                const newPixelY = playerPixelPos.y + dy;
+
+                // Get current and target grid positions
+                const currentGridX = Math.round(playerPixelPos.x / CELL_SIZE);
+                const currentGridY = Math.round(playerPixelPos.y / CELL_SIZE);
+                const targetGridX = Math.round(newPixelX / CELL_SIZE);
+                const targetGridY = Math.round(newPixelY / CELL_SIZE);
+
+                // Handle horizontal movement
+                if (dx !== 0) {
+                    if (targetGridX >= 0 && targetGridX < COLS && maze[currentGridY][targetGridX] !== 1) {
+                        playerPixelPos.x = newPixelX;
+                        // Keep vertical position aligned to grid
+                        playerPixelPos.y = currentGridY * CELL_SIZE;
+                    } else {
+                        // Align to grid when hitting a wall
+                        playerPixelPos.x = currentGridX * CELL_SIZE;
+                    }
+                }
+
+                // Handle vertical movement
+                if (dy !== 0) {
+                    if (targetGridY >= 0 && targetGridY < ROWS && maze[targetGridY][currentGridX] !== 1) {
+                        playerPixelPos.y = newPixelY;
+                        // Keep horizontal position aligned to grid
+                        playerPixelPos.x = currentGridX * CELL_SIZE;
+                    } else {
+                        // Align to grid when hitting a wall
+                        playerPixelPos.y = currentGridY * CELL_SIZE;
+                    }
+                }
+
+                // Update grid position
+                player.x = Math.round(playerPixelPos.x / CELL_SIZE);
+                player.y = Math.round(playerPixelPos.y / CELL_SIZE);
+
+                // Check for door
+                if (maze[player.y][player.x] === door) {
+                    currentLevel++;
+                    isPaused = true;
+                    if (currentLevel >= max_level) {
+                        alert('Congratulations! You won the game!');
+                        currentLevel = 1;
+                        teleports = 1;
+                    }
+                    initGame();
+                    return;
+                }
+            }
+
             // Update monster positions
             for (let i = 0; i < monsters.length; i++) {
                 const dx = monstersTargetPos[i].x - monstersPixelPos[i].x;
                 const dy = monstersTargetPos[i].y - monstersPixelPos[i].y;
-                
+
                 if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
-                    monstersPixelPos[i].x += Math.sign(dx) * Math.min(Math.abs(dx), MOVEMENT_SPEED);
-                    monstersPixelPos[i].y += Math.sign(dy) * Math.min(Math.abs(dy), MOVEMENT_SPEED);
+                    monstersPixelPos[i].x += Math.sign(dx) * Math.min(Math.abs(dx), moveSpeed);
+                    monstersPixelPos[i].y += Math.sign(dy) * Math.min(Math.abs(dy), moveSpeed);
                 } else {
                     monstersPixelPos[i] = { ...monstersTargetPos[i] };
                 }
@@ -690,68 +808,119 @@
             if (isPaused) return;
             monsterMoveCounter++;
             if (monsterMoveCounter % monsterSpeed !== 0) return;
-        
+
             // Only move monsters if they've reached their target positions
-            const allMonstersAtTarget = monsters.every((m, i) => 
-                Math.abs(monstersPixelPos[i].x - monstersTargetPos[i].x) < 0.1 && 
+            const allMonstersAtTarget = monsters.every((m, i) =>
+                Math.abs(monstersPixelPos[i].x - monstersTargetPos[i].x) < 0.1 &&
                 Math.abs(monstersPixelPos[i].y - monstersTargetPos[i].y) < 0.1
             );
-        
+
             if (!allMonstersAtTarget) return;
-        
-            const newPositions = [];
-        
-            for (const monster of monsters) {
+
+            // Calculate all possible moves for each monster
+            const monsterMoves = monsters.map((monster, idx) => {
                 const possibleMoves = [];
-        
-                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1)
-                    possibleMoves.push({ x: monster.x - 1, y: monster.y });
-                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1)
-                    possibleMoves.push({ x: monster.x + 1, y: monster.y });
-                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1)
-                    possibleMoves.push({ x: monster.x, y: monster.y - 1 });
-                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1)
-                    possibleMoves.push({ x: monster.x, y: monster.y + 1 });
-        
-                possibleMoves.sort((a, b) => {
-                    const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
-                    const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
-                    return distA - distB;
+                const distanceToPlayer = Math.abs(monster.x - player.x) + Math.abs(monster.y - player.y);
+
+                // Check all four directions
+                const directions = [
+                    { x: -1, y: 0 }, // left
+                    { x: 1, y: 0 },  // right
+                    { x: 0, y: -1 }, // up
+                    { x: 0, y: 1 }   // down
+                ];
+
+                for (const dir of directions) {
+                    const newX = monster.x + dir.x;
+                    const newY = monster.y + dir.y;
+
+                    if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
+                        const newDist = Math.abs(newX - player.x) + Math.abs(newY - player.y);
+                        possibleMoves.push({
+                            x: newX,
+                            y: newY,
+                            dist: newDist,
+                            betterThanCurrent: newDist < distanceToPlayer
+                        });
+                    }
+                }
+
+                // Also consider staying in place if no good moves are available
+                possibleMoves.push({
+                    x: monster.x,
+                    y: monster.y,
+                    dist: distanceToPlayer,
+                    betterThanCurrent: false
                 });
-        
-                if (possibleMoves.length > 0) {
-                    newPositions.push({ x: possibleMoves[0].x, y: possibleMoves[0].y });
-                } else {
-                    newPositions.push({ x: monster.x, y: monster.y });
+
+                return {
+                    monsterId: idx,
+                    currentPos: monster,
+                    moves: possibleMoves
+                };
+            });
+
+            // Try to move monsters in order of those with fewest options first
+            monsterMoves.sort((a, b) => a.moves.length - b.moves.length);
+
+            // Keep track of occupied positions
+            const occupiedPositions = new Set(
+                monsters.map(m => `${m.x},${m.y}`)
+                    .filter((pos, idx) => idx !== monsters.length - 1) // Allow last position to be vacated
+            );
+
+            // Process each monster's movement
+            const newPositions = [...monsters];
+
+            for (const monsterMove of monsterMoves) {
+                const monster = monsterMove.currentPos;
+                let bestMove = null;
+                let bestScore = Infinity;
+
+                // Remove current position from occupied set
+                occupiedPositions.delete(`${monster.x},${monster.y}`);
+
+                // Evaluate each possible move
+                for (const move of monsterMove.moves) {
+                    const posKey = `${move.x},${move.y}`;
+                    if (!occupiedPositions.has(posKey)) {
+                        // Score based on distance to player and whether it's an improvement
+                        let score = move.dist;
+                        if (!move.betterThanCurrent) score += 10; // Penalty for not improving position
+                        if (move.x === monster.x && move.y === monster.y) score += 5; // Small penalty for staying still
+
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestMove = move;
+                        }
+                    }
+                }
+
+                if (bestMove) {
+                    newPositions[monsterMove.monsterId] = { x: bestMove.x, y: bestMove.y };
+                    occupiedPositions.add(`${bestMove.x},${bestMove.y}`);
                 }
             }
-        
-            const positionSet = new Set();
-            let conflict = false;
-            for (const pos of newPositions) {
-                const posKey = `${pos.x},${pos.y}`;
-                if (positionSet.has(posKey)) {
-                    conflict = true;
-                    break;
-                }
-                positionSet.add(posKey);
-            }
-        
-            if (!conflict) {
-                for (let i = 0; i < monsters.length; i++) {
-                    monsters[i].x = newPositions[i].x;
-                    monsters[i].y = newPositions[i].y;
-                    monstersTargetPos[i] = {
-                        x: monsters[i].x * CELL_SIZE,
-                        y: monsters[i].y * CELL_SIZE
-                    };
-                }
+
+            // Update monster positions and targets
+            for (let i = 0; i < monsters.length; i++) {
+                monsters[i] = { ...newPositions[i] };
+                monstersTargetPos[i] = {
+                    x: monsters[i].x * CELL_SIZE,
+                    y: monsters[i].y * CELL_SIZE
+                };
             }
         }
 
         function checkCollision() {
-            for (const monster of monsters) {
-                if (monster.x === player.x && monster.y === player.y) {
+            const playerGridX = Math.round(playerPixelPos.x / CELL_SIZE);
+            const playerGridY = Math.round(playerPixelPos.y / CELL_SIZE);
+
+            for (let i = 0; i < monsters.length; i++) {
+                const monsterGridX = Math.round(monstersPixelPos[i].x / CELL_SIZE);
+                const monsterGridY = Math.round(monstersPixelPos[i].y / CELL_SIZE);
+
+                if (monsterGridX === playerGridX && monsterGridY === playerGridY) {
                     alert(`Game Over! You were caught by a monster.\nDifficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`);
                     showDifficultySelect();
                     return;
@@ -764,9 +933,25 @@
             gameStarted = false;
             currentLevel = 1;
             teleports = 1;
+
+            // Reset movement state
+            keys = {
+                ArrowUp: false,
+                ArrowDown: false,
+                ArrowLeft: false,
+                ArrowRight: false
+            };
+            playerDirection = 'right';  // Reset direction to default
+
+            // Ensure player is properly aligned to grid
+            playerPixelPos = {
+                x: CELL_SIZE,
+                y: CELL_SIZE
+            };
+            player = { x: 1, y: 1 };
+
             updateHUD();
         }
-
         function updateHUD() {
             hudLevel.textContent = currentLevel;
             hudTheme.textContent = getTheme(currentLevel).name;
@@ -793,18 +978,18 @@
                     };
                 } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
                         monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
-        
+
                 // Update both grid and pixel positions
                 player.x = newPlayerPosition.x;
                 player.y = newPlayerPosition.y;
-                
+
                 // Instantly move to new position (no animation)
                 playerPixelPos = {
                     x: player.x * CELL_SIZE,
                     y: player.y * CELL_SIZE
                 };
                 playerTargetPos = { ...playerPixelPos };
-        
+
                 teleports--;
                 // Pause the game after teleporting
                 isPaused = true;
@@ -817,7 +1002,7 @@
                 requestAnimationFrame(gameLoop);
                 return;
             }
-        
+
             drawMaze();
             updatePositions();
             drawPlayer();
@@ -828,63 +1013,6 @@
             }
             requestAnimationFrame(gameLoop);
         }
-
-
-        document.addEventListener('keydown', (e) => {
-
-            const key = e.key;
-
-            if (key === 'ArrowRight') {
-                playerDirection = 'right';
-            } else if (key === 'ArrowLeft') {
-                playerDirection = 'left';
-            } else if (key === 'ArrowUp') {
-                playerDirection = 'up';
-            } else if (key === 'ArrowDown') {
-                playerDirection = 'down';
-            }
-
-            if (key === ' ') {
-                isPaused = !isPaused;
-                if (!isPaused) {
-                    levelAnnouncement.classList.remove('visible');
-                }
-                updateHUD();
-                return;
-            }
-
-            if (isPaused) return;
-
-			const newX = player.x + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0);
-			const newY = player.y + (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0);
-
-			if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
-				// Only allow movement if player has reached their current target
-				if (Math.abs(playerPixelPos.x - playerTargetPos.x) < 0.1 && 
-					Math.abs(playerPixelPos.y - playerTargetPos.y) < 0.1) {
-					player.x = newX;
-					player.y = newY;
-					playerTargetPos = {
-						x: player.x * CELL_SIZE,
-						y: player.y * CELL_SIZE
-					};
-				}
-
-				if (maze[newY][newX] === door) {
-                    currentLevel++;
-                    isPaused = true;
-                    if (currentLevel >= max_level) {
-                        alert('Congratulations! You won the game!');
-                        currentLevel = 1;
-                        teleports = 1;
-                    }
-                    initGame();
-                }
-        }
-            if (e.key === 't' || e.key === 'T') {
-                teleportPlayer();
-            }
-        });
 
         function resizeCanvas() {
             const container = document.getElementById('container');
