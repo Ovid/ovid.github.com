@@ -92,9 +92,71 @@
             font-size: 36px;
             margin-top: 10px;
         }
+        #difficultySelect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #difficultySelect h2 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .difficulty-btn {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.1);
+            background-color: #666;
+        }
+
+        #easy { background-color: #4caf50; }
+        #medium { background-color: #ff9800; }
+        #hard { background-color: #f44336; }
+
+        .difficulty-desc {
+            color: #ccc;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+	<div id="difficultySelect">
+		<h2>Select Difficulty</h2>
+		<div>
+			<button id="easy" class="difficulty-btn">Easy</button>
+			<div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
+		</div>
+		<div>
+			<button id="medium" class="difficulty-btn">Medium</button>
+			<div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
+		</div>
+		<div>
+			<button id="hard" class="difficulty-btn">Hard</button>
+			<div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
+		</div>
+	</div>
     <div id="container">
         <div id="sidebar">
             <h1><a name="escape"></a>Escape!</h1>
@@ -116,8 +178,7 @@
                     <li>Reach level 6 to win!</li>
                 </ul>
                 <p>This game was primarily built as an experiment with Claude
-                3.5 Sonnet, and ChatGPT 4. Sometimes the monsters get
-                stuck, but this is just a toy and it was fun to build.</p>
+                3.5 Sonnet, and ChatGPT 4.</p>
             </div>
         </div>
         <div id="levelAnnouncement">
@@ -195,53 +256,100 @@
             return THEMES[((level - 1) % 5) + 1];
         }
 
-		let playerDirection = 'right';
-		let isPaused = true;
-		let currentLevel = 1;
-		let player = { x: 1, y: 1 };
-		let monsters = [];
-		let maze = [];
-		let stairs = { x: 0, y: 0 };
-		let teleports = 1;
+		let playerDirection    = 'right';
+		let isPaused           = true;
+		let currentLevel       = 1;
+		let player             = { x: 1, y: 1 };
+		let monsters           = [];
+		let maze               = [];
+		let stairs             = { x: 0, y: 0 };
+		let teleports          = 1;
 		let monsterMoveCounter = 0;
+        let gameStarted        = false;
+        let difficulty         = 'medium';
+        let monsterSpeed       = 10; // Default speed (medium)
+        let startingTeleports  = 2; // Default teleports (medium)
 
-		function initGame() {
-			maze = generateMaze(ROWS, COLS);
-			player = { x: 1, y: 1 };
-			monsters = [];
-			const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
+		document.getElementById('easy').addEventListener('click', () => startGame('easy'));
+		document.getElementById('medium').addEventListener('click', () => startGame('medium'));
+		document.getElementById('hard').addEventListener('click', () => startGame('hard'));
 
-			// Add monsters based on level
-			const numMonsters = Math.min(currentLevel - 1, 5);
-			if (numMonsters > 0) {
-				for (let i = 0; i < numMonsters; i++) {
-					let monsterX, monsterY;
-					do {
-						monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
-						monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
-					} while (maze[monsterY][monsterX] !== 0 ||
-							Math.abs(monsterX - player.x) < minDistance ||
-							Math.abs(monsterY - player.y) < minDistance);
+function startGame(selectedDifficulty) {
+    difficulty = selectedDifficulty;
+    
+    switch(difficulty) {
+        case 'easy':
+            monsterSpeed = 15;
+            startingTeleports = 3;
+            break;
+        case 'medium':
+            monsterSpeed = 10;
+            startingTeleports = 2;
+            break;
+        case 'hard':
+            monsterSpeed = 6;
+            startingTeleports = 1;
+            break;
+    }
+    
+    document.getElementById('difficultySelect').style.display = 'none';
+    gameStarted = true;
+    currentLevel = 1;
+    teleports = startingTeleports;
+    monsters = [];  // Ensure monsters array is clear
+    initGame();
+}
 
-					monsters.push({ x: monsterX, y: monsterY });
-				}
-			}
-			stairs = { x: COLS - 2, y: ROWS - 2 };
-			maze[stairs.y][stairs.x] = 2;
-			teleports += 1; // Earn one teleport per level
-
-            // Show level announcement
-            announcementLevel.textContent = currentLevel;
-            levelName.textContent = getTheme(currentLevel).name;
-            levelAnnouncement.classList.add('visible');
-
-            // Hide announcement after 3 seconds
-            setTimeout(() => {
-                levelAnnouncement.classList.remove('visible');
-            }, 3000);
-
-			updateHUD();
-		}
+function initGame() {
+    // Generate new maze
+    maze = generateMaze(ROWS, COLS);
+    
+    // Reset player position
+    player = { x: 1, y: 1 };
+    
+    // Clear and regenerate monsters
+    monsters = [];
+    
+    // Only add monsters after level 1
+    if (currentLevel > 1) {
+        const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
+        const numMonsters = Math.min(currentLevel - 1, 5);
+        
+        for (let i = 0; i < numMonsters; i++) {
+            let monsterX, monsterY;
+            do {
+                monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
+                monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
+            } while (
+                maze[monsterY][monsterX] !== 0 ||
+                Math.abs(monsterX - player.x) < minDistance ||
+                Math.abs(monsterY - player.y) < minDistance
+            );
+            monsters.push({ x: monsterX, y: monsterY });
+        }
+    }
+    
+    // Set exit position
+    stairs = { x: COLS - 2, y: ROWS - 2 };
+    maze[stairs.y][stairs.x] = 2;
+    
+    // Handle teleports
+    if (gameStarted) {
+        teleports += 1;
+    } else {
+        teleports = startingTeleports;
+    }
+    
+    updateHUD();
+    
+    // Show level announcement
+    announcementLevel.textContent = currentLevel;
+    levelName.textContent = getTheme(currentLevel).name;
+    levelAnnouncement.classList.add('visible');
+    setTimeout(() => {
+        levelAnnouncement.classList.remove('visible');
+    }, 3000);
+}
 
         function generateMaze(rows, cols) {
             const maze = Array(rows).fill().map(() => Array(cols).fill(1));
@@ -417,7 +525,7 @@
         function moveMonsters() {
             if (isPaused) return;
             monsterMoveCounter++;
-            if (monsterMoveCounter % 10 !== 0) return;
+            if (monsterMoveCounter % monsterSpeed !== 0) return;
 
             const newPositions = [];
 
@@ -468,9 +576,9 @@
         function checkCollision() {
             for (const monster of monsters) {
                 if (monster.x === player.x && monster.y === player.y) {
-                    alert('Game Over! You were caught by a monster.');
+                    alert(`Game Over! You were caught by a monster.\nDifficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`);
                     currentLevel = 1;
-                    teleports = 1;
+                    teleports = startingTeleports;
                     initGame();
                     return;
                 }
@@ -510,17 +618,21 @@
                 updateHUD();
             }
         }
-
-        function gameLoop() {
-            drawMaze();
-            drawPlayer();
-            drawMonsters();
-            if (!isPaused) {
-                moveMonsters();
-                checkCollision();
-            }
-            requestAnimationFrame(gameLoop);
-        }
+function gameLoop() {
+    if (!gameStarted) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    
+    drawMaze();
+    drawPlayer();
+    drawMonsters();
+    if (!isPaused) {
+        moveMonsters();
+        checkCollision();
+    }
+    requestAnimationFrame(gameLoop);
+}
 
         document.addEventListener('keydown', (e) => {
             const key = e.key;
@@ -588,7 +700,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        initGame();
         gameLoop();
     </script>
 </body>
