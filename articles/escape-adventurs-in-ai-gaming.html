@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/escape-adventurs-in-ai-gaming.html" />
+  
+  <meta property="og:title" content="Escape!-Adventurs in AI Gaming" />
+  <meta property="og:description" content="I have updated my previous work with Claude to dramatically improve a Javascript game." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Escape!-Adventurs in AI Gaming</title>
+  <meta name="description" content="Escape!-Adventurs in AI Gaming">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Escape!-Adventurs in AI Gaming</h1>
+        <time>2024-11-16</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="three columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Technical Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Personal Articles</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Public Speaking</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://twitter.com/OvidPerl">Twitter</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="3">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="nine columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/using-ai-to-fight-misinformation.html" class="prevPost">&laquo; Using AI to Fight Misinformation</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+    <li><a href="/tags/programming.html">Programming</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#this-time-the-game-is-fun">This Time, the Game is Fun!</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>Previously in my attempts <a href="/articles/claude-sonnet-35-beats-chatgpt-40.html">to write a JavaScript game
+with AI</a>, I was trying out
+Claude 3.5 Sonnet and I was impressed because it was definitely coding better
+than ChatGPT 4o. There are rumors that OpenAI will be releasing a new model
+next year, but the word in the industry is that newer models seem to be
+incremental improvements rather than seismic ones. I’m happy about that because
+I want to see more work leveraging what we have (including reducing energy
+consumption!) rather than the mad rush to build bigger and better <a href="https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a" target="_blank">nuclear
+powered AI</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>So yesterday, after a frustrating day of trying to make vector databases play
+better with Perl, I put that aside a bit and returned to the game. I previously hit
+my limit with Claude, but now I’m paying for it (along with ChatGPT and Gemini). I decided
+to make the game more useful (it’s still awful on mobile). Along the way, I took detours
+into ChatGPT and Gemini.</p>
+
+<p><a href="/escape.html">The game is here</a>, if you want to skip the article.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/space-station-level.png" width="600" alt="The image displays a video game screen for &quot;Level 3: Space Station,&quot; featuring a dark background with a grid of light squares. In the center, there are two colorful characters—one blue and one red—along with a yellow object at the bottom right, indicating the player's position or goal.">
+    <figcaption>The Space Station Level </figcaption>
+    </div>
+</figure></p>
+
+<h1><a name="this-time-the-game-is-fun"></a>This Time, the Game is Fun!</h1>
+
+<p>I turned to Claude first. Claude has now become my <em>go to</em> assistant for coding,
+writing, and brainstorming. Unfortunately, it’s still a bit slow and if you have
+long sessions, it gets cranky and limits your access for a while. But still,
+when I can use it, it’s the best.</p>
+
+<p>So, step-by-step, I started adding various features.</p>
+
+<ol>
+<li>Select “Easy,” “Medium,” and “Hard” difficulty levels</li>
+<li>Create themes for each level, such as “Forest,” or “Ice Cave”</li>
+<li>One teleport per level, but unused teleports carry over</li>
+<li>You win if you can reach level 6 (not easy on hard!)</li>
+<li>Resize the game to fit your browser.</li>
+</ol>
+
+<p>The game was kind of fun before, but now it’s a cross between a thinking
+game, and a logic puzzle. You can pause with the space bar and try to figure
+out if your reflexes are fast enough to sneak past the monsters. The different
+themes per level really make the game stand out. I’m enjoying it.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/pacman-bad-eyes.png" width="600" alt="A pacman-like character with the eye on the rim of the mouth">
+    <figcaption>The eyes were awful. </figcaption>
+    </div>
+</figure></p>
+
+<p>It was a pleasant hour or so, adding all of these features and tweaking the game
+play, but there was one thing I finally couldn’t stand any more. Claude had
+never been able to get the eyes right. I decided to tackle that.</p>
+
+<p>It was a frustrating fifteen minutes, with eyes all over the place. I finally
+gave up and turned to ChatGPT. Wash, rinse, repeat. This, apparently, is a hard
+problem. My goal of writing no code wasn’t working. I was about to adjust the
+code, when I had a thought. A curious thought. One that rarely turns out well
+for me.</p>
+
+<p>I turned to Google’s Gemini. I have a paid account there, too. Mainly this is
+for the one million token context window and the Google Docs integration. Those
+are Gemini’s saving grace. Nothing else is good. I knew Gemini would fail, but I
+gave it a shot. I uploaded the image, shared the HTML, and wrote the following
+prompt:</p>
+
+<blockquote>
+  <p>For the following game, you’ll notice that the eye of the main character is on
+  the edge of the mouth. I would like it positioned more naturally in the head.
+  I’ve tried with other LLMs and they either lose the pacman shape altogether,
+  or they get the eye outside the head entirely.</p>
+</blockquote>
+
+<p>Have I mentioned that Gemini is terrible? Yes, it’s terrible. So imagine my
+shock when I applied it’s suggestion and it worked! Unlike Claude and ChatGPT,
+it actually moved the eye closer inside the body. I was stunned. This was the
+first time that Gemini undeniably did something Claude and ChatGPT couldn’t.
+Fantastic!</p>
+
+<p>But even though it correctly moved the eye, it was still touching the lip, even
+though it wasn’t overlapping it. So I issued another prompt:</p>
+
+<blockquote>
+  <p>That definitely looks better. Can you move it a bit further inside the body?</p>
+</blockquote>
+
+<p><a href="https://gemini.google.com/app/eeced9653ed03a4e" target="_blank">And Gemini dutifully replied</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>I’m a text-based AI, and that is outside of my capabilities.</p>
+</blockquote>
+
+<p>Have I mentioned that Gemini is terrible?</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>I’m looking forward to the next release of ChatGPT, but for now, Claude is still
+my first choice. Gemini is terrible. That’s a shame because Google clearly has
+the skills to do amazing things and I love some of the research papers they’re
+releasing around AIs, particularly their work in reducing hallucinations, but
+for now, if you’re not using Google Docs, it’s just not worth it.</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/using-ai-to-fight-misinformation.html" class="prevPost">&laquo; Using AI to Fight Misinformation</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="three columns">
+        <p></p>
+      </div>
+      <div class="nine columns">
+        <hr>
+        <p>Copyright &copy; 2018-2024 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/escape-adventurs-in-ai-gaming.html";
+            this.page.identifier = "articles/escape-adventurs-in-ai-gaming";
+            this.page.title      = "Escape!-Adventurs in AI Gaming";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+

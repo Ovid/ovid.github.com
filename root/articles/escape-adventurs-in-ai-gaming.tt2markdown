@@ -1,0 +1,116 @@
+[%
+    title            = 'Escape!-Adventurs in AI Gaming';
+    type             = 'articles';
+    slug             = 'escape-adventurs-in-ai-gaming';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-11-16';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS programming ai}}
+
+# Introduction
+
+Previously in my attempts [to write a JavaScript game
+with AI](/articles/claude-sonnet-35-beats-chatgpt-40.html), I was trying out
+Claude 3.5 Sonnet and I was impressed because it was definitely coding better
+than ChatGPT 4o. There are rumors that OpenAI will be releasing a new model
+next year, but the word in the industry is that newer models seem to be
+incremental improvements rather than seismic ones. I'm happy about that because
+I want to see more work leveraging what we have (including reducing energy
+consumption!) rather than the mad rush to build bigger and better [nuclear
+powered AI](https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a).
+
+So yesterday, after a frustrating day of trying to make vector databases play
+better with Perl, I put that aside a bit and returned to the game. I previously hit
+my limit with Claude, but now I'm paying for it (along with ChatGPT and Gemini). I decided
+to make the game more useful (it's still awful on mobile). Along the way, I took detours
+into ChatGPT and Gemini.
+
+[The game is here](/escape.html), if you want to skip the article.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/space-station-level.png"
+   alt      = 'The image displays a video game screen for "Level 3: Space Station," featuring a dark background with a grid of light squares. In the center, there are two colorful characters—one blue and one red—along with a yellow object at the bottom right, indicating the player\'s position or goal.'
+   caption  = "The Space Station Level"
+%]
+
+# This Time, the Game is Fun!
+
+I turned to Claude first. Claude has now become my _go to_ assistant for coding,
+writing, and brainstorming. Unfortunately, it's still a bit slow and if you have
+long sessions, it gets cranky and limits your access for a while. But still,
+when I can use it, it's the best.
+
+So, step-by-step, I started adding various features.
+
+1. Select "Easy," "Medium," and "Hard" difficulty levels
+2. Create themes for each level, such as "Forest," or "Ice Cave"
+3. One teleport per level, but unused teleports carry over
+4. You win if you can reach level 6 (not easy on hard!)
+5. Resize the game to fit your browser.
+
+The game was kind of fun before, but now it's a cross between a thinking
+game, and a logic puzzle. You can pause with the space bar and try to figure
+out if your reflexes are fast enough to sneak past the monsters. The different
+themes per level really make the game stand out. I'm enjoying it.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/pacman-bad-eyes.png"
+   alt      = 'A pacman-like character with the eye on the rim of the mouth'
+   caption  = "The eyes were awful."
+%]
+
+It was a pleasant hour or so, adding all of these features and tweaking the game
+play, but there was one thing I finally couldn't stand any more. Claude had
+never been able to get the eyes right. I decided to tackle that.
+
+It was a frustrating fifteen minutes, with eyes all over the place. I finally
+gave up and turned to ChatGPT. Wash, rinse, repeat. This, apparently, is a hard
+problem. My goal of writing no code wasn't working. I was about to adjust the
+code, when I had a thought. A curious thought. One that rarely turns out well
+for me.
+
+I turned to Google's Gemini. I have a paid account there, too. Mainly this is
+for the one million token context window and the Google Docs integration. Those
+are Gemini's saving grace. Nothing else is good. I knew Gemini would fail, but I
+gave it a shot. I uploaded the image, shared the HTML, and wrote the following
+prompt:
+
+> For the following game, you'll notice that the eye of the main character is on
+> the edge of the mouth. I would like it positioned more naturally in the head.
+> I've tried with other LLMs and they either lose the pacman shape altogether,
+> or they get the eye outside the head entirely.
+
+Have I mentioned that Gemini is terrible? Yes, it's terrible. So imagine my
+shock when I applied it's suggestion and it worked! Unlike Claude and ChatGPT,
+it actually moved the eye closer inside the body. I was stunned. This was the
+first time that Gemini undeniably did something Claude and ChatGPT couldn't.
+Fantastic!
+
+But even though it correctly moved the eye, it was still touching the lip, even
+though it wasn't overlapping it. So I issued another prompt:
+
+> That definitely looks better. Can you move it a bit further inside the body?
+
+[And Gemini dutifully replied](https://gemini.google.com/app/eeced9653ed03a4e):
+
+> I'm a text-based AI, and that is outside of my capabilities.
+
+Have I mentioned that Gemini is terrible?
+
+# Conclusion
+
+I'm looking forward to the next release of ChatGPT, but for now, Claude is still
+my first choice. Gemini is terrible. That's a shame because Google clearly has
+the skills to do amazing things and I love some of the research papers they're
+releasing around AIs, particularly their work in reducing hallucinations, but
+for now, if you're not using Google Docs, it's just not worth it.
+
+[%- END %]
