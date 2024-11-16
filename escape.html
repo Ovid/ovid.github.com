@@ -92,71 +92,92 @@
             font-size: 36px;
             margin-top: 10px;
         }
-        #difficultySelect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+    #difficultySelect {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
 
-        #difficultySelect h2 {
-            color: white;
-            font-size: 32px;
-            margin-bottom: 30px;
-        }
+    #difficultySelect h2 {
+        color: white;
+        font-size: 48px;
+        margin-bottom: 50px;
+        font-weight: bold;
+        text-align: center;
+    }
 
-        .difficulty-btn {
-            background-color: #4a4a4a;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
+    .difficulty-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+        width: 300px;
+    }
 
-        .difficulty-btn:hover {
-            transform: scale(1.1);
-            background-color: #666;
-        }
+    .difficulty-btn {
+        width: 100%;
+        padding: 20px;
+        font-size: 28px;
+        font-weight: bold;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.2s, filter 0.2s;
+        margin-bottom: 10px;
+    }
 
-        #easy { background-color: #4caf50; }
-        #medium { background-color: #ff9800; }
-        #hard { background-color: #f44336; }
+    .difficulty-btn:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+    }
 
-        .difficulty-desc {
-            color: #ccc;
-            font-size: 14px;
-            margin-top: 5px;
-            text-align: center;
-        }
+    .difficulty-desc {
+        color: #ccc;
+        font-size: 18px;
+        text-align: center;
+        font-weight: 300;
+    }
+
+    #easy {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    #medium {
+        background-color: #FF9800;
+        color: white;
+    }
+
+    #hard {
+        background-color: #F44336;
+        color: white;
+    }
     </style>
 </head>
 <body>
-	<div id="difficultySelect">
-		<h2>Select Difficulty</h2>
-		<div>
-			<button id="easy" class="difficulty-btn">Easy</button>
-			<div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
-		</div>
-		<div>
-			<button id="medium" class="difficulty-btn">Medium</button>
-			<div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
-		</div>
-		<div>
-			<button id="hard" class="difficulty-btn">Hard</button>
-			<div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
-		</div>
-	</div>
+<div id="difficultySelect">
+    <h2>Select Difficulty</h2>
+    <div class="difficulty-option">
+        <button id="easy" class="difficulty-btn">Easy</button>
+        <div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
+    </div>
+    <div class="difficulty-option">
+        <button id="medium" class="difficulty-btn">Medium</button>
+        <div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
+    </div>
+    <div class="difficulty-option">
+        <button id="hard" class="difficulty-btn">Hard</button>
+        <div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
+    </div>
+</div>
     <div id="container">
         <div id="sidebar">
             <h1><a name="escape"></a>Escape!</h1>
