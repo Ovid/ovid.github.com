@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Escape Game</title>
+    <title>Themed Maze Escape Game</title>
     <style>
         html, body {
             margin: 0;
@@ -49,6 +49,10 @@
             font-size: clamp(20px, 3vw, 24px);
             margin: 0 0 15px 0;
         }
+        #theme {
+            font-weight: bold;
+            color: #444;
+        }
         @media (max-width: 768px) {
             #container {
                 flex-direction: column;
@@ -72,6 +76,7 @@
             <h1><a name="escape"></a>Escape!</h1>
             <div id="hud">
                 <div>Level: <span id="level">1</span></div>
+                <div>Theme: <span id="theme">Forest</span></div>
                 <div>Teleports: <span id="teleports">1</span></div>
                 <div id="pausedStatus">Paused: <span id="paused">Yes</span></div>
             </div>
@@ -86,8 +91,9 @@
                     <li>Unused teleports carry over to next level.</li>
                     <li>Reach level 6 to win!</li>
                 </ul>
-                <p>This game was primarily built as an experiment with Claude
-                3.5 Sonnet, and ChatGPT 4. Released under the MIT License.</p>
+                <p>This game was primarily built as an experiment with Claude 
+                3.5 Sonnet, and ChatGPT 4. Sometimes the monsters get 
+                stuck, but this is just a toy and it was fun to build.</p>
             </div>
         </div>
         <canvas id="gameCanvas"></canvas>
@@ -97,6 +103,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const hudLevel = document.getElementById('level');
+        const hudTheme = document.getElementById('theme');
         const hudTeleports = document.getElementById('teleports');
         const hudPaused = document.getElementById('paused');
         const pausedStatus = document.getElementById('pausedStatus');
@@ -105,49 +112,109 @@
         let ROWS = 15;
         let COLS = 20;
 
-        function resizeCanvas() {
-            const container = document.getElementById('container');
-            const sidebar = document.getElementById('sidebar');
-            const maxWidth = window.innerWidth * 0.95 - sidebar.offsetWidth - 40;
-            const maxHeight = window.innerHeight * 0.95;
+        const THEMES = {
+            1: {
+                name: 'Forest',
+                wallColor: '#2d5a27',      // Dark green
+                wallStroke: '#3a7634',     // Lighter green
+                floorColor: '#90a955',     // Light moss green
+                doorColor: '#8b4513',      // Brown
+                doorDetail: '#a0522d',     // Lighter brown
+                monsterColors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#88d8b0']  // Forest creatures
+            },
+            2: {
+                name: 'Dungeon',
+                wallColor: '#4a4e69',      // Dark stone
+                wallStroke: '#686d8c',     // Lighter stone
+                floorColor: '#22223b',     // Dark floor
+                doorColor: '#9b2226',      // Dark red
+                doorDetail: '#ae2012',     // Lighter red
+                monsterColors: ['#800e13', '#9b2226', '#ae2012', '#bb3e03', '#ca6702']  // Fire tones
+            },
+            3: {
+                name: 'Space Station',
+                wallColor: '#2b2d42',      // Dark blue
+                wallStroke: '#8d99ae',     // Metal grey
+                floorColor: '#14213d',     // Deep space blue
+                doorColor: '#fca311',      // Warning yellow
+                doorDetail: '#ffba08',     // Bright yellow
+                monsterColors: ['#e63946', '#457b9d', '#a8dadc', '#f1faee', '#dad7cd']  // Space tones
+            },
+            4: {
+                name: 'Ice Cave',
+                wallColor: '#a8dadc',      // Ice blue
+                wallStroke: '#457b9d',     // Darker ice blue
+                floorColor: '#f1faee',     // Snow white
+                doorColor: '#48cae4',      // Bright ice
+                doorDetail: '#90e0ef',     // Light ice
+                monsterColors: ['#caf0f8', '#ade8f4', '#90e0ef', '#48cae4', '#00b4d8']  // Ice tones
+            },
+            5: {
+                name: 'Volcano',
+                wallColor: '#7f5539',      // Dark brown
+                wallStroke: '#9c6644',     // Brown
+                floorColor: '#bc6c25',     // Lighter brown
+                doorColor: '#dc2f02',      // Bright red
+                doorDetail: '#e85d04',     // Orange
+                monsterColors: ['#dc2f02', '#e85d04', '#f48c06', '#faa307', '#ffba08']  // Lava tones
+            }
+        };
 
-            // Calculate the best cell size that fits the screen
-            CELL_SIZE = Math.min(
-                Math.floor(maxWidth / COLS),
-                Math.floor(maxHeight / ROWS)
-            );
-
-            canvas.width = COLS * CELL_SIZE;
-            canvas.height = ROWS * CELL_SIZE;
+        function getTheme(level) {
+            return THEMES[((level - 1) % 5) + 1];
         }
 
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+		let playerDirection = 'right';
+		let isPaused = true;
+		let currentLevel = 1;
+		let player = { x: 1, y: 1 };
+		let monsters = [];
+		let maze = [];
+		let stairs = { x: 0, y: 0 };
+		let teleports = 1;
+		let monsterMoveCounter = 0;
 
-        let playerDirection = 'right';
-        let isPaused = true;
-        let currentLevel = 1;
-        let player = { x: 1, y: 1 };
-        let monsters = [];
-        let maze = [];
-        let stairs = { x: 0, y: 0 };
-        let teleports = 1;
-        let monsterMoveCounter = 0;
+		function initGame() {
+			maze = generateMaze(ROWS, COLS);
+			player = { x: 1, y: 1 };
+			monsters = [];
+			const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
+
+			// Add monsters based on level
+			const numMonsters = Math.min(currentLevel - 1, 5);
+			if (numMonsters > 0) {
+				for (let i = 0; i < numMonsters; i++) {
+					let monsterX, monsterY;
+					do {
+						monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
+						monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
+					} while (maze[monsterY][monsterX] !== 0 ||
+							Math.abs(monsterX - player.x) < minDistance ||
+							Math.abs(monsterY - player.y) < minDistance);
+
+					monsters.push({ x: monsterX, y: monsterY });
+				}
+			}
+			stairs = { x: COLS - 2, y: ROWS - 2 };
+			maze[stairs.y][stairs.x] = 2;
+			teleports += 1; // Earn one teleport per level
+			updateHUD();
+		}
 
         function generateMaze(rows, cols) {
             const maze = Array(rows).fill().map(() => Array(cols).fill(1));
-
+            
             function isValid(x, y) {
                 return x >= 0 && x < cols && y >= 0 && y < rows;
             }
-
+            
             function carvePath(x, y) {
                 const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
-
+                
                 for (const [dx, dy] of directions) {
                     const nx = x + dx;
                     const ny = y + dy;
-
+                    
                     if (isValid(nx, ny) && maze[ny][nx] === 1) {
                         maze[y + dy/2][x + dx/2] = 0;
                         maze[ny][nx] = 0;
@@ -155,10 +222,9 @@
                     }
                 }
             }
-
+            
             carvePath(1, 1);
-
-            // Create some additional paths
+            
             for (let i = 0; i < rows * cols / 50; i++) {
                 const x = Math.floor(Math.random() * (cols - 2)) + 1;
                 const y = Math.floor(Math.random() * (rows - 2)) + 1;
@@ -167,12 +233,10 @@
                     carvePath(x, y);
                 }
             }
-
-            // Ensure start and end are clear
+            
             maze[1][1] = 0;
             maze[rows - 2][cols - 2] = 0;
-
-            // Create some open areas
+            
             for (let i = 0; i < Math.max(rows, cols) / 8; i++) {
                 const x = Math.floor(Math.random() * (cols - 3)) + 1;
                 const y = Math.floor(Math.random() * (rows - 3)) + 1;
@@ -182,25 +246,28 @@
                     }
                 }
             }
-
+            
             return maze;
         }
 
         function drawMaze() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const theme = getTheme(currentLevel);
+            ctx.fillStyle = theme.floorColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
             for (let y = 0; y < ROWS; y++) {
                 for (let x = 0; x < COLS; x++) {
                     if (maze[y][x] === 1) {
-                        ctx.fillStyle = '#8B4513';
+                        ctx.fillStyle = theme.wallColor;
                         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        ctx.strokeStyle = '#D2691E';
+                        ctx.strokeStyle = theme.wallStroke;
                         ctx.lineWidth = 2;
                         ctx.strokeRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                     } else if (maze[y][x] === 2) {
-                        // Draw exit door
-                        ctx.fillStyle = '#654321';
+                        // Draw themed exit door
+                        ctx.fillStyle = theme.doorColor;
                         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#D2691E';
+                        ctx.fillStyle = theme.doorDetail;
                         ctx.fillRect(x * CELL_SIZE + CELL_SIZE * 0.1, y * CELL_SIZE, CELL_SIZE * 0.8, CELL_SIZE);
                         ctx.fillStyle = '#000';
                         ctx.beginPath();
@@ -261,14 +328,16 @@
         }
 
         function drawMonsters() {
-            const ghostColors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff'];
+            const theme = getTheme(currentLevel);
+            const ghostColors = theme.monsterColors;
+            
             for (let i = 0; i < monsters.length; i++) {
                 const monster = monsters[i];
                 const color = ghostColors[i % ghostColors.length];
                 const x = (monster.x + 0.5) * CELL_SIZE;
                 const y = (monster.y + 0.5) * CELL_SIZE;
                 const radius = CELL_SIZE / 3;
-
+                
                 // Ghost body
                 ctx.fillStyle = color;
                 ctx.beginPath();
@@ -277,14 +346,14 @@
                 ctx.lineTo(x - radius, y + radius / 3);
                 ctx.closePath();
                 ctx.fill();
-
+                
                 // Ghost waves
                 ctx.beginPath();
                 for (let j = -1; j <= 1; j++) {
                     ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
                 }
                 ctx.fill();
-
+                
                 // Eyes
                 ctx.fillStyle = '#fff';
                 const eyeRadius = radius / 5;
@@ -292,7 +361,7 @@
                 ctx.arc(x - radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.arc(x + radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.fill();
-
+                
                 // Pupils
                 ctx.fillStyle = '#000';
                 const pupilRadius = radius / 10;
@@ -303,88 +372,55 @@
             }
         }
 
-		function moveMonsters() {
-			if (isPaused) return;
-			monsterMoveCounter++;
+        function moveMonsters() {
+            if (isPaused) return;
+            monsterMoveCounter++;
+            if (monsterMoveCounter % 10 !== 0) return;
 
-			// increase from 10 to a higher number to slow down the monsters
-			if (monsterMoveCounter % 10 !== 0) return;
+            const newPositions = [];
 
-			const newPositions = [];
+            for (const monster of monsters) {
+                const possibleMoves = [];
 
-			for (const monster of monsters) {
-				const possibleMoves = [];
+                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1) 
+                    possibleMoves.push({ x: monster.x - 1, y: monster.y });
+                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1) 
+                    possibleMoves.push({ x: monster.x + 1, y: monster.y });
+                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1) 
+                    possibleMoves.push({ x: monster.x, y: monster.y - 1 });
+                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1) 
+                    possibleMoves.push({ x: monster.x, y: monster.y + 1 });
 
-				// Add all valid moves to possibleMoves array
-				if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1)
-					possibleMoves.push({ x: monster.x - 1, y: monster.y });
-				if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1)
-					possibleMoves.push({ x: monster.x + 1, y: monster.y });
-				if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1)
-					possibleMoves.push({ x: monster.x, y: monster.y - 1 });
-				if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1)
-					possibleMoves.push({ x: monster.x, y: monster.y + 1 });
+                possibleMoves.sort((a, b) => {
+                    const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
+                    const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
+                    return distA - distB;
+                });
 
-				// Sort moves by distance to player using Manhattan distance
-				possibleMoves.sort((a, b) => {
-					const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
-					const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
-					return distA - distB;
-				});
-
-				// Always choose the best move (no randomness)
-				if (possibleMoves.length > 0) {
-					newPositions.push({ x: possibleMoves[0].x, y: possibleMoves[0].y });
-				} else {
-					newPositions.push({ x: monster.x, y: monster.y });
-				}
-			}
-
-			// Verify no two monsters are in the same position
-			const positionSet = new Set();
-			let conflict = false;
-			for (const pos of newPositions) {
-				const posKey = `${pos.x},${pos.y}`;
-				if (positionSet.has(posKey)) {
-					conflict = true;
-					break;
-				}
-				positionSet.add(posKey);
-			}
-
-			// Commit the moves if no conflicts exist
-			if (!conflict) {
-				for (let i = 0; i < monsters.length; i++) {
-					monsters[i].x = newPositions[i].x;
-					monsters[i].y = newPositions[i].y;
-				}
-			}
-		}
-        function initGame() {
-            maze = generateMaze(ROWS, COLS);
-            player = { x: 1, y: 1 };
-            monsters = [];
-            const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
-
-            // Add monsters based on level
-            const numMonsters = Math.min(currentLevel - 1, 5);
-            if (numMonsters > 0) {
-                for (let i = 0; i < numMonsters; i++) {
-                    let monsterX, monsterY;
-                    do {
-                        monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
-                        monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
-                    } while (maze[monsterY][monsterX] !== 0 ||
-                             Math.abs(monsterX - player.x) < minDistance ||
-                             Math.abs(monsterY - player.y) < minDistance);
-
-                    monsters.push({ x: monsterX, y: monsterY });
+                if (possibleMoves.length > 0) {
+                    newPositions.push({ x: possibleMoves[0].x, y: possibleMoves[0].y });
+                } else {
+                    newPositions.push({ x: monster.x, y: monster.y });
                 }
             }
-            stairs = { x: COLS - 2, y: ROWS - 2 };
-            maze[stairs.y][stairs.x] = 2;
-            teleports += 1; // Earn one teleport per level
-            updateHUD();
+
+            const positionSet = new Set();
+            let conflict = false;
+            for (const pos of newPositions) {
+                const posKey = `${pos.x},${pos.y}`;
+                if (positionSet.has(posKey)) {
+                    conflict = true;
+                    break;
+                }
+                positionSet.add(posKey);
+            }
+
+            if (!conflict) {
+                for (let i = 0; i < monsters.length; i++) {
+                    monsters[i].x = newPositions[i].x;
+                    monsters[i].y = newPositions[i].y;
+                }
+            }
         }
 
         function checkCollision() {
@@ -401,6 +437,7 @@
 
         function updateHUD() {
             hudLevel.textContent = currentLevel;
+            hudTheme.textContent = getTheme(currentLevel).name;
             hudTeleports.textContent = teleports;
             hudPaused.textContent = isPaused ? "Yes" : "No";
 
@@ -421,7 +458,7 @@
                         x: Math.floor(Math.random() * (COLS - 2)) + 1,
                         y: Math.floor(Math.random() * (ROWS - 2)) + 1
                     };
-                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
+                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 || 
                          monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
 
                 player.x = newPlayerPosition.x;
@@ -442,6 +479,7 @@
             }
             requestAnimationFrame(gameLoop);
         }
+
         document.addEventListener('keydown', (e) => {
             const key = e.key;
 
@@ -486,6 +524,24 @@
                 teleportPlayer();
             }
         });
+
+        function resizeCanvas() {
+            const container = document.getElementById('container');
+            const sidebar = document.getElementById('sidebar');
+            const maxWidth = window.innerWidth * 0.95 - sidebar.offsetWidth - 40;
+            const maxHeight = window.innerHeight * 0.95;
+            
+            CELL_SIZE = Math.min(
+                Math.floor(maxWidth / COLS),
+                Math.floor(maxHeight / ROWS)
+            );
+
+            canvas.width = COLS * CELL_SIZE;
+            canvas.height = ROWS * CELL_SIZE;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         initGame();
         gameLoop();
