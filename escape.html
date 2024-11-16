@@ -1,75 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-BVDP76N9NB');
-  </script>
-  
-  <!-- Facebook -->
-
-  <meta property="fb:app_id" content="329861788447703" />
-  
-  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
-  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
-  
-  <meta property="og:type" content="article" />
-  
-  <meta property="og:url" content="https://ovid.github.io/starmap.html" />
-  
-  <meta property="og:title" content="3D Starmap in JavaScript" />
-  <meta property="og:description" content="" />
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Escape Game</title>
+    <title>Themed Maze Escape Game</title>
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
             background-color: #f0f0f0;
             font-family: Arial, sans-serif;
         }
         #container {
             display: flex;
-            width: 60%
+            width: 95%;
+            height: 95vh;
+            gap: 20px;
         }
         #sidebar {
+            flex: 0 0 250px;
             display: flex;
             flex-direction: column;
-            margin-right: 10px;
+            max-height: 100%;
+            overflow-y: auto;
         }
         #gameCanvas {
             border: 1px solid #000;
+            max-width: calc(100% - 270px);
+            height: 100%;
+            object-fit: contain;
         }
         #hud, #instructions {
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
             border-radius: 5px;
             margin-bottom: 10px;
+            font-size: clamp(14px, 2vw, 16px);
+        }
+        h1 {
+            font-size: clamp(20px, 3vw, 24px);
+            margin: 0 0 15px 0;
+        }
+        #theme {
+            font-weight: bold;
+            color: #444;
+        }
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+                height: auto;
+            }
+            #sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+            #gameCanvas {
+                max-width: 100%;
+                height: 60vh;
+            }
+        }
+        #levelAnnouncement {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 1s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #levelAnnouncement.visible {
+            opacity: 1;
+        }
+
+        #levelName {
+            font-size: 36px;
+            margin-top: 10px;
+        }
+        #difficultySelect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #difficultySelect h2 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .difficulty-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 300px;
+        }
+
+        .difficulty-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .difficulty-desc {
+            color: #ccc;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        #easy {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #medium {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        #hard {
+            background-color: #F44336;
+            color: white;
         }
     </style>
 </head>
 <body>
+    <div id="difficultySelect">
+        <h2><a name="select-difficulty"></a>Select Difficulty</h2>
+        <div class="difficulty-option">
+            <button id="easy" class="difficulty-btn">Easy</button>
+            <div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
+        </div>
+        <div class="difficulty-option">
+            <button id="medium" class="difficulty-btn">Medium</button>
+            <div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
+        </div>
+        <div class="difficulty-option">
+            <button id="hard" class="difficulty-btn">Hard</button>
+            <div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
+        </div>
+    </div>
     <div id="container">
         <div id="sidebar">
-            <h1><a name="escape"></a>Escape!</h1>
+            <h1><a name="a-nameescape"></a><a name="escape"></a>Escape!</h1>
             <div id="hud">
-                <div>Round: <span id="round">1</span></div>
                 <div>Level: <span id="level">1</span></div>
-                <div>Teleports: <span id="teleports">0</span></div>
+                <div>Theme: <span id="theme">Forest</span></div>
+                <div>Difficulty: <span id="currentDifficulty">-</span></div>
+                <div>Teleports: <span id="teleports">1</span></div>
                 <div id="pausedStatus">Paused: <span id="paused">Yes</span></div>
             </div>
             <div id="instructions">
@@ -79,59 +195,206 @@
                     <li>Press "T" to teleport.</li>
                     <li>Press "Space" to pause/unpause.</li>
                     <li>Escape the maze to advance to the next level.</li>
-                    <li>For each round, there are as many levels as the round number.</li>
-                    <li>You win the game after 5 rounds.</li>
-					<li>Copyright 2024, Curtis "Ovid" Poe</li>
+                    <li>Earn 1 teleport per level.</li>
+                    <li>Unused teleports carry over to next level.</li>
+                    <li>Reach level 6 to win!</li>
                 </ul>
-                <p>This game was primarily built as an experiment with Claude 
-                3.5 Sonnet, and ChatGPT 4o. See <a 
-                 href="/articles/claude-sonnet-35-beats-chatgpt-40.html">this 
-                 article for more information.</a> Sometimes the monsters get 
-             stuck, but this is just a toy and it was fun to build, even though 
-             I wrote almost no code.</p>
-                </div>
+                <p>This game was primarily built as an experiment with Claude
+                3.5 Sonnet, and ChatGPT 4.</p>
+
+                <p><a href="/"><strong>Return to the site.</strong></a></p>
+            </div>
         </div>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="levelAnnouncement">
+            Level <span id="announcementLevel">1</span>
+            <div id="levelName">Forest</div>
+            <div id="announcementDifficulty" style="font-size: 24px; margin-top: 10px;"></div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const hudRound = document.getElementById('round');
-        const hudLevel = document.getElementById('level');
-        const hudTeleports = document.getElementById('teleports');
-        const hudPaused = document.getElementById('paused');
-        const pausedStatus = document.getElementById('pausedStatus');
+        const levelAnnouncement      = document.getElementById('levelAnnouncement');
+        const announcementLevel      = document.getElementById('announcementLevel');
+        const levelName              = document.getElementById('levelName');
+        const canvas                 = document.getElementById('gameCanvas');
+        const hudLevel               = document.getElementById('level');
+        const hudTheme               = document.getElementById('theme');
+        const hudTeleports           = document.getElementById('teleports');
+        const hudPaused              = document.getElementById('paused');
+        const pausedStatus           = document.getElementById('pausedStatus');
+        const ctx                    = canvas.getContext('2d');
+        const hudDifficulty          = document.getElementById('currentDifficulty');
+        const announcementDifficulty = document.getElementById('announcementDifficulty');
 
-        const CELL_SIZE = 40;
-        const ROWS = 15;
-        const COLS = 20;
+        let CELL_SIZE = 40;
+        let ROWS      = 15;
+        let COLS      = 20;
 
-        let playerDirection = 'right';
-        let isPaused = true;
-        let round = 1;
-        let currentLevel = 1;
-        let player = { x: 1, y: 1 };
-        let monsters = [];
-        let maze = [];
-        let stairs = { x: 0, y: 0 };
-        let teleports = 0;
+        const THEMES = {
+            1: {
+                name: 'Forest',
+                wallColor: '#2d5a27',      // Dark green
+                wallStroke: '#3a7634',     // Lighter green
+                floorColor: '#90a955',     // Light moss green
+                doorColor: '#8b4513',      // Brown
+                doorDetail: '#a0522d',     // Lighter brown
+                monsterColors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#88d8b0']  // Forest creatures
+            },
+            2: {
+                name: 'Dungeon',
+                wallColor: '#4a4e69',      // Dark stone
+                wallStroke: '#686d8c',     // Lighter stone
+                floorColor: '#22223b',     // Dark floor
+                doorColor: '#9b2226',      // Dark red
+                doorDetail: '#ae2012',     // Lighter red
+                monsterColors: ['#800e13', '#9b2226', '#ae2012', '#bb3e03', '#ca6702']  // Fire tones
+            },
+            3: {
+                name: 'Space Station',
+                wallColor: '#2b2d42',      // Dark blue
+                wallStroke: '#8d99ae',     // Metal grey
+                floorColor: '#14213d',     // Deep space blue
+                doorColor: '#fca311',      // Warning yellow
+                doorDetail: '#ffba08',     // Bright yellow
+                monsterColors: ['#e63946', '#457b9d', '#a8dadc', '#f1faee', '#dad7cd']  // Space tones
+            },
+            4: {
+                name: 'Ice Cave',
+                wallColor: '#a8dadc',      // Ice blue
+                wallStroke: '#457b9d',     // Darker ice blue
+                floorColor: '#f1faee',     // Snow white
+                doorColor: '#48cae4',      // Bright ice
+                doorDetail: '#90e0ef',     // Light ice
+                monsterColors: ['#caf0f8', '#ade8f4', '#90e0ef', '#48cae4', '#00b4d8']  // Ice tones
+            },
+            5: {
+                name: 'Volcano',
+                wallColor: '#7f5539',      // Dark brown
+                wallStroke: '#9c6644',     // Brown
+                floorColor: '#bc6c25',     // Lighter brown
+                doorColor: '#dc2f02',      // Bright red
+                doorDetail: '#e85d04',     // Orange
+                monsterColors: ['#dc2f02', '#e85d04', '#f48c06', '#faa307', '#ffba08']  // Lava tones
+            }
+        };
+
+        function getTheme(level) {
+            return THEMES[((level - 1) % 5) + 1];
+        }
+
+        let playerDirection    = 'right';
+        let isPaused           = true;
+        let currentLevel       = 1;
+        let player             = { x: 1, y: 1 };
+        let monsters           = [];
+        let maze               = [];
+        let stairs             = { x: 0, y: 0 };
+        let teleports          = 1;
         let monsterMoveCounter = 0;
+        let gameStarted        = false;
+        let difficulty         = 'medium';
+        let monsterSpeed       = 10; // Default speed (medium)
+        let startingTeleports  = 2; // Default teleports (medium)
+
+        document.getElementById('easy').addEventListener('click', () => startGame('easy'));
+        document.getElementById('medium').addEventListener('click', () => startGame('medium'));
+        document.getElementById('hard').addEventListener('click', () => startGame('hard'));
+
+        function startGame(selectedDifficulty) {
+            difficulty = selectedDifficulty;
+
+            switch(difficulty) {
+                case 'easy':
+                    monsterSpeed      = 15;
+                    startingTeleports = 3;
+                    break;
+                case 'medium':
+                    monsterSpeed      = 10;
+                    startingTeleports = 2;
+                    break;
+                case 'hard':
+                    monsterSpeed      = 6;
+                    startingTeleports = 1;
+                    break;
+            }
+
+            document.getElementById('difficultySelect').style.display = 'none';
+            gameStarted  = true;
+            currentLevel = 1;
+            teleports    = startingTeleports;
+            monsters     = [];  // Ensure monsters array is clear
+            initGame();
+        }
+
+        function initGame() {
+            // Generate new maze
+            maze = generateMaze(ROWS, COLS);
+
+            // Reset player position
+            player = { x: 1, y: 1 };
+
+            // Clear and regenerate monsters
+            monsters = [];
+
+            // Only add monsters after level 1
+            if (currentLevel > 1) {
+                const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
+                const numMonsters = Math.min(currentLevel - 1, 5);
+
+                for (let i = 0; i < numMonsters; i++) {
+                    let monsterX, monsterY;
+                    do {
+                        monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
+                        monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
+                    } while (
+                        maze[monsterY][monsterX] !== 0 ||
+                        Math.abs(monsterX - player.x) < minDistance ||
+                        Math.abs(monsterY - player.y) < minDistance
+                    );
+                    monsters.push({ x: monsterX, y: monsterY });
+                }
+            }
+
+            // Set exit position
+            stairs = { x: COLS - 2, y: ROWS - 2 };
+            maze[stairs.y][stairs.x] = 2;
+
+            // Handle teleports
+            if (gameStarted) {
+                teleports += 1;
+            } else {
+                teleports = startingTeleports;
+            }
+
+            updateHUD();
+
+            // Show level announcement
+            announcementLevel.textContent = currentLevel;
+            levelName.textContent = getTheme(currentLevel).name;
+            announcementDifficulty.textContent =
+                `Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+            levelAnnouncement.classList.add('visible');
+
+            setTimeout(() => {
+                levelAnnouncement.classList.remove('visible');
+            }, 3000);
+        }
 
         function generateMaze(rows, cols) {
             const maze = Array(rows).fill().map(() => Array(cols).fill(1));
-            
+
             function isValid(x, y) {
                 return x >= 0 && x < cols && y >= 0 && y < rows;
             }
-            
+
             function carvePath(x, y) {
                 const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
-                
+
                 for (const [dx, dy] of directions) {
                     const nx = x + dx;
                     const ny = y + dy;
-                    
+
                     if (isValid(nx, ny) && maze[ny][nx] === 1) {
                         maze[y + dy/2][x + dx/2] = 0;
                         maze[ny][nx] = 0;
@@ -139,9 +402,9 @@
                     }
                 }
             }
-            
+
             carvePath(1, 1);
-            
+
             for (let i = 0; i < rows * cols / 50; i++) {
                 const x = Math.floor(Math.random() * (cols - 2)) + 1;
                 const y = Math.floor(Math.random() * (rows - 2)) + 1;
@@ -150,10 +413,10 @@
                     carvePath(x, y);
                 }
             }
-            
+
             maze[1][1] = 0;
             maze[rows - 2][cols - 2] = 0;
-            
+
             for (let i = 0; i < Math.max(rows, cols) / 8; i++) {
                 const x = Math.floor(Math.random() * (cols - 3)) + 1;
                 const y = Math.floor(Math.random() * (rows - 3)) + 1;
@@ -163,52 +426,30 @@
                     }
                 }
             }
-            
+
             return maze;
         }
 
-        function initGame() {
-            maze = generateMaze(ROWS, COLS);
-            player = { x: 1, y: 1 };
-            monsters = [];
-            const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
-
-            if (round > 1) {
-                for (let i = 0; i < round - 1; i++) {
-                    let monsterX, monsterY;
-                    do {
-                        monsterX = Math.floor(Math.random() * (COLS - 2)) + 1;
-                        monsterY = Math.floor(Math.random() * (ROWS - 2)) + 1;
-                    } while (maze[monsterY][monsterX] !== 0 ||
-                             Math.abs(monsterX - player.x) < minDistance ||
-                             Math.abs(monsterY - player.y) < minDistance);
-
-                    monsters.push({ x: monsterX, y: monsterY });
-                }
-            }
-            stairs = { x: COLS - 2, y: ROWS - 2 };
-            maze[stairs.y][stairs.x] = 2;
-            teleports = Math.max(0, round - 1);
-            updateHUD();
-        }
-
         function drawMaze() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const theme = getTheme(currentLevel);
+            ctx.fillStyle = theme.floorColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
             for (let y = 0; y < ROWS; y++) {
                 for (let x = 0; x < COLS; x++) {
                     if (maze[y][x] === 1) {
-                        ctx.fillStyle = '#8B4513';
+                        ctx.fillStyle = theme.wallColor;
                         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        ctx.strokeStyle = '#D2691E';
+                        ctx.strokeStyle = theme.wallStroke;
                         ctx.lineWidth = 2;
                         ctx.strokeRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                     } else if (maze[y][x] === 2) {
-                        // Draw a door for the exit
-                        ctx.fillStyle = '#654321'; // Dark brown for the door
+                        // Draw themed exit door
+                        ctx.fillStyle = theme.doorColor;
                         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#D2691E'; // Lighter brown for the door details
+                        ctx.fillStyle = theme.doorDetail;
                         ctx.fillRect(x * CELL_SIZE + CELL_SIZE * 0.1, y * CELL_SIZE, CELL_SIZE * 0.8, CELL_SIZE);
-                        ctx.fillStyle = '#000'; // Black for the doorknob
+                        ctx.fillStyle = '#000';
                         ctx.beginPath();
                         ctx.arc(x * CELL_SIZE + CELL_SIZE * 0.75, y * CELL_SIZE + CELL_SIZE * 0.5, CELL_SIZE * 0.05, 0, Math.PI * 2);
                         ctx.fill();
@@ -221,7 +462,7 @@
             const x = (player.x + 0.5) * CELL_SIZE;
             const y = (player.y + 0.5) * CELL_SIZE;
             const radius = CELL_SIZE / 3;
-            const mouthAngle = Math.PI / 4; // Angle of Pacman's mouth opening
+            const mouthAngle = Math.PI / 4;
 
             let startAngle, endAngle;
             let eyeXOffset, eyeYOffset;
@@ -230,124 +471,118 @@
                 case 'right':
                     startAngle = mouthAngle;
                     endAngle = -mouthAngle;
-                    eyeXOffset = radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeXOffset = radius / 3; // Moved eye slightly inward
+                    eyeYOffset = -radius / 1.5;
                     break;
                 case 'left':
                     startAngle = Math.PI + mouthAngle;
                     endAngle = Math.PI - mouthAngle;
-                    eyeXOffset = -radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeXOffset = -radius / 3; // Moved eye slightly inward
+                    eyeYOffset = -radius / 1.5;
                     break;
                 case 'up':
                     startAngle = -Math.PI / 2 + mouthAngle;
                     endAngle = -Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeYOffset = -radius / 5.8; // Moved eye slightly upward
                     break;
                 case 'down':
                     startAngle = Math.PI / 2 + mouthAngle;
                     endAngle = Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = radius / 2.5;
+                    eyeYOffset = radius / 5.8; // Moved eye slightly downward
                     break;
             }
 
-            ctx.fillStyle = '#ff0'; // Yellow color for Pacman
+            ctx.fillStyle = '#ff0';
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.arc(x, y, radius, startAngle, endAngle, false);
             ctx.lineTo(x, y);
             ctx.fill();
 
-            // Draw Pacman's eye
-            ctx.fillStyle = '#00f'; // Blue color for the eye
+            ctx.fillStyle = '#00f';
             ctx.beginPath();
             ctx.arc(x + eyeXOffset, y + eyeYOffset, radius / 6, 0, Math.PI * 2);
             ctx.fill();
         }
-
         function drawMonsters() {
-            const ghostColors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f']; // Define colors for the ghosts
+            const theme = getTheme(currentLevel);
+            const ghostColors = theme.monsterColors;
+
             for (let i = 0; i < monsters.length; i++) {
                 const monster = monsters[i];
                 const color = ghostColors[i % ghostColors.length];
                 const x = (monster.x + 0.5) * CELL_SIZE;
                 const y = (monster.y + 0.5) * CELL_SIZE;
                 const radius = CELL_SIZE / 3;
-                
-                // Draw ghost body
+
+                // Ghost body
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(x, y - radius / 3, radius, Math.PI, 0, false); // Top half circle
+                ctx.arc(x, y - radius / 3, radius, Math.PI, 0, false);
                 ctx.lineTo(x + radius, y + radius / 3);
                 ctx.lineTo(x - radius, y + radius / 3);
                 ctx.closePath();
                 ctx.fill();
-                
-                // Draw ghost "legs"
+
+                // Ghost waves
                 ctx.beginPath();
                 for (let j = -1; j <= 1; j++) {
                     ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
                 }
                 ctx.fill();
-                
-                // Draw ghost eyes
+
+                // Eyes
                 ctx.fillStyle = '#fff';
                 const eyeRadius = radius / 5;
-                const eyeOffsetX = radius / 2.5;
-                const eyeOffsetY = radius / 5;
-                
                 ctx.beginPath();
-                ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeRadius, 0, Math.PI * 2, true);
-                ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeRadius, 0, Math.PI * 2, true);
+                ctx.arc(x - radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
+                ctx.arc(x + radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.fill();
-                
-                // Draw ghost pupils
+
+                // Pupils
                 ctx.fillStyle = '#000';
                 const pupilRadius = radius / 10;
-                
                 ctx.beginPath();
-                ctx.arc(x - eyeOffsetX, y - eyeOffsetY, pupilRadius, 0, Math.PI * 2, true);
-                ctx.arc(x + eyeOffsetX, y - eyeOffsetY, pupilRadius, 0, Math.PI * 2, true);
+                ctx.arc(x - radius / 2.5, y - radius / 5, pupilRadius, 0, Math.PI * 2);
+                ctx.arc(x + radius / 2.5, y - radius / 5, pupilRadius, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-
         function moveMonsters() {
             if (isPaused) return;
             monsterMoveCounter++;
-            if (monsterMoveCounter % 20 !== 0) return; // Move every 20 frames
+            if (monsterMoveCounter % monsterSpeed !== 0) return;
 
             const newPositions = [];
 
             for (const monster of monsters) {
                 const possibleMoves = [];
 
-                // Add all valid moves to possibleMoves array, ensuring they stay within bounds and move towards the player
-                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1) possibleMoves.push({ x: monster.x - 1, y: monster.y });
-                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1) possibleMoves.push({ x: monster.x + 1, y: monster.y });
-                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1) possibleMoves.push({ x: monster.x, y: monster.y - 1 });
-                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1) possibleMoves.push({ x: monster.x, y: monster.y + 1 });
+                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1)
+                    possibleMoves.push({ x: monster.x - 1, y: monster.y });
+                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1)
+                    possibleMoves.push({ x: monster.x + 1, y: monster.y });
+                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1)
+                    possibleMoves.push({ x: monster.x, y: monster.y - 1 });
+                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1)
+                    possibleMoves.push({ x: monster.x, y: monster.y + 1 });
 
-                // Sort possible moves to prioritize those that bring the monster closer to the player
                 possibleMoves.sort((a, b) => {
                     const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
                     const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
                     return distA - distB;
                 });
 
-                // Move the monster to the best possible position
                 if (possibleMoves.length > 0) {
-                    const bestMove = possibleMoves[0];
-                    newPositions.push({ x: bestMove.x, y: bestMove.y });
+                    newPositions.push({ x: possibleMoves[0].x, y: possibleMoves[0].y });
                 } else {
                     newPositions.push({ x: monster.x, y: monster.y });
                 }
             }
 
-            // Verify no two monsters are in the same position
             const positionSet = new Set();
             let conflict = false;
             for (const pos of newPositions) {
@@ -359,7 +594,6 @@
                 positionSet.add(posKey);
             }
 
-            // Commit the moves if no conflicts exist
             if (!conflict) {
                 for (let i = 0; i < monsters.length; i++) {
                     monsters[i].x = newPositions[i].x;
@@ -371,20 +605,27 @@
         function checkCollision() {
             for (const monster of monsters) {
                 if (monster.x === player.x && monster.y === player.y) {
-                    alert('Game Over! You were caught by a monster.');
-                    round = 1;
-                    currentLevel = 1;
-                    initGame();
+                    alert(`Game Over! You were caught by a monster.\nDifficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`);
+                    showDifficultySelect();
                     return;
                 }
             }
         }
 
+        function showDifficultySelect() {
+            document.getElementById('difficultySelect').style.display = 'flex';
+            gameStarted = false;
+            currentLevel = 1;
+            teleports = 1;
+            updateHUD();
+        }
+
         function updateHUD() {
-            hudRound.textContent = round;
             hudLevel.textContent = currentLevel;
+            hudTheme.textContent = getTheme(currentLevel).name;
             hudTeleports.textContent = teleports;
             hudPaused.textContent = isPaused ? "Yes" : "No";
+            hudDifficulty.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
             if (isPaused) {
                 pausedStatus.style.color = 'white';
@@ -403,8 +644,8 @@
                         x: Math.floor(Math.random() * (COLS - 2)) + 1,
                         y: Math.floor(Math.random() * (ROWS - 2)) + 1
                     };
-                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 || 
-                         monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
+                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
+                        monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
 
                 player.x = newPlayerPosition.x;
                 player.y = newPlayerPosition.y;
@@ -415,6 +656,11 @@
         }
 
         function gameLoop() {
+            if (!gameStarted) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
             drawMaze();
             drawPlayer();
             drawMonsters();
@@ -426,6 +672,7 @@
         }
 
         document.addEventListener('keydown', (e) => {
+
             const key = e.key;
 
             if (key === 'ArrowRight') {
@@ -440,6 +687,9 @@
 
             if (key === ' ') {
                 isPaused = !isPaused;
+                if (!isPaused) {
+                    levelAnnouncement.classList.remove('visible');
+                }
                 updateHUD();
                 return;
             }
@@ -456,14 +706,10 @@
                 if (maze[newY][newX] === 2) {
                     currentLevel++;
                     isPaused = true;
-                    if (currentLevel > round) {
-                        round++;
+                    if (currentLevel > 5) {
+                        alert('Congratulations! You won the game!');
                         currentLevel = 1;
-                        if (round > 5) {
-                            alert('Congratulations! You won the game!');
-                            round = 1;
-                            currentLevel = 1;
-                        }
+                        teleports = 1;
                     }
                     initGame();
                 }
@@ -474,7 +720,24 @@
             }
         });
 
-        initGame();
+        function resizeCanvas() {
+            const container = document.getElementById('container');
+            const sidebar = document.getElementById('sidebar');
+            const maxWidth = window.innerWidth * 0.95 - sidebar.offsetWidth - 40;
+            const maxHeight = window.innerHeight * 0.95;
+
+            CELL_SIZE = Math.min(
+                Math.floor(maxWidth / COLS),
+                Math.floor(maxHeight / ROWS)
+            );
+
+            canvas.width  = COLS * CELL_SIZE;
+            canvas.height = ROWS * CELL_SIZE;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
         gameLoop();
     </script>
 </body>
