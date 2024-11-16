@@ -17,15 +17,15 @@
 
 # Introduction
 
-Previously in my attempts [to write a JavaScript game
-with AI](/articles/claude-sonnet-35-beats-chatgpt-40.html), I was trying out
-Claude 3.5 Sonnet and I was impressed because it was definitely coding better
-than ChatGPT 4o. There are rumors that OpenAI will be releasing a new model
-next year, but the word in the industry is that newer models seem to be
-incremental improvements rather than seismic ones. I'm happy about that because
-I want to see more work leveraging what we have (including reducing energy
-consumption!) rather than the mad rush to build bigger and better [nuclear
-powered AI](https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a).
+Previously in my attempts [to write a JavaScript game with
+AI](/articles/claude-sonnet-35-beats-chatgpt-40.html), I was trying out Claude
+3.5 Sonnet and I was impressed because it was definitely coding better than
+ChatGPT 4o. There are rumors that OpenAI will be releasing a new model next
+year, but the word in the industry is that newer models seem to be incremental
+improvements rather than seismic ones. I'm happy about that because I want to
+see more work leveraging what we have (including reducing energy consumption!)
+rather than the mad rush to build bigger and better [nuclear-powered
+AI](https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a).
 
 So yesterday, after a frustrating day of trying to make vector databases play
 better with Perl, I put that aside a bit and returned to the game. I previously hit
@@ -62,6 +62,7 @@ out if your reflexes are fast enough to sneak past the monsters. The different
 themes per level really make the game stand out. I'm enjoying it.
 
 [% INCLUDE include/image.tt
+   align    = 'right'
    src      = "/static/images/pacman-bad-eyes.png"
    alt      = 'A pacman-like character with the eye on the rim of the mouth'
    caption  = "The eyes were awful."
@@ -89,7 +90,7 @@ prompt:
 > or they get the eye outside the head entirely.
 
 Have I mentioned that Gemini is terrible? Yes, it's terrible. So imagine my
-shock when I applied it's suggestion and it worked! Unlike Claude and ChatGPT,
+shock when I applied its suggestion and it worked! Unlike Claude and ChatGPT,
 it actually moved the eye closer inside the body. I was stunned. This was the
 first time that Gemini undeniably did something Claude and ChatGPT couldn't.
 Fantastic!
@@ -105,6 +106,71 @@ though it wasn't overlapping it. So I issued another prompt:
 
 Have I mentioned that Gemini is terrible?
 
+Fortunately, since its first attempt sort of worked, I manually adjusted the
+numbers to get the eyes inside the head. Finally.
+
+# Bad Code
+
+Yes, Claude is still writing bad code. Here's a great example:
+
+```javascript
+if (maze[newY][newX] === 2) {
+    currentLevel++;
+    isPaused = true;
+    if (currentLevel > 5) {
+        alert('Congratulations! You won the game!');
+        currentLevel = 1;
+        teleports = 1;
+    }
+    initGame();
+}
+```
+
+What is `2` above? Why is the maximum level of 6 hard-coded as `> 5`? It should look
+closer to something like this:
+
+```javascript
+if (maze[newY][newX] === DOOR) {
+
+    // You reached the exit, so let's
+    // go to to the next level
+    currentLevel++;
+    isPaused = true;
+    if (currentLevel >= MAX_LEVEL) {
+        alert('Congratulations! You won the game!');
+        currentLevel = 1;
+        teleports    = 1;
+    }
+    initGame();
+}
+```
+
+Time for another prompt:
+
+> In the game, we often see hardcoded values like this:
+>
+> `if (isValid(nx, ny) && maze[ny][nx] === 1) {`
+>
+>And this:
+>
+> `} else if (maze[y][x] === 2) {`
+>
+> Please extract all appropriate hard-coded values and replace
+> them with named constants to make the code easier for a
+> human to understand.
+
+Claude did its thing. It generated tons of constants, documented those that
+might be confusing, failed to use most of them, and hallucinated a new
+function, `initMonsters`, and failed to call the function it hallucinated.
+
+As I explain to managers and developers: AI are talented junior developers who
+never learn. They're cheap, they're fast, they never get tired, they never file
+HR complaints, and they can code in more languages than you've ever heard of.
+But they don't code well and they don't learn (short of fine-tuning your own
+model or using RAG).
+
+So don't worry yet, devs. Your jobs are still safe. For a while.
+
 # Conclusion
 
 I'm looking forward to the next release of ChatGPT, but for now, Claude is still
@@ -112,5 +178,22 @@ my first choice. Gemini is terrible. That's a shame because Google clearly has
 the skills to do amazing things and I love some of the research papers they're
 releasing around AIs, particularly their work in reducing hallucinations, but
 for now, if you're not using Google Docs, it's just not worth it.
+
+Claude is king.
+
+But ... ChatGPT does offer something which is a killer feature. [They have a
+published OpenAPI spec](https://github.com/openai/openai-openapi) that is
+regularly updated. Anthropic does not. There's [an unofficial
+spec](https://github.com/KoushikNavuluri/Claude-API) and a [Claude to OpenAPI
+API translator](https://github.com/missuo/claude2openai), but nothing from
+Anthropic.
+
+I've seen this problem with vector databases, too. You can fire up
+[ChromaDB](https://github.com/chroma-core/chroma) and get its spec from
+`http://localhost:8000/openapi.json`, but I can't find anything like that for
+[Pinecone](https://www.pinecone.io/). To me, this is mystifying. Having such a
+spec makes it _much_ easier to work with API-driven products. I have no idea
+why so many companies are making it harder to use their product. So kudos to
+OpenAI for this.
 
 [%- END %]

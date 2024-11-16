@@ -258,6 +258,7 @@
     <ul>
     <li class="indent-1"><a href="#introduction">Introduction</a></li>
     <li class="indent-1"><a href="#this-time-the-game-is-fun">This Time, the Game is Fun!</a></li>
+    <li class="indent-1"><a href="#bad-code">Bad Code</a></li>
     <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
     </ul>
 </nav>
@@ -265,15 +266,15 @@
 
 <h1><a name="introduction"></a>Introduction</h1>
 
-<p>Previously in my attempts <a href="/articles/claude-sonnet-35-beats-chatgpt-40.html">to write a JavaScript game
-with AI</a>, I was trying out
-Claude 3.5 Sonnet and I was impressed because it was definitely coding better
-than ChatGPT 4o. There are rumors that OpenAI will be releasing a new model
-next year, but the word in the industry is that newer models seem to be
-incremental improvements rather than seismic ones. I’m happy about that because
-I want to see more work leveraging what we have (including reducing energy
-consumption!) rather than the mad rush to build bigger and better <a href="https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a" target="_blank">nuclear
-powered AI</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>Previously in my attempts <a href="/articles/claude-sonnet-35-beats-chatgpt-40.html">to write a JavaScript game with
+AI</a>, I was trying out Claude
+3.5 Sonnet and I was impressed because it was definitely coding better than
+ChatGPT 4o. There are rumors that OpenAI will be releasing a new model next
+year, but the word in the industry is that newer models seem to be incremental
+improvements rather than seismic ones. I’m happy about that because I want to
+see more work leveraging what we have (including reducing energy consumption!)
+rather than the mad rush to build bigger and better <a href="https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a" target="_blank">nuclear-powered
+AI</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 <p>So yesterday, after a frustrating day of trying to make vector databases play
 better with Perl, I put that aside a bit and returned to the game. I previously hit
@@ -312,7 +313,7 @@ game, and a logic puzzle. You can pause with the space bar and try to figure
 out if your reflexes are fast enough to sneak past the monsters. The different
 themes per level really make the game stand out. I’m enjoying it.</p>
 
-<p><figure class="image">
+<p><figure class="captioned">
     <div class="image-container">
         <img src="/static/images/pacman-bad-eyes.png" width="600" alt="A pacman-like character with the eye on the rim of the mouth">
     <figcaption>The eyes were awful. </figcaption>
@@ -343,7 +344,7 @@ prompt:</p>
 </blockquote>
 
 <p>Have I mentioned that Gemini is terrible? Yes, it’s terrible. So imagine my
-shock when I applied it’s suggestion and it worked! Unlike Claude and ChatGPT,
+shock when I applied its suggestion and it worked! Unlike Claude and ChatGPT,
 it actually moved the eye closer inside the body. I was stunned. This was the
 first time that Gemini undeniably did something Claude and ChatGPT couldn’t.
 Fantastic!</p>
@@ -363,6 +364,71 @@ though it wasn’t overlapping it. So I issued another prompt:</p>
 
 <p>Have I mentioned that Gemini is terrible?</p>
 
+<p>Fortunately, since its first attempt sort of worked, I manually adjusted the
+numbers to get the eyes inside the head. Finally.</p>
+
+<h1><a name="bad-code"></a>Bad Code</h1>
+
+<p>Yes, Claude is still writing bad code. Here’s a great example:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-javascript">if (maze[newY][newX] === 2) {
+    currentLevel++;
+    isPaused = true;
+    if (currentLevel &gt; 5) {
+        alert('Congratulations! You won the game!');
+        currentLevel = 1;
+        teleports = 1;
+    }
+    initGame();
+}
+</code></pre></div>
+
+<p>What is <code>2</code> above? Why is the maximum level of 6 hard-coded as <code>&gt; 5</code>? It should look
+closer to something like this:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-javascript">if (maze[newY][newX] === DOOR) {
+
+    // You reached the exit, so let's
+    // go to to the next level
+    currentLevel++;
+    isPaused = true;
+    if (currentLevel &gt;= MAX_LEVEL) {
+        alert('Congratulations! You won the game!');
+        currentLevel = 1;
+        teleports    = 1;
+    }
+    initGame();
+}
+</code></pre></div>
+
+<p>Time for another prompt:</p>
+
+<blockquote>
+  <p>In the game, we often see hardcoded values like this:</p>
+  
+  <p><code>if (isValid(nx, ny) &amp;&amp; maze[ny][nx] === 1) {</code></p>
+  
+  <p>And this:</p>
+  
+  <p><code>} else if (maze[y][x] === 2) {</code></p>
+  
+  <p>Please extract all appropriate hard-coded values and replace
+  them with named constants to make the code easier for a
+  human to understand.</p>
+</blockquote>
+
+<p>Claude did its thing. It generated tons of constants, documented those that
+might be confusing, failed to use most of them, and hallucinated a new
+function, <code>initMonsters</code>, and failed to call the function it hallucinated.</p>
+
+<p>As I explain to managers and developers: AI are talented junior developers who
+never learn. They’re cheap, they’re fast, they never get tired, they never file
+HR complaints, and they can code in more languages than you’ve ever heard of.
+But they don’t code well and they don’t learn (short of fine-tuning your own
+model or using RAG).</p>
+
+<p>So don’t worry yet, devs. Your jobs are still safe. For a while.</p>
+
 <h1><a name="conclusion"></a>Conclusion</h1>
 
 <p>I’m looking forward to the next release of ChatGPT, but for now, Claude is still
@@ -370,6 +436,23 @@ my first choice. Gemini is terrible. That’s a shame because Google clearly has
 the skills to do amazing things and I love some of the research papers they’re
 releasing around AIs, particularly their work in reducing hallucinations, but
 for now, if you’re not using Google Docs, it’s just not worth it.</p>
+
+<p>Claude is king.</p>
+
+<p>But ... ChatGPT does offer something which is a killer feature. <a href="https://github.com/openai/openai-openapi" target="_blank">They have a
+published OpenAPI spec</a> <span class="fa fa-external-link fa_custom"></span> that is
+regularly updated. Anthropic does not. There’s <a href="https://github.com/KoushikNavuluri/Claude-API" target="_blank">an unofficial
+spec</a> <span class="fa fa-external-link fa_custom"></span> and a <a href="https://github.com/missuo/claude2openai" target="_blank">Claude to OpenAPI
+API translator</a> <span class="fa fa-external-link fa_custom"></span>, but nothing from
+Anthropic.</p>
+
+<p>I’ve seen this problem with vector databases, too. You can fire up
+<a href="https://github.com/chroma-core/chroma" target="_blank">ChromaDB</a> <span class="fa fa-external-link fa_custom"></span> and get its spec from
+<code>http://localhost:8000/openapi.json</code>, but I can’t find anything like that for
+<a href="https://www.pinecone.io/" target="_blank">Pinecone</a> <span class="fa fa-external-link fa_custom"></span>. To me, this is mystifying. Having such a
+spec makes it <em>much</em> easier to work with API-driven products. I have no idea
+why so many companies are making it harder to use their product. So kudos to
+OpenAI for this.</p>
 
 </article>
 
