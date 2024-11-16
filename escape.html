@@ -105,7 +105,7 @@
             align-items: center;
             z-index: 1000;
         }
-    
+
         #difficultySelect h2 {
             color: white;
             font-size: 48px;
@@ -113,7 +113,7 @@
             font-weight: bold;
             text-align: center;
         }
-    
+
         .difficulty-option {
             display: flex;
             flex-direction: column;
@@ -121,7 +121,7 @@
             margin-bottom: 30px;
             width: 300px;
         }
-    
+
         .difficulty-btn {
             width: 100%;
             padding: 20px;
@@ -133,29 +133,29 @@
             transition: transform 0.2s, filter 0.2s;
             margin-bottom: 10px;
         }
-    
+
         .difficulty-btn:hover {
             transform: scale(1.05);
             filter: brightness(1.1);
         }
-    
+
         .difficulty-desc {
             color: #ccc;
             font-size: 18px;
             text-align: center;
             font-weight: 300;
         }
-    
+
         #easy {
             background-color: #4CAF50;
             color: white;
         }
-    
+
         #medium {
             background-color: #FF9800;
             color: white;
         }
-    
+
         #hard {
             background-color: #F44336;
             color: white;
@@ -163,21 +163,21 @@
     </style>
 </head>
 <body>
-	<div id="difficultySelect">
-		<h2>Select Difficulty</h2>
-		<div class="difficulty-option">
-			<button id="easy" class="difficulty-btn">Easy</button>
-			<div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
-		</div>
-		<div class="difficulty-option">
-			<button id="medium" class="difficulty-btn">Medium</button>
-			<div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
-		</div>
-		<div class="difficulty-option">
-			<button id="hard" class="difficulty-btn">Hard</button>
-			<div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
-		</div>
-	</div>
+    <div id="difficultySelect">
+        <h2>Select Difficulty</h2>
+        <div class="difficulty-option">
+            <button id="easy" class="difficulty-btn">Easy</button>
+            <div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
+        </div>
+        <div class="difficulty-option">
+            <button id="medium" class="difficulty-btn">Medium</button>
+            <div class="difficulty-desc">Normal monsters, 2 teleports to start</div>
+        </div>
+        <div class="difficulty-option">
+            <button id="hard" class="difficulty-btn">Hard</button>
+            <div class="difficulty-desc">Fast monsters, 1 teleport to start</div>
+        </div>
+    </div>
     <div id="container">
         <div id="sidebar">
             <h1><a name="escape"></a>Escape!</h1>
@@ -281,27 +281,27 @@
             return THEMES[((level - 1) % 5) + 1];
         }
 
-		let playerDirection    = 'right';
-		let isPaused           = true;
-		let currentLevel       = 1;
-		let player             = { x: 1, y: 1 };
-		let monsters           = [];
-		let maze               = [];
-		let stairs             = { x: 0, y: 0 };
-		let teleports          = 1;
-		let monsterMoveCounter = 0;
+        let playerDirection    = 'right';
+        let isPaused           = true;
+        let currentLevel       = 1;
+        let player             = { x: 1, y: 1 };
+        let monsters           = [];
+        let maze               = [];
+        let stairs             = { x: 0, y: 0 };
+        let teleports          = 1;
+        let monsterMoveCounter = 0;
         let gameStarted        = false;
         let difficulty         = 'medium';
         let monsterSpeed       = 10; // Default speed (medium)
         let startingTeleports  = 2; // Default teleports (medium)
 
-		document.getElementById('easy').addEventListener('click', () => startGame('easy'));
-		document.getElementById('medium').addEventListener('click', () => startGame('medium'));
-		document.getElementById('hard').addEventListener('click', () => startGame('hard'));
+        document.getElementById('easy').addEventListener('click', () => startGame('easy'));
+        document.getElementById('medium').addEventListener('click', () => startGame('medium'));
+        document.getElementById('hard').addEventListener('click', () => startGame('hard'));
 
         function startGame(selectedDifficulty) {
             difficulty = selectedDifficulty;
-            
+
             switch(difficulty) {
                 case 'easy':
                     monsterSpeed      = 15;
@@ -316,7 +316,7 @@
                     startingTeleports = 1;
                     break;
             }
-            
+
             document.getElementById('difficultySelect').style.display = 'none';
             gameStarted  = true;
             currentLevel = 1;
@@ -324,22 +324,22 @@
             monsters     = [];  // Ensure monsters array is clear
             initGame();
         }
-        
+
         function initGame() {
             // Generate new maze
             maze = generateMaze(ROWS, COLS);
-            
+
             // Reset player position
             player = { x: 1, y: 1 };
-            
+
             // Clear and regenerate monsters
             monsters = [];
-            
+
             // Only add monsters after level 1
             if (currentLevel > 1) {
                 const minDistance = Math.floor(Math.min(COLS, ROWS) / 3);
                 const numMonsters = Math.min(currentLevel - 1, 5);
-                
+
                 for (let i = 0; i < numMonsters; i++) {
                     let monsterX, monsterY;
                     do {
@@ -353,27 +353,27 @@
                     monsters.push({ x: monsterX, y: monsterY });
                 }
             }
-            
+
             // Set exit position
             stairs = { x: COLS - 2, y: ROWS - 2 };
             maze[stairs.y][stairs.x] = 2;
-            
+
             // Handle teleports
             if (gameStarted) {
                 teleports += 1;
             } else {
                 teleports = startingTeleports;
             }
-            
+
             updateHUD();
-            
+
             // Show level announcement
             announcementLevel.textContent = currentLevel;
             levelName.textContent = getTheme(currentLevel).name;
-            announcementDifficulty.textContent = 
+            announcementDifficulty.textContent =
                 `Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
             levelAnnouncement.classList.add('visible');
-        
+
             setTimeout(() => {
                 levelAnnouncement.classList.remove('visible');
             }, 3000);
@@ -469,26 +469,26 @@
                 case 'right':
                     startAngle = mouthAngle;
                     endAngle = -mouthAngle;
-                    eyeXOffset = radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeXOffset = radius / 3; // Moved eye slightly inward
+                    eyeYOffset = -radius / 1.5;
                     break;
                 case 'left':
                     startAngle = Math.PI + mouthAngle;
                     endAngle = Math.PI - mouthAngle;
-                    eyeXOffset = -radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeXOffset = -radius / 3; // Moved eye slightly inward
+                    eyeYOffset = -radius / 1.5;
                     break;
                 case 'up':
                     startAngle = -Math.PI / 2 + mouthAngle;
                     endAngle = -Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = -radius / 2.5;
+                    eyeYOffset = -radius / 5.8; // Moved eye slightly upward
                     break;
                 case 'down':
                     startAngle = Math.PI / 2 + mouthAngle;
                     endAngle = Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = radius / 2.5;
+                    eyeYOffset = radius / 5.8; // Moved eye slightly downward
                     break;
             }
 
@@ -504,7 +504,6 @@
             ctx.arc(x + eyeXOffset, y + eyeYOffset, radius / 6, 0, Math.PI * 2);
             ctx.fill();
         }
-
         function drawMonsters() {
             const theme = getTheme(currentLevel);
             const ghostColors = theme.monsterColors;
@@ -611,64 +610,64 @@
             }
         }
 
-		function showDifficultySelect() {
-			document.getElementById('difficultySelect').style.display = 'flex';
-			gameStarted = false;
-			currentLevel = 1;
-			teleports = 1;
-			updateHUD();
-		}
+        function showDifficultySelect() {
+            document.getElementById('difficultySelect').style.display = 'flex';
+            gameStarted = false;
+            currentLevel = 1;
+            teleports = 1;
+            updateHUD();
+        }
 
-		function updateHUD() {
-			hudLevel.textContent = currentLevel;
-			hudTheme.textContent = getTheme(currentLevel).name;
-			hudTeleports.textContent = teleports;
-			hudPaused.textContent = isPaused ? "Yes" : "No";
-			hudDifficulty.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        function updateHUD() {
+            hudLevel.textContent = currentLevel;
+            hudTheme.textContent = getTheme(currentLevel).name;
+            hudTeleports.textContent = teleports;
+            hudPaused.textContent = isPaused ? "Yes" : "No";
+            hudDifficulty.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
-			if (isPaused) {
-				pausedStatus.style.color = 'white';
-				pausedStatus.style.backgroundColor = 'black';
-			} else {
-				pausedStatus.style.color = '';
-				pausedStatus.style.backgroundColor = '';
-			}
-		}
+            if (isPaused) {
+                pausedStatus.style.color = 'white';
+                pausedStatus.style.backgroundColor = 'black';
+            } else {
+                pausedStatus.style.color = '';
+                pausedStatus.style.backgroundColor = '';
+            }
+        }
 
-		function teleportPlayer() {
-			if (teleports > 0) {
-				let newPlayerPosition;
-				do {
-					newPlayerPosition = {
-						x: Math.floor(Math.random() * (COLS - 2)) + 1,
-						y: Math.floor(Math.random() * (ROWS - 2)) + 1
-					};
-				} while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
-						monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
+        function teleportPlayer() {
+            if (teleports > 0) {
+                let newPlayerPosition;
+                do {
+                    newPlayerPosition = {
+                        x: Math.floor(Math.random() * (COLS - 2)) + 1,
+                        y: Math.floor(Math.random() * (ROWS - 2)) + 1
+                    };
+                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
+                        monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
 
-				player.x = newPlayerPosition.x;
-				player.y = newPlayerPosition.y;
-				teleports--;
-				isPaused = true;
-				updateHUD();
-			}
-		}
+                player.x = newPlayerPosition.x;
+                player.y = newPlayerPosition.y;
+                teleports--;
+                isPaused = true;
+                updateHUD();
+            }
+        }
 
-		function gameLoop() {
-			if (!gameStarted) {
-				requestAnimationFrame(gameLoop);
-				return;
-			}
-			
-			drawMaze();
-			drawPlayer();
-			drawMonsters();
-			if (!isPaused) {
-				moveMonsters();
-				checkCollision();
-			}
-			requestAnimationFrame(gameLoop);
-		}
+        function gameLoop() {
+            if (!gameStarted) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            drawMaze();
+            drawPlayer();
+            drawMonsters();
+            if (!isPaused) {
+                moveMonsters();
+                checkCollision();
+            }
+            requestAnimationFrame(gameLoop);
+        }
 
         document.addEventListener('keydown', (e) => {
 
