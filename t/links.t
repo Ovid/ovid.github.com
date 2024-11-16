@@ -44,7 +44,7 @@ sub links_are_good ( $file ) {
         else {
             my $possible_file = $link;
             $possible_file =~ s/^\///;
-            unless ( -e $possible_file ) {
+            if ( '/' ne $link && !-e $possible_file ) {
                 push @errors => "Bad link ($link) in $file";
             }
         }
