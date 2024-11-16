@@ -163,6 +163,7 @@
             <div id="hud">
                 <div>Level: <span id="level">1</span></div>
                 <div>Theme: <span id="theme">Forest</span></div>
+                <div>Difficulty: <span id="currentDifficulty">-</span></div>
                 <div>Teleports: <span id="teleports">1</span></div>
                 <div id="pausedStatus">Paused: <span id="paused">Yes</span></div>
             </div>
@@ -184,21 +185,24 @@
         <div id="levelAnnouncement">
             Level <span id="announcementLevel">1</span>
             <div id="levelName">Forest</div>
+            <div id="announcementDifficulty" style="font-size: 24px; margin-top: 10px;"></div>
         </div>
         <canvas id="gameCanvas"></canvas>
     </div>
 
     <script>
-        const levelAnnouncement = document.getElementById('levelAnnouncement');
-        const announcementLevel = document.getElementById('announcementLevel');
-        const levelName         = document.getElementById('levelName');
-        const canvas            = document.getElementById('gameCanvas');
-        const hudLevel          = document.getElementById('level');
-        const hudTheme          = document.getElementById('theme');
-        const hudTeleports      = document.getElementById('teleports');
-        const hudPaused         = document.getElementById('paused');
-        const pausedStatus      = document.getElementById('pausedStatus');
-        const ctx               = canvas.getContext('2d');
+        const levelAnnouncement      = document.getElementById('levelAnnouncement');
+        const announcementLevel      = document.getElementById('announcementLevel');
+        const levelName              = document.getElementById('levelName');
+        const canvas                 = document.getElementById('gameCanvas');
+        const hudLevel               = document.getElementById('level');
+        const hudTheme               = document.getElementById('theme');
+        const hudTeleports           = document.getElementById('teleports');
+        const hudPaused              = document.getElementById('paused');
+        const pausedStatus           = document.getElementById('pausedStatus');
+        const ctx                    = canvas.getContext('2d');
+        const hudDifficulty          = document.getElementById('currentDifficulty');
+        const announcementDifficulty = document.getElementById('announcementDifficulty');
 
         let CELL_SIZE = 40;
         let ROWS = 15;
@@ -274,6 +278,7 @@
 		document.getElementById('medium').addEventListener('click', () => startGame('medium'));
 		document.getElementById('hard').addEventListener('click', () => startGame('hard'));
 
+
 function startGame(selectedDifficulty) {
     difficulty = selectedDifficulty;
     
@@ -345,7 +350,10 @@ function initGame() {
     // Show level announcement
     announcementLevel.textContent = currentLevel;
     levelName.textContent = getTheme(currentLevel).name;
+    announcementDifficulty.textContent = 
+        `Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
     levelAnnouncement.classList.add('visible');
+
     setTimeout(() => {
         levelAnnouncement.classList.remove('visible');
     }, 3000);
@@ -577,28 +585,35 @@ function initGame() {
             for (const monster of monsters) {
                 if (monster.x === player.x && monster.y === player.y) {
                     alert(`Game Over! You were caught by a monster.\nDifficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`);
-                    currentLevel = 1;
-                    teleports = startingTeleports;
-                    initGame();
+                    showDifficultySelect();
                     return;
                 }
             }
         }
 
-        function updateHUD() {
-            hudLevel.textContent = currentLevel;
-            hudTheme.textContent = getTheme(currentLevel).name;
-            hudTeleports.textContent = teleports;
-            hudPaused.textContent = isPaused ? "Yes" : "No";
+function showDifficultySelect() {
+    document.getElementById('difficultySelect').style.display = 'flex';
+    gameStarted = false;
+    currentLevel = 1;
+    teleports = 1;
+    updateHUD();
+}
 
-            if (isPaused) {
-                pausedStatus.style.color = 'white';
-                pausedStatus.style.backgroundColor = 'black';
-            } else {
-                pausedStatus.style.color = '';
-                pausedStatus.style.backgroundColor = '';
-            }
-        }
+function updateHUD() {
+    hudLevel.textContent = currentLevel;
+    hudTheme.textContent = getTheme(currentLevel).name;
+    hudTeleports.textContent = teleports;
+    hudPaused.textContent = isPaused ? "Yes" : "No";
+    hudDifficulty.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    if (isPaused) {
+        pausedStatus.style.color = 'white';
+        pausedStatus.style.backgroundColor = 'black';
+    } else {
+        pausedStatus.style.color = '';
+        pausedStatus.style.backgroundColor = '';
+    }
+}
 
         function teleportPlayer() {
             if (teleports > 0) {
@@ -635,6 +650,7 @@ function gameLoop() {
 }
 
         document.addEventListener('keydown', (e) => {
+
             const key = e.key;
 
             if (key === 'ArrowRight') {
