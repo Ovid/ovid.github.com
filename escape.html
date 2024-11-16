@@ -68,6 +68,30 @@
                 height: 60vh;
             }
         }
+        #levelAnnouncement {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 1s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #levelAnnouncement.visible {
+            opacity: 1;
+        }
+
+        #levelName {
+            font-size: 36px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -91,22 +115,29 @@
                     <li>Unused teleports carry over to next level.</li>
                     <li>Reach level 6 to win!</li>
                 </ul>
-                <p>This game was primarily built as an experiment with Claude 
-                3.5 Sonnet, and ChatGPT 4. Sometimes the monsters get 
+                <p>This game was primarily built as an experiment with Claude
+                3.5 Sonnet, and ChatGPT 4. Sometimes the monsters get
                 stuck, but this is just a toy and it was fun to build.</p>
             </div>
+        </div>
+        <div id="levelAnnouncement">
+            Level <span id="announcementLevel">1</span>
+            <div id="levelName">Forest</div>
         </div>
         <canvas id="gameCanvas"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const hudLevel = document.getElementById('level');
-        const hudTheme = document.getElementById('theme');
-        const hudTeleports = document.getElementById('teleports');
-        const hudPaused = document.getElementById('paused');
-        const pausedStatus = document.getElementById('pausedStatus');
+        const levelAnnouncement = document.getElementById('levelAnnouncement');
+        const announcementLevel = document.getElementById('announcementLevel');
+        const levelName         = document.getElementById('levelName');
+        const canvas            = document.getElementById('gameCanvas');
+        const hudLevel          = document.getElementById('level');
+        const hudTheme          = document.getElementById('theme');
+        const hudTeleports      = document.getElementById('teleports');
+        const hudPaused         = document.getElementById('paused');
+        const pausedStatus      = document.getElementById('pausedStatus');
+        const ctx               = canvas.getContext('2d');
 
         let CELL_SIZE = 40;
         let ROWS = 15;
@@ -198,23 +229,34 @@
 			stairs = { x: COLS - 2, y: ROWS - 2 };
 			maze[stairs.y][stairs.x] = 2;
 			teleports += 1; // Earn one teleport per level
+
+            // Show level announcement
+            announcementLevel.textContent = currentLevel;
+            levelName.textContent = getTheme(currentLevel).name;
+            levelAnnouncement.classList.add('visible');
+
+            // Hide announcement after 3 seconds
+            setTimeout(() => {
+                levelAnnouncement.classList.remove('visible');
+            }, 3000);
+
 			updateHUD();
 		}
 
         function generateMaze(rows, cols) {
             const maze = Array(rows).fill().map(() => Array(cols).fill(1));
-            
+
             function isValid(x, y) {
                 return x >= 0 && x < cols && y >= 0 && y < rows;
             }
-            
+
             function carvePath(x, y) {
                 const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
-                
+
                 for (const [dx, dy] of directions) {
                     const nx = x + dx;
                     const ny = y + dy;
-                    
+
                     if (isValid(nx, ny) && maze[ny][nx] === 1) {
                         maze[y + dy/2][x + dx/2] = 0;
                         maze[ny][nx] = 0;
@@ -222,9 +264,9 @@
                     }
                 }
             }
-            
+
             carvePath(1, 1);
-            
+
             for (let i = 0; i < rows * cols / 50; i++) {
                 const x = Math.floor(Math.random() * (cols - 2)) + 1;
                 const y = Math.floor(Math.random() * (rows - 2)) + 1;
@@ -233,10 +275,10 @@
                     carvePath(x, y);
                 }
             }
-            
+
             maze[1][1] = 0;
             maze[rows - 2][cols - 2] = 0;
-            
+
             for (let i = 0; i < Math.max(rows, cols) / 8; i++) {
                 const x = Math.floor(Math.random() * (cols - 3)) + 1;
                 const y = Math.floor(Math.random() * (rows - 3)) + 1;
@@ -246,7 +288,7 @@
                     }
                 }
             }
-            
+
             return maze;
         }
 
@@ -330,14 +372,14 @@
         function drawMonsters() {
             const theme = getTheme(currentLevel);
             const ghostColors = theme.monsterColors;
-            
+
             for (let i = 0; i < monsters.length; i++) {
                 const monster = monsters[i];
                 const color = ghostColors[i % ghostColors.length];
                 const x = (monster.x + 0.5) * CELL_SIZE;
                 const y = (monster.y + 0.5) * CELL_SIZE;
                 const radius = CELL_SIZE / 3;
-                
+
                 // Ghost body
                 ctx.fillStyle = color;
                 ctx.beginPath();
@@ -346,14 +388,14 @@
                 ctx.lineTo(x - radius, y + radius / 3);
                 ctx.closePath();
                 ctx.fill();
-                
+
                 // Ghost waves
                 ctx.beginPath();
                 for (let j = -1; j <= 1; j++) {
                     ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
                 }
                 ctx.fill();
-                
+
                 // Eyes
                 ctx.fillStyle = '#fff';
                 const eyeRadius = radius / 5;
@@ -361,7 +403,7 @@
                 ctx.arc(x - radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.arc(x + radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Pupils
                 ctx.fillStyle = '#000';
                 const pupilRadius = radius / 10;
@@ -382,13 +424,13 @@
             for (const monster of monsters) {
                 const possibleMoves = [];
 
-                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1) 
+                if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1)
                     possibleMoves.push({ x: monster.x - 1, y: monster.y });
-                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1) 
+                if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1)
                     possibleMoves.push({ x: monster.x + 1, y: monster.y });
-                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1) 
+                if (monster.y > 0 && maze[monster.y - 1][monster.x] !== 1)
                     possibleMoves.push({ x: monster.x, y: monster.y - 1 });
-                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1) 
+                if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1)
                     possibleMoves.push({ x: monster.x, y: monster.y + 1 });
 
                 possibleMoves.sort((a, b) => {
@@ -458,7 +500,7 @@
                         x: Math.floor(Math.random() * (COLS - 2)) + 1,
                         y: Math.floor(Math.random() * (ROWS - 2)) + 1
                     };
-                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 || 
+                } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
                          monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
 
                 player.x = newPlayerPosition.x;
@@ -495,6 +537,9 @@
 
             if (key === ' ') {
                 isPaused = !isPaused;
+                if (!isPaused) {
+                    levelAnnouncement.classList.remove('visible');
+                }
                 updateHUD();
                 return;
             }
@@ -530,7 +575,7 @@
             const sidebar = document.getElementById('sidebar');
             const maxWidth = window.innerWidth * 0.95 - sidebar.offsetWidth - 40;
             const maxHeight = window.innerHeight * 0.95;
-            
+
             CELL_SIZE = Math.min(
                 Math.floor(maxWidth / COLS),
                 Math.floor(maxHeight / ROWS)
