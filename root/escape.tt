@@ -92,79 +92,165 @@
             font-size: 36px;
             margin-top: 10px;
         }
-        #difficultySelect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
 
-        #difficultySelect h2 {
-            color: white;
-            font-size: 48px;
-            margin-bottom: 50px;
-            font-weight: bold;
-            text-align: center;
-        }
+    #difficultySelect {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(transparent 50%, rgba(0, 0, 0, 0.9) 50%),
+            linear-gradient(90deg, #000046, #1CB5E0);
+        background-size: 4px 4px, 100% 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: scanline 10s linear infinite;
+    }
 
-        .difficulty-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
-            width: 300px;
+    @keyframes scanline {
+        0% {
+            background-position: 0 0;
         }
+        100% {
+            background-position: 0 100%;
+        }
+    }
 
-        .difficulty-btn {
-            width: 100%;
-            padding: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.2s, filter 0.2s;
-            margin-bottom: 10px;
-        }
+    #difficultySelect h2 {
+        font-family: 'courier';
+        color: #fff;
+        font-size: 32px;
+        margin-bottom: 50px;
+        text-align: center;
+        text-shadow: 
+            0 0 10px rgba(255,255,255,0.8),
+            0 0 20px rgba(255,255,255,0.8),
+            0 0 30px rgba(255,255,255,0.8),
+            4px 4px 0 #000;
+        animation: glow 2s ease-in-out infinite alternate;
+    }
 
-        .difficulty-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
+    @keyframes glow {
+        from {
+            text-shadow: 
+                0 0 10px rgba(255,255,255,0.8),
+                0 0 20px rgba(255,255,255,0.8),
+                0 0 30px rgba(255,255,255,0.8),
+                4px 4px 0 #000;
         }
+        to {
+            text-shadow: 
+                0 0 20px rgba(255,255,255,0.8),
+                0 0 30px rgba(255,255,255,0.8),
+                0 0 40px rgba(255,255,255,0.8),
+                4px 4px 0 #000;
+        }
+    }
 
-        .difficulty-desc {
-            color: #ccc;
-            font-size: 18px;
-            text-align: center;
-            font-weight: 300;
-        }
+    .difficulty-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+        width: 300px;
+    }
 
-        #easy {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .difficulty-btn {
+        width: 100%;
+        padding: 15px;
+        font-family: 'courier';
+        font-size: 20px;
+        border: 4px solid #fff;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        position: relative;
+        margin-bottom: 15px;
+        color: white;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+    }
+    
+    .difficulty-btn::before {
+        display: none;
+    }
+    
+    .difficulty-btn:hover {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+    }
+    
+    #easy {
+        background-color: #00ff00;
+        border-color: #00cc00;
+    }
+    
+    #medium {
+        background-color: #ffff00;
+        border-color: #cccc00;
+    }
+    
+    #hard {
+        background-color: #ff0000;
+        border-color: #cc0000;
+    }
 
-        #medium {
-            background-color: #FF9800;
-            color: white;
-        }
+    .difficulty-btn:hover {
+        transform: translate(4px, 4px);
+    }
 
-        #hard {
-            background-color: #F44336;
-            color: white;
-        }
+    .difficulty-btn:hover::after {
+        transform: translate(-4px, -4px);
+    }
+
+    .difficulty-desc {
+        font-family: 'courier';
+        color: #fff;
+        font-size: 12px;
+        text-align: center;
+        opacity: 0.8;
+        line-height: 1.5;
+        text-shadow: 2px 2px #000;
+    }
+
+
+    /* Add scanlines effect */
+    #difficultySelect::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.1),
+            rgba(0, 0, 0, 0.1) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+        pointer-events: none;
+    }
+
+    /* Add blinking effect to title */
+    #difficultySelect h2::after {
+        content: '_';
+        animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
     </style>
 </head>
 <body>
     <div id="difficultySelect">
-        <h2>Select Difficulty</h2>
+        <h2><a name="a-nameselect-difficulty"></a><a name="select-difficulty"></a>Select Difficulty</h2>
         <div class="difficulty-option">
             <button id="easy" class="difficulty-btn">Easy</button>
             <div class="difficulty-desc">Slower monsters, 3 teleports to start</div>
@@ -180,7 +266,7 @@
     </div>
     <div id="container">
         <div id="sidebar">
-            <h1><a name="escape"></a>Escape!</h1>
+            <h1><a name="a-namea-nameescape"></a><a name="a-nameescape"></a><a name="escape"></a>Escape!</h1>
             <div id="hud">
                 <div>Level: <span id="level">1</span></div>
                 <div>Theme: <span id="theme">Forest</span></div>
@@ -226,6 +312,8 @@
         const ctx                    = canvas.getContext('2d');
         const hudDifficulty          = document.getElementById('currentDifficulty');
         const announcementDifficulty = document.getElementById('announcementDifficulty');
+		const max_level              = 6;
+        const door                   = 2;
 
         let CELL_SIZE = 40;
         let ROWS      = 15;
@@ -296,6 +384,11 @@
         let difficulty         = 'medium';
         let monsterSpeed       = 10; // Default speed (medium)
         let startingTeleports  = 2; // Default teleports (medium)
+		let playerPixelPos = { x: CELL_SIZE, y: CELL_SIZE };
+		let playerTargetPos = { x: CELL_SIZE, y: CELL_SIZE };
+		let monstersPixelPos = [];
+		let monstersTargetPos = [];
+		const MOVEMENT_SPEED = 5; 
 
         document.getElementById('easy').addEventListener('click', () => startGame('easy'));
         document.getElementById('medium').addEventListener('click', () => startGame('medium'));
@@ -379,6 +472,18 @@
             setTimeout(() => {
                 levelAnnouncement.classList.remove('visible');
             }, 3000);
+			playerPixelPos = {
+				x: player.x * CELL_SIZE,
+				y: player.y * CELL_SIZE
+			};
+			playerTargetPos = { ...playerPixelPos };
+
+			// Initialize monster pixel positions
+			monstersPixelPos = monsters.map(m => ({
+				x: m.x * CELL_SIZE,
+				y: m.y * CELL_SIZE
+			}));
+			monstersTargetPos = monstersPixelPos.map(pos => ({ ...pos }));
         }
 
         function generateMaze(rows, cols) {
@@ -443,7 +548,7 @@
                         ctx.strokeStyle = theme.wallStroke;
                         ctx.lineWidth = 2;
                         ctx.strokeRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    } else if (maze[y][x] === 2) {
+                    } else if (maze[y][x] === door) {
                         // Draw themed exit door
                         ctx.fillStyle = theme.doorColor;
                         ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
@@ -459,64 +564,65 @@
         }
 
         function drawPlayer() {
-            const x = (player.x + 0.5) * CELL_SIZE;
-            const y = (player.y + 0.5) * CELL_SIZE;
+            const x = playerPixelPos.x + CELL_SIZE / 2;
+            const y = playerPixelPos.y + CELL_SIZE / 2;
             const radius = CELL_SIZE / 3;
             const mouthAngle = Math.PI / 4;
-
+        
             let startAngle, endAngle;
             let eyeXOffset, eyeYOffset;
-
+        
             switch (playerDirection) {
                 case 'right':
                     startAngle = mouthAngle;
                     endAngle = -mouthAngle;
-                    eyeXOffset = radius / 3; // Moved eye slightly inward
+                    eyeXOffset = radius / 3;
                     eyeYOffset = -radius / 1.5;
                     break;
                 case 'left':
                     startAngle = Math.PI + mouthAngle;
                     endAngle = Math.PI - mouthAngle;
-                    eyeXOffset = -radius / 3; // Moved eye slightly inward
+                    eyeXOffset = -radius / 3;
                     eyeYOffset = -radius / 1.5;
                     break;
                 case 'up':
                     startAngle = -Math.PI / 2 + mouthAngle;
                     endAngle = -Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = -radius / 5.8; // Moved eye slightly upward
+                    eyeYOffset = -radius / 5.8;
                     break;
                 case 'down':
                     startAngle = Math.PI / 2 + mouthAngle;
                     endAngle = Math.PI / 2 - mouthAngle;
                     eyeXOffset = -radius / 2.5;
-                    eyeYOffset = radius / 5.8; // Moved eye slightly downward
+                    eyeYOffset = radius / 5.8;
                     break;
             }
-
+        
             ctx.fillStyle = '#ff0';
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.arc(x, y, radius, startAngle, endAngle, false);
             ctx.lineTo(x, y);
             ctx.fill();
-
+        
             ctx.fillStyle = '#00f';
             ctx.beginPath();
             ctx.arc(x + eyeXOffset, y + eyeYOffset, radius / 6, 0, Math.PI * 2);
             ctx.fill();
         }
+        
+        // Update drawMonsters() to use pixel positions
         function drawMonsters() {
             const theme = getTheme(currentLevel);
             const ghostColors = theme.monsterColors;
-
+        
             for (let i = 0; i < monsters.length; i++) {
-                const monster = monsters[i];
+                const x = monstersPixelPos[i].x + CELL_SIZE / 2;
+                const y = monstersPixelPos[i].y + CELL_SIZE / 2;
                 const color = ghostColors[i % ghostColors.length];
-                const x = (monster.x + 0.5) * CELL_SIZE;
-                const y = (monster.y + 0.5) * CELL_SIZE;
                 const radius = CELL_SIZE / 3;
-
+        
                 // Ghost body
                 ctx.fillStyle = color;
                 ctx.beginPath();
@@ -525,14 +631,14 @@
                 ctx.lineTo(x - radius, y + radius / 3);
                 ctx.closePath();
                 ctx.fill();
-
+        
                 // Ghost waves
                 ctx.beginPath();
                 for (let j = -1; j <= 1; j++) {
                     ctx.arc(x + (j * radius / 3), y + radius / 3, radius / 3, 0, Math.PI, true);
                 }
                 ctx.fill();
-
+        
                 // Eyes
                 ctx.fillStyle = '#fff';
                 const eyeRadius = radius / 5;
@@ -540,7 +646,7 @@
                 ctx.arc(x - radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.arc(x + radius / 2.5, y - radius / 5, eyeRadius, 0, Math.PI * 2);
                 ctx.fill();
-
+        
                 // Pupils
                 ctx.fillStyle = '#000';
                 const pupilRadius = radius / 10;
@@ -550,17 +656,54 @@
                 ctx.fill();
             }
         }
+        
+        // Add a new function to update positions
+        function updatePositions() {
+            if (isPaused) return;
+        
+            // Update player position
+            const dx = playerTargetPos.x - playerPixelPos.x;
+            const dy = playerTargetPos.y - playerPixelPos.y;
+            
+            if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+                playerPixelPos.x += Math.sign(dx) * Math.min(Math.abs(dx), MOVEMENT_SPEED);
+                playerPixelPos.y += Math.sign(dy) * Math.min(Math.abs(dy), MOVEMENT_SPEED);
+            } else {
+                playerPixelPos = { ...playerTargetPos };
+            }
+        
+            // Update monster positions
+            for (let i = 0; i < monsters.length; i++) {
+                const dx = monstersTargetPos[i].x - monstersPixelPos[i].x;
+                const dy = monstersTargetPos[i].y - monstersPixelPos[i].y;
+                
+                if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+                    monstersPixelPos[i].x += Math.sign(dx) * Math.min(Math.abs(dx), MOVEMENT_SPEED);
+                    monstersPixelPos[i].y += Math.sign(dy) * Math.min(Math.abs(dy), MOVEMENT_SPEED);
+                } else {
+                    monstersPixelPos[i] = { ...monstersTargetPos[i] };
+                }
+            }
+        }
 
         function moveMonsters() {
             if (isPaused) return;
             monsterMoveCounter++;
             if (monsterMoveCounter % monsterSpeed !== 0) return;
-
+        
+            // Only move monsters if they've reached their target positions
+            const allMonstersAtTarget = monsters.every((m, i) => 
+                Math.abs(monstersPixelPos[i].x - monstersTargetPos[i].x) < 0.1 && 
+                Math.abs(monstersPixelPos[i].y - monstersTargetPos[i].y) < 0.1
+            );
+        
+            if (!allMonstersAtTarget) return;
+        
             const newPositions = [];
-
+        
             for (const monster of monsters) {
                 const possibleMoves = [];
-
+        
                 if (monster.x > 0 && maze[monster.y][monster.x - 1] !== 1)
                     possibleMoves.push({ x: monster.x - 1, y: monster.y });
                 if (monster.x < COLS - 1 && maze[monster.y][monster.x + 1] !== 1)
@@ -569,20 +712,20 @@
                     possibleMoves.push({ x: monster.x, y: monster.y - 1 });
                 if (monster.y < ROWS - 1 && maze[monster.y + 1][monster.x] !== 1)
                     possibleMoves.push({ x: monster.x, y: monster.y + 1 });
-
+        
                 possibleMoves.sort((a, b) => {
                     const distA = Math.abs(a.x - player.x) + Math.abs(a.y - player.y);
                     const distB = Math.abs(b.x - player.x) + Math.abs(b.y - player.y);
                     return distA - distB;
                 });
-
+        
                 if (possibleMoves.length > 0) {
                     newPositions.push({ x: possibleMoves[0].x, y: possibleMoves[0].y });
                 } else {
                     newPositions.push({ x: monster.x, y: monster.y });
                 }
             }
-
+        
             const positionSet = new Set();
             let conflict = false;
             for (const pos of newPositions) {
@@ -593,11 +736,15 @@
                 }
                 positionSet.add(posKey);
             }
-
+        
             if (!conflict) {
                 for (let i = 0; i < monsters.length; i++) {
                     monsters[i].x = newPositions[i].x;
                     monsters[i].y = newPositions[i].y;
+                    monstersTargetPos[i] = {
+                        x: monsters[i].x * CELL_SIZE,
+                        y: monsters[i].y * CELL_SIZE
+                    };
                 }
             }
         }
@@ -646,10 +793,20 @@
                     };
                 } while (maze[newPlayerPosition.y][newPlayerPosition.x] !== 0 ||
                         monsters.some(monster => Math.abs(monster.x - newPlayerPosition.x) <= 3 && Math.abs(monster.y - newPlayerPosition.y) <= 3));
-
+        
+                // Update both grid and pixel positions
                 player.x = newPlayerPosition.x;
                 player.y = newPlayerPosition.y;
+                
+                // Instantly move to new position (no animation)
+                playerPixelPos = {
+                    x: player.x * CELL_SIZE,
+                    y: player.y * CELL_SIZE
+                };
+                playerTargetPos = { ...playerPixelPos };
+        
                 teleports--;
+                // Pause the game after teleporting
                 isPaused = true;
                 updateHUD();
             }
@@ -660,8 +817,9 @@
                 requestAnimationFrame(gameLoop);
                 return;
             }
-
+        
             drawMaze();
+            updatePositions();
             drawPlayer();
             drawMonsters();
             if (!isPaused) {
@@ -670,6 +828,7 @@
             }
             requestAnimationFrame(gameLoop);
         }
+
 
         document.addEventListener('keydown', (e) => {
 
@@ -696,25 +855,32 @@
 
             if (isPaused) return;
 
-            const newX = player.x + (key === 'ArrowRight' ? 1 : key === 'ArrowLeft' ? -1 : 0);
-            const newY = player.y + (key === 'ArrowDown' ? 1 : key === 'ArrowUp' ? -1 : 0);
+			const newX = player.x + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0);
+			const newY = player.y + (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0);
 
-            if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
-                player.x = newX;
-                player.y = newY;
+			if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
+				// Only allow movement if player has reached their current target
+				if (Math.abs(playerPixelPos.x - playerTargetPos.x) < 0.1 && 
+					Math.abs(playerPixelPos.y - playerTargetPos.y) < 0.1) {
+					player.x = newX;
+					player.y = newY;
+					playerTargetPos = {
+						x: player.x * CELL_SIZE,
+						y: player.y * CELL_SIZE
+					};
+				}
 
-                if (maze[newY][newX] === 2) {
+				if (maze[newY][newX] === door) {
                     currentLevel++;
                     isPaused = true;
-                    if (currentLevel > 5) {
+                    if (currentLevel >= max_level) {
                         alert('Congratulations! You won the game!');
                         currentLevel = 1;
                         teleports = 1;
                     }
                     initGame();
                 }
-            }
-
+        }
             if (e.key === 't' || e.key === 'T') {
                 teleportPlayer();
             }
