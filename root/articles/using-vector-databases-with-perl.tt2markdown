@@ -1,0 +1,218 @@
+[%
+    title            = 'Using Vector Databases with Perl';
+    type             = 'articles';
+    slug             = 'using-vector-databases-with-perl';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-11-19';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai}}
+
+# Introduction
+
+As I continue my deep dive into using AI and building solutions for clients, I'm
+often frustrated that Perl, once king of the Web, doesn't have many solutions
+for using vector databases. I've played around with trying to implement them for
+[Pinecone](https://www.pinecone.io/) and [Chroma](https://www.trychroma.com/),
+but to no avail (though I mostly have ChromaDB working). That's when I decided
+to give [pgvector](https://github.com/pgvector/pgvector) a try.
+
+# Vector Databases?
+
+Wait, what's a vector database and why would I want something like that?
+
+Imagine you want customers to be able search for videos. Traditionally, if they
+type in "videos about cats," what happens? "Videos" and "cats" are probably stop
+words, so they won't be in the actual search. The word "cats" is probably
+_stemmed_ to "cat." Stemming is the process of removing suffixes, and perhaps
+using lower-case words, to ensure that whether you search for "Runs", "running",
+or "run", the search index will match all of those against the word "run." The
+more search terms you have which match records in your index, the higher those
+search results are.
+
+Thus, when you search for "videos about cats", you're likely just doing a string
+match against "cat" and you might get videos about cats. You might get videos
+about the Linux `cat` command. You might get videos about [heavy
+equipment](https://www.cat.com/en_US/products/new/equipment.html). You _won't_
+get videos about lions, or tigers, or jaguars, unless someone has gone through
+the laborious process of labeling those videos with "cat."
+
+That's where vector databases come in. They don't search on strings. They search
+on _meaning_. They "know" that cat videos are popular, so "videos about cats"
+will prioritize cat videos and probably include lions, and tigers, and jaguars
+because those are cats. If you want the industrial machinery, you search for
+"Cat equipment" or "Cat machinery" and those videos will be prioritized.
+
+# PgVector
+
+Using vector databases involves taking the data you want to search on and
+creating "embeddings" that are added to the database, and adding metadata so
+that you can match the results against your actual data, filter the results, and
+so on. Just like with a normal database.
+
+With PostgreSQL, by adding the PgVector extension, you probably already have
+that metadata in your database and you can just use standard `JOIN` operations
+to filter. I've created a small example in GitHub of [using PgVector in
+Perl](https://github.com/Ovid/pgvector-perl-example). It just shows the basic
+concepts. If you can figure it out, you're well on your way to being able to do
+semantic search, build recommendation engines, or anything else you desire, but
+there are plenty of caveats.
+
+# How it Works
+
+The code has been thrown together quickly in `AI::Vector::PgVector`. The schema
+and data is embedded directly rather than put into separate data files. It's
+just to make it simple, not to make it production ready. Oh, and I didn't write
+tests, either. Shame on me.
+
+It's also using the experimental `class` syntax with Perl, so it requires
+`v5.40.0` or better.
+
+The schema just has `books` and `book_genres` tables, along with the following:
+
+```sql
+CREATE TABLE book_embeddings (
+  book_embedding_id SERIAL PRIMARY KEY,
+  book_id          INTEGER NOT NULL REFERENCES books(book_id),
+  embedding        vector(1536) NOT NULL, -- actually, you can change this size
+  created_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(book_id)
+);
+```
+
+The embeddings are vectors of 1,536 floating point numbers. We keep them in a
+separate table for two reasons. First, if you're selecting a bunch of book data
+and are filtering on it, the large size of the vectors might cause issues with
+performance. Second, if you're working on the command line, typing `SELECT *
+FROM books WHERE book_id = 42;`, the mass of vector data make it hard to see the
+data you really care about.
+
+But how do you populate the `embedding` field? Behind the scenes, we use
+`AI::Vector::PgVector::Embeddings::OpenAI` and its `get_embeddings` method to
+query OpenAI. Then there's a simplistic private method to convert that to a
+string for insertion into to the database.
+
+Then, when we call the `->query($string)` method, it uses the following SQL to
+search the database:
+
+```sql
+WITH book_distances AS (
+    SELECT b.book_id,
+           b.title,
+           ROUND((be.embedding <=> ?)::numeric, 2) AS rounded_distance,
+           b.summary,
+           g.name AS genre
+    FROM   books b
+    JOIN   book_genres g      ON b.book_genre_id = g.book_genre_id
+    JOIN   book_embeddings be ON b.book_id       = be.book_id
+)
+SELECT   book_id,
+         genre,
+         title,
+         summary,
+         rounded_distance AS distance
+FROM     book_distances
+WHERE    rounded_distance <= ?
+ORDER BY distance
+```
+
+The key line this this:
+
+```sql
+ROUND((be.embedding <=> ?)::numeric, 2) AS rounded_distance,
+```
+
+`<=>` is one of the new operators added by the PgVector extension. This
+particular operator is the "cosine distance" operator. Without going into
+detail, this operator is a best practice when doing a text search. Yes, you
+probably have a lot of homework to do if you want to use this for images or
+something else.
+
+# Example Query
+
+I like cats, so let's search our database for cats. Cats who like celebrations.
+(note: all books are fictional).
+
+```perl
+use v5.40.0;
+use AI::Vector::PgVector;
+
+my $pgvector = AI::Vector::PgVector->new( verbose => 0 );
+
+$pgvector->build_db;
+my $results = $pgvector->query(
+  'felines who like to party', # the search
+  .81                          # optional distance cutoff
+);
+foreach my $book ( $results->@* ) {
+    say $book->distance . ' ' . $book->summary;
+}
+```
+
+That might return the following results (highlighting is just for this article):
+
+* 0.53 Three clever **cats** living in Mexico City work together to protect a beautiful **birthday** piñata from a mischievous group of mice. Through teamwork and ingenuity, they learn about friendship while experiencing the joy of a traditional **celebration.**
+* 0.57 Mei's **cat** Bao refuses to miss out on the Lunar New Year **celebrations**.  As Mei prepares traditional foods with her grandmother, Bao secretly organizes all the neighborhood **cats** for a spectacular **parade** that brings the whole community together.
+* 0.76 When strange noises come from Ms. Thompson's brownstone, the neighborhood kids assume it's haunted. But Zara and her detective **cat** Mr. Midnight discover
+something unexpected about their community's history.
+* 0.78 Deepa discovers an ancient temple in Mumbai filled with magical books containing stories from across India. With her magical tabby **cat** guide, she must protect the sacred stories from being forgotten.
+* 0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries * in his neighborhood. When instruments start disappearing before the big * cultural **festival**, he must follow the beats to find the truth.
+* 0.81 When Aiden accidentally opens his grandmother's old box, he releases friendly versions of Caribbean folklore creatures. With help from local elders, he learns about his heritage while trying to get the creatures back home.
+
+In the above, you'll note that _none_ of the summaries have either the word
+"feline" or "party" in them. The very first result clearly refers to cats and
+while it doesn't talk about a birthday party, it ranks ahead of the second
+result, possibly, because the birthday piñata is clearly for a party while the
+New Year's Even celebration might not associate strong enough with a party.
+
+The third and fourth results have "cat", but don't have anything to do with
+"party", so their distances is are much farther. The fifth result has no cats
+(which presumably the embedding knows is the most important factor), but does
+mention a festival.
+
+The last result mentions neither cats nor parties, but "party" is presumably
+closer in the vector space to "friendly", so that's why it's ranked higher. If
+you increase the optional distance cutoff, you'll get more and more results
+which don't appear to obviously match your query.
+
+That last point is a key difference between text search and semantic search:
+text search doesn't return records which don't match, but can't understand the
+meaning of your search.
+
+Semantic search understands the meaning, but can't really filter out results
+which don't match. These technologies are powerful, but they're still in their
+infancy.
+
+# Larger Data Sets
+
+This is only the beginning. Later, if you want to do more, you might want to
+dump entire books into a vector database. Beware! You need to break the texts
+into smaller, _overlapping_ chunks to ensure you don't exceed the limit of
+tokens when the strings are turned into embeddings. They need to overlap to
+ensure you can get context from chunk to chunk. You probably need to return
+unique results for that, but decide how to rank them. If one book gets five hits
+and another only gets two, do you use the number of hits, the match distance, or
+what?
+
+# Conclusion
+
+Vector databases aren't magic wands and they don't replace regular databases,
+but the ability to search semantically is a powerful one. Trying to make this
+work with traditional databases or search engines often involves a lot of work
+trying to label your data. In fact, they're so powerful that Elastic is now
+offering [vector database searching in ElasticSearch and
+Lucene](https://www.elastic.co/search-labs/blog/better-binary-quantization-lucene-elasticsearch).
+
+So that's it. This is only a toy example and would need a lot more work for
+production code, but hopefully it will give a rough idea of what you can do with
+vector databases, and better yet, how to leverage this in Perl!
+
+[%- END %]

@@ -22,10 +22,10 @@
   
   <meta property="og:type" content="article" />
   
-  <meta property="og:url" content="https://ovid.github.io/articles/escape-adventurs-in-ai-gaming.html" />
+  <meta property="og:url" content="https://ovid.github.io/articles/using-vector-databases-with-perl.html" />
   
-  <meta property="og:title" content="Escape!-Adventures in AI Gaming" />
-  <meta property="og:description" content="I have updated my previous work with Claude to dramatically improve a Javascript game." />
+  <meta property="og:title" content="Using Vector Databases with Perl" />
+  <meta property="og:description" content="Vector databases are amazing, but there are few options with Perl. If you use PostgreSQL, now you have one." />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -35,8 +35,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Escape!-Adventures in AI Gaming</title>
-  <meta name="description" content="Escape!-Adventures in AI Gaming">
+  <title>Using Vector Databases with Perl</title>
+  <meta name="description" content="Using Vector Databases with Perl">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
@@ -80,8 +80,8 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Escape!-Adventures in AI Gaming</h1>
-        <time>2024-11-16</time>
+        <h1><a name="-title-no-title-found-"></a>Using Vector Databases with Perl</h1>
+        <time>2024-11-19</time>
         
         <p><span id="time"></span> minute read</p>
         
@@ -229,9 +229,9 @@
 
         <div class="prevNext">
         
-        <a href="/articles/using-ai-to-fight-misinformation.html" class="prevPost">&laquo; Using AI to Fight Misinformation</a>
+        <a href="/articles/escape-adventurs-in-ai-gaming.html" class="prevPost">&laquo; Escape!-Adventurs in AI Gaming</a>
         
-        <a href="/articles/using-vector-databases-with-perl.html" class="nextPost">Using Vector Databases with Perl &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
     
@@ -240,8 +240,6 @@
     <li>Tags:</li>
 
     <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
-
-    <li><a href="/tags/programming.html">Programming</a> </li>
 
 </ul>
 
@@ -257,8 +255,11 @@
 <p><nav role="navigation" class="table-of-contents">
     <ul>
     <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#this-time-the-game-is-fun">This Time, the Game is Fun!</a></li>
-    <li class="indent-1"><a href="#bad-code">Bad Code</a></li>
+    <li class="indent-1"><a href="#vector-databases">Vector Databases?</a></li>
+    <li class="indent-1"><a href="#pgvector">PgVector</a></li>
+    <li class="indent-1"><a href="#how-it-works">How it Works</a></li>
+    <li class="indent-1"><a href="#example-query">Example Query</a></li>
+    <li class="indent-1"><a href="#larger-data-sets">Larger Data Sets</a></li>
     <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
     </ul>
 </nav>
@@ -266,193 +267,201 @@
 
 <h1><a name="introduction"></a>Introduction</h1>
 
-<p>Previously in my attempts <a href="/articles/claude-sonnet-35-beats-chatgpt-40.html">to write a JavaScript game with
-AI</a>, I was trying out Claude
-3.5 Sonnet and I was impressed because it was definitely coding better than
-ChatGPT 4o. There are rumors that OpenAI will be releasing a new model next
-year, but the word in the industry is that newer models seem to be incremental
-improvements rather than seismic ones. I’m happy about that because I want to
-see more work leveraging what we have (including reducing energy consumption!)
-rather than the mad rush to build bigger and better <a href="https://www.ft.com/content/ed602e09-6c40-4979-aff9-7453ee28406a" target="_blank">nuclear-powered
-AI</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>As I continue my deep dive into using AI and building solutions for clients, I’m
+often frustrated that Perl, once king of the Web, doesn’t have many solutions
+for using vector databases. I’ve played around with trying to implement them for
+<a href="https://www.pinecone.io/" target="_blank">Pinecone</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://www.trychroma.com/" target="_blank">Chroma</a> <span class="fa fa-external-link fa_custom"></span>,
+but to no avail (though I mostly have ChromaDB working). That’s when I decided
+to give <a href="https://github.com/pgvector/pgvector" target="_blank">pgvector</a> <span class="fa fa-external-link fa_custom"></span> a try.</p>
 
-<p>So yesterday, after a frustrating day of trying to make vector databases play
-better with Perl, I put that aside a bit and returned to the game. I previously hit
-my limit with Claude, but now I’m paying for it (along with ChatGPT and Gemini). I decided
-to make the game more useful (it’s still awful on mobile). Along the way, I took detours
-into ChatGPT and Gemini.</p>
+<h1><a name="vector-databases"></a>Vector Databases?</h1>
 
-<p><a href="/escape.html">The game is here</a>, if you want to skip the article.</p>
+<p>Wait, what’s a vector database and why would I want something like that?</p>
 
-<p><figure class="image">
-    <div class="image-container">
-        <img src="/static/images/space-station-level.png" width="600" alt="The image displays a video game screen for &quot;Level 3: Space Station,&quot; featuring a dark background with a grid of light squares. In the center, there are two colorful characters—one blue and one red—along with a yellow object at the bottom right, indicating the player's position or goal.">
-    <figcaption>The Space Station Level </figcaption>
-    </div>
-</figure></p>
+<p>Imagine you want customers to be able search for videos. Traditionally, if they
+type in “videos about cats,” what happens? “Videos” and “cats” are probably stop
+words, so they won’t be in the actual search. The word “cats” is probably
+<em>stemmed</em> to “cat.” Stemming is the process of removing suffixes, and perhaps
+using lower-case words, to ensure that whether you search for “Runs”, “running”,
+or “run”, the search index will match all of those against the word “run.” The
+more search terms you have which match records in your index, the higher those
+search results are.</p>
 
-<h1><a name="this-time-the-game-is-fun"></a>This Time, the Game is Fun!</h1>
+<p>Thus, when you search for “videos about cats”, you’re likely just doing a string
+match against “cat” and you might get videos about cats. You might get videos
+about the Linux <code>cat</code> command. You might get videos about <a href="https://www.cat.com/en_US/products/new/equipment.html" target="_blank">heavy
+equipment</a> <span class="fa fa-external-link fa_custom"></span>. You <em>won’t</em>
+get videos about lions, or tigers, or jaguars, unless someone has gone through
+the laborious process of labeling those videos with “cat.”</p>
 
-<p>I turned to Claude first. Claude has now become my <em>go to</em> assistant for coding,
-writing, and brainstorming. Unfortunately, it’s still a bit slow and if you have
-long sessions, it gets cranky and limits your access for a while. But still,
-when I can use it, it’s the best.</p>
+<p>That’s where vector databases come in. They don’t search on strings. They search
+on <em>meaning</em>. They “know” that cat videos are popular, so “videos about cats”
+will prioritize cat videos and probably include lions, and tigers, and jaguars
+because those are cats. If you want the industrial machinery, you search for
+“Cat equipment” or “Cat machinery” and those videos will be prioritized.</p>
 
-<p>So, step-by-step, I started adding various features.</p>
+<h1><a name="pgvector"></a>PgVector</h1>
 
-<ol>
-<li>Select “Easy,” “Medium,” and “Hard” difficulty levels</li>
-<li>Create themes for each level, such as “Forest,” or “Ice Cave”</li>
-<li>One teleport per level, but unused teleports carry over</li>
-<li>You win if you can reach level 6 (not easy on hard!)</li>
-<li>Resize the game to fit your browser.</li>
-</ol>
+<p>Using vector databases involves taking the data you want to search on and
+creating “embeddings” that are added to the database, and adding metadata so
+that you can match the results against your actual data, filter the results, and
+so on. Just like with a normal database.</p>
 
-<p>The game was kind of fun before, but now it’s a cross between a thinking
-game, and a logic puzzle. You can pause with the space bar and try to figure
-out if your reflexes are fast enough to sneak past the monsters. The different
-themes per level really make the game stand out. I’m enjoying it.</p>
+<p>With PostgreSQL, by adding the PgVector extension, you probably already have
+that metadata in your database and you can just use standard <code>JOIN</code> operations
+to filter. I’ve created a small example in GitHub of <a href="https://github.com/Ovid/pgvector-perl-example" target="_blank">using PgVector in
+Perl</a> <span class="fa fa-external-link fa_custom"></span>. It just shows the basic
+concepts. If you can figure it out, you’re well on your way to being able to do
+semantic search, build recommendation engines, or anything else you desire, but
+there are plenty of caveats.</p>
 
-<p><figure class="captioned">
-    <div class="image-container">
-        <img src="/static/images/pacman-bad-eyes.png" width="600" alt="A pacman-like character with the eye on the rim of the mouth">
-    <figcaption>The eyes were awful. </figcaption>
-    </div>
-</figure></p>
+<h1><a name="how-it-works"></a>How it Works</h1>
 
-<p>It was a pleasant hour or so, adding all of these features and tweaking the game
-play, but there was one thing I finally couldn’t stand any more. Claude had
-never been able to get the eyes right. I decided to tackle that.</p>
+<p>The code has been thrown together quickly in <code>AI::Vector::PgVector</code>. The schema
+and data is embedded directly rather than put into separate data files. It’s
+just to make it simple, not to make it production ready. Oh, and I didn’t write
+tests, either. Shame on me.</p>
 
-<p>It was a frustrating fifteen minutes, with eyes all over the place. I finally
-gave up and turned to ChatGPT. Wash, rinse, repeat. This, apparently, is a hard
-problem. My goal of writing no code wasn’t working. I was about to adjust the
-code, when I had a thought. A curious thought. One that rarely turns out well
-for me.</p>
+<p>It’s also using the experimental <code>class</code> syntax with Perl, so it requires
+<code>v5.40.0</code> or better.</p>
 
-<p>I turned to Google’s Gemini. I have a paid account there, too. Mainly this is
-for the one million token context window and the Google Docs integration. Those
-are Gemini’s saving grace. Nothing else is good. I knew Gemini would fail, but I
-gave it a shot. I uploaded the image, shared the HTML, and wrote the following
-prompt:</p>
+<p>The schema just has <code>books</code> and <code>book_genres</code> tables, along with the following:</p>
 
-<blockquote>
-  <p>For the following game, you’ll notice that the eye of the main character is on
-  the edge of the mouth. I would like it positioned more naturally in the head.
-  I’ve tried with other LLMs and they either lose the pacman shape altogether,
-  or they get the eye outside the head entirely.</p>
-</blockquote>
+<div class="shadow"><pre class="scrolled"><code class="language-sql">CREATE TABLE book_embeddings (
+  book_embedding_id SERIAL PRIMARY KEY,
+  book_id          INTEGER NOT NULL REFERENCES books(book_id),
+  embedding        vector(1536) NOT NULL, -- actually, you can change this size
+  created_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(book_id)
+);
+</code></pre></div>
 
-<p>Have I mentioned that Gemini is terrible? Yes, it’s terrible. So imagine my
-shock when I applied its suggestion and it worked! Unlike Claude and ChatGPT,
-it actually moved the eye closer inside the body. I was stunned. This was the
-first time that Gemini undeniably did something Claude and ChatGPT couldn’t.
-Fantastic!</p>
+<p>The embeddings are vectors of 1,536 floating point numbers. We keep them in a
+separate table for two reasons. First, if you’re selecting a bunch of book data
+and are filtering on it, the large size of the vectors might cause issues with
+performance. Second, if you’re working on the command line, typing <code>SELECT *
+FROM books WHERE book_id = 42;</code>, the mass of vector data make it hard to see the
+data you really care about.</p>
 
-<p>But even though it correctly moved the eye, it was still touching the lip, even
-though it wasn’t overlapping it. So I issued another prompt:</p>
+<p>But how do you populate the <code>embedding</code> field? Behind the scenes, we use
+<code>AI::Vector::PgVector::Embeddings::OpenAI</code> and its <code>get_embeddings</code> method to
+query OpenAI. Then there’s a simplistic private method to convert that to a
+string for insertion into to the database.</p>
 
-<blockquote>
-  <p>That definitely looks better. Can you move it a bit further inside the body?</p>
-</blockquote>
+<p>Then, when we call the <code>-&gt;query($string)</code> method, it uses the following SQL to
+search the database:</p>
 
-<p><a href="https://gemini.google.com/app/eeced9653ed03a4e" target="_blank">And Gemini dutifully replied</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+<div class="shadow"><pre class="scrolled"><code class="language-sql">WITH book_distances AS (
+    SELECT b.book_id,
+           b.title,
+           ROUND((be.embedding &lt;=&gt; ?)::numeric, 2) AS rounded_distance,
+           b.summary,
+           g.name AS genre
+    FROM   books b
+    JOIN   book_genres g      ON b.book_genre_id = g.book_genre_id
+    JOIN   book_embeddings be ON b.book_id       = be.book_id
+)
+SELECT   book_id,
+         genre,
+         title,
+         summary,
+         rounded_distance AS distance
+FROM     book_distances
+WHERE    rounded_distance &lt;= ?
+ORDER BY distance
+</code></pre></div>
 
-<blockquote>
-  <p>I’m a text-based AI, and that is outside of my capabilities.</p>
-</blockquote>
+<p>The key line this this:</p>
 
-<p>Have I mentioned that Gemini is terrible?</p>
+<div class="shadow"><pre class="scrolled"><code class="language-sql">ROUND((be.embedding &lt;=&gt; ?)::numeric, 2) AS rounded_distance,
+</code></pre></div>
 
-<p>Fortunately, since its first attempt sort of worked, I manually adjusted the
-numbers to get the eyes inside the head. Finally.</p>
+<p><code>&lt;=&gt;</code> is one of the new operators added by the PgVector extension. This
+particular operator is the “cosine distance” operator. Without going into
+detail, this operator is a best practice when doing a text search. Yes, you
+probably have a lot of homework to do if you want to use this for images or
+something else.</p>
 
-<h1><a name="bad-code"></a>Bad Code</h1>
+<h1><a name="example-query"></a>Example Query</h1>
 
-<p>Yes, Claude is still writing bad code. Here’s a great example:</p>
+<p>I like cats, so let’s search our database for cats. Cats who like celebrations.
+(note: all books are fictional).</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-javascript">if (maze[newY][newX] === 2) {
-    currentLevel++;
-    isPaused = true;
-    if (currentLevel &gt; 5) {
-        alert('Congratulations! You won the game!');
-        currentLevel = 1;
-        teleports = 1;
-    }
-    initGame();
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use v5.40.0;
+use AI::Vector::PgVector;
+
+my $pgvector = AI::Vector::PgVector-&gt;new( verbose =&gt; 0 );
+
+$pgvector-&gt;build_db;
+my $results = $pgvector-&gt;query(
+  'felines who like to party', # the search
+  .81                          # optional distance cutoff
+);
+foreach my $book ( $results-&gt;@* ) {
+    say $book-&gt;distance . ' ' . $book-&gt;summary;
 }
 </code></pre></div>
 
-<p>What is <code>2</code> above? Why is the maximum level of 6 hard-coded as <code>&gt; 5</code>? It should look
-closer to something like this:</p>
+<p>That might return the following results (highlighting is just for this article):</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-javascript">if (maze[newY][newX] === DOOR) {
+<ul>
+<li>0.53 Three clever <strong>cats</strong> living in Mexico City work together to protect a beautiful <strong>birthday</strong> piñata from a mischievous group of mice. Through teamwork and ingenuity, they learn about friendship while experiencing the joy of a traditional <strong>celebration.</strong></li>
+<li>0.57 Mei’s <strong>cat</strong> Bao refuses to miss out on the Lunar New Year <strong>celebrations</strong>.  As Mei prepares traditional foods with her grandmother, Bao secretly organizes all the neighborhood <strong>cats</strong> for a spectacular <strong>parade</strong> that brings the whole community together.</li>
+<li>0.76 When strange noises come from Ms. Thompson’s brownstone, the neighborhood kids assume it’s haunted. But Zara and her detective <strong>cat</strong> Mr. Midnight discover
+something unexpected about their community’s history.</li>
+<li>0.78 Deepa discovers an ancient temple in Mumbai filled with magical books containing stories from across India. With her magical tabby <strong>cat</strong> guide, she must protect the sacred stories from being forgotten.</li>
+<li>0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries * in his neighborhood. When instruments start disappearing before the big * cultural <strong>festival</strong>, he must follow the beats to find the truth.</li>
+<li>0.81 When Aiden accidentally opens his grandmother’s old box, he releases friendly versions of Caribbean folklore creatures. With help from local elders, he learns about his heritage while trying to get the creatures back home.</li>
+</ul>
 
-    // You reached the exit, so let's
-    // go to to the next level
-    currentLevel++;
-    isPaused = true;
-    if (currentLevel &gt;= MAX_LEVEL) {
-        alert('Congratulations! You won the game!');
-        currentLevel = 1;
-        teleports    = 1;
-    }
-    initGame();
-}
-</code></pre></div>
+<p>In the above, you’ll note that <em>none</em> of the summaries have either the word
+“feline” or “party” in them. The very first result clearly refers to cats and
+while it doesn’t talk about a birthday party, it ranks ahead of the second
+result, possibly, because the birthday piñata is clearly for a party while the
+New Year’s Even celebration might not associate strong enough with a party.</p>
 
-<p>Time for another prompt:</p>
+<p>The third and fourth results have “cat”, but don’t have anything to do with
+“party”, so their distances is are much farther. The fifth result has no cats
+(which presumably the embedding knows is the most important factor), but does
+mention a festival.</p>
 
-<blockquote>
-  <p>In the game, we often see hardcoded values like this:</p>
-  
-  <p><code>if (isValid(nx, ny) &amp;&amp; maze[ny][nx] === 1) {</code></p>
-  
-  <p>And this:</p>
-  
-  <p><code>} else if (maze[y][x] === 2) {</code></p>
-  
-  <p>Please extract all appropriate hard-coded values and replace
-  them with named constants to make the code easier for a
-  human to understand.</p>
-</blockquote>
+<p>The last result mentions neither cats nor parties, but “party” is presumably
+closer in the vector space to “friendly”, so that’s why it’s ranked higher. If
+you increase the optional distance cutoff, you’ll get more and more results
+which don’t appear to obviously match your query.</p>
 
-<p>Claude did its thing. It generated tons of constants, documented those that
-might be confusing, failed to use most of them, and hallucinated a new
-function, <code>initMonsters</code>, and failed to call the function it hallucinated.</p>
+<p>That last point is a key difference between text search and semantic search:
+text search doesn’t return records which don’t match, but can’t understand the
+meaning of your search.</p>
 
-<p>As I explain to managers and developers: AI are talented junior developers who
-never learn. They’re cheap, they’re fast, they never get tired, they never file
-HR complaints, and they can code in more languages than you’ve ever heard of.
-But they don’t code well and they don’t learn (short of fine-tuning your own
-model or using RAG).</p>
+<p>Semantic search understands the meaning, but can’t really filter out results
+which don’t match. These technologies are powerful, but they’re still in their
+infancy.</p>
 
-<p>So don’t worry yet, devs. Your jobs are still safe. For a while.</p>
+<h1><a name="larger-data-sets"></a>Larger Data Sets</h1>
+
+<p>This is only the beginning. Later, if you want to do more, you might want to
+dump entire books into a vector database. Beware! You need to break the texts
+into smaller, <em>overlapping</em> chunks to ensure you don’t exceed the limit of
+tokens when the strings are turned into embeddings. They need to overlap to
+ensure you can get context from chunk to chunk. You probably need to return
+unique results for that, but decide how to rank them. If one book gets five hits
+and another only gets two, do you use the number of hits, the match distance, or
+what?</p>
 
 <h1><a name="conclusion"></a>Conclusion</h1>
 
-<p>I’m looking forward to the next release of ChatGPT, but for now, Claude is still
-my first choice. Gemini is terrible. That’s a shame because Google clearly has
-the skills to do amazing things and I love some of the research papers they’re
-releasing around AIs, particularly their work in reducing hallucinations, but
-for now, if you’re not using Google Docs, it’s just not worth it.</p>
+<p>Vector databases aren’t magic wands and they don’t replace regular databases,
+but the ability to search semantically is a powerful one. Trying to make this
+work with traditional databases or search engines often involves a lot of work
+trying to label your data. In fact, they’re so powerful that Elastic is now
+offering <a href="https://www.elastic.co/search-labs/blog/better-binary-quantization-lucene-elasticsearch" target="_blank">vector database searching in ElasticSearch and
+Lucene</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
-<p>Claude is king.</p>
-
-<p>But ... ChatGPT does offer something which is a killer feature. <a href="https://github.com/openai/openai-openapi" target="_blank">They have a
-published OpenAPI spec</a> <span class="fa fa-external-link fa_custom"></span> that is
-regularly updated. Anthropic does not. There’s <a href="https://github.com/KoushikNavuluri/Claude-API" target="_blank">an unofficial
-spec</a> <span class="fa fa-external-link fa_custom"></span> and a <a href="https://github.com/missuo/claude2openai" target="_blank">Claude to OpenAPI
-API translator</a> <span class="fa fa-external-link fa_custom"></span>, but nothing from
-Anthropic.</p>
-
-<p>I’ve seen this problem with vector databases, too. You can fire up
-<a href="https://github.com/chroma-core/chroma" target="_blank">ChromaDB</a> <span class="fa fa-external-link fa_custom"></span> and get its spec from
-<code>http://localhost:8000/openapi.json</code>, but I can’t find anything like that for
-<a href="https://www.pinecone.io/" target="_blank">Pinecone</a> <span class="fa fa-external-link fa_custom"></span>. To me, this is mystifying. Having such a
-spec makes it <em>much</em> easier to work with API-driven products. I have no idea
-why so many companies are making it harder to use their product. So kudos to
-OpenAI for this.</p>
+<p>So that’s it. This is only a toy example and would need a lot more work for
+production code, but hopefully it will give a rough idea of what you can do with
+vector databases, and better yet, how to leverage this in Perl!</p>
 
 </article>
 
@@ -517,9 +526,9 @@ OpenAI for this.</p>
 <hr>
     <div class="prevNext">
         
-        <a href="/articles/using-ai-to-fight-misinformation.html" class="prevPost">&laquo; Using AI to Fight Misinformation</a>
+        <a href="/articles/escape-adventurs-in-ai-gaming.html" class="prevPost">&laquo; Escape!-Adventurs in AI Gaming</a>
         
-        <a href="/articles/using-vector-databases-with-perl.html" class="nextPost">Using Vector Databases with Perl &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
 <hr>
@@ -547,9 +556,9 @@ OpenAI for this.</p>
       
         <script>
         var disqus_config = function () {
-            this.page.url        = "https://ovid.github.io/articles/escape-adventurs-in-ai-gaming.html";
-            this.page.identifier = "articles/escape-adventurs-in-ai-gaming";
-            this.page.title      = "Escape!-Adventures in AI Gaming";
+            this.page.url        = "https://ovid.github.io/articles/using-vector-databases-with-perl.html";
+            this.page.identifier = "articles/using-vector-databases-with-perl";
+            this.page.title      = "Using Vector Databases with Perl";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
