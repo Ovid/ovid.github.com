@@ -28,13 +28,13 @@ to give [pgvector](https://github.com/pgvector/pgvector) a try.
 
 Wait, what's a vector database and why would I want something like that?
 
-Imagine you want customers to be able search for videos. Traditionally, if they 
-type in "videos about cats," what happens? "Videos" and "about" are probably 
-stop words, so they won't be in the actual search. The word "cats" is probably 
-_stemmed_ to "cat." Stemming is the process of removing suffixes, and perhaps 
-using lower-case words, to ensure that whether you search for "Runs", "running", 
-or "run", the search index will match all of those against the word "run." The 
-more search terms you have which match records in your index, the higher those 
+Imagine you want customers to be able search for videos. Traditionally, if they
+type in "videos about cats," what happens? "Videos" and "about" are probably
+stop words, so they won't be in the actual search. The word "cats" is probably
+_stemmed_ to "cat." Stemming is the process of removing suffixes, and perhaps
+using lower-case words, to ensure that whether you search for "Runs", "running",
+or "run", the search index will match all of those against the word "run." The
+more search terms you have which match records in your index, the higher those
 search results are.
 
 Thus, when you search for "videos about cats", you're likely just doing a string
@@ -80,10 +80,10 @@ The schema just has `books` and `book_genres` tables, along with the following:
 ```sql
 CREATE TABLE book_embeddings (
   book_embedding_id SERIAL PRIMARY KEY,
-  book_id          INTEGER NOT NULL REFERENCES books(book_id),
-  embedding        vector(1536) NOT NULL, -- actually, you can change this size
-  created_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  book_id INTEGER NOT NULL REFERENCES books(book_id),
+  embedding vector(1536) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(book_id)
 );
 ```
@@ -107,12 +107,15 @@ search the database:
 WITH book_distances AS (
     SELECT b.book_id,
            b.title,
-           ROUND((be.embedding <=> ?)::numeric, 2) AS rounded_distance,
+           ROUND((be.embedding <=> ?)::numeric, 2)
+             AS rounded_distance,
            b.summary,
            g.name AS genre
     FROM   books b
-    JOIN   book_genres g      ON b.book_genre_id = g.book_genre_id
-    JOIN   book_embeddings be ON b.book_id       = be.book_id
+    JOIN   book_genres g      
+      ON   b.book_genre_id = g.book_genre_id
+    JOIN   book_embeddings be 
+      ON   b.book_id       = be.book_id
 )
 SELECT   book_id,
          genre,
@@ -127,7 +130,8 @@ ORDER BY distance
 The key line this this:
 
 ```sql
-ROUND((be.embedding <=> ?)::numeric, 2) AS rounded_distance,
+ROUND((be.embedding <=> ?)::numeric, 2)
+  AS rounded_distance,
 ```
 
 `<=>` is one of the new operators added by the PgVector extension. This
@@ -149,8 +153,10 @@ my $pgvector = AI::Vector::PgVector->new( verbose => 0 );
 
 $pgvector->build_db;
 my $results = $pgvector->query(
-  'felines who like to party', # the search
-  .81                          # optional distance cutoff
+  # the search
+  'felines who like to party',
+  # optional distance cutoff
+  .81
 );
 foreach my $book ( $results->@* ) {
     say $book->distance . ' ' . $book->summary;
@@ -164,7 +170,7 @@ That might return the following results (highlighting is just for this article):
 * 0.76 When strange noises come from Ms. Thompson's brownstone, the neighborhood kids assume it's haunted. But Zara and her detective **cat** Mr. Midnight discover
 something unexpected about their community's history.
 * 0.78 Deepa discovers an ancient temple in Mumbai filled with magical books containing stories from across India. With her magical tabby **cat** guide, she must protect the sacred stories from being forgotten.
-* 0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries * in his neighborhood. When instruments start disappearing before the big * cultural **festival**, he must follow the beats to find the truth.
+* 0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries in his neighborhood. When instruments start disappearing before the big cultural **festival**, he must follow the beats to find the truth.
 * 0.81 When Aiden accidentally opens his grandmother's old box, he releases friendly versions of Caribbean folklore creatures. With help from local elders, he learns about his heritage while trying to get the creatures back home.
 
 In the above, you'll note that _none_ of the summaries have either the word

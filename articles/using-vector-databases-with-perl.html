@@ -278,13 +278,13 @@ to give <a href="https://github.com/pgvector/pgvector" target="_blank">pgvector<
 
 <p>Wait, what’s a vector database and why would I want something like that?</p>
 
-<p>Imagine you want customers to be able search for videos. Traditionally, if they 
-type in “videos about cats,” what happens? “Videos” and “about” are probably 
-stop words, so they won’t be in the actual search. The word “cats” is probably 
-<em>stemmed</em> to “cat.” Stemming is the process of removing suffixes, and perhaps 
-using lower-case words, to ensure that whether you search for “Runs”, “running”, 
-or “run”, the search index will match all of those against the word “run.” The 
-more search terms you have which match records in your index, the higher those 
+<p>Imagine you want customers to be able search for videos. Traditionally, if they
+type in “videos about cats,” what happens? “Videos” and “about” are probably
+stop words, so they won’t be in the actual search. The word “cats” is probably
+<em>stemmed</em> to “cat.” Stemming is the process of removing suffixes, and perhaps
+using lower-case words, to ensure that whether you search for “Runs”, “running”,
+or “run”, the search index will match all of those against the word “run.” The
+more search terms you have which match records in your index, the higher those
 search results are.</p>
 
 <p>Thus, when you search for “videos about cats”, you’re likely just doing a string
@@ -329,10 +329,10 @@ tests, either. Shame on me.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-sql">CREATE TABLE book_embeddings (
   book_embedding_id SERIAL PRIMARY KEY,
-  book_id          INTEGER NOT NULL REFERENCES books(book_id),
-  embedding        vector(1536) NOT NULL, -- actually, you can change this size
-  created_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  book_id INTEGER NOT NULL REFERENCES books(book_id),
+  embedding vector(1536) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(book_id)
 );
 </code></pre></div>
@@ -355,12 +355,15 @@ search the database:</p>
 <div class="shadow"><pre class="scrolled"><code class="language-sql">WITH book_distances AS (
     SELECT b.book_id,
            b.title,
-           ROUND((be.embedding &lt;=&gt; ?)::numeric, 2) AS rounded_distance,
+           ROUND((be.embedding &lt;=&gt; ?)::numeric, 2)
+             AS rounded_distance,
            b.summary,
            g.name AS genre
     FROM   books b
-    JOIN   book_genres g      ON b.book_genre_id = g.book_genre_id
-    JOIN   book_embeddings be ON b.book_id       = be.book_id
+    JOIN   book_genres g      
+      ON   b.book_genre_id = g.book_genre_id
+    JOIN   book_embeddings be 
+      ON   b.book_id       = be.book_id
 )
 SELECT   book_id,
          genre,
@@ -374,7 +377,8 @@ ORDER BY distance
 
 <p>The key line this this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-sql">ROUND((be.embedding &lt;=&gt; ?)::numeric, 2) AS rounded_distance,
+<div class="shadow"><pre class="scrolled"><code class="language-sql">ROUND((be.embedding &lt;=&gt; ?)::numeric, 2)
+  AS rounded_distance,
 </code></pre></div>
 
 <p><code>&lt;=&gt;</code> is one of the new operators added by the PgVector extension. This
@@ -395,8 +399,10 @@ my $pgvector = AI::Vector::PgVector-&gt;new( verbose =&gt; 0 );
 
 $pgvector-&gt;build_db;
 my $results = $pgvector-&gt;query(
-  'felines who like to party', # the search
-  .81                          # optional distance cutoff
+  # the search
+  'felines who like to party',
+  # optional distance cutoff
+  .81
 );
 foreach my $book ( $results-&gt;@* ) {
     say $book-&gt;distance . ' ' . $book-&gt;summary;
@@ -411,7 +417,7 @@ foreach my $book ( $results-&gt;@* ) {
 <li>0.76 When strange noises come from Ms. Thompson’s brownstone, the neighborhood kids assume it’s haunted. But Zara and her detective <strong>cat</strong> Mr. Midnight discover
 something unexpected about their community’s history.</li>
 <li>0.78 Deepa discovers an ancient temple in Mumbai filled with magical books containing stories from across India. With her magical tabby <strong>cat</strong> guide, she must protect the sacred stories from being forgotten.</li>
-<li>0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries * in his neighborhood. When instruments start disappearing before the big * cultural <strong>festival</strong>, he must follow the beats to find the truth.</li>
+<li>0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries in his neighborhood. When instruments start disappearing before the big cultural <strong>festival</strong>, he must follow the beats to find the truth.</li>
 <li>0.81 When Aiden accidentally opens his grandmother’s old box, he releases friendly versions of Caribbean folklore creatures. With help from local elders, he learns about his heritage while trying to get the creatures back home.</li>
 </ul>
 
