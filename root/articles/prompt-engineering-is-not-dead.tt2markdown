@@ -1,0 +1,239 @@
+[%
+    title            = 'Prompt Engineering Is Not Dead';
+    type             = 'articles';
+    slug             = 'prompt-engineering-is-not-dead';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-12-02';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai}}
+
+# Introduction
+
+If you search for the phrase, [prompt engineering is
+dead](https://duckduckgo.com/?t=h_&q=prompt+engineering+is+dead&ia=web), you'll
+find plenty of articles opining on the topic. But what is prompt engineering,
+really? While there are jobs with the "prompt engineer" title, in reality, it's
+a skill you develop. You wouldn't call yourself a "PowerPoint Engineer," would
+you?
+
+Prompt engineering is nothing more than telling the AI how it should respond.
+There are [plenty of prompt engineering "frameworks"
+available](https://medium.com/@yassine.aqejjaj/mastering-chatgpt-prompt-engineering-the-9-frameworks-you-need-to-know-607ae5af9931),
+each with its own strengths and weaknesses. I even created my own that I named
+CARESS.
+
+But much of prompt engineering seems to be going away. When using many
+foundation models, you often no longer have to tell it its role, such as,
+"You're a brilliant logician at a top university." That distracts it. It used to
+be that for complex problems, you wanted to add "let's think step by step," but
+today's foundation models often recognize that this is necessary and
+automatically do that for you. It seems that USING ALL CAPS TEXT to emphasize
+important bits still has an impact, but I can't prove it.
+
+One bit of prompt engineering that is still critical is explaining the audience.
+"explain like I'm five," or "explain like I know nothing about biostratigraphic
+paleontology"[% Ovid.note("Biostratigraphic paleonotology involves studying
+fossils to date rock layers. I didn't know, either.") %] are often huge wins for
+understanding complex information.
+
+But reality shows thoughtful prompting remains crucial for unlocking AI's full
+potential and I hit one example of this today.
+
+# The Perl Parsing Challenge
+
+Over on perlmonks.org, a site that sadly reminds us of the age of Perl, [someone
+asked about an interesting problem involving
+s-expressions](https://perlmonks.com/?node_id=11162904). Specifically, how to
+parse them into Perl data structures.
+
+Perl is _literally_ designed to excel at problems like this. Further, I've found
+that Perl has a weird advantage when using generative AI to write Perl. [Carl
+Brown of the internet of bugs explains
+it](https://www.youtube.com/watch?v=j0yKLumIbaM&ab_channel=InternetofBugs). In
+short, newer languages with few examples on the Web are hard for AI. Established
+languages with plenty of breaking changes between versions are also hard for AI.
+Perl has neither of these issues. The Perl community's obsession with
+backwards-compatibility is one of the reasons why companies can safely use
+modern versions of Perl with little-to-no disruption in their working code base.
+
+So I took that problem with Perlmonks and dumped it into Claude, ChatGPT, and
+Gemini, confident that with a touch of tweaking, one or more of them would spit
+out the right answer. Here was my prompt:
+
+> I'd like a small Perl script which can parse this string:
+>
+>
+> <pre><code>
+> (ignore (
+>     (0 ((0 k320w)
+>         (1 wireless))
+>     )
+>     (1 ((0 k330w)
+>         (1 wireless))
+>     )
+>     (2 acer)
+>     )
+> )
+>
+> (config(
+>     (61 '61 key.kbd')
+>     (78 '78 key.kbd')
+>     (mouse mouse.kbd)
+>     (pad pad.kbd)
+> )
+> )</code></pre>
+>
+> And turn it into a data structure like this:
+>
+>
+> <pre><code>
+> 'ignore' => [
+>             [
+>              'k320w',
+>              'wireless'
+>             ],
+>             [
+>             'k330w',
+>             'wireless'
+>             ],
+>             [
+>             'acer'
+>             ]
+> ],
+> 'config' => {
+>              '61' => '61 key.kbd',
+>              '78' => '78 key.kbd',
+>              'mouse' => 'mouse.kbd',
+>              'pad' => 'pad.kbd'
+>               },
+>
+> </code></pre>
+
+All of them failed _miserably_ at this task. No amount of prompting got me where
+I wanted to go. To be fair, it was a minimalist prompt, [nothing like I'd use
+for serious
+programming](/articles/building-an-iphone-app-with-chatgpt.html#my-first-prompt),
+but the foundation models have gotten good enough that I'm used to them working
+just fine with small prompts for small problems.
+
+Then I remembered ChatGPT's o1-preview. This model is a _reasoner_ in OpenAI's
+lingo. OpenAI has defined the following five steps in its path to AGI:
+
+1. Chatbots (done!)
+2. Reasoners (chatbots who think)
+3. Agents (they can plan and take independent action)
+4. Innovators (capable of scientific discoveries)
+5. Organizations (they can run an entire company)
+
+The o1-preview is, in Sam Altman's terms, "the ChatGPT 2.0 of reasoners." In
+other words, it's very, very limited, but it's just the start. If you give it an
+open-ended problem with a subjective answer, it frequently underperforms against
+most foundation models. However, if you give it a problem with a clearly defined
+solution, it's amazing, such as when Kyle Kabaseres watched o1-preview spend an
+hour replicating code that it took him a year to write for his PhD thesis.
+
+[% Ovid.youtube('M9YOO7N5jF8') %]
+
+So I threw the prompt at o1-preview and it got it right _the first time_.
+
+Well, almost. Note that in the example above, the top-level keys are `ignore`
+and `config`. o1-preview assumed those keys. I asked it to not assume those keys
+and to instead make a more generic parser. It did:
+
+```perl
+$VAR1 = {
+    'ignore' => {
+        'ARRAY(0x1578af278)' => [
+            '1',
+            [
+              'k330w',
+              'wireless'
+            ]
+        ]
+    },
+    'config' => {
+        'ARRAY(0x15789cff0)' => [
+            '78',
+            '78 key.kbd'
+        ]
+    }
+};
+```
+
+No amount of prompting seemed to fix _that_, either.
+
+So I sat back, read through the code the various models produced and thought
+about this. That's when I had an "ah ha!" moment.
+
+# The Power of Domain Knowledge in Prompting
+
+Each of the models was using a character parser. This is an old parsing
+strategy, very common in C, when you read one character, looked at the _next_
+character, and figured out what to do. This is a rather fragile way of parsing
+text and, to my everlasting shame, [is the approach I took in writing a Prolog
+interpreter in
+Perl](https://metacpan.org/release/DOUGW/AI-Prolog-0.741/source/lib/AI/Prolog/Parser.pm).
+
+In fact, almost every time I see a complex, hand-written parsing problem in
+Perl, people who aren't using regular expressions are using character parsers.
+They're so prevalent in Perl and many other languages that this is what AIs are
+trained on.
+
+Instead, one of the more modern approaches is to use a lexer to convert the
+data into a series of labeled tokens and then use a grammar to transform those
+tokens into the desired output. In this case, because the output was very
+specific, I felt that lexing the data and writing our own procedural code to
+handle the resulting tokens would be a better fit. But how to prompt o1-preview
+to do this?
+
+As it turns out, back in 2006, in the [_very first article_ I had ever written
+about Perl](https://www.perl.com/pub/2006/01/05/parsing.html/), that's exactly
+what I was doing. o1-preview doesn't allow uploading files, but I was able to
+paste in my first prompt, and then tell it to use the approach outlined in the
+article, which I then pasted in. The result?
+
+> Can't use string ("acer") as an ARRAY ref while "strict refs" in use at
+> parse.pl line 103.
+
+I pasted in that error, with no other commentary, [and the code ran just
+fine](https://chatgpt.com/share/674dadc2-0970-8009-a24f-8019723e573b).
+
+Is the code perfect? Nope. There are definitely a few things I'd want to tweak,
+including the token definitions:
+
+```perl
+my $lexer = string_lexer($input,
+    [ 'LPAREN',        qr/\(/ ],
+    [ 'RPAREN',        qr/\)/ ],
+    [ 'QUOTED_STRING', qr/'[^']*'|"[^"]*"/ ],
+    [ 'IDENTIFIER',    qr/[^()\s]+/ ],
+    [ 'WHITESPACE',    qr/\s+/, sub {} ],  # Skip whitespace
+);
+```
+
+But I'm still pretty happy with the outcome.
+
+# Looking Forward
+
+So far, we've found that using AI is more beneficial for those who are less
+skilled. However, those who are less skilled probably would not have solved
+this particular problem. Effective prompt engineering isn't just about clear
+commands. Sometimes it involves sharing domain expertise and guiding the AI on
+alternative approaches that requires your expert knowledge.
+
+As models advance, prompt engineering is getting much easier, but it remains
+valuable. For now, we're seeing the focus shift from "let's think step-by-step"
+workarounds to knowledge sharing and problem framing. Human expertise continues
+to be crucial for getting the full potential out of AI.
+
+Your jobs are safe for another day.
+
+[%- END %]

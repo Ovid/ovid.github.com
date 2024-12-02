@@ -22,10 +22,10 @@
   
   <meta property="og:type" content="article" />
   
-  <meta property="og:url" content="https://ovid.github.io/articles/using-vector-databases-with-perl.html" />
+  <meta property="og:url" content="https://ovid.github.io/articles/prompt-engineering-is-not-dead.html" />
   
-  <meta property="og:title" content="Using Vector Databases with Perl" />
-  <meta property="og:description" content="Vector databases are amazing, but there are few options with Perl. If you use PostgreSQL, now you have one." />
+  <meta property="og:title" content="Prompt Engineering Is Not Dead" />
+  <meta property="og:description" content="Many prompt engineering tricks are becoming a thing of the past, but there are still some areas where they shine." />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -35,8 +35,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Using Vector Databases with Perl</title>
-  <meta name="description" content="Using Vector Databases with Perl">
+  <title>Prompt Engineering Is Not Dead</title>
+  <meta name="description" content="Prompt Engineering Is Not Dead">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
@@ -80,8 +80,8 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Using Vector Databases with Perl</h1>
-        <time>2024-11-19</time>
+        <h1><a name="-title-no-title-found-"></a>Prompt Engineering Is Not Dead</h1>
+        <time>2024-12-02</time>
         
         <p><span id="time"></span> minute read</p>
         
@@ -229,9 +229,9 @@
 
         <div class="prevNext">
         
-        <a href="/articles/escape-adventurs-in-ai-gaming.html" class="prevPost">&laquo; Escape!-Adventurs in AI Gaming</a>
+        <a href="/articles/using-vector-databases-with-perl.html" class="prevPost">&laquo; Using Vector Databases with Perl</a>
         
-        <a href="/articles/prompt-engineering-is-not-dead.html" class="nextPost">Prompt Engineering Is Not Dead &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
     
@@ -255,219 +255,236 @@
 <p><nav role="navigation" class="table-of-contents">
     <ul>
     <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#vector-databases">Vector Databases?</a></li>
-    <li class="indent-1"><a href="#pgvector">PgVector</a></li>
-    <li class="indent-1"><a href="#how-it-works">How it Works</a></li>
-    <li class="indent-1"><a href="#example-query">Example Query</a></li>
-    <li class="indent-1"><a href="#larger-data-sets">Larger Data Sets</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    <li class="indent-1"><a href="#the-perl-parsing-challenge">The Perl Parsing Challenge</a></li>
+    <li class="indent-1"><a href="#the-power-of-domain-knowledge-in-prompting">The Power of Domain Knowledge in Prompting</a></li>
+    <li class="indent-1"><a href="#looking-forward">Looking Forward</a></li>
     </ul>
 </nav>
 <hr></p>
 
 <h1><a name="introduction"></a>Introduction</h1>
 
-<p>As I continue my deep dive into using AI and building solutions for clients, I’m
-often frustrated that Perl, once king of the Web, doesn’t have many solutions
-for using vector databases. I’ve played around with trying to implement them for
-<a href="https://www.pinecone.io/" target="_blank">Pinecone</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://www.trychroma.com/" target="_blank">Chroma</a> <span class="fa fa-external-link fa_custom"></span>,
-but to no avail (though I mostly have ChromaDB working). That’s when I decided
-to give <a href="https://github.com/pgvector/pgvector" target="_blank">pgvector</a> <span class="fa fa-external-link fa_custom"></span> a try.</p>
+<p>If you search for the phrase, <a href="https://duckduckgo.com/?t=h_&amp;q=prompt+engineering+is+dead&amp;ia=web" target="_blank">prompt engineering is
+dead</a> <span class="fa fa-external-link fa_custom"></span>, you’ll
+find plenty of articles opining on the topic. But what is prompt engineering,
+really? While there are jobs with the “prompt engineer” title, in reality, it’s
+a skill you develop. You wouldn’t call yourself a “PowerPoint Engineer,” would
+you?</p>
 
-<h1><a name="vector-databases"></a>Vector Databases?</h1>
+<p>Prompt engineering is nothing more than telling the AI how it should respond.
+There are <a href="https://medium.com/@yassine.aqejjaj/mastering-chatgpt-prompt-engineering-the-9-frameworks-you-need-to-know-607ae5af9931" target="_blank">plenty of prompt engineering “frameworks”
+available</a> <span class="fa fa-external-link fa_custom"></span>,
+each with its own strengths and weaknesses. I even created my own that I named
+CARESS.</p>
 
-<p>Wait, what’s a vector database and why would I want something like that?</p>
+<p>But much of prompt engineering seems to be going away. When using many
+foundation models, you often no longer have to tell it its role, such as,
+“You’re a brilliant logician at a top university.” That distracts it. It used to
+be that for complex problems, you wanted to add “let’s think step by step,” but
+today’s foundation models often recognize that this is necessary and
+automatically do that for you. It seems that USING ALL CAPS TEXT to emphasize
+important bits still has an impact, but I can’t prove it.</p>
 
-<p>Imagine you want customers to be able search for videos. Traditionally, if they
-type in “videos about cats,” what happens? “Videos” and “about” are probably
-stop words, so they won’t be in the actual search. The word “cats” is probably
-<em>stemmed</em> to “cat.” Stemming is the process of removing suffixes, and perhaps
-using lower-case words, to ensure that whether you search for “Runs”, “running”,
-or “run”, the search index will match all of those against the word “run.” The
-more search terms you have which match records in your index, the higher those
-search results are.</p>
+<p>One bit of prompt engineering that is still critical is explaining the audience.
+“explain like I’m five,” or “explain like I know nothing about biostratigraphic
+paleontology”<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> are often huge wins for
+understanding complex information.</p>
 
-<p>Thus, when you search for “videos about cats”, you’re likely just doing a string
-match against “cat” and you might get videos about cats. You might get videos
-about the Linux <code>cat</code> command. You might get videos about <a href="https://www.cat.com/en_US/products/new/equipment.html" target="_blank">heavy
-equipment</a> <span class="fa fa-external-link fa_custom"></span>. You <em>won’t</em>
-get videos about lions, or tigers, or jaguars, unless someone has gone through
-the laborious process of labeling those videos with “cat.”</p>
+<p>But reality shows thoughtful prompting remains crucial for unlocking AI’s full
+potential and I hit one example of this today.</p>
 
-<p>That’s where vector databases come in. They don’t search on strings. They search
-on <em>meaning</em>. They “know” that cat videos are popular, so “videos about cats”
-will prioritize cat videos and probably include lions, and tigers, and jaguars
-because those are cats. If you want the industrial machinery, you search for
-“Cat equipment” or “Cat machinery” and those videos will be prioritized.</p>
+<h1><a name="the-perl-parsing-challenge"></a>The Perl Parsing Challenge</h1>
 
-<h1><a name="pgvector"></a>PgVector</h1>
+<p>Over on perlmonks.org, a site that sadly reminds us of the age of Perl, <a href="https://perlmonks.com/?node_id=11162904" target="_blank">someone
+asked about an interesting problem involving
+s-expressions</a> <span class="fa fa-external-link fa_custom"></span>. Specifically, how to
+parse them into Perl data structures.</p>
 
-<p>Using vector databases involves taking the data you want to search on and
-creating “embeddings” that are added to the database, and adding metadata so
-that you can match the results against your actual data, filter the results, and
-so on. Just like with a normal database.</p>
+<p>Perl is <em>literally</em> designed to excel at problems like this. Further, I’ve found
+that Perl has a weird advantage when using generative AI to write Perl. <a href="https://www.youtube.com/watch?v=j0yKLumIbaM&amp;ab_channel=InternetofBugs" target="_blank">Carl
+Brown of the internet of bugs explains
+it</a> <span class="fa fa-external-link fa_custom"></span>. In
+short, newer languages with few examples on the Web are hard for AI. Established
+languages with plenty of breaking changes between versions are also hard for AI.
+Perl has neither of these issues. The Perl community’s obsession with
+backwards-compatibility is one of the reasons why companies can safely use
+modern versions of Perl with little-to-no disruption in their working code base.</p>
 
-<p>With PostgreSQL, by adding the PgVector extension, you probably already have
-that metadata in your database and you can just use standard <code>JOIN</code> operations
-to filter. I’ve created a small example in GitHub of <a href="https://github.com/Ovid/pgvector-perl-example" target="_blank">using PgVector in
-Perl</a> <span class="fa fa-external-link fa_custom"></span>. It just shows the basic
-concepts. If you can figure it out, you’re well on your way to being able to do
-semantic search, build recommendation engines, or anything else you desire, but
-there are plenty of caveats.</p>
+<p>So I took that problem with Perlmonks and dumped it into Claude, ChatGPT, and
+Gemini, confident that with a touch of tweaking, one or more of them would spit
+out the right answer. Here was my prompt:</p>
 
-<h1><a name="how-it-works"></a>How it Works</h1>
+<blockquote>
+  <p>I’d like a small Perl script which can parse this string:</p>
 
-<p>The code has been thrown together quickly in <code>AI::Vector::PgVector</code>. The schema
-and data is embedded directly rather than put into separate data files. It’s
-just to make it simple, not to make it production ready. Oh, and I didn’t write
-tests, either. Shame on me.</p>
-
-<p>It’s also using the experimental <code>class</code> syntax with Perl, so it requires
-<code>v5.40.0</code> or better.</p>
-
-<p>The schema just has <code>books</code> and <code>book_genres</code> tables, along with the following:</p>
-
-<div class="shadow"><pre class="scrolled"><code class="language-sql">CREATE TABLE book_embeddings (
-  book_embedding_id SERIAL PRIMARY KEY,
-  book_id INTEGER NOT NULL REFERENCES books(book_id),
-  embedding vector(1536) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(book_id)
-);
-</code></pre></div>
-
-<p>The embeddings are vectors of 1,536 floating point numbers. We keep them in a
-separate table for two reasons. First, if you’re selecting a bunch of book data
-and are filtering on it, the large size of the vectors might cause issues with
-performance. Second, if you’re working on the command line, typing <code>SELECT *
-FROM books WHERE book_id = 42;</code>, the mass of vector data make it hard to see the
-data you really care about.</p>
-
-<p>But how do you populate the <code>embedding</code> field? Behind the scenes, we use
-<code>AI::Vector::PgVector::Embeddings::OpenAI</code> and its <code>get_embeddings</code> method to
-query OpenAI. Then there’s a simplistic private method to convert that to a
-string for insertion into to the database.</p>
-
-<p>Then, when we call the <code>-&gt;query($string)</code> method, it uses the following SQL to
-search the database:</p>
-
-<div class="shadow"><pre class="scrolled"><code class="language-sql">WITH book_distances AS (
-    SELECT b.book_id,
-           b.title,
-           ROUND((be.embedding &lt;=&gt; ?)::numeric, 2)
-             AS rounded_distance,
-           b.summary,
-           g.name AS genre
-    FROM   books b
-    JOIN   book_genres g      
-      ON   b.book_genre_id = g.book_genre_id
-    JOIN   book_embeddings be 
-      ON   b.book_id       = be.book_id
+<pre><code>
+(ignore (
+    (0 ((0 k320w)
+        (1 wireless))
+    )
+    (1 ((0 k330w)
+        (1 wireless))
+    )
+    (2 acer)
+    )
 )
-SELECT   book_id,
-         genre,
-         title,
-         summary,
-         rounded_distance AS distance
-FROM     book_distances
-WHERE    rounded_distance &lt;= ?
-ORDER BY distance
+
+(config(
+    (61 '61 key.kbd')
+    (78 '78 key.kbd')
+    (mouse mouse.kbd)
+    (pad pad.kbd)
+)
+)</code></pre>
+  
+  <p>And turn it into a data structure like this:</p>
+
+<pre><code>
+'ignore' => [
+            [
+             'k320w',
+             'wireless'
+            ],
+            [
+            'k330w',
+            'wireless'
+            ],
+            [
+            'acer'
+            ]
+],
+'config' => {
+             '61' => '61 key.kbd',
+             '78' => '78 key.kbd',
+             'mouse' => 'mouse.kbd',
+             'pad' => 'pad.kbd'
+              },
+
+</code></pre>
+</blockquote>
+
+<p>All of them failed <em>miserably</em> at this task. No amount of prompting got me where
+I wanted to go. To be fair, it was a minimalist prompt, <a href="/articles/building-an-iphone-app-with-chatgpt.html#my-first-prompt">nothing like I’d use
+for serious
+programming</a>,
+but the foundation models have gotten good enough that I’m used to them working
+just fine with small prompts for small problems.</p>
+
+<p>Then I remembered ChatGPT’s o1-preview. This model is a <em>reasoner</em> in OpenAI’s
+lingo. OpenAI has defined the following five steps in its path to AGI:</p>
+
+<ol>
+<li>Chatbots (done!)</li>
+<li>Reasoners (chatbots who think)</li>
+<li>Agents (they can plan and take independent action)</li>
+<li>Innovators (capable of scientific discoveries)</li>
+<li>Organizations (they can run an entire company)</li>
+</ol>
+
+<p>The o1-preview is, in Sam Altman’s terms, “the ChatGPT 2.0 of reasoners.” In
+other words, it’s very, very limited, but it’s just the start. If you give it an
+open-ended problem with a subjective answer, it frequently underperforms against
+most foundation models. However, if you give it a problem with a clearly defined
+solution, it’s amazing, such as when Kyle Kabaseres watched o1-preview spend an
+hour replicating code that it took him a year to write for his PhD thesis.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/M9YOO7N5jF8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>So I threw the prompt at o1-preview and it got it right <em>the first time</em>.</p>
+
+<p>Well, almost. Note that in the example above, the top-level keys are <code>ignore</code>
+and <code>config</code>. o1-preview assumed those keys. I asked it to not assume those keys
+and to instead make a more generic parser. It did:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$VAR1 = {
+    'ignore' =&gt; {
+        'ARRAY(0x1578af278)' =&gt; [
+            '1',
+            [
+              'k330w',
+              'wireless'
+            ]
+        ]
+    },
+    'config' =&gt; {
+        'ARRAY(0x15789cff0)' =&gt; [
+            '78',
+            '78 key.kbd'
+        ]
+    }
+};
 </code></pre></div>
 
-<p>The key line this this:</p>
+<p>No amount of prompting seemed to fix <em>that</em>, either.</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-sql">ROUND((be.embedding &lt;=&gt; ?)::numeric, 2)
-  AS rounded_distance,
-</code></pre></div>
+<p>So I sat back, read through the code the various models produced and thought
+about this. That’s when I had an “ah ha!” moment.</p>
 
-<p><code>&lt;=&gt;</code> is one of the new operators added by the PgVector extension. This
-particular operator is the “cosine distance” operator. Without going into
-detail, this operator is a best practice when doing a text search. Yes, you
-probably have a lot of homework to do if you want to use this for images or
-something else.</p>
+<h1><a name="the-power-of-domain-knowledge-in-prompting"></a>The Power of Domain Knowledge in Prompting</h1>
 
-<h1><a name="example-query"></a>Example Query</h1>
+<p>Each of the models was using a character parser. This is an old parsing
+strategy, very common in C, when you read one character, looked at the <em>next</em>
+character, and figured out what to do. This is a rather fragile way of parsing
+text and, to my everlasting shame, <a href="https://metacpan.org/release/DOUGW/AI-Prolog-0.741/source/lib/AI/Prolog/Parser.pm" target="_blank">is the approach I took in writing a Prolog
+interpreter in
+Perl</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
-<p>I like cats, so let’s search our database for cats. Cats who like celebrations.
-(note: all books are fictional).</p>
+<p>In fact, almost every time I see a complex, hand-written parsing problem in
+Perl, people who aren’t using regular expressions are using character parsers.
+They’re so prevalent in Perl and many other languages that this is what AIs are
+trained on.</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">use v5.40.0;
-use AI::Vector::PgVector;
+<p>Instead, one of the more modern approaches is to use a lexer to convert the
+data into a series of labeled tokens and then use a grammar to transform those
+tokens into the desired output. In this case, because the output was very
+specific, I felt that lexing the data and writing our own procedural code to
+handle the resulting tokens would be a better fit. But how to prompt o1-preview
+to do this?</p>
 
-my $pgvector = AI::Vector::PgVector-&gt;new( verbose =&gt; 0 );
+<p>As it turns out, back in 2006, in the <a href="https://www.perl.com/pub/2006/01/05/parsing.html/" target="_blank"><em>very first article</em> I had ever written
+about Perl</a> <span class="fa fa-external-link fa_custom"></span>, that’s exactly
+what I was doing. o1-preview doesn’t allow uploading files, but I was able to
+paste in my first prompt, and then tell it to use the approach outlined in the
+article, which I then pasted in. The result?</p>
 
-$pgvector-&gt;build_db;
-my $results = $pgvector-&gt;query(
-  # the search
-  'felines who like to party',
-  # optional distance cutoff
-  .81
+<blockquote>
+  <p>Can’t use string (“acer”) as an ARRAY ref while “strict refs” in use at
+  parse.pl line 103.</p>
+</blockquote>
+
+<p>I pasted in that error, with no other commentary, <a href="https://chatgpt.com/share/674dadc2-0970-8009-a24f-8019723e573b" target="_blank">and the code ran just
+fine</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>Is the code perfect? Nope. There are definitely a few things I’d want to tweak,
+including the token definitions:</p>
+
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $lexer = string_lexer($input,
+    [ 'LPAREN',        qr/\(/ ],
+    [ 'RPAREN',        qr/\)/ ],
+    [ 'QUOTED_STRING', qr/'[^']*'|&quot;[^&quot;]*&quot;/ ],
+    [ 'IDENTIFIER',    qr/[^()\s]+/ ],
+    [ 'WHITESPACE',    qr/\s+/, sub {} ],  # Skip whitespace
 );
-foreach my $book ( $results-&gt;@* ) {
-    say $book-&gt;distance . ' ' . $book-&gt;summary;
-}
 </code></pre></div>
 
-<p>That might return the following results (highlighting is just for this article):</p>
+<p>But I’m still pretty happy with the outcome.</p>
 
-<ul>
-<li>0.53 Three clever <strong>cats</strong> living in Mexico City work together to protect a beautiful <strong>birthday</strong> piñata from a mischievous group of mice. Through teamwork and ingenuity, they learn about friendship while experiencing the joy of a traditional <strong>celebration.</strong></li>
-<li>0.57 Mei’s <strong>cat</strong> Bao refuses to miss out on the Lunar New Year <strong>celebrations</strong>.  As Mei prepares traditional foods with her grandmother, Bao secretly organizes all the neighborhood <strong>cats</strong> for a spectacular <strong>parade</strong> that brings the whole community together.</li>
-<li>0.76 When strange noises come from Ms. Thompson’s brownstone, the neighborhood kids assume it’s haunted. But Zara and her detective <strong>cat</strong> Mr. Midnight discover
-something unexpected about their community’s history.</li>
-<li>0.78 Deepa discovers an ancient temple in Mumbai filled with magical books containing stories from across India. With her magical tabby <strong>cat</strong> guide, she must protect the sacred stories from being forgotten.</li>
-<li>0.78 Kofi uses his knowledge of West African drum rhythms to solve mysteries in his neighborhood. When instruments start disappearing before the big cultural <strong>festival</strong>, he must follow the beats to find the truth.</li>
-<li>0.81 When Aiden accidentally opens his grandmother’s old box, he releases friendly versions of Caribbean folklore creatures. With help from local elders, he learns about his heritage while trying to get the creatures back home.</li>
-</ul>
+<h1><a name="looking-forward"></a>Looking Forward</h1>
 
-<p>In the above, you’ll note that <em>none</em> of the summaries have either the word
-“feline” or “party” in them. The very first result clearly refers to cats and
-while it doesn’t talk about a birthday party, it ranks ahead of the second
-result, possibly, because the birthday piñata is clearly for a party while the
-New Year’s Even celebration might not associate strong enough with a party.</p>
+<p>So far, we’ve found that using AI is more beneficial for those who are less
+skilled. However, those who are less skilled probably would not have solved
+this particular problem. Effective prompt engineering isn’t just about clear
+commands. Sometimes it involves sharing domain expertise and guiding the AI on
+alternative approaches that requires your expert knowledge.</p>
 
-<p>The third and fourth results have “cat”, but don’t have anything to do with
-“party”, so their distances is are much farther. The fifth result has no cats
-(which presumably the embedding knows is the most important factor), but does
-mention a festival.</p>
+<p>As models advance, prompt engineering is getting much easier, but it remains
+valuable. For now, we’re seeing the focus shift from “let’s think step-by-step”
+workarounds to knowledge sharing and problem framing. Human expertise continues
+to be crucial for getting the full potential out of AI.</p>
 
-<p>The last result mentions neither cats nor parties, but “party” is presumably
-closer in the vector space to “friendly”, so that’s why it’s ranked higher. If
-you increase the optional distance cutoff, you’ll get more and more results
-which don’t appear to obviously match your query.</p>
-
-<p>That last point is a key difference between text search and semantic search:
-text search doesn’t return records which don’t match, but can’t understand the
-meaning of your search.</p>
-
-<p>Semantic search understands the meaning, but can’t really filter out results
-which don’t match. These technologies are powerful, but they’re still in their
-infancy.</p>
-
-<h1><a name="larger-data-sets"></a>Larger Data Sets</h1>
-
-<p>This is only the beginning. Later, if you want to do more, you might want to
-dump entire books into a vector database. Beware! You need to break the texts
-into smaller, <em>overlapping</em> chunks to ensure you don’t exceed the limit of
-tokens when the strings are turned into embeddings. They need to overlap to
-ensure you can get context from chunk to chunk. You probably need to return
-unique results for that, but decide how to rank them. If one book gets five hits
-and another only gets two, do you use the number of hits, the match distance, or
-what?</p>
-
-<h1><a name="conclusion"></a>Conclusion</h1>
-
-<p>Vector databases aren’t magic wands and they don’t replace regular databases,
-but the ability to search semantically is a powerful one. Trying to make this
-work with traditional databases or search engines often involves a lot of work
-trying to label your data. In fact, they’re so powerful that Elastic is now
-offering <a href="https://www.elastic.co/search-labs/blog/better-binary-quantization-lucene-elasticsearch" target="_blank">vector database searching in ElasticSearch and
-Lucene</a> <span class="fa fa-external-link fa_custom"></span>.</p>
-
-<p>So that’s it. This is only a toy example and would need a lot more work for
-production code, but hopefully it will give a rough idea of what you can do with
-vector databases, and better yet, how to leverage this in Perl!</p>
+<p>Your jobs are safe for another day.</p>
 
 </article>
 
@@ -532,9 +549,9 @@ vector databases, and better yet, how to leverage this in Perl!</p>
 <hr>
     <div class="prevNext">
         
-        <a href="/articles/escape-adventurs-in-ai-gaming.html" class="prevPost">&laquo; Escape!-Adventurs in AI Gaming</a>
+        <a href="/articles/using-vector-databases-with-perl.html" class="prevPost">&laquo; Using Vector Databases with Perl</a>
         
-        <a href="/articles/prompt-engineering-is-not-dead.html" class="nextPost">Prompt Engineering Is Not Dead &raquo;</a>
+        <a href="/#" class="nextPost"></a>
     </div>
 
 <hr>
@@ -562,9 +579,9 @@ vector databases, and better yet, how to leverage this in Perl!</p>
       
         <script>
         var disqus_config = function () {
-            this.page.url        = "https://ovid.github.io/articles/using-vector-databases-with-perl.html";
-            this.page.identifier = "articles/using-vector-databases-with-perl";
-            this.page.title      = "Using Vector Databases with Perl";
+            this.page.url        = "https://ovid.github.io/articles/prompt-engineering-is-not-dead.html";
+            this.page.identifier = "articles/prompt-engineering-is-not-dead";
+            this.page.title      = "Prompt Engineering Is Not Dead";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -582,6 +599,26 @@ vector databases, and better yet, how to leverage this in Perl!</p>
     <script src="/static/js/prism.js"></script>
     
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Biostratigraphic paleonotology involves studying
+fossils to date rock layers. I didn't know, either.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
 </body>
 </html>
 
