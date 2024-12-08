@@ -232,10 +232,19 @@ figure.captioned-left {
     border-radius:    5px;
 }
 
-/* If the text overflows, allow horizontal scrolling. This is mainly for
-   codeblocks. */
-pre.scrolled {
-    overflow-x: auto;
+.scrolled {
+  overflow-x: auto;
+  white-space: pre;
+  word-wrap: normal;
+  max-width: 100%;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Ensure code blocks don't overflow their containers */
+pre.scrolled code {
+  display: inline-block;
+  min-width: 100%;
 }
 
 /* Styles for our "scroll to top" button */
@@ -362,3 +371,92 @@ ul.inline > li {
   margin: 5px;  /* and that, will result in a 10px gap */
 }
 
+/* for mobile */
+@media (max-width: 750px) {
+  .three.columns,
+  .two.columns {
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  .nine.columns,
+  .ten.columns {
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  .verticalLine {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+/* More fixes from Claude */
+/* Left column base styling */
+.three.columns {
+  position: relative;  /* Changed from sticky to maintain original behavior */
+  overflow-x: hidden;
+}
+
+/* Search box containment */
+#search {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+#search input {
+  width: 90%;  /* Slightly less than 100% to prevent overlap */
+  box-sizing: border-box;
+  margin: 0.5rem 0;
+}
+
+/* Navigation links */
+.three.columns ul {
+  margin-bottom: 1rem;
+  padding-left: 0;
+}
+
+.three.columns li {
+  list-style: none;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  white-space: normal;  /* Allows proper wrapping */
+}
+
+/* Tag cloud refinements - maintaining your existing weight-based styling */
+ul.cloud {
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+ul.cloud li {
+  display: inline-block;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+ul.cloud li a {
+  white-space: nowrap;  /* Keeps tags on one line */
+  display: inline-block;
+  padding: 0.1rem 0.3rem;
+}
+
+/* Maintain vertical line separation */
+.verticalLine {
+  border-left: 1px solid #E1E1E1;
+  padding-left: 1.5rem;
+}
+
+@media (max-width: 750px) {
+  .verticalLine {
+    border-left: none;
+    padding-left: 0;
+  }
+  
+  .three.columns,
+  .nine.columns {
+    width: 100%;
+    margin-left: 0;
+  }
+}
