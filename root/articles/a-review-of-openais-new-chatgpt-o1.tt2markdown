@@ -1,0 +1,315 @@
+[%
+    title            = "A Review of OpenAI's new ChatGPT o1";
+    type             = 'articles';
+    slug             = 'a-review-of-openais-new-chatgpt-o1';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-12-08';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai}}
+
+# Introduction
+
+If you're following along with AI, you probably know about [OpenAI's new o1
+model](https://openai.com/o1/), released on December 5<sup>th</sup>, 2024.
+Previously, o1-preview was the new "reasoner" model for OpenAI, released on
+September 12<sup>th</sup>, 2024. I decided to take it for a spin and it was ...
+a mixed bag. Part of this was me being frustrated that o1 was not able to read
+my mind. Part of this was o1 being, well, and LLM. More on that in a bit.
+
+# Reasoners?
+
+But what's a reasoner? OpenAI has broken down their approach to get to AGI
+(Artificial General Intelligence)—where AI can generally act at or above human
+ability on all knowledge-based tasks—in the following steps:
+
+1. Chatbots (done)
+2. Reasoners (in progress, but can "reason" about a problem)
+3. Agents (in progress)
+4. Innovators (they can make discoveries on their own)
+5. Organizations (they can run an entire organization autonomously)
+
+Each step more or less requires the previous step and even though we've pretty
+much nailed chatbots, work continues to make them consume less energy,
+hallucinate less often, and mitigate bias. None of this is easy.
+
+But reasoners? If you're familiar with [prompt
+engineering](/articles/prompt-engineering-is-not-dead.html), reasoners are
+"let's think step-by-step" on steroids, breaking down hard problems into
+discrete tasks and solving them, perhaps backtracking if an approach appears to
+be a dead end. Sam Altman has described o1-preview as being a reasoner on par
+with gpt 2, today a very weak GPT, but almost miraculous for its time. As we
+push forward with reasoners, it's expected to be even better than today and
+today is somewhat limited.
+
+# My o1 Task
+
+When new models are released, there are plenty of standard benchmarks models are
+run against. Unfortunately, many of the benchmarks the models are run on get
+published and incorporated in new model training data. That's a problem because
+the AI "learns" the solutions to these benchmarks. It's like a student walking
+into a test after knowing the questions.
+
+So many people testing out new models have their personal sets of prompts that
+they use and I'm no exception.
+
+In the early days of ChatGPT and other models, I'd ask it to write a Fibonacci
+function in Perl. It often got the right answer, but used recursion. I'd ask for
+an iterative (non-recursive) version and it usually failed.
+
+Today, foundation models are able to generate the iterative version of a
+Fibonacci function, but even with Claude, asking it to [generate a _caching_
+version of that
+function](https://gist.github.com/Ovid/aac242a6d7efd70d200d8929d79811d4) is
+disappointing. [You can see my cleaned up version
+here](https://gist.github.com/Ovid/2987274c68383727a31a8885bfde234c). I won't go
+into detail about why my version works better, because that's beyond the scope
+of this.
+
+With o1, I wanted to give it a _hard_ problem, but one that I understood. I
+wanted it to build a first-order predicate logic system in Perl, mimicking basic
+Prolog behavior, using continuations. If that sounds non-trivial it's because it
+is. I'll skip over many of the basics, but give you a feel for what's going on.
+
+# Prolog in Perl
+
+A long time ago, a gentleman named Adrian Howard posted about [implementing
+something similar to Prolog in Perl, using
+continuations](https://www.perlmonks.org/?node_id=193649).[% Ovid.note("Please
+excuse the very 1999 appearance of that web site.") %]. It allows you to write
+something like this:
+
+```perl
+sub male ( $var, $continuation ) {
+    unify( "frank", $var, $continuation );
+    unify( "dean",  $var, $continuation );
+}
+
+my $a = Var->new;
+
+# print everyone who is a male
+male( $a, sub { print $a->value, " is male\n" } );
+```
+
+That's seems almost ridiculous, but suffice it to that this approach is
+powerful and [I even hacked together a quick module to genericize
+this](https://github.com/Ovid/aI-Logic/).[% Ovid.note("'Hack' is the operative
+word. It is not good code.") %] But Howard's approach lacked some key
+features, including list handling. That's the bit I want to explain now.
+
+Let's say, in Perl, you want to append one list to another:
+
+```perl
+my @result = ( @first, @second );
+```
+
+It's easy and natural. In Prolog, you can't naturally append lists, so you need
+to write something called a _predicate_ to allow this:
+
+```prolog
+append([], List, List).
+append([Head|Tail1], List2, [Head|Result]) :-
+    append(Tail1, List2, Result).
+```
+
+That seems like a lot of work, but it allows you to write:
+
+```prolog
+append( First, Second, Result ).
+```
+
+Why is this a win? Imagine, if you already had the `Result`, say, a list
+containing the letters 'a' through 'e' and you wanted to know all combinations
+of `First` and `Second` that could generate that list. In Perl (or most
+procedural or OO languages), it's a pain. In Prolog, you would just write this:
+
+```prolog
+append( First, Second, [a, b, c, d, e ] );
+```
+
+Printing the results might generate:
+
+```
+First=[],          Second=[a,b,c,d,e]
+First=[a],         Second=[b,c,d,e]
+First=[a,b],       Second=[c,d,e]
+First=[a,b,c],     Second=[d,e]
+First=[a,b,c,d],   Second=[e]
+First=[a,b,c,d,e], Second=[]
+```
+
+I now have that working in Perl, using something similar to Howard's approach,
+but o1 wasn't quite as helpful as I wanted. I don't have many transcripts to
+share because I was fairly certain that some context in the conversation was
+causing difficulties, but [this is my first conversation with
+o1](https://chatgpt.com/c/67532d9e-897c-8009-ba8d-45c4df1d707c).  I used a
+one-shot prompt and got disappointing results. o1 got some of Perl's syntax
+wrong and I had to prompt it to fix those.
+
+Some errors it suggested I fix weren't actually errors. For example, it told me
+I had to load a module, apparently unaware that `use base $module` does that for
+you.[% Ovid.note("We'll ignore the fact that the <tt>base</tt> module is not
+recommended.") %]. When o1 was getting bogged down in details like that, it
+wasn't fixing the actual problems I needed it to fix.
+
+It also failed to diagnose a critical error where, in my manual changes to the
+code, I had accidentally changed the namespace, causing the code to not be able
+to run correctly, but the code it had generated would "swallow" some exceptions,
+causing me to have to use the debugger to find the actual issue. That's mostly
+the end of that transcript I linked. The rest are unlinked.
+
+Why did I stop there? o1 warned me that I only had 25 more requests available
+and then I would have to wait _two days_ before I could issue more requests.
+Damn it.
+
+However, I should note that while I was working through all of these issues, o1
+was very, very fast compared to o1-preview, so that's a win.
+
+On the down side, the Perl code it wrote was very ugly, old-style Perl and I
+need to manually clean that up.
+
+# Handling Lists
+
+So after a bit of work, I got basic Prolog-style facts and rules working, but I
+wanted to handle lists so I could write something like the `append/3` predicate
+above. So I started prompting and eventually I got _close_ to the solution and
+had a test like this:
+
+```perl
+my $X2    = AI::Logic::Var->new;
+my $Y2    = AI::Logic::Var->new;
+my $count = 0;
+run_query(
+  sub {
+    append(
+      $X2, $Y2,
+      [ 'a', 'b', 'c', 'd', 'e' ],
+      sub {
+        # Each time we succeed, we have one solution.
+        # We'll increment a counter. Once we have
+        # all solutions, throw success.
+        $count++;
+        # Don't throw AI::Logic::Success immediately,
+        # because we want to find all solutions.
+        # The system will backtrack after continuation
+        # returns normally.
+
+      }
+    );
+    # After all solutions are exhausted, if no success
+    # was thrown, we do so now.  But note: In your logic
+    # system, once you run out of solutions, the run_query
+    # ends.  To confirm we got all 6 solutions, we can
+    # just check $count after run_query.
+    AI::Prolog::Success->throw;
+  }
+);
+is $count, 6, "append(X,Y,[a,b,c,d,e]) has 6 solutions";
+```
+
+The test looks vaguely sane (aside from the fact that it's not checking
+that the six solutions are correct), but I was only getting one solution.
+Multiple attempts to fix this failed and that's mostly my fault.
+
+First, when I explain prompt engineering to developers, I constantly remind
+them that AI should be considered a "talented junior developer." You have to
+review the code and I was doing so much work I failed to review the code.
+
+Second, I constantly try to remind developers that you should not use exceptions
+for flow control ("should", not "must"). Exceptions as flow control are usually
+a terrible idea, but again, it's beyond the scope of this article. However, it's
+relevant here because I ignored that the code o1 wrote was using exceptions for
+flow control. As a result, it was throwing an exception after it found the first
+solution rather than backtracking and finding _all_ solutions.
+
+I felt silly for not noticing that, but o1 didn't catch that either. In fact, at
+one point, it told me that I wasn't supposed to throw an exception in my test
+because that would block the backtracking, even though its own code was using
+exceptions to block the backtracking! That's when I reread this comment:
+
+```
+# After all solutions are exhausted, if no success
+# was thrown, we do so now.  But note: In your logic
+# system, once you run out of solutions, the run_query
+# ends.  To confirm we got all 6 solutions, we can
+# just check $count after run_query.
+```
+
+I suspected o1 was reading that comment and getting confused, so I started a new
+chat, removing that comment, and explained the actual problem. That's when it
+gave me an answer that failed, again, but differently. It actually gathered all
+of the answers, but wrapped them up in `AI::Prolog::Logic` variables rather than
+flattening them. So I reduced everything down to a simple base case, explaining
+the issue, and o1 failed repeatedly.
+
+I asked it to "flatten" the logic variables to lists and it was actually able
+to remove many of the "exceptions as flow control", but was now giving me 12
+solutions instead of one or six. No amount of coaxing could fix this.
+
+In frustration, I switched to Anthropic's Claude, and eventually solved the
+issue. My `appened/3` predicate now looks like this:
+
+```perl
+sub append ( $L1, $L2, $L3, $cont = undef ) {
+  $cont //= sub { AI::Logic::Success->throw("Solution") };
+
+  $L1 = AI::Logic::Var->new($L1);
+  $L2 = AI::Logic::Var->new($L2);
+  $L3 = AI::Logic::Var->new($L3);
+
+  # Base case: append([], L, L)
+  if ( unify( $L1, [], sub { unify( $L3, $L2, $cont ) } ) ) {
+    return 1;
+  }
+
+  # Recursive case: append([H|T], L, [H|R]) :- append(T, L, R)
+  my $H = AI::Logic::Var->new;
+  my $T = AI::Logic::Var->new;
+  my $R = AI::Logic::Var->new;
+
+  # Push recursive case as a choice point
+  push @CHOICE_POINTS, sub {
+    unify_list(
+      $L1, $H, $T,
+      sub {
+        unify_list(
+          $L3, $H, $R,
+          sub {
+            append( $T, $L2, $R, $cont );
+          }
+        );
+      }
+    );
+  };
+
+  return _try( shift @CHOICE_POINTS );
+}
+```
+
+Without going into detail (again, because this is long enough already), the
+above gives me the correct six solutions, at the price of a hideous syntax and
+not being thread safe. Those are problems for another day.
+
+# Summary
+
+o1 is actually very nice and very fast and I suspect I will use it for hard
+problems, but if you're not very clear about your expectations up front, it's
+frustrating, it will do what you ask, not what you want. As I've discovered
+with prompt engineering, you still have to have some expertise in the area
+you're working with or else it will be very hard for you to figure out why it's
+failing.
+
+All in all, I still think this is a great step forward for OpenAI's reasoners,
+but it's still not there yet.
+
+And this article completely skips over the many areas where o1 kept mixing up
+Perl and Prolog syntax.
+
+[%- END %]
