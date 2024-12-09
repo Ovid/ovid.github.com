@@ -411,6 +411,69 @@ Text::Markdown::Blog - Ovid's Markdown hack
 
 No user-serviceable parts inside.
 
-Just like L<Text::Markdown>, but if a link C<< [...](...) >> has a URL
-beginning with C<^\w+://>, then we add extra processing to ensure it works for
-Ovid's blog setup.
+Just like L<Text::Markdown>, but with a few extra features.
+
+=head1 FEATURES
+
+=head2 Links
+
+If a link C<< [...](...) >> has a URL beginning with C<^\w+://>, then we add
+C<target="_blank"> to ensure it opens up a new browser window.
+
+=head2 Tables
+
+We have basic support for tables:
+
+    Property      | Score | Weight | Value
+    --------------|-------|--------|------
+    Metabolism    | 1     | 5      | 3
+    Homeostasis   | 0     | 4      | 0
+    Growth        | 0     | 2      | 0
+    Reproduction  | 3     | 4      | 12
+    Communication | 1     | 5      | 5
+
+=head2 Smart Quotes
+
+Text with quotes outside of code blacks will have quotes turned into smart quoates.
+
+=head2 Code
+
+    ```perl
+    my $foo = ...;
+    ```
+
+We support syntax highlighting in code via L<https://prismjs.com>.
+
+Supported languages are:
+
+=over 4
+
+=item * css
+
+=item * clike
+
+=item * javascript
+
+=item * c
+
+=item * ruby
+
+=item * markup-templating
+
+=item * go
+
+=item * java
+
+=item * php
+
+=item * json
+
+=item * perl
+
+=item * sql
+
+=item * prolog
+
+=item * python
+
+=back
