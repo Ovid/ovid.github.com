@@ -1,10 +1,13 @@
 package Ovid::Site::Utils;
 
 use Less::Boilerplate;
+use Less::Script ();
 use parent 'Exporter';
 
 our @EXPORT_OK = qw(
   use_smart_quotes
+  get_image_description
+  set_image_description
 );
 
 sub use_smart_quotes($text) {
@@ -26,6 +29,23 @@ sub use_smart_quotes($text) {
     return $text;
 }
 
+sub get_image_description ($image) {
+    my ($description) = Less::Script::dbh()->selectrow_array(
+        'SELECT description FROM images WHERE filename = ?',
+        { Slice => {} },
+        $image
+    );
+    return $description;
+}
+
+sub set_image_description ( $image, $description ) {
+    my $sql
+      = get_image_description($image)
+      ? 'UPDATE images SET description = ? WHERE filename = ?'
+      : 'INSERT INTO images (description, filename) VALUES (?, ?)';
+    Less::Script::dbh()->do( $sql, {}, $description, $image );
+}
+
 1;
 
 __END__
@@ -39,3 +59,13 @@ Ovid::Site::Utils - Utility functions for building our site.
 =head2 use_smart_quotes
 
    $text = use_smart_quotes($text);
+
+=head2 get_image_description
+
+   $description = get_image_description($image);
+
+=head2 set_image_description
+
+    set_image_description($image, $description);
+
+=cut

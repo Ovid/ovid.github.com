@@ -2,10 +2,17 @@ package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
 use Less::Pager;
+use Less::Script ();    # import nothing
 use aliased 'Ovid::Template::File::Collection';
 use Mojo::JSON 'decode_json';
 use List::Util qw(sum0 max min);
 use Less::Config 'config';
+use Path::Tiny 'path';
+use Ovid::Site::AI::Images;
+use Ovid::Site::Utils qw(
+  get_image_description
+  set_image_description
+);
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
@@ -115,7 +122,7 @@ HTML
 }
 
 # because I keep writing Ovid.note instead of Ovid.add_note
-sub note ($self, @args) { $self->add_note(@args) }
+sub note ( $self, @args ) { $self->add_note(@args) }
 
 sub youtube ( $self, $youtube_id ) {
     if ( $youtube_id =~ m{/} ) {
@@ -126,6 +133,32 @@ sub youtube ( $self, $youtube_id ) {
 	<iframe width="560" height="315" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 HTML
+}
+
+sub describe_image( $self, $image ) {
+    # OpenAI costs money, so let's see if we have an image description. If we
+    # do, just return that. Otherwise, get it from OpenAI and cache it.
+    $image = path($image);
+
+    # unless image starts with root/, add that to the front of the path
+    # because all of our images start in the root directory.
+    unless ( $image =~ /^root\b/ ) {
+        $image = path('root')->child($image);
+    }
+    unless ( $image->exists ) {
+        croak "File does not exist or is not readable: $image\n";
+    }
+    my $description = get_image_description($image);
+    return $description if $description;
+
+    my $chat     = Ovid::Site::AI::Images->new;
+    my $response = $chat->describe_image($image);
+    say STDERR <<~"END";
+    Image:       $image
+    Description: $response
+    END
+    set_image_description( $image, $response );
+    return $response;
 }
 
 sub link ( $self, $path, $name ) {
