@@ -32,7 +32,7 @@ sub describe_image ( $self, $filename ) {
     my $image    = $self->_read_image_as_base64($filename);
     my $message  = {
         body => {
-            model    => 'gpt-4o-mini',    # $self->model,
+            model    => $self->model,
             messages => [
                 {
                     role    => 'system',
@@ -98,7 +98,7 @@ Ovid::Site::AI::Images - AI image tools
 
 =head1 SYNOPSIS
 
-    my $chat = Image::Describe::OpenAI->new;
+    my $chat = Ovid::Site::AI::Images->new;
     unless ( $image->exists ) {
         croak "File does not exist or is not readable: $image\n";
     }
