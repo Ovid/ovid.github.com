@@ -1,0 +1,843 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://ovid.github.io/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://ovid.github.io/articles/why-agi-wont-be-soon.html" />
+  
+  <meta property="og:title" content="Why AGI won’t be soon" />
+  <meta property="og:description" content="There's been a lot of talk about AGI coming soon, but there are some strong reasons to think this isn't true." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Why AGI won’t be soon</title>
+  <meta name="description" content="Why AGI won’t be soon">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://ovid.github.io/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://ovid.github.io/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+      <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Why AGI won’t be soon</h1>
+        <time>2024-12-09</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Programming</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="4">Artificial Intelligence</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/a-review-of-openais-new-chatgpt-o1.html" class="prevPost">&laquo; A Review of OpenAI's new ChatGPT o1</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">Artificial Intelligence</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article>
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#the-openai-view">The OpenAI View</a></li>
+    <li class="indent-1"><a href="#can-openai-succeed">Can OpenAI succeed?</a></li>
+    <li class="indent-1"><a href="#hallucinations">Hallucinations</a></li>
+    <li class="indent-1"><a href="#world-models">World Models</a></li>
+    <li class="indent-1"><a href="#the-o3-model">The o3 Model</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>There’s a lot of debate about <em>when</em> we’ll read Artificial General Intelligence
+(AGI).  Anyone who tells you they know the answer—including me—is almost
+certainly wrong because the answer’s more complex than people think.
+Unfortunately, it depends on how we define AGI.</p>
+
+<h1><a name="the-openai-view"></a>The OpenAI View</h1>
+
+<p>OpenAI has gone back and forth, but has settled on a description of it as AI
+which is above human capability for most economically valuable tasks. This is an
+interesting definition, one which seems achievable at their current rate of
+progress, but has the side benefit that Microsoft won’t have access to AGI if
+the OpenAI Board declares it’s achieved that goal. This is ostensibly to ensure
+that no for-profit company (er, like OpenAI itself),<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> has the ability to
+abuse
+AGI for their own benefit.</p>
+
+<p><a href="https://www.pymnts.com/artificial-intelligence-2/2024/openai-aiming-to-eliminate-microsoft-agi-rule-to-boost-future-investment/" target="_blank">Now OpenAI is considering removing that
+restriction</a> <span class="fa fa-external-link fa_custom"></span>.
+That would allow the for-profit part of OpenAI to continue to rake in billions
+of dollars in investment from Microsoft. Whether you consider this a shrewd or
+abusive business decision is largely a matter of taste. I’ll leave that for
+others to argue.</p>
+
+<h1><a name="can-openai-succeed"></a>Can OpenAI succeed?</h1>
+
+<p>That’s where the debate lies. Right now, Wharton Professor <a href="https://x.com/emollick/status/1866298158164459994" target="_blank">Ethan Mollick
+writes</a> <span class="fa fa-external-link fa_custom"></span> that several
+professors have contacted him to say that OpenAI’s o1 model appears to have
+found something new in their field. Nothing like curing cancer, but small
+discoveries that will require considerable research to verify.</p>
+
+<p>But the world of AI hallucinations still exists and while AI brings huge
+benefits to many tasks, such as brainstorming, it still fails at many things
+that you and I take for granted. Many AI models give a wrong answer to the
+questions “how many ‘r’s are in the word ‘strawberry'.” Or the fact that A=B
+means B=A escapes them because they can’t <em>know</em> that.</p>
+
+<p>To explain why this is, consider that generative AI simply predicts the next
+word (er, token, but I’m keeping this simple). For example, if you ask it to
+predict the next word for “the cat sat on the ...“, it might internally generate
+a list of probable next words like this:</p>
+
+<table>
+<col />
+<col />
+<thead>
+<tr>
+	<th>Word</th>
+	<th>Probability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>mat</td>
+	<td>30%</td>
+</tr>
+<tr>
+	<td>windowsill</td>
+	<td>20%</td>
+</tr>
+<tr>
+	<td>bed</td>
+	<td>15%</td>
+</tr>
+<tr>
+	<td>chair</td>
+	<td>10%</td>
+</tr>
+<tr>
+	<td>table</td>
+	<td>10%</td>
+</tr>
+<tr>
+	<td>floor</td>
+	<td>5%</td>
+</tr>
+<tr>
+	<td>lap</td>
+	<td>5%</td>
+</tr>
+<tr>
+	<td>fence</td>
+	<td>3%</td>
+</tr>
+<tr>
+	<td>sofa</td>
+	<td>2%</td>
+</tr>
+</tbody>
+</table>
+
+<p>It then uses something called a “weighted pick” to choose the next word, with
+the word “mat” having a 30% chance of being chosen (again, oversimplifying). If
+your AI system exposes the “temperature,” can set it to zero to ensure that only
+“mat” is chosen, or to a higher value to give more randomness.</p>
+
+<p>Does that sound like “intelligence” to you, given that AI doesn’t have any
+actual understanding of the real world? Despite all of the work to reduce
+hallucinations, this fundamental lack of real understanding could lock AI out of
+many economically valuable tasks. For example, AIs generally don’t understand
+that if A equals B, B equals A. You might try various prompts with models and
+think they know this, but in reality, they can’t figure this out logically. It’s
+just pattern matching. Here’s a classic example:</p>
+
+<blockquote>
+  <p>If all A are B, and all B are C, is it true that all C are A?</p>
+</blockquote>
+
+<p>I just asked <a href="https://venice.ai" target="_blank">Venice</a> <span class="fa fa-external-link fa_custom"></span> if this was true and it responded:</p>
+
+<blockquote>
+  <p>This is a classic example of a syllogism in logic. The answer is yes, it is true that all C are A.</p>
+  
+  <p>Here’s the reasoning:</p>
+  
+  <ol>
+  <li>All A are B (All A are C in this case)</li>
+  <li>All B are C</li>
+  <li>Therefore, all C are A (since all C are B, and all B are A)</li>
+  </ol>
+  
+  <p>This is known as a transitive property, which states that if A is a property of
+  B, and B is a property of C, then A is a property of C. In this case, the
+  property is “being A”, “being B”, and “being C”.</p>
+</blockquote>
+
+<p>On the surface, that seems sane. In reality:</p>
+
+<ol>
+<li>All dogs are canines.</li>
+<li>All canines are animals.</li>
+<li>Therefore, all animals are dogs.</li>
+</ol>
+
+<p>Larger foundation models usually get this correct, but again, it’s pattern
+matching, not logical reasoning. On the other hand, <a href="https://pubmed.ncbi.nlm.nih.gov/7968557/" target="_blank">there’s some evidence that
+humans rely on pattern matching more than logical
+reasoning</a> <span class="fa fa-external-link fa_custom"></span>, or perhaps we <em>only</em> use
+pattern matching and don’t use logic. So this damning critique of generative AI
+might not be so damning after all. For example, consider this equation:</p>
+
+<p>$$(3(2+2))^2$$</p>
+
+<p>How do we solve this? Let’s think “step-by-step”:</p>
+
+<p>First, we know from math class that parentheses come first and we recognize this
+pattern. So let’s solve what’s inside the parentheses (2+2):</p>
+
+<p>$$(3(2+2))^2 = (3(4))^2$$</p>
+
+<p>Next, multiply 3 and 4:</p>
+
+<p>$$(3(4))^2 = (12)^2$$</p>
+
+<p>Finally, square 12:</p>
+
+<p>$$(12)^2 = 144$$</p>
+
+<p>Therefore, $(3(2+2))^2 = 144$</p>
+
+<p>Each of those “steps” might seem like logical reasoning, but $2+2 = 4$. $3(4) = 12$. $12^2 = 144$.
+I didn’t have to “think” about those answers. I recognize those patterns.</p>
+
+<p>But even if we’re just pattern matching, AI can’t learn. It has a set of
+facts and that’s it. It’s very expensive to train it and most of us who use the
+foundation models are familiar with the infamous “knowledge cutoffs.” Of
+course, researchers are working on this problem, too.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/EwZx9SFtNx0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<h1><a name="hallucinations"></a>Hallucinations</h1>
+
+<p>When we talk about AI, the subject of hallucinations always emerges.
+The term is thrown around as the ultimate rebuttal. AI can and <em>does</em> make
+serious mistakes and <a href="https://www.theverge.com/2024/6/11/24176490/mm-delicious-glue" target="_blank">when it’s telling you to glue your pepperoni to your
+pizza</a> <span class="fa fa-external-link fa_custom"></span>, it’s
+seems a pretty serious critique. If hallucinations are serious and common, a
+superintelligent AI might be <em>worse</em> than today’s AI because we might not be
+able to detect the hallucinations.</p>
+
+<p>But let’s rephrase that argument. What’s often being said is “AI isn’t perfect,
+therefore AI isn’t good.” When viewed in that light, we can immediately see the
+problem.</p>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/bed.jpg" width="600" alt="The image depicts a cozy bedroom with a bed covered in soft, wrinkled bedding, positioned against a textured concrete wall. A small plant in a woven basket and a stack of books sit on a wooden bedside table, illuminated by warm sunlight streaming through a window.">
+    <figcaption>Make that bed! <a href="https://unsplash.com/photos/OZiflZqq0N0" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>Consider the image of a bed you see next to this paragraph. That image has “alt”
+text to allow those using screen readers to know what that image is. I now don’t
+(usually) write alt text for my blog because I added code to my web site
+software to detect the lack of alt text and use OpenAI to generate it. It can
+make mistakes, but as of this writing, it generates better alt text than what I
+write. This is real value being provided by AI and let’s me focus on the core of
+my writing and yet still provide <a href="/articles/ai-for-accessibility.html">an accessible
+experience</a> if your vision is impaired. As
+of this writing, that alt text reads as:</p>
+
+<blockquote>
+  <p>The image depicts a cozy bedroom with a bed covered in soft, wrinkled bedding,
+  positioned against a textured concrete wall. A small plant in a woven basket and
+  a stack of books sit on a wooden bedside table, illuminated by warm sunlight
+  streaming through a window.</p>
+</blockquote>
+
+<p>When I first used that image, my alt text was “A slightly messy bed.” For
+whatever reason, I’m awful at writing alt text. AI is not.</p>
+
+<p>For this web site, that’s a tiny amount of value. I routinely use AI for tiny
+amounts of value. It’s massively boosted not only my productivity, but my
+enjoyment in the things I do, taking away tiny drudgeries and letting me focus
+on my main goal.</p>
+
+<p>Of course, AI hallucinations can be extremely problematic in critical domains,
+but if I’m asking it for five creative advertising campaign ideas, I don’t
+<em>care</em> if it’s hallucinating.</p>
+
+<p>OK, fine, AI can provide <em>some</em> value ... but those damned hallucinations! In
+reality, what we’re seeing is that people tend to take AI’s responses at face
+value, but blame it more when they spot the errors.</p>
+
+<p>Here’s the truth: humans often hallucinate far more than AI, particularly on
+issues of recall. Already every major AI writes grammatically correct prose,
+with fewer spelling errors, than almost anyone on the planet. For many common
+tasks, it far outperforms humans. Even a year ago those were hard assertions to
+make. Today, they’re rarely challenged.</p>
+
+<p>In fact, in working with AI, there are two main types of hallucinations based on
+context and content. One is when the AI starts “forgetting” what it was talking
+about and goes off in a random direction, like your drunk uncle at a party who
+forgot what he was talking about and won’t shut up. This is largely mitigated
+with longer context windows.</p>
+
+<p>The other is when AI becomes captain of the USS Make Shit Up. These
+hallucinations are much harder to detect because the AI sounds so plausible.</p>
+
+<p>The “make shit up” hallucinations are more likely when AI hits topics that it
+doesn’t know as much about. If there’s not much training data, it struggles. But
+how much training data does it have?</p>
+
+<p>Let’s assume the average book is about 100,000 words. Assuming 1000 tokens
+translates to about 750 words, a book is about 133K tokens in length. How much
+data have these models been trained on? Assuming you could read one book a day,
+just looking at OpenAI models (estimated training data size):</p>
+
+<table>
+<col />
+<col />
+<col />
+<col />
+<thead>
+<tr>
+	<th>Model</th>
+	<th>Training Data</th>
+	<th>Books</th>
+	<th>Years to Read</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>GPT-3</td>
+	<td>570 GB (~300B tokens)</td>
+	<td>~4M books</td>
+	<td>~11K years</td>
+</tr>
+<tr>
+	<td>GPT-3.5</td>
+	<td>1 TB (~500B tokens)</td>
+	<td>~6M books</td>
+	<td>~18K years</td>
+</tr>
+<tr>
+	<td>GPT-4</td>
+	<td>2.5-3 TB (~1.5T tokens)</td>
+	<td>~20M books</td>
+	<td>~55K years</td>
+</tr>
+</tbody>
+</table>
+
+<p>For even the smallest of these models, it would take you millennia to consume
+that much knowledge and, unlike the AI, you wouldn’t remember it. Even some of
+the smallest models, such as
+<a href="https://huggingface.co/prajjwal1/bert-tiny" target="_blank">bert-tiny</a> <span class="fa fa-external-link fa_custom"></span>, were probably trained
+on data sets that would take you centuries to read. The smallest of these models
+“knows” far more than we do about everything. Take any subject you don’t know
+well and we’ll compare your hallucination rate.</p>
+
+<p>Your objection, of course, is that you’d say “I don’t know” instead of making
+stuff up. Here’s what Claude 3.5 Sonnet just replied to me when I asked about
+the ChatGPT training data:</p>
+
+<blockquote>
+  <p>I aim to be direct but acknowledge uncertainty here. I don’t actually know the
+  specific amounts of training data used for OpenAI’s models, as this
+  information isn’t public. While there has been speculation and estimates in the
+  media and research community about the scale of data used, I think it’s best not
+  to make claims about specific numbers without being able to verify them.</p>
+</blockquote>
+
+<p>So again, we see AI getting better and better at this (Anthropic, the company
+behind Claude, has been doing great work in this area). There’s also been work
+to have LLMs emit special tokens like <code>[DK]</code> which signal to it that it should
+say “I don’t know.”</p>
+
+<p>So let’s move on, keeping this context in mind: even the smallest of these
+models have far more knowledge than any single human has ever had. That’s the
+base we’re building on.</p>
+
+<h1><a name="world-models"></a>World Models</h1>
+
+<p>Generative AI doesn’t see the world the way we do. It can’t. It generates
+the next word or the next pixel. This is very one-dimensional. We see the world
+in three dimensions with time passing. AI can tell you that you can’t unbreak an
+egg, only because that’s a pattern it sees in text. It’s never seen an egg
+break. It doesn’t “know” time beyond patterns in text. Maybe what AI needs are
+“world models” to see the world. <a href="https://www.linkedin.com/pulse/yann-lecuns-vision-world-models-road-human-level-ai-r-pillai-s31te/" target="_blank">AI researcher Yann LeCun points out the
+problem very
+clearly</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>[Even] the most advanced AI systems struggle with tasks that humans learn
+  quickly—like clearing a table or driving a car. While humans can learn these
+  tasks in hours, AI systems need to be trained on thousands or even millions of
+  hours of data, and still don’t get it right all the time.</p>
+</blockquote>
+
+<p>The one-dimensional AI doesn’t “know” that eggs break when dropped. It doesn’t
+“know” that time passes. It doesn’t know that if A = B, then B = A. It’s all
+pattern matching of text. But what if it can see the world? What if it can learn
+these things using a fraction of the data it has now? Or if robotics advances at
+its current rate, coupled with AI, it can <em>experience</em> the world first hand, not
+just observe it.</p>
+
+<p>This is why many researchers are thinking that giving AI a chance to see and
+experience the world firsthand is the key to truly reaching AGI, not just
+“predicting the next word.” Further, this training could be based on reality,
+not Reddit posts. That “glue on the pizza” hallucination was the model
+apparently picking up a <a href="https://www.reddit.com/r/Pizza/comments/1a19s0/my_cheese_slides_off_the_pizza_too_easily/c8t7bbp/" target="_blank">humorous Reddit reply about preventing cheese sliding
+off
+pizza</a> <span class="fa fa-external-link fa_custom"></span>.
+Using training on experience in the world, many kinds of hallucination seem
+less likely.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> The
+information is more grounded in reality, the AI will be able to “intuitively”
+understand what is going on in a way it cannot today.</p>
+
+<h1><a name="the-o3-model"></a>The o3 Model</h1>
+
+<p>As I was writing this piece,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> OpenAI announced an o3 model, something
+currently only available for safety researchers.</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/SKBG1sqdyIU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p>Aside from being, hands down, the strongest AI out there, o3 has PhD level math
+skills, something that most AI cannot achieve. However, it’s <a href="https://arcprize.org/arc" target="_blank">the ARC-AGI
+benchmark</a> <span class="fa fa-external-link fa_custom"></span> that’s really impressive. ARC-AGI stands
+for “Abstract and Reasoning Corpus for Artificial General Intelligence,” a
+series of unpublished problems that humans can often solve, but AI is terrible
+at.</p>
+
+<p>Most foundation models score around 5% or lower on this. o1 models were hitting
+between 8% to 32%, depending on the amount of compute time. o3 is between 75.7%
+and 87.5%, depending on the amount of compute used. Humans tend to score around
+85% on this.</p>
+
+<p>I mention the o3 model because, as with so many things AI, anything written
+about it can be out of date by publishing time. While I suspect that proper
+world models may be a key to AGI, pushing GPTs to their limits also appears to
+be approaching AGI. The cost of the full o3 model using max compute can be
+thousands of dollars per request, so it’s prohibitively expensive. <a href="https://opentools.ai/news/openais-o3-model-soaring-performance-soaring-costs" target="_blank">Smaller
+requests on the low-compute models can be 20 dollars per task, but can exceed
+one thousand dollars on high-compute
+tasks</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>So we’re seeing incredible advancements towards AGI, but soaring costs and
+energy consumption requirements. It’s not sustainable, but there’s amazing work
+being done there, too. For example, <a href="https://news.ucsc.edu/2024/06/matmul-free-llm.html" target="_blank">matmulfree LLMs maintain performance, but
+reduce the costs of running LLMs by
+50x</a> <span class="fa fa-external-link fa_custom"></span>. You could run one of
+the smaller ones for the energy consumption of a light bulb and Nvidia stock
+could become worthless. Sadly, <a href="https://github.com/ridgerchu/matmulfreellm/issues/33#issuecomment-2290801221" target="_blank">the researcher are still trying to acquire
+funding for creating a larger
+model</a> <span class="fa fa-external-link fa_custom"></span>.
+I expect that, barring unforeseen difficulties, they’ll get that funding.
+There’s simply too much money at stake.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>While AI development is making remarkable progress through multiple approaches
+(world models and advanced foundation models), significant technical and
+practical challenges remain before achieving true AGI. The path forward likely
+involves both improving efficiency and developing more sophisticated ways for AI
+to understand and interact with the real world.</p>
+
+<p>I can’t give a timeline, but we’ve still got a few years before any potential
+“job apocalypse.”</p>
+
+</article>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/a-review-of-openais-new-chatgpt-o1.html" class="prevPost">&laquo; A Review of OpenAI's new ChatGPT o1</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://ovid.github.io/articles/why-agi-wont-be-soon.html";
+            this.page.identifier = "articles/why-agi-wont-be-soon";
+            this.page.title      = "Why AGI won’t be soon";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>This, of
+course, is a gross oversimplification of all of this.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>But what happens if the AI witnesses war?</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>It's been languishing on my hard drive
+during the Christmas holidays.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
+    </script>
+      
+    
+</body>
+</html>
+
+

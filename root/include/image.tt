@@ -13,6 +13,11 @@
    ELSE;
      THROW "Unknown 'align' argument for image $src: $align";
    END;
+
+    IF (!alt && src);
+        alt = Ovid.describe_image(src);
+    END;
+
    alt = alt.replace('"', '&quot;')
 -%]
 <figure class="[% class %]">

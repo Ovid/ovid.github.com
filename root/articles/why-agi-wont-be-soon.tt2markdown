@@ -1,0 +1,342 @@
+[%
+    title            = 'Why AGI won’t be soon';
+    type             = 'articles';
+    slug             = 'why-agi-wont-be-soon';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2024-12-09';
+    mathjax          = 1;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai}}
+
+# Introduction
+
+There's a lot of debate about _when_ we'll read Artificial General Intelligence
+(AGI).  Anyone who tells you they know the answer—including me—is almost
+certainly wrong because the answer's more complex than people think.
+Unfortunately, it depends on how we define AGI.
+
+# The OpenAI View
+
+OpenAI has gone back and forth, but has settled on a description of it as AI
+which is above human capability for most economically valuable tasks. This is an
+interesting definition, one which seems achievable at their current rate of
+progress, but has the side benefit that Microsoft won't have access to AGI if
+the OpenAI Board declares it's achieved that goal. This is ostensibly to ensure
+that no for-profit company (er, like OpenAI itself),[% Ovid.note("This, of
+course, is a gross oversimplification of all of this.") %] has the ability to
+abuse
+AGI for their own benefit.
+
+[Now OpenAI is considering removing that
+restriction](https://www.pymnts.com/artificial-intelligence-2/2024/openai-aiming-to-eliminate-microsoft-agi-rule-to-boost-future-investment/).
+That would allow the for-profit part of OpenAI to continue to rake in billions
+of dollars in investment from Microsoft. Whether you consider this a shrewd or
+abusive business decision is largely a matter of taste. I'll leave that for
+others to argue.
+
+# Can OpenAI succeed?
+
+That's where the debate lies. Right now, Wharton Professor [Ethan Mollick
+writes](https://x.com/emollick/status/1866298158164459994) that several
+professors have contacted him to say that OpenAI's o1 model appears to have
+found something new in their field. Nothing like curing cancer, but small
+discoveries that will require considerable research to verify.
+
+But the world of AI hallucinations still exists and while AI brings huge
+benefits to many tasks, such as brainstorming, it still fails at many things
+that you and I take for granted. Many AI models give a wrong answer to the
+questions "how many 'r's are in the word 'strawberry'." Or the fact that A=B
+means B=A escapes them because they can't _know_ that.
+
+To explain why this is, consider that generative AI simply predicts the next
+word (er, token, but I'm keeping this simple). For example, if you ask it to
+predict the next word for "the cat sat on the ...", it might internally generate
+a list of probable next words like this:
+
+Word       | Probability
+-----------|------------
+mat        | 30%
+windowsill | 20%
+bed        | 15%
+chair      | 10%
+table      | 10%
+floor      | 5%
+lap        | 5%
+fence      | 3%
+sofa       | 2%
+
+It then uses something called a "weighted pick" to choose the next word, with
+the word "mat" having a 30% chance of being chosen (again, oversimplifying). If
+your AI system exposes the "temperature," can set it to zero to ensure that only
+"mat" is chosen, or to a higher value to give more randomness.
+
+Does that sound like "intelligence" to you, given that AI doesn't have any
+actual understanding of the real world? Despite all of the work to reduce
+hallucinations, this fundamental lack of real understanding could lock AI out of
+many economically valuable tasks. For example, AIs generally don't understand
+that if A equals B, B equals A. You might try various prompts with models and
+think they know this, but in reality, they can't figure this out logically. It's
+just pattern matching. Here's a classic example:
+
+> If all A are B, and all B are C, is it true that all C are A?
+
+I just asked [Venice](https://venice.ai) if this was true and it responded:
+
+> This is a classic example of a syllogism in logic. The answer is yes, it is true that all C are A.
+>
+> Here's the reasoning:
+>
+> 1. All A are B (All A are C in this case)
+> 2. All B are C
+> 3. Therefore, all C are A (since all C are B, and all B are A)
+>
+> This is known as a transitive property, which states that if A is a property of
+> B, and B is a property of C, then A is a property of C. In this case, the
+> property is "being A", "being B", and "being C".
+
+On the surface, that seems sane. In reality:
+
+1. All dogs are canines.
+2. All canines are animals.
+3. Therefore, all animals are dogs.
+
+Larger foundation models usually get this correct, but again, it's pattern
+matching, not logical reasoning. On the other hand, [there's some evidence that
+humans rely on pattern matching more than logical
+reasoning](https://pubmed.ncbi.nlm.nih.gov/7968557/), or perhaps we _only_ use
+pattern matching and don't use logic. So this damning critique of generative AI
+might not be so damning after all. For example, consider this equation:
+
+$$(3(2+2))^2$$
+
+How do we solve this? Let's think "step-by-step":
+
+First, we know from math class that parentheses come first and we recognize this
+pattern. So let's solve what's inside the parentheses (2+2):
+
+   $$(3(2+2))^2 = (3(4))^2$$
+
+Next, multiply 3 and 4:
+
+   $$(3(4))^2 = (12)^2$$
+
+Finally, square 12:
+
+   $$(12)^2 = 144$$
+
+Therefore, $(3(2+2))^2 = 144$
+
+Each of those "steps" might seem like logical reasoning, but $2+2 = 4$. $3(4) = 12$. $12^2 = 144$.
+I didn't have to "think" about those answers. I recognize those patterns.
+
+But even if we're just pattern matching, AI can't learn. It has a set of
+facts and that's it. It's very expensive to train it and most of us who use the
+foundation models are familiar with the infamous "knowledge cutoffs." Of
+course, researchers are working on this problem, too.
+
+[% Ovid.youtube("EwZx9SFtNx0") %]
+
+# Hallucinations
+
+When we talk about AI, the subject of hallucinations always emerges.
+The term is thrown around as the ultimate rebuttal. AI can and _does_ make
+serious mistakes and [when it's telling you to glue your pepperoni to your
+pizza](https://www.theverge.com/2024/6/11/24176490/mm-delicious-glue), it's
+seems a pretty serious critique. If hallucinations are serious and common, a
+superintelligent AI might be _worse_ than today's AI because we might not be
+able to detect the hallucinations.
+
+But let's rephrase that argument. What's often being said is "AI isn't perfect,
+therefore AI isn't good." When viewed in that light, we can immediately see the
+problem.
+
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/bed.jpg"
+   source   = 'https://unsplash.com/photos/OZiflZqq0N0',
+   caption  = "Make that bed!"
+%]
+
+Consider the image of a bed you see next to this paragraph. That image has "alt"
+text to allow those using screen readers to know what that image is. I now don't
+(usually) write alt text for my blog because I added code to my web site
+software to detect the lack of alt text and use OpenAI to generate it. It can
+make mistakes, but as of this writing, it generates better alt text than what I
+write. This is real value being provided by AI and let's me focus on the core of
+my writing and yet still provide [an accessible
+experience](/articles/ai-for-accessibility.html) if your vision is impaired. As
+of this writing, that alt text reads as:
+
+> The image depicts a cozy bedroom with a bed covered in soft, wrinkled bedding,
+positioned against a textured concrete wall. A small plant in a woven basket and
+a stack of books sit on a wooden bedside table, illuminated by warm sunlight
+streaming through a window.
+
+When I first used that image, my alt text was "A slightly messy bed." For
+whatever reason, I'm awful at writing alt text. AI is not.
+
+For this web site, that's a tiny amount of value. I routinely use AI for tiny
+amounts of value. It's massively boosted not only my productivity, but my
+enjoyment in the things I do, taking away tiny drudgeries and letting me focus
+on my main goal.
+
+Of course, AI hallucinations can be extremely problematic in critical domains,
+but if I'm asking it for five creative advertising campaign ideas, I don't
+_care_ if it's hallucinating.
+
+OK, fine, AI can provide _some_ value ... but those damned hallucinations! In
+reality, what we're seeing is that people tend to take AI's responses at face
+value, but blame it more when they spot the errors.
+
+Here's the truth: humans often hallucinate far more than AI, particularly on
+issues of recall. Already every major AI writes grammatically correct prose,
+with fewer spelling errors, than almost anyone on the planet. For many common
+tasks, it far outperforms humans. Even a year ago those were hard assertions to
+make. Today, they're rarely challenged.
+
+In fact, in working with AI, there are two main types of hallucinations based on
+context and content. One is when the AI starts "forgetting" what it was talking
+about and goes off in a random direction, like your drunk uncle at a party who
+forgot what he was talking about and won't shut up. This is largely mitigated
+with longer context windows.
+
+The other is when AI becomes captain of the USS Make Shit Up. These
+hallucinations are much harder to detect because the AI sounds so plausible.
+
+The "make shit up" hallucinations are more likely when AI hits topics that it
+doesn't know as much about. If there's not much training data, it struggles. But
+how much training data does it have?
+
+Let's assume the average book is about 100,000 words. Assuming 1000 tokens
+translates to about 750 words, a book is about 133K tokens in length. How much
+data have these models been trained on? Assuming you could read one book a day,
+just looking at OpenAI models (estimated training data size):
+
+Model    | Training Data            | Books       | Years to Read
+---      | ---                      | ---         | ---
+GPT-3    | 570 GB (~300B tokens)    | ~4M books   | ~11K years
+GPT-3.5  | 1 TB (~500B tokens)      | ~6M books   | ~18K years
+GPT-4    | 2.5-3 TB (~1.5T tokens)  | ~20M books  | ~55K years
+
+For even the smallest of these models, it would take you millennia to consume
+that much knowledge and, unlike the AI, you wouldn't remember it. Even some of
+the smallest models, such as
+[bert-tiny](https://huggingface.co/prajjwal1/bert-tiny), were probably trained
+on data sets that would take you centuries to read. The smallest of these models
+"knows" far more than we do about everything. Take any subject you don't know
+well and we'll compare your hallucination rate.
+
+Your objection, of course, is that you'd say "I don't know" instead of making
+stuff up. Here's what Claude 3.5 Sonnet just replied to me when I asked about
+the ChatGPT training data:
+
+> I aim to be direct but acknowledge uncertainty here. I don't actually know the
+specific amounts of training data used for OpenAI's models, as this
+information isn't public. While there has been speculation and estimates in the
+media and research community about the scale of data used, I think it's best not
+to make claims about specific numbers without being able to verify them.
+
+So again, we see AI getting better and better at this (Anthropic, the company
+behind Claude, has been doing great work in this area). There's also been work
+to have LLMs emit special tokens like `[DK]` which signal to it that it should
+say "I don't know."
+
+So let's move on, keeping this context in mind: even the smallest of these
+models have far more knowledge than any single human has ever had. That's the
+base we're building on.
+
+# World Models
+
+Generative AI doesn't see the world the way we do. It can't. It generates
+the next word or the next pixel. This is very one-dimensional. We see the world
+in three dimensions with time passing. AI can tell you that you can't unbreak an
+egg, only because that's a pattern it sees in text. It's never seen an egg
+break. It doesn't "know" time beyond patterns in text. Maybe what AI needs are
+"world models" to see the world. [AI researcher Yann LeCun points out the
+problem very
+clearly](https://www.linkedin.com/pulse/yann-lecuns-vision-world-models-road-human-level-ai-r-pillai-s31te/):
+
+> [Even] the most advanced AI systems struggle with tasks that humans learn
+quickly—like clearing a table or driving a car. While humans can learn these
+tasks in hours, AI systems need to be trained on thousands or even millions of
+hours of data, and still don’t get it right all the time.
+
+The one-dimensional AI doesn't "know" that eggs break when dropped. It doesn't
+"know" that time passes. It doesn't know that if A = B, then B = A. It's all
+pattern matching of text. But what if it can see the world? What if it can learn
+these things using a fraction of the data it has now? Or if robotics advances at
+its current rate, coupled with AI, it can _experience_ the world first hand, not
+just observe it.
+
+This is why many researchers are thinking that giving AI a chance to see and
+experience the world firsthand is the key to truly reaching AGI, not just
+"predicting the next word." Further, this training could be based on reality,
+not Reddit posts. That "glue on the pizza" hallucination was the model
+apparently picking up a [humorous Reddit reply about preventing cheese sliding
+off
+pizza](https://www.reddit.com/r/Pizza/comments/1a19s0/my_cheese_slides_off_the_pizza_too_easily/c8t7bbp/).
+Using training on experience in the world, many kinds of hallucination seem
+less likely.[% Ovid.note("But what happens if the AI witnesses war?") %] The
+information is more grounded in reality, the AI will be able to "intuitively"
+understand what is going on in a way it cannot today.
+
+# The o3 Model
+
+As I was writing this piece,[% Ovid.note("It's been languishing on my hard drive
+during the Christmas holidays.") %] OpenAI announced an o3 model, something
+currently only available for safety researchers.
+
+[% Ovid.youtube('SKBG1sqdyIU') %]
+
+Aside from being, hands down, the strongest AI out there, o3 has PhD level math
+skills, something that most AI cannot achieve. However, it's [the ARC-AGI
+benchmark](https://arcprize.org/arc) that's really impressive. ARC-AGI stands
+for "Abstract and Reasoning Corpus for Artificial General Intelligence," a
+series of unpublished problems that humans can often solve, but AI is terrible
+at.
+
+Most foundation models score around 5% or lower on this. o1 models were hitting
+between 8% to 32%, depending on the amount of compute time. o3 is between 75.7%
+and 87.5%, depending on the amount of compute used. Humans tend to score around
+85% on this.
+
+I mention the o3 model because, as with so many things AI, anything written
+about it can be out of date by publishing time. While I suspect that proper
+world models may be a key to AGI, pushing GPTs to their limits also appears to
+be approaching AGI. The cost of the full o3 model using max compute can be
+thousands of dollars per request, so it's prohibitively expensive. [Smaller
+requests on the low-compute models can be 20 dollars per task, but can exceed
+one thousand dollars on high-compute
+tasks](https://opentools.ai/news/openais-o3-model-soaring-performance-soaring-costs).
+
+So we're seeing incredible advancements towards AGI, but soaring costs and
+energy consumption requirements. It's not sustainable, but there's amazing work
+being done there, too. For example, [matmulfree LLMs maintain performance, but
+reduce the costs of running LLMs by
+50x](https://news.ucsc.edu/2024/06/matmul-free-llm.html). You could run one of
+the smaller ones for the energy consumption of a light bulb and Nvidia stock
+could become worthless. Sadly, [the researcher are still trying to acquire
+funding for creating a larger
+model](https://github.com/ridgerchu/matmulfreellm/issues/33#issuecomment-2290801221).
+I expect that, barring unforeseen difficulties, they'll get that funding.
+There's simply too much money at stake.
+
+# Conclusion
+
+While AI development is making remarkable progress through multiple approaches
+(world models and advanced foundation models), significant technical and
+practical challenges remain before achieving true AGI. The path forward likely
+involves both improving efficiency and developing more sophisticated ways for AI
+to understand and interact with the real world.
+
+I can't give a timeline, but we've still got a few years before any potential
+"job apocalypse."
+
+[%- END %]

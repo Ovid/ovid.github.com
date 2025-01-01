@@ -9,7 +9,7 @@ ok my $tables =
   $dbh->selectcol_arrayref(
     "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name;"),
   '... and we should be able to fetch our tables';
-eq_or_diff $tables, [ 'article_types', 'articles' ],
+eq_or_diff $tables, [ 'article_types', 'articles', 'images', 'sqlite_sequence' ],
   '... and they should be the tables we expect';
 
 my $type = article_type('blog');

@@ -6,6 +6,7 @@ use lib 'lib';
 use File::Spec::Functions qw(catfile);
 use DateTime;
 use Less::Script;
+use Ovid::Site::Utils qw(use_smart_quotes);
 
 GetOptions(
     \my %opt_for,
@@ -105,6 +106,8 @@ sub edit_article ($template) {
 
 sub template ( $title, $directory, $slug, $opt_for ) {
     my $ymd = DateTime->now->ymd;
+    $title = use_smart_quotes($title);
+
     return
       sprintf <<'END' => $title, $directory, $slug, $opt_for->{comments}, $ymd;
 [%%
