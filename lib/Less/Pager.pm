@@ -147,3 +147,68 @@ SQL
 }
 
 __PACKAGE__->meta->make_immutable;
+
+__END__
+
+=head1 NAME
+
+Less::Pager - Pagination for articles and blog posts
+
+=head1 SYNOPSIS
+
+    my $pager = Less::Pager->new(
+        type           => 'article',
+        items_per_page => 10,
+    );
+
+    my $records = $pager->next;
+
+=head1 DESCRIPTION
+
+This module provides a way to paginate through articles and blog posts.
+
+=head1 ATTRIBUTES
+
+=head2 items_per_page
+
+The number of items to display per page.
+
+=head2 total
+
+The total number of items.
+
+=head2 oldest_first
+
+Whether to display the oldest items first.
+
+=head2 type
+
+The type of article to display. Values are C<article> or C<blog>.
+
+=head2 current_page_number
+
+The current page number.
+
+=head1 METHODS
+
+=head2 total_pages
+
+Returns the total number of pages.
+
+=head2 next
+
+Returns the next set of records.
+
+=head2 prev_post
+
+Returns the previous post.
+
+=head2 next_post
+
+Returns the next post.
+
+=head2 this_post
+
+Returns the current post.
+
+=cut
