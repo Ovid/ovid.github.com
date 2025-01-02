@@ -4,10 +4,15 @@
 use lib 'lib';
 use strict;
 use warnings;
+use Getopt::Long;
+GetOptions(
+    \my %options,
+    'for_release',
+) or die "bad options";
 
 use Ovid::Site;
 
-my $site = Ovid::Site->new;
+my $site = Ovid::Site->new( for_release => $options{for_release} );
 $site->build;
 
 system( 'prove', '-l', 't' );
