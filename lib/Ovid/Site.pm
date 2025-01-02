@@ -47,16 +47,27 @@ package Ovid::Site {
         default => sub { {} },
     );
 
+    has for_release => (
+        is      => 'ro',
+        isa     => 'Bool',
+        default => 0,
+    );
+
     sub build ($self) {
+        say STDERR "Preprocessing files ...";
         $self->_assert_tt_config;
         $self->_set_files('root');
         $self->_preprocess_files;
-        $self->_write_tag_templates;
-        $self->_write_tagmap;
-        $self->_rebuild_article_pagination;
-        $self->_rebuild_rss_feeds;
-        $self->_run_ttree;
-        $self->_build_tinysearch;
+        if ( $self->for_release ) {
+            $self->_write_tag_templates;
+            $self->_write_tagmap;
+            $self->_rebuild_rss_feeds;
+            $self->_run_ttree;
+            $self->_build_tinysearch;
+        }
+		else {
+            $self->_run_ttree;
+        }
     }
 
     sub _set_files ( $self, $location ) {
@@ -329,6 +340,7 @@ END
     }
 
     sub _run_ttree ($self) {
+        say STDERR "Rebuilding pages...";
         my $ttree = which('ttree');
         my @args  = (
             'perl', '-Ilib',    # make sure we can find our plugins
