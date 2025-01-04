@@ -3,6 +3,27 @@
 # vim: ft=sh
 
 set -Eeuo pipefail
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Aborting: There are uncommitted changes in tracked files."
+    exit 1
+fi
+
+# Proceed with the rebuild if no issues
 bin/rebuild --for_release
 git commit static/js/search/ -m "Rebuild search index"
-git done -y
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Aborting: Something went wrong and we still have uncommited changes."
+    exit 2
+fi
+
+# Check if the current branch is 'main'
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$current_branch" == "main" ]]; then
+    echo "On branch 'main'. Running 'git push'."
+    git push
+else
+    echo "Not on branch 'main'. Running 'git done -y'."
+    git done -y
+fi
