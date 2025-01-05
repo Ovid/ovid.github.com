@@ -1,4 +1,4 @@
--- Verify ovid:data/why-black-people-hare-your-dreads on sqlite
+-- Verify ovid:data/why-black-people-hate-your-dreads on sqlite
 
 BEGIN;
 
