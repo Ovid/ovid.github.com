@@ -39,7 +39,6 @@ requires 'MooseX::Extended'          => 0.35;
 requires 'OpenAPI::Client::OpenAI'   => 0.13;
 requires 'Path::Tiny'                => 0.146;
 requires 'Plack'                     => 1.0051;
-requires 'Readonly'                  => 2.05;
 requires 'String::Util'              => 1.35;
 requires 'Template::Toolkit'         => 3.102;
 requires 'Test::Most'                => 0.38;

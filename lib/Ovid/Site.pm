@@ -28,9 +28,6 @@ package Ovid::Site {
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
 
-    use Readonly;
-    Readonly my $BASE_URL => 'https://curtispoe.org/';
-
     has _files => (
         traits  => ['Array'],
         is      => 'rw',
@@ -39,6 +36,12 @@ package Ovid::Site {
             count => 'count',
             all   => 'elements',
         },
+    );
+
+    has _base_url => (
+        is      => 'ro',
+        isa     => NonEmptySimpleStr,
+        default => 'https://curtispoe.org/',
     );
 
     has _tagmap => (
@@ -171,6 +174,7 @@ package Ovid::Site {
             my $directory = $type->{directory};
             my $now       = DateTime->now;
             my $year      = $now->year;
+            my $base_url  = $self->_base_url;
             my $rss       = XML::RSS->new( version => '2.0' );
             $rss->add_module(
                 prefix => 'atom',
@@ -178,13 +182,13 @@ package Ovid::Site {
             );
             $rss->channel(
                 title       => $type->{description},
-                link        => "$BASE_URL$directory",
+                link        => "$base_url$directory",
                 description => $type->{description},
                 language    => 'en-us',
                 copyright   => "Copyright $year, Curtis \"Ovid\" Poe",
                 atom        => {
                     'link' => {
-                        'href' => "$BASE_URL$type->{type}.rss",
+                        'href' => "$base_url$type->{type}.rss",
                         'rel'  => 'self',
                         'type' => 'application/rss+xml'
                     }
@@ -208,7 +212,7 @@ SQL
             my $new_links = 0;
             foreach my $article ( $articles->@* ) {
                 my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
-                my $url     = "$BASE_URL$directory/$article->{slug}.html";
+                my $url     = "$base_url$directory/$article->{slug}.html";
 
                 # Every time we changed an article, we kept updating the
                 # publication date of the entire RSS feed. Now we only do this if
