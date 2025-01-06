@@ -68,7 +68,7 @@ package Ovid::Site {
         $self->_write_tag_templates;
         $self->_write_tagmap;
         $self->_rebuild_rss_feeds;
-		$self->_rebuild_article_pagination;
+        $self->_rebuild_article_pagination;
         $self->_run_ttree;
         $self->_write_sitemap;
         $self->_build_tinysearch if $self->for_release;
@@ -237,6 +237,7 @@ SQL
         foreach my $type (qw/article blog/) {
             my $article_type = article_type($type);
             my $pager       = Less::Pager->new(type => $type);
+            my $name       = $type eq 'article' ? 'articles' : $type;
 
             # Handle paginated versions
             while (my $records = $pager->next) {
@@ -250,15 +251,14 @@ SQL
                     $pager->total_pages, $page_number,
                     $article_type
                 );
-                my $name       = $type eq 'article' ? 'articles' : $type;
                 my $identifier = $page_number > 1 ? "${name}_$page_number" : $name;
                 my $template   = <<~"END";
                 [%
-                    title      = '$title';
-                    identifier = '$identifier';
+                    INCLUDE include/header.tt 
+                    title         = '$title'
+                    identifier    = '$identifier'
+                    canonical_url = "$name-all.html"
                 %]
-
-                [% INCLUDE include/header.tt %]
 
                 $articles
 
@@ -280,17 +280,16 @@ SQL
 
             # Handle "all" version
             my $all_records = $pager->all;
-            my $name       = $type eq 'article' ? 'articles' : $type;
             my $title      = "All $article_type->{name} by Ovid";
             my $identifier = "$name-all";
             my $articles   = $self->_get_article_list($all_records, $article_type);
             my $template   = <<~"END";
             [%
-                title      = '$title';
-                identifier = '$identifier';
+                INCLUDE include/header.tt 
+                title         = '$title'
+                identifier    = '$identifier'
+                canonical_url = "$name-all.html"
             %]
-
-            [% INCLUDE include/header.tt %]
 
             $articles
 
@@ -491,8 +490,7 @@ END
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
         XML
 
-        # Configuration
-        my $base_url = "https://curtispoe.org";
+        my $base_url = $self->_base_url;
 
         # Process files
         for my $file (@files) {
