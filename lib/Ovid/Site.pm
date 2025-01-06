@@ -65,17 +65,13 @@ package Ovid::Site {
         $self->_assert_tt_config;
         $self->_set_files('root');
         $self->_preprocess_files;
-        if ( $self->for_release ) {
-            $self->_write_tag_templates;
-            $self->_write_tagmap;
-            $self->_rebuild_rss_feeds;
-            $self->_run_ttree;
-            $self->_write_sitemap;
-            $self->_build_tinysearch;
-        }
-        else {
-            $self->_run_ttree;
-        }
+        $self->_write_tag_templates;
+        $self->_write_tagmap;
+        $self->_rebuild_rss_feeds;
+		$self->_rebuild_article_pagination;
+        $self->_run_ttree;
+        $self->_write_sitemap;
+        $self->_build_tinysearch if $self->for_release;
     }
 
     sub _set_files ( $self, $location ) {
@@ -240,42 +236,67 @@ SQL
     sub _rebuild_article_pagination ($self) {
         foreach my $type (qw/article blog/) {
             my $article_type = article_type($type);
-            my $pager        = Less::Pager->new( type => $type );
-            while ( my $records = $pager->next ) {
+            my $pager       = Less::Pager->new(type => $type);
+
+            # Handle paginated versions
+            while (my $records = $pager->next) {
                 my $page_number = $pager->current_page_number;
-                my $title       = "$article_type->{name} by Ovid";
-                if ( $pager->total_pages > 1 ) {
+                my $title      = "$article_type->{name} by Ovid";
+                if ($pager->total_pages > 1) {
                     $title .= ", page $page_number";
                 }
-                my $articles   = $self->_get_article_list( $records, $article_type );
+                my $articles   = $self->_get_article_list($records, $article_type);
                 my $pagination = $self->_get_pagination(
                     $pager->total_pages, $page_number,
                     $article_type
                 );
-                my $name       = $type eq 'article' ? 'articles'             : $type;
-                my $identifier = $page_number > 1   ? "${name}_$page_number" : $name;
-                my $template   = <<"END";
-[%
-    title      = '$title';
-    identifier = '$identifier';
-%]
+                my $name       = $type eq 'article' ? 'articles' : $type;
+                my $identifier = $page_number > 1 ? "${name}_$page_number" : $name;
+                my $template   = <<~"END";
+                [%
+                    title      = '$title';
+                    identifier = '$identifier';
+                %]
 
-[% INCLUDE include/header.tt %]
+                [% INCLUDE include/header.tt %]
 
-$articles
-$pagination
-[% IF $page_number == 1 -%]
-<script>
-    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
-    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
-</script>
-[%- END %]
+                $articles
 
-[% INCLUDE include/footer.tt %]
-END
-                my $article = $self->_article_page( $page_number, $article_type );
-                splat( "root/$article.tt", $template );
+                <p><a href="/$name-all.html">All $article_type->{name} in a single page</a></p>
+
+                $pagination
+                [% IF $page_number == 1 -%]
+                <script>
+                    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+                    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+                </script>
+                [%- END %]
+
+                [% INCLUDE include/footer.tt %]
+                END
+                my $article = $self->_article_page($page_number, $article_type);
+                splat("root/$article.tt", $template);
             }
+
+            # Handle "all" version
+            my $all_records = $pager->all;
+            my $name       = $type eq 'article' ? 'articles' : $type;
+            my $title      = "All $article_type->{name} by Ovid";
+            my $identifier = "$name-all";
+            my $articles   = $self->_get_article_list($all_records, $article_type);
+            my $template   = <<~"END";
+            [%
+                title      = '$title';
+                identifier = '$identifier';
+            %]
+
+            [% INCLUDE include/header.tt %]
+
+            $articles
+
+            [% INCLUDE include/footer.tt %]
+            END
+            splat("root/${name}-all.tt", $template);
         }
     }
 
