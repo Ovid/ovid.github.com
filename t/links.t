@@ -91,7 +91,6 @@ sub links_are_good ( $file ) {
             push @errors => "Canonical URL wrong format: $href in $file";
         }
         else {
-            $DB::single = 1;
             my $url = $href;
             $url =~ s{^https?://$domain/}{};
             unless (-e $url) {
