@@ -7,7 +7,7 @@ package Ovid::Site {
     use Less::Script;
     use Less::Pager;
     use Less::Config qw(config);
-    use Ovid::Types qw(ArrayRef NonEmptySimpleStr HashRef);
+    use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
     use Template::Plugin::Ovid;
     use aliased 'Ovid::Template::File::Collection';
@@ -17,13 +17,17 @@ package Ovid::Site {
     use DateTime::Format::SQLite;
     use DateTime;
     use File::Basename qw(dirname basename);
-    use File::Which qw(which);
+    use File::Which    qw(which);
     use File::Copy;
     use File::Find::Rule;
-    use File::Path qw(mkpath);
+    use File::Path            qw(mkpath);
     use File::Spec::Functions qw(catfile);
     use HTML::TokeParser::Simple;
     use Mojo::DOM;
+    use Path::Tiny;
+    use File::Find::Rule;
+    use POSIX               qw(strftime);
+    use IPC::System::Simple ();
 
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
@@ -66,9 +70,10 @@ package Ovid::Site {
             $self->_write_tagmap;
             $self->_rebuild_rss_feeds;
             $self->_run_ttree;
+            $self->_write_sitemap;
             $self->_build_tinysearch;
         }
-		else {
+        else {
             $self->_run_ttree;
         }
     }
@@ -347,9 +352,9 @@ END
         say STDERR "Rebuilding pages...";
         my $ttree = which('ttree');
         my @args  = (
-            'perl', '-Ilib',    # make sure we can find our plugins
-            $ttree,             # the ttree command
-            '-a',               # process all files
+            'perl', '-Ilib',                                # make sure we can find our plugins
+            $ttree,                                         # the ttree command
+            '-a',                                           # process all files
             '-s'         => 'tmp',                          # use tmp/ as a source
             '-d'         => '.',                            # use . as the target
             '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
@@ -365,6 +370,134 @@ END
             croak($stdout);
         }
         say $stdout;
+    }
+
+    sub _get_git_lastmod ( $self, $file ) {    # for sitemap
+
+        # Try to get the last commit date for the file
+        my $git_date;
+        eval {
+            $git_date = IPC::System::Simple::capture( 'git', 'log', '-1', '--format=%ai', $file );
+            chomp($git_date);
+        };
+
+        if ( $@ || !$git_date ) {
+
+            # If git command fails or returns empty (file not in git),
+            # fall back to file mtime
+            return strftime( "%Y-%m-%d", localtime( path($file)->stat->mtime ) );
+        }
+
+        # Git date format is like "2024-01-06 12:34:56 -0500"
+        # Extract just the date part
+        if ( $git_date =~ /^(\d{4}-\d{2}-\d{2})/ ) {
+            return $1;
+        }
+
+        # Fallback to file mtime if git date parsing fails
+        return strftime( "%Y-%m-%d", localtime( path($file)->stat->mtime ) );
+    }
+
+    # Function to determine priority based on filename and path
+    sub _get_sitemap_priority ( $self, $path ) {
+        my $file   = $path->basename;
+        my $parent = $path->parent->stringify;
+
+        # Homepage gets highest priority
+        return 1.0 if $file eq 'index.html';
+
+        # Main section pages (no number suffix)
+        return 0.8 if $file =~ /^(articles|blog|videos)\.html$/;
+
+        # Second pages in pagination
+        return 0.6 if $file =~ /^(articles|blog)_2\.html$/;
+
+        # Third pages in pagination
+        return 0.5 if $file =~ /^(articles|blog)_3\.html$/;
+
+        # Further pagination
+        return 0.4 if $file =~ /^(articles|blog)_\d+\.html$/;
+
+        # Articles and blog posts in subdirectories
+        return 0.6 if $file =~ /\.html$/ && ( $parent eq 'articles' || $parent eq 'blog' );
+
+        # Other main pages
+        return 0.7 if $file =~ /\.html$/;
+
+        # Default priority for everything else
+        return 0.5;
+    }
+
+    sub _get_change_frequency ( $self, $path ) {    # for sitemap
+        my $file = $path->basename;
+
+        # always  = For pages that change with every access
+        # hourly  = For pages that change multiple times per day
+        # daily   = News homepages, daily blogs, etc.
+        # weekly  = Weekly columns, regular blog posts
+        # monthly = Regular but infrequent updates
+        # yearly  = Archive pages, static content that rarely changes
+        # never   = Historical archives, permalink pages
+
+        my %frequency_for = (
+            'index.html'    => 'monthly',
+            'articles.html' => 'weekly',
+            'blog.html'     => 'weekly',
+            'videos.html'   => 'yearly',
+        );
+
+        if ( my $freq = $frequency_for{$file} ) {
+            return $freq;
+        }
+        return 'monthly' if $file =~ /^(articles|blog)_\d+\.html$/;
+
+        # These are articles and blog posts. Typically they only receive updates
+        # for typos or other minor changes, so we'll default to yearly
+        return 'yearly';    # default for other pages
+    }
+
+    sub _write_sitemap ($self) {
+
+        # Find all HTML files
+        my @files = File::Find::Rule->file()    # only files
+          ->name('*.html')                      # with a .html extension
+          ->relative                            # with relative paths
+          ->in('.');                            # starting in the current directory
+
+        # Start XML output
+        my $xml = <<~"XML";
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        XML
+
+        # Configuration
+        my $base_url = "https://curtispoe.org";
+
+        # Process files
+        for my $file (@files) {
+            my $path = path($file);
+
+            # Skip subdirectories unless articles or blog
+            next if $path->parent ne '.' && $path->parent !~ /^(articles|blog)$/;
+
+            my $priority   = $self->_get_sitemap_priority($path);
+            my $changefreq = $self->_get_change_frequency($path);
+            my $lastmod    = $self->_get_git_lastmod($file);
+
+            $xml .= <<~"XML";
+                <url>
+                    <loc>$base_url/$file</loc>
+                    <lastmod>$lastmod</lastmod>
+                    <changefreq>$changefreq</changefreq>
+                    <priority>$priority</priority>
+                </url>
+            XML
+        }
+
+        # End XML output
+        $xml .= '</urlset>';
+        my $sitemap = path('sitemap.xml');
+        $sitemap->spew_utf8($xml);
     }
 
     sub _build_tinysearch($self) {
