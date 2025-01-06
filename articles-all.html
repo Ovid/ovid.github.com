@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://curtispoe.org/articles-all.html" />
+  
+  <meta property="og:title" content="All Articles by Ovid" />
+  <meta property="og:description" content="" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles-all.html" />
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>All Articles by Ovid</title>
+  <meta name="description" content="All Articles by Ovid">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>All Articles by Ovid</h1>
+        
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="4">AI</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="3">Databases</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+
+
+<ul id="articles">
+    <li><a href="/articles/why-agi-wont-be-soon.html">Why AGI Won't Be Soon</a></li>
+    <li><a href="/articles/a-review-of-openais-new-chatgpt-o1.html">A Review of OpenAI's new ChatGPT o1</a></li>
+    <li><a href="/articles/prompt-engineering-is-not-dead.html">Prompt Engineering Is Not Dead</a></li>
+    <li><a href="/articles/using-vector-databases-with-perl.html">Using Vector Databases with Perl</a></li>
+    <li><a href="/articles/escape-adventurs-in-ai-gaming.html">Escape!-Adventurs in AI Gaming</a></li>
+    <li><a href="/articles/using-ai-to-fight-misinformation.html">Using AI to Fight Misinformation</a></li>
+    <li><a href="/articles/ai-for-accessibility.html">AI for Accessibility</a></li>
+    <li><a href="/articles/wardley-maps-in-a-nutshell.html">Wardley Maps In a Nutshell</a></li>
+    <li><a href="/articles/ai-generated-content-innovation-or-intellectual-theft.html">AI-Generated Content: Innovation or Intellectual Theft?</a></li>
+    <li><a href="/articles/agile-is-not-the-problem.html">Agile is Not the Problem</a></li>
+    <li><a href="/articles/programming-mutable-objects.html">Programming Mutable Objects</a></li>
+    <li><a href="/articles/an-openai-chatbot-in-perl.html">An OpenAI Chatbot in Perl</a></li>
+    <li><a href="/articles/claude-sonnet-35-beats-chatgpt-40.html">Claude Sonnet 3.5 beats ChatGPT 4.0</a></li>
+    <li><a href="/articles/will-you-lose-your-job-to-ai.html">Will You Lose Your Job to AI?</a></li>
+    <li><a href="/articles/building-an-iphone-app-with-chatgpt.html">Building an iPhone App with ChatGPT</a></li>
+    <li><a href="/articles/dont-start-with-microservices.html">Don't Start with Microservices</a></li>
+    <li><a href="/articles/microservices-pros-and-cons.html">Microservices Pros and Cons</a></li>
+    <li><a href="/articles/what-to-know-before-debating-type-systems.html">What to Know Before Debating Type Systems </a></li>
+    <li><a href="/articles/corinna-in-the-perl-core.html">Corinna in the Perl Core</a></li>
+    <li><a href="/articles/tracking-elon-musks-plane-with-perl.html">Tracking Elon Musk's Plane with Perl</a></li>
+    <li><a href="/articles/using-github-copilot-with-vim.html">Using Github Copilot with Vim</a></li>
+    <li><a href="/articles/all-around-the-world-celebrating-ten-years.html">All Around the World: Celebrating Ten Years</a></li>
+    <li><a href="/articles/the-future-of-perl.html">The Future of Perl</a></li>
+    <li><a href="/articles/converting-object-oriented-code-to-corinna.html">Converting Object-Oriented Code to Corinna</a></li>
+    <li><a href="/articles/feature-switch-best-practices.html">Feature Switch Best Practices</a></li>
+    <li><a href="/articles/current-corinna-status.html">Current Corinna Status</a></li>
+    <li><a href="/articles/naming-and-object-oriented-code.html">Naming and Object Oriented Code</a></li>
+    <li><a href="/articles/understanding-class-inheritance.html">Understanding Class Inheritance</a></li>
+    <li><a href="/articles/introducing-moosexextended-for-perl.html">Introducing MooseX::Extended for Perl</a></li>
+    <li><a href="/articles/common-problems-in-object-oriented-code.html">Common Problems in Object-Oriented Code</a></li>
+    <li><a href="/articles/why-is-object-oriented-programming-bad.html">Why is Object-Oriented Programming Bad?</a></li>
+    <li><a href="/articles/are-microservices-the-next-phase-of-object-oriented-programming.html">Are Microservices the Next Phase of Object-Oriented Programming?</a></li>
+    <li><a href="/articles/constructive-versus-classical-logic-in-perl.html">Constructive Versus Classical Logic in Perl</a></li>
+    <li><a href="/articles/why-is-perl-not-putting-moose-in-the-core.html">Why is Perl not putting Moose in the core?</a></li>
+    <li><a href="/articles/language-design-consistency.html">Language Design Consistency</a></li>
+    <li><a href="/articles/the-problem-with-builder.html">Classes Should Not Override Parent Attributes</a></li>
+    <li><a href="/articles/managing-a-test-database.html">Managing a Test Database</a></li>
+    <li><a href="/articles/using-immutable-datetime-objects-with-dbixclass.html">Why Do We Want Immutable Objects?</a></li>
+    <li><a href="/articles/easy-git-workflow.html">Easy Git Workflow</a></li>
+    <li><a href="/articles/making-complex-software-simple.html">Making Complex Software Simple</a></li>
+    <li><a href="/articles/work-from-home-effectively.html">Work From Home Effectively</a></li>
+    <li><a href="/articles/database-design-standards.html">Database Design Standards</a></li>
+    <li><a href="/articles/automated-software-standards.html">Automated Software Standards</a></li>
+    <li><a href="/articles/project-500.html">Case Study: 500 TPS</a></li>
+    <li><a href="/articles/moving-from-oracle-to-postgresql.html">Moving from Oracle to PostgreSQL</a></li>
+    <li><a href="/articles/managing-a-remote-team.html">Managing a Remote Team</a></li>
+    <li><a href="/articles/project-management-in-three-numbers.html">Project Management in Three Numbers</a></li>
+    <li><a href="/articles/alan-kay-and-missing-messages-a-follow-up.html">Alan Kay and Missing Messages (a follow-up)</a></li>
+    <li><a href="/articles/alan-kay-and-oo-programming.html">Alan Kay and OO Programming</a></li>
+    <li><a href="/articles/the-worst-job-offer.html">The Worst Job Offer</a></li>
+    <li><a href="/articles/the-tyranny-of-budgets.html">Software Projects as Used Cars</a></li>
+    <li><a href="/articles/how-to-defeat-facebook.html">How to Defeat Facebook</a></li>
+    <li><a href="/articles/fixing-mvc-in-web-applications.html">Fixing MVC in Web Applications</a></li>
+    <li><a href="/articles/avoid-common-software-project-mistakes.html">Avoid Common Software Project Mistakes</a></li>
+    <li><a href="/articles/estimating-development-costs-is-almost-useless.html">Estimating Development Costs is Almost Useless</a></li>
+    <li><a href="/articles/the-surprises-of-ab-testing.html">The Surprises of A/B Testing</a></li>
+    <li><a href="/articles/gdpr-and-bankruptcy.html">GDPR and Bankruptcy</a></li>
+    <li><a href="/articles/death-by-database.html">Death by Database</a></li>
+    <li><a href="/articles/zen-of-test-suites.html">The Zen of test suites</a></li>
+    <li><a href="/articles/how-databases-can-hurt-your-startup.html">How the database can hurt your startup</a></li>
+    <li><a href="/articles/a-simple-way-to-fix-legacy-code.html">A simple way to fix legacy code</a></li>
+    <li><a href="/articles/when-to-choose-agile.html">When to choose agile</a></li>
+    <li><a href="/articles/going-agile-can-hurt-your-company.html">When going agile can hurt your company</a></li>
+</ul>
+
+
+
+
+
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        </div>
+    </div>
+    </div>
+    
+	
+</body>
+</html>
+

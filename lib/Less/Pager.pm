@@ -146,6 +146,21 @@ SQL
     return $result->[0];
 }
 
+sub all ($self) {
+    my $order = $self->oldest_first ? 'ASC' : 'DESC';
+    return dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
+    SELECT a.title,
+           a.slug,
+           a.description,
+           at.type,
+           a.sort_order
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE a.available = 1 AND at.type = ?
+  ORDER BY sort_order $order;
+SQL
+}
+
 __PACKAGE__->meta->make_immutable;
 
 __END__

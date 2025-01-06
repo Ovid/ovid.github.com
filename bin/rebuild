@@ -8,6 +8,7 @@ use Getopt::Long;
 GetOptions(
     \my %options,
     'for_release',
+    'notest',
 ) or die "bad options";
 
 use Ovid::Site;
@@ -15,7 +16,7 @@ use Ovid::Site;
 my $site = Ovid::Site->new( for_release => $options{for_release} );
 $site->build;
 
-system( 'prove', '-l', 't' );
+system( 'prove', '-l', 't' ) unless $options{notest};
 exit 0;
 
 __END__

@@ -1,4 +1,4 @@
--- Deploy ovid:data/why-black-people-hare-your-dreads to sqlite
+-- Deploy ovid:data/why-black-people-hate-your-dreads to sqlite
 
 BEGIN;
 

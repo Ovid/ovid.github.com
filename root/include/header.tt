@@ -39,7 +39,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
-
+  [% IF canonical_url %]<link rel="canonical" href="[% Config.url %][% canonical_url %]" />
+  [% ELSIF type && slug %]<link rel="canonical" href="[% Config.url %][% type %]/[% slug %].html" />
+  [% ELSIF identifier %]<link rel="canonical" href="[% Config.url %][% identifier %].html" />
+  [% ELSE %]<link rel="canonical" href="[% Config.url %]" />
+  [% END %]
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
