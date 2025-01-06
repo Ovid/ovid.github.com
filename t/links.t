@@ -5,6 +5,8 @@ use Mojo::DOM;
 use HTML::SimpleLinkExtor;
 use File::Find::Rule;
 use Less::Script;
+use Less::Config 'config';
+my $domain = config()->{domain};
 
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
@@ -26,6 +28,7 @@ foreach my $file (@files) {
 done_testing;
 
 sub links_are_good ( $file ) {
+    return if $file =~ /\bdemo.html$/;
     my @errors;
     my $extor = HTML::SimpleLinkExtor->new();
     $extor->parse_file($file);
@@ -33,7 +36,7 @@ sub links_are_good ( $file ) {
     my @links = grep {
         !/#/                                    # skip in-page anchors
           && !/^mailto:/                        # and mail links
-          && !m{https?://(?!ovid.github.io)}    # and external links
+          && !m{https?://(?!$domain)}    # and external links
           && $_ ne ""                           # some are deliberately empty
     } $extor->links;
     LINK: foreach my $link (@links) {
@@ -64,13 +67,36 @@ sub links_are_good ( $file ) {
         my $property = $link->{property};
         my $pristine = $link->{content};
         my $url      = $pristine;
-        if ( $url =~ s{^https?://ovid.github.io/}{} ) {
+        if ( $url =~ s{^https?://$domain/}{} ) {
             unless ( -e $url ) {
                 push @errors => "Missing link for $property: $pristine";
             }
         }
         else {
             push @errors => "Bad format for $property: $pristine";
+        }
+    }
+
+    # Check for canonical URL
+    my $canonical = $dom->find('link[rel="canonical"]')->first;
+    unless ($canonical) {
+        push @errors => "Missing canonical URL in $file";
+    }
+    else {
+        my $href = $canonical->attr('href');
+        unless ($href) {
+            push @errors => "Canonical link has no href in $file";
+        }
+        elsif ($href !~ m{^https?://$domain/}) {
+            push @errors => "Canonical URL wrong format: $href in $file";
+        }
+        else {
+            $DB::single = 1;
+            my $url = $href;
+            $url =~ s{^https?://$domain/}{};
+            unless (-e $url) {
+                push @errors => "Missing canonical file: $href in $file";
+            }
         }
     }
 
