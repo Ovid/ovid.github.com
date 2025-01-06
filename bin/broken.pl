@@ -12,13 +12,13 @@ use Scalar::Util 'blessed';
 use File::Spec;
 
 # Configuration
-my $base_url  = Mojo::URL->new('http://127.0.0.1:7007');
+my $base_url = Mojo::URL->new('http://127.0.0.1:7007');
 
 # Check if server is running
 {
     my $ua = Mojo::UserAgent->new;
     my $tx = $ua->get($base_url);
-    if ($tx->error) {
+    if ( $tx->error ) {
         die "Error: No server running at $base_url. Please run `http_this` in the root directory.\n";
     }
 }
@@ -26,20 +26,23 @@ my @scan_dirs = qw(. articles blog static);
 
 # Read .gitignore patterns
 my @gitignore_patterns;
-if (open my $fh, '<', '.gitignore') {
-    while (my $line = <$fh>) {
+if ( open my $fh, '<', '.gitignore' ) {
+    while ( my $line = <$fh> ) {
         chomp $line;
+
         # Skip comments and empty lines
         next if $line =~ /^\s*#/ || $line =~ /^\s*$/;
+
         # Convert .gitignore glob patterns to regex
-        $line =~ s/\./\\./g;     # Escape dots
-        $line =~ s/\*/.*/g;      # Convert * to .*
-        $line =~ s/\?/./g;       # Convert ? to .
-        # Handle directory patterns
-        if ($line =~ m{/$}) {    # If pattern ends with /
-            $line =~ s{/$}{};    # Remove trailing slash
-            push @gitignore_patterns, qr/^$line.*$/;  # Match anything under this directory
-        } else {
+        $line =~ s/\./\\./g;    # Escape dots
+        $line =~ s/\*/.*/g;     # Convert * to .*
+        $line =~ s/\?/./g;      # Convert ? to .
+                                # Handle directory patterns
+        if ( $line =~ m{/$} ) {    # If pattern ends with /
+            $line =~ s{/$}{};                           # Remove trailing slash
+            push @gitignore_patterns, qr/^$line.*$/;    # Match anything under this directory
+        }
+        else {
             push @gitignore_patterns, qr/^$line$/;
         }
     }
@@ -71,6 +74,7 @@ sub normalize_path {
 sub is_ignored {
     my $file = shift;
     for my $pattern (@gitignore_patterns) {
+
         # For directory patterns, check if the file starts with the directory path
         return 1 if $file =~ $pattern;
     }
@@ -97,21 +101,26 @@ sub crawl_page {
 
     # Collect all relevant local links
     my @links = (
+
         # HTML links
         $dom->find('a[href]')->map( attr => 'href' )->each,
+
         # CSS links
         $dom->find('link[rel="stylesheet"]')->map( attr => 'href' )->each,
+
         # JavaScript links
         $dom->find('script[src]')->map( attr => 'src' )->each
     );
 
     for my $link (@links) {
         my $full_url = Mojo::URL->new($link)->to_abs( Mojo::URL->new($url) );
+
         # Skip if not from our domain
         next if $full_url->scheme ne 'http';
         next unless $full_url->host eq '127.0.0.1';
 
         my $path = normalize_path( url_to_path($full_url) );
+
         # Skip if not html/css/js
         next unless $path =~ /\.(html|css|js)$/;
 
@@ -134,22 +143,23 @@ my @actual_files = File::Find::Rule->file()->name( '*.html', '*.css', '*.js' )->
 
 # Convert to Set for comparison
 my $actual_file_set = Set::Object->new(
-    map { 
+    map {
         my $path = $_;
-        $path =~ s{^\./}{};  # Remove leading ./ if present
-        normalize_path($path) 
+        $path =~ s{^\./}{};    # Remove leading ./ if present
+        normalize_path($path)
     } @actual_files
 );
 
 # Find unused files
 my $unused_files = $actual_file_set - $referenced_files;
+
 # Get filtered list of unused files
 my @unused_files = grep {
     my $file = $_;
-    !($file =~ /wasm/ ||                    # search engine
-      $file =~ /tinysearch_engine.js/ ||    # search engine
-      $file =~ /^root\// ||
-      is_ignored($file))                    # Skip files that match .gitignore patterns
+    !(  $file =~ /wasm/                 ||                     # search engine
+        $file =~ /tinysearch_engine.js/ ||                     # search engine
+        $file =~ /^root\//              || is_ignored($file)
+    )                                                          # Skip files that match .gitignore patterns
 } sort $unused_files->members;
 
 # Print results
