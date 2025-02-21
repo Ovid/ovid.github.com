@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/the-first-ai-winter.html" />
+  
+  <meta property="og:title" content="The First AI Winter" />
+  <meta property="og:description" content="Perplexity.ai has unveiled their own version of Deep Research. Let's investigate the first AI Winter." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/the-first-ai-winter.html" />
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>The First AI Winter</title>
+  <meta name="description" content="The First AI Winter">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>The First AI Winter</h1>
+        <time>2025-02-21</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="4">AI</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="2">Personal</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="2">Space</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="1">Math</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/why-agi-wont-be-soon.html" class="prevPost">&laquo; Why AGI Won't Be Soon</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#perplexitys-deep-research">Perplexity’s Deep Research</a></li>
+    <li class="indent-2"><a href="#the-root-causes-of-the-first-ai-winter-1974-1980-a-comprehensive-analysis">The Root Causes of the First AI Winter (1974–1980): A Comprehensive Analysis</a></li>
+    <li class="indent-2"><a href="#overambitious-expectations-and-unfulfilled-promises">Overambitious Expectations and Unfulfilled Promises</a></li>
+    <li class="indent-2"><a href="#technological-limitations-hardware-and-data-constraints">Technological Limitations: Hardware and Data Constraints</a></li>
+    <li class="indent-2"><a href="#the-lighthill-report-a-catalyst-for-institutional-withdrawal">The Lighthill Report: A Catalyst for Institutional Withdrawal</a></li>
+    <li class="indent-2"><a href="#shifts-in-funding-priorities-and-institutional-politics">Shifts in Funding Priorities and Institutional Politics</a></li>
+    <li class="indent-2"><a href="#conceptual-and-methodological-stagnation">Conceptual and Methodological Stagnation</a></li>
+    <li class="indent-2"><a href="#conclusion-lessons-from-the-first-ai-winter">Conclusion: Lessons from the First AI Winter</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="perplexitys-deep-research"></a>Perplexity’s Deep Research</h1>
+
+<p><a href="https://www.perplexity.ai/" target="_blank">Perplexity</a> <span class="fa fa-external-link fa_custom"></span> has released <a href="https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research" target="_blank">their own version of
+Deep Research</a> <span class="fa fa-external-link fa_custom"></span>, free for everyone, but Pro subscribers like myself have unlimited queries! No paying the $200/month for OpenAI’s Pro subscription.</p>
+
+<p>Yesterday, I asked my first question:</p>
+
+<blockquote>
+  <p>What would be possible outcomes of applying constructive math to quantum physics to remove the need for creating infinities?</p>
+</blockquote>
+
+<p>I deliberately didn’t describe <a href="https://plato.stanford.edu/entries/mathematics-constructive/" target="_blank">constructive
+math</a> <span class="fa fa-external-link fa_custom"></span> and didn’t
+mention the problem of
+<a href="https://en.wikipedia.org/wiki/Renormalization" target="_blank">renormalization</a> <span class="fa fa-external-link fa_custom"></span>. I have some rough (very rough)
+knowledge in this area, so I know enough enough to evaluate that the output seems on track,
+but not enough to judge the quality of the output. <a href="https://www.perplexity.ai/search/what-would-be-possible-outcome-lFrJvOBoTfqaNH5VieIxBQ" target="_blank">Perplexity ran with it</a> <span class="fa fa-external-link fa_custom"></span> and here’s the summary:</p>
+
+<blockquote>
+  <p>The application of constructive mathematics to quantum physics represents a paradigm shift in addressing the persistent problem of infinities in quantum field theory (QFT). By re-examining foundational mathematical structures—from arithmetic systems to spacetime discretization—researchers propose novel frameworks that inherently avoid divergences. Key outcomes include the development of finite quantum theories (FQT) based on discrete algebraic systems, rigorous constructions of 4D QFTs via renormalization group methods, and the integration of non-Diophantine arithmetic to ensure convergent integrals. These approaches not only circumvent the need for renormalization but also align theoretical models with the discrete nature of quantum phenomena, potentially bridging gaps between QFT and quantum gravity.</p>
+</blockquote>
+
+<p>OK, Deep Research was able to pick up on my intent (great!), but quickly
+ran far ahead of my knowledge in this area.</p>
+
+<p>So I wanted to wade into something I was more familiar with, knowing that if there
+were things I didn’t know, I could quickly get up to speed: What were the root causes
+of the First AI Winter?</p>
+
+<p>AI Winters, if you’re not familiar with them, were periods in the 70s and 90s
+where general disillusionment with AI led to decreased funding for research.
+Today, some people claim we’ll have a third AI winter, but I suspect that is not
+true, or if it is, it will be after AI is deeply embedded in most aspects of our
+lives.</p>
+
+<p>So without further ado ...</p>
+
+<h2><a name="the-root-causes-of-the-first-ai-winter-1974-1980-a-comprehensive-analysis"></a>The Root Causes of the First AI Winter (1974–1980): A Comprehensive Analysis</h2>
+
+<p>The First AI Winter, spanning from 1974 to 1980, remains a pivotal chapter in the history of artificial intelligence. Characterized by dwindling funding, waning public enthusiasm, and a crisis of confidence in AI’s potential, this period was shaped by a confluence of technological, institutional, and conceptual challenges. Below, we dissect the root causes of this stagnation, synthesizing insights from historical records, academic critiques, and technological limitations that collectively precipitated the downturn.</p>
+
+<h2><a name="overambitious-expectations-and-unfulfilled-promises"></a>Overambitious Expectations and Unfulfilled Promises</h2>
+
+<p>The genesis of the First AI Winter lies in the stark disparity between the field’s early promises and its tangible achievements. During the 1950s and 1960s, AI pioneers such as Herbert Simon and Marvin Minsky made bold predictions about machines achieving human-like intelligence within decades. Simon famously declared in 1957 that “there are now in the world machines that think, that can learn and that can create,” with capabilities poised to expand rapidly.<a href="https://www.holloway.com/g/making-things-think/sections/the-first-ai-winter-19741980" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://cacm.acm.org/opinion/there-was-no-first-ai-winter/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span>.  These pronouncements, amplified by media hype, set unrealistic benchmarks for progress.</p>
+
+<p>By the early 1970s, however, it became evident that AI systems struggled with basic tasks requiring perception, contextual understanding, and adaptability. While programs like SHRDLU could manipulate blocks in a simulated environment or solve algebra problems, they operated within narrowly defined “toy” domains.<a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> The inability to scale these systems to real-world applications eroded confidence among funders and policymakers. This disillusionment was exacerbated by Moravec’s paradox, which highlighted the incongruity between AI’s proficiency in abstract reasoning and its failure to replicate rudimentary human skills like object recognition or motor coordination.<a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<h2><a name="technological-limitations-hardware-and-data-constraints"></a>Technological Limitations: Hardware and Data Constraints</h2>
+
+<p>A critical bottleneck during this era was the inadequacy of computational infrastructure. Early AI research relied on machines with limited memory and processing power, rendering complex tasks like natural language processing or image recognition computationally intractable.<a href="https://demandifymedia.com/ai-winter-a-comparative-analysis-of-the-first-and-second-ai-winters/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> For instance, the Speech Understanding Research program at Carnegie Mellon University, funded by DARPA, faced insurmountable hurdles in the 1970s due to hardware constraints8. Similarly, neural networks—though theoretically promising—remained impractical without the computational resources to train multi-layered models.<a href="https://demandifymedia.com/ai-winter-a-comparative-analysis-of-the-first-and-second-ai-winters/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Compounding this issue was the scarcity of digitized data. Machine learning algorithms, even in their nascent forms, required extensive datasets to identify patterns and generalize effectively. The pre-internet era lacked the infrastructure to collect, store, and process such data, stifling progress in data-driven approaches.<a href="https://demandifymedia.com/ai-winter-a-comparative-analysis-of-the-first-and-second-ai-winters/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://h2o.ai/wiki/ai-winter/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<h2><a name="the-lighthill-report-a-catalyst-for-institutional-withdrawal"></a>The Lighthill Report: A Catalyst for Institutional Withdrawal</h2>
+
+<p>In 1973, the British government commissioned mathematician Sir James Lighthill to evaluate the state of AI research in the UK. His report, Artificial Intelligence: A General Survey, delivered a scathing indictment of the field. Lighthill argued that AI had failed to deliver on its “grandiose objectives” and criticized its focus on “toy problems” that bore little relevance to practical applications.<a href="https://www.techtarget.com/searchenterpriseai/definition/AI-winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://en.wikipedia.org/wiki/Lighthill_report" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://discovery.ucl.ac.uk/10105726/3/Agar_What%20is%20science%20for,%20the%20Lighthill%20report%20and%20the%20purpose%20of%20artificial%20intelligence%20research,%20revised%20for%20BJHS.pdf" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> (pdf) He identified the combinatorial explosion—the exponential growth of possible solutions as problem complexity increased—as a fundamental flaw in AI algorithms, rendering them ineffective for real-world tasks. <a href="https://en.wikipedia.org/wiki/Lighthill_report" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>The report’s impact was immediate and profound. The UK government withdrew funding for AI research, leading to the closure of all but a few university programs (e.g., Edinburgh, Essex, and Sussex). <a href="https://en.wikipedia.org/wiki/Lighthill_report" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://www.actuaries.digital/2018/09/05/history-of-ai-winters/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> This decision reverberated globally, emboldening skeptics and prompting other nations to reassess their investments. The 1973 BBC debate between Lighthill and AI advocates like Donald Michie and John McCarthy further polarized public opinion, cementing the narrative of AI as a field mired in overpromise. <a href="https://en.wikipedia.org/wiki/Lighthill_report" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<h2><a name="shifts-in-funding-priorities-and-institutional-politics"></a>Shifts in Funding Priorities and Institutional Politics</h2>
+
+<p>The withdrawal of UK funding coincided with broader shifts in research priorities. In the United States, DARPA—a major patron of AI—begn (sic) redirecting resources toward “mission-oriented” projects with clearer military applications. <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://cacm.acm.org/opinion/there-was-no-first-ai-winter/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> This pivot reflected growing frustration with AI’s lack of measurable ROI, particularly after the collapse of the Speech Understanding Research program. <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> Similarly, the failure of machine translation initiatives in the 1960s had already primed policymakers to view AI as a risky investment. <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Academic institutions faced parallel pressures. As funding dried up, AI departments struggled to retain talent and infrastructure. The ACM’s Special Interest Group on Artificial Intelligence (SIGART), however, reported a counterintuitive surge in membership during this period, suggesting that grassroots interest persisted even as institutional support waned. <a href="https://en.wikipedia.org/wiki/AI_winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> This dichotomy underscores the complex interplay between funding cuts and intellectual vitality during the First AI Winter.</p>
+
+<h2><a name="conceptual-and-methodological-stagnation"></a>Conceptual and Methodological Stagnation</h2>
+
+<p>The symbolic AI paradigm, dominant in the 1960s and early 1970s, prioritized rule-based systems and logical reasoning. While this approach yielded early successes in domains like theorem proving, it proved ill-suited for tasks requiring flexibility or real-world knowledge. <a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://cacm.acm.org/opinion/there-was-no-first-ai-winter/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> The limitations of expert systems—rigid, domain-specific tools reliant on hand-coded rules—became increasingly apparent, foreshadowing their eventual decline in the Second AI Winter. <a href="https://aibc.world/learn-crypto-hub/ai-winter-history/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://www.techtarget.com/searchenterpriseai/definition/AI-winter" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<p>Meanwhile, connectionist approaches (e.g., neural networks) languished due to theoretical and practical barriers. The absence of backpropagation algorithms and computational power stifled progress, leaving neural networks sidelined until their resurgence in the 1980s. <a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> [source](https://cacm.acm.org/opinion/  there-was-no-first-ai-winter/) This methodological stagnation left the field without a viable path forward, exacerbating the crisis of confidence.</p>
+
+<h2><a name="conclusion-lessons-from-the-first-ai-winter"></a>Conclusion: Lessons from the First AI Winter</h2>
+
+<p>The First AI Winter emerged from a perfect storm of overhyped expectations, technological immaturity, institutional skepticism, and methodological rigidity. Its legacy offers enduring lessons for contemporary AI research:</p>
+
+<ul>
+<li>Balancing Ambition with Pragmatism: Unrealistic promises risk alienating stakeholders and inviting backlash.</li>
+<li>Infrastructure as a Foundation: Advances in hardware and data availability are prerequisites for algorithmic breakthroughs.</li>
+<li>Institutional Resilience: Diversifying funding sources and aligning research with practical applications can mitigate the impact of political shifts.</li>
+</ul>
+
+<p>While the First AI Winter temporarily stifled progress, it also catalyzed a maturation of the field, paving the way for the neural network revolution and the data-driven approaches defining modern AI. <a href="https://thearf.org/ai-handbook/ai-winter-and-funding-challenges/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> <a href="https://h2o.ai/wiki/ai-winter/" target="_blank">source</a> <span class="fa fa-external-link fa_custom"></span> Understanding its root causes remains essential for navigating future cycles of hype and disillusionment.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>This could be the end of homework. The above isn’t innovative. It provides no new insights, but it’s far above “high school” level writing.</p>
+
+<p>I felt there were not enough citations and using Wikipedia as a primary source is not great, so I’d approach this with caution. And as others have mentioned about Deep Research tools, the best research is paywalled, so these tools can’t get to it. That’s a shame, but nonetheless, this is a fantastic tool. Have fun with it!</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/why-agi-wont-be-soon.html" class="prevPost">&laquo; Why AGI Won't Be Soon</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/the-first-ai-winter.html";
+            this.page.identifier = "articles/the-first-ai-winter";
+            this.page.title      = "The First AI Winter";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
