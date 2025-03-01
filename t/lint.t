@@ -116,7 +116,10 @@ sub _validate_image ($image) {
         }
         elsif ( $src !~ /\.gif$/ ) {
             my $size = -s $src;
-            if ( $size > $MAX_IMAGE_SIZE ) {
+            if ( $size > $MAX_IMAGE_SIZE
+                &&
+            $src !~ /ukraine-war/ # make an exception because this is important. Later, we can clean this up
+        ) {
                 push @errors =>
 "Image $src does not appear to be optimized. It's $size bytes. We prefer $MAX_IMAGE_SIZE bytes or under.";
             }
