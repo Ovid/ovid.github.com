@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://curtispoe.org/blog/thirty-grand-a-year-poetry-bitches.html" />
+  
+  <meta property="og:title" content="Thirty Grand A Year—Poetry, Bitches!" />
+  <meta property="og:description" content="Thirty Bob a Week is one of the greatest poems ever written. Time to update it for the modern era." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/blog/thirty-grand-a-year-poetry-bitches.html" />
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Thirty Grand A Year—Poetry, Bitches!</title>
+  <meta name="description" content="Thirty Grand A Year—Poetry, Bitches!">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Thirty Grand A Year—Poetry, Bitches!</h1>
+        <time>2025-05-01</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="4">AI</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="2">Personal</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="2">Space</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="1">Math</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/europe-must-support-ukraine.html" class="prevPost">&laquo; Europe Must Support Ukraine</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/writing.html">Writing</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p>You like poetry. You don’t know it, but you like poetry. People tell me they
+don’t, then sing along with Beyoncé, word for word.</p>
+
+<p>“Music isn’t poetry.”</p>
+
+<p>Of course, <a href="https://en.wikipedia.org/wiki/Spoken_word" target="_blank">spoken word</a> <span class="fa fa-external-link fa_custom"></span> is a thing,
+but singing? Nah, man.</p>
+
+<p>Singing is poetry. Spoken word is poetry. And so is sitting in your study,
+relaxing in in a comfortable armchair while smoking a pipe and piously reading
+the erotic poetry of the <a href="https://en.wikipedia.org/wiki/Song_of_Songs" target="_blank">Song of
+Solomon</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>People don’t like poetry because it’s sitting in a classroom, falling asleep
+while reading Tennyson’s <a href="https://www.simple-poetry.com/poems/lady-clara-vere-de-vere-3782655859" target="_blank">Lady Clara Vere de
+Vere</a> <span class="fa fa-external-link fa_custom"></span>.
+They’d rather hang out with their friends. Poetry is punishment.</p>
+
+<p>I get it. I do.</p>
+
+<p>When I bought a copy of the award-winning <a href="https://www.amazon.com/Aloud-Voices-Nuyorican-Poets-Cafe/dp/0805032576/" target="_blank">Aloud: Voices from the Nuyorican
+Poets
+Cafe</a> <span class="fa fa-external-link fa_custom"></span>,
+it was awful. I was used to Victorian poetry and this jumbled mess of emotional
+vomit on a page was ... not resonating.</p>
+
+<p>I had missed the word “Aloud” in the title,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> not realizing that <a href="https://www.youtube.com/@NuyoricanPoetsCafe/videos" target="_blank">these pieces were meant to be
+<em>spoken</em></a> <span class="fa fa-external-link fa_custom"></span> When you read,
+“And my brother/joined the army/to get away/from the government”? What the hell
+does that even mean? When you realize that <a href="https://www.huffpost.com/author/nicole-breedlove" target="_blank">Nicole
+Breedlove</a> <span class="fa fa-external-link fa_custom"></span> is writing about
+growing up on welfare, it changes it. I would love to hear that particular poem
+spoken.</p>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/john-davidson.jpg" width="600" alt="A black-and-white portrait of a man with a prominent mustache and a receding hairline, dressed in a formal suit with a tie. He has a serious expression and is looking directly at the camera, set against a softly blurred background.">
+    <figcaption>John Davidson <a href="https://en.wikipedia.org/wiki/John_Davidson_(poet)#/media/File:John_Davidson_(poet)_002.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>So it’s with dismay that I realize James Davidson’s <a href="https://www.scottishpoetrylibrary.org.uk/poem/thirty-bob-a-week/" target="_blank">Thirty Bob a
+Week</a> <span class="fa fa-external-link fa_custom"></span>, one of
+the greatest poems of all time, doesn’t work for people. They read it and “meh”
+out of there. I had the same reaction, but the poem stuck in mind. It was
+calling to me. I answered. I reread it, multiple times, using annotated versions
+explaining lines that otherwise made no sense.</p>
+
+<p>This is my favorite poem. Familiarity breeds content, or something like that.</p>
+
+<p>But it’s not an accessible poem. When he writes that his wife “stitches towels
+for a hunks,” what the hell does that even mean? You can <em>kind</em> of understand
+it, but it’s rough going for many and they’ll turn away.</p>
+
+<p>So here’s my version. Victorian poetry featured the moneyed class speaking for
+the working class. Davidson lets the working class speak for themselves.
+“Thirty Bob a Week” was about a working class man struggling to make ends meet,
+but with a fierce pride. He <strong>owned</strong> who he was.  Imagine trying to feed a
+partner and two children on minimum wage. It’s brutal.  That’s Davidson’s poem.
+“Thirty Grand a Year” is my tribute to him. Read it as you will.</p>
+
+<hr />
+
+<pre class="poem">
+<strong>Thirty Grand a Year</strong>
+
+I can’t just punch a clock or twist a bolt,
+And make the whole damn planet hustle just for me—
+That trick’s for kids born clutching a gold remote;
+I bet that's how you grew up so easily?
+On gov'ment cheese and ramen I live, man,
+A line worker, low wage, stuck fast, you see.
+
+But don't give me no crap 'bout destiny;
+No magic stars say who wins or who loses;
+Some dudes are born the boot, it seems to me,
+While most like me only get life's abuses.
+I eat the dirt, no crybaby, that's key,
+But cross my heart, feel lost, with no excuses.
+
+For like a damn drone I crawl through the dark,
+On the clapped-out subway, packed just like sardines,
+Home to 'Patriot Estates', my crapbox, a bad mark,
+To punch the clock through soul-destroying scenes;
+While rent takes half before I can embark
+To stretch fifteen an hour by other means.
+
+And yes, it's cold and damp, the roof likely leaks,
+My old lady works two gigs for wealthy types;
+'Patriot Estates' half-empty now for weeks,
+She scrubs their floors and swallows down their gripes.
+Three rooms like cells where misery bespeaks,
+While sleeping kids escape these sorry stripes.
+
+But you won't hear her bitch or make a moan,
+She's built tough, concrete and roses, somewhat odd;
+And I hafta bite my tongue when I'm alone,
+Or lose it, man, bone-tired and roughshod.
+So maybe we're in Hell for all that I can tell,
+And lost and damned and served up hot to God.
+
+I ain't try'na get cancelled, Mr. News guy slick,
+Just talkin' truth you probably cannot face:
+With all your Fox News facts and rhetoric quick,
+You don't know hardship living in this place.
+Low wage is real, the hardest kind of trick,
+Your 'bootstrap' talk's a slap in the face.
+
+Not your offshore account, my buddy dear,
+But kids, a partner you keep holding on,
+With barely scratch to make ends meet, it's clear,
+Just hoping you can make it to the dawn.
+When drink don't claim you, held by rage and fear,
+You think, see messed-up gears till hope is gone.
+
+I step inside my head and there I meet
+This crazy devil, whisperin' real low,
+Who just wants murder screamed out in the street,
+To smash it all and put on quite a show;
+If the whole world was cake for him to eat,
+He'd snatch it, demand seconds, gulp it, so.
+
+And I meet this other guy, kinda slow,
+The kinda dude life kicks right in the teeth;
+Makes minimum wage, keeps his poor family now,
+Fell in love young, while struggling hard beneath;
+Still earning' that same wage, knows he is stuck,
+The system's rigged, the rot runs truly deep.
+
+And the rage-monster and the sad sack fool
+That I bump into somewhere in my head,
+When zoned right out, just acting like a tool,
+Staring at walls, wish I was home instead,
+My good and evil, breaking every rule,
+Ride me ragged, by twin devils led.
+
+Okay, that sounds out there, needs sorting, yes,
+But I have got this burning in my mind —
+A kick-head way these problems coalesce,
+That leaves your expert spreadsheets far behind:
+I'll say it straight: 'There are no easy breaks,
+Nor hitting any magic lotto prize.'
+
+And this is how I figure it, deep down:
+No blame on parents, presidents, there's none;
+Not Adam, 'society', this rotten town,
+Not 'the economy', no battle won:
+Just a tiny spark woke ere day was on —
+A billion years before the sun begun.
+
+I woke because I figured time was now;
+Beyond my own damn choice, none commanded me;
+And everywhere I landed, free to roam,
+Because I chose this by my own decree;
+Whatever body I wore, when life began,
+I walked my road, unbounded, wild, and free.
+
+I was the spark that picked my mom and dad;
+I crashed two lives together and burst out;
+My weaknesses and strengths, both good and bad,
+Are mine, all mine, forever, I will shout:
+It's just the very same, though different words are hung,
+As 'Thy will be done' beneath His judgment high.
+
+They drone it daily on the broadcast flat,
+As easy as just grabbing a cold beer, it's true;
+But hardest thing to grasp, right where you're at,
+And the toughest job a person has to do,
+Is face this grind, accept your life and wage,
+And feel, 'Yes, this is right,' and see it through.
+
+It's like bein' naked facing hungry wolves;
+It's like tryin' to cash an always-bouncing check;
+It's like a tightrope walk that life involves
+O'er lava pits, with chains around your neck;
+But folks still do it, millions still face it;
+And fall face-first, fighting in the dreck.
+</pre>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/europe-must-support-ukraine.html" class="prevPost">&laquo; Europe Must Support Ukraine</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/thirty-grand-a-year-poetry-bitches.html";
+            this.page.identifier = "blog/thirty-grand-a-year-poetry-bitches";
+            this.page.title      = "Thirty Grand A Year—Poetry, Bitches!";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>I literally missed it.
+When I looked it up while writing this, I was surprised to see that word in the
+title.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+</body>
+</html>
+
+
