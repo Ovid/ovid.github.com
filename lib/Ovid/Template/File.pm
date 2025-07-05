@@ -36,11 +36,11 @@ package Ovid::Template::File {
         default  => sub ($self) { slurp( $self->filename ) }
     );
 
-    my @TEMPLATE_ATTRS = qw(title date type slug);
+    my @TEMPLATE_ATTRS = qw(title date type slug tags);
     foreach my $attr (@TEMPLATE_ATTRS) {
         has $attr => (
             is       => 'rw',
-            isa      => NonEmptySimpleStr,
+            isa      => $attr eq 'tags' ? ArrayRef[NonEmptySimpleStr] : NonEmptySimpleStr,
             writer   => "_set_$attr",
             init_arg => undef,
         );

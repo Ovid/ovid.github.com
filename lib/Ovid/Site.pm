@@ -14,6 +14,7 @@ package Ovid::Site {
 
     use autodie ':all';
     use Capture::Tiny 'capture';
+    use Cwd 'abs_path';
     use DateTime::Format::SQLite;
     use DateTime;
     use File::Basename qw(dirname basename);
@@ -60,8 +61,17 @@ package Ovid::Site {
         default => 0,
     );
 
+    has file => (
+        is      => 'ro',
+        isa     => NonEmptySimpleStr,
+        required => 0,
+    );
+
     sub build ($self) {
         say STDERR "Preprocessing files ...";
+        if ( $self->file ) {
+            return $self->build_single_file;
+        }
         $self->_assert_tt_config;
         $self->_set_files('root');
         $self->_preprocess_files;
@@ -74,16 +84,83 @@ package Ovid::Site {
         $self->_build_tinysearch if $self->for_release;
     }
 
+    sub build_single_file ($self) {
+        printf STDERR "Rebuilding single file: %s\n", $self->file;
+
+        $self->_clean_tmp_directory;
+        # First, we need to do a full preprocess to build the tagmap
+        # and other context that templates might need.
+        say STDERR "Preprocessing all files to build context...";
+        $self->_assert_tt_config;
+        $self->_set_files('root');
+        $self->_preprocess_files;
+        $self->_write_tag_templates;
+        $self->_write_tagmap;
+        $self->_rebuild_rss_feeds;
+        $self->_rebuild_article_pagination;
+
+        # Now find the path to our target file in the 'tmp' directory
+        my $file = $self->file;
+        $file = $self->_copy_to_tmp($file);
+
+        say STDERR "Running ttree on $file";
+        $self->_run_ttree_single($file);
+
+        # We should probably update the sitemap too
+        $self->_write_sitemap;
+        say STDERR "Single file rebuild complete.";
+    }
+
+    sub _run_ttree_single ($self, $file) {
+
+        # Die if the source file doesn't exist so we know where the problem is.
+        unless (-f $file) {
+            die "FATAL: Source file '$file' does not exist before calling ttree.";
+        }
+
+        my $ttree = which('ttree');
+        unless ($ttree) {
+            die "Could not find ttree command in PATH\n";
+        }
+
+        # The file path for ttree must be relative to the --src directory
+        my $relative_file = $file;
+        $relative_file =~ s/^tmp\///;
+
+        my @command = (
+            'perl', '-Ilib',
+            $ttree,
+            '--verbose',
+            '--src=tmp',
+            '--dest=.',
+            '--lib=include',
+            $relative_file,
+        );
+
+        say STDERR "Running command: @command";
+        my ( $stdout, $stderr, $exit ) = capture { system(@command) };
+
+        if ( $exit != 0 ) {
+            die "ttree failed with exit code $exit.\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
+        }
+        print $stdout;
+        print $stderr;
+    }
+
     sub _set_files ( $self, $location ) {
         my @files = grep { !/\.(?:DS_Store|sw[pon])$/ } File::Find::Rule->file->in($location);
         $self->_files( \@files );
     }
 
-    sub _preprocess_files ($self) {
-        my @files = $self->_files->@*;
-
+    sub _clean_tmp_directory ($self) {
         # scrub our tmp directory
         system( 'rm', '-fr', 'tmp' );
+
+    }
+
+    sub _preprocess_files ($self) {
+        my @files = $self->_files->@*;
+        $self->_clean_tmp_directory;
 
         # format:
         #     $tag => {
@@ -92,40 +169,45 @@ package Ovid::Site {
         my %tagmap;
         FILE: foreach my $file (@files) {
             next FILE if $file =~ /\.sw\w$/;    # ignore vim swapfiles
-            my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
-
-            my $dir  = dirname($file);
-            my $name = basename($file);
-
-            if ( $dir !~ /static/ && !$is_tt_file ) {
-                next FILE;
-            }
-
-            # make sure we have our destination directory
-            my $destdir = $dir;
-            $destdir =~ s/^root/tmp/;
-            unless ( -d $destdir ) {
-                mkpath($destdir);
-            }
-
-            my $destfile = catfile( $destdir, $name );
-
-            if ( !$is_tt_file ) {
-
-                # not a template toolkit file? Copy it over directly
-                copy( $file, $destfile )
-                  or croak("Could not copy $file to $destfile: $!");
-            }
-            else {
-                my $parser = Ovid::Template::File->new( filename => $file );
-
-                my $contents = $parser->rewrite( $destfile, \%tagmap )
-                  if $is_tt_file;
-
-                splat( $destfile, $contents );
-            }
+            $self->_copy_to_tmp( $file, \%tagmap );
         }
         $self->_tagmap( \%tagmap );
+    }
+
+    sub _copy_to_tmp ( $self, $file, $tagmap={} ) {
+        my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
+
+        my $dir  = dirname($file);
+        my $name = basename($file);
+
+        if ( $dir !~ /static/ && !$is_tt_file ) {
+            next FILE;
+        }
+
+        # make sure we have our destination directory
+        my $destdir = $dir;
+        $destdir =~ s/^root/tmp/;
+        unless ( -d $destdir ) {
+            mkpath($destdir);
+        }
+
+        my $destfile = catfile( $destdir, $name );
+
+        if ( !$is_tt_file ) {
+
+            # not a template toolkit file? Copy it over directly
+            copy( $file, $destfile )
+              or croak("Could not copy $file to $destfile: $!");
+        }
+        else {
+            my $parser = Ovid::Template::File->new( filename => $file );
+
+            my $contents = $parser->rewrite( $destfile, $tagmap )
+              if $is_tt_file;
+
+            splat( $destfile, $contents );
+        }
+        return $destfile;
     }
 
     sub _write_tag_templates($self) {
