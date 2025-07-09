@@ -1,0 +1,594 @@
+ 2025
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/matt-trout.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="Matt Trout sadly passed away in June of 2025" />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://curtispoe.org/blog/rip-mst.html" />
+  
+  <meta property="og:title" content="RIP MST" />
+  <meta property="og:description" content="Long-time Perl legend and gadfly Matt Trout has passed." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/blog/rip-mst.html" />
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>RIP MST</title>
+  <meta name="description" content="RIP MST">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>RIP MST</h1>
+        <time>2025-07-06</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="6">Business</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="4">AI</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="2">Space</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="1">Math</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/thirty-grand-a-year-poetry-bitches.html" class="prevPost">&laquo; Thirty Grand A Year</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/perl.html">Perl</a> </li>
+
+    <li><a href="/tags/personal.html">Personal</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<blockquote><p>The light that burns twice as bright burns half as long, and you have burned so
+very, very brightly, Roy.</p>
+<cite>— Eldon Tyrell</cite>
+</blockquote>
+
+<p>On June 11, 2025, I sent a WhatsApp message to Matthew S. Trout (a.k.a., “mst”,
+a.k.a. “Matt”), telling him about a humorous interaction I had with someone. He
+laughed and shared a funny meme in response. On June 19, I sent another message,
+and he not only did not respond, he never saw the message.  Matt was gone,
+having passed away at the age of 42. Knowing Matt as I did, I’m pretty sure the
+age of 42 would have amused him in a dark way. I would like to believe that he
+is, in fact, out there somewhere, laughing at this.</p>
+
+<p>This is not a eulogy. It’s a remembrance, written from the complicated
+perspective of someone who once saw Matt Trout as an adversary. I won’t pretend
+our relationship was easy, or that he was, but I believe he deserves to be
+remembered in full: for his brilliance, his pain, his damage, his remorse, and
+his effort. There’s also a lot left out of this. Not all dirty laundry needs to
+be aired.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/matt-trout.jpg" width="600" alt="The image shows a person with long, curly hair, speaking passionately while wearing a black shirt with text on it. The background appears dark, suggesting a stage or presentation setting.">
+    <figcaption>Matt Trout (by Michel Rodriguez, CC BY-NC-SA 2.0) <a href="https://www.flickr.com/photos/mirod/2762841036" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>Matt was a legend in the Perl community, but perhaps in a Brothers Grimm sort of
+way. There was a darkness in his jovial personality and he was, by his own
+admission, a bully. If people didn’t live up to his technical standards, he
+would often try to gently help them, but when his famous temper kicked in, he
+was vicious. He wanted them to get better or get lost. Either, in his mind, was
+a positive result for the Perl community. I was on the receiving end of his ire
+on more than one occasion and the enmity between us was not a secret.</p>
+
+<p>I want to get this out of the way up front so that I can end on the more
+positive note that Matt deserves. Our first major clash happened in 2006 over a
+contribution to Catalyst, where a technical misunderstanding devolved into
+personal abuse on his part, leading me to walk away from the project.</p>
+
+<p>Matt had gone ballistic, heaping abuse on me, saying that he “had thought” I was
+a good developer. Others jumped in and told him to knock it off, but that was
+enough for me. A few days later, I committed a tiny change. Only four lines of
+code needed to be altered to fix this. I didn’t even bother with tests. And I
+never committed to the Catalyst project again. I don’t accept abuse when I’m
+paid. I’m certainly not going to do this for free.</p>
+
+<p>Matt was 22 years old.</p>
+
+<p>Matt got into Perl <a href="https://archive.shadowcat.co.uk/resources/bios/matt_short/" target="_blank">at 17, due to a backup
+accident</a> <span class="fa fa-external-link fa_custom"></span>. He
+discovered that he loved the Perl language. He quickly became a rising star
+because he demonstrated strong technical ability, a love of open source, and was
+a driving force in the Perl community. Later, he created the excellent
+<a href="https://metacpan.org/pod/DBIx::Class" target="_blank">DBIx::Class</a> <span class="fa fa-external-link fa_custom"></span> ORM, driven, as he
+explained, by his frustration with
+<a href="https://metacpan.org/pod/Class::DBI" target="_blank">Class::DBI</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>Later, he became a core team member of the
+<a href="https://metacpan.org/pod/Moose" target="_blank">Moose</a> <span class="fa fa-external-link fa_custom"></span> OOP project, advocated for it, and later
+wrote <a href="https://metacpan.org/pod/Moo" target="_blank">Moo</a> <span class="fa fa-external-link fa_custom"></span>, a faster replacement that could
+seamlessly upgrade itself to Moose if you needed the latter’s metaprogramming
+capabilities.</p>
+
+<p>Catalyst and <code>DBIx::Class</code> both showcased what was quintessentially Matt:
+flexible, powerful, and difficult. Matt’s talks at conferences were brilliant,
+funny, filled with profanity, and usually scheduled later in the day to
+accommodate his alcoholism. He would stay out late, drinking, and couldn’t drag
+himself out of bed in the morning. Matt drank, I think, to drown his demons,
+only to discover they were excellent swimmers.</p>
+
+<p>I confess that I only attended a couple of his talks because the ranting and
+swearing were over the top for my tastes, but he was a popular speaker,
+nonetheless. Like myself, he was a bit of a showman when he stepped behind the
+mic. His talks were well-attended and his genius was clear.</p>
+
+<p>But his abuse of people was pushing them out of the community. Some are publicly
+known, but I don’t want to repeat that here. It’s easy enough to find online.
+<a href="https://x.com/shadowcat_mst/status/95530641227120640" target="_blank">Matt wasn’t averse to publicly insulting me,
+either</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+
+<blockquote>
+  <p>Bailey’s Taproom: Excellent. Moving to Amsterdam? Possibly Excellent. Working
+  with @OvidPerl to achieve that? Debatable ... #oscon</p>
+</blockquote>
+
+<p>However, there was one incident that is not well-known. When I was leading the
+<a href="/articles/corinna-in-the-perl-core.html">Corinna project</a> to get modern OOP
+into the Perl core, Matt was one of the people on the team. He’s brilliant, but
+when we disagreed, he often did so ... sharply. It got to the point where,
+again, others called him out on his behavior. Meanwhile, I was on the verge of
+abandoning the Corinna project altogether.</p>
+
+<p>And then one night, on Twitter, he threatened me.</p>
+
+<p>I won’t go into detail about the threat, except to say that I took a screenshot,
+things quietly escalated, and then I pulled back and walked away. No matter what
+the outcome, this going public would hurt the Perl community.</p>
+
+<p>So it’s ironic that when I finally <a href="/blog/resigning-from-the-perl-foundation.html">resigned from The Perl
+Foundation</a>, I specifically
+mentioned the incident where Matt was banned for life from Perl events, and yet
+I felt that TPF’s justification for the ban was not fair. Yes, I believed Matt
+deserved sanction, but not the way it was coming about. I was actually defending
+my nemesis. (Note: Matt was deliberately not mentioned in that post at the
+time).</p>
+
+<p>Matt and I had routinely swapped email over the years, and they were sometimes
+contentious, and sometimes apologies (from both sides). His ability to get a
+rise out of me—and vice versa—had been well established for many, many years.
+After I published about resigning, he emailed me again, reminding me that he had
+accepted responsibility for his actions leading to the sanctions, after which I
+updated the post and ... Matt and I kept on talking.</p>
+
+<p>Our WhatsApp messages go back a few years and he wrote at one point:</p>
+
+<blockquote>
+  <p>I don’t at all love the failure mode [we’re in] but we’re both stuck being who
+  we are and I think that’s an excellent description of the times shit has gone
+  wrong.</p>
+</blockquote>
+
+<p>It was shortly after that when he admitted to me that he was an alcoholic and
+the effect it was having on him. Then in January of 2023 he wanted a video call.
+It did not go well. Between a dodgy internet connection and him being dead
+drunk, I couldn’t understand a thing he was saying, but he didn’t want to stop
+talking, so I stayed on the call. He clearly needed a friend and, from what I
+could understand of what he was saying, he didn’t appear to have many at that
+point.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+
+<p>I don’t know the exact timeframe but I believe this is shortly before Matt went
+to rehab and gave up alcohol. He also walked away from the Perl community. He
+had planned to return at some point, but said to me that he needed his head in
+the right place.</p>
+
+<p>By February he had stopped drinking and said his stamina was slowly returning.
+We swapped technical ideas, brainstormed how to rescue <code>DBIx::Class</code> from its
+current hostage situation, and he constantly amazed me with his in-depth
+knowledge of undocumented features of software that would turn out to be the
+kinds of things I needed to solve thorny issues.</p>
+
+<p>He rarely discussed his personal life, though in the later days he once admitted
+to still struggling. Mainly, he was happy just chatting/ranting about software.
+He was doing some amazing things with React and it felt like he was on the verge
+of releasing something. Getting back into the game, as it were.</p>
+
+<p>WhatsApp says he was last seen on June 15, 2025 at 9PM. Sometime between then
+and my June 19 message, he was gone.</p>
+
+<p>I don’t think anyone can compare our body of work and conclude anything other
+than Matt clearly being a better software developer. I’m proud of some of what
+I’ve done, but I could never hold a candle to either Matt’s productivity or
+brilliance.</p>
+
+<p>All of this might make Matt sound like a classic “bad boy of open source” <a href="https://arstechnica.com/tech-policy/2021/03/free-software-advocates-seek-removal-of-richard-stallman-and-entire-fsf-board/" target="_blank">along
+the lines of Richard
+Stallman</a> <span class="fa fa-external-link fa_custom"></span>,
+but that’s not the case for three clear reasons.</p>
+
+<p>First, Matt knew about his demons and publicly acknowledged them, something many
+public figures do not do. In a world of “deny, deny, deny,” Matt didn’t deny.
+The problem was that he kept offending.</p>
+
+<p>His reoffending leads to the second reason he wasn’t a “a bad boy of tech.” He
+<em>apologized</em> for his behavior on many an occasion. He knew his temper wasn’t
+helpful and he deeply regretted not just the repercussions, but the fact that he
+hurt people. We discussed this more than once. “Bad boys” don’t do remorse.</p>
+
+<p>Third, he wasn’t a bigot. Far from it. He stood up for LGBQT+ rights. He didn’t
+care about your ethnicity, religion, or national origin. He was accused of
+<a href="https://www.ajc.org/translatehate/philosemitism" target="_blank">philosemitic antisemitism</a> <span class="fa fa-external-link fa_custom"></span>,
+but while he admitted to me that he had hurt someone, he was bewildered by it.
+He thought he was making a joke; the person hearing it (someone else who I also
+respect) heard bigotry. For the record, I don’t think Matt was antisemitic, but
+I realize that this is such an emotionally-charged topic, that some will
+disagree.</p>
+
+<p>Matt loved humanity, but perhaps this was in the abstract. On a one-on-one
+basis, his demons reached out. But by the time he had passed, my bitter enemy
+had become my friend. I cried when I learned he was gone.</p>
+
+<p>We rarely get to resolve our conflicts with people so completely. That I came to
+care about Matt, despite everything, is something I’ll always be grateful for.
+We were both hard-headed, but we reached a place of mutual respect—and sometimes
+even affection. Not everyone gets that kind of ending. I wish we’d had more
+time.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/thirty-grand-a-year-poetry-bitches.html" class="prevPost">&laquo; Thirty Grand A Year</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/rip-mst.html";
+            this.page.identifier = "blog/rip-mst";
+            this.page.title      = "RIP MST";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Class::DBI was,
+to be charitable, somewhat limited in what it could do, but it was the first ORM
+for Perl.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>That's what he said, but he was drunk and I also know of
+others he was apparently in contact with, so I take that with a grain of salt.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+</body>
+</html>
+
+
