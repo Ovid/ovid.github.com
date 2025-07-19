@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703" />
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg" />
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe." />
+  
+  <meta property="og:type" content="article" />
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/ai-today-is-like-the-early-internet.html" />
+  
+  <meta property="og:title" content="AI Today Is Like the Early Internet" />
+  <meta property="og:description" content="AI has entered an era similar to the internet near the end of 1996. Basic use cases were solid, advanced use cases were not, and money was flushed down the toilet." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/ai-today-is-like-the-early-internet.html" />
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>AI Today Is Like the Early Internet</title>
+  <meta name="description" content="AI Today Is Like the Early Internet">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss" />
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>AI Today Is Like the Early Internet</h1>
+        <time>2025-07-19</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      
+      <div class="two columns">
+          <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div><hr>';
+    }
+  </script>
+
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+          <li><a href="/videos.html">Talks</a></li>
+          <li><a href="/hireme.html">Hire Me</a></li>
+          <li><a href="/wildagile.html">WildAgile</a></li>
+          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+          <li><a href="/starmap.html">Starmap</a></li>
+          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+        </ul>
+        <hr>
+        <strong>Find me on ...</strong>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+          <li><a href="https://github.com/Ovid/">GitHub</a></li>
+          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+        </ul>
+        <strong>Tags</strong>
+        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+        
+            <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+        
+            <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+        
+            <li><a href="/tags/ai.html" data-weight="5">AI</a></li>
+        
+            <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+        
+            <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+        
+            <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+        
+            <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+        
+            <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+        
+            <li><a href="/tags/writing.html" data-weight="3">Writing</a></li>
+        
+            <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+        
+            <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+        
+            <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+        
+            <li><a href="/tags/space.html" data-weight="2">Space</a></li>
+        
+            <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+        
+            <li><a href="/tags/math.html" data-weight="1">Math</a></li>
+        
+        </ul>
+      </div>
+
+        <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/the-first-ai-winter.html" class="prevPost">&laquo; The First AI Winter</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<h1><a name="feeling-deja-vu"></a>Feeling Deja Vu?</h1>
+
+<p>If the current state of artificial intelligence gives you a strange sense of familiarity, you’re not alone. The non-stop hype, the firehose of venture capital, and the frantic scramble to build the “next big thing” feel less like a new revolution and more like a rerun of the late 1990s. While the comparison isn’t perfect, the patterns of behavior are undeniable. Today’s AI landscape shows strong echoes of the internet circa 1996: the basic technology is becoming reliable, the advanced applications are a chaotic mess, and a staggering amount of money is being spent on visions the technology can’t yet support.</p>
+
+<h1><a name="html-and-core-ai"></a>HTML and Core AI</h1>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/netscape-navigator.png" width="600" alt="The image displays an early version of the Wikipedia homepage, featuring a bright blue background with text in a simple layout. It includes a welcome message and links to various language versions, along with navigation options typical of web browsers from the early 2000s.">
+    <figcaption>Netscape Navigator <a href="https://en.wikipedia.org/wiki/Netscape_Navigator#/media/File:Navigator_1-22.png" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>Back in the mid-90s, the web had a solid, dependable foundation: HTML. It was simple, it was for sharing information, and it just worked. You could build a website that would (mostly) load reliably on Netscape Navigator or Internet Explorer, and it would solve a clear problem. It was a well-understood technology that delivered tangible value.</p>
+
+<p>This is where we are with many core AI use cases today. Generative AI for tasks like chat, language translation, and summarization is largely a solved problem. Like HTML, these tools are becoming commodities we take for granted. They provide real value, are relatively easy to implement, and address well-defined needs. They are the solid ground upon which everything else is being built.</p>
+
+<h1><a name="the-agentic-gamble"></a>The Agentic Gamble</h1>
+
+<p>But then there was the “advanced” stuff. In the 90s, the dream of a dynamic, interactive web led to a chaotic explosion of competing technologies. Microsoft’s JScript was locked in a battle with Netscape’s JavaScript. Sun Microsystems pushed Java Applets, which promised rich applications inside the browser but delivered slow, insecure experiences over 28.8k modems. Others tried to build entire application interfaces with proprietary languages like Mozilla’s XUL (I should know; I built a POS system with XUL). It was a frenzy of brilliant ideas, all pulling in different directions.</p>
+
+<p>This is precisely the situation with AI agents today. To make models do more than just talk, we need them to act. This has led to a Cambrian explosion of agentic frameworks with no clear winner. <a href="https://www.anthropic.com/engineering/built-multi-agent-research-system" target="_blank">Anthropic argues for multi-agent systems</a> <span class="fa fa-external-link fa_custom"></span> where teams of specialized AIs collaborate on complex tasks. <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank">Cognition Labs argues for single-agent systems</a> <span class="fa fa-external-link fa_custom"></span> designed for long-term, continuous context. We have hybrid models, new prompting techniques, and entirely different architectures all vying for dominance. Just like in 1996, it’s a confusing but exciting landscape of competing philosophies, with everyone convinced their path is the right one.</p>
+
+<h1><a name="wasting-your-money"></a>Wasting Your Money</h1>
+
+<p>Of course, the most painful parallel to the 90s is the money. The dot-com mantra was “get big fast,” which fueled spectacular failures. The poster child was Webvan, the online grocery delivery service that famously spent $1 billion on high-tech warehouses before it had the customer base or last-mile logistics to make the model work. The idea wasn’t wrong—we all buy things online now. The vision was just years ahead of the infrastructure.</p>
+
+<p>We are seeing the same pattern play out with a certain class of AI gadgets. The Humane Ai Pin, which raised over $230 million, and the Rabbit R1 are the Webvans of our time. They were sold on a compelling vision of ambient, screenless AI interaction. But the products that shipped were panned as slow, unreliable, and hobbled by poor battery life.</p>
+
+<p>The error here isn’t the vision. The error is building and shipping a product today that depends the technology of tomorrow. And this reveals a fundamental misunderstanding of how to build sustainable innovation.</p>
+
+<p>If you are building an AI product, you need clearly defined, measurable metrics against a baseline. Without them, you are flying blind. You have no way to know if you’re making progress, and no data to tell you when you need to pivot. You’re just burning cash on hope. I’m seeing a lot of companies without those metrics building agent-based systems where they had no clear metrics and, desperately clinging to the sunk cost fallacy, by the time they realize they’re losing too much money, they’ve flushed a lot of value down the toilet. Those metrics could have signaled much earlier that things were going awry.</p>
+
+<blockquote><p>It’s not that ROI is missing - it’s that we don’t yet have the right frameworks to measure it.</p>
+<cite>— <a href="https://www.cio.inc/ai-roi-whats-missing-from-equation-a-28994">Hasit Trivedi, chief digital and AI officer at Firstsource</a></cite>
+</blockquote>
+
+<p>With respect to Mr. Trivedi, that’s not entirely true. We know how to measure business value, we’ve just forgotten to tie AI to existing business metrics. Yes, there are open questions about potential, but we can measure their impact <em>now</em>.</p>
+
+<p>However, if you’re building an AI strategy and you don’t have AI expertise, you want a “crawl, walk, run” strategy.</p>
+
+<ol>
+<li>Crawl: Start with the core, reliable AI use cases—the “HTML” of our time. Automate an internal workflow, improve an existing customer service process, generate marketing copy. These projects deliver immediate, measurable value and build organizational competence.</li>
+<li>Walk: Use the success and data from the crawl stage to tackle more complex, but still achievable, initiatives.</li>
+<li>Run: This is where you explore the bleeding edge. A wise strategy acknowledges that by the time your company is ready for the “run” stage, the core AI technology will have advanced significantly. Choices that seemed brilliant two years prior might be obsolete by the time you have to confidence to start on them.</li>
+</ol>
+
+<p>For that last point, you don’t bet your entire company on going to “run” from a standstill when you don’t even know if you can walk.</p>
+
+<p>The builders of the AI gadgets tried to sprint from a standing start. They built for a future where LLMs were faster, cheaper, and more reliable. But that future isn’t here yet. The lesson from Webvan isn’t that bold visions are bad. It’s that you can’t build a business on a foundation that doesn’t exist. Real progress is disciplined, iterative, and, above all, measurable.</p>
+
+<hr />
+
+<h2><a name="afterward-finding-those-metrics"></a>Afterward: Finding Those Metrics</h2>
+
+<p>OK, rant done. That’s it. You can stop reading now.</p>
+
+<p>What, you’re still here? Wondering about those metrics?</p>
+
+<p>If you’re one of those people who struggle to figure how to measure the value of a business project, don’t feel bad. You’re not alone. Many people struggle with this. I try to convince them to read the excellent book <a href="https://www.amazon.com/How-Measure-Anything-Workbook-Intangibles/dp/1118752368/" target="_blank">How to Measure Anything</a> <span class="fa fa-external-link fa_custom"></span> by Douglas Hubbard, but they don’t. So I took a different approach.</p>
+
+<p>I used the process outlined in the book to develop <a href="https://chatgpt.com/g/g-6870ade50fdc8191b876404e09e7ec4e-the-business-measurement-mentor" target="_blank">The Business Measurement Mentor</a> <span class="fa fa-external-link fa_custom"></span>, available in ChatGPT. However, if you don’t have an account there, or you’d rather use that prompt somewhere else, <a href="https://gist.githubusercontent.com/Ovid/25b4b146f9e28ce0854fb6b0a216407f/raw/b980af55c30a6c38c14733b5191b5a6d985ec3c6/measurement-mentor.md" target="_blank">I’ve also published the core prompt</a> <span class="fa fa-external-link fa_custom"></span>. You provide it with the business decision you’d like metrics for and it will walk you through a multi-step process to refine your knowledge and provide you with the metrics you need.</p>
+
+<p>There is, however, a cheat code. Let’s say your marketing department wants access to ChatGPT, Claude, or Gemini, with the express intent of letting them “brainstorm” wild marketing ideas and the resources needed to implement them. That’s cool, but how do you develop metrics for that, when you’re not even sure what’s going on? You can use my measurement mentor for that, but tell it, “I don’t have time to answer your questions, so give me several measurable metrics I might be able to use for [describe business decision here]“.</p>
+
+<p>Here’s what I got, using the marketing department example.</p>
+
+<hr />
+
+<blockquote>
+  <p>Understood. While I typically guide step-by-step, I’ll adapt to your request and provide a list of <em>measurable metrics</em> tied to the potential <em>value</em> and <em>cost</em> of giving your marketing team access to AI tools for brainstorming and idea implementation.</p>
+  
+  <p>These metrics can help you evaluate <em>whether the access leads to better or faster marketing innovation</em>, and what resources it consumes.</p>
+  
+  <h3>✅ Potential Benefit Metrics</h3>
+  
+  <p>These focus on <em>outputs</em> from AI usage:</p>
+  
+  <p><em>Number of New Campaign Concepts Generated per Month</em></p>
+  
+  <ul>
+  <li>Baseline vs. after AI access.</li>
+  </ul>
+  
+  <p><em>Time from Idea Generation to First Draft Campaign</em></p>
+  
+  <ul>
+  <li>Compare before vs. after using AI tools.</li>
+  </ul>
+  
+  <p><em>Campaign Success Rate</em></p>
+  
+  <ul>
+  <li>% of AI-assisted campaigns that outperform a defined benchmark (e.g., 10% lift in engagement or conversion).</li>
+  </ul>
+  
+  <p><em>Lift in Key Marketing KPIs</em></p>
+  
+  <ul>
+  <li>E.g., increase in click-through rates (CTR), engagement, lead conversion tied to AI-assisted campaigns.</li>
+  </ul>
+  
+  <p><em>Usage Rate of AI Tools</em></p>
+  
+  <ul>
+  <li>% of marketing team using the tools weekly/monthly.</li>
+  </ul>
+  
+  <hr />
+  
+  <h3>⏳ Cost and Resource Metrics</h3>
+  
+  <p>These show what it <em>costs</em> to enable AI brainstorming:</p>
+  
+  <p><em>Average Time Spent Using AI Tools per User per Week</em></p>
+  
+  <p><em>AI Licensing Cost per User per Month</em></p>
+  
+  <p><em>Average Time Saved on Campaign Ideation or Drafting Tasks</em></p>
+  
+  <ul>
+  <li>Self-reported or time-tracked reduction.</li>
+  </ul>
+  
+  <p><em>Support/Troubleshooting Requests per Month</em></p>
+  
+  <ul>
+  <li>Measures friction or need for training.</li>
+  </ul>
+  
+  <hr />
+  
+  <h3>🎯 Risk or Quality Control Metrics</h3>
+  
+  <p>To avoid misalignment or wasted effort:</p>
+  
+  <p><em>% of AI-Generated Ideas Implemented</em></p>
+  
+  <ul>
+  <li>Too low could mean poor quality; too high might mean insufficient vetting.</li>
+  </ul>
+  
+  <p><em>Internal Rating of Idea Quality</em></p>
+  
+  <ul>
+  <li>Team leads score a sample of AI-generated ideas on a defined rubric.</li>
+  </ul>
+  
+  <hr />
+  
+  <p>If you later want to prioritize these metrics or link them to a decision (e.g., ROI on licenses), I can help walk through that with you. Would you like a quick scoring model or dashboard template to use with these?</p>
+</blockquote>
+
+<p>If you can’t develop measurable metrics from this, perhaps consider a career move.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/the-first-ai-winter.html" class="prevPost">&laquo; The First AI Winter</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="row">
+      <div class="two columns">
+        <p></p>
+      </div>
+      <div class="ten columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+        <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/ai-today-is-like-the-early-internet.html";
+            this.page.identifier = "articles/ai-today-is-like-the-early-internet";
+            this.page.title      = "AI Today Is Like the Early Internet";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+	
+</body>
+</html>
+
+
