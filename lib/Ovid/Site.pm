@@ -62,8 +62,8 @@ package Ovid::Site {
     );
 
     has file => (
-        is      => 'ro',
-        isa     => NonEmptySimpleStr,
+        is       => 'ro',
+        isa      => NonEmptySimpleStr,
         required => 0,
     );
 
@@ -88,6 +88,7 @@ package Ovid::Site {
         printf STDERR "Rebuilding single file: %s\n", $self->file;
 
         $self->_clean_tmp_directory;
+
         # First, we need to do a full preprocess to build the tagmap
         # and other context that templates might need.
         say STDERR "Preprocessing all files to build context...";
@@ -111,10 +112,10 @@ package Ovid::Site {
         say STDERR "Single file rebuild complete.";
     }
 
-    sub _run_ttree_single ($self, $file) {
+    sub _run_ttree_single ( $self, $file ) {
 
         # Die if the source file doesn't exist so we know where the problem is.
-        unless (-f $file) {
+        unless ( -f $file ) {
             die "FATAL: Source file '$file' does not exist before calling ttree.";
         }
 
@@ -153,6 +154,7 @@ package Ovid::Site {
     }
 
     sub _clean_tmp_directory ($self) {
+
         # scrub our tmp directory
         system( 'rm', '-fr', 'tmp' );
 
@@ -174,7 +176,7 @@ package Ovid::Site {
         $self->_tagmap( \%tagmap );
     }
 
-    sub _copy_to_tmp ( $self, $file, $tagmap={} ) {
+    sub _copy_to_tmp ( $self, $file, $tagmap = {} ) {
         my $is_tt_file = $file =~ /\.tt(?:2markdown)?$/;
 
         my $dir  = dirname($file);
@@ -318,17 +320,17 @@ SQL
     sub _rebuild_article_pagination ($self) {
         foreach my $type (qw/article blog/) {
             my $article_type = article_type($type);
-            my $pager       = Less::Pager->new(type => $type);
-            my $name       = $type eq 'article' ? 'articles' : $type;
+            my $pager        = Less::Pager->new( type => $type );
+            my $name         = $type eq 'article' ? 'articles' : $type;
 
             # Handle paginated versions
-            while (my $records = $pager->next) {
+            while ( my $records = $pager->next ) {
                 my $page_number = $pager->current_page_number;
-                my $title      = "$article_type->{name} by Ovid";
-                if ($pager->total_pages > 1) {
+                my $title       = "$article_type->{name} by Ovid";
+                if ( $pager->total_pages > 1 ) {
                     $title .= ", page $page_number";
                 }
-                my $articles   = $self->_get_article_list($records, $article_type);
+                my $articles   = $self->_get_article_list( $records, $article_type );
                 my $pagination = $self->_get_pagination(
                     $pager->total_pages, $page_number,
                     $article_type
@@ -356,16 +358,16 @@ SQL
 
                 [% INCLUDE include/footer.tt %]
                 END
-                my $article = $self->_article_page($page_number, $article_type);
-                splat("root/$article.tt", $template);
+                my $article = $self->_article_page( $page_number, $article_type );
+                splat( "root/$article.tt", $template );
             }
 
             # Handle "all" version
             my $all_records = $pager->all;
-            my $title      = "All $article_type->{name} by Ovid";
-            my $identifier = "$name-all";
-            my $articles   = $self->_get_article_list($all_records, $article_type);
-            my $template   = <<~"END";
+            my $title       = "All $article_type->{name} by Ovid";
+            my $identifier  = "$name-all";
+            my $articles    = $self->_get_article_list( $all_records, $article_type );
+            my $template    = <<~"END";
             [%
                 INCLUDE include/header.tt 
                 title         = '$title'
@@ -377,7 +379,7 @@ SQL
 
             [% INCLUDE include/footer.tt %]
             END
-            splat("root/${name}-all.tt", $template);
+            splat( "root/${name}-all.tt", $template );
         }
     }
 
@@ -573,6 +575,7 @@ END
         XML
 
         my $base_url = $self->_base_url;
+        $base_url =~ s/\/$//;                   # Remove trailing slash if present
 
         # Process files
         for my $file (@files) {
