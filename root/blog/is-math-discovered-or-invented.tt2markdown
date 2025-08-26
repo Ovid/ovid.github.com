@@ -52,6 +52,320 @@ Plato lived roughly 400 BCE and to him, math was something to be discovered, not
 
 In short, for Plato, math was a weird blend of mysticism and science and for the next 2000 years, that's mostly where math stayed, Yes, we made tremendous advances and there were philosophical differences from Aristotle's realism to Kant's [synthetic a priori](https://en.wikipedia.org/wiki/A_priori_and_a_posteriori), but these were largely philosophical debates, not mathematical.
 
+<!-- Foundations of Mathematics Timeline (shadow-DOM, no global CSS/JS) -->
+<div id="mft-embed"></div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+(() => {
+  // 1) Mount point & Shadow DOM
+  const mount = document.getElementById("mft-embed");
+  if (!mount) return;
+  const shadow = mount.attachShadow({ mode: "open" });
+
+  // 2) Static content (scoped)
+  shadow.innerHTML = `
+    <style>
+      :host { all: initial; contain: content; }
+      :host, .mft-root {
+        --bg:#fff;
+        --ink:#111;
+        --muted:#5b677a;
+        --axis:#1e90ff33;
+        --ring:#1e90ff77;
+        --realist:#2bb7a3;
+        --formal:#ff8a5b;
+        --constructive:#6c7bd1;
+        --pragmatic:#ef77b3;
+        --bubble:#f8fafc;
+        --shadow: 0 6px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.08);
+        --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      .mft-root { color:var(--ink); font-family:var(--font); background:transparent; display:block; }
+      .mft-wrapper { max-width:1100px; margin:24px auto; padding:0 14px; }
+      .mft-title { font-weight:800; font-size:clamp(20px,3.2vw,36px); letter-spacing:.3px; margin:8px 0 10px; }
+      .mft-subtitle { color:var(--muted); margin:0 0 14px; font-size:14px }
+      .mft-legend { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:8px 0 0; font-size:14px }
+      .mft-legend .item { display:flex; align-items:center; gap:8px }
+      .mft-dot { width:12px; height:12px; border-radius:50% }
+      .mft-toolbar { display:flex; justify-content:flex-end; margin-top:8px }
+      .mft-button { background:#111; color:#fff; border:0; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; font-size:14px; }
+      .mft-button:focus { outline:2px solid #4f46e5; outline-offset:2px }
+      .mft-lightbox { position:fixed; inset:0; background:rgba(15,23,42,.6); display:none; align-items:center; justify-content:center; z-index:2147483647; padding:24px }
+      .mft-lightbox.open { display:flex }
+      .mft-panel { background:#fff; border-radius:18px; box-shadow:var(--shadow); max-width:min(1400px,96vw); max-height:92vh; overflow:auto; padding:18px }
+      .mft-closebar { position:sticky; top:0; display:flex; justify-content:flex-end; background:transparent; }
+      .mft-close { border:0; background:#0f172a; color:#fff; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; }
+      .mft-close:focus { outline:2px solid #4f46e5; outline-offset:2px }
+      .mft-bubble { font-size:13px; line-height:1.2; background:var(--bubble); border-radius:10px; padding:8px 10px; box-shadow:0 6px 14px rgba(0,0,0,.12); border:1px solid #e5e7eb; color:inherit; }
+      .mft-bubble a { color:inherit; text-decoration:none; border-bottom:1px dotted currentColor; outline:none }
+      .mft-bubble a:focus { box-shadow:0 0 0 3px rgba(59,130,246,.5); border-bottom-color:transparent }
+      .mft-bubble .label { font-weight:700; display:block; margin-bottom:2px }
+      .mft-bubble .desc { color:#364152 }
+      .mft-event-point { cursor:pointer; transition:transform .15s ease }
+      .mft-event-point:hover { transform:scale(1.12) }
+    </style>
+
+    <div class="mft-root" part="mft-root">
+      <div class="mft-wrapper">
+        <h2 class="mft-title">Timeline of Modern Foundations of Mathematics (1850–2000)</h2>
+        <p class="mft-subtitle">Click any label to open the related Wikipedia article. Click the timeline to view a larger version.</p>
+        <div id="mft-timeline"></div>
+
+        <div class="mft-legend" aria-label="Legend">
+          <span class="item"><span class="mft-dot" style="background:var(--realist)"></span> Realist</span>
+          <span class="item"><span class="mft-dot" style="background:var(--formal)"></span> Formal</span>
+          <span class="item"><span class="mft-dot" style="background:var(--constructive)"></span> Constructive</span>
+          <span class="item"><span class="mft-dot" style="background:var(--pragmatic)"></span> Pragmatic</span>
+        </div>
+
+        <div class="mft-toolbar">
+          <button type="button" class="mft-button" id="mft-open-large" aria-label="Open large timeline">Open large</button>
+        </div>
+      </div>
+
+      <div class="mft-lightbox" id="mft-lightbox" role="dialog" aria-modal="true" aria-label="Large timeline">
+        <div class="mft-panel">
+          <div class="mft-closebar">
+            <button type="button" class="mft-close" id="mft-close" aria-label="Close">Close ✕</button>
+          </div>
+          <div id="mft-timeline-large"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 3) Data & helpers (scoped)
+  const events = [
+    { label: "Logicism", year: 1880, desc: "Frege, Russell: reduce math to logic", stance: "Formal", wiki: "https://en.wikipedia.org/wiki/Logicism" },
+    { label: "Formalism", year: 1900, desc: "Hilbert: symbols & consistency", stance: "Formal", wiki: "https://en.wikipedia.org/wiki/Formalism_(philosophy_of_mathematics)" },
+    { label: "Intuitionism", year: 1907, desc: "Brouwer: mental constructions", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Intuitionism" },
+    { label: "Finitism", year: 1920, desc: "Only finite objects exist", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Finitism" },
+    { label: "Constructivism", year: 1920, desc: "Predicative/constructive math", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Constructivism_in_philosophy_of_mathematics" },
+    { label: "Set-theoretic Platonism (ZFC)", year: 1922, desc: "Zermelo–Fraenkel set theory", stance: "Realist", wiki: "https://en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory" },
+    { label: "Empiricism / Naturalism", year: 1950, desc: "Quine, Putnam: works for science", stance: "Pragmatic", wiki: "https://en.wikipedia.org/wiki/Indispensability_argument" },
+    { label: "Structuralism", year: 1960, desc: "Math about structures/relations", stance: "Realist", wiki: "https://en.wikipedia.org/wiki/Structuralism_(philosophy_of_mathematics)" },
+  ];
+
+  const stanceColor = (s) => ({
+    "Realist":"var(--realist)",
+    "Formal":"var(--formal)",
+    "Constructive":"var(--constructive)",
+    "Pragmatic":"var(--pragmatic)",
+  }[s] || "black");
+
+  // 4) Renderer (scoped)
+  function render(container, {width, height, big=false}) {
+    container.innerHTML = "";
+    const pad = 28;
+    const baselineY = Math.round(height*0.58);
+    const yearMin = 1850, yearMax = 2000;
+    const xOfYear = y => pad + ((y - yearMin) / (yearMax - yearMin)) * (width - pad*2);
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Foundations of mathematics timeline with clickable labels.");
+    svg.style.background = "var(--bg)";
+    svg.style.borderRadius = "14px";
+    svg.style.boxShadow = big ? "var(--shadow)" : "none";
+    svg.style.userSelect = "none";
+
+    // Axis
+    const axis = document.createElementNS(svgNS, "line");
+    axis.setAttribute("x1", pad);
+    axis.setAttribute("x2", width - pad);
+    axis.setAttribute("y1", baselineY);
+    axis.setAttribute("y2", baselineY);
+    axis.setAttribute("stroke", "var(--axis)");
+    axis.setAttribute("stroke-width", 3);
+    axis.setAttribute("stroke-dasharray", "6 6");
+    svg.appendChild(axis);
+
+    // Ticks
+    for(let y=1860; y<=2000; y+=20){
+      const x = xOfYear(y);
+      const t = document.createElementNS(svgNS, "text");
+      t.setAttribute("x", x);
+      t.setAttribute("y", baselineY + 20);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("fill", "var(--muted)");
+      t.setAttribute("font-size", big ? 14 : 12);
+      t.textContent = y;
+      svg.appendChild(t);
+
+      const tick = document.createElementNS(svgNS, "line");
+      tick.setAttribute("x1", x);
+      tick.setAttribute("x2", x);
+      tick.setAttribute("y1", baselineY-6);
+      tick.setAttribute("y2", baselineY+6);
+      tick.setAttribute("stroke", "var(--muted)");
+      tick.setAttribute("stroke-width", 1);
+      svg.appendChild(tick);
+    }
+
+    // Layout
+    const data = [...events].sort((a,b)=>a.year-b.year).map((d,i)=>({
+      ...d, side: (i%2===0) ? "top" : "bottom"
+    }));
+
+    const laneGapX = 110;
+    const laneStep = big ? 72 : 56;
+    const bubbleW = (d)=> Math.min(340, Math.max(130, (big? 6.9:6.5)*(d.label.length + d.desc.length*0.9)));
+    const lanesTop = [], lanesBot = [];
+
+    function placeLane(d){
+      const x = xOfYear(d.year);
+      const lanes = d.side==="top" ? lanesTop : lanesBot;
+      let lane = 0;
+      while(true){
+        if(!lanes[lane]){ lanes[lane] = { right:-1e9 }; break; }
+        if(x - lanes[lane].right > laneGapX){ break; }
+        lane++;
+      }
+      lanes[lane] = { right: x + bubbleW(d) * 0.55 };
+      d.lane = lane;
+    }
+    data.forEach(placeLane);
+
+    // Events
+    data.forEach(d=>{
+      const x = xOfYear(d.year);
+      const color = stanceColor(d.stance);
+
+      const point = document.createElementNS(svgNS, "circle");
+      point.setAttribute("cx", x);
+      point.setAttribute("cy", baselineY);
+      point.setAttribute("r", big ? 9 : 7);
+      point.setAttribute("fill", color);
+      point.setAttribute("class", "mft-event-point");
+      svg.appendChild(point);
+
+      const stem = document.createElementNS(svgNS, "line");
+      const dir = d.side==="top" ? -1 : 1;
+      const stemLen = (big? 36:28) + d.lane*laneStep;
+      stem.setAttribute("x1", x);
+      stem.setAttribute("x2", x);
+      stem.setAttribute("y1", baselineY);
+      stem.setAttribute("y2", baselineY + dir*stemLen);
+      stem.setAttribute("stroke", color);
+      stem.setAttribute("stroke-width", 2.5);
+      svg.appendChild(stem);
+
+      const bw = bubbleW(d);
+      const bh = big ? 64 : 56;
+      const bx = Math.round(x - bw/2);
+      const by = Math.round(baselineY + dir*(stemLen + 8) - (d.side==="top"? bh : 0));
+
+      const fo = document.createElementNS(svgNS, "foreignObject");
+      fo.setAttribute("x", Math.max(6, Math.min(bx, width-bw-6)));
+      fo.setAttribute("y", by);
+      fo.setAttribute("width", bw);
+      fo.setAttribute("height", bh+6);
+
+      const div = document.createElement("div");
+      div.setAttribute("xmlns","http://www.w3.org/1999/xhtml");
+      div.className = "mft-bubble";
+      div.style.borderLeft = `4px solid ${color}`;
+      div.innerHTML = `
+        <a href="${d.wiki}" target="_blank" rel="noopener" class="label" title="Open Wikipedia: ${d.label}" onclick="event.stopPropagation()">${d.label}</a>
+        <div class="desc">${d.desc}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.stance}</div>
+      `;
+      fo.appendChild(div);
+      svg.appendChild(fo);
+
+      const yearText = document.createElementNS(svgNS, "text");
+      yearText.setAttribute("x", x);
+      yearText.setAttribute("y", baselineY - (d.side==="top" ? 10 : -18));
+      yearText.setAttribute("text-anchor", "middle");
+      yearText.setAttribute("fill", "#243b53");
+      yearText.setAttribute("font-size", big ? 13 : 12);
+      yearText.textContent = d.year;
+      svg.appendChild(yearText);
+    });
+
+    // Decorative badge (only in large view)
+    if(big){
+      const bx=width*0.15, by=26, bw=width*0.34, bh=38;
+      const rect = document.createElementNS(svgNS, "rect");
+      rect.setAttribute("x", bx); rect.setAttribute("y", by);
+      rect.setAttribute("width", bw); rect.setAttribute("height", bh);
+      rect.setAttribute("rx", 10); rect.setAttribute("fill", "#fff7ed");
+      rect.setAttribute("stroke", "#fdba74");
+      svg.appendChild(rect);
+
+      const t1 = document.createElementNS(svgNS,"text");
+      t1.setAttribute("x", bx+bw/2); t1.setAttribute("y", by+16);
+      t1.setAttribute("text-anchor","middle"); t1.setAttribute("font-size","13");
+      t1.textContent = "Ancient Platonism (~400 BCE)";
+
+      const t2 = document.createElementNS(svgNS,"text");
+      t2.setAttribute("x", bx+bw/2); t2.setAttribute("y", by+32);
+      t2.setAttribute("text-anchor","middle"); t2.setAttribute("font-size","12"); t2.setAttribute("fill","#374151");
+      t2.textContent = "Idea: mathematics exists independently of humans";
+
+      svg.appendChild(t1); svg.appendChild(t2);
+    }
+
+    if(!big){
+      svg.style.cursor = "zoom-in";
+      svg.addEventListener("click", openLightbox, { once:false });
+    }
+
+    container.appendChild(svg);
+  }
+
+  // 5) Wire up within shadow root
+  const smallRoot = shadow.getElementById("mft-timeline");
+  const largeRoot = shadow.getElementById("mft-timeline-large");
+  const btnOpen   = shadow.getElementById("mft-open-large");
+  const lb        = shadow.getElementById("mft-lightbox");
+  const btnClose  = shadow.getElementById("mft-close");
+
+  function openLightbox(){
+    lb.classList.add("open");
+    render(largeRoot, {
+      width: Math.min(1400, window.innerWidth-120),
+      height: Math.min(820, window.innerHeight-160),
+      big: true
+    });
+    btnClose && btnClose.focus();
+  }
+  function closeLightbox(){ lb.classList.remove("open"); }
+
+  btnOpen.addEventListener("click", openLightbox);
+  btnClose.addEventListener("click", closeLightbox);
+  lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
+  const onKey = (e) => { if (e.key === "Escape") closeLightbox(); };
+  document.addEventListener("keydown", onKey);
+
+  // 6) Responsive sizing
+  const ro = new ResizeObserver(() => {
+    const parentWidth = mount.parentElement?.clientWidth || 600;
+    const w = Math.min(parentWidth, 1100);
+    render(smallRoot, { width: w, height: 360 });
+  });
+  ro.observe(mount);
+
+  // Initial paint
+  const w0 = Math.min(1100, mount.clientWidth || 1100);
+  render(smallRoot, { width: w0, height: 360 });
+
+  // Cleanup
+  const mo = new MutationObserver(() => {
+    if (!document.body.contains(mount)) {
+      ro.disconnect();
+      document.removeEventListener("keydown", onKey);
+      mo.disconnect();
+    }
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+})();
+});
+</script>
 
 
 ---
