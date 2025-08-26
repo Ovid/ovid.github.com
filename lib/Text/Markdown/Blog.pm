@@ -84,10 +84,10 @@ sub _use_smart_quotes ( $self, $text ) {
 
     my $do_not_touch = 0;
     while ( my $token = $parser->get_token ) {
-        if ($token->is_start_tag('pre') || $token->is_start_tag('code') ) {
+        if ($token->is_start_tag(qr/^(pre|code|script)$/)) {
             $do_not_touch++;
         }
-        if ($token->is_end_tag('pre') || $token->is_end_tag('code') ) {
+        if ($token->is_end_tag(qr/^(pre|code|script)$/)) {
             $do_not_touch--
         }
         if ( !$do_not_touch && $token->is_text ) {
