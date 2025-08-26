@@ -1,0 +1,624 @@
+[%
+    title            = 'Is Math Discovered or Invented?';
+    type             = 'blog';
+    slug             = 'is-math-discovered-or-invented';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2025-08-26';
+    mathjax          = 1;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS math}}
+
+# Philosophical Mathematics
+
+I'm kind of a math nerd in the sense that [I love math](/tags/math.html),[% Ovid.note("As of this writing, one of those pages has an egregious math error that no one has spotted. Proof that no one really reads this blog. I've left the error because I'm curious if anyone will ever spot it.") %] but not in the sense that I'm brilliant at it. I took calculus in my junior year of high school, a full year before my classmates,[% Ovid.note("But for complicated reasons, I was told partway through the year to switch to another class and had to retake calculus in my senior year.") %]. However, like so many of my contemporaries, I have forgotten much of my math. This led to one of my most hilarious job interviews, ever.
+
+# My Hilarious Job Interview
+
+In 2007, I was living in London and job hunting, and someone from a local
+company known ominously as "the place Perl programmers go to die" was
+interviewing me.  After a short interview, I was giving a programming test.
+"Write a function that, given a number, finds the prime factors." I had to do
+this with pencil and paper.
+
+My first question: "Can I assume I have a prime number generator or would you like me to write one?"
+
+The look of shock on the interviewers face was priceless, but he told me I could assume I have one.
+
+After a couple of extra questions, I started writing the function. At
+one point, I used an array an array to capture the prime factors and then
+erased it, replacing it with a hash (a "dictionary", in many other languages).
+The interviewer corrected me, saying I wanted an array, and I replied that with
+an array, I would have to count the number of each of the prime factors, but
+with a hash, I would merely need to increment the values, with the keys being
+the primes. The interviewer was again surprised.
+
+After I was done, he desk-checked my solution to verify it. I had quickly, with
+almost no thought, written the solution. I looked brilliant.
+
+What the interviewer didn't know what was that about a month ago, I was
+disappointed that I had forgotten most of my math and bought a book to teach it
+to myself again. About a week prior to the interview, I had written a program,
+complete with a prime number generator, to solve this very problem.
+
+I didn't get a job offer because they wanted to pay me a junior developer
+salary. This has happened to me more than once.
+
+So I still haven't relearned the math I once knew, but I found myself getting
+fascinated by mathematical philosophies and how the approach the idea of whether
+math is "real" or merely a description of real.
+
+# In The Beginning
+
+When we do mathematics, it's easy to forget that we're standing on millennia of
+philosophical debate. Most of us were taught that math is "just true," but
+behind every proof lies a question: _what is mathematics?_
+
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/plato.png"
+   alt      = "Plato"
+%]
+
+Over the last 150 years, mathematicians and philosophers have offered competing
+answers. Some see math as eternal truth, others as symbol manipulation, others
+as mental construction, and still others as a pragmatic tool that survives only
+because it works. Understanding these foundations matters because they shape how
+we build proofs, interpret results, and even design new mathematics. But first,
+we need to understand [Plato](https://en.wikipedia.org/wiki/Plato).
+
+Plato lived roughly 400 BCE and to him, math was something to be discovered, not
+invented. He viewed mathematics as fundamental to understanding reality and
+knowledge and believed mathematical objects like numbers and geometric forms
+existed as perfect, eternal forms in a realm beyond the physical world. These
+mathematical truths were absolute and unchanging and the concept of a perfect
+circle or the number 2 existed independently of any physical circles or pairs of
+objects.
+
+In short, math to Plato was a weird blend of mysticism and science and for the
+next 2000 years, that's mostly where math remained. Yes, we made tremendous
+advances and there were philosophical differences from Aristotle's realism to
+Kant's [synthetic a
+priori](https://en.wikipedia.org/wiki/A_priori_and_a_posteriori), but these were
+largely philosophical debates, not mathematical. That leads us to one of the
+great leaps of modern math philosophies, Logicism.
+
+# The Great Philosophies.
+
+Here's a timeline of these philosophies to get you started.
+
+<div id="mft-embed"></div>
+<!-- Foundations of Mathematics Timeline (shadow-DOM, no global CSS/JS) -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+(() => {
+  // 1) Mount point & Shadow DOM
+  const mount = document.getElementById("mft-embed");
+  if (!mount) return;
+  const shadow = mount.attachShadow({ mode: "open" });
+
+  // 2) Static content (scoped)
+  shadow.innerHTML = `
+    <style>
+      :host { all: initial; contain: content; }
+      :host, .mft-root {
+        --bg:#fff;
+        --ink:#111;
+        --muted:#5b677a;
+        --axis:#1e90ff33;
+        --ring:#1e90ff77;
+        --realist:#2bb7a3;
+        --formal:#ff8a5b;
+        --constructive:#6c7bd1;
+        --pragmatic:#ef77b3;
+        --bubble:#f8fafc;
+        --shadow: 0 6px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.08);
+        --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      .mft-root { color:var(--ink); font-family:var(--font); background:transparent; display:block; }
+      .mft-wrapper { max-width:1100px; margin:24px auto; padding:0 14px; }
+      .mft-title { font-weight:800; font-size:clamp(20px,3.2vw,36px); letter-spacing:.3px; margin:8px 0 10px; }
+      .mft-subtitle { color:var(--muted); margin:0 0 14px; font-size:14px }
+      .mft-legend { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:8px 0 0; font-size:14px }
+      .mft-legend .item { display:flex; align-items:center; gap:8px }
+      .mft-dot { width:12px; height:12px; border-radius:50% }
+      .mft-toolbar { display:flex; justify-content:flex-end; margin-top:8px }
+      .mft-button { background:#111; color:#fff; border:0; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; font-size:14px; }
+      .mft-button:focus { outline:2px solid #4f46e5; outline-offset:2px }
+      .mft-lightbox { position:fixed; inset:0; background:rgba(15,23,42,.6); display:none; align-items:center; justify-content:center; z-index:2147483647; padding:24px }
+      .mft-lightbox.open { display:flex }
+      .mft-panel { background:#fff; border-radius:18px; box-shadow:var(--shadow); max-width:min(1400px,96vw); max-height:92vh; overflow:auto; padding:18px }
+      .mft-closebar { position:sticky; top:0; display:flex; justify-content:flex-end; background:transparent; }
+      .mft-close { border:0; background:#0f172a; color:#fff; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; }
+      .mft-close:focus { outline:2px solid #4f46e5; outline-offset:2px }
+      .mft-bubble { font-size:13px; line-height:1.2; background:var(--bubble); border-radius:10px; padding:8px 10px; box-shadow:0 6px 14px rgba(0,0,0,.12); border:1px solid #e5e7eb; color:inherit; }
+      .mft-bubble a { color:inherit; text-decoration:none; border-bottom:1px dotted currentColor; outline:none }
+      .mft-bubble a:focus { box-shadow:0 0 0 3px rgba(59,130,246,.5); border-bottom-color:transparent }
+      .mft-bubble .label { font-weight:700; display:block; margin-bottom:2px }
+      .mft-bubble .desc { color:#364152 }
+      .mft-event-point { cursor:pointer; transition:transform .15s ease }
+      .mft-event-point:hover { transform:scale(1.12) }
+    </style>
+
+    <div class="mft-root" part="mft-root">
+      <div class="mft-wrapper">
+        <h2 class="mft-title">Timeline of Modern Mathematics</h2>
+        <p class="mft-subtitle">Click any label to open the related Wikipedia article. Click the timeline to view a larger version.</p>
+        <div id="mft-timeline"></div>
+
+        <div class="mft-legend" aria-label="Legend">
+          <span class="item"><span class="mft-dot" style="background:var(--realist)"></span> Realist</span>
+          <span class="item"><span class="mft-dot" style="background:var(--formal)"></span> Formal</span>
+          <span class="item"><span class="mft-dot" style="background:var(--constructive)"></span> Constructive</span>
+          <span class="item"><span class="mft-dot" style="background:var(--pragmatic)"></span> Pragmatic</span>
+        </div>
+
+        <div class="mft-toolbar">
+          <button type="button" class="mft-button" id="mft-open-large" aria-label="Open large timeline">Open large</button>
+        </div>
+      </div>
+
+      <div class="mft-lightbox" id="mft-lightbox" role="dialog" aria-modal="true" aria-label="Large timeline">
+        <div class="mft-panel">
+          <div class="mft-closebar">
+            <button type="button" class="mft-close" id="mft-close" aria-label="Close">Close ✕</button>
+          </div>
+          <div id="mft-timeline-large"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 3) Data & helpers (scoped)
+  const events = [
+    { label: "Logicism", year: 1880, desc: "Frege, Russell: reduce math to logic", stance: "Formal", wiki: "https://en.wikipedia.org/wiki/Logicism" },
+    { label: "Formalism", year: 1900, desc: "Hilbert: symbols & consistency", stance: "Formal", wiki: "https://en.wikipedia.org/wiki/Formalism_(philosophy_of_mathematics)" },
+    { label: "Intuitionism", year: 1907, desc: "Brouwer: mental constructions", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Intuitionism" },
+    { label: "Finitism", year: 1920, desc: "Only finite objects exist", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Finitism" },
+    { label: "Constructivism", year: 1920, desc: "Predicative/constructive math", stance: "Constructive", wiki: "https://en.wikipedia.org/wiki/Constructivism_in_philosophy_of_mathematics" },
+    { label: "Set-theoretic Platonism (ZFC)", year: 1922, desc: "Zermelo–Fraenkel set theory", stance: "Realist", wiki: "https://en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory" },
+    { label: "Mathematical Naturalism", year: 1950, desc: "Quine, Putnam: works for science", stance: "Pragmatic", wiki: "https://en.wikipedia.org/wiki/Indispensability_argument" },
+    { label: "Structuralism", year: 1960, desc: "Math about structures/relations", stance: "Realist", wiki: "https://en.wikipedia.org/wiki/Structuralism_(philosophy_of_mathematics)" },
+  ];
+
+  const stanceColor = (s) => ({
+    "Realist":"var(--realist)",
+    "Formal":"var(--formal)",
+    "Constructive":"var(--constructive)",
+    "Pragmatic":"var(--pragmatic)",
+  }[s] || "black");
+
+  // 4) Renderer (scoped)
+  function render(container, {width, height, big=false}) {
+    container.innerHTML = "";
+    const pad = 28;
+    const baselineY = Math.round(height*0.58);
+    const yearMin = 1850, yearMax = 2000;
+    const xOfYear = y => pad + ((y - yearMin) / (yearMax - yearMin)) * (width - pad*2);
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Foundations of mathematics timeline with clickable labels.");
+    svg.style.background = "var(--bg)";
+    svg.style.borderRadius = "14px";
+    svg.style.boxShadow = big ? "var(--shadow)" : "none";
+    svg.style.userSelect = "none";
+
+    // Axis
+    const axis = document.createElementNS(svgNS, "line");
+    axis.setAttribute("x1", pad);
+    axis.setAttribute("x2", width - pad);
+    axis.setAttribute("y1", baselineY);
+    axis.setAttribute("y2", baselineY);
+    axis.setAttribute("stroke", "var(--axis)");
+    axis.setAttribute("stroke-width", 3);
+    axis.setAttribute("stroke-dasharray", "6 6");
+    svg.appendChild(axis);
+
+    // Ticks
+    for(let y=1860; y<=2000; y+=20){
+      const x = xOfYear(y);
+      const t = document.createElementNS(svgNS, "text");
+      t.setAttribute("x", x);
+      t.setAttribute("y", baselineY + 20);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("fill", "var(--muted)");
+      t.setAttribute("font-size", big ? 14 : 12);
+      t.textContent = y;
+      svg.appendChild(t);
+
+      const tick = document.createElementNS(svgNS, "line");
+      tick.setAttribute("x1", x);
+      tick.setAttribute("x2", x);
+      tick.setAttribute("y1", baselineY-6);
+      tick.setAttribute("y2", baselineY+6);
+      tick.setAttribute("stroke", "var(--muted)");
+      tick.setAttribute("stroke-width", 1);
+      svg.appendChild(tick);
+    }
+
+    // Layout
+    const data = [...events].sort((a,b)=>a.year-b.year).map((d,i)=>({
+      ...d, side: (i%2===0) ? "top" : "bottom"
+    }));
+
+    const laneGapX = 110;
+    const laneStep = big ? 72 : 56;
+    const bubbleW = (d)=> Math.min(340, Math.max(130, (big? 6.9:6.5)*(d.label.length + d.desc.length*0.9)));
+    const lanesTop = [], lanesBot = [];
+
+    function placeLane(d){
+      const x = xOfYear(d.year);
+      const lanes = d.side==="top" ? lanesTop : lanesBot;
+      let lane = 0;
+      while(true){
+        if(!lanes[lane]){ lanes[lane] = { right:-1e9 }; break; }
+        if(x - lanes[lane].right > laneGapX){ break; }
+        lane++;
+      }
+      lanes[lane] = { right: x + bubbleW(d) * 0.55 };
+      d.lane = lane;
+    }
+    data.forEach(placeLane);
+
+    // Events
+    data.forEach(d=>{
+      const x = xOfYear(d.year);
+      const color = stanceColor(d.stance);
+
+      const point = document.createElementNS(svgNS, "circle");
+      point.setAttribute("cx", x);
+      point.setAttribute("cy", baselineY);
+      point.setAttribute("r", big ? 9 : 7);
+      point.setAttribute("fill", color);
+      point.setAttribute("class", "mft-event-point");
+      svg.appendChild(point);
+
+      const stem = document.createElementNS(svgNS, "line");
+      const dir = d.side==="top" ? -1 : 1;
+      const stemLen = (big? 36:28) + d.lane*laneStep;
+      stem.setAttribute("x1", x);
+      stem.setAttribute("x2", x);
+      stem.setAttribute("y1", baselineY);
+      stem.setAttribute("y2", baselineY + dir*stemLen);
+      stem.setAttribute("stroke", color);
+      stem.setAttribute("stroke-width", 2.5);
+      svg.appendChild(stem);
+
+      const bw = bubbleW(d);
+      const bh = big ? 64 : 56;
+      const bx = Math.round(x - bw/2);
+      const by = Math.round(baselineY + dir*(stemLen + 8) - (d.side==="top"? bh : 0));
+
+      const fo = document.createElementNS(svgNS, "foreignObject");
+      fo.setAttribute("x", Math.max(6, Math.min(bx, width-bw-6)));
+      fo.setAttribute("y", by);
+      fo.setAttribute("width", bw);
+      fo.setAttribute("height", bh+6);
+
+      const div = document.createElement("div");
+      div.setAttribute("xmlns","http://www.w3.org/1999/xhtml");
+      div.className = "mft-bubble";
+      div.style.borderLeft = `4px solid ${color}`;
+      div.innerHTML = `
+        <a href="${d.wiki}" target="_blank" rel="noopener" class="label" title="Open Wikipedia: ${d.label}" onclick="event.stopPropagation()">${d.label}</a>
+        <div class="desc">${d.desc}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.stance}</div>
+      `;
+      fo.appendChild(div);
+      svg.appendChild(fo);
+
+      const yearText = document.createElementNS(svgNS, "text");
+      yearText.setAttribute("x", x);
+      yearText.setAttribute("y", baselineY - (d.side==="top" ? 10 : -18));
+      yearText.setAttribute("text-anchor", "middle");
+      yearText.setAttribute("fill", "#243b53");
+      yearText.setAttribute("font-size", big ? 13 : 12);
+      yearText.textContent = d.year;
+      svg.appendChild(yearText);
+    });
+
+    // Decorative badge (only in large view)
+    if(big){
+      const bx=width*0.15, by=26, bw=width*0.34, bh=38;
+      const rect = document.createElementNS(svgNS, "rect");
+      rect.setAttribute("x", bx); rect.setAttribute("y", by);
+      rect.setAttribute("width", bw); rect.setAttribute("height", bh);
+      rect.setAttribute("rx", 10); rect.setAttribute("fill", "#fff7ed");
+      rect.setAttribute("stroke", "#fdba74");
+      svg.appendChild(rect);
+
+      const t1 = document.createElementNS(svgNS,"text");
+      t1.setAttribute("x", bx+bw/2); t1.setAttribute("y", by+16);
+      t1.setAttribute("text-anchor","middle"); t1.setAttribute("font-size","13");
+      t1.textContent = "Ancient Platonism (~400 BCE)";
+
+      const t2 = document.createElementNS(svgNS,"text");
+      t2.setAttribute("x", bx+bw/2); t2.setAttribute("y", by+32);
+      t2.setAttribute("text-anchor","middle"); t2.setAttribute("font-size","12"); t2.setAttribute("fill","#374151");
+      t2.textContent = "Idea: mathematics exists independently of humans";
+
+      svg.appendChild(t1); svg.appendChild(t2);
+    }
+
+    if(!big){
+      svg.style.cursor = "zoom-in";
+      svg.addEventListener("click", openLightbox, { once:false });
+    }
+
+    container.appendChild(svg);
+  }
+
+  // 5) Wire up within shadow root
+  const smallRoot = shadow.getElementById("mft-timeline");
+  const largeRoot = shadow.getElementById("mft-timeline-large");
+  const btnOpen   = shadow.getElementById("mft-open-large");
+  const lb        = shadow.getElementById("mft-lightbox");
+  const btnClose  = shadow.getElementById("mft-close");
+
+  function openLightbox(){
+    lb.classList.add("open");
+    render(largeRoot, {
+      width: Math.min(1400, window.innerWidth-120),
+      height: Math.min(820, window.innerHeight-160),
+      big: true
+    });
+    btnClose && btnClose.focus();
+  }
+  function closeLightbox(){ lb.classList.remove("open"); }
+
+  btnOpen.addEventListener("click", openLightbox);
+  btnClose.addEventListener("click", closeLightbox);
+  lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
+  const onKey = (e) => { if (e.key === "Escape") closeLightbox(); };
+  document.addEventListener("keydown", onKey);
+
+  // 6) Responsive sizing
+  const ro = new ResizeObserver(() => {
+    const parentWidth = mount.parentElement?.clientWidth || 600;
+    const w = Math.min(parentWidth, 1100);
+    render(smallRoot, { width: w, height: 360 });
+  });
+  ro.observe(mount);
+
+  // Initial paint
+  const w0 = Math.min(1100, mount.clientWidth || 1100);
+  render(smallRoot, { width: w0, height: 360 });
+
+  // Cleanup
+  const mo = new MutationObserver(() => {
+    if (!document.body.contains(mount)) {
+      ro.disconnect();
+      document.removeEventListener("keydown", onKey);
+      mo.disconnect();
+    }
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+})();
+});
+</script>
+
+## Logicism
+
+Logicism was a school of thought pioneered by [Gottlob
+Frege](https://en.wikipedia.org/wiki/Gottlob_Frege) in the late 19<sup>th</sup>
+century and argues that mathematics is fundamentally reducible to logic.
+Frege's groundbreaking work, especially in his Begriffsschrift and The
+Foundations of Arithmetic, tried to show that numbers and arithmetic truths are
+not dependent on human intuition or experience but can be derived entirely from
+logical principles.  Although Frege's system was famously undermined by
+[Bertrand Russell's
+paradox](https://en.wikipedia.org/wiki/Russell%27s_paradox#History), his
+project reshaped the philosophy of mathematic.
+
+Both Frege and Russel had hoped to reduce math to pure logic, [Gödel's
+incompleteness
+theorems](https://en.wikipedia.org/wiki/G%C3%B6del%27s_incompleteness_theorems)
+showed that there are always "true" statements about natural numbers which
+cannot be proven. Worse, Gödel's second theorem proved no consistent set of
+axioms can prove its own consistency.
+
+## Formalism
+
+Hilbert's formalism, developed by German mathematician [David
+Hilbert](https://en.wikipedia.org/wiki/David_Hilbert) in the early twentieth
+century, was an ambitious attempt to establish mathematics on completely secure
+foundations by treating it as a purely formal system of symbol manipulation.
+Hilbert wanted to show the consistency of all mathematical systems by
+formalizing them using a specific language that included variables,
+quantifiers, equality, logical connectives, and undefined parameters, with the
+goal of proving that every theorem could be derived using nothing more than
+axioms and formal rules without any reference to meaning or interpretation.
+
+While logicists believed that numbers are genuine logical objects with inherent
+meaning and that mathematical statements express logical truths, formalism
+treats mathematics as purely syntactic manipulation of meaningless symbols
+according to explicit rules, like an elaborate game of chess. Where
+logicists sought to ground mathematics in logical truth and abstract reality,
+formalists explicitly abandon any semantic content, viewing mathematical
+validity purely in terms of rule-following within formal systems without any
+insistence on the existence of mathematical objects or their connection to
+logic.
+
+As you might guess, Gödel's incompleteness theorems wrecked formalism, too.
+
+## Intuitionism
+
+Perhaps my favorite mathematical philosophy is
+[intuitionism](https://plato.stanford.edu/entries/intuitionism/), created by
+[L. E. J. Brouwer](https://en.wikipedia.org/wiki/L._E._J._Brouwer),
+intuitionism argues that math is *only* a construct of the mind. Brouwer's was
+a rebel philosophy that thumbed its nose at the big mathematical worldviews of
+his time.
+
+Platonists like Russell believe mathematicians is discovering eternal truths
+that exist independently in some abstract realm. Formalists like Hilbert see
+math as an elaborate game of symbol manipulation governed by rules (with no need
+to worry about what the symbols actually "mean"). Logicists try to reduce
+mathematics to pure logic.
+
+Brouwer said "nope" to all of it. His radical claim was that mathematical
+objects don't pre-exist waiting to be discovered (contra Platonism), aren't
+just meaningless symbols pushed around according to rules (contra formalism),
+and can't be reduced to logical principles (contra logicism). Brouwer
+argued that mathematical objects come into existence through
+mental construction. When you prove something or define a number, you're not
+finding it, playing with symbols, or deriving it from logic, you're actually
+creating it in your mind through intuitive mental activity.
+
+He rejected fundamental principles that the other schools took for
+granted, like the law of excluded middle, because for Brouwer, you can't assume
+something exists mathematically unless you can constructively build it step by
+step. It was a philosophy that made math deeply personal and creative, while
+simultaneously making it much more restrictive than classical mathematics
+allowed.
+
+Wait? What the heck is [the law of the excluded
+middle](https://en.wikipedia.org/wiki/Law_of_excluded_middle)?
+
+In classical logic, every proposition is either true or false.  Brouwer rejects
+that until you can actually construct a proof that shows which one it is. Think
+about it this way: imagine I claim "there exists a prime number with exactly
+1,000 digits that has some weird property X." In classical math, most people
+would say this statement is either true or false; we just don't know
+which yet. Brouwer would say "hold up, that statement doesn't have a truth
+value until someone actually constructs such a number or proves none exists."
+It's the mathematical equivalent of "pics or it didn't happen."
+
+Or to put it another way, I'm currently sitting in Châteauneuf-Grasse, in the
+south of France. I could easily say, "it is raining here a year from now." But
+is that true? It is false? Brouwer would argue that it's neither until we
+observe (construct) whether it's raining.
+
+This is a key insight of Brouwer's: math is essentially about time. Mathematical
+truth isn't some eternal, timeless thing floating in Plato's heaven. Math
+unfolds through our mental activity over time. When we construct a proof, we're
+not discovering a pre-existing truth, we're creating truth through a temporal
+process of mental construction.
+
+This sounds reasonable enough until you realize how many classical proofs rely
+on saying "well, either P is true or not-P is true, so let's consider both
+cases..." Brouwer basically banned this move unless you could constructively
+demonstrate which case actually holds. The result was a much more restrictive
+but philosophically purer mathematics where every theorem came with a recipe
+for actually building or computing the objects it talked about. In fact, while
+most of basic math remains the same, Brouwer's insistence upon time meant that
+he rejected the concept of actual infinity.
+
+I've chatted with mathematicians about this and their general opinion, if
+they've ever heard about Brouwer, is that the ideas are useless but since so
+much of math depends on the law of the excluded middle (and proof by
+contradition, something else intuitionism rejects), that intuitionism isn't
+practical.[% Ovid.note("More to the point, they don't care.") %]
+
+But what about irrational numbers like π (pi)? They have infinitely many digits
+after the decimal point, right? Well, we've calculated trillions of them, but
+even [NASA only uses the first 15 digits after the decimal
+point](https://www.livescience.com/physics-mathematics/mathematics/pi-day-2024-why-nasa-uses-only-16-of-the-62-trillion-digits-of-pi-we-know).
+
+This fits well with my thoughts on the philosophy of math. It's not so much that
+we arrive at the _correct_ answer as we arrive at the _useful_ answer. For
+example, $\sqrt{25}$ is equal to $5$ or $-5$. Which is correct? If you're using
+this to measure distances, $-5$ doesn't make any sense, even thought it's an
+"answer."
+
+# More Philophical Approaches.
+
+## Set-theoretic Platonism (ZFC)
+
+This is today's "working foundation" for most mathematicians. Everything is
+built from sets. It's powerful but incomplete. Questions like the Continuum
+Hypothesis can't be resolved within it.
+
+[% Ovid.youtube('Gz6qefUi3Ho') %]
+
+## Structuralism
+
+Instead of objects, math is about *relations*. The number 2, for example, is
+just a position in the natural number structure. This view resonates with
+category theory and modern abstract algebra.
+
+## Finitism and Constructivism
+
+More cautious views that reject infinite or circular definitions. They
+anticipate today's emphasis on computability. (Note: Constructivism was invented
+after Intuitionism, but the latter is considered a subset of the former).
+
+## Mathematical Naturalism
+
+W. V. Quine and Hilary Putnam argued that math doesn't need metaphysical
+justification. It survives because science can't do without it.
+
+# Why It Matters
+
+You might wonder: isn't this just philosophy? Does it affect actual math? The answer is *yes*. These foundations influence:
+
+* **What counts as a proof.** An intuitionist won't accept a non-constructive proof, while a formalist doesn't care as long as the rules are followed.
+* **How we build new fields.** Set theory, category theory, and constructive type theory all stem from these debates.
+* **How math connects to computers and science.** Constructive philosophies align with algorithms, while empiricism connects math to physics and engineering.
+
+The result is not just an academic quarrel, but a living set of options that shape mathematics itself.
+
+# Do Mathematicians Care?
+
+Not really. Most mathematicians don't spend their days debating whether they're
+Platonists or Formalists. In practice, they adopt a kind of *pragmatic
+Platonism*, treating numbers, sets, and functions as if they exist "out there"
+and using them without worrying too much about metaphysics.
+
+But the foundations aren't just idle philosophy. They matter in three key moments:
+
+* When crises arise: At the turn of the 20th century, paradoxes in set theory forced Hilbert, Brouwer, and Russell to rethink the entire basis of mathematics.
+* When new frameworks are born: Category theory, constructive type theory, and other modern tools grew out of foundational debates and now drive progress in algebra, logic, and computer science.
+* When limits are exposed: Independence results (like the Continuum Hypothesis) raise the question of whether some problems are even meaningful, depending on your stance.
+
+So while most mathematicians can happily ignore these questions day-to-day, the
+edges of mathematics, where paradoxes and new ideas appear, are grown from
+the foundational soil beneath.
+
+# Closing Thought
+
+So is mathematics discovered or invented? Despite the Platonist intuition that
+math exists "out there," to me the evidence points toward invention:
+sophisticated mental constructions we create to describe what we observe.
+
+Consider how we've repeatedly adjusted our mathematical frameworks when reality
+didn't cooperate. Euclidean geometry seemed eternal and absolute until we
+discovered that parallel lines actually do meet in curved spacetime, leading to
+non-Euclidean geometries that better describe our universe. Newtonian mechanics
+worked perfectly until quantum phenomena and relativistic effects demanded
+entirely new mathematical languages.
+
+Brouwer was onto something profound: mathematics unfolds through human mental
+activity over time. We don't find pre-existing mathematical truths; we construct
+tools that help us make sense of patterns in the world. When those tools fail to
+capture what we observe, we invent better ones.
+
+More importantly, ideas such as Brouwer's intuitionism might have real-world
+applications. Here's quantum physicist [Nicolas
+Gisin](https://en.wikipedia.org/wiki/Nicolas_Gisin) using intuitionism to show
+that time might have a direction after all.
+
+[% Ovid.youtube('WT0XDSe0GyY') %]
+
+Or if you prefer reading, [here's a short article explaining Gisin's point of
+view](https://www.lesswrong.com/posts/eNnr4JwEDNux63oXm/mathematical-intuitionism-and-the-flow-of-time).
+Or [here's his short and easy-to-read paper on the
+topic](https://arxiv.org/pdf/2002.01653) (pdf).
+
+Unfortunately, the [Brouwer-Hilbert
+debate](https://en.wikipedia.org/wiki/Brouwer%E2%80%93Hilbert_controversy) was
+won by Hilbert and time was essentially ejected from physics (read the Gisin
+paper).
+
+[%- END %]

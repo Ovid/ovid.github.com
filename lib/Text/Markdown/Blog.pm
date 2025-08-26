@@ -41,8 +41,8 @@ sub blogdown ( $self, $text, $options = {} ) {
 sub _fix_code_blocks ( $class, $text ) {
     my $in_block = 0;
     my @lines    = split /\n/ => $text;
-    $text     = '';
-  LINE: while (@lines) {
+    $text = '';
+    LINE: while (@lines) {
         my $line = shift @lines;
         if ($in_block) {
             if ( $line =~ /^~~~\s*$/ ) {
@@ -55,8 +55,7 @@ sub _fix_code_blocks ( $class, $text ) {
             $in_block = 1;
             $text .= '<div class="shadow">';
             if ( $+{language} ) {
-                $text .=
-                  qq'<pre class="scrolled"><code class="language-$+{language}">';
+                $text .= qq'<pre class="scrolled"><code class="language-$+{language}">';
             }
             else {
                 $text .= qq'<pre class="scrolled"><code>';
@@ -68,6 +67,7 @@ sub _fix_code_blocks ( $class, $text ) {
     }
     return $text;
 }
+
 # <div class="shadow">
 # [%- IF language -%]
 # <pre class="scrolled"><code class="language-[% language %]">[% content | html %]</code></pre>
@@ -75,23 +75,23 @@ sub _fix_code_blocks ( $class, $text ) {
 # <pre class="scrolled"><code>[% content | html %]</code></pre>
 # [%- END -%]
 # </div>
-# 
+#
 sub _use_smart_quotes ( $self, $text ) {
     return $text unless $self->should_use_smart_quotes;
     my $parser = HTML::TokeParser::Simple->new( string => $text );
 
-    my $html  = '';
+    my $html = '';
 
     my $do_not_touch = 0;
     while ( my $token = $parser->get_token ) {
-        if ($token->is_start_tag('pre') || $token->is_start_tag('code') ) {
+        if ( $token->is_start_tag(qr/^(pre|code|script)$/) ) {
             $do_not_touch++;
         }
-        if ($token->is_end_tag('pre') || $token->is_end_tag('code') ) {
-            $do_not_touch--
+        if ( $token->is_end_tag(qr/^(pre|code|script)$/) ) {
+            $do_not_touch--;
         }
         if ( !$do_not_touch && $token->is_text ) {
-            my $text = use_smart_quotes($token->as_is);
+            my $text = use_smart_quotes( $token->as_is );
             $html .= $text;
         }
         else {
@@ -120,11 +120,9 @@ sub _GenerateAnchor (
         return $whole_match;
     }
 
-    $url =~ s! \* !$Text::Markdown::g_escape_table{'*'}!gox
-      ;    # We've got to encode these to avoid
-    $url =~ s!  _ !$Text::Markdown::g_escape_table{'_'}!gox
-      ;    # conflicting with italics/bold.
-    $url =~ s{^<(.*)>$}{$1};    # Remove <>'s surrounding URL, if present
+    $url =~ s! \* !$Text::Markdown::g_escape_table{'*'}!gox;    # We've got to encode these to avoid
+    $url =~ s!  _ !$Text::Markdown::g_escape_table{'_'}!gox;    # conflicting with italics/bold.
+    $url =~ s{^<(.*)>$}{$1};                                    # Remove <>'s surrounding URL, if present
 
     $result = qq{<a href="$url"};
 
@@ -163,8 +161,8 @@ sub _GenerateAnchor (
 sub _DoHeaders ( $self, $text ) {
     $text = $self->SUPER::_DoHeaders($text);
 
-# Do tables to populate the table id's for cross-refs
-# (but after headers as the tables can contain cross-refs to other things, so we want the header cross-refs)
+    # Do tables to populate the table id's for cross-refs
+    # (but after headers as the tables can contain cross-refs to other things, so we want the header cross-refs)
     $text = $self->_DoTables($text);
 }
 
