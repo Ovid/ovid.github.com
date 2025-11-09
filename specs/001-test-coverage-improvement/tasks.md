@@ -168,13 +168,12 @@ This is a single-project Perl application:
 
 **Final Verification**
 
-- [ ] T078 [US2] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
-- [ ] T079 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report
-- [ ] T080 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md (Coverage is "highest achievable" when remaining uncovered lines are documented as untestable per FR-011)
-- [ ] T081 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
-- [ ] T081a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
-- [ ] T081b [US2] Run integration tests from t/integration/ to verify User Story 2 completion
-- [ ] T081c [US2] Audit all test files to verify consistent Test::Most usage (no Test::More or other frameworks)
+- [ ] T078 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report (run `cover -test && cover -report text | grep "lib/"`)
+- [ ] T079 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md (Coverage is "highest achievable" when remaining uncovered lines are documented as untestable per FR-011)
+- [ ] T080 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
+- [ ] T080a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
+- [ ] T080b [US2] Run integration tests from t/integration/ to verify User Story 2 completion
+- [ ] T080c [US2] Audit all test files to verify consistent Test::Most usage (no Test::More or other frameworks)
 
 **Checkpoint**: At this point, all modules should meet 90%+ statement coverage threshold
 
@@ -237,10 +236,9 @@ This is a single-project Perl application:
 
 **Final Verification**
 
-- [ ] T120 [US3] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
-- [ ] T121 [US3] Verify all modules with conditional logic show minimum 90% branch coverage
-- [ ] T122 [US3] Document any branches that cannot be covered with justification in specs/001-test-coverage-improvement/branch-coverage-exceptions.md
-- [ ] T122a [US3] Run integration tests from t/integration/ to verify User Story 3 completion
+- [ ] T120 [US3] Verify all modules with conditional logic show minimum 90% branch coverage (run `cover -test && cover -report text | grep "bran"`)
+- [ ] T121 [US3] Document any branches that cannot be covered with justification in specs/001-test-coverage-improvement/branch-coverage-exceptions.md
+- [ ] T121a [US3] Run integration tests from t/integration/ to verify User Story 3 completion
 
 **Checkpoint**: All modules with conditional logic should meet 90%+ branch coverage threshold
 
@@ -254,15 +252,15 @@ This is a single-project Perl application:
 
 ### Implementation for User Story 4
 
-- [ ] T123 [P] [US4] Add inline comments for untestable platform-specific code in all modules
-- [ ] T124 [P] [US4] Add inline comments for error conditions that are difficult to trigger in all modules
-- [ ] T125 [P] [US4] Document test mocking strategies used in specs/001-test-coverage-improvement/test-strategies.md
-- [ ] T126 [P] [US4] Document fixture usage patterns in specs/001-test-coverage-improvement/fixture-guide.md
-- [ ] T127 [US4] Create comprehensive coverage summary in specs/001-test-coverage-improvement/coverage-summary.md
-- [ ] T128 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
-- [ ] T129 [US4] Update project README.md with coverage testing instructions
-- [ ] T130 [US4] Create developer guide for maintaining 90%+ coverage in docs/testing-guide.md
-- [ ] T130a [US4] Run integration tests from t/integration/ to verify User Story 4 completion
+- [ ] T122 [P] [US4] Add inline comments for untestable platform-specific code in all modules
+- [ ] T123 [P] [US4] Add inline comments for error conditions that are difficult to trigger in all modules
+- [ ] T124 [P] [US4] Document test mocking strategies used in specs/001-test-coverage-improvement/test-strategies.md
+- [ ] T125 [P] [US4] Document fixture usage patterns in specs/001-test-coverage-improvement/fixture-guide.md
+- [ ] T126 [US4] Create comprehensive coverage summary in specs/001-test-coverage-improvement/coverage-summary.md
+- [ ] T127 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
+- [ ] T128 [US4] Update project README.md with coverage testing instructions
+- [ ] T129 [US4] Create developer guide for maintaining 90%+ coverage in docs/testing-guide.md
+- [ ] T129a [US4] Run integration tests from t/integration/ to verify User Story 4 completion
 
 **Checkpoint**: All coverage decisions and gaps should be fully documented
 
@@ -270,18 +268,18 @@ This is a single-project Perl application:
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-**Purpose**: Final improvements and validation
+**Purpose**: Final improvements and validation - includes consolidated final coverage report generation
 
-- [ ] T131 [P] Run perltidy on all test files with `perltidy --profile=.perltidyrc t/**/*.t`
-- [ ] T132 [P] Verify all tests pass with `prove -l t/`
-- [ ] T133 Verify test suite performance is under 60 seconds with `time prove -l t/`
-- [ ] T134 Generate final coverage report with `cover -test && cover -report html -outputdir coverage-report`
-- [ ] T135 [P] Review and update quickstart.md based on actual implementation
-- [ ] T136 Create coverage badge in SVG format for inclusion in README.md
-- [ ] T137 Document coverage CI/CD integration recommendations in specs/001-test-coverage-improvement/ci-integration.md
-- [ ] T138 Clean up temporary coverage artifacts with `cover -delete`
-- [ ] T139 Commit final coverage reports and documentation
-- [ ] T140 Verify constitution compliance: all tests use Test::Most, 90%+ coverage achieved
+- [ ] T130 [P] Run perltidy on all test files with `perltidy --profile=.perltidyrc t/**/*.t`
+- [ ] T131 [P] Verify all tests pass with `prove -l t/`
+- [ ] T132 Verify test suite performance is under 60 seconds with `time prove -l t/`
+- [ ] T133 **Generate final comprehensive coverage report** with `cover -test && cover -report html -outputdir coverage-report` and validate all success criteria
+- [ ] T134 [P] Review and update quickstart.md based on actual implementation
+- [ ] T135 Create coverage badge in SVG format for inclusion in README.md
+- [ ] T136 Document coverage CI/CD integration recommendations in specs/001-test-coverage-improvement/ci-integration.md
+- [ ] T137 Clean up temporary coverage artifacts with `cover -delete`
+- [ ] T138 Commit final coverage reports and documentation
+- [ ] T139 Verify constitution compliance: all tests use Test::Most, 90%+ coverage achieved
 
 ---
 
@@ -389,19 +387,19 @@ This delivers immediate value by identifying refactoring candidates and preventi
 - ✅ Test suite completes in under 60 seconds
 - ✅ Coverage reports regenerate in under 2 minutes
 - ✅ All coverage gaps documented with justification
-- ✅ Full coverage report available in `coverage-report/`
+- ✅ Final comprehensive coverage report available in `coverage-report/` (generated once in Phase 7, T133)
 
 ---
 
 ## Task Statistics
 
-- **Total Tasks**: 162
+- **Total Tasks**: 159 (reduced from 162 by consolidating redundant coverage report tasks)
 - **Setup Phase**: 4 tasks
 - **Foundational Phase**: 14 tasks (includes T005a-f, T009a-c expanded for integration tests and mocking infrastructure)
 - **User Story 1 (P1)**: 17 tasks
-- **User Story 2 (P2)**: 65 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T081a-c)
-- **User Story 3 (P3)**: 42 tasks (includes integration checkpoint T122a)
-- **User Story 4 (P4)**: 9 tasks (includes integration checkpoint T130a)
-- **Polish Phase**: 10 tasks
+- **User Story 2 (P2)**: 62 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T080a-c; consolidated T078-T080c)
+- **User Story 3 (P3)**: 40 tasks (includes integration checkpoint T121a; consolidated T120-T121a)
+- **User Story 4 (P4)**: 8 tasks (includes integration checkpoint T129a; renumbered from T122-T129a)
+- **Polish Phase**: 10 tasks (consolidated final coverage report into T133; renumbered T130-T139)
 - **Parallelizable Tasks**: 67 tasks marked [P]
 - **Estimated MVP Effort**: ~35 tasks (Phases 1-3 with expanded foundational infrastructure)

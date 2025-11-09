@@ -50,51 +50,77 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+
+This is a single Perl project with standard CPAN-style structure:
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+lib/                    # Perl modules (Ovid::*, Less::*, Template::Plugin::*)
+├── Ovid/
+│   ├── Site.pm
+│   ├── Site/
+│   │   ├── AI/
+│   │   │   └── Images.pm
+│   │   └── Utils.pm
+│   ├── Template/
+│   │   ├── File.pm
+│   │   ├── File/
+│   │   │   ├── Collection.pm
+│   │   │   └── FindCode.pm
+│   │   └── Role/
+│   │       ├── Debug.pm
+│   │       └── File.pm
+│   └── Types.pm
+├── Less/
+│   ├── Boilerplate.pm
+│   ├── Config.pm
+│   ├── Pager.pm
+│   └── Script.pm
+├── Template/
+│   └── Plugin/
+│       ├── Config.pm
+│       └── Ovid.pm
+└── Text/
+    └── Markdown/
+        └── Blog.pm
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+bin/                    # CLI scripts (article, rebuild, analyze-usage)
+├── article
+├── rebuild
+└── analyze-usage       # New: usage analysis tool (to be created)
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+t/                      # Test files (mirrors lib/ structure)
+├── fixtures/           # Test fixtures and sample data
+├── integration/        # Integration tests (to be created)
+├── Ovid/
+│   ├── Site.t
+│   └── ...
+└── ...
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+config/                 # Configuration files
+db/                     # SQLite databases for build-time data
+cover_db/               # Coverage reports (excluded from version control)
+coverage-report/        # HTML coverage output (excluded from version control)
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+specs/001-test-coverage-improvement/
+├── spec.md
+├── plan.md             # This file
+├── tasks.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+├── baseline-coverage.md            # To be created
+├── usage-analysis-results.md       # To be created
+├── unused-code-decisions.md        # To be created
+├── coverage-exceptions.md          # To be created
+├── branch-coverage-exceptions.md   # To be created
+├── test-strategies.md              # To be created
+├── fixture-guide.md                # To be created
+├── coverage-summary.md             # To be created
+└── lessons-learned.md              # To be created
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Standard single-project CPAN-style Perl application with test-first development approach. All modules follow namespace conventions (Ovid::, Less::, Template::Plugin::, Text::). Test files in `t/` mirror the `lib/` directory structure. Coverage tooling output goes to `cover_db/` and `coverage-report/` directories.
 
 ## Complexity Tracking
 

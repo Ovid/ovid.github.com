@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "This is a legacy Perl project designed to build Curtis 'Ovid' Poe's static web site. We are going to refactor this project. Before that, we have to walk through every module in the project, one-by-one, and increase its test coverage as high as possible, with no module less than 90%+. Because this is legacy code, it's possible that there is code that is not used. Before adding tests to improve coverage, determine if the existing code is actually used."
 
+## Terminology & Definitions *(mandatory)*
+
+**Highest Achievable Coverage**: Coverage is considered to have reached its "highest achievable" or "maximum achievable" level when all remaining uncovered lines have documented justification explaining why they cannot or should not be tested (per FR-011). This means:
+- All testable code paths have tests written for them
+- Any line not covered has an explicit reason documented (e.g., "platform-specific code not applicable to current OS", "error handling for impossible state given type constraints", "deprecated code pending removal")
+- The module meets the minimum 90% threshold
+- Further coverage improvement would require either testing truly unreachable code or architectural refactoring (which is out of scope)
+
+**Example**: A module at 92% coverage where the remaining 8% consists of Windows-specific error handling (tested on Linux), with inline comments documenting each uncovered section, has achieved "highest achievable coverage".
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Identify Unused Code (Priority: P1)
@@ -142,13 +152,14 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 ## Assumptions *(mandatory)*
 
 - Test coverage will be measured using Devel::Cover as it's the standard Perl coverage tool
-- "90% coverage" refers to statement coverage; branch/condition coverage targets are aspirational
+- **90% coverage is an absolute minimum requirement** - exceptions are rare and require explicit justification with documented evidence that remaining code is truly unreachable (e.g., platform-specific code on different OS, deprecated code with removal date)
+- Branch/condition coverage targets of 90% apply where conditional logic exists
 - Unused code determination will use static analysis (grep, IDE search) plus developer judgment - some seemingly unused code may be called dynamically
 - The current test suite runs and passes - we're adding to existing tests, not fixing broken ones
 - Test files will be enhanced incrementally, module-by-module, rather than all at once
 - SQLite database for testing can be populated with fixture data for integration tests
 - Template Toolkit rendering can be tested by comparing output HTML against expected fixtures
-- Some modules may legitimately have coverage below 90% only if remaining code is truly unreachable and documented as such; otherwise, aim for the highest possible coverage
+- **Coverage exceptions below 90% must be documented in coverage-exceptions.md with specific technical justification** - "highest possible coverage" does not mean accepting low coverage without exhaustive testing effort
 - POD documentation coverage is tracked separately and not part of the 90% requirement
 - The refactoring phase (after testing) is out of scope for this specification
 
