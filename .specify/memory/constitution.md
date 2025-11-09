@@ -1,18 +1,17 @@
 <!--
 Sync Impact Report:
-Version: 1.1.0 → 1.2.1
-Modified Principles: Added VIII. Environment Setup, Expanded Compliance Verification
-Added Sections: Environment Setup subsection under Development Workflow, Additional compliance requirements
+Version: 1.2.1 → 1.3.0
+Modified Principles: III. Test::Most with 90%+ Coverage - Added Mock Minimization subsection
+Added Sections: Mock Minimization guidance under Principle III
 Removed Sections: None
 Templates Status:
   - ✅ .specify/templates/plan-template.md (no changes required)
   - ✅ .specify/templates/spec-template.md (no changes required)
-  - ✅ .specify/templates/tasks-template.md (no changes required)
+  - ⚠ .specify/templates/tasks-template.md (review testing task patterns for mock usage)
 Follow-up TODOs:
-  - Verify template files align with CPAN-style module structure
-  - Add test coverage reporting to CI/CD if not present
-  - Document CLI conventions in developer guidelines
-  - Update AI agent prompts to reference git safety constraints
+  - Review existing tasks.md files for excessive mock usage
+  - Update testing best practices documentation to reflect mock minimization
+  - Audit current test suite for unnecessary mocks
 -->
 
 # Ovid's Website Constitution
@@ -52,7 +51,16 @@ Testing discipline MUST include:
 - Edge cases, error conditions, and failure modes explicitly tested
 - Coverage reports generated and tracked (e.g., via Devel::Cover)
 
-**Rationale**: Test::Most provides a comprehensive testing framework. High coverage ensures refactoring safety and catches regressions. Static site generators have deterministic outputs making them ideal for comprehensive testing.
+**Mock Minimization**: Mocks and test doubles SHOULD be avoided unless absolutely necessary for test stability:
+- PREFER real dependencies and test fixtures over mocks
+- DISCOURAGED: Mocking internal implementation details
+- DISCOURAGED: Mocking stable dependencies that can be used directly
+- ACCEPTABLE: Mocking external network calls, slow operations, or non-deterministic behavior
+- ACCEPTABLE: Mocking platform-specific features that aren't available in test environment
+- REQUIRED: When mocks are used, document why real dependencies cannot be used
+- REQUIRED: Regularly verify mocks stay synchronized with actual interfaces
+
+**Rationale**: Test::Most provides a comprehensive testing framework. High coverage ensures refactoring safety and catches regressions. Static site generators have deterministic outputs making them ideal for comprehensive testing. Mocks can drift out of sync with actual code, leading to false confidence—tests pass while testing mock behavior rather than real code. Real dependencies provide stronger guarantees and catch integration issues early.
 
 ### IV. Accessible HTML5 Static Output
 
@@ -211,4 +219,4 @@ Deviations from constitution principles require:
 - Plan for eventual compliance if temporary deviation
 - Review and approval for non-negotiable principles
 
-**Version**: 1.2.1 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
+**Version**: 1.3.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09

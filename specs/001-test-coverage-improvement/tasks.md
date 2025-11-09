@@ -50,7 +50,7 @@ This is a single-project Perl application:
 - [ ] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
 - [ ] T009a Define and document integration test suite in t/integration/ for end-to-end validation
 - [ ] T009b Create basic integration tests to verify foundational setup is working
-- [ ] T009c Setup Test::MockModule and Test::MockObject infrastructure for dependency mocking
+- [ ] T009c Setup Test::MockModule and Test::MockObject infrastructure ONLY for cases where real dependencies cannot be used (external APIs, non-deterministic behavior)
 
 **Checkpoint**: Foundation ready - module testing can now begin (lowest coverage first)
 
@@ -108,7 +108,7 @@ This is a single-project Perl application:
 - [ ] T034 [US2] Create or enhance t/ai_images.t for Ovid/Site/AI/Images.pm
 - [ ] T035 [US2] Add tests for image processing methods in Ovid/Site/AI/Images.pm to t/ai_images.t
 - [ ] T036 [US2] Add tests for AI integration methods in Ovid/Site/AI/Images.pm to t/ai_images.t
-- [ ] T037 [US2] Mock external API calls in Ovid/Site/AI/Images.pm tests using Test::MockModule
+- [ ] T037 [US2] Mock external API calls in Ovid/Site/AI/Images.pm tests using Test::MockModule (justified: external network dependency)
 - [ ] T038 [US2] Add error handling tests for Ovid/Site/AI/Images.pm to t/ai_images.t
 - [ ] T039 [US2] Verify Ovid/Site/AI/Images.pm reaches 90%+ coverage with `cover -test`
 
@@ -254,7 +254,7 @@ This is a single-project Perl application:
 
 - [ ] T122 [P] [US4] Add inline comments for untestable platform-specific code in all modules
 - [ ] T123 [P] [US4] Add inline comments for error conditions that are difficult to trigger in all modules
-- [ ] T124 [P] [US4] Document test mocking strategies used in specs/001-test-coverage-improvement/test-strategies.md
+- [ ] T124 [P] [US4] Document test mocking strategies used (with justification per constitution) in specs/001-test-coverage-improvement/test-strategies.md
 - [ ] T125 [P] [US4] Document fixture usage patterns in specs/001-test-coverage-improvement/fixture-guide.md
 - [ ] T126 [US4] Create comprehensive coverage summary in specs/001-test-coverage-improvement/coverage-summary.md
 - [ ] T127 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
@@ -395,7 +395,7 @@ This delivers immediate value by identifying refactoring candidates and preventi
 
 - **Total Tasks**: 159 (reduced from 162 by consolidating redundant coverage report tasks)
 - **Setup Phase**: 4 tasks
-- **Foundational Phase**: 14 tasks (includes T005a-f, T009a-c expanded for integration tests and mocking infrastructure)
+- **Foundational Phase**: 14 tasks (includes T005a-f, T009a-c expanded for integration tests and minimal mocking infrastructure per constitution)
 - **User Story 1 (P1)**: 17 tasks
 - **User Story 2 (P2)**: 62 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T080a-c; consolidated T078-T080c)
 - **User Story 3 (P3)**: 40 tasks (includes integration checkpoint T121a; consolidated T120-T121a)
