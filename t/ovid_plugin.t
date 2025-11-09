@@ -83,18 +83,37 @@ ok $ovid->has_articles_for_tag($first_tag),
 my $tag_name = $ovid->name_for_tag($first_tag);
 ok $tag_name, "name_for_tag() should return name for tag '$first_tag'";
 
+# Test name_for_tag() error branch - unknown tag
+throws_ok { $ovid->name_for_tag('nonexistent_tag_12345') }
+qr/Cannot find name for unknown tag/,
+  'name_for_tag() should croak for unknown tag';
+
 # Test count_for_tag()
 my $count = $ovid->count_for_tag($first_tag);
 ok $count > 0, "count_for_tag() should return positive count for tag '$first_tag'";
+
+# Test count_for_tag() error branch - unknown tag
+throws_ok { $ovid->count_for_tag('nonexistent_tag_12345') }
+qr/Cannot find count for unknown tag/,
+  'count_for_tag() should croak for unknown tag';
 
 # Test weight_for_tag()
 my $weight = $ovid->weight_for_tag($first_tag);
 ok $weight >= 1 && $weight <= 9, "weight_for_tag() should return weight between 1-9";
 
+# Test weight_for_tag() caching branch - call it again for same tag
+my $weight2 = $ovid->weight_for_tag($first_tag);
+is $weight2, $weight, 'weight_for_tag() should return cached weight on second call';
+
 # Test tags_for_url()
 my $files_collection = $ovid->files_for_tag($first_tag);
 ok ref($files_collection) eq 'Ovid::Template::File::Collection',
   'files_for_tag() should return Collection object';
+
+# Test files_for_tag() error branch - unknown tag
+throws_ok { $ovid->files_for_tag('nonexistent_tag_12345') }
+qr/Cannot find files for unknown tag/,
+  'files_for_tag() should croak for unknown tag';
 
 # Get first file URL from tagmap directly for testing title_for_tag_file
 my $tagmap_first_file = $ovid->{tagmap}{$first_tag}{files}[0];
@@ -107,6 +126,15 @@ if ($tagmap_first_file) {
     ok $title, "title_for_tag_file() should return title for valid tag '$first_tag' and file"
       or diag "Error: $@";
 }
+
+# Test title_for_tag_file() error branch - unknown tag
+throws_ok { $ovid->title_for_tag_file( 'nonexistent_tag_12345', 'some_file.html' ) }
+qr/Cannot find title for unknown tag/,
+  'title_for_tag_file() should croak for unknown tag';
+
+# Test tags_for_url() branch - URL not found (returns [])
+my $empty_tags = $ovid->tags_for_url('/nonexistent/url.html');
+is_deeply $empty_tags, [], 'tags_for_url() should return empty arrayref for unknown URL';
 
 # Test is_blog()
 ok $ovid->is_blog('blog'),      'is_blog() should return true for "blog"';
@@ -121,19 +149,36 @@ throws_ok { $ovid->describe_image('root/static/images/nonexistent.png') }
 qr/File does not exist or is not readable/,
   'describe_image() should croak on non-existent file';
 
-# TODO (Coverage): describe_image() with real file requires complex mocking
-# The describe_image() method calls set_image_description() which writes to the database.
-# Since Ovid::Site::Utils functions are imported into Template::Plugin::Ovid, mocking them
-# requires mocking in the Template::Plugin::Ovid namespace, but this is fragile.
-# For now, we skip testing the full describe_image() flow to protect the production database.
-# The method is tested indirectly through integration tests with a test database.
+# Test describe_image() branches - successful cases only
+SKIP: {
+    my $test_image = 'root/static/images/rss.png';
+    skip "Test image $test_image not found", 2 unless -f $test_image;
+
+    # Mock the imported functions in Template::Plugin::Ovid namespace
+    # (they were imported at compile time, so they're local to that package)
+    my $plugin_mock = Test::MockModule->new('Template::Plugin::Ovid');
+    
+    # Test branch: image path already starts with root/ AND cached description exists
+    $plugin_mock->redefine(
+        'get_image_description' => sub { return 'cached description for root/ path' }
+    );
+    
+    my $desc1 = $ovid->describe_image('root/static/images/rss.png');
+    is $desc1, 'cached description for root/ path',
+      'describe_image() should return cached description for path with root/';
+
+    # Test branch: image path does NOT start with root/ (prepends it) AND cached description exists
+    $plugin_mock->redefine(
+        'get_image_description' => sub { return 'cached description for relative path' }
+    );
+    my $desc2 = $ovid->describe_image('static/images/rss.png');
+    is $desc2, 'cached description for relative path',
+      'describe_image() should prepend root/ to relative paths and use cached description';
+}
+
+# NOTE: The branch where no cached description exists (requiring AI call) is not tested
+# to avoid external API dependencies. This branch is covered by integration tests.
 # See: specs/001-test-coverage-improvement/coverage-exceptions.md
-#
-# SKIP: {
-#     my $test_image = 'root/static/images/rss.png';
-#     skip "Test image $test_image not found", 2 unless -f $test_image;
-#     # ... mocking code would go here ...
-# }
 
 explain "I should fix this one day. It's currently coupled to my personal data";
 my $prev_post = $ovid->prev_post( 'articles', 'fixing-mvc-in-web-applications' );

@@ -193,18 +193,18 @@ This is a single-project Perl application:
 
 **Modules with Critical Branch Coverage Gaps**
 
-- [ ] T082 [P] [US3] Analyze branch coverage gaps in Template/Plugin/Ovid.pm (currently 0.0% branch)
-- [ ] T083 [US3] Add tests for all conditional branches in Template/Plugin/Ovid.pm to t/ovid_plugin.t
-- [ ] T084 [US3] Add tests for true/false paths of each condition in Template/Plugin/Ovid.pm
-- [ ] T085 [US3] Verify Template/Plugin/Ovid.pm reaches 90%+ branch coverage with `cover -test`
-- [ ] T086 [P] [US3] Analyze branch coverage gaps in Ovid/Site/AI/Images.pm (currently 0.0% branch)
-- [ ] T087 [US3] Add tests for all conditional branches in Ovid/Site/AI/Images.pm
-- [ ] T088 [US3] Add tests for error handling branches in Ovid/Site/AI/Images.pm
-- [ ] T089 [US3] Verify Ovid/Site/AI/Images.pm reaches 90%+ branch coverage with `cover -test`
-- [ ] T090 [P] [US3] Analyze branch coverage gaps in Ovid/Template/Role/Debug.pm (currently 16.6% branch)
-- [ ] T091 [US3] Add tests for debug level conditionals in Ovid/Template/Role/Debug.pm
-- [ ] T092 [US3] Add tests for all if/else paths in Ovid/Template/Role/Debug.pm
-- [ ] T093 [US3] Verify Ovid/Template/Role/Debug.pm reaches 90%+ branch coverage with `cover -test`
+- [X] T082 [P] [US3] Analyze branch coverage gaps in Template/Plugin/Ovid.pm (currently 0.0% branch)
+- [X] T083 [US3] Add tests for all conditional branches in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [X] T084 [US3] Add tests for true/false paths of each condition in Template/Plugin/Ovid.pm
+- [X] T085 [US3] Verify Template/Plugin/Ovid.pm reaches 90%+ branch coverage with `cover -test`
+- [X] T086 [P] [US3] Analyze branch coverage gaps in Ovid/Site/AI/Images.pm (currently 0.0% branch)
+- [X] T087 [US3] Add tests for all conditional branches in Ovid/Site/AI/Images.pm
+- [X] T088 [US3] Add tests for error handling branches in Ovid/Site/AI/Images.pm
+- [X] T089 [US3] Verify Ovid/Site/AI/Images.pm reaches 90%+ branch coverage with `cover -test`
+- [X] T090 [P] [US3] Analyze branch coverage gaps in Ovid/Template/Role/Debug.pm (currently 16.6% branch)
+- [X] T091 [US3] Add tests for debug level conditionals in Ovid/Template/Role/Debug.pm
+- [X] T092 [US3] Add tests for all if/else paths in Ovid/Template/Role/Debug.pm
+- [X] T093 [US3] Verify Ovid/Template/Role/Debug.pm reaches 90%+ branch coverage with `cover -test`
 
 **Modules with Moderate Branch Coverage Gaps**
 
