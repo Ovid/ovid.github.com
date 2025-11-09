@@ -126,10 +126,17 @@ sub title_for_tag_file ( $self, $tag, $file ) {
 sub add_note ( $self, $note ) {
     my $number = $self->{footnote_number}++;
     my $id     = "note-$number";
+    
+    # JavaScript-enabled mode: span that triggers dialog
     my $dialog
       = qq{<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
+    
+    # NoScript mode: anchor link to footnote at end of article (Feature 002)
+    my $noscript
+      = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"> <i class="fa fa-clipboard fa_custom"></i> </a></noscript>};
+    
     my $body = <<"HTML";
-    <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number">
+    <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number" aria-hidden="true">
         <strong id="$id">Footnotes</strong>
         <p id="note-description-$number" class="sr-only">Note number $number</p>
 	    <div>$note</div>
@@ -138,8 +145,15 @@ sub add_note ( $self, $note ) {
 HTML
 
     # the footnotes are read and displayed in the template footer
-    push $self->{footnotes}->@* => { number => $number, body => $body };
-    return $dialog;
+    # 'content' field added for noscript rendering (Feature 002)
+    push $self->{footnotes}->@* => { 
+        number  => $number, 
+        body    => $body,
+        content => $note,
+    };
+    
+    # Return both JavaScript dialog trigger and noscript anchor link
+    return $dialog . $noscript;
 }
 
 # NOTE: Called from Template Toolkit templates (multiple article templates)
