@@ -471,7 +471,7 @@ serious problems <code>NULL</code> values cause. </p>
 
 <p>In the database, we have various data <em>types</em>, such as <code>INTEGER</code>, <code>JSON</code>,
 <code>DATETIME</code>, and so on. A type is associated with a column and any value added
-should conform to the type associated with that column.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+should conform to the type associated with that column.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>But what’s a type? A type is a name, a set of allowed values, and a set of
 allowed operations. This helps us avoid unwanted behavior. For example, in
@@ -498,7 +498,7 @@ can do this:</p>
 </code></pre></div>
 
 <p>That, of course, doesn’t make a lick of sense and in a sane world would be a
-compile-time error.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> Many programming languages make it trivial to
+compile-time error.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> Many programming languages make it trivial to
 trap type errors like this but databases make it hard.</p>
 
 <p>But that’s not how databases generally behave, quite possibly because when <a href="https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt" target="_blank">the first SQL
@@ -764,11 +764,17 @@ database world a better place.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Well,
@@ -782,7 +788,7 @@ that's the idea, but SQLite and MySQL regularly make a mockery of this.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>The <a
@@ -798,6 +804,34 @@ it is not very well known.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Well,
+that's the idea, but SQLite and MySQL regularly make a mockery of this.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            The <a
+href="https://en.wikipedia.org/wiki/D_(data_language_specification)">D
+specification</a> by C.J. Date and Hugh Darwen attempts to address this, but
+it is not very well known.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

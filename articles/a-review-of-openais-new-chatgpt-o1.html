@@ -331,7 +331,7 @@ is. I’ll skip over many of the basics, but give you a feel for what’s going 
 
 <p>A long time ago, a gentleman named Adrian Howard posted about <a href="https://www.perlmonks.org/?node_id=193649" target="_blank">implementing
 something similar to Prolog in Perl, using
-continuations</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>. It allows you to write
+continuations</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. It allows you to write
 something like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub male ( $var, $continuation ) {
@@ -347,7 +347,7 @@ male( $a, sub { print $a-&gt;value, &quot; is male\n&quot; } );
 
 <p>That’s seems almost ridiculous, but suffice it to that this approach is
 powerful and <a href="https://github.com/Ovid/aI-Logic/" target="_blank">I even hacked together a quick module to genericize
-this</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> But Howard’s approach lacked some key
+this</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> But Howard’s approach lacked some key
 features, including list handling. That’s the bit I want to explain now.</p>
 
 <p>Let’s say, in Perl, you want to append one list to another:</p>
@@ -396,7 +396,7 @@ wrong and I had to prompt it to fix those.</p>
 
 <p>Some errors it suggested I fix weren’t actually errors. For example, it told me
 I had to load a module, apparently unaware that <code>use base $module</code> does that for
-you.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span>. When o1 was getting bogged down in details like that, it
+you.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript>. When o1 was getting bogged down in details like that, it
 wasn’t fixing the actual problems I needed it to fix.</p>
 
 <p>It also failed to diagnose a critical error where, in my manual changes to the
@@ -661,11 +661,17 @@ Perl and Prolog syntax.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Please
@@ -679,7 +685,7 @@ excuse the very 1999 appearance of that web site.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>'Hack' is the operative
@@ -693,7 +699,7 @@ word. It is not good code.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>We'll ignore the fact that the <tt>base</tt> module is not
@@ -707,6 +713,40 @@ recommended.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Please
+excuse the very 1999 appearance of that web site.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            'Hack' is the operative
+word. It is not good code.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            We'll ignore the fact that the <tt>base</tt> module is not
+recommended.
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

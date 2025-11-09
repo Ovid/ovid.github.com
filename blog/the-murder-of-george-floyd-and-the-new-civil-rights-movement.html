@@ -273,7 +273,7 @@ uphold</a> <span class="fa fa-external-link fa_custom"></span>).</p>
 
 <p>But it’s shouldn’t be hard to understand. Colin Kaepernick lost his career and
 was vilified in the press for respectfully “taking a knee” during the National
-Anthem.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Yet another uppity black person who didn’t know his place.
+Anthem.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Yet another uppity black person who didn’t know his place.
 You can’t protest peacefully. You can’t vote your way to equality if enough
 people vote against you. <a href="https://www.modbee.com/latest-news/article239007883.html" target="_blank">You can’t protest racism without being accused of
 being racist</a> <span class="fa fa-external-link fa_custom"></span>.  What
@@ -602,11 +602,17 @@ and it’s long overdue.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>The NFL has finally admitted they were wrong and
@@ -622,6 +628,26 @@ Tomahawk Chop!</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            The NFL has finally admitted they were wrong and
+these protests should be allowed. In other news, tickets are now available for
+Washington Redskins and Kansas City Chiefs games! Get to practicing your
+Tomahawk Chop!
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

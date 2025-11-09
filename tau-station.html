@@ -309,7 +309,7 @@ rebuilding, and if they attackers return, we want to be ready.</p>
 <p>Tau Station is a <em>narrative</em> game. That means it’s a game you read.
 There are no adolescent boys camping spawn points and screaming improbable
 things about your mother; It’s a game that lets you take your time, think, and
-plan.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> And
+plan.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> And
 because it’s also an MMO, you can interact with other citizens of the Tau
 Station universe, join a syndicate, explore new star systems, and watch with
 us as we build the universe.</p>
@@ -329,7 +329,7 @@ fiction). There is no artifical gravity or FTL travel. We use <tt>E =
 mc<sup>2</sup></tt> and the mass of your ships to calculate the amount of
 anti-matter necessary for travel. We use proper orbital mechanics to calculate
 the orbits of space stations. And while we have to take shortcuts here and
-there (it’s a game, after all), we stay faithful where we can.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+there (it’s a game, after all), we stay faithful where we can.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>We still have a lot to do, including:</p>
 
@@ -400,11 +400,17 @@ checkout out <a href="https://www.reddit.com/r/taustation/" target="_blank">/r/t
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Also, because it's text and images in a browser,
@@ -418,7 +424,7 @@ it's a game you can play at work, but you didn't hear that from me.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>In fact, Tau Station is what the <a
@@ -433,6 +439,33 @@ game.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Also, because it's text and images in a browser,
+it's a game you can play at work, but you didn't hear that from me.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            In fact, Tau Station is what the <a
+href="/starmap.html">Star Map</a> was for, but it sadly never made it into the
+game.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

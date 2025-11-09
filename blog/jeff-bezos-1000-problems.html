@@ -291,7 +291,7 @@ more so, than most of its competitors.</p>
 
 <p>Blue Origin has been rather quiet about their actions, so many things in the
 early years are speculative, but they did manage to get a small rocket named
-Goddard to fly to 85 meters in 2006 <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span>. And for the next few years, that was kind of
+Goddard to fly to 85 meters in 2006 <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. And for the next few years, that was kind of
 it. This is probably a contributing factor to <a href="https://www.geekwire.com/2018/veteran-aerospace-engineer-rob-meyerson-leaves-jeff-bezos-blue-origin-space-venture/" target="_blank">Blue Origin president Rob
 Myerson leaving the company in
 2017</a> <span class="fa fa-external-link fa_custom"></span>.
@@ -564,11 +564,17 @@ chance to compete.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>A previous launch of the
@@ -582,6 +588,24 @@ chance to compete.</p>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            A previous launch of the
+“Charon” used jet engines.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

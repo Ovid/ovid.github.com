@@ -269,7 +269,7 @@ described near the end are from local copies of old blog posts I had written on
 the topic, many years ago. Hence, the detail.</em></p>
 
 <p>I have, to date, been an official participant in 21 weddings in the US since I
-turned 18.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Twice I was the groom. The other 19 times, I was the minister. The
+turned 18.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Twice I was the groom. The other 19 times, I was the minister. The
 story gets weirder from there.</p>
 
 <p>My first wedding was three decades ago. It lasted five years and she and I grew
@@ -366,7 +366,7 @@ Klan hoods.</p>
 
 <p>As I walked inside, I immediately assumed a “minister” persona, wanting to put
 the people at ease. Charlie introduced me to sexy vampires, unshaved cowboys,
-and one under-age Pocahantas<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> who wore an ill-fitting
+and one under-age Pocahantas<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> who wore an ill-fitting
 costume and no bra. She was flashing everyone but no seemed bothered. I bit my
 tongue as I smiled. The phrase “feeling like a nun in a brothel” never felt
 more appropriate.</p>
@@ -697,11 +697,17 @@ failed marriages.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>I've attended a few other weddings, but only as a
@@ -715,7 +721,7 @@ guest.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Given that the actual Pocahantas
@@ -730,6 +736,33 @@ was probably <em>too old</em> to play the part.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            I've attended a few other weddings, but only as a
+guest.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Given that the actual Pocahantas
+was probably 10-to-12 years old when she met John Smith, the girl at the party
+was probably <em>too old</em> to play the part.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

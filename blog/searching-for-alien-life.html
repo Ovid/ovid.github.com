@@ -347,7 +347,7 @@ matter.</p>
 Mars: <a href="https://www.nature.com/articles/s41598-023-42170-6" target="_blank">DNA sequencing at the picogram level to investigate life on Mars and
 Earth</a> <span class="fa fa-external-link fa_custom"></span>. This is remarkable
 work, but to point out the obvious—which the authors of the work are certainly
-aware of—what if the alien life doesn’t have DNA?<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> In a paper entitled
+aware of—what if the alien life doesn’t have DNA?<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> In a paper entitled
 <a href="https://www.researchgate.net/publication/8171722_Is_There_a_Common_Chemical_Model_for_Life_in_the_Universe" target="_blank">Is There a Common Chemical Model for Life in the
 Universe?</a> <span class="fa fa-external-link fa_custom"></span>,
 by Benner, Steven &amp; Ricardo, Alonso and Carrigan, Matthew. (2005), point out
@@ -388,7 +388,7 @@ Chemistry in the School of Chemistry at the University of Glasgow. Instead of
 just asking what a molecule <em>is</em>, he asked how it came to be. In other words,
 how was it assembled? He’s established the notion of a “molecular assembly
 index” (MA) which represents the minimum number of steps necessary to assemble a
-given molecule.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+given molecule.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>Consider the word “going.” Imagine that each letter is an atom floating around which can freely attach to other atoms to form words. The MA of a single letter is zero because it already exists. However, when you add the letter “o” to the letter “g”—forming “go”—you have an MA of 1, because one step has occurred.  When you then add the letter “i”—forming “goi”—you have an MA of 2, and so on.  The word “going” therefore has an MA of 4. Of course, by the constraints we’ve listed, all other possible combinations, such as “oin” (MA of 2), “in” (MA of 1), and so on, are floating around in our primordial soup.</p>
 
@@ -596,11 +596,17 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>As a
@@ -616,7 +622,7 @@ almost certainly be accepted as proof of life if found.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Of course, there are <a
@@ -633,6 +639,37 @@ of the critics</a>, but such is science.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            As a
+counterargument, the paper points out that "DNA is an "incontrovertible
+biosignature." So while looking for DNA might limit what we can find, it would
+almost certainly be accepted as proof of life if found.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Of course, there are <a
+href="https://hectorzenil.medium.com/the-8-fallacies-of-assembly-theory-ba54428b0b45">critics
+of assembly theory</a> and <a
+href="https://colemathis.github.io/blog/2022-10-25-SalientMisunderstandings">critics
+of the critics</a>, but such is science.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

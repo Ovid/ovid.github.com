@@ -325,7 +325,7 @@ technology stack assumes Oracle.”</p>
 
 <p>And the driver behind the switch? It’s invariably Oracle’s insane costs with
 no clear return on investment for most companies. But there are plenty of
-technical reasons, too. Oracle DDL is not transaction safe.  <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Oracle violates the ANSI standard by often
+technical reasons, too. Oracle DDL is not transaction safe.  <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Oracle violates the ANSI standard by often
 treating empty strings as <code>NULL</code>, causing all sorts of subtle bugs. And Oracle
 was built in an ASCII world, not a Unicode one, and it shows, painfully.</p>
 
@@ -739,11 +739,17 @@ and you get to take advantage of many of the powerful features of PostgreSQL.</p
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>In other words, statements such as <code>CREATE</code>,
@@ -761,6 +767,28 @@ work around this limitation.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            In other words, statements such as <code>CREATE</code>,
+<code>ALTER</code>, <code>DROP</code>, and others which alter the _structure_
+of the database cannot be rolled back, thus potentially leaving your database
+in a corrupted state if a transaction fails.  Oracle Database version 11g
+Release 2 has a workaround via the cumbersome 'Edition-Based Redefinition' to
+work around this limitation.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

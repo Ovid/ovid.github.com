@@ -328,7 +328,7 @@ this is a blog post. Are they a good idea or not?</p>
 
 <h1><a name="should-you-choose-microservices"></a>Should You Choose Microservices?</h1>
 
-<p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> an online
+<p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> an online
 machine parts supplier. She’s been brought in because their legacy platform is
 struggling and their SAFe® agile project failed, turning out to be <a href="https://jeffgothelf.com/blog/safe-is-not-agile/" target="_blank">neither
 safe nor
@@ -617,7 +617,7 @@ know, but then, it was a mess).</p>
 different programming languages and it was getting harder to find developers
 for them, or to train developers for those systems. So the BBC decreed that all
 backend development would be in Java and all front-end development would be in
-PHP.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+PHP.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>On the Atlas internal mailing list, an experienced PHP developer
 complained that he couldn’t figure out how to run “Hello, World!” on the new
@@ -639,7 +639,7 @@ painful until mark and sweep, reference counting, and other imperfect tools
 came along to make it automatic. Rust is now blowing the doors off of them.</p>
 
 <p>Microservices will undergo the same process. Many common patterns will become
-first class constructs.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> It
+first class constructs.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> It
 will take many years, perhaps a generation or more, until we better understand
 how to manage the new complexities.</p>
 
@@ -791,11 +791,17 @@ a great video about how Netflix handles them.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Not the musical group. It's the name of a company I tried to
@@ -809,7 +815,7 @@ start years ago in the US.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Actually, the BBC messsed up. The backend devs were
@@ -824,7 +830,7 @@ need Java to create JAR files, so they skipped the hated Java mandate.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>Sadly, language like Erlang and Elixer,
@@ -838,6 +844,41 @@ which natively offer many of the benefits, struggle to gain traction.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Not the musical group. It's the name of a company I tried to
+start years ago in the US.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Actually, the BBC messsed up. The backend devs were
+required to provide JAR files for deployment. Several teams realized you don't
+need Java to create JAR files, so they skipped the hated Java mandate.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            Sadly, language like Erlang and Elixer,
+which natively offer many of the benefits, struggle to gain traction.
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

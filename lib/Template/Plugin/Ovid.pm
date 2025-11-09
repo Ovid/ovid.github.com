@@ -128,12 +128,14 @@ sub add_note ( $self, $note ) {
     my $id     = "note-$number";
     
     # JavaScript-enabled mode: span that triggers dialog
+    # Hidden when JS is disabled via CSS (see static/css/dialog.css)
     my $dialog
-      = qq{<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
+      = qq{<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
     
     # NoScript mode: anchor link to footnote at end of article (Feature 002)
+    # Shows superscript number instead of icon for better UX
     my $noscript
-      = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"> <i class="fa fa-clipboard fa_custom"></i> </a></noscript>};
+      = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"><sup>[$number]</sup></a></noscript>};
     
     my $body = <<"HTML";
     <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number" aria-hidden="true">

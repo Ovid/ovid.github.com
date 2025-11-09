@@ -321,7 +321,7 @@ button off. Do it. It might sound scary at first, but when you wake up and
 realize that there is no snooze available, you have no choice but to get up.</p>
 
 <p>I was surprised at how well this simple trick works and I’ve been using it for
-years.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+years.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>Next, when you get up in the morning, make your bed. I doesn’t have to have
 perfectly crisp “hospital” corners, but it should be comfy enough that when
@@ -426,8 +426,8 @@ remote work.</p>
 <p>So make sure you communicate well and often. And choose the most effective
 communication tools you can find.  Dr. Alistair Cockburn, in his presentation
 <a href="https://ameyakarve.wordpress.com/2012/07/22/characterizing-people-as-non-linear-1st-order-components-in-software-development-cockburn-us/" target="_blank">Characterizing people as non-linear 1st order components in software
-development</a> <span class="fa fa-external-link fa_custom"></span><span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span>, found that communication effectiveness,
-from best to worst, tends to be:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+development</a> <span class="fa fa-external-link fa_custom"></span><span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>, found that communication effectiveness,
+from best to worst, tends to be:<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <ol>
 <li>Face-to-face</li>
@@ -619,11 +619,17 @@ in this article will make that easier.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>And on a personal note, this is my personal best productivity tip. I
@@ -637,7 +643,7 @@ started this back in the 80s and it changed my life.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Which, despite it's tongue-in-cheek name, is
@@ -651,7 +657,7 @@ rather amusing and easy to read.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>I have updated this for
@@ -665,6 +671,40 @@ rather amusing and easy to read.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            And on a personal note, this is my personal best productivity tip. I
+started this back in the 80s and it changed my life.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Which, despite it's tongue-in-cheek name, is
+rather amusing and easy to read.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            I have updated this for
+2020. Mentioning 'videotape', for example, no longer makes sense.
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>
