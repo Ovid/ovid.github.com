@@ -157,20 +157,16 @@ SKIP: {
     # Mock the imported functions in Template::Plugin::Ovid namespace
     # (they were imported at compile time, so they're local to that package)
     my $plugin_mock = Test::MockModule->new('Template::Plugin::Ovid');
-    
+
     # Test branch: image path already starts with root/ AND cached description exists
-    $plugin_mock->redefine(
-        'get_image_description' => sub { return 'cached description for root/ path' }
-    );
-    
+    $plugin_mock->redefine( 'get_image_description' => sub { return 'cached description for root/ path' } );
+
     my $desc1 = $ovid->describe_image('root/static/images/rss.png');
     is $desc1, 'cached description for root/ path',
       'describe_image() should return cached description for path with root/';
 
     # Test branch: image path does NOT start with root/ (prepends it) AND cached description exists
-    $plugin_mock->redefine(
-        'get_image_description' => sub { return 'cached description for relative path' }
-    );
+    $plugin_mock->redefine( 'get_image_description' => sub { return 'cached description for relative path' } );
     my $desc2 = $ovid->describe_image('static/images/rss.png');
     is $desc2, 'cached description for relative path',
       'describe_image() should prepend root/ to relative paths and use cached description';
