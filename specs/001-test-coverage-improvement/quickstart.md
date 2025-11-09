@@ -6,17 +6,18 @@
 
 ## Prerequisites
 
-- Perl 5.40+ installed
+- Perl 5.40+ installed via perlbrew
 - Devel::Cover installed (`cpanm Devel::Cover`)
 - Test::Most installed (already in cpanfile)
 - Project dependencies installed (`cpanm --installdeps .`)
+- Environment activated: `source ~/.bash_profile`
 
 ## Workflow Overview
 
-1. **Identify unused code** for each module
-2. **Review current coverage** metrics
+1. **Identify unused code** for each module using `bin/analyze-usage`
+2. **Review current coverage** metrics with `covert` alias or `cover -test`
 3. **Add comprehensive tests** using Test::Most
-4. **Maximize coverage** to highest achievable level
+4. **Maximize coverage** to highest achievable level (90%+ statement/branch)
 5. **Document gaps** with justifications
 
 ## Step-by-Step Guide
@@ -24,26 +25,43 @@
 ### 1. Setup Coverage Environment
 
 ```bash
-# Install coverage tools if needed
-cpanm Devel::Cover
+# Activate Perl 5.40+ environment (REQUIRED)
+source ~/.bash_profile
 
-# Run initial coverage baseline
-cover -test
+# Verify environment
+which perl
+perl -v  # Should show 5.40.0
+
+# Run initial coverage baseline using covert alias
+covert
+
+# OR use make commands (recommended)
+make test      # Run tests only
+make coverage  # Run tests with coverage
 
 # Generate HTML report
 cover -report html -outputdir coverage-report
+
+# View report
+open coverage-report/coverage.html
 ```
 
 ### 2. Analyze Module Usage
 
-For each module in the coverage report:
+For each module in the coverage report, use the usage analysis script:
 
 ```bash
-# Check current coverage for specific module
-cover -report html -outputdir coverage-report lib/Ovid/Site.pm
+# Analyze a specific module
+bin/analyze-usage --module lib/Template/Plugin/Ovid.pm
 
-# Identify potentially unused methods (manual grep for now)
-grep -r "method_name" lib/ bin/ t/ --include="*.pm" --include="*.pl"
+# Generate JSON output
+bin/analyze-usage --module lib/Ovid/Site/AI/Images.pm --format json
+
+# Save to file
+bin/analyze-usage --module lib/Less/Pager.pm --output analysis-report.txt
+
+# View all analysis results
+cat specs/001-test-coverage-improvement/usage-analysis-results.md
 ```
 
 ### 3. Create/Update Test Files

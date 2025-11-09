@@ -9,9 +9,9 @@ use Ovid::Template::File;
 my $tt = moose_blog_example();
 
 my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $tt );
-is $parser->title, 'Moose "has" a Problem', 'We should be able to read the title';
-is $parser->next,        '[%', 'We should be able to fetch the first line of our code';
-is $parser->line_number, 1,    '... and we should be at the correct line number';
+is $parser->title,       'Moose "has" a Problem', 'We should be able to read the title';
+is $parser->next,        '[%',                    'We should be able to fetch the first line of our code';
+is $parser->line_number, 1,                       '... and we should be at the correct line number';
 while ( defined( $parser->next ) ) {
 
     #    explain $line;
@@ -50,8 +50,8 @@ int someVar;
 [% END %]
 END
 
-my $tag_map = {};
-my $rewritten = $parser->rewrite('foo-bar', $tag_map);
+my $tag_map   = {};
+my $rewritten = $parser->rewrite( 'foo-bar', $tag_map );
 eq_contents( $rewritten, $expected, 'Rewritten code blocks should match expections' );
 
 $parser = Ovid::Template::File->new(
@@ -59,7 +59,7 @@ $parser = Ovid::Template::File->new(
     _code    => double_or_heading_bug(),
 );
 
-while ( defined ( my $line = $parser->next ) ) {
+while ( defined( my $line = $parser->next ) ) {
     my $is_in_code = $parser->is_in_code ? "yes" : "no";
     explain "$line is in code? $is_in_code";
 }
@@ -69,7 +69,7 @@ $parser = Ovid::Template::File->new(
     _code    => double_or_heading_bug(),
 );
 $ENV{DEBUG} = 1;
-$rewritten = $parser->rewrite('foo', {});
+$rewritten = $parser->rewrite( 'foo', {} );
 explain $rewritten;
 
 # Test code blocks without language specification (cover line 120)
@@ -83,13 +83,13 @@ Some code without language
 ```
 [% END %]
 END
-    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $code_without_lang );
-    my $tag_map = {};
-    my $rewritten = $parser->rewrite('test', $tag_map);
-    like $rewritten, qr/\[% WRAPPER include\/code\.tt -%\]/, 
-        'Code blocks without language should still be wrapped';
-    unlike $rewritten, qr/language=/, 
-        '... but should not have a language attribute';
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code_without_lang );
+    my $tag_map   = {};
+    my $rewritten = $parser->rewrite( 'test', $tag_map );
+    like $rewritten, qr/\[% WRAPPER include\/code\.tt -%\]/,
+      'Code blocks without language should still be wrapped';
+    unlike $rewritten, qr/language=/,
+      '... but should not have a language attribute';
 };
 
 # Test error handling for unclosed code blocks (cover line 133)
@@ -103,23 +103,24 @@ my $x = 1;
 # Missing closing ```
 [% END %]
 END
-    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $unclosed_code );
+    my $parser  = Ovid::Template::File->new( filename => 'dummy', _code => $unclosed_code );
     my $tag_map = {};
-    throws_ok { $parser->rewrite('test', $tag_map) } 
-        qr/Got to EOF but we're still in a code block/,
-        'Should croak when code block is not closed';
+    throws_ok { $parser->rewrite( 'test', $tag_map ) }
+    qr/Got to EOF but we're still in a code block/,
+      'Should croak when code block is not closed';
 };
 
 # Test tag processing with valid tags (cover lines 141-159)
 subtest 'Tag processing with valid tags' => sub {
+
     # First, we need to load the config to ensure tagmap exists
     require Less::Config;
     my $config = Less::Config::config();
-    
+
     # Skip if programming tag is not in config (it should be based on the example)
-    plan skip_all => 'programming tag not in config' 
-        unless exists $config->{tagmap}{programming};
-    
+    plan skip_all => 'programming tag not in config'
+      unless exists $config->{tagmap}{programming};
+
     my $code_with_tags = <<'END';
 [%
     title = 'Test Article';
@@ -135,26 +136,26 @@ subtest 'Tag processing with valid tags' => sub {
 Some content here.
 [% END %]
 END
-    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $code_with_tags );
-    my $tag_map = {};
-    my $rewritten = $parser->rewrite('tmp/test.tt', $tag_map);
-    
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code_with_tags );
+    my $tag_map   = {};
+    my $rewritten = $parser->rewrite( 'tmp/test.tt', $tag_map );
+
     # Verify tags were removed from content
     unlike $rewritten, qr/\{\{TAGS/, 'Tags should be removed from rewritten content';
-    
+
     # Verify tag map was populated
-    is ref($tag_map->{__ALL__}), 'HASH', 'Tag map should have __ALL__ key';
-    
+    is ref( $tag_map->{__ALL__} ), 'HASH', 'Tag map should have __ALL__ key';
+
     # The __ALL__ key should map URLs to tag arrays
     my ($url) = keys %{ $tag_map->{__ALL__} };
-    is ref($tag_map->{__ALL__}{$url}), 'ARRAY', '... mapping URLs to tag arrays';
-    
+    is ref( $tag_map->{__ALL__}{$url} ), 'ARRAY', '... mapping URLs to tag arrays';
+
     # Check that individual tags were processed
     ok exists $tag_map->{programming}, 'programming tag should be in map';
-    is $tag_map->{programming}{name}, $config->{tagmap}{programming}, 
-        '... with correct name from config';
+    is $tag_map->{programming}{name}, $config->{tagmap}{programming},
+      '... with correct name from config';
     cmp_ok $tag_map->{programming}{count}, '>', 0, '... and count should be incremented';
-    ok exists $tag_map->{programming}{files}, '... and should have files array';
+    ok exists $tag_map->{programming}{files},  '... and should have files array';
     ok exists $tag_map->{programming}{titles}, '... and should have titles hash';
 };
 
@@ -175,11 +176,11 @@ subtest 'Error handling for tags not in config' => sub {
 Some content here.
 [% END %]
 END
-    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => $code_with_invalid_tag );
+    my $parser  = Ovid::Template::File->new( filename => 'dummy', _code => $code_with_invalid_tag );
     my $tag_map = {};
-    throws_ok { $parser->rewrite('tmp/test.tt', $tag_map) }
-        qr/No tagmap: entry found for tag/,
-        'Should die when tag is not in config';
+    throws_ok { $parser->rewrite( 'tmp/test.tt', $tag_map ) }
+    qr/No tagmap: entry found for tag/,
+      'Should die when tag is not in config';
 };
 
 done_testing;
@@ -274,7 +275,7 @@ END
 
 sub eq_contents ( $have, $want, $message ) {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my @have = grep { /\S/ } split /\n/ => $have;
-    my @want = grep { /\S/ } split /\n/ => $want;
+    my @have = grep {/\S/} split /\n/ => $have;
+    my @want = grep {/\S/} split /\n/ => $want;
     eq_or_diff \@have, \@want, $message;
 }

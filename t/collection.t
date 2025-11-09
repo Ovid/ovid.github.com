@@ -29,13 +29,11 @@ subtest 'iterating over html docs' => sub {
         'blog/life-on-venus.html',
         'blog/time-to-invest-in-space.html'
     ];
-    ok my $coll     = Collection->new( files => $files ),
-        'We should be able to create a collection of HTML files';
+    ok my $coll = Collection->new( files => $files ),
+      'We should be able to create a collection of HTML files';
     my @files = map {
         my $file = $_;
-        +{
-            map { $_ => $file->$_ } qw/date filename references/
-        }
+        +{ map { $_ => $file->$_ } qw/date filename references/ }
     } $coll->all;
     my @expected = (
         {
@@ -54,7 +52,8 @@ subtest 'iterating over html docs' => sub {
             references => "blog/life-on-venus.html",
         }
     );
-	eq_or_diff \@files, \@expected, '... and they should be returned as objects pointing to templates, in decending date order';
+    eq_or_diff \@files, \@expected,
+      '... and they should be returned as objects pointing to templates, in decending date order';
 };
 
 done_testing;

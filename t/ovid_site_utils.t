@@ -130,17 +130,19 @@ subtest 'image description database tests' => sub {
 };
 
 subtest 'use_smart_quotes edge cases' => sub {
+
     # Test some additional edge cases beyond the main test
     my $result;
-    
+
     # Test quote before 's' - becomes HTML encoded
     $result = use_smart_quotes(q{"word"s});
     like( $result, qr/word&quot;s/, 'Closing quote before s should be encoded' );
-    
+
     # Test multiline text
     my $multiline = qq{"Hello," she said.\n"Goodbye," he replied.};
     $result = use_smart_quotes($multiline);
     like( $result, qr/Hello.*Goodbye/s, 'Should handle multiline text' );
+
     # Just check that some transformation happened (length or content changed)
     isnt( $result, $multiline, 'Should apply smart quote transformations' );
 };

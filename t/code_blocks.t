@@ -49,7 +49,7 @@ subtest 'code block markers match' => sub {
 subtest 'Basic code block parsing' => sub {
     my $state = Ovid::Template::File::FindCode->new( filename => 'dummy.tt' );
 
-    ok $state->parse('...'), 'We should be able to parse a line of tt2markdown code';
+    ok $state->parse('...'),     'We should be able to parse a line of tt2markdown code';
     ok !$state->is_start_marker, '... and we should no be at the start code marker';
     ok !$state->is_end_marker,   '... and we should not be at the closing code marker';
     ok !$state->is_in_code,      '... and we should not be in a code block if we do not see a marker';
@@ -57,14 +57,14 @@ subtest 'Basic code block parsing' => sub {
     $state->parse('``` perl');
     ok $state->is_in_code,      '... and we should be in a code block if we see a marker';
     ok $state->is_start_marker, '... and we should be at the start code marker';
-    ok !$state->is_end_marker, '... and we should not be at the closing code marker';
+    ok !$state->is_end_marker,  '... and we should not be at the closing code marker';
     is $state->language, 'perl',
       '... and it should correctly identify the language';
 
     ok $state->is_in_code, '... and remain in code while we consult it again';
     $state->parse('my $x = 1');
     ok $state->is_in_code, 'We should remain in a code block if we do not see a marker';
-    is $state->language,   'perl',
+    is $state->language, 'perl',
       '... and it should correctly identify the language';
 
     ok $state->parse('[% END %]'), 'We can parse a marker';
@@ -75,7 +75,7 @@ subtest 'Basic code block parsing' => sub {
     $state->parse('```');
     ok !$state->is_in_code,      '... and we are no longer in a code block once we have a corresponding end marker';
     ok !$state->is_start_marker, '... and we should not be at the start code marker';
-    ok $state->is_end_marker, '... but we should be at the closing code marker';
+    ok $state->is_end_marker,    '... but we should be at the closing code marker';
 };
 
 subtest 'Standalone END tag' => sub {
@@ -134,14 +134,14 @@ subtest 'Marker type checking methods' => sub {
     # Test _is_markdown method
     $state->parse('``` perl');
     ok $state->_is_markdown, '_is_markdown should return true for markdown blocks';
-    ok !$state->_is_tt, '_is_tt should return false for markdown blocks';
+    ok !$state->_is_tt,      '_is_tt should return false for markdown blocks';
 
     $state->parse('```');
     ok !$state->is_in_code, 'Should exit markdown code block';
 
     # Test _is_tt method
     $state->parse('[% WRAPPER include/code.tt language="perl" %]');
-    ok $state->_is_tt, '_is_tt should return true for TT blocks';
+    ok $state->_is_tt,        '_is_tt should return true for TT blocks';
     ok !$state->_is_markdown, '_is_markdown should return false for TT blocks';
 
     $state->parse('[% END %]');
@@ -157,12 +157,12 @@ subtest 'Mismatched markers' => sub {
 
     # TT END tag should be ignored when in markdown block
     $state->parse('[% END %]');
-    ok $state->is_in_code, 'Should still be in code block when TT END encountered in markdown block';
+    ok $state->is_in_code,     'Should still be in code block when TT END encountered in markdown block';
     ok !$state->is_end_marker, 'TT END should not be recognized as end marker in markdown block';
-    
+
     # Close with correct marker
     $state->parse('```');
-    ok !$state->is_in_code, 'Should exit code block with matching markdown marker';
+    ok !$state->is_in_code,   'Should exit code block with matching markdown marker';
     ok $state->is_end_marker, 'Matching end marker should be recognized';
 
     # Start with TT, test actual behavior with markdown marker
@@ -174,28 +174,28 @@ subtest 'Mismatched markers' => sub {
 
     # Markdown marker closes TT block (due to _is_tt implementation)
     $state->parse('```');
-    ok !$state->is_in_code, 'Markdown marker closes TT block (implementation behavior)';
+    ok !$state->is_in_code,   'Markdown marker closes TT block (implementation behavior)';
     ok $state->is_end_marker, 'Markdown marker is recognized as end marker';
 
     # Verify TT END also works
     $state = Ovid::Template::File::FindCode->new( filename => 'mismatch_test3.tt' );
     $state->parse('[% WRAPPER include/code.tt language="perl" %]');
     ok $state->is_in_code, 'Should be in TT code block';
-    
+
     $state->parse('[% END %]');
-    ok !$state->is_in_code, 'TT END should close TT block';
+    ok !$state->is_in_code,   'TT END should close TT block';
     ok $state->is_end_marker, 'TT END should be recognized as end marker';
 };
 
 subtest 'Return value of parse method' => sub {
     my $state = Ovid::Template::File::FindCode->new( filename => 'return_test.tt' );
 
-    ok $state->parse('some text'), 'parse should return true for regular text';
-    ok $state->parse('``` perl'), 'parse should return true for start marker';
-    ok $state->parse('my $x = 1;'), 'parse should return true for code line';
-    ok $state->parse('```'), 'parse should return true for end marker';
+    ok $state->parse('some text'),                     'parse should return true for regular text';
+    ok $state->parse('``` perl'),                      'parse should return true for start marker';
+    ok $state->parse('my $x = 1;'),                    'parse should return true for code line';
+    ok $state->parse('```'),                           'parse should return true for end marker';
     ok $state->parse('[% WRAPPER include/code.tt %]'), 'parse should return true for TT wrapper';
-    ok $state->parse('[% END %]'), 'parse should return true for TT END';
+    ok $state->parse('[% END %]'),                     'parse should return true for TT END';
 };
 
 done_testing;

@@ -27,12 +27,10 @@ is $found, $pager->total,
   'We should be able to fetch the correct number of records';
 
 explain "I should fix this one day. It's currently coupled to my personal data";
-my $prev_post =
-  $pager->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
+my $prev_post = $pager->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
 is $prev_post->{slug}, 'avoid-common-software-project-mistakes',
   'prev post should be correct';
-my $next_post =
-  $pager->next_post( 'articles', 'fixing-mvc-in-web-applications' );
+my $next_post = $pager->next_post( 'articles', 'fixing-mvc-in-web-applications' );
 is $next_post->{slug}, 'how-to-defeat-facebook',
   'next post should be correct';
 
@@ -42,7 +40,7 @@ ok $this_post, 'this_post should return a result';
 is $this_post->{slug}, 'fixing-mvc-in-web-applications',
   'this_post should return the correct post';
 is $this_post->{type}, 'article', 'this_post should have correct type';
-ok exists $this_post->{title}, 'this_post should have a title';
+ok exists $this_post->{title},       'this_post should have a title';
 ok exists $this_post->{description}, 'this_post should have a description';
 
 # Test this_post with nonexistent post
@@ -103,7 +101,7 @@ is $no_more, undef, 'Should return undef when no more records';
 
 # Test total_pages calculation with exact division
 my $exact_pager = Less::Pager->new(
-    items_per_page => $pager->total,  # Use total to get exact division
+    items_per_page => $pager->total,    # Use total to get exact division
     type           => 'article'
 );
 is $exact_pager->total_pages, 1, 'total_pages should handle exact division';
@@ -112,13 +110,15 @@ is $exact_pager->total_pages, 1, 'total_pages should handle exact division';
 # Test prev_post at beginning (should return undef or handle gracefully)
 # Note: This depends on database content, testing the method is called correctly
 my $first_article_slug = $pager->all->[0]{slug};
-my $prev_of_first = $pager->prev_post( 'articles', $first_article_slug );
+my $prev_of_first      = $pager->prev_post( 'articles', $first_article_slug );
+
 # May be undef if at the beginning, or may wrap - either is valid behavior
 
 # Test next_post at end
-my $all_for_end = $pager->all;
+my $all_for_end       = $pager->all;
 my $last_article_slug = $all_for_end->[-1]{slug};
-my $next_of_last = $pager->next_post( 'articles', $last_article_slug );
+my $next_of_last      = $pager->next_post( 'articles', $last_article_slug );
+
 # May be undef if at the end, or may wrap - either is valid behavior
 
 # Test prev_post with blog type
@@ -126,7 +126,8 @@ if ( $blog_pager->total > 1 ) {
     my $blog_posts = $blog_pager->all;
     if ( @$blog_posts >= 2 ) {
         my $second_blog_slug = $blog_posts->[1]{slug};
-        my $blog_prev = $blog_pager->prev_post( 'blog', $second_blog_slug );
+        my $blog_prev        = $blog_pager->prev_post( 'blog', $second_blog_slug );
+
         # Should work with blog type
     }
 }
@@ -135,7 +136,7 @@ if ( $blog_pager->total > 1 ) {
 my $bad_prev = $pager->prev_post( 'nonexistent-dir', 'nonexistent-slug' );
 is $bad_prev, undef, 'prev_post should return undef for nonexistent post';
 
-# Test error condition: nonexistent directory/slug for next_post  
+# Test error condition: nonexistent directory/slug for next_post
 my $bad_next = $pager->next_post( 'nonexistent-dir', 'nonexistent-slug' );
 is $bad_next, undef, 'next_post should return undef for nonexistent post';
 

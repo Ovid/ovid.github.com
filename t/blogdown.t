@@ -143,8 +143,7 @@ subtest 'smartquotes' => sub {
     is_html $html, $expected,
       'We should be able to automatically use smart-quotes';
 
-    $html = Text::Markdown::Blog->new( use_smart_quotes => 0 )
-      ->blogdown('This is "quoted text" in here');
+    $html = Text::Markdown::Blog->new( use_smart_quotes => 0 )->blogdown('This is "quoted text" in here');
     chomp($html);
     is $html, '<p>This is "quoted text" in here</p>',
       'We should be able to disable smart quotes if needed';
@@ -232,7 +231,6 @@ subtest 'Code Blocks' => sub {
     is_html $html, $expected,
       'We should be able to automatically use quote code';
 };
-
 
 done_testing;
 

@@ -27,14 +27,13 @@ foreach my $file (@files) {
 
 done_testing;
 
-sub html_is_bad ( $file ) {
+sub html_is_bad ($file) {
 
     # HTML::Lint doesn't like HTML5 and HTML::Tidy5 doesn't build. Hence, a
     # custom linter
     my $parser = HTML::TokeParser::Simple->new( file => $file );
 
-    state $no_end_tag =
-      { map { ( $_ => 1, "$_/" => 1 ) } qw/link meta br input img hr/ };
+    state $no_end_tag = { map { ( $_ => 1, "$_/" => 1 ) } qw/link meta br input img hr/ };
 
     my ( @errors, @stack, $unbalanced, %id_seen );
 
@@ -42,7 +41,7 @@ sub html_is_bad ( $file ) {
         a   => \&_validate_anchor,
         img => \&_validate_image,
     );
-  TOKEN: while ( my $token = $parser->get_tag ) {
+    TOKEN: while ( my $token = $parser->get_tag ) {
         if ( $token->is_start_tag ) {
             if ( $token->as_is =~ / \/ \s* > $/x ) {
 
@@ -60,8 +59,7 @@ sub html_is_bad ( $file ) {
             }
         }
 
-        unless ($unbalanced)
-        {    # if we've found one, don't waste time searching for more
+        unless ($unbalanced) {    # if we've found one, don't waste time searching for more
             my $previous     = $stack[-1];
             my $this_tag     = $token->as_is;
             my $previous_tag = $previous ? $previous->as_is : '';
@@ -75,8 +73,7 @@ sub html_is_bad ( $file ) {
                         next TOKEN;
                     }
                     else {
-                        push @errors =>
-"'$this_tag' end tag does not match previous start tag: $previous_tag";
+                        push @errors => "'$this_tag' end tag does not match previous start tag: $previous_tag";
                         $unbalanced = 1;
                     }
                 }
@@ -117,12 +114,12 @@ sub _validate_image ($image) {
         }
         elsif ( $src !~ /\.gif$/ ) {
             my $size = -s $src;
-            if ( $size > $MAX_IMAGE_SIZE
-                &&
-            $src !~ /ukraine-war/ # make an exception because this is important. Later, we can clean this up
-        ) {
+            if (   $size > $MAX_IMAGE_SIZE
+                && $src !~ /ukraine-war/    # make an exception because this is important. Later, we can clean this up
+              )
+            {
                 push @errors =>
-"Image $src does not appear to be optimized. It's $size bytes. We prefer $MAX_IMAGE_SIZE bytes or under.";
+                  "Image $src does not appear to be optimized. It's $size bytes. We prefer $MAX_IMAGE_SIZE bytes or under.";
             }
         }
     }

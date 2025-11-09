@@ -15,7 +15,7 @@ foreach my $type (qw/article blog/) {
 SQL
     my $dir = article_type($type)->{directory};
     foreach my $article (@$articles) {
-        my $slug      = $article->{slug};
+        my $slug = $article->{slug};
         my ($filename) = grep { -e $_ } filenames( $dir, $slug );
         if ($filename) {
             pass "$filename exists for $slug";
@@ -31,6 +31,7 @@ SQL
 done_testing;
 
 sub filenames ( $dir, $slug ) {
+
     # new extensions are now .tt2markdown
     return ( "root/$dir/$slug.tt", "root/$dir/$slug.tt2markdown" );
 }

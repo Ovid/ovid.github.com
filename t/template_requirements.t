@@ -16,10 +16,10 @@ foreach my $file (@files) {
     my $type   = $parser->type;
     my $slug   = $parser->slug;
     subtest "Attributes for $file" => sub {
-        ok $title,  "$file has a title: « $title »";
-        ok $date,   "... and a date: $date";
-        ok $slug,   "... and a slug: $slug";
-        ok $type,   "... and a type: $type";
+        ok $title, "$file has a title: « $title »";
+        ok $date,  "... and a date: $date";
+        ok $slug,  "... and a slug: $slug";
+        ok $type,  "... and a type: $type";
         like $file, qr{^root/$type}, '... and the type should match the beginning of the path';
     };
 }
