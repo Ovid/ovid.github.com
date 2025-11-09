@@ -43,10 +43,10 @@ description: "Task list for Footnote NoScript Fallback feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create test fixtures directory t/fixtures/ if not exists
-- [ ] T006 Create test fixture file t/fixtures/test_footnotes.html with sample article containing 3 footnotes
-- [ ] T007 Add test helper subroutines in t/ovid_plugin.t for HTML validation and footnote extraction
-- [ ] T008 Document current `add_note()` method behavior via tests (baseline for JavaScript mode)
+- [X] T005 Create test fixtures directory t/fixtures/ if not exists
+- [X] T006 Create test fixture file t/fixtures/test_footnotes.html with sample article containing 3 footnotes
+- [X] T007 Add test helper subroutines in t/ovid_plugin.t for HTML validation and footnote extraction
+- [X] T008 Document current `add_note()` method behavior via tests (baseline for JavaScript mode)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

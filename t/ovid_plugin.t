@@ -1,11 +1,63 @@
 #!/usr/bin/env perl
 
+use v5.40;
 use Test::Most;
 use lib 'lib';
 use Template::Plugin::Ovid;
 use Path::Tiny 'path';
 use File::Temp 'tempdir';
 use Test::MockModule;
+
+#
+# Test Helper Subroutines for Footnote Testing
+#
+
+# Extract footnote dialog spans from HTML
+sub extract_footnote_dialogs ($html) {
+    my @dialogs = $html =~ m{<span[^>]*class="[^"]*open-dialog[^"]*"[^>]*>.*?</span>}gs;
+    return @dialogs;
+}
+
+# Extract noscript anchor links from HTML
+sub extract_noscript_anchors ($html) {
+    my @anchors = $html =~ m{<noscript>.*?<a[^>]*href="#footnote-\d+"[^>]*>.*?</a>.*?</noscript>}gs;
+    return @anchors;
+}
+
+# Validate HTML has matching IDs (no duplicates)
+sub validate_unique_ids ($html) {
+    my %ids;
+    while ( $html =~ m{id="([^"]+)"}g ) {
+        my $id = $1;
+        return 0 if $ids{$id}++;    # Duplicate found
+    }
+    return 1;                       # All IDs unique
+}
+
+# Extract footnote content from dialog body
+sub extract_dialog_content ( $html, $number ) {
+    if ( $html =~ m{<div id="dialog-$number"[^>]*>.*?<div>(.*?)</div>}s ) {
+        return $1;
+    }
+    return undef;
+}
+
+# Check if HTML contains noscript section
+sub has_noscript_section ($html) {
+    return $html =~ m{<noscript>.*?</noscript>}s;
+}
+
+# Extract all footnote numbers from HTML
+sub extract_footnote_numbers ($html) {
+    my @numbers;
+    while ( $html =~ m{(?:open-dialog|dialog)-(\d+)}g ) {
+        push @numbers, $1;
+    }
+
+    # Remove duplicates and sort
+    my %seen;
+    return sort { $a <=> $b } grep { !$seen{$_}++ } @numbers;
+}
 
 my $ovid = Template::Plugin::Ovid->new(undef);
 
@@ -41,6 +93,59 @@ ok $ovid->has_footnotes(), 'has_footnotes() should return true when footnotes ex
 my $footnotes = $ovid->get_footnotes();
 is scalar @$footnotes, 3, 'get_footnotes() should return all 3 footnotes';
 ok ref($footnotes) eq 'ARRAY', 'get_footnotes() should return an array reference';
+
+#
+# Baseline Tests: Document Current add_note() Behavior (JavaScript Mode)
+# These tests establish the expected behavior before adding noscript support
+#
+
+subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
+    my $test_ovid = Template::Plugin::Ovid->new(undef);
+
+    # Test: add_note() returns span with open-dialog class
+    my $result1 = $test_ovid->add_note('First note content');
+    like $result1, qr/class="[^"]*open-dialog[^"]*"/,
+      'add_note() returns span with open-dialog class';
+    like $result1, qr/id="open-dialog-1"/,
+      'add_note() generates correct sequential ID';
+
+    # Test: Footnotes are stored with number and body fields
+    my $stored_footnotes = $test_ovid->get_footnotes();
+    is scalar @$stored_footnotes,      1, 'One footnote stored';
+    is $stored_footnotes->[0]{number}, 1, 'Footnote has correct number field';
+    ok exists $stored_footnotes->[0]{body}, 'Footnote has body field';
+    like $stored_footnotes->[0]{body}, qr/id="dialog-1"/,
+      'Footnote body contains dialog HTML with correct ID';
+
+    # Test: Dialog body contains ARIA attributes
+    like $stored_footnotes->[0]{body}, qr/role="dialog"/,
+      'Dialog body has role="dialog" attribute';
+    like $stored_footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
+      'Dialog body has aria-labelledby attribute';
+    like $stored_footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
+      'Dialog body has aria-describedby attribute';
+
+    # Test: Dialog body contains the footnote content
+    like $stored_footnotes->[0]{body}, qr/First note content/,
+      'Dialog body contains the footnote content';
+
+    # Test: Multiple footnotes increment correctly
+    my $result2 = $test_ovid->add_note('Second note');
+    like $result2, qr/id="open-dialog-2"/,
+      'Second footnote has incremented ID';
+    is scalar @{ $test_ovid->get_footnotes() }, 2,
+      'Two footnotes stored after second add_note()';
+
+    # Test: Helper function - extract dialog content
+    my $dialog_content = extract_dialog_content( $stored_footnotes->[0]{body}, 1 );
+    like $dialog_content, qr/First note content/,
+      'Helper can extract content from dialog body';
+
+    # Test: Helper function - validate unique IDs
+    my $combined_html = $result1 . $stored_footnotes->[0]{body} . $result2 . $test_ovid->get_footnotes()->[1]{body};
+    ok validate_unique_ids($combined_html),
+      'All generated IDs are unique (no duplicates)';
+};
 
 # Test youtube()
 my $youtube_html = $ovid->youtube('dQw4w9WgXcQ');
