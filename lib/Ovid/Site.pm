@@ -55,7 +55,7 @@ package Ovid::Site {
         default => sub { {} },
     );
 
-    has for_release => (
+    has release => (
         is      => 'ro',
         isa     => 'Bool',
         default => 0,
@@ -81,7 +81,7 @@ package Ovid::Site {
         $self->_rebuild_article_pagination;
         $self->_run_ttree;
         $self->_write_sitemap;
-        $self->_build_tinysearch if $self->for_release;
+        $self->_build_tinysearch if $self->release;
     }
 
     sub build_single_file ($self) {

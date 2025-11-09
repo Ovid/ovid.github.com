@@ -533,7 +533,7 @@ likely to be much of what we have in Perl right now, but with easier defaults.
 It will simply make it easier to write Perl, but not offer much “new” to current
 developers, beyond a message to the programming world.</p>
 
-<p>For technical and political reasons,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Perl 7 without
+<p>For technical and political reasons,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Perl 7 without
 Corinna might be exactly what Perl needs. But even then, Perl 7 will be a far
 cry from the Perl released back in 1994. Perl’s been evolving rapidly over the
 years, but without people hearing about it.</p>
@@ -809,11 +809,17 @@ below.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>'Politics' is not a dirty
@@ -827,6 +833,24 @@ word. It's merely the art of getting consensus in a group.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            'Politics' is not a dirty
+word. It's merely the art of getting consensus in a group.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

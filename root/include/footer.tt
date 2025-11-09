@@ -106,7 +106,13 @@
     [% END %]
 	[% IF Ovid.has_footnotes %]
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     [% footnotes = Ovid.get_footnotes %]
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  [% FOR footnote IN footnotes %]
@@ -117,6 +123,23 @@
         myDialog[% footnote.number %].addEventListeners('#open-dialog-[% footnote.number %]', '#close-dialog-[% footnote.number %]');
     </script>
       [% END %]
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2>Footnotes</h2>
+        <ol>
+          [% FOR footnote IN footnotes %]
+          <li id="footnote-[% footnote.number %]">
+            [% footnote.content %]
+            <a href="#footnote-[% footnote.number %]-return" aria-label="Return to footnote [% footnote.number %] reference">
+              ↩ Return to text
+            </a>
+          </li>
+          [% END %]
+        </ol>
+      </aside>
+    </noscript>
     [% END %]
 </body>
 </html>

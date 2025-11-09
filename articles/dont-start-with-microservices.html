@@ -316,7 +316,7 @@ direction and the well-planned architecture needs to be replanned.</p>
 <p>For microservices, much of our current best practices revolve around
 domain-driven design, clear bounded contexts. The latter can be hard to achieve
 when you’re rapidly pushing for your initial releases. You’ve conflated your
-business and data models.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> Your perfectly normalized database
+business and data models.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Your perfectly normalized database
 needs to be renormalized in the face of new business constraints. New legal
 requirements require you to implement a new accounting system. I’ve hit all of
 these and more on projects and they often require extensive rewrites. When a
@@ -472,11 +472,17 @@ can thank me later.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>I've see this on almost every project
@@ -490,6 +496,24 @@ and it's a millstone around your neck.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            I've see this on almost every project
+and it's a millstone around your neck.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

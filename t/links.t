@@ -13,6 +13,7 @@ my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
     next if $file =~ /^cover/;      # skip coverage reports
+    next if $file =~ m{^t/fixtures/}; # skip test fixtures
     try {
         my @errors = links_are_good($file);
 

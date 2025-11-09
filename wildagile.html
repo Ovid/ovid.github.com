@@ -370,7 +370,7 @@ workflow for one company I’ve worked with:</p>
 into new tasks, you’re still expected to follow that process for every subtask.
 Developers in this company regularly ignore this workflow and still get things
 done, but management gets frustrated because they can’t see the exact step that
-every task is at.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+every task is at.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>WildAgile strives to implement the following workflow:</p>
 
@@ -664,12 +664,12 @@ you).</p>
 <h1><a name="glossary"></a>Glossary</h1>
 
 <dl>
-    <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></dd>
+    <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></dd>
     <dt>Backlog</dt><dd>Tasks which have not yet been done.</dd>
     <dt>Critical Issue</dt><dd>Something which must be done <em>now</em>.</dd>
     <dt>Just Enough Process</dt><dd>Only enough process to provide structure.</dd>
     <dt>Priority</dt><dd>Tasks which should be taken before other tasks.</dd>
-    <dt>Product Owner (PO)</dt><dd>The proxy for the customer. Maintains backlog and assigns Priorities.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span></dd>
+    <dt>Product Owner (PO)</dt><dd>The proxy for the customer. Maintains backlog and assigns Priorities.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></dd>
     <dt>Stand up</dt><dd>An end-of-day “what I did, will do, and blockers” explanation for every developer.</dd>
     <dt>Summary</dt><dd>The PO’s business-focused summary of the project status, given immediately prior to the stand up.</dd>
     <dt>Task</dt><dd>Something a developer can do.</dd>
@@ -743,11 +743,17 @@ of managing risk is being aware of it.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>For added fun, note that there is only
@@ -764,7 +770,7 @@ very poor morale.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.</div>
@@ -777,7 +783,7 @@ very poor morale.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>Also represents the projects stakeholders, a.k.a. 'the business'.</div>
@@ -790,6 +796,41 @@ very poor morale.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            For added fun, note that there is only
+one exit point in that workflow. If something proves unworkable <em>at the
+specification step</em> or beyond, you have no official recources to abandon
+that task. Needless to say, some developers at that company suffered from
+very poor morale.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            Also represents the projects stakeholders, a.k.a. 'the business'.
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

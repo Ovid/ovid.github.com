@@ -336,7 +336,7 @@ API returns actions you can take regarding a purchase. However, if the character
 meets certain conditions, the API call should provide additional information 
 allowing a purchase of the visa, including its duration and price.</p>
 
-<p>The code sort of looked like this:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+<p>The code sort of looked like this:<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Veure::Model::API::Visa;
 
@@ -412,7 +412,7 @@ reviews.</p>
 that directs the instance on its behavior. It’s an <em>order</em>, giving a command
 to the instance.  By convention in our code, we like to write our constructor
 arguments such that orders use active verbs to indicate what’s going on.
-This is why the reviewer suggested <code>allow_purchase</code>. <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+This is why the reviewer suggested <code>allow_purchase</code>. <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>This might seem petty or trivial, but the distinction is important because not
 making said distinction can lead to subtle errors in reasoning. In this case, a
@@ -569,11 +569,17 @@ clearer what its role is.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>All of the code examples are
@@ -587,7 +593,7 @@ oversimplifications of a complex system.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>'Allow' 
@@ -603,6 +609,34 @@ wordy (as I tend to do).</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            All of the code examples are
+oversimplifications of a complex system.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            'Allow' 
+tends to be used in the passive voice, so in retrospect, I think 
+<tt>add_purchase_data</tt> would be a better choice, though that's getting a bit 
+wordy (as I tend to do).
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

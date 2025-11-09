@@ -507,7 +507,7 @@ specific view. This was, in part, because in The Communist Manifesto and
 other writings, Marx and Engels created a more detailed description of, and
 argument for, socialism. They both acknowledged the moral considerations of
 the Utopian and Ricardian socialists but destroyed them for being fantasies.
-<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span> And given that the
+<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> And given that the
 Manifesto called for revolution and swayed many people, Marx’s views on
 socialism were indelibly etched in people’s minds.</p>
 
@@ -567,7 +567,7 @@ its current definition of “animal flesh” didn’t arrive until the 1300s. </
 <p>Words, of course, have no intrinsic meaning. When I hear the word “peer”, I
 think something like “equal in quality”, but if I’m speaking French, the word
 <em>« pire »</em> has the same <em>sound</em> as “peer” but means “worst,” a radically
-different meaning. <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+different meaning. <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>Words have the meaning we ascribe to them and nothing more. But this causes
 many problems if we don’t understand that another’s definition is different
@@ -819,11 +819,17 @@ much as business.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>They attacked prior socialists for many other reasons, not
@@ -838,7 +844,7 @@ could bring substantial change. He demanded revolution.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>To my horror, I used to think that the
@@ -852,6 +858,33 @@ French word « pire » mean ’best’, leading to some confusing conversations.
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            They attacked prior socialists for many other reasons, not
+the least of which was that Marx couldn’t understand that persuasive speech
+could bring substantial change. He demanded revolution.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            To my horror, I used to think that the
+French word « pire » mean ’best’, leading to some confusing conversations.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

@@ -317,7 +317,7 @@ about “God objects” (<a href="http://blogs.perl.org/users/ovid/2014/12/using
 here</a> <span class="fa fa-external-link fa_custom"></span>).</p>
 
 <p>Consistency brings clarity. Reasoning about code is hard enough when it
-appears to be an ad-hoc mishmash of rules.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+appears to be an ad-hoc mishmash of rules.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>So, um, that brings us to the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna project</a> <span class="fa fa-external-link fa_custom"></span>,
 my attempt to bring modern object-oriented programming to the Perl language.</p>
@@ -369,7 +369,7 @@ has evolved with some serious inconsistencies and the time to consider fixing
 them is now, not after it’s released.</p>
 
 <p>Corinna, as some of you may know, was chosen as the name of this project
-because my <em>nom de guerre</em>, <span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> is “Ovid” and he wrote poems to Corinna, a love
+because my <em>nom de guerre</em>, <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> is “Ovid” and he wrote poems to Corinna, a love
 interest (if you’re familiar with the poetry, you know I’m keeping this
 family-friendly). Kim isn’t jealous of Corinna. She’s <em>furious</em> because
 Corinna, after literally years of design, is breaking some cardinal rules of
@@ -899,11 +899,17 @@ on maintaining consistency.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Dear PHP
@@ -918,7 +924,7 @@ in this regard.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>French for “war name”, now more
@@ -932,6 +938,33 @@ appropriate than ever ...</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Dear PHP
+developers: don’t you dare start. You have <em>no</em> room to criticize Perl
+in this regard.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            French for “war name”, now more
+appropriate than ever ...
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>

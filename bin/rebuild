@@ -8,7 +8,7 @@ use Getopt::Long;
 use PerlX::Maybe;
 GetOptions(
     \my %options,
-    'for_release',
+    'release',
     'notest',
     'file=s',
 ) or die "bad options";
@@ -16,8 +16,8 @@ GetOptions(
 use Ovid::Site;
 
 my $site = Ovid::Site->new(
-    for_release => $options{for_release},
-    maybe file  => $options{file},
+    release    => $options{release},
+    maybe file => $options{file},
 );
 $site->build;
 
@@ -53,7 +53,7 @@ rebuild - Rebuilds site
 
 Only build this file.
 
-=item B<--for_release>
+=item B<--release>
 
 Builds the site for release. This means that the site will be built, along with the search engine.
 

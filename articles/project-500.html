@@ -346,7 +346,7 @@ bottlenecks.</p>
 migration from Oracle to PostgreSQL, so making changes at the database level
 was not an option. We needed to know immediately if this was one of the
 bottlenecks. I wrote code which would dump out a quick summary of database
-activity for a block of code.  It looked sort of like this:<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span></p>
+activity for a block of code.  It looked sort of like this:<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">explain dbitrace(
     name =&gt; 'Full stack transaction request',
@@ -492,7 +492,7 @@ telling you how to parse the message contents. Reading and writing SOAP is
 <em>slow</em>.  Further, our client’s SOAP implementation had grown over the
 years, with each new version of their SOAP interface starting with
 cutting-and-pasting the last version’s code into a new module and modifying
-that. There were, at the time of the project, 24 versions,<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span> most of which had heavily duplicated code. To optimize
+that. There were, at the time of the project, 24 versions,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> most of which had heavily duplicated code. To optimize
 their SOAP, we were facing a problem. However, we dug in further and found
 that only one version would be used for this project, so our client authorized
 us to skip updating the other SOAP versions.</p>
@@ -652,7 +652,7 @@ the back-end. The back-end would submit the request for preauthorization to the
 payment provide and the payment provider would respond. The back-end sent the
 response to the front-end and if the preauthorization was denied, the denial
 would be sent back to the customer.  However, usually it was approved and the
-front-end would then submit the charge <em>back</em> to the back-end.<span aria-label="Open Footnote" class="open-dialog" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span> The back-end would then
+front-end would then submit the charge <em>back</em> to the back-end.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> The back-end would then
 submit the preauthorized charge to the payment provider and lots of network
 and database activity helped to keep the server room warm. The entire process
 was about as fast as a snail crawling through mud.</p>
@@ -860,11 +860,17 @@ the exact sequence listed above.</p>
     
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
-    <div class="dialog-overlay" tabindex="-1"></div>
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
     <script type="text/javascript" src="/static/js/Dialog.js"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1">
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>These number are recreated from memory, but are roughly
@@ -878,7 +884,7 @@ accurate.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2">
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Many of the oldest SOAP versions had long been deprecated,
@@ -892,7 +898,7 @@ so that helped.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3">
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>Of course, it was sent to the back-end via SOAP. SOAP, oh,
@@ -906,6 +912,40 @@ how I hate thee. I'm never taking a bath again.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            These number are recreated from memory, but are roughly
+accurate.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Many of the oldest SOAP versions had long been deprecated,
+so that helped.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            Of course, it was sent to the back-end via SOAP. SOAP, oh,
+how I hate thee. I'm never taking a bath again.
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
     
 </body>
 </html>
