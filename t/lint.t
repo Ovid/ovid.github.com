@@ -11,6 +11,7 @@ my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
+    next if $file =~ /^cover/;      # skip coverage reports
     try {
         my @errors = html_is_bad($file);
 
