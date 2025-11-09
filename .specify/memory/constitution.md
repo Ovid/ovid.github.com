@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report:
-Version: 1.0.0 → 1.1.0
-Modified Principles: Added VII. AI Agent Safety Constraints
-Added Sections: AI Agent Safety Constraints principle
+Version: 1.1.0 → 1.2.1
+Modified Principles: Added VIII. Environment Setup, Expanded Compliance Verification
+Added Sections: Environment Setup subsection under Development Workflow, Additional compliance requirements
 Removed Sections: None
 Templates Status:
   - ✅ .specify/templates/plan-template.md (no changes required)
@@ -163,6 +163,16 @@ Every module and script MUST include:
 - Avoid XS dependencies unless performance-critical
 - Document dependency rationale in code comments
 
+### Environment Setup
+
+All development work MUST use the correct Perl environment:
+- Run `source ~/.bash_profile` in every new terminal session to activate perlbrew
+- This ensures Perl 5.40+ with required modules is available
+- Verify with `perl -v` showing version 5.40 or higher
+- Install missing modules via `cpanm` after environment activation
+
+**Rationale**: Consistent environment prevents version conflicts and ensures all modern Perl features are available. Perlbrew provides isolated, reproducible development environments.
+
 ## Governance
 
 ### Constitution Authority
@@ -189,6 +199,9 @@ All code changes MUST:
 - Include accessibility validation for HTML changes
 - Document dependencies and version requirements
 - Maintain zero external service dependencies for core features
+- Pass entire test suite before marking any task complete
+- Format all code with perltidy using .perltidyrc in project root
+- Adhere to additional compliance requirements as specified in the constitution
 
 ### Exception Handling
 
@@ -198,4 +211,4 @@ Deviations from constitution principles require:
 - Plan for eventual compliance if temporary deviation
 - Review and approval for non-negotiable principles
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
+**Version**: 1.2.1 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
