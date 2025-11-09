@@ -129,4 +129,48 @@ subtest 'image description database tests' => sub {
     rollback_transaction();
 };
 
+subtest 'use_smart_quotes edge cases' => sub {
+
+    # Test some additional edge cases beyond the main test
+    my $result;
+
+    # Test quote before 's' - becomes HTML encoded
+    $result = use_smart_quotes(q{"word"s});
+    like( $result, qr/word&quot;s/, 'Closing quote before s should be encoded' );
+
+    # Test multiline text
+    my $multiline = qq{"Hello," she said.\n"Goodbye," he replied.};
+    $result = use_smart_quotes($multiline);
+    like( $result, qr/Hello.*Goodbye/s, 'Should handle multiline text' );
+
+    # Just check that some transformation happened (length or content changed)
+    isnt( $result, $multiline, 'Should apply smart quote transformations' );
+};
+
+subtest 'image description edge cases' => sub {
+    start_transaction();
+
+    # Clean up any existing test data
+    $dbh->do( 'DELETE FROM images WHERE filename LIKE ?', {}, 'edge_test_%' );
+
+    # Test with empty description
+    set_image_description( 'edge_test_empty.jpg', '' );
+    my $desc = get_image_description('edge_test_empty.jpg');
+    is( $desc, '', 'Empty description should be stored and retrieved correctly' );
+
+    # Test with special characters in filename
+    set_image_description( 'edge-test_file.name.jpg', 'Test description' );
+    $desc = get_image_description('edge-test_file.name.jpg');
+    is( $desc, 'Test description', 'Special characters in filename should work' );
+
+    # Test updating existing image multiple times
+    set_image_description( 'edge_test_multi.jpg', 'Version 1' );
+    set_image_description( 'edge_test_multi.jpg', 'Version 2' );
+    set_image_description( 'edge_test_multi.jpg', 'Version 3' );
+    $desc = get_image_description('edge_test_multi.jpg');
+    is( $desc, 'Version 3', 'Multiple updates should keep only the latest description' );
+
+    rollback_transaction();
+};
+
 done_testing();

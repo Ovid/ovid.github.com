@@ -76,6 +76,9 @@ package Ovid::Template::File::FindCode {
         return $self->_marker ne 'END' && $self->_start_marker;
     }
 
+    # TODO (Coverage Improvement 001): Review usage and add tests
+    # Used internally for code block parsing. Ensure edge cases are tested.
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub is_end_marker ($self) {
         return $self->_end_marker;
     }
@@ -93,6 +96,9 @@ package Ovid::Template::File::FindCode {
         return;
     }
 
+    # TODO (Coverage Improvement 001): Verify this is main entry point and add tests
+    # May be called from external code or templates. Check for usage patterns.
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub parse ( $self, $line = '' ) {
         $self->_set_is_start_marker(0);
         $self->_set_is_end_marker(0);

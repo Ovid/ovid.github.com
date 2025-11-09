@@ -12,6 +12,7 @@ my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
     next if $file =~ /^include/;    # XXX bug
+    next if $file =~ /^cover/;      # skip coverage reports
     try {
         my @errors = links_are_good($file);
 
@@ -27,17 +28,17 @@ foreach my $file (@files) {
 
 done_testing;
 
-sub links_are_good ( $file ) {
+sub links_are_good ($file) {
     return if $file =~ /\bdemo.html$/;
     my @errors;
     my $extor = HTML::SimpleLinkExtor->new();
     $extor->parse_file($file);
 
     my @links = grep {
-        !/#/                                    # skip in-page anchors
-          && !/^mailto:/                        # and mail links
+        !/#/                             # skip in-page anchors
+          && !/^mailto:/                 # and mail links
           && !m{https?://(?!$domain)}    # and external links
-          && $_ ne ""                           # some are deliberately empty
+          && $_ ne ""                    # some are deliberately empty
     } $extor->links;
     LINK: foreach my $link (@links) {
         if ( !$link =~ /^\// ) {
@@ -87,13 +88,13 @@ sub links_are_good ( $file ) {
         unless ($href) {
             push @errors => "Canonical link has no href in $file";
         }
-        elsif ($href !~ m{^https?://$domain/}) {
+        elsif ( $href !~ m{^https?://$domain/} ) {
             push @errors => "Canonical URL wrong format: $href in $file";
         }
         else {
             my $url = $href;
             $url =~ s{^https?://$domain/}{};
-            unless (-e $url) {
+            unless ( -e $url ) {
                 push @errors => "Missing canonical file: $href in $file";
             }
         }

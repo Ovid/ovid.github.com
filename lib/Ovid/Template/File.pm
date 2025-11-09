@@ -72,6 +72,10 @@ package Ovid::Template::File {
         $self->_set_attrs_from_template;
     }
 
+    # TODO (Coverage Improvement 001): Verify if still needed or can be removed
+    # Comment says "this is used for testing. We probably want to delete it."
+    # Check if any tests or templates depend on this before removal.
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     # this is used for testing. We probably want to delete it.
     sub next ($self) {
         my @lines = $self->_lines->@*;
@@ -87,6 +91,9 @@ package Ovid::Template::File {
         return $line;
     }
 
+    # TODO (Coverage Improvement 001): Verify usage in build scripts
+    # May be administrative/build function. Check bin/rebuild and other scripts.
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub rewrite ( $self, $destfile, $tagmap ) {
         my $contents = $self->_rewrite_code_blocks;
         my $tags;
