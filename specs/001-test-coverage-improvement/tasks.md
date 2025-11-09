@@ -160,15 +160,15 @@ This is a single-project Perl application:
 
 **Module Group 4: Already Meeting Target (90%+) - Maximize Coverage**
 
-- [ ] T069 [US2] Review t/code_blocks.t for Ovid/Template/File/FindCode.pm (currently 100.0% stmt)
-- [ ] T070 [US2] Enhance tests for edge cases in Ovid/Template/File/FindCode.pm to maximize coverage
-- [ ] T071 [US2] Review t/config.t for Less/Config.pm (currently 100.0% stmt)
-- [ ] T072 [US2] Enhance tests for edge cases in Less/Config.pm to maximize coverage
-- [ ] T073 [US2] Review t/ovid_site_utils.t for Ovid/Site/Utils.pm (currently 100.0% stmt)
-- [ ] T074 [US2] Enhance tests for edge cases in Ovid/Site/Utils.pm to maximize coverage
-- [ ] T075 [US2] Verify Ovid/Template/Role/File.pm test coverage (currently 100.0% stmt)
-- [ ] T076 [US2] Verify Ovid/Types.pm test coverage (currently 100.0% stmt)
-- [ ] T077 [US2] Verify Template/Plugin/Config.pm test coverage (currently 100.0% stmt)
+- [X] T069 [US2] Review t/code_blocks.t for Ovid/Template/File/FindCode.pm (currently 100.0% stmt)
+- [X] T070 [US2] Enhance tests for edge cases in Ovid/Template/File/FindCode.pm to maximize coverage
+- [X] T071 [US2] Review t/config.t for Less/Config.pm (currently 100.0% stmt)
+- [X] T072 [US2] Enhance tests for edge cases in Less/Config.pm to maximize coverage
+- [X] T073 [US2] Review t/ovid_site_utils.t for Ovid/Site/Utils.pm (currently 100.0% stmt)
+- [X] T074 [US2] Enhance tests for edge cases in Ovid/Site/Utils.pm to maximize coverage
+- [X] T075 [US2] Verify Ovid/Template/Role/File.pm test coverage (currently 100.0% stmt)
+- [X] T076 [US2] Verify Ovid/Types.pm test coverage (currently 100.0% stmt)
+- [X] T077 [US2] Verify Template/Plugin/Config.pm test coverage (currently 100.0% stmt)
 
 **Final Verification**
 
