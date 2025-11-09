@@ -85,17 +85,17 @@ description: "Task list for Footnote NoScript Fallback feature implementation"
 
 ### Tests for User Story 1 (Regression Prevention)
 
-- [ ] T016 [P] [US1] Add test in t/ovid_plugin.t: "add_note generates span with open-dialog class"
-- [ ] T017 [P] [US1] Add test in t/ovid_plugin.t: "add_note generates unique dialog IDs"
-- [ ] T018 [P] [US1] Add test in t/ovid_plugin.t: "footnote body contains dialog HTML with ARIA attributes"
-- [ ] T019 [P] [US1] Add test in t/ovid_plugin.t: "dialog overlay rendered in footer when has_footnotes is true"
+- [X] T016 [P] [US1] Add test in t/ovid_plugin.t: "add_note generates span with open-dialog class"
+- [X] T017 [P] [US1] Add test in t/ovid_plugin.t: "add_note generates unique dialog IDs"
+- [X] T018 [P] [US1] Add test in t/ovid_plugin.t: "footnote body contains dialog HTML with ARIA attributes"
+- [X] T019 [P] [US1] Add test in t/ovid_plugin.t: "dialog overlay rendered in footer when has_footnotes is true"
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Verify lib/Template/Plugin/Ovid.pm add_note() still generates JavaScript dialog HTML
-- [ ] T021 [US1] Verify root/include/footer.tt still renders dialog overlay and Dialog.js initialization
-- [ ] T022 [US1] Run manual test: build site with `perl bin/rebuild` and test JavaScript footnote modals
-- [ ] T023 [US1] Verify existing ARIA attributes preserved in dialog HTML in lib/Template/Plugin/Ovid.pm
+- [X] T020 [US1] Verify lib/Template/Plugin/Ovid.pm add_note() still generates JavaScript dialog HTML
+- [X] T021 [US1] Verify root/include/footer.tt still renders dialog overlay and Dialog.js initialization
+- [X] T022 [US1] Run manual test: build site with `perl bin/rebuild` and test JavaScript footnote modals
+- [X] T023 [US1] Verify existing ARIA attributes preserved in dialog HTML in lib/Template/Plugin/Ovid.pm
 
 **Checkpoint**: At this point, JavaScript mode should work exactly as before (no regressions)
 

@@ -154,30 +154,86 @@ subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
 subtest 'US3: NoScript section in footer output' => sub {
     my $test_ovid = Template::Plugin::Ovid->new(undef);
     $test_ovid->add_note('Test footnote for noscript');
-    
+
     # Test T009: noscript section should exist in footer output
     # NOTE: This tests the template rendering, but we'll mock it here
     # by checking if the plugin stores the necessary data
     my $footnotes = $test_ovid->get_footnotes();
-    ok exists $footnotes->[0]{content}, 
+    ok exists $footnotes->[0]{content},
       'T009: Footnote hash should have content field for noscript rendering';
-    
+
     # Test T010: noscript tag should wrap footnotes section
     # This will be tested via template integration, but we can verify
     # the data structure supports it
     is $footnotes->[0]{content}, 'Test footnote for noscript',
       'T010: Content field should contain raw footnote text';
-    
+
     # Test T011: dialog overlay and dialog elements should be outside noscript tag
     # This is template-level verification - we verify that dialog HTML is separate
     ok exists $footnotes->[0]{body},
       'T011: Dialog body should exist separately from noscript content';
     like $footnotes->[0]{body}, qr/<div id="dialog-1"/,
       'T011: Dialog body should contain dialog HTML structure';
-    
+
     # Verify both modes can coexist
     isnt $footnotes->[0]{body}, $footnotes->[0]{content},
       'Dialog body and noscript content should be different (dual rendering)';
+};
+
+#
+# User Story 1: JavaScript-Enabled Footnote Viewing (Priority: P1)
+# Regression tests to ensure JavaScript mode still works correctly
+#
+subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub {
+    my $test_ovid = Template::Plugin::Ovid->new(undef);
+
+    # Test T016: add_note generates span with open-dialog class
+    my $result1 = $test_ovid->add_note('First JS footnote');
+    like $result1, qr/<span[^>]*class="[^"]*open-dialog[^"]*"/,
+      'T016: add_note() generates span with open-dialog class for JavaScript mode';
+    like $result1, qr/class="[^"]*js-only[^"]*"/,
+      'T016: Span should have js-only class to hide when JS disabled';
+
+    # Test T017: add_note generates unique dialog IDs
+    my $result2 = $test_ovid->add_note('Second JS footnote');
+    like $result1, qr/id="open-dialog-1"/,
+      'T017: First footnote has unique ID open-dialog-1';
+    like $result2, qr/id="open-dialog-2"/,
+      'T017: Second footnote has unique ID open-dialog-2';
+    unlike $result1, qr/id="open-dialog-2"/,
+      'T017: First footnote does not have second ID (uniqueness verified)';
+
+    # Test T018: footnote body contains dialog HTML with ARIA attributes
+    my $footnotes = $test_ovid->get_footnotes();
+    like $footnotes->[0]{body}, qr/<div[^>]*id="dialog-1"[^>]*>/,
+      'T018: Footnote body contains dialog div with unique ID';
+    like $footnotes->[0]{body}, qr/role="dialog"/,
+      'T018: Dialog has role="dialog" ARIA attribute';
+    like $footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
+      'T018: Dialog has aria-labelledby attribute';
+    like $footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
+      'T018: Dialog has aria-describedby attribute';
+    like $footnotes->[0]{body}, qr/aria-hidden="true"/,
+      'T018: Dialog has aria-hidden="true" by default (prevents overlay flash)';
+
+    # Test T019: dialog overlay rendered in footer when has_footnotes is true
+    # Note: The actual template rendering is tested via integration, but we verify
+    # the plugin provides the necessary data for the footer template
+    ok $test_ovid->has_footnotes(),
+      'T019: has_footnotes() returns true when footnotes exist';
+    is scalar @$footnotes, 2,
+      'T019: get_footnotes() returns all footnotes for footer rendering';
+
+    # Verify footnote content is preserved in dialog body
+    like $footnotes->[0]{body}, qr/First JS footnote/,
+      'T019: Dialog body contains the footnote content';
+    like $footnotes->[1]{body}, qr/Second JS footnote/,
+      'T019: Second dialog body contains correct content';
+
+    # Verify all IDs are unique (no collisions between dialog IDs and open-dialog IDs)
+    my $all_html = $result1 . $result2 . $footnotes->[0]{body} . $footnotes->[1]{body};
+    ok validate_unique_ids($all_html),
+      'T019: All generated IDs are unique across footnotes and dialogs';
 };
 
 # Test youtube()
