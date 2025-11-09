@@ -30,12 +30,12 @@ As a developer, I need to systematically increase test coverage for each module 
 
 **Why this priority**: Once we know what code is actually used (P1), we need comprehensive tests before refactoring. This is the core deliverable that enables safe refactoring.
 
-**Independent Test**: Can be fully tested by running Devel::Cover on each module individually, verifying coverage meets 90% threshold, and validating tests use Test2::Suite. Each module can be tested independently.
+**Independent Test**: Can be fully tested by running Devel::Cover on each module individually, verifying coverage meets 90% threshold, and validating tests use Test::Most. Each module can be tested independently.
 
 **Acceptance Scenarios**:
 
 1. **Given** a module with current coverage below 90%, **When** I add comprehensive tests, **Then** running `cover -test` shows statement coverage as high as possible, meeting at least 90%
-2. **Given** a module test file, **When** I review the code, **Then** all tests use Test2::Suite (Test2::V0) instead of Test::More
+2. **Given** a module test file, **When** I review the code, **Then** all tests use Test::Most instead of other testing frameworks
 3. **Given** tests are written for a module, **When** I run the test suite, **Then** all edge cases, error conditions, and normal flows are covered to maximize coverage
 4. **Given** a module reaches maximum achievable coverage, **When** I review uncovered lines, **Then** I can document why remaining lines are not covered (e.g., error handling for impossible states)
 5. **Given** all modules reach target coverage, **When** I generate a full coverage report, **Then** no module shows below 90% statement coverage, with each module at its highest possible level
@@ -91,7 +91,7 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 - **FR-001**: System MUST analyze each module to identify methods/functions with zero call sites in the codebase
 - **FR-002**: System MUST generate a usage report showing which methods are called, their call sites, and usage frequency
 - **FR-003**: Developer MUST review each module's current coverage metrics before adding tests
-- **FR-004**: Tests MUST use Test2::Suite (Test2::V0 or Test2::Tools::*) exclusively - no Test::More
+- **FR-004**: Tests MUST use Test::Most exclusively for new tests
 - **FR-005**: Each module test file MUST mirror the `lib/` structure in the `t/` directory (e.g., `lib/Ovid/Site.pm` → `t/Ovid/Site.t`)
 - **FR-006**: Tests MUST achieve the highest possible statement coverage per module, with a minimum of 90%
 - **FR-007**: Tests MUST achieve the highest possible branch coverage per module where conditional logic exists, with a minimum of 90%
@@ -107,7 +107,7 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 ### Key Entities
 
 - **Module Under Test**: A Perl module in `lib/` requiring coverage improvement; has attributes: file path, current coverage %, uncovered lines, dead code candidates, public API surface
-- **Test File**: A Test2::Suite test file in `t/` corresponding to a module; has attributes: file path, test count, coverage contributed, assertions
+- **Test File**: A Test::Most test file in `t/` corresponding to a module; has attributes: file path, test count, coverage contributed, assertions
 - **Coverage Report**: Output from Devel::Cover; has attributes: per-module metrics (statement %, branch %, condition %), uncovered line numbers, HTML visualization
 - **Usage Analysis**: Report of method/function call sites; has attributes: method name, call count, call locations, potentially unused flag
 - **Coverage Gap**: Documented explanation for untested code; has attributes: module, line numbers, reason for exclusion, reviewer approval
@@ -123,8 +123,8 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 - **SC-005**: All untested code (the remaining <10% in each module) has documented justification
 - **SC-006**: Full test suite completes successfully in under 60 seconds
 - **SC-007**: Coverage reports can be regenerated on-demand in under 2 minutes
-- **SC-008**: Every module has a corresponding test file using Test2::Suite
-- **SC-009**: Zero Test::More usage remains in test files (migration to Test2::Suite complete)
+- **SC-008**: Every module has a corresponding test file using Test::Most
+- **SC-009**: All test files use consistent testing practices with Test::Most
 - **SC-010**: Refactoring can begin with confidence that regressions will be caught by tests
 
 ### Business Value
@@ -152,8 +152,8 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 ### In Scope
 
 - Analysis of all 15 modules listed in the coverage report
-- Writing new Test2::Suite tests for uncovered code
-- Converting existing Test::More tests to Test2::Suite
+- Writing new Test::Most tests for uncovered code
+- Enhancing existing Test::Most tests
 - Documenting unused code and coverage gaps
 - Generating comprehensive coverage reports
 - Testing of build process modules (Ovid::Site, Ovid::Template::*)
@@ -177,7 +177,7 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 ## Dependencies *(mandatory)*
 
 - Devel::Cover must be installed and functional
-- Test2::Suite must be available (Test2::V0 minimum)
+- Test::Most must be available
 - Existing test infrastructure (database fixtures, test utilities) must be working
 - Access to production-like test data for realistic testing
 - Ability to run tests in isolation without affecting development database
@@ -197,7 +197,7 @@ As a developer, I need to document coverage gaps and testing decisions for each 
   - **Mitigation**: Review seemingly unused code carefully; run full integration tests before marking as dead
   
 - **Risk**: Some modules are tightly coupled and difficult to test in isolation
-  - **Mitigation**: Use Test2::Mock or dependency injection; document coupling as technical debt
+  - **Mitigation**: Use mocking techniques or dependency injection; document coupling as technical debt
   
 - **Risk**: Achieving 90% coverage on legacy code reveals significant bugs that need fixing
   - **Mitigation**: Document bugs separately; focus on testing current behavior, not fixing it

@@ -10,7 +10,7 @@ Templates Status:
   - ✅ .specify/templates/tasks-template.md (no changes required)
 Follow-up TODOs:
   - Verify template files align with CPAN-style module structure
-  - Add Test2::Suite coverage reporting to CI/CD if not present
+  - Add test coverage reporting to CI/CD if not present
   - Document CLI conventions in developer guidelines
   - Update AI agent prompts to reference git safety constraints
 -->
@@ -41,18 +41,18 @@ All primary functionality MUST be accessible via command-line interface:
 
 **Rationale**: CLI interfaces enable automation, testing, composition with other tools, and align with the static site generation workflow. They provide a stable contract that doesn't depend on web services or GUI frameworks.
 
-### III. Test2::Suite with 90%+ Coverage (NON-NEGOTIABLE)
+### III. Test::Most with 90%+ Coverage (NON-NEGOTIABLE)
 
 Testing discipline MUST include:
 - Minimum 90% test coverage across all modules
-- Use Test2::Suite (Test2::V0, Test2::Tools::*) as the testing framework
+- Use Test::Most as the testing framework
 - Test files in `t/` directory mirroring `lib/` structure
 - Unit tests for all public methods and functions
 - Integration tests for end-to-end workflows (build, pagination, RSS generation)
 - Edge cases, error conditions, and failure modes explicitly tested
 - Coverage reports generated and tracked (e.g., via Devel::Cover)
 
-**Rationale**: Test2::Suite provides modern testing features superior to Test::More. High coverage ensures refactoring safety and catches regressions. Static site generators have deterministic outputs making them ideal for comprehensive testing.
+**Rationale**: Test::Most provides a comprehensive testing framework. High coverage ensures refactoring safety and catches regressions. Static site generators have deterministic outputs making them ideal for comprehensive testing.
 
 ### IV. Accessible HTML5 Static Output
 
@@ -139,7 +139,7 @@ Every module and script MUST include:
 ### Adding New Features
 
 1. Design feature as a module with clear API
-2. Write tests first (Test2::Suite)
+2. Write tests first (Test::Most)
 3. Implement module to pass tests
 4. Add CLI interface if user-facing
 5. Update documentation (POD + README if needed)

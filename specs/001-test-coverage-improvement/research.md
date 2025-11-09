@@ -18,7 +18,7 @@
 
 ### Unknown: Strategies for testing tightly coupled legacy code
 
-**Decision**: Use dependency injection and mocking with Test2::Tools::Mock for external dependencies (filesystem, database, network), create fixture data for deterministic testing.
+**Decision**: Use dependency injection and mocking techniques (Test::MockModule, Test::MockObject) for external dependencies (filesystem, database, network), create fixture data for deterministic testing.
 
 **Rationale**: Allows isolated unit testing without changing architecture. Fixtures ensure reproducible tests.
 
@@ -38,7 +38,7 @@
 
 ### Unknown: Testing Template Toolkit rendering
 
-**Decision**: Test by comparing rendered output HTML against expected fixtures, using Test2::Tools::Compare for structured comparison.
+**Decision**: Test by comparing rendered output HTML against expected fixtures, using Test::Most's comparison functions for structured comparison.
 
 **Rationale**: TT rendering is deterministic, fixtures provide clear expectations.
 
@@ -48,7 +48,7 @@
 
 ### Unknown: Error condition testing for build processes
 
-**Decision**: Simulate failures by mocking file operations, invalid inputs, and dependency failures using Test2::Tools::Exception.
+**Decision**: Simulate failures by mocking file operations, invalid inputs, and dependency failures using Test::Most's exception testing functions (throws_ok, dies_ok).
 
 **Rationale**: Ensures robustness without destructive testing.
 
@@ -57,7 +57,7 @@
 
 ### Unknown: Branch coverage for complex conditionals
 
-**Decision**: Use Test2::Tools::Subtest to create separate test cases for each branch path, ensuring all true/false combinations are covered.
+**Decision**: Use Test::Most's subtest functionality to create separate test cases for each branch path, ensuring all true/false combinations are covered.
 
 **Rationale**: Explicit testing of logic paths catches edge cases.
 

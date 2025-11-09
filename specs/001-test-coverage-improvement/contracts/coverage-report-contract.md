@@ -48,7 +48,7 @@ HTML reports contain:
 ### Provider (Devel::Cover)
 - MUST generate accurate coverage metrics
 - MUST support HTML output format
-- MUST handle Test2::Suite tests
+- MUST handle Test::Most tests
 - MUST provide line-level granularity
 
 ### Consumer (Coverage Improvement)
@@ -67,4 +67,4 @@ HTML reports contain:
 
 - Devel::Cover 1.36+ required
 - Compatible with Perl 5.40+
-- Test2::Suite integration verified
+- Test::Most integration verified

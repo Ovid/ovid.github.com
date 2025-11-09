@@ -8,14 +8,14 @@
 
 - Perl 5.40+ installed
 - Devel::Cover installed (`cpanm Devel::Cover`)
-- Test2::Suite installed (`cpanm Test2::Suite`)
+- Test::Most installed (already in cpanfile)
 - Project dependencies installed (`cpanm --installdeps .`)
 
 ## Workflow Overview
 
 1. **Identify unused code** for each module
 2. **Review current coverage** metrics
-3. **Add comprehensive tests** using Test2::Suite
+3. **Add comprehensive tests** using Test::Most
 4. **Maximize coverage** to highest achievable level
 5. **Document gaps** with justifications
 
@@ -25,7 +25,7 @@
 
 ```bash
 # Install coverage tools if needed
-cpanm Devel::Cover Test2::Suite
+cpanm Devel::Cover
 
 # Run initial coverage baseline
 cover -test
@@ -58,7 +58,7 @@ touch t/Ovid/Site.t
 Test file template:
 
 ```perl
-use Test2::V0;
+use Test::Most;
 use Ovid::Site;
 
 # Test public methods
@@ -103,15 +103,11 @@ For uncovered code, add comments:
 ### Testing File Operations
 
 ```perl
-use Test2::Tools::Mock;
+use Test::MockModule;
 
-my $mock_fh = mock {} => (
-    track => 1,
-    override => [
-        open => sub { return 1 },
-        print => sub { return 1 },
-    ],
-);
+my $mock = Test::MockModule->new('Some::Module');
+$mock->mock('open', sub { return 1 });
+$mock->mock('print', sub { return 1 });
 ```
 
 ### Testing Database Operations
@@ -134,14 +130,14 @@ is($output, expected_html(), 'template renders correctly');
 ## Troubleshooting
 
 - **Coverage not updating**: Clear cover_db/ and re-run
-- **Tests failing**: Check Test2::Suite syntax (no Test::More)
-- **Mocking issues**: Use Test2::Tools::Mock for complex objects
+- **Tests failing**: Check Test::Most syntax and ensure all tests are compatible
+- **Mocking issues**: Use Test::MockModule or Test::MockObject for complex objects
 - **Slow runs**: Run coverage selectively during development
 
 ## Success Criteria
 
 - All 15 modules >=90% statement coverage
 - Branch coverage maximized
-- No Test::More usage
+- Tests use Test::Most consistently
 - Unused code documented
 - Full test suite <60 seconds

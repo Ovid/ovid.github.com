@@ -7,14 +7,14 @@
 
 ## Summary
 
-Systematically increase test coverage for all 15 modules in the legacy Perl static site generator to at least 90% statement coverage and highest possible branch coverage, using Test2::Suite and Devel::Cover, after identifying and documenting unused code.
+Systematically increase test coverage for all 15 modules in the legacy Perl static site generator to at least 90% statement coverage and highest possible branch coverage, using Test::Most and Devel::Cover, after identifying and documenting unused code.
 
 ## Technical Context
 
 **Language/Version**: Perl 5.40+  
-**Primary Dependencies**: Devel::Cover, Test2::Suite (Test2::V0, Test2::Tools::*), Type::Tiny, Getopt::Long, SQLite  
+**Primary Dependencies**: Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite  
 **Storage**: SQLite for build-time data (acceptable per constitution)  
-**Testing**: Test2::Suite with Devel::Cover for coverage reporting  
+**Testing**: Test::Most with Devel::Cover for coverage reporting  
 **Target Platform**: Cross-platform (macOS, Linux), command-line static site generation  
 **Project Type**: CLI tool/library for static website building  
 **Performance Goals**: Build process <2 min, test suite <60 sec, coverage report regeneration <2 min  
@@ -27,7 +27,7 @@ Systematically increase test coverage for all 15 modules in the legacy Perl stat
 
 - **I. CPAN-Style Module Architecture**: PASS - All modules follow Ovid:: namespace, proper structure.
 - **II. CLI-First Interface Design**: PASS - Build scripts in bin/, use Getopt::Long.
-- **III. Test2::Suite with 90%+ Coverage**: PASS - This feature implements the required testing discipline.
+- **III. Test::Most with 90%+ Coverage**: PASS - This feature implements the required testing discipline.
 - **IV. Accessible HTML5 Static Output**: PASS - Site generates accessible HTML5.
 - **V. Zero External Service Dependencies**: PASS - No external APIs required for core build.
 - **VI. Modern Perl 5.40+ Features Preferred**: PASS - Code uses signatures, modern features.
