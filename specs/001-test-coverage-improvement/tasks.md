@@ -114,18 +114,18 @@ This is a single-project Perl application:
 
 **Module Group 2: Moderate Coverage Gaps (50-80%)**
 
-- [ ] T040 [US2] Review existing test coverage for Ovid/Template/Role/Debug.pm (currently 70.0% stmt)
-- [ ] T040a [US2] Check for duplicate test cases before adding tests to Ovid/Template/Role/Debug.pm (FR-013)
-- [ ] T041 [US2] Create or enhance test file for Ovid/Template/Role/Debug.pm
-- [ ] T042 [US2] Add tests for debug output methods in Ovid/Template/Role/Debug.pm
-- [ ] T043 [US2] Add tests for conditional debug logic in Ovid/Template/Role/Debug.pm
-- [ ] T044 [US2] Verify Ovid/Template/Role/Debug.pm reaches 90%+ coverage with `cover -test`
-- [ ] T045 [US2] Review existing test file t/pager.t for Less/Pager.pm (currently 82.8% stmt)
-- [ ] T045a [US2] Check for duplicate test cases in t/pager.t before adding new tests (FR-013)
-- [ ] T046 [US2] Add tests for uncovered pagination edge cases in Less/Pager.pm to t/pager.t
-- [ ] T047 [US2] Add tests for boundary conditions in Less/Pager.pm to t/pager.t
-- [ ] T048 [US2] Add tests for error conditions in Less/Pager.pm to t/pager.t
-- [ ] T049 [US2] Verify Less/Pager.pm reaches 90%+ coverage with `cover -test`
+- [X] T040 [US2] Review existing test coverage for Ovid/Template/Role/Debug.pm (currently 70.0% stmt)
+- [X] T040a [US2] Check for duplicate test cases before adding tests to Ovid/Template/Role/Debug.pm (FR-013)
+- [X] T041 [US2] Create or enhance test file for Ovid/Template/Role/Debug.pm
+- [X] T042 [US2] Add tests for debug output methods in Ovid/Template/Role/Debug.pm
+- [X] T043 [US2] Add tests for conditional debug logic in Ovid/Template/Role/Debug.pm
+- [X] T044 [US2] Verify Ovid/Template/Role/Debug.pm reaches 90%+ coverage with `cover -test`
+- [X] T045 [US2] Review existing test file t/pager.t for Less/Pager.pm (currently 82.8% stmt)
+- [X] T045a [US2] Check for duplicate test cases in t/pager.t before adding new tests (FR-013)
+- [X] T046 [US2] Add tests for uncovered pagination edge cases in Less/Pager.pm to t/pager.t
+- [X] T047 [US2] Add tests for boundary conditions in Less/Pager.pm to t/pager.t
+- [X] T048 [US2] Add tests for error conditions in Less/Pager.pm to t/pager.t
+- [X] T049 [US2] Verify Less/Pager.pm reaches 90%+ coverage with `cover -test`
 
 **Module Group 3: Near-Target Coverage (80-90%)**
 
