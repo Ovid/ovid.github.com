@@ -18,13 +18,16 @@
 
 ### Unknown: Strategies for testing tightly coupled legacy code
 
-**Decision**: Use dependency injection and mocking techniques (Test::MockModule, Test::MockObject) for external dependencies (filesystem, database, network), create fixture data for deterministic testing.
+**Decision**: Use dependency injection and mocking techniques (Test::MockModule, Test::MockObject) ONLY for external dependencies (filesystem, database, network) per Constitution III (Mock Minimization), create fixture data in `t/fixtures/` for deterministic testing, use read-only access to production databases where possible.
 
-**Rationale**: Allows isolated unit testing without changing architecture. Fixtures ensure reproducible tests.
+**Rationale**: Allows isolated unit testing without changing architecture. Fixtures ensure reproducible tests. Read-only database access provides realistic integration tests without data contamination. Complies with Constitution VI (Production Data Protection).
 
 **Alternatives Considered**:
 - Integration testing only - rejected because slower and less reliable.
 - Refactor for testability first - out of scope per spec.
+- Modify production database in tests - rejected per Constitution VI.
+
+**Production Data Protection**: All tests MUST use `t/fixtures/` for test data or read-only access to `db/ovid.db`. Never write to production databases during tests. Verify with `git status db/` after test runs.
 
 ### Unknown: Handling XS code or platform-specific code in coverage
 

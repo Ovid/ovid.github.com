@@ -96,13 +96,13 @@ This is a single-project Perl application:
 
 **Module Group 1: Critical Coverage Gaps (Below 50%)**
 
-- [ ] T027 [US2] Review existing test file t/ovid_plugin.t for Template/Plugin/Ovid.pm (currently 39.7% stmt)
-- [ ] T027a [US2] Check for duplicate test cases in t/ovid_plugin.t by reviewing existing assertions and test coverage before adding new tests (FR-013)
-- [ ] T028 [US2] Add tests for uncovered methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
-- [ ] T029 [US2] Add tests for string manipulation methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
-- [ ] T030 [US2] Add tests for date formatting methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
-- [ ] T031 [US2] Add tests for error conditions in Template/Plugin/Ovid.pm to t/ovid_plugin.t
-- [ ] T032 [US2] Verify Template/Plugin/Ovid.pm reaches 90%+ coverage with `cover -test`
+- [X] T027 [US2] Review existing test file t/ovid_plugin.t for Template/Plugin/Ovid.pm (currently 39.7% stmt)
+- [X] T027a [US2] Check for duplicate test cases in t/ovid_plugin.t by reviewing existing assertions and test coverage before adding new tests (FR-013)
+- [X] T028 [US2] Add tests for uncovered methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [X] T029 [US2] Add tests for string manipulation methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [X] T030 [US2] Add tests for date formatting methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [X] T031 [US2] Add tests for error conditions in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [X] T032 [US2] Verify Template/Plugin/Ovid.pm reaches 90%+ coverage with `cover -test`
 - [ ] T033 [US2] Review existing test coverage for Ovid/Site/AI/Images.pm (currently 46.1% stmt)
 - [ ] T033a [US2] Check for duplicate test cases before adding tests to Ovid/Site/AI/Images.pm (FR-013)
 - [ ] T034 [US2] Create or enhance t/ai_images.t for Ovid/Site/AI/Images.pm
@@ -278,8 +278,9 @@ This is a single-project Perl application:
 - [ ] T135 Create coverage badge in SVG format for inclusion in README.md
 - [ ] T136 Document coverage CI/CD integration recommendations in specs/001-test-coverage-improvement/ci-integration.md
 - [ ] T137 Clean up temporary coverage artifacts with `cover -delete`
-- [ ] T138 Commit final coverage reports and documentation
-- [ ] T139 Verify constitution compliance: all tests use Test::Most, 90%+ coverage achieved
+- [ ] T138 **Verify production data protection**: Run `git status db/` and confirm no changes to production database files
+- [ ] T139 Commit final coverage reports and documentation
+- [ ] T140 Verify constitution compliance: all tests use Test::Most, 90%+ coverage achieved, db/ directory unchanged
 
 ---
 

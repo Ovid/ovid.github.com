@@ -1,17 +1,20 @@
 <!--
 Sync Impact Report:
-Version: 1.2.1 → 1.3.0
-Modified Principles: III. Test::Most with 90%+ Coverage - Added Mock Minimization subsection
-Added Sections: Mock Minimization guidance under Principle III
+Version: 1.3.0 → 1.4.0
+Modified Principles: None
+Added Sections: Principle VI - Production Data Protection (NON-NEGOTIABLE)
 Removed Sections: None
+Renumbered Principles: VI→VII (Modern Perl), VII→VIII (AI Agent Safety)
 Templates Status:
-  - ✅ .specify/templates/plan-template.md (no changes required)
-  - ✅ .specify/templates/spec-template.md (no changes required)
-  - ⚠ .specify/templates/tasks-template.md (review testing task patterns for mock usage)
+  - ⚠ .specify/templates/plan-template.md (add production data protection guidance)
+  - ⚠ .specify/templates/spec-template.md (add constraint about not modifying db/)
+  - ⚠ .specify/templates/tasks-template.md (add verification tasks for db/ integrity)
 Follow-up TODOs:
-  - Review existing tasks.md files for excessive mock usage
-  - Update testing best practices documentation to reflect mock minimization
-  - Audit current test suite for unnecessary mocks
+  - Add db/ directory protection checks to test suite validation
+  - Update testing best practices to emphasize test fixtures over production data
+  - Add git status check for db/ in CI/CD validation
+  - Review all existing tests to ensure compliance with Principle VI
+  - Document test fixture patterns in testing guide
 -->
 
 # Ovid's Website Constitution
@@ -87,7 +90,23 @@ The build and deployment process MUST NOT require:
 
 **Rationale**: External dependencies introduce failure points, latency, privacy concerns, and vendor lock-in. Static sites should build offline and deploy anywhere. This ensures reliability, reproducibility, and control.
 
-### VI. Modern Perl 5.40+ Features Preferred
+### VI. Production Data Protection (NON-NEGOTIABLE)
+
+Tests and development tools MUST NOT modify production data files:
+- PROHIBITED: Writing to or modifying files in `db/` directory
+- PROHIBITED: Altering production databases (`db/ovid.db`, etc.)
+- PROHIBITED: Modifying production configuration files during tests
+- PROHIBITED: Changing production image descriptions, cached data, or build artifacts that are committed
+- REQUIRED: Tests must use fixtures in `t/fixtures/` or temporary test databases
+- REQUIRED: All database-dependent tests must use read-only operations or test-specific databases
+- REQUIRED: Use File::Temp or similar for temporary file operations in tests
+- REQUIRED: Git status must show no changes to `db/` directory after running test suite
+- ACCEPTABLE: Reading from production databases for integration tests (read-only)
+- ACCEPTABLE: Copying production data to temporary locations for test use
+
+**Rationale**: Production data files (especially databases) contain the actual content and metadata that builds the website. Modifying these during tests can corrupt site content, cause test pollution where tests affect each other, and create unpredictable builds. Tests must be isolated and reproducible. The `db/` directory is version-controlled because it contains the structured data needed for site generation—it must remain pristine across test runs.
+
+### VII. Modern Perl 5.40+ Features Preferred
 
 Code style and language features MUST prioritize:
 - Perl 5.40+ features: signatures (`sub foo ($x, $y)`), `isa` operator, field syntax
@@ -100,7 +119,7 @@ Code style and language features MUST prioritize:
 
 **Rationale**: Modern Perl features improve safety, readability, and maintainability. Signatures prevent parameter errors. Type constraints document and enforce contracts. This positions the codebase for long-term maintainability as Perl evolves.
 
-### VII. AI Agent Safety Constraints (NON-NEGOTIABLE)
+### VIII. AI Agent Safety Constraints (NON-NEGOTIABLE)
 
 AI agents operating on this codebase MUST NOT execute destructive git operations:
 - PROHIBITED: `git push --force`, `git push -f`, `git rebase`, `git reset --hard`, `git clean -fd`
@@ -219,4 +238,11 @@ Deviations from constitution principles require:
 - Plan for eventual compliance if temporary deviation
 - Review and approval for non-negotiable principles
 
-**Version**: 1.3.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
+**Version**: 1.4.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
+
+**Changelog**:
+- **1.4.0** (2025-11-09): Added Principle VI - Production Data Protection to prevent test contamination of production databases and data files
+- **1.3.0** (2025-11-09): Added Mock Minimization guidance under Principle III
+- **1.2.1**: Added compliance requirement for perltidy formatting
+- **1.2.0**: Added Environment Setup section with perlbrew activation requirement
+- **1.1.0**: Initial ratification with seven core principles

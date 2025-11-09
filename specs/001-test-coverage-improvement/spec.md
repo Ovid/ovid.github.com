@@ -206,6 +206,10 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 - Test files must follow existing project conventions (file naming, structure)
 - Coverage improvements must not slow down test suite significantly (target: <60 sec total)
 - Module-by-module approach prevents "big bang" testing that's hard to review
+- **Production data protection (Constitution VI)**: Tests MUST NOT modify files in `db/` directory
+  - All database-dependent tests must use read-only operations or test fixtures in `t/fixtures/`
+  - Running test suite must leave `db/` directory unchanged (verifiable via `git status`)
+  - Use File::Temp or test-specific databases for any write operations needed in tests
 
 ## Risks *(mandatory)*
 

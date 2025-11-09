@@ -97,7 +97,7 @@ t/                      # Test files (mirrors lib/ structure)
 └── ...
 
 config/                 # Configuration files
-db/                     # SQLite databases for build-time data
+db/                     # SQLite databases for build-time data (PROTECTED: read-only for tests)
 cover_db/               # Coverage reports (excluded from version control)
 coverage-report/        # HTML coverage output (excluded from version control)
 
