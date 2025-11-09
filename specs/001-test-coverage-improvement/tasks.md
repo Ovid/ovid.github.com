@@ -3,6 +3,10 @@
 **Input**: Design documents from `/specs/001-test-coverage-improvement/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
+**Commands**:
+1. Start sessions by running `source ~/.bash_profile` to have your environment set up correct. You DO NOT need to run it again after that.
+1. Generate test coverage output by running the `covert` alias without other commnds. That will run the full test suite and produe a coverage report in text and the coverage files will be in `./cover_db`.
+
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story. Modules are addressed from lowest to highest coverage within each user story phase.
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -129,30 +133,30 @@ This is a single-project Perl application:
 
 **Module Group 3: Near-Target Coverage (80-90%)**
 
-- [ ] T050 [US2] Review existing test file t/template_requirements.t for Ovid/Template/File.pm (currently 87.5% stmt)
-- [ ] T050a [US2] Check for duplicate test cases in t/template_requirements.t before adding new tests (FR-013)
-- [ ] T051 [US2] Add tests for uncovered template processing methods in Ovid/Template/File.pm
-- [ ] T052 [US2] Add tests for error conditions in Ovid/Template/File.pm template rendering
-- [ ] T053 [US2] Add tests for edge cases in Ovid/Template/File.pm file operations
-- [ ] T054 [US2] Verify Ovid/Template/File.pm reaches 90%+ coverage with `cover -test`
-- [ ] T055 [US2] Review existing test file t/blogdown.t for Less/Boilerplate.pm (currently 83.7% stmt)
-- [ ] T055a [US2] Check for duplicate test cases in t/blogdown.t before adding new tests (FR-013)
-- [ ] T056 [US2] Add tests for uncovered boilerplate methods in Less/Boilerplate.pm to t/blogdown.t
-- [ ] T057 [US2] Add tests for initialization edge cases in Less/Boilerplate.pm to t/blogdown.t
-- [ ] T058 [US2] Verify Less/Boilerplate.pm reaches 90%+ coverage with `cover -test`
-- [ ] T059 [US2] Review existing test file for Less/Script.pm (currently 88.2% stmt)
-- [ ] T059a [US2] Check for duplicate test cases before adding tests to Less/Script.pm (FR-013)
-- [ ] T060 [US2] Add tests for uncovered script methods in Less/Script.pm
-- [ ] T061 [US2] Add tests for command-line argument handling in Less/Script.pm
-- [ ] T062 [US2] Verify Less/Script.pm reaches 90%+ coverage with `cover -test`
-- [ ] T063 [US2] Review existing test file t/parser.t for Text/Markdown/Blog.pm (currently 92.5% stmt - already above 90%)
-- [ ] T063a [US2] Check for duplicate test cases in t/parser.t before adding new tests (FR-013)
-- [ ] T064 [US2] Add tests to maximize coverage in Text/Markdown/Blog.pm to t/parser.t
-- [ ] T065 [US2] Verify Text/Markdown/Blog.pm maintains/improves 90%+ coverage with `cover -test`
-- [ ] T066 [US2] Review existing test file t/collection.t for Ovid/Template/File/Collection.pm (currently 95.5% stmt - already above 90%)
-- [ ] T066a [US2] Check for duplicate test cases in t/collection.t before adding new tests (FR-013)
-- [ ] T067 [US2] Add tests to maximize coverage in Ovid/Template/File/Collection.pm to t/collection.t
-- [ ] T068 [US2] Verify Ovid/Template/File/Collection.pm maintains/improves coverage with `cover -test`
+- [X] T050 [US2] Review existing test file t/template_requirements.t for Ovid/Template/File.pm (currently 87.5% stmt)
+- [X] T050a [US2] Check for duplicate test cases in t/template_requirements.t before adding new tests (FR-013)
+- [X] T051 [US2] Add tests for uncovered template processing methods in Ovid/Template/File.pm
+- [X] T052 [US2] Add tests for error conditions in Ovid/Template/File.pm template rendering
+- [X] T053 [US2] Add tests for edge cases in Ovid/Template/File.pm file operations
+- [X] T054 [US2] Verify Ovid/Template/File.pm reaches 90%+ coverage with `cover -test`
+- [X] T055 [US2] Review existing test file t/blogdown.t for Less/Boilerplate.pm (currently 83.7% stmt)
+- [X] T055a [US2] Check for duplicate test cases in t/blogdown.t before adding new tests (FR-013)
+- [X] T056 [US2] Add tests for uncovered boilerplate methods in Less/Boilerplate.pm to t/blogdown.t
+- [X] T057 [US2] Add tests for initialization edge cases in Less/Boilerplate.pm to t/blogdown.t
+- [X] T058 [US2] Verify Less/Boilerplate.pm reaches 90%+ coverage with `cover -test`
+- [X] T059 [US2] Review existing test file for Less/Script.pm (currently 88.2% stmt)
+- [X] T059a [US2] Check for duplicate test cases before adding tests to Less/Script.pm (FR-013)
+- [X] T060 [US2] Add tests for uncovered script methods in Less/Script.pm
+- [X] T061 [US2] Add tests for command-line argument handling in Less/Script.pm
+- [X] T062 [US2] Verify Less/Script.pm reaches 90%+ coverage with `cover -test`
+- [X] T063 [US2] Review existing test file t/parser.t for Text/Markdown/Blog.pm (currently 92.5% stmt - already above 90%)
+- [X] T063a [US2] Check for duplicate test cases in t/parser.t before adding new tests (FR-013)
+- [X] T064 [US2] Add tests to maximize coverage in Text/Markdown/Blog.pm to t/parser.t
+- [X] T065 [US2] Verify Text/Markdown/Blog.pm maintains/improves 90%+ coverage with `cover -test`
+- [X] T066 [US2] Review existing test file t/collection.t for Ovid/Template/File/Collection.pm (currently 95.5% stmt - already above 90%)
+- [X] T066a [US2] Check for duplicate test cases in t/collection.t before adding new tests (FR-013)
+- [X] T067 [US2] Add tests to maximize coverage in Ovid/Template/File/Collection.pm to t/collection.t
+- [X] T068 [US2] Verify Ovid/Template/File/Collection.pm maintains/improves coverage with `cover -test`
 
 **Module Group 4: Already Meeting Target (90%+) - Maximize Coverage**
 
