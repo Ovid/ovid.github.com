@@ -31,14 +31,14 @@ Represents a Perl module requiring coverage improvement.
 
 ### Test File
 
-Represents a Test::Most test file corresponding to a module.
+Represents a Test2::Suite test file corresponding to a module.
 
 **Attributes**:
 - `file_path` (string): Absolute path to the test file
 - `test_count` (int): Number of test assertions/subtests
 - `coverage_contributed` (float): Coverage percentage added by this test file
 - `assertions` (array<string>): List of test assertion descriptions
-- `framework` (string): Testing framework used (must be "Test::Most")
+- `framework` (string): Testing framework used (must be "Test2::Suite")
 
 **Relationships**:
 - Belongs to `Module Under Test`
@@ -46,7 +46,7 @@ Represents a Test::Most test file corresponding to a module.
 
 **Validation Rules**:
 - `file_path` must mirror `lib/` structure in `t/`
-- `framework` must be "Test::Most" (no Test::More)
+- `framework` must be "Test2::Suite" (no Test::More)
 - `test_count` > 0
 
 ### Coverage Report
@@ -124,7 +124,7 @@ Documented explanation for untested code.
 
 1. Load `Module Under Test` list from coverage report
 2. For each module, generate `Usage Analysis`
-3. Create/update `Test File` with Test::Most tests
+3. Create/update `Test File` with Test2::Suite tests
 4. Run tests to generate updated `Coverage Report`
 5. Identify and document `Coverage Gap` entries
 6. Validate all modules reach `complete` state

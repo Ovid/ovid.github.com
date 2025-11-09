@@ -24,10 +24,10 @@ This is a single-project Perl application:
 
 **Purpose**: Project initialization and coverage tooling setup
 
-- [ ] T001 Verify Devel::Cover is installed and functional
-- [ ] T002 Run baseline coverage report with `cover -delete && cover -test && cover -report html -outputdir coverage-report`
-- [ ] T003 [P] Document baseline coverage metrics for all 15 modules in specs/001-test-coverage-improvement/baseline-coverage.md
-- [ ] T004 [P] Verify Test::Most is available and all existing tests pass with `prove -l t/`
+- [X] T001 Verify Devel::Cover is installed and functional
+- [X] T002 Run baseline coverage report with `cover -delete && cover -test && cover -report html -outputdir coverage-report`
+- [X] T003 [P] Document baseline coverage metrics for all 15 modules in specs/001-test-coverage-improvement/baseline-coverage.md
+- [X] T004 [P] Verify Test::Most is available and all existing tests pass with `prove -l t/`
 
 ---
 
