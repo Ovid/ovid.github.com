@@ -172,12 +172,12 @@ This is a single-project Perl application:
 
 **Final Verification**
 
-- [ ] T078 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report (run `cover -test && cover -report text | grep "lib/"`)
-- [ ] T079 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md (Coverage is "highest achievable" when remaining uncovered lines are documented as untestable per FR-011)
-- [ ] T080 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
-- [ ] T080a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
-- [ ] T080b [US2] Run integration tests from t/integration/ to verify User Story 2 completion
-- [ ] T080c [US2] Audit all test files to verify consistent Test::Most usage (no Test::More or other frameworks)
+- [X] T078 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report (run `cover -test && cover -report text | grep "lib/"`)
+- [X] T079 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md (Coverage is "highest achievable" when remaining uncovered lines are documented as untestable per FR-011)
+- [X] T080 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
+- [X] T080a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
+- [X] T080b [US2] Run integration tests from t/integration/ to verify User Story 2 completion
+- [X] T080c [US2] Audit all test files to verify consistent Test::Most usage (no Test::More or other frameworks)
 
 **Checkpoint**: At this point, all modules should meet 90%+ statement coverage threshold
 
