@@ -198,4 +198,37 @@ subtest 'Return value of parse method' => sub {
     ok $state->parse('[% END %]'),                     'parse should return true for TT END';
 };
 
+subtest 'END marker encountered after code block closed' => sub {
+    my $state = Ovid::Template::File::FindCode->new( filename => 'end_after_close.tt' );
+
+    # Start and close a TT code block
+    $state->parse('[% WRAPPER include/code.tt %]');
+    ok $state->is_in_code, 'Should be in TT code block';
+
+    $state->parse('[% END %]');
+    ok !$state->is_in_code, 'Should be out of code block after first END';
+
+    # Encounter another END marker while not in code (might be part of template logic)
+    $state->parse('[% END %]');
+    ok !$state->is_in_code,    'Should still be out of code block';
+    ok !$state->is_end_marker, 'Standalone END outside code block should not be treated as code end marker';
+};
+
+subtest 'TT wrapper without language attribute' => sub {
+    my $state = Ovid::Template::File::FindCode->new( filename => 'wrapper_no_lang.tt' );
+
+    # TT wrapper with no language specified
+    $state->parse('[% WRAPPER include/code.tt %]');
+    ok $state->is_in_code, 'Should be in code block with TT wrapper without language';
+    is $state->language, '', 'Language should be empty when not specified';
+    ok $state->is_start_marker, 'Should be at start marker';
+
+    $state->parse('some code');
+    ok $state->is_in_code, 'Should remain in code block';
+
+    $state->parse('[% END %]');
+    ok !$state->is_in_code,   'Should exit code block';
+    ok $state->is_end_marker, 'Should be at end marker';
+};
+
 done_testing;

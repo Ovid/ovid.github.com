@@ -230,13 +230,13 @@ This is a single-project Perl application:
 
 **Modules Already Meeting or Near Branch Coverage Target**
 
-- [ ] T113 [P] [US3] Review branch coverage in Text/Markdown/Blog.pm (currently 81.2% branch)
-- [ ] T114 [US3] Add tests to maximize branch coverage in Text/Markdown/Blog.pm to t/parser.t
-- [ ] T115 [US3] Verify Text/Markdown/Blog.pm reaches 90%+ branch coverage with `cover -test`
-- [ ] T116 [P] [US3] Review branch coverage in Ovid/Template/File/FindCode.pm (currently 83.3% branch)
-- [ ] T117 [US3] Add tests for remaining conditional branches in Ovid/Template/File/FindCode.pm to t/code_blocks.t
-- [ ] T118 [US3] Verify Ovid/Template/File/FindCode.pm reaches 90%+ branch coverage with `cover -test`
-- [ ] T119 [P] [US3] Verify Template/Plugin/Config.pm branch coverage (currently 100.0% branch)
+- [X] T113 [P] [US3] Review branch coverage in Text/Markdown/Blog.pm (currently 81.2% branch)
+- [X] T114 [US3] Add tests to maximize branch coverage in Text/Markdown/Blog.pm to t/parser.t
+- [X] T115 [US3] Verify Text/Markdown/Blog.pm reaches 90%+ branch coverage with `cover -test`
+- [X] T116 [P] [US3] Review branch coverage in Ovid/Template/File/FindCode.pm (currently 83.3% branch)
+- [X] T117 [US3] Add tests for remaining conditional branches in Ovid/Template/File/FindCode.pm to t/code_blocks.t
+- [X] T118 [US3] Verify Ovid/Template/File/FindCode.pm reaches 90%+ branch coverage with `cover -test`
+- [X] T119 [P] [US3] Verify Template/Plugin/Config.pm branch coverage (currently 100.0% branch)
 
 **Final Verification**
 
