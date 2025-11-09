@@ -70,13 +70,12 @@ subtest 'iteration boundary conditions' => sub {
 # Test file path handling for non-.html files
 # Covers line 67-68: elsif (not -e $file) branches
 subtest 'file path handling edge cases' => sub {
+
     # Test with actual template files that exist (non-.html paths)
     # This triggers the elsif F branch (file exists, not .html)
-    my $coll = Collection->new(
-        files => ['root/blog/life-on-venus.tt']
-    );
+    my $coll = Collection->new( files => ['root/blog/life-on-venus.tt'] );
     is $coll->count, 1, 'Should accept non-.html file paths that exist';
-    
+
     # Test error handling for missing non-.html file
     # This triggers the elsif T branch (file doesn't exist, not .html)
     throws_ok {
@@ -88,11 +87,12 @@ subtest 'file path handling edge cases' => sub {
 # Test error handling for missing template files
 # Covers line 71: unless (-e $file) branch (T branch - missing .tt2markdown)
 subtest 'missing template file error handling' => sub {
+
     # This tests the case where .html file maps to missing .tt and .tt2markdown
     throws_ok {
         Collection->new( files => ['blog/nonexistent-article-xyz.html'] )
     }
-    qr/Cannot find template file/, 
+    qr/Cannot find template file/,
       'Should croak when neither .tt nor .tt2markdown exists for .html file';
 };
 
