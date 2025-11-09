@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-11-09
 
 ## Active Technologies
+- Perl 5.40+ (project standard per constitution) + Template Toolkit 2.x, Dialog.js (client-side for JS mode) (002-footnote-noscript-fallback)
+- N/A (static site generation, no database for this feature) (002-footnote-noscript-fallback)
 
 - Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
@@ -66,6 +68,7 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
+- 002-footnote-noscript-fallback: Added Perl 5.40+ (project standard per constitution) + Template Toolkit 2.x, Dialog.js (client-side for JS mode)
 
 - 001-test-coverage-improvement: Added Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite
 
