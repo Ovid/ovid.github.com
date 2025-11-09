@@ -37,20 +37,20 @@ This is a single-project Perl application:
 
 **⚠️ CRITICAL**: No module testing can begin until this phase is complete
 
-- [ ] T005 Create usage analysis script skeleton in bin/analyze-usage with CLI argument parsing (--module, --output, --format per usage-analysis-contract.md)
-- [ ] T005a Implement module file parsing logic in bin/analyze-usage to extract subroutine definitions
-- [ ] T005b Implement workspace search logic in bin/analyze-usage to find method call sites
-- [ ] T005c Implement usage frequency calculation in bin/analyze-usage for each method
-- [ ] T005d Implement report generation logic in bin/analyze-usage supporting both JSON and text formats per usage-analysis-contract.md
-- [ ] T005e Add error handling and validation to bin/analyze-usage with proper exit codes
-- [ ] T005f Verify bin/analyze-usage produces correct output for sample module using contract-compliant CLI (--module, --output, --format)
-- [ ] T006 Run usage analysis on all 15 modules using bin/analyze-usage --module <path> to identify potentially unused methods
-- [ ] T007 Document usage analysis results in specs/001-test-coverage-improvement/usage-analysis-results.md
-- [ ] T008 Create test fixtures directory structure in t/fixtures/ for shared test data
-- [ ] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
-- [ ] T009a Define and document integration test suite in t/integration/ for end-to-end validation
-- [ ] T009b Create basic integration tests to verify foundational setup is working
-- [ ] T009c Setup Test::MockModule and Test::MockObject infrastructure ONLY for cases where real dependencies cannot be used (external APIs, non-deterministic behavior)
+- [X] T005 Create usage analysis script skeleton in bin/analyze-usage with CLI argument parsing (--module, --output, --format per usage-analysis-contract.md)
+- [X] T005a Implement module file parsing logic in bin/analyze-usage to extract subroutine definitions
+- [X] T005b Implement workspace search logic in bin/analyze-usage to find method call sites
+- [X] T005c Implement usage frequency calculation in bin/analyze-usage for each method
+- [X] T005d Implement report generation logic in bin/analyze-usage supporting both JSON and text formats per usage-analysis-contract.md
+- [X] T005e Add error handling and validation to bin/analyze-usage with proper exit codes
+- [X] T005f Verify bin/analyze-usage produces correct output for sample module using contract-compliant CLI (--module, --output, --format)
+- [X] T006 Run usage analysis on all 15 modules using bin/analyze-usage --module <path> to identify potentially unused methods
+- [X] T007 Document usage analysis results in specs/001-test-coverage-improvement/usage-analysis-results.md
+- [X] T008 Create test fixtures directory structure in t/fixtures/ for shared test data
+- [X] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
+- [X] T009a Define and document integration test suite in t/integration/ for end-to-end validation
+- [X] T009b Create basic integration tests to verify foundational setup is working
+- [X] T009c Setup Test::MockModule and Test::MockObject infrastructure ONLY for cases where real dependencies cannot be used (external APIs, non-deterministic behavior)
 
 **Checkpoint**: Foundation ready - module testing can now begin (lowest coverage first)
 
