@@ -42,6 +42,10 @@ package Ovid::Template::File::Collection {
         $self->_files(\@files);
     }
 
+    # TODO (Coverage Improvement 001): Verify template usage before removal
+    # Iterator method - may be called from templates via FOREACH loops or TT NEXT directive
+    # Static analysis cannot detect Template Toolkit iterator usage patterns
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub next ($self) {
         my $i = $self->_index;
         return if $i - 1 > $self->count;
@@ -50,6 +54,10 @@ package Ovid::Template::File::Collection {
         return $self->files->[$i];
     }
 
+    # TODO (Coverage Improvement 001): Verify template usage before removal
+    # Iterator reset method - typically paired with next() for template iterations
+    # Static analysis cannot detect Template Toolkit iterator usage patterns
+    # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub reset ($self) {
         $self->_index(0);
     }

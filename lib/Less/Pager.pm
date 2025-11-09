@@ -61,6 +61,10 @@ sub total_pages ($self) {
     return $pages == int($pages) ? $pages : int($pages) + 1;
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls. May be used for pagination in templates.
+# Note: Similar to next_post() but different signature. Verify if legacy code.
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub next ($self) {
     return if $self->_current_offset >= $self->total;
     my $limit  = $self->items_per_page;
@@ -146,6 +150,10 @@ SQL
     return $result->[0];
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls. May be iterator method for templates.
+# Could be used to get all articles without pagination.
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub all ($self) {
     my $order = $self->oldest_first ? 'ASC' : 'DESC';
     return dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );

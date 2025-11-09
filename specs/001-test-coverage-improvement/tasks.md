@@ -64,23 +64,23 @@ This is a single-project Perl application:
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Analyze Template/Plugin/Ovid.pm (36.1% coverage) - identify unused methods in lib/Template/Plugin/Ovid.pm
-- [ ] T011 [P] [US1] Analyze Ovid/Site/AI/Images.pm (47.7% coverage) - identify unused methods in lib/Ovid/Site/AI/Images.pm
-- [ ] T012 [P] [US1] Analyze Ovid/Template/Role/Debug.pm (63.3% coverage) - identify unused methods in lib/Ovid/Template/Role/Debug.pm
-- [ ] T013 [P] [US1] Analyze Less/Pager.pm (78.7% coverage) - identify unused methods in lib/Less/Pager.pm
-- [ ] T014 [P] [US1] Analyze Ovid/Template/File.pm (82.9% coverage) - identify unused methods in lib/Ovid/Template/File.pm
-- [ ] T015 [P] [US1] Analyze Less/Boilerplate.pm (85.1% coverage) - identify unused methods in lib/Less/Boilerplate.pm
-- [ ] T016 [P] [US1] Analyze Less/Script.pm (86.1% coverage) - identify unused methods in lib/Less/Script.pm
-- [ ] T017 [P] [US1] Analyze Text/Markdown/Blog.pm (87.6% coverage) - identify unused methods in lib/Text/Markdown/Blog.pm
-- [ ] T018 [P] [US1] Analyze Ovid/Template/File/Collection.pm (88.2% coverage) - identify unused methods in lib/Ovid/Template/File/Collection.pm
-- [ ] T019 [P] [US1] Analyze Ovid/Template/File/FindCode.pm (93.2% coverage) - identify unused methods in lib/Ovid/Template/File/FindCode.pm
-- [ ] T020 [P] [US1] Analyze Less/Config.pm (94.7% coverage) - identify unused methods in lib/Less/Config.pm
-- [ ] T021 [P] [US1] Analyze Ovid/Site/Utils.pm (97.6% coverage) - identify unused methods in lib/Ovid/Site/Utils.pm
-- [ ] T022 [P] [US1] Analyze Ovid/Template/Role/File.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Template/Role/File.pm
-- [ ] T023 [P] [US1] Analyze Ovid/Types.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Types.pm
-- [ ] T024 [P] [US1] Analyze Template/Plugin/Config.pm (100.0% coverage) - verify all methods are used in lib/Template/Plugin/Config.pm
-- [ ] T025 [US1] Document all unused code findings with removal/test/keep recommendations in specs/001-test-coverage-improvement/unused-code-decisions.md
-- [ ] T026 [US1] Add TODO comments to source files for identified unused methods with recommended actions
+- [X] T010 [P] [US1] Analyze Template/Plugin/Ovid.pm (36.1% coverage) - identify unused methods in lib/Template/Plugin/Ovid.pm
+- [X] T011 [P] [US1] Analyze Ovid/Site/AI/Images.pm (47.7% coverage) - identify unused methods in lib/Ovid/Site/AI/Images.pm
+- [X] T012 [P] [US1] Analyze Ovid/Template/Role/Debug.pm (63.3% coverage) - identify unused methods in lib/Ovid/Template/Role/Debug.pm
+- [X] T013 [P] [US1] Analyze Less/Pager.pm (78.7% coverage) - identify unused methods in lib/Less/Pager.pm
+- [X] T014 [P] [US1] Analyze Ovid/Template/File.pm (82.9% coverage) - identify unused methods in lib/Ovid/Template/File.pm
+- [X] T015 [P] [US1] Analyze Less/Boilerplate.pm (85.1% coverage) - identify unused methods in lib/Less/Boilerplate.pm
+- [X] T016 [P] [US1] Analyze Less/Script.pm (86.1% coverage) - identify unused methods in lib/Less/Script.pm
+- [X] T017 [P] [US1] Analyze Text/Markdown/Blog.pm (87.6% coverage) - identify unused methods in lib/Text/Markdown/Blog.pm
+- [X] T018 [P] [US1] Analyze Ovid/Template/File/Collection.pm (88.2% coverage) - identify unused methods in lib/Ovid/Template/File/Collection.pm
+- [X] T019 [P] [US1] Analyze Ovid/Template/File/FindCode.pm (93.2% coverage) - identify unused methods in lib/Ovid/Template/File/FindCode.pm
+- [X] T020 [P] [US1] Analyze Less/Config.pm (94.7% coverage) - identify unused methods in lib/Less/Config.pm
+- [X] T021 [P] [US1] Analyze Ovid/Site/Utils.pm (97.6% coverage) - identify unused methods in lib/Ovid/Site/Utils.pm
+- [X] T022 [P] [US1] Analyze Ovid/Template/Role/File.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Template/Role/File.pm
+- [X] T023 [P] [US1] Analyze Ovid/Types.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Types.pm
+- [X] T024 [P] [US1] Analyze Template/Plugin/Config.pm (100.0% coverage) - verify all methods are used in lib/Template/Plugin/Config.pm
+- [X] T025 [US1] Document all unused code findings with removal/test/keep recommendations in specs/001-test-coverage-improvement/unused-code-decisions.md
+- [X] T026 [US1] Add TODO comments to source files for identified unused methods with recommended actions
 
 **Checkpoint**: At this point, all unused code should be documented and marked for future action
 

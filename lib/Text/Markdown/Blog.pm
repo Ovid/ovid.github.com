@@ -28,6 +28,10 @@ my %REPLACEMENTS = (
     $BLANK     => '_blank',
 );
 
+# TODO (Coverage Improvement 001): Verify if this is legacy or alternative entry point
+# Static analysis shows no Perl code calls. May be used in build process or templates.
+# Check bin/rebuild and template processing code for usage.
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub blogdown ( $self, $text, $options = {} ) {
     $text = $self->_fix_code_blocks($text);
     my $html = $self->markdown( $text, $options );

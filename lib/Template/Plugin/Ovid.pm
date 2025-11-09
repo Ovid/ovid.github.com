@@ -28,6 +28,8 @@ sub new ( $class, $context ) {
     }, $class;
 }
 
+# NOTE: Called from Template Toolkit templates (root/include/header.tt)
+# Used for og:image:type meta tags. Static analysis cannot detect this usage.
 sub image_type ( $self, $image ) {
     return
         $image =~ /\.png$/   ? 'image/png'
@@ -41,14 +43,21 @@ sub cite ( $self, $path, $name ) {
       $name;
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub tags ($self) {
     return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
 }
 
+# NOTE: Called from Template Toolkit templates (root/include/tags_for_article.tt)
+# Returns array of tags for a given URL. Static analysis cannot detect template usage.
 sub tags_for_url ( $self, $url ) {
     return $self->{tagmap}{__ALL__}{$url} // [];
 }
 
+# NOTE: Called from Template Toolkit templates (root/include/links.tt)
+# Returns tags sorted by weight for tag cloud display. Static analysis cannot detect template usage.
 sub tags_by_weight($self) {
     my %tags = map { $_ => $self->weight_for_tag($_) } $self->tags;
 
@@ -57,10 +66,16 @@ sub tags_by_weight($self) {
     return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub has_articles_for_tag ( $self, $tag ) {
     return exists $self->{tagmap}{$tag};
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub name_for_tag ( $self, $tag ) {
     my $name = config()->{tagmap}{$tag}
       or croak("Cannot find name for unknown tag '$tag'");
@@ -90,12 +105,18 @@ sub count_for_tag ( $self, $tag ) {
     return $count;
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub files_for_tag ( $self, $tag ) {
     my $files = $self->{tagmap}{$tag}{files}
       or croak("Cannot find files for unknown tag '$tag'");
     return Collection->new( files => $files );
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub title_for_tag_file ( $self, $tag, $file ) {
     my $title = $self->{tagmap}{$tag}{titles}{$file}
       or croak("Cannot find title for unknown tag '$tag'");
@@ -121,9 +142,13 @@ HTML
     return $dialog;
 }
 
+# NOTE: Called from Template Toolkit templates (multiple article templates)
+# Used for creating footnotes. Static analysis cannot detect template usage.
 # because I keep writing Ovid.note instead of Ovid.add_note
 sub note ( $self, @args ) { $self->add_note(@args) }
 
+# NOTE: Called from Template Toolkit templates (publicspeaking.tt, videos.tt2markdown, multiple articles)
+# Embeds YouTube videos in responsive containers. Static analysis cannot detect template usage.
 sub youtube ( $self, $youtube_id ) {
     if ( $youtube_id =~ m{/} ) {
         croak("Youtube id '$youtube_id' id does not appear to be valid");
@@ -165,10 +190,14 @@ sub link ( $self, $path, $name ) {
     return sprintf '<a href="%s">%s</a>' => $path, $name;
 }
 
+# NOTE: Called from Template Toolkit templates (root/include/footer.tt)
+# Returns array of footnotes for rendering. Static analysis cannot detect template usage.
 sub get_footnotes($self) {
     return $self->{footnotes};
 }
 
+# NOTE: Called from Template Toolkit templates (root/include/footer.tt)
+# Checks if any footnotes exist before rendering footer. Static analysis cannot detect template usage.
 sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
 }
@@ -185,6 +214,9 @@ sub next_post ( $self, $type, $slug ) {
     return $self->{pager}->next_post( $type, $slug );
 }
 
+# TODO (Coverage Improvement 001): Verify template usage before removal
+# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
+# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub is_blog ( $self, $type ) {
     return $type eq 'blog';
 }
