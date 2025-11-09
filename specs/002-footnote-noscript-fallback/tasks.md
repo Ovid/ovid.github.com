@@ -30,10 +30,10 @@ description: "Task list for Footnote NoScript Fallback feature implementation"
 
 **Purpose**: Verify environment and baseline tests
 
-- [ ] T001 Activate Perl 5.40+ environment via `source ~/.bash_profile`
-- [ ] T002 Run baseline tests with `prove -l t/ovid_plugin.t` to establish passing state
-- [ ] T003 [P] Review existing footnote implementation in lib/Template/Plugin/Ovid.pm (lines 1-200)
-- [ ] T004 [P] Review existing footer template in root/include/footer.tt for footnote rendering section
+- [X] T001 Activate Perl 5.40+ environment via `source ~/.bash_profile`
+- [X] T002 Run baseline tests with `prove -l t/ovid_plugin.t` to establish passing state
+- [X] T003 [P] Review existing footnote implementation in lib/Template/Plugin/Ovid.pm (lines 1-200)
+- [X] T004 [P] Review existing footer template in root/include/footer.tt for footnote rendering section
 
 ---
 
