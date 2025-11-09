@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2025-11-09
 
 ## Active Technologies
 
-- Perl 5.40+ + Devel::Cover, Test2::Suite (Test2::V0, Test2::Tools::*), Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
+- Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
 ## Project Structure
 
@@ -61,13 +61,13 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - Use `use v5.40;` or higher in all modules
 - Subroutine signatures required
 - Format all code with perltidy using .perltidyrc
-- 90%+ test coverage (Test2::Suite)
+- 90%+ test coverage (Test::Most)
 - Full POD documentation for all modules
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
 
-- 001-test-coverage-improvement: Added Perl 5.40+ + Devel::Cover, Test2::Suite (Test2::V0, Test2::Tools::*), Type::Tiny, Getopt::Long, SQLite
+- 001-test-coverage-improvement: Added Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
