@@ -37,11 +37,18 @@ This is a single-project Perl application:
 
 **⚠️ CRITICAL**: No module testing can begin until this phase is complete
 
-- [ ] T005 Create usage analysis script in bin/analyze-usage implementing usage-analysis-contract.md
+- [ ] T005 Create usage analysis script skeleton in bin/analyze-usage with CLI argument parsing
+- [ ] T005a Implement module file parsing logic in bin/analyze-usage to extract subroutine definitions
+- [ ] T005b Implement workspace search logic in bin/analyze-usage to find method call sites
+- [ ] T005c Implement usage frequency calculation in bin/analyze-usage for each method
+- [ ] T005d Implement report generation logic in bin/analyze-usage per usage-analysis-contract.md
+- [ ] T005e Add error handling and validation to bin/analyze-usage
+- [ ] T005f Verify bin/analyze-usage produces correct output for sample module
 - [ ] T006 Run usage analysis on all 15 modules to identify potentially unused methods
 - [ ] T007 Document usage analysis results in specs/001-test-coverage-improvement/usage-analysis-results.md
 - [ ] T008 Create test fixtures directory structure in t/fixtures/ for shared test data
 - [ ] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
+- [ ] T009a Run integration tests to verify foundational setup is working
 
 **Checkpoint**: Foundation ready - module testing can now begin (lowest coverage first)
 
@@ -88,12 +95,14 @@ This is a single-project Perl application:
 **Module Group 1: Critical Coverage Gaps (Below 50%)**
 
 - [ ] T027 [US2] Review existing test file t/ovid_plugin.t for Template/Plugin/Ovid.pm (currently 39.7% stmt)
+- [ ] T027a [US2] Check for duplicate test cases in t/ovid_plugin.t before adding new tests (FR-013)
 - [ ] T028 [US2] Add tests for uncovered methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T029 [US2] Add tests for string manipulation methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T030 [US2] Add tests for date formatting methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T031 [US2] Add tests for error conditions in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T032 [US2] Verify Template/Plugin/Ovid.pm reaches 90%+ coverage with `cover -test`
 - [ ] T033 [US2] Review existing test coverage for Ovid/Site/AI/Images.pm (currently 46.1% stmt)
+- [ ] T033a [US2] Check for duplicate test cases before adding tests to Ovid/Site/AI/Images.pm (FR-013)
 - [ ] T034 [US2] Create or enhance t/ai_images.t for Ovid/Site/AI/Images.pm
 - [ ] T035 [US2] Add tests for image processing methods in Ovid/Site/AI/Images.pm to t/ai_images.t
 - [ ] T036 [US2] Add tests for AI integration methods in Ovid/Site/AI/Images.pm to t/ai_images.t
@@ -104,11 +113,13 @@ This is a single-project Perl application:
 **Module Group 2: Moderate Coverage Gaps (50-80%)**
 
 - [ ] T040 [US2] Review existing test coverage for Ovid/Template/Role/Debug.pm (currently 70.0% stmt)
+- [ ] T040a [US2] Check for duplicate test cases before adding tests to Ovid/Template/Role/Debug.pm (FR-013)
 - [ ] T041 [US2] Create or enhance test file for Ovid/Template/Role/Debug.pm
 - [ ] T042 [US2] Add tests for debug output methods in Ovid/Template/Role/Debug.pm
 - [ ] T043 [US2] Add tests for conditional debug logic in Ovid/Template/Role/Debug.pm
 - [ ] T044 [US2] Verify Ovid/Template/Role/Debug.pm reaches 90%+ coverage with `cover -test`
 - [ ] T045 [US2] Review existing test file t/pager.t for Less/Pager.pm (currently 82.8% stmt)
+- [ ] T045a [US2] Check for duplicate test cases in t/pager.t before adding new tests (FR-013)
 - [ ] T046 [US2] Add tests for uncovered pagination edge cases in Less/Pager.pm to t/pager.t
 - [ ] T047 [US2] Add tests for boundary conditions in Less/Pager.pm to t/pager.t
 - [ ] T048 [US2] Add tests for error conditions in Less/Pager.pm to t/pager.t
@@ -117,22 +128,27 @@ This is a single-project Perl application:
 **Module Group 3: Near-Target Coverage (80-90%)**
 
 - [ ] T050 [US2] Review existing test file t/template_requirements.t for Ovid/Template/File.pm (currently 87.5% stmt)
+- [ ] T050a [US2] Check for duplicate test cases in t/template_requirements.t before adding new tests (FR-013)
 - [ ] T051 [US2] Add tests for uncovered template processing methods in Ovid/Template/File.pm
 - [ ] T052 [US2] Add tests for error conditions in Ovid/Template/File.pm template rendering
 - [ ] T053 [US2] Add tests for edge cases in Ovid/Template/File.pm file operations
 - [ ] T054 [US2] Verify Ovid/Template/File.pm reaches 90%+ coverage with `cover -test`
 - [ ] T055 [US2] Review existing test file t/blogdown.t for Less/Boilerplate.pm (currently 83.7% stmt)
+- [ ] T055a [US2] Check for duplicate test cases in t/blogdown.t before adding new tests (FR-013)
 - [ ] T056 [US2] Add tests for uncovered boilerplate methods in Less/Boilerplate.pm to t/blogdown.t
 - [ ] T057 [US2] Add tests for initialization edge cases in Less/Boilerplate.pm to t/blogdown.t
 - [ ] T058 [US2] Verify Less/Boilerplate.pm reaches 90%+ coverage with `cover -test`
 - [ ] T059 [US2] Review existing test file for Less/Script.pm (currently 88.2% stmt)
+- [ ] T059a [US2] Check for duplicate test cases before adding tests to Less/Script.pm (FR-013)
 - [ ] T060 [US2] Add tests for uncovered script methods in Less/Script.pm
 - [ ] T061 [US2] Add tests for command-line argument handling in Less/Script.pm
 - [ ] T062 [US2] Verify Less/Script.pm reaches 90%+ coverage with `cover -test`
 - [ ] T063 [US2] Review existing test file t/parser.t for Text/Markdown/Blog.pm (currently 92.5% stmt - already above 90%)
+- [ ] T063a [US2] Check for duplicate test cases in t/parser.t before adding new tests (FR-013)
 - [ ] T064 [US2] Add tests to maximize coverage in Text/Markdown/Blog.pm to t/parser.t
 - [ ] T065 [US2] Verify Text/Markdown/Blog.pm maintains/improves 90%+ coverage with `cover -test`
 - [ ] T066 [US2] Review existing test file t/collection.t for Ovid/Template/File/Collection.pm (currently 95.5% stmt - already above 90%)
+- [ ] T066a [US2] Check for duplicate test cases in t/collection.t before adding new tests (FR-013)
 - [ ] T067 [US2] Add tests to maximize coverage in Ovid/Template/File/Collection.pm to t/collection.t
 - [ ] T068 [US2] Verify Ovid/Template/File/Collection.pm maintains/improves coverage with `cover -test`
 
@@ -154,6 +170,8 @@ This is a single-project Perl application:
 - [ ] T079 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report
 - [ ] T080 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md
 - [ ] T081 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
+- [ ] T081a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
+- [ ] T081b [US2] Run integration tests to verify User Story 2 completion
 
 **Checkpoint**: At this point, all modules should meet 90%+ statement coverage threshold
 
@@ -219,6 +237,7 @@ This is a single-project Perl application:
 - [ ] T120 [US3] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
 - [ ] T121 [US3] Verify all modules with conditional logic show minimum 90% branch coverage
 - [ ] T122 [US3] Document any branches that cannot be covered with justification in specs/001-test-coverage-improvement/branch-coverage-exceptions.md
+- [ ] T122a [US3] Run integration tests to verify User Story 3 completion
 
 **Checkpoint**: All modules with conditional logic should meet 90%+ branch coverage threshold
 
@@ -240,6 +259,7 @@ This is a single-project Perl application:
 - [ ] T128 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
 - [ ] T129 [US4] Update project README.md with coverage testing instructions
 - [ ] T130 [US4] Create developer guide for maintaining 90%+ coverage in docs/testing-guide.md
+- [ ] T130a [US4] Run integration tests to verify User Story 4 completion
 
 **Checkpoint**: All coverage decisions and gaps should be fully documented
 
@@ -372,13 +392,13 @@ This delivers immediate value by identifying refactoring candidates and preventi
 
 ## Task Statistics
 
-- **Total Tasks**: 140
+- **Total Tasks**: 159
 - **Setup Phase**: 4 tasks
-- **Foundational Phase**: 5 tasks
+- **Foundational Phase**: 12 tasks (includes T005a-f, T009a)
 - **User Story 1 (P1)**: 17 tasks
-- **User Story 2 (P2)**: 55 tasks
-- **User Story 3 (P3)**: 41 tasks
-- **User Story 4 (P4)**: 8 tasks
+- **User Story 2 (P2)**: 64 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T081a, T081b)
+- **User Story 3 (P3)**: 42 tasks (includes integration checkpoint T122a)
+- **User Story 4 (P4)**: 9 tasks (includes integration checkpoint T130a)
 - **Polish Phase**: 10 tasks
 - **Parallelizable Tasks**: 67 tasks marked [P]
-- **Estimated MVP Effort**: ~26 tasks (Phases 1-3)
+- **Estimated MVP Effort**: ~33 tasks (Phases 1-3 with expanded foundational)
