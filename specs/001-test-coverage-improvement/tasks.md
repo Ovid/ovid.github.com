@@ -37,18 +37,20 @@ This is a single-project Perl application:
 
 **⚠️ CRITICAL**: No module testing can begin until this phase is complete
 
-- [ ] T005 Create usage analysis script skeleton in bin/analyze-usage with CLI argument parsing
+- [ ] T005 Create usage analysis script skeleton in bin/analyze-usage with CLI argument parsing (--module, --output, --format per usage-analysis-contract.md)
 - [ ] T005a Implement module file parsing logic in bin/analyze-usage to extract subroutine definitions
 - [ ] T005b Implement workspace search logic in bin/analyze-usage to find method call sites
 - [ ] T005c Implement usage frequency calculation in bin/analyze-usage for each method
-- [ ] T005d Implement report generation logic in bin/analyze-usage per usage-analysis-contract.md
-- [ ] T005e Add error handling and validation to bin/analyze-usage
-- [ ] T005f Verify bin/analyze-usage produces correct output for sample module
-- [ ] T006 Run usage analysis on all 15 modules to identify potentially unused methods
+- [ ] T005d Implement report generation logic in bin/analyze-usage supporting both JSON and text formats per usage-analysis-contract.md
+- [ ] T005e Add error handling and validation to bin/analyze-usage with proper exit codes
+- [ ] T005f Verify bin/analyze-usage produces correct output for sample module using contract-compliant CLI (--module, --output, --format)
+- [ ] T006 Run usage analysis on all 15 modules using bin/analyze-usage --module <path> to identify potentially unused methods
 - [ ] T007 Document usage analysis results in specs/001-test-coverage-improvement/usage-analysis-results.md
 - [ ] T008 Create test fixtures directory structure in t/fixtures/ for shared test data
 - [ ] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
-- [ ] T009a Run integration tests to verify foundational setup is working
+- [ ] T009a Define and document integration test suite in t/integration/ for end-to-end validation
+- [ ] T009b Create basic integration tests to verify foundational setup is working
+- [ ] T009c Setup Test::MockModule and Test::MockObject infrastructure for dependency mocking
 
 **Checkpoint**: Foundation ready - module testing can now begin (lowest coverage first)
 
@@ -95,7 +97,7 @@ This is a single-project Perl application:
 **Module Group 1: Critical Coverage Gaps (Below 50%)**
 
 - [ ] T027 [US2] Review existing test file t/ovid_plugin.t for Template/Plugin/Ovid.pm (currently 39.7% stmt)
-- [ ] T027a [US2] Check for duplicate test cases in t/ovid_plugin.t before adding new tests (FR-013)
+- [ ] T027a [US2] Check for duplicate test cases in t/ovid_plugin.t by reviewing existing assertions and test coverage before adding new tests (FR-013)
 - [ ] T028 [US2] Add tests for uncovered methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T029 [US2] Add tests for string manipulation methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
 - [ ] T030 [US2] Add tests for date formatting methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
@@ -168,10 +170,11 @@ This is a single-project Perl application:
 
 - [ ] T078 [US2] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
 - [ ] T079 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report
-- [ ] T080 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md
+- [ ] T080 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md (Coverage is "highest achievable" when remaining uncovered lines are documented as untestable per FR-011)
 - [ ] T081 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
 - [ ] T081a [US2] Validate that test file structure mirrors lib/ directory structure (FR-005)
-- [ ] T081b [US2] Run integration tests to verify User Story 2 completion
+- [ ] T081b [US2] Run integration tests from t/integration/ to verify User Story 2 completion
+- [ ] T081c [US2] Audit all test files to verify consistent Test::Most usage (no Test::More or other frameworks)
 
 **Checkpoint**: At this point, all modules should meet 90%+ statement coverage threshold
 
@@ -237,7 +240,7 @@ This is a single-project Perl application:
 - [ ] T120 [US3] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
 - [ ] T121 [US3] Verify all modules with conditional logic show minimum 90% branch coverage
 - [ ] T122 [US3] Document any branches that cannot be covered with justification in specs/001-test-coverage-improvement/branch-coverage-exceptions.md
-- [ ] T122a [US3] Run integration tests to verify User Story 3 completion
+- [ ] T122a [US3] Run integration tests from t/integration/ to verify User Story 3 completion
 
 **Checkpoint**: All modules with conditional logic should meet 90%+ branch coverage threshold
 
@@ -259,7 +262,7 @@ This is a single-project Perl application:
 - [ ] T128 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
 - [ ] T129 [US4] Update project README.md with coverage testing instructions
 - [ ] T130 [US4] Create developer guide for maintaining 90%+ coverage in docs/testing-guide.md
-- [ ] T130a [US4] Run integration tests to verify User Story 4 completion
+- [ ] T130a [US4] Run integration tests from t/integration/ to verify User Story 4 completion
 
 **Checkpoint**: All coverage decisions and gaps should be fully documented
 
@@ -274,7 +277,7 @@ This is a single-project Perl application:
 - [ ] T133 Verify test suite performance is under 60 seconds with `time prove -l t/`
 - [ ] T134 Generate final coverage report with `cover -test && cover -report html -outputdir coverage-report`
 - [ ] T135 [P] Review and update quickstart.md based on actual implementation
-- [ ] T136 Create coverage badge or status indicator for project documentation
+- [ ] T136 Create coverage badge in SVG format for inclusion in README.md
 - [ ] T137 Document coverage CI/CD integration recommendations in specs/001-test-coverage-improvement/ci-integration.md
 - [ ] T138 Clean up temporary coverage artifacts with `cover -delete`
 - [ ] T139 Commit final coverage reports and documentation
@@ -349,9 +352,9 @@ cover -test
 
 ```bash
 # Analyze all modules in parallel (read-only operations):
-bin/analyze-usage lib/Template/Plugin/Ovid.pm > analysis/ovid_plugin.txt &
-bin/analyze-usage lib/Ovid/Site/AI/Images.pm > analysis/ai_images.txt &
-bin/analyze-usage lib/Ovid/Template/Role/Debug.pm > analysis/debug.txt &
+bin/analyze-usage --module lib/Template/Plugin/Ovid.pm --output analysis/ovid_plugin.txt &
+bin/analyze-usage --module lib/Ovid/Site/AI/Images.pm --output analysis/ai_images.txt &
+bin/analyze-usage --module lib/Ovid/Template/Role/Debug.pm --output analysis/debug.txt &
 # ... (continue for all 15 modules)
 wait
 ```
@@ -392,13 +395,13 @@ This delivers immediate value by identifying refactoring candidates and preventi
 
 ## Task Statistics
 
-- **Total Tasks**: 159
+- **Total Tasks**: 162
 - **Setup Phase**: 4 tasks
-- **Foundational Phase**: 12 tasks (includes T005a-f, T009a)
+- **Foundational Phase**: 14 tasks (includes T005a-f, T009a-c expanded for integration tests and mocking infrastructure)
 - **User Story 1 (P1)**: 17 tasks
-- **User Story 2 (P2)**: 64 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T081a, T081b)
+- **User Story 2 (P2)**: 65 tasks (includes duplicate checks T027a, T033a, T040a, T045a, T050a, T055a, T059a, T063a, T066a; validation tasks T081a-c)
 - **User Story 3 (P3)**: 42 tasks (includes integration checkpoint T122a)
 - **User Story 4 (P4)**: 9 tasks (includes integration checkpoint T130a)
 - **Polish Phase**: 10 tasks
 - **Parallelizable Tasks**: 67 tasks marked [P]
-- **Estimated MVP Effort**: ~33 tasks (Phases 1-3 with expanded foundational)
+- **Estimated MVP Effort**: ~35 tasks (Phases 1-3 with expanded foundational infrastructure)

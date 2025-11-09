@@ -38,7 +38,7 @@ Represents a Test2::Suite test file corresponding to a module.
 - `test_count` (int): Number of test assertions/subtests
 - `coverage_contributed` (float): Coverage percentage added by this test file
 - `assertions` (array<string>): List of test assertion descriptions
-- `framework` (string): Testing framework used (must be "Test2::Suite")
+- `framework` (string): Testing framework used (must be "Test::Most")
 
 **Relationships**:
 - Belongs to `Module Under Test`
@@ -46,7 +46,7 @@ Represents a Test2::Suite test file corresponding to a module.
 
 **Validation Rules**:
 - `file_path` must mirror `lib/` structure in `t/`
-- `framework` must be "Test2::Suite" (no Test::More)
+- `framework` must be "Test::Most" (no Test::More or other frameworks)
 - `test_count` > 0
 
 ### Coverage Report

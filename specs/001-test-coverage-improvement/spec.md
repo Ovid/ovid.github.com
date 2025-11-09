@@ -37,7 +37,7 @@ As a developer, I need to systematically increase test coverage for each module 
 1. **Given** a module with current coverage below 90%, **When** I add comprehensive tests, **Then** running `cover -test` shows statement coverage as high as possible, meeting at least 90%
 2. **Given** a module test file, **When** I review the code, **Then** all tests use Test::Most instead of other testing frameworks
 3. **Given** tests are written for a module, **When** I run the test suite, **Then** all edge cases, error conditions, and normal flows are covered to maximize coverage
-4. **Given** a module reaches maximum achievable coverage, **When** I review uncovered lines, **Then** I can document why remaining lines are not covered (e.g., error handling for impossible states)
+4. **Given** a module reaches maximum achievable coverage, **When** I review uncovered lines, **Then** I can document why remaining lines are not covered (e.g., error handling for impossible states) - coverage is considered "highest achievable" when all remaining uncovered lines have documented justification per FR-011
 5. **Given** all modules reach target coverage, **When** I generate a full coverage report, **Then** no module shows below 90% statement coverage, with each module at its highest possible level
 
 ---
@@ -52,10 +52,10 @@ As a developer, I need to achieve the highest possible branch coverage for condi
 
 **Acceptance Scenarios**:
 
-1. **Given** a module with conditional logic, **When** I run coverage analysis, **Then** each if/else, ternary, and logical operator path is tested to achieve maximum branch coverage
-2. **Given** a module with complex boolean expressions, **When** I write tests, **Then** both true and false outcomes of each condition are covered to maximize coverage
-3. **Given** error handling code with multiple exit paths, **When** tests run, **Then** coverage report shows all error branches executed for highest possible coverage
-4. **Given** a module reaches maximum achievable branch coverage, **When** I review uncovered branches, **Then** each has documented justification for exclusion
+1. **Given** a module with conditional logic, **When** I run coverage analysis, **Then** each if/else, ternary, and logical operator path is tested to achieve maximum branch coverage, with minimum 90%
+2. **Given** a module with complex boolean expressions, **When** I write tests, **Then** both true and false outcomes of each condition are covered to maximize coverage, with minimum 90%
+3. **Given** error handling code with multiple exit paths, **When** tests run, **Then** coverage report shows all error branches executed for highest possible coverage, with minimum 90%
+4. **Given** a module reaches maximum achievable branch coverage, **When** I review uncovered branches, **Then** each has documented justification for exclusion per FR-011 - this defines when branch coverage is "highest achievable"
 
 ---
 
@@ -78,11 +78,16 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 
 ### Edge Cases
 
-- What happens when a module has XS code or platform-specific code that can't be tested on the current system?
-- How do we handle modules that depend on external state (filesystem, database, network) for testing?
-- What if a module is tightly coupled to Template Toolkit rendering and difficult to unit test?
-- How do we test code that only runs during build failures or edge cases that are hard to reproduce?
-- What happens when code coverage tools report inaccurate coverage due to string eval, runtime code generation, or dynamic method calls?
+- **Edge Case 1 (XS/Platform-specific code)**: What happens when a module has XS code or platform-specific code that can't be tested on the current system?
+  - **Resolution**: Document as untestable in coverage-exceptions.md; aim for 100% coverage on pure Perl code (see research.md for detailed approach)
+- **Edge Case 2 (External state dependencies)**: How do we handle modules that depend on external state (filesystem, database, network) for testing?
+  - **Resolution**: Use Test::MockModule and Test::MockObject for mocking; create fixtures in t/fixtures/ (see FR-015, T009c)
+- **Edge Case 3 (Template Toolkit coupling)**: What if a module is tightly coupled to Template Toolkit rendering and difficult to unit test?
+  - **Resolution**: Test by comparing rendered output against expected fixtures; use minimal template fixtures (see research.md)
+- **Edge Case 4 (Build failures/error cases)**: How do we test code that only runs during build failures or edge cases that are hard to reproduce?
+  - **Resolution**: Simulate failures by mocking file operations and invalid inputs; use Test::Most exception testing (throws_ok, dies_ok)
+- **Edge Case 5 (Dynamic code)**: What happens when code coverage tools report inaccurate coverage due to string eval, runtime code generation, or dynamic method calls?
+  - **Resolution**: Static analysis will flag potentially unused code; document dynamic dispatch in usage-analysis-results.md; manual review required
 
 ## Requirements *(mandatory)*
 
@@ -93,8 +98,8 @@ As a developer, I need to document coverage gaps and testing decisions for each 
 - **FR-003**: Developer MUST review each module's current coverage metrics before adding tests
 - **FR-004**: Tests MUST use Test::Most exclusively for new tests
 - **FR-005**: Each module test file MUST mirror the `lib/` structure in the `t/` directory (e.g., `lib/Ovid/Site.pm` → `t/Ovid/Site.t`)
-- **FR-006**: Tests MUST achieve the highest possible statement coverage per module, with a minimum of 90%
-- **FR-007**: Tests MUST achieve the highest possible branch coverage per module where conditional logic exists, with a minimum of 90%
+- **FR-006**: Tests MUST achieve minimum 90% statement coverage per module, aiming for highest achievable level
+- **FR-007**: Tests MUST achieve minimum 90% branch coverage per module where conditional logic exists, aiming for highest achievable level
 - **FR-008**: Tests MUST cover all public methods and exported functions
 - **FR-009**: Tests MUST include error condition testing (invalid inputs, boundary cases, failure modes)
 - **FR-010**: Coverage reports MUST be generated using Devel::Cover with HTML output

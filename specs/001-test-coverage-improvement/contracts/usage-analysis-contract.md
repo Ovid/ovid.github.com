@@ -14,7 +14,7 @@ Defines the interface for analyzing method/function usage across the codebase to
 ### Command Line Interface
 
 ```bash
-analyze-usage.pl --module <path> [--output <file>]
+bin/analyze-usage --module <path> [--output <file>] [--format <json|text>]
 ```
 
 **Parameters**:
@@ -23,6 +23,8 @@ analyze-usage.pl --module <path> [--output <file>]
 - `--format <json|text>`: Output format (default: text)
 
 **Output**: Report of method usage with call sites.
+
+**Script Name**: The script is `bin/analyze-usage` (no file extension) following Unix convention for executable scripts.
 
 ### Data Structure (JSON Format)
 
