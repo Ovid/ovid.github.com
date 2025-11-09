@@ -1,11 +1,9 @@
 # Tasks: Test Coverage Improvement
 
 **Input**: Design documents from `/specs/001-test-coverage-improvement/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
-**Tests**: Tests are the deliverable of this feature - no additional test tasks generated.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story. Modules are addressed from lowest to highest coverage within each user story phase.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -15,143 +13,235 @@
 
 ## Path Conventions
 
-- Existing project structure: `lib/`, `t/`, `bin/` at repository root
-- Test files mirror lib structure in t/
-- Coverage reports in `cover_db/`
+This is a single-project Perl application:
+- Modules: `lib/`
+- Tests: `t/`
+- Coverage reports: `cover_db/`, `coverage-report/`
+
+---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Tool installation and environment setup
+**Purpose**: Project initialization and coverage tooling setup
 
-- [ ] T001 Install Devel::Cover and Test2::Suite dependencies via cpanfile
-- [ ] T002 Configure coverage environment and verify Devel::Cover installation
-- [ ] T003 [P] Update cpanfile with any missing dependencies for testing
+- [ ] T001 Verify Devel::Cover is installed and functional
+- [ ] T002 Run baseline coverage report with `cover -delete && cover -test && cover -report html -outputdir coverage-report`
+- [ ] T003 [P] Document baseline coverage metrics for all 15 modules in specs/001-test-coverage-improvement/baseline-coverage.md
+- [ ] T004 [P] Verify Test::Most is available and all existing tests pass with `prove -l t/`
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core tools and baseline that MUST be complete before ANY user story can be implemented
+**Purpose**: Usage analysis infrastructure that MUST be complete before testing work begins
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No module testing can begin until this phase is complete
 
-- [ ] T004 Create usage analysis script in bin/analyze-usage.pl per usage-analysis-contract.md
-- [ ] T005 Run initial coverage baseline with `cover -test` and generate HTML report
-- [ ] T006 Document current coverage metrics for all 15 modules in coverage-baseline.md
+- [ ] T005 Create usage analysis script in bin/analyze-usage implementing usage-analysis-contract.md
+- [ ] T006 Run usage analysis on all 15 modules to identify potentially unused methods
+- [ ] T007 Document usage analysis results in specs/001-test-coverage-improvement/usage-analysis-results.md
+- [ ] T008 Create test fixtures directory structure in t/fixtures/ for shared test data
+- [ ] T009 Setup SQLite test database fixtures in t/fixtures/test.db for integration tests
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - module testing can now begin (lowest coverage first)
 
 ---
 
 ## Phase 3: User Story 1 - Identify Unused Code (Priority: P1) 🎯 MVP
 
-**Goal**: Analyze each module to identify methods/functions with zero call sites and document findings
+**Goal**: Analyze all 15 modules to identify and document unused code, enabling informed testing decisions
 
-**Independent Test**: Run usage analysis script on a module and verify it identifies potentially unused methods
+**Independent Test**: Run usage analysis script on each module and verify it produces accurate reports of method usage with call sites and frequency
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Analyze usage for lib/Less/Boilerplate.pm and document potentially unused methods
-- [ ] T008 [P] [US1] Analyze usage for lib/Less/Config.pm and document potentially unused methods
-- [ ] T009 [P] [US1] Analyze usage for lib/Less/Pager.pm and document potentially unused methods
-- [ ] T010 [P] [US1] Analyze usage for lib/Less/Script.pm and document potentially unused methods
-- [ ] T011 [P] [US1] Analyze usage for lib/Ovid/Site/AI/Images.pm and document potentially unused methods
-- [ ] T012 [P] [US1] Analyze usage for lib/Ovid/Site/Utils.pm and document potentially unused methods
-- [ ] T013 [P] [US1] Analyze usage for lib/Ovid/Template/File.pm and document potentially unused methods
-- [ ] T014 [P] [US1] Analyze usage for lib/Ovid/Template/File/Collection.pm and document potentially unused methods
-- [ ] T015 [P] [US1] Analyze usage for lib/Ovid/Template/File/FindCode.pm and document potentially unused methods
-- [ ] T016 [P] [US1] Analyze usage for lib/Ovid/Template/Role/Debug.pm and document potentially unused methods
-- [ ] T017 [P] [US1] Analyze usage for lib/Ovid/Template/Role/File.pm and document potentially unused methods
-- [ ] T018 [P] [US1] Analyze usage for lib/Ovid/Types.pm and document potentially unused methods
-- [ ] T019 [P] [US1] Analyze usage for lib/Template/Plugin/Config.pm and document potentially unused methods
-- [ ] T020 [P] [US1] Analyze usage for lib/Template/Plugin/Ovid.pm and document potentially unused methods
-- [ ] T021 [P] [US1] Analyze usage for lib/Text/Markdown/Blog.pm and document potentially unused methods
+- [ ] T010 [P] [US1] Analyze Template/Plugin/Ovid.pm (36.1% coverage) - identify unused methods in lib/Template/Plugin/Ovid.pm
+- [ ] T011 [P] [US1] Analyze Ovid/Site/AI/Images.pm (47.7% coverage) - identify unused methods in lib/Ovid/Site/AI/Images.pm
+- [ ] T012 [P] [US1] Analyze Ovid/Template/Role/Debug.pm (63.3% coverage) - identify unused methods in lib/Ovid/Template/Role/Debug.pm
+- [ ] T013 [P] [US1] Analyze Less/Pager.pm (78.7% coverage) - identify unused methods in lib/Less/Pager.pm
+- [ ] T014 [P] [US1] Analyze Ovid/Template/File.pm (82.9% coverage) - identify unused methods in lib/Ovid/Template/File.pm
+- [ ] T015 [P] [US1] Analyze Less/Boilerplate.pm (85.1% coverage) - identify unused methods in lib/Less/Boilerplate.pm
+- [ ] T016 [P] [US1] Analyze Less/Script.pm (86.1% coverage) - identify unused methods in lib/Less/Script.pm
+- [ ] T017 [P] [US1] Analyze Text/Markdown/Blog.pm (87.6% coverage) - identify unused methods in lib/Text/Markdown/Blog.pm
+- [ ] T018 [P] [US1] Analyze Ovid/Template/File/Collection.pm (88.2% coverage) - identify unused methods in lib/Ovid/Template/File/Collection.pm
+- [ ] T019 [P] [US1] Analyze Ovid/Template/File/FindCode.pm (93.2% coverage) - identify unused methods in lib/Ovid/Template/File/FindCode.pm
+- [ ] T020 [P] [US1] Analyze Less/Config.pm (94.7% coverage) - identify unused methods in lib/Less/Config.pm
+- [ ] T021 [P] [US1] Analyze Ovid/Site/Utils.pm (97.6% coverage) - identify unused methods in lib/Ovid/Site/Utils.pm
+- [ ] T022 [P] [US1] Analyze Ovid/Template/Role/File.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Template/Role/File.pm
+- [ ] T023 [P] [US1] Analyze Ovid/Types.pm (100.0% coverage) - verify all methods are used in lib/Ovid/Types.pm
+- [ ] T024 [P] [US1] Analyze Template/Plugin/Config.pm (100.0% coverage) - verify all methods are used in lib/Template/Plugin/Config.pm
+- [ ] T025 [US1] Document all unused code findings with removal/test/keep recommendations in specs/001-test-coverage-improvement/unused-code-decisions.md
+- [ ] T026 [US1] Add TODO comments to source files for identified unused methods with recommended actions
 
-**Checkpoint**: At this point, unused code identified for all modules
-
----
-
-## Phase 4: User Story 2 - Achieve Highest Possible Statement Coverage (Priority: P2)
-
-**Goal**: Add comprehensive tests to achieve at least 90% statement coverage for each module
-
-**Independent Test**: Run `cover -test` on a module's test file and verify statement coverage >=90%
-
-### Implementation for User Story 2
-
-- [ ] T022 [P] [US2] Add tests for lib/Less/Boilerplate.pm to achieve 90%+ statement coverage in t/Less/Boilerplate.t
-- [ ] T023 [P] [US2] Add tests for lib/Less/Config.pm to achieve 90%+ statement coverage in t/Less/Config.t
-- [ ] T024 [P] [US2] Add tests for lib/Less/Pager.pm to achieve 90%+ statement coverage in t/Less/Pager.t
-- [ ] T025 [P] [US2] Add tests for lib/Less/Script.pm to achieve 90%+ statement coverage in t/Less/Script.t
-- [ ] T026 [P] [US2] Add tests for lib/Ovid/Site/AI/Images.pm to achieve 90%+ statement coverage in t/Ovid/Site/AI/Images.t
-- [ ] T027 [P] [US2] Add tests for lib/Ovid/Site/Utils.pm to achieve 90%+ statement coverage in t/Ovid/Site/Utils.t
-- [ ] T028 [P] [US2] Add tests for lib/Ovid/Template/File.pm to achieve 90%+ statement coverage in t/Ovid/Template/File.t
-- [ ] T029 [P] [US2] Add tests for lib/Ovid/Template/File/Collection.pm to achieve 90%+ statement coverage in t/Ovid/Template/File/Collection.t
-- [ ] T030 [P] [US2] Add tests for lib/Ovid/Template/File/FindCode.pm to achieve 90%+ statement coverage in t/Ovid/Template/File/FindCode.t
-- [ ] T031 [P] [US2] Add tests for lib/Ovid/Template/Role/Debug.pm to achieve 90%+ statement coverage in t/Ovid/Template/Role/Debug.t
-- [ ] T032 [P] [US2] Add tests for lib/Ovid/Template/Role/File.pm to achieve 90%+ statement coverage in t/Ovid/Template/Role/File.t
-- [ ] T033 [P] [US2] Add tests for lib/Ovid/Types.pm to achieve 90%+ statement coverage in t/Ovid/Types.t
-- [ ] T034 [P] [US2] Add tests for lib/Template/Plugin/Config.pm to achieve 90%+ statement coverage in t/Template/Plugin/Config.t
-- [ ] T035 [P] [US2] Add tests for lib/Template/Plugin/Ovid.pm to achieve 90%+ statement coverage in t/Template/Plugin/Ovid.t
-- [ ] T036 [P] [US2] Add tests for lib/Text/Markdown/Blog.pm to achieve 90%+ statement coverage in t/Text/Markdown/Blog.t
-
-**Checkpoint**: All modules achieve 90%+ statement coverage
+**Checkpoint**: At this point, all unused code should be documented and marked for future action
 
 ---
 
-## Phase 5: User Story 3 - Achieve Highest Possible Branch Coverage (Priority: P3)
+## Phase 4: User Story 2 - Achieve Highest Possible Statement Coverage Per Module (Minimum 90%+) (Priority: P2)
 
-**Goal**: Add tests for conditional logic to achieve highest possible branch coverage for each module
+**Goal**: Systematically increase statement coverage for all modules from lowest to highest, achieving minimum 90% and aiming for maximum achievable coverage
 
-**Independent Test**: Run coverage analysis and verify branch coverage is maximized for modules with conditionals
+**Independent Test**: Run `cover -test && cover -report text | grep "lib/"` and verify each module meets 90%+ statement coverage threshold
 
-### Implementation for User Story 3
+### Implementation for User Story 2 - Lowest Coverage Modules First
 
-- [ ] T037 [P] [US3] Add branch coverage tests for lib/Less/Boilerplate.pm in t/Less/Boilerplate.t
-- [ ] T038 [P] [US3] Add branch coverage tests for lib/Less/Config.pm in t/Less/Config.t
-- [ ] T039 [P] [US3] Add branch coverage tests for lib/Less/Pager.pm in t/Less/Pager.t
-- [ ] T040 [P] [US3] Add branch coverage tests for lib/Less/Script.pm in t/Less/Script.t
-- [ ] T041 [P] [US3] Add branch coverage tests for lib/Ovid/Site/AI/Images.pm in t/Ovid/Site/AI/Images.t
-- [ ] T042 [P] [US3] Add branch coverage tests for lib/Ovid/Site/Utils.pm in t/Ovid/Site/Utils.t
-- [ ] T043 [P] [US3] Add branch coverage tests for lib/Ovid/Template/File.pm in t/Ovid/Template/File.t
-- [ ] T044 [P] [US3] Add branch coverage tests for lib/Ovid/Template/File/Collection.pm in t/Ovid/Template/File/Collection.t
-- [ ] T045 [P] [US3] Add branch coverage tests for lib/Ovid/Template/File/FindCode.pm in t/Ovid/Template/File/FindCode.t
-- [ ] T046 [P] [US3] Add branch coverage tests for lib/Ovid/Template/Role/Debug.pm in t/Ovid/Template/Role/Debug.t
-- [ ] T047 [P] [US3] Add branch coverage tests for lib/Ovid/Template/Role/File.pm in t/Ovid/Template/Role/File.t
-- [ ] T048 [P] [US3] Add branch coverage tests for lib/Ovid/Types.pm in t/Ovid/Types.t
-- [ ] T049 [P] [US3] Add branch coverage tests for lib/Template/Plugin/Config.pm in t/Template/Plugin/Config.t
-- [ ] T050 [P] [US3] Add branch coverage tests for lib/Template/Plugin/Ovid.pm in t/Template/Plugin/Ovid.t
-- [ ] T051 [P] [US3] Add branch coverage tests for lib/Text/Markdown/Blog.pm in t/Text/Markdown/Blog.t
+**Module Group 1: Critical Coverage Gaps (Below 50%)**
 
-**Checkpoint**: All modules with conditionals achieve highest possible branch coverage
+- [ ] T027 [US2] Review existing test file t/ovid_plugin.t for Template/Plugin/Ovid.pm (currently 39.7% stmt)
+- [ ] T028 [US2] Add tests for uncovered methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [ ] T029 [US2] Add tests for string manipulation methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [ ] T030 [US2] Add tests for date formatting methods in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [ ] T031 [US2] Add tests for error conditions in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [ ] T032 [US2] Verify Template/Plugin/Ovid.pm reaches 90%+ coverage with `cover -test`
+- [ ] T033 [US2] Review existing test coverage for Ovid/Site/AI/Images.pm (currently 46.1% stmt)
+- [ ] T034 [US2] Create or enhance t/ai_images.t for Ovid/Site/AI/Images.pm
+- [ ] T035 [US2] Add tests for image processing methods in Ovid/Site/AI/Images.pm to t/ai_images.t
+- [ ] T036 [US2] Add tests for AI integration methods in Ovid/Site/AI/Images.pm to t/ai_images.t
+- [ ] T037 [US2] Mock external API calls in Ovid/Site/AI/Images.pm tests using Test::MockModule
+- [ ] T038 [US2] Add error handling tests for Ovid/Site/AI/Images.pm to t/ai_images.t
+- [ ] T039 [US2] Verify Ovid/Site/AI/Images.pm reaches 90%+ coverage with `cover -test`
+
+**Module Group 2: Moderate Coverage Gaps (50-80%)**
+
+- [ ] T040 [US2] Review existing test coverage for Ovid/Template/Role/Debug.pm (currently 70.0% stmt)
+- [ ] T041 [US2] Create or enhance test file for Ovid/Template/Role/Debug.pm
+- [ ] T042 [US2] Add tests for debug output methods in Ovid/Template/Role/Debug.pm
+- [ ] T043 [US2] Add tests for conditional debug logic in Ovid/Template/Role/Debug.pm
+- [ ] T044 [US2] Verify Ovid/Template/Role/Debug.pm reaches 90%+ coverage with `cover -test`
+- [ ] T045 [US2] Review existing test file t/pager.t for Less/Pager.pm (currently 82.8% stmt)
+- [ ] T046 [US2] Add tests for uncovered pagination edge cases in Less/Pager.pm to t/pager.t
+- [ ] T047 [US2] Add tests for boundary conditions in Less/Pager.pm to t/pager.t
+- [ ] T048 [US2] Add tests for error conditions in Less/Pager.pm to t/pager.t
+- [ ] T049 [US2] Verify Less/Pager.pm reaches 90%+ coverage with `cover -test`
+
+**Module Group 3: Near-Target Coverage (80-90%)**
+
+- [ ] T050 [US2] Review existing test file t/template_requirements.t for Ovid/Template/File.pm (currently 87.5% stmt)
+- [ ] T051 [US2] Add tests for uncovered template processing methods in Ovid/Template/File.pm
+- [ ] T052 [US2] Add tests for error conditions in Ovid/Template/File.pm template rendering
+- [ ] T053 [US2] Add tests for edge cases in Ovid/Template/File.pm file operations
+- [ ] T054 [US2] Verify Ovid/Template/File.pm reaches 90%+ coverage with `cover -test`
+- [ ] T055 [US2] Review existing test file t/blogdown.t for Less/Boilerplate.pm (currently 83.7% stmt)
+- [ ] T056 [US2] Add tests for uncovered boilerplate methods in Less/Boilerplate.pm to t/blogdown.t
+- [ ] T057 [US2] Add tests for initialization edge cases in Less/Boilerplate.pm to t/blogdown.t
+- [ ] T058 [US2] Verify Less/Boilerplate.pm reaches 90%+ coverage with `cover -test`
+- [ ] T059 [US2] Review existing test file for Less/Script.pm (currently 88.2% stmt)
+- [ ] T060 [US2] Add tests for uncovered script methods in Less/Script.pm
+- [ ] T061 [US2] Add tests for command-line argument handling in Less/Script.pm
+- [ ] T062 [US2] Verify Less/Script.pm reaches 90%+ coverage with `cover -test`
+- [ ] T063 [US2] Review existing test file t/parser.t for Text/Markdown/Blog.pm (currently 92.5% stmt - already above 90%)
+- [ ] T064 [US2] Add tests to maximize coverage in Text/Markdown/Blog.pm to t/parser.t
+- [ ] T065 [US2] Verify Text/Markdown/Blog.pm maintains/improves 90%+ coverage with `cover -test`
+- [ ] T066 [US2] Review existing test file t/collection.t for Ovid/Template/File/Collection.pm (currently 95.5% stmt - already above 90%)
+- [ ] T067 [US2] Add tests to maximize coverage in Ovid/Template/File/Collection.pm to t/collection.t
+- [ ] T068 [US2] Verify Ovid/Template/File/Collection.pm maintains/improves coverage with `cover -test`
+
+**Module Group 4: Already Meeting Target (90%+) - Maximize Coverage**
+
+- [ ] T069 [US2] Review t/code_blocks.t for Ovid/Template/File/FindCode.pm (currently 100.0% stmt)
+- [ ] T070 [US2] Enhance tests for edge cases in Ovid/Template/File/FindCode.pm to maximize coverage
+- [ ] T071 [US2] Review t/config.t for Less/Config.pm (currently 100.0% stmt)
+- [ ] T072 [US2] Enhance tests for edge cases in Less/Config.pm to maximize coverage
+- [ ] T073 [US2] Review t/ovid_site_utils.t for Ovid/Site/Utils.pm (currently 100.0% stmt)
+- [ ] T074 [US2] Enhance tests for edge cases in Ovid/Site/Utils.pm to maximize coverage
+- [ ] T075 [US2] Verify Ovid/Template/Role/File.pm test coverage (currently 100.0% stmt)
+- [ ] T076 [US2] Verify Ovid/Types.pm test coverage (currently 100.0% stmt)
+- [ ] T077 [US2] Verify Template/Plugin/Config.pm test coverage (currently 100.0% stmt)
+
+**Final Verification**
+
+- [ ] T078 [US2] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
+- [ ] T079 [US2] Verify all 15 modules show minimum 90% statement coverage in coverage report
+- [ ] T080 [US2] Document any modules that cannot reach 90% with justification in specs/001-test-coverage-improvement/coverage-exceptions.md
+- [ ] T081 [US2] Verify full test suite completes in under 60 seconds with `time prove -l t/`
+
+**Checkpoint**: At this point, all modules should meet 90%+ statement coverage threshold
 
 ---
 
-## Phase 6: User Story 4 - Document Coverage Gaps (Priority: P4)
+## Phase 5: User Story 3 - Achieve Highest Possible Branch Coverage Per Module (Minimum 90%+) (Priority: P3)
 
-**Goal**: Document coverage gaps and testing decisions for each module
+**Goal**: Maximize branch coverage for all modules with conditional logic, achieving minimum 90% branch coverage where applicable
 
-**Independent Test**: Review module documentation and verify untested code has justifications
+**Independent Test**: Run `cover -test && cover -report text | grep "bran"` and verify modules with conditional logic meet 90%+ branch coverage
+
+### Implementation for User Story 3 - Focus on Modules with Branch Coverage Gaps
+
+**Modules with Critical Branch Coverage Gaps**
+
+- [ ] T082 [P] [US3] Analyze branch coverage gaps in Template/Plugin/Ovid.pm (currently 0.0% branch)
+- [ ] T083 [US3] Add tests for all conditional branches in Template/Plugin/Ovid.pm to t/ovid_plugin.t
+- [ ] T084 [US3] Add tests for true/false paths of each condition in Template/Plugin/Ovid.pm
+- [ ] T085 [US3] Verify Template/Plugin/Ovid.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T086 [P] [US3] Analyze branch coverage gaps in Ovid/Site/AI/Images.pm (currently 0.0% branch)
+- [ ] T087 [US3] Add tests for all conditional branches in Ovid/Site/AI/Images.pm
+- [ ] T088 [US3] Add tests for error handling branches in Ovid/Site/AI/Images.pm
+- [ ] T089 [US3] Verify Ovid/Site/AI/Images.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T090 [P] [US3] Analyze branch coverage gaps in Ovid/Template/Role/Debug.pm (currently 16.6% branch)
+- [ ] T091 [US3] Add tests for debug level conditionals in Ovid/Template/Role/Debug.pm
+- [ ] T092 [US3] Add tests for all if/else paths in Ovid/Template/Role/Debug.pm
+- [ ] T093 [US3] Verify Ovid/Template/Role/Debug.pm reaches 90%+ branch coverage with `cover -test`
+
+**Modules with Moderate Branch Coverage Gaps**
+
+- [ ] T094 [P] [US3] Analyze branch coverage gaps in Ovid/Site/Utils.pm (currently 50.0% branch)
+- [ ] T095 [US3] Add tests for uncovered conditional branches in Ovid/Site/Utils.pm to t/ovid_site_utils.t
+- [ ] T096 [US3] Verify Ovid/Site/Utils.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T097 [P] [US3] Analyze branch coverage gaps in Less/Script.pm (currently 50.0% branch)
+- [ ] T098 [US3] Add tests for command-line option branches in Less/Script.pm
+- [ ] T099 [US3] Add tests for error handling branches in Less/Script.pm
+- [ ] T100 [US3] Verify Less/Script.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T101 [P] [US3] Analyze branch coverage gaps in Ovid/Template/File/Collection.pm (currently 58.3% branch)
+- [ ] T102 [US3] Add tests for collection filtering branches in Ovid/Template/File/Collection.pm to t/collection.t
+- [ ] T103 [US3] Add tests for iteration edge cases in Ovid/Template/File/Collection.pm
+- [ ] T104 [US3] Verify Ovid/Template/File/Collection.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T105 [P] [US3] Analyze branch coverage gaps in Less/Pager.pm (currently 60.0% branch)
+- [ ] T106 [US3] Add tests for pagination boundary conditions in Less/Pager.pm to t/pager.t
+- [ ] T107 [US3] Add tests for edge case branches in Less/Pager.pm
+- [ ] T108 [US3] Verify Less/Pager.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T109 [P] [US3] Analyze branch coverage gaps in Ovid/Template/File.pm (currently 65.6% branch)
+- [ ] T110 [US3] Add tests for file processing branches in Ovid/Template/File.pm
+- [ ] T111 [US3] Add tests for template rendering conditional paths in Ovid/Template/File.pm
+- [ ] T112 [US3] Verify Ovid/Template/File.pm reaches 90%+ branch coverage with `cover -test`
+
+**Modules Already Meeting or Near Branch Coverage Target**
+
+- [ ] T113 [P] [US3] Review branch coverage in Text/Markdown/Blog.pm (currently 81.2% branch)
+- [ ] T114 [US3] Add tests to maximize branch coverage in Text/Markdown/Blog.pm to t/parser.t
+- [ ] T115 [US3] Verify Text/Markdown/Blog.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T116 [P] [US3] Review branch coverage in Ovid/Template/File/FindCode.pm (currently 83.3% branch)
+- [ ] T117 [US3] Add tests for remaining conditional branches in Ovid/Template/File/FindCode.pm to t/code_blocks.t
+- [ ] T118 [US3] Verify Ovid/Template/File/FindCode.pm reaches 90%+ branch coverage with `cover -test`
+- [ ] T119 [P] [US3] Verify Template/Plugin/Config.pm branch coverage (currently 100.0% branch)
+
+**Final Verification**
+
+- [ ] T120 [US3] Run full coverage report with `cover -test && cover -report html -outputdir coverage-report`
+- [ ] T121 [US3] Verify all modules with conditional logic show minimum 90% branch coverage
+- [ ] T122 [US3] Document any branches that cannot be covered with justification in specs/001-test-coverage-improvement/branch-coverage-exceptions.md
+
+**Checkpoint**: All modules with conditional logic should meet 90%+ branch coverage threshold
+
+---
+
+## Phase 6: User Story 4 - Document Coverage Gaps and Decisions (Priority: P4)
+
+**Goal**: Document all coverage gaps and testing decisions for maintainability
+
+**Independent Test**: Review documentation and verify each uncovered code section has clear justification
 
 ### Implementation for User Story 4
 
-- [ ] T052 [P] [US4] Document coverage gaps for lib/Less/Boilerplate.pm with justifications
-- [ ] T053 [P] [US4] Document coverage gaps for lib/Less/Config.pm with justifications
-- [ ] T054 [P] [US4] Document coverage gaps for lib/Less/Pager.pm with justifications
-- [ ] T055 [P] [US4] Document coverage gaps for lib/Less/Script.pm with justifications
-- [ ] T056 [P] [US4] Document coverage gaps for lib/Ovid/Site/AI/Images.pm with justifications
-- [ ] T057 [P] [US4] Document coverage gaps for lib/Ovid/Site/Utils.pm with justifications
-- [ ] T058 [P] [US4] Document coverage gaps for lib/Ovid/Template/File.pm with justifications
-- [ ] T059 [P] [US4] Document coverage gaps for lib/Ovid/Template/File/Collection.pm with justifications
-- [ ] T060 [P] [US4] Document coverage gaps for lib/Ovid/Template/File/FindCode.pm with justifications
-- [ ] T061 [P] [US4] Document coverage gaps for lib/Ovid/Template/Role/Debug.pm with justifications
-- [ ] T062 [P] [US4] Document coverage gaps for lib/Ovid/Template/Role/File.pm with justifications
-- [ ] T063 [P] [US4] Document coverage gaps for lib/Ovid/Types.pm with justifications
-- [ ] T064 [P] [US4] Document coverage gaps for lib/Template/Plugin/Config.pm with justifications
-- [ ] T065 [P] [US4] Document coverage gaps for lib/Template/Plugin/Ovid.pm with justifications
-- [ ] T066 [P] [US4] Document coverage gaps for lib/Text/Markdown/Blog.pm with justifications
+- [ ] T123 [P] [US4] Add inline comments for untestable platform-specific code in all modules
+- [ ] T124 [P] [US4] Add inline comments for error conditions that are difficult to trigger in all modules
+- [ ] T125 [P] [US4] Document test mocking strategies used in specs/001-test-coverage-improvement/test-strategies.md
+- [ ] T126 [P] [US4] Document fixture usage patterns in specs/001-test-coverage-improvement/fixture-guide.md
+- [ ] T127 [US4] Create comprehensive coverage summary in specs/001-test-coverage-improvement/coverage-summary.md
+- [ ] T128 [US4] Document lessons learned and testing best practices in specs/001-test-coverage-improvement/lessons-learned.md
+- [ ] T129 [US4] Update project README.md with coverage testing instructions
+- [ ] T130 [US4] Create developer guide for maintaining 90%+ coverage in docs/testing-guide.md
 
-**Checkpoint**: All coverage gaps documented with justifications
+**Checkpoint**: All coverage decisions and gaps should be fully documented
 
 ---
 
@@ -159,11 +249,16 @@
 
 **Purpose**: Final improvements and validation
 
-- [ ] T067 Run full test suite and verify all tests pass
-- [ ] T068 Generate final coverage report and verify all modules meet 90%+ statement coverage
-- [ ] T069 [P] Update README.md with testing information
-- [ ] T070 Validate quickstart.md instructions work correctly
-- [ ] T071 Clean up temporary files and coverage artifacts
+- [ ] T131 [P] Run perltidy on all test files with `perltidy --profile=.perltidyrc t/**/*.t`
+- [ ] T132 [P] Verify all tests pass with `prove -l t/`
+- [ ] T133 Verify test suite performance is under 60 seconds with `time prove -l t/`
+- [ ] T134 Generate final coverage report with `cover -test && cover -report html -outputdir coverage-report`
+- [ ] T135 [P] Review and update quickstart.md based on actual implementation
+- [ ] T136 Create coverage badge or status indicator for project documentation
+- [ ] T137 Document coverage CI/CD integration recommendations in specs/001-test-coverage-improvement/ci-integration.md
+- [ ] T138 Clean up temporary coverage artifacts with `cover -delete`
+- [ ] T139 Commit final coverage reports and documentation
+- [ ] T140 Verify constitution compliance: all tests use Test::Most, 90%+ coverage achieved
 
 ---
 
@@ -174,77 +269,116 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3-6)**: All depend on Foundational phase completion
-  - User stories proceed sequentially in priority order (P1 → P2 → P3 → P4)
+  - User Story 1 (Identify Unused Code) - Independent, can start after Phase 2
+  - User Story 2 (Statement Coverage) - Should complete after User Story 1 to avoid testing unused code
+  - User Story 3 (Branch Coverage) - Can run in parallel with US2 or after, focuses on different metric
+  - User Story 4 (Documentation) - Should be done throughout but finalized after US2 and US3
 - **Polish (Phase 7)**: Depends on all user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (unused code identified before testing)
-- **User Story 3 (P3)**: Depends on US2 completion (statement coverage before branch)
-- **User Story 4 (P4)**: Depends on US2/US3 completion (after coverage achieved)
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Should start after User Story 1 - Benefits from knowing unused code
+- **User Story 3 (P3)**: Can run after or in parallel with User Story 2 - Different coverage metric
+- **User Story 4 (P4)**: Can run throughout but finalize after User Stories 2 & 3 complete
 
 ### Within Each User Story
 
-- All tasks within a story can run in parallel (different modules)
-- Core implementation before documentation
+**User Story 1**: All analysis tasks (T010-T024) can run in parallel, then documentation (T025-T026) sequential
+
+**User Story 2**: Module testing within each coverage group can proceed in parallel:
+- Group 1 modules (T027-T039) can be parallelized
+- Group 2 modules (T040-T049) can be parallelized
+- Group 3 modules (T050-T068) can be parallelized
+- Group 4 modules (T069-T077) can be parallelized
+- Final verification (T078-T081) must be sequential
+
+**User Story 3**: Branch coverage analysis tasks can proceed in parallel by module group:
+- Critical gap modules (T082-T093) - parallel analysis, sequential testing per module
+- Moderate gap modules (T094-T112) - parallel analysis, sequential testing per module
+- Near-target modules (T113-T119) - parallel analysis, sequential testing per module
+- Final verification (T120-T122) must be sequential
+
+**User Story 4**: Documentation tasks (T123-T130) can mostly run in parallel
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks can run in parallel
-- Once Foundational completes, tasks within each user story can run in parallel (different modules)
-- Different modules within the same story can be worked on in parallel by different team members
+- **Phase 1**: T003 and T004 can run in parallel
+- **Phase 2**: T008 and T009 can run in parallel after T005-T007 complete
+- **User Story 1**: All module analysis tasks (T010-T024) can run in parallel
+- **User Story 2**: Modules within same coverage group can be tested in parallel
+- **User Story 3**: Branch coverage work can be parallelized across modules
+- **User Story 4**: Most documentation tasks can run in parallel
+- **Phase 7**: T131, T132, T135 can run in parallel
 
 ---
 
-## Parallel Example: User Story 1
+## Parallel Example: User Story 2 - Group 1
 
 ```bash
-# Launch analysis for multiple modules in parallel:
-Task: "Analyze usage for lib/Less/Boilerplate.pm and document potentially unused methods"
-Task: "Analyze usage for lib/Less/Config.pm and document potentially unused methods"
-# ... etc for all modules
+# Test lowest coverage modules in parallel (different test files):
+prove -l t/ovid_plugin.t & \
+prove -l t/ai_images.t &
+wait
+
+# Verify coverage for both:
+cover -test
+```
+
+## Parallel Example: User Story 1 - Analysis
+
+```bash
+# Analyze all modules in parallel (read-only operations):
+bin/analyze-usage lib/Template/Plugin/Ovid.pm > analysis/ovid_plugin.txt &
+bin/analyze-usage lib/Ovid/Site/AI/Images.pm > analysis/ai_images.txt &
+bin/analyze-usage lib/Ovid/Template/Role/Debug.pm > analysis/debug.txt &
+# ... (continue for all 15 modules)
+wait
 ```
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP Scope (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: User Story 1 (analyze all modules for unused code)
-4. **STOP and VALIDATE**: Verify usage analysis works and findings documented
-5. Deploy/demo if ready
+For minimum viable delivery, implement only **Phase 1, Phase 2, and Phase 3 (User Story 1)**:
+- Setup coverage tooling
+- Build usage analysis infrastructure
+- Identify and document unused code across all 15 modules
+
+This delivers immediate value by identifying refactoring candidates and preventing wasted effort testing dead code.
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Validate unused code identification
-3. Add User Story 2 → Validate statement coverage improvements
-4. Add User Story 3 → Validate branch coverage improvements
-5. Add User Story 4 → Validate documentation completeness
-6. Each story adds value without breaking previous stories
+- **Sprint 1**: MVP (Phases 1-3) - Unused code identification
+- **Sprint 2**: User Story 2 Groups 1-2 - Critical coverage gaps to 90%
+- **Sprint 3**: User Story 2 Groups 3-4 + US3 Critical gaps - Complete statement coverage + start branch coverage
+- **Sprint 4**: User Story 3 completion + User Story 4 - Branch coverage and documentation
+- **Sprint 5**: Polish phase - Final cleanup and integration
 
-### Parallel Team Strategy
+### Success Criteria
 
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Multiple developers can work on different modules within the same user story
-   - Or one developer per user story if sequential
-3. Stories complete and integrate independently
+- ✅ All 15 modules achieve minimum 90% statement coverage
+- ✅ All modules with conditional logic achieve minimum 90% branch coverage
+- ✅ Unused code identified and documented
+- ✅ All tests use Test::Most consistently
+- ✅ Test suite completes in under 60 seconds
+- ✅ Coverage reports regenerate in under 2 minutes
+- ✅ All coverage gaps documented with justification
+- ✅ Full coverage report available in `coverage-report/`
 
 ---
 
-## Notes
+## Task Statistics
 
-- [P] tasks = different modules, no dependencies between modules
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable per module
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: cross-module dependencies, breaking existing functionality
+- **Total Tasks**: 140
+- **Setup Phase**: 4 tasks
+- **Foundational Phase**: 5 tasks
+- **User Story 1 (P1)**: 17 tasks
+- **User Story 2 (P2)**: 55 tasks
+- **User Story 3 (P3)**: 41 tasks
+- **User Story 4 (P4)**: 8 tasks
+- **Polish Phase**: 10 tasks
+- **Parallelizable Tasks**: 67 tasks marked [P]
+- **Estimated MVP Effort**: ~26 tasks (Phases 1-3)
