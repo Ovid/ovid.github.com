@@ -106,6 +106,12 @@
     [% END %]
 	[% IF Ovid.has_footnotes %]
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     [% footnotes = Ovid.get_footnotes %]
     <script type="text/javascript" src="/static/js/Dialog.js"></script>

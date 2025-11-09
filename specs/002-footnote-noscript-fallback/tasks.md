@@ -374,3 +374,43 @@ However, the initial HTML didn't include `aria-hidden="true"` on:
 - When a footnote is clicked, Dialog.js removes `aria-hidden` to show the overlay
 - The page is immediately readable without any blocking overlay flash
 
+---
+
+### BUG-002: Duplicate Footnote Icons When JavaScript Disabled (2025-11-09)
+
+**Issue**: When JavaScript is disabled, users saw TWO footnote icons side by side:
+1. The clipboard icon from the `<span class="open-dialog">` (for JS mode)
+2. The clipboard icon from the `<noscript><a>` link (for NoJS mode)
+
+**Root Cause**: The `<noscript>` tag only hides content **inside** it when JavaScript is enabled. It does not hide the `<span>` element that comes **before** it. When JavaScript is disabled:
+- The `<span>` icon remains visible (intended for JS users only)
+- The `<noscript><a>` icon becomes visible (correct for NoJS users)
+- Both icons appear next to each other
+
+**Fix Applied**:
+1. Added `js-only` class to the span element in `lib/Template/Plugin/Ovid.pm`
+2. Added CSS rule in `static/css/dialog.css`: `.js-only { display: none; }` (hides by default)
+3. Added JavaScript in `root/include/footer.tt` that overrides the CSS when JS is enabled: `document.write('<style>.js-only { display: inline; }</style>');`
+4. Changed noscript link from clipboard icon to superscript number `<sup>[N]</sup>` for better UX
+
+**Files Changed**:
+- `lib/Template/Plugin/Ovid.pm`: 
+  - Added `js-only` class to span element
+  - Changed noscript anchor from clipboard icon to `<sup>[N]</sup>`
+- `static/css/dialog.css`: Added `.js-only { display: none; }` rule
+- `root/include/footer.tt`: Added script to enable `.js-only` elements when JS is available
+- `t/ovid_plugin.t`: Updated test expectations to match new output format
+
+**Behavior**:
+- **JavaScript Enabled**: `.js-only` span with clipboard icon is visible, noscript content is hidden
+- **JavaScript Disabled**: `.js-only` span is hidden by CSS, noscript anchor with `[N]` is visible
+
+**Verification**:
+- Tests pass: `prove -l t/ovid_plugin.t` ✓
+- Site rebuilds: `perl bin/rebuild` ✓
+- JavaScript enabled: Only clipboard icon shows ✓
+- JavaScript disabled: Only superscript number shows ✓
+
+**Impact**: This completes User Story 3 implementation. Users now see exactly one footnote indicator in both modes:
+- **JS enabled**: Clickable clipboard icon that opens modal dialog
+- **JS disabled**: Clickable superscript number `[N]` that navigates to footnote at end of article
