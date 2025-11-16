@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "collapsible sections feature"
 
+## Clarifications
+
+### Session 2025-11-16
+
+- Q: When a collapsible section is collapsed, what should be clickable to expand it? → A: The entire collapsed area is clickable (both icon and short description text)
+- Q: Where should the expand/collapse icon be positioned relative to the short description? → A: Icon on the left side of the short description
+- Q: How should the icon change between collapsed and expanded states? → A: Different icons for each state (e.g., chevron-down when collapsed, chevron-up when expanded)
+- Q: When the short description parameter is empty or only whitespace, what should happen? → A: System should throw an error when the function is called and either parameter is empty
+- Q: How should collapsible sections behave when JavaScript is disabled? → A: Display the entire content expanded and indented (no collapse functionality)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Basic Collapsible Content Display (Priority: P1)
@@ -17,8 +27,8 @@ Content authors can add collapsible sections to their articles that display a sh
 
 **Acceptance Scenarios**:
 
-1. **Given** an article with a collapsible section, **When** a reader views the page, **Then** the section displays collapsed showing only the short description and a clickable expand icon
-2. **Given** a collapsed section, **When** the reader clicks the expand icon, **Then** the section expands to reveal the full content
+1. **Given** an article with a collapsible section, **When** a reader views the page, **Then** the section displays collapsed showing only the short description and an expand icon
+2. **Given** a collapsed section, **When** the reader clicks anywhere in the collapsed area (icon or short description text), **Then** the section expands to reveal the full content
 3. **Given** an expanded section, **When** the reader clicks the collapse icon, **Then** the section collapses back to showing only the short description
 
 ---
@@ -50,6 +60,7 @@ Content authors can use a simple Template Toolkit syntax to create collapsible s
 
 1. **Given** the Template Toolkit syntax `[% Ovid.collapse("summary", "details") %]`, **When** the site is built, **Then** a collapsible section is generated with "summary" as the short description and "details" as the full content
 2. **Given** content with blogdown formatting in the full content parameter, **When** the site is built, **Then** the blogdown syntax is properly processed and rendered as HTML
+3. **Given** the Template Toolkit syntax with empty short_description or full_content, **When** the site is built, **Then** the build process throws an error indicating which parameter is invalid
 
 ---
 
@@ -68,23 +79,40 @@ Content authors can add multiple independent collapsible sections to a single ar
 
 ---
 
+### User Story 5 - Non-JavaScript Fallback (Priority: P2)
+
+Readers without JavaScript enabled can still access all content in collapsible sections, displayed in an expanded and indented format.
+
+**Why this priority**: Accessibility and progressive enhancement are important, but most modern users have JavaScript enabled. This ensures content is never hidden from any user.
+
+**Independent Test**: Can be tested by disabling JavaScript in the browser and verifying that collapsible sections display both short description and full content in an expanded, indented format.
+
+**Acceptance Scenarios**:
+
+1. **Given** a browser with JavaScript disabled, **When** a reader views a page with collapsible sections, **Then** all sections display in expanded form showing both short description and full content
+2. **Given** non-JavaScript rendering, **When** the content displays, **Then** the full content appears indented to visually distinguish it from the short description
+
+---
+
 ### Edge Cases
 
 - What happens when the short description is very long (multiple paragraphs)?
-- What happens when the full content is empty?
-- What happens when the short description is empty?
 - How does the feature behave with complex HTML in the full content (nested lists, images, code blocks)?
 - What happens when a collapsible section contains another Template Toolkit plugin call (like footnotes or YouTube embeds)?
 - How does screen reader navigation work with collapsed vs expanded states?
+- How does the non-JavaScript fallback render when both short description and full content contain complex formatting?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST provide a Template Toolkit plugin method `Ovid.collapse(short_description, full_content)` that accepts two string parameters
-- **FR-002**: System MUST render collapsible sections in a collapsed state by default when the page loads
+- **FR-001a**: System MUST throw an error during site build if either the short_description or full_content parameter is empty or contains only whitespace
+- **FR-002**: System MUST render collapsible sections in a collapsed state by default when the page loads (JavaScript-enabled browsers only)
 - **FR-003**: System MUST display the short description text when a section is collapsed
-- **FR-004**: System MUST provide a clickable icon or button to expand a collapsed section
+- **FR-004**: System MUST make the entire collapsed section area clickable (both icon and short description text) to expand the section
+- **FR-004a**: System MUST display the expand/collapse icon on the left side of the short description
+- **FR-004b**: System MUST display different icons for collapsed state (indicating expandability) versus expanded state (indicating collapsibility)
 - **FR-005**: System MUST reveal the full content when a user clicks to expand a section
 - **FR-006**: System MUST provide a clickable icon or button to collapse an expanded section
 - **FR-007**: System MUST hide the full content when a user clicks to collapse a section
@@ -94,6 +122,7 @@ Content authors can add multiple independent collapsible sections to a single ar
 - **FR-011**: System MUST maintain the open/closed state of each section independently
 - **FR-012**: System MUST provide appropriate ARIA attributes for accessibility (aria-expanded, role, aria-label)
 - **FR-013**: System MUST be keyboard accessible (allow expand/collapse via keyboard navigation)
+- **FR-014**: System MUST provide a graceful degradation for non-JavaScript environments by displaying both short description and full content in an expanded, indented format
 
 ### Key Entities
 
