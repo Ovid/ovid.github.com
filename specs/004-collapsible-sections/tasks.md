@@ -22,9 +22,9 @@ description: "Task list for collapsible sections feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create test fixtures directory at `t/fixtures/collapsible-sections/`
-- [ ] T002 [P] Create CSS file `static/css/collapsible.css` with base structure (comments only)
-- [ ] T003 [P] Create JavaScript file `static/js/collapsible.js` with module skeleton (comments only)
+- [X] T001 [P] Create test fixtures directory at `t/fixtures/collapsible-sections/`
+- [X] T002 [P] Create CSS file `static/css/collapsible.css` with base structure (comments only)
+- [X] T003 [P] Create JavaScript file `static/js/collapsible.js` with module skeleton (comments only)
 
 ---
 
