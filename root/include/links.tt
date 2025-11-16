@@ -1,29 +1,41 @@
-      [% USE Ovid %]
-      <div class="two columns">
-        [% INCLUDE include/search.tt %]
-        <ul>
-          <li><a href="/index.html">Home</a></li>
-          <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-          <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-          <li><a href="/videos.html">Talks</a></li>
-          <li><a href="/hireme.html">Hire Me</a></li>
-          <li><a href="/wildagile.html">WildAgile</a></li>
-          <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
-          <li><a href="/starmap.html">Starmap</a></li>
-          <li><a href="/escape.html"><strong>Escape!</strong></a></li>
-        </ul>
-        <hr>
-        <strong>Find me on ...</strong>
-        <ul>
-          <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-          <li><a href="https://github.com/Ovid/">GitHub</a></li>
-          <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-          <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-        </ul>
-        <strong>Tags</strong>
-        <ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
-        [% FOREACH tag IN Ovid.tags_by_weight %]
-            <li><a href="/tags/[% tag %].html" data-weight="[% Ovid.weight_for_tag(tag) %]">[% Ovid.name_for_tag(tag) %]</a></li>
-        [% END %]
-        </ul>
-      </div>
+[% USE Ovid %]
+[% INCLUDE include/search.tt %]
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+  <li><a href="/starmap.html">Starmap</a></li>
+  <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<div id="social-dropdown" style="display:none;">
+    <select onchange="window.open(this.value, '_blank')">
+      <option value="">Choose ...</option>
+      <option value="https://www.linkedin.com/in/curtispoe/">LinkedIn</option>
+      <option value="https://github.com/Ovid/">GitHub</option>
+      <option value="https://fosstodon.org/@ovid">Mastodon</option>	
+      <option value="https://bsky.app/profile/ovid.bsky.social">Bluesky</option>
+    </select>
+</div>
+<script>
+  // Show the dropdown when JS is available
+  document.getElementById('social-dropdown').style.display = 'block';
+</script>
+<noscript>
+  <ul>
+    <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+    <li><a href="https://github.com/Ovid/">GitHub</a></li>
+    <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+    <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+  </ul>
+</noscript>
+<strong>Tags</strong>
+<ul class="cloud" role="navigation" aria-label="Tag cloud for Ovid's site">
+[% FOREACH tag IN Ovid.tags_by_weight %]
+    <li><a href="/tags/[% tag %].html" data-weight="[% Ovid.weight_for_tag(tag) %]">[% Ovid.name_for_tag(tag) %]</a></li>
+[% END %]
+</ul>
