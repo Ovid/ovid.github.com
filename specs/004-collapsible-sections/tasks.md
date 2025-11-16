@@ -128,22 +128,28 @@ description: "Task list for collapsible sections feature implementation"
 
 **Goal**: Content authors can add multiple independent collapsible sections to a single article, each operating independently.
 
-**Independent Test**: Add 3 collapsible sections to one article, verify each opens/closes independently.
+**CRITICAL REQUIREMENT**: Multiple collapsible sections must be completely independent. Opening or closing one section MUST NOT affect the state of any other section on the page. Each section must have its own unique identifiers and maintain its own state.
+
+**Independent Test**: Add 3 collapsible sections to one article, verify each opens/closes independently without affecting other sections.
 
 ### Tests for User Story 4 (TDD)
 
 - [ ] T041 [P] [US4] Create test fixture `t/fixtures/collapsible-sections/multiple.tt` with 3 collapsible sections
-- [ ] T042 [P] [US4] Create expected output `t/fixtures/collapsible-sections/expected/multiple.html` with 3 independent sections
+- [ ] T042 [P] [US4] Create expected output `t/fixtures/collapsible-sections/expected/multiple.html` with 3 independent sections (each with unique IDs)
 - [ ] T043 [US4] Add multiple sections test to `t/template/plugin/ovid-collapse.t` (verify unique IDs: collapsible-trigger-1, -2, -3)
-- [ ] T044 [US4] Add independence test to `t/template/plugin/ovid-collapse.t` (each section has distinct IDs and no shared state)
+- [ ] T044 [US4] Add independence test to `t/template/plugin/ovid-collapse.t` (verify each section has distinct trigger ID, content ID, and aria-controls linking)
+- [ ] T044a [US4] Add test for no shared state between sections in `t/template/plugin/ovid-collapse.t` (verify no global CSS classes or data attributes that could cause interference)
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Verify counter increments correctly across multiple collapse() calls in `lib/Template/Plugin/Ovid.pm` (already implemented in T014, validate)
-- [ ] T046 [US4] Test JavaScript isolation (implement in Phase 7 - placeholder for now)
+- [ ] T045 [US4] Verify counter increments correctly across multiple collapse() calls in `lib/Template/Plugin/Ovid.pm` (already implemented in T014, validate uniqueness)
+- [ ] T045a [US4] Verify each section generates completely unique IDs (trigger ID, content ID) with no possibility of collision in `lib/Template/Plugin/Ovid.pm`
+- [ ] T045b [US4] Verify aria-controls attributes correctly link each trigger to its own content (not to other sections) in `lib/Template/Plugin/Ovid.pm`
+- [ ] T046 [US4] Document JavaScript isolation requirement: each event handler must only toggle its own section (implement in Phase 8)
 - [ ] T047 [US4] Verify all US4 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
+- [ ] T047a [US4] Add test for duplicate content independence (two sections with identical short_description and full_content must still have unique IDs) in `t/template/plugin/ovid-collapse.t`
 
-**Checkpoint**: All user stories except US5 (noscript) should now be independently functional
+**Checkpoint**: All user stories except US5 (noscript) should now be independently functional. CRITICAL: Multiple sections on same page must operate in complete isolation.
 
 ---
 
@@ -175,26 +181,31 @@ description: "Task list for collapsible sections feature implementation"
 
 **Goal**: Implement client-side JavaScript for expand/collapse interaction (affects US1, US4).
 
-**Independent Test**: Open page with collapsible sections, click triggers, verify expand/collapse animation and state changes.
+**CRITICAL INDEPENDENCE REQUIREMENT**: JavaScript must ensure complete independence between sections. Each click handler must ONLY affect its own section, never other sections. No global state should be shared between sections.
+
+**Independent Test**: Open page with multiple collapsible sections, click different triggers, verify each section expands/collapses independently without affecting others.
 
 ### Tests for JavaScript (Manual - browser-based)
 
-- [ ] T056 Document manual test procedure in `specs/004-collapsible-sections/quickstart.md` (click test, keyboard test, screen reader test)
+- [ ] T056 Document manual test procedure in `specs/004-collapsible-sections/quickstart.md` (single section test, multiple sections independence test, keyboard test, screen reader test)
+- [ ] T056a Document independence validation test: open 3 sections in sequence, verify states don't interfere with each other
 
 ### Implementation for JavaScript
 
 - [ ] T057 [P] Implement DOMContentLoaded event listener in `static/js/collapsible.js`
 - [ ] T058 [P] Implement querySelectorAll to find all .collapsible-trigger elements in `static/js/collapsible.js`
-- [ ] T059 Implement toggleCollapsible() function in `static/js/collapsible.js` (read aria-expanded, toggle state)
-- [ ] T060 Implement aria-expanded attribute toggling in toggleCollapsible() in `static/js/collapsible.js`
-- [ ] T061 Implement .expanded class toggling on content element in toggleCollapsible() in `static/js/collapsible.js`
-- [ ] T062 Implement icon class swapping (fa-chevron-down ↔ fa-chevron-up) in toggleCollapsible() in `static/js/collapsible.js`
-- [ ] T063 Implement click event listener attachment in `static/js/collapsible.js`
-- [ ] T064 Implement keydown event listener for Enter and Space keys in `static/js/collapsible.js`
-- [ ] T065 Add error handling for missing content elements in `static/js/collapsible.js` (console.warn)
-- [ ] T066 Test JavaScript in Chrome, Firefox, Safari, Edge (manual cross-browser testing)
+- [ ] T059 Implement toggleCollapsible() function in `static/js/collapsible.js` (receives specific trigger element, NOT global state)
+- [ ] T059a Ensure toggleCollapsible() uses the trigger element's aria-controls to find its specific content (NOT a global selector)
+- [ ] T060 Implement aria-expanded attribute toggling in toggleCollapsible() in `static/js/collapsible.js` (only on the specific trigger passed)
+- [ ] T061 Implement .expanded class toggling on content element in toggleCollapsible() in `static/js/collapsible.js` (only on the content linked via aria-controls)
+- [ ] T062 Implement icon class swapping (fa-chevron-down ↔ fa-chevron-up) in toggleCollapsible() in `static/js/collapsible.js` (only within the specific trigger element)
+- [ ] T063 Implement click event listener attachment in `static/js/collapsible.js` (attach to each trigger individually, NOT delegated from parent)
+- [ ] T064 Implement keydown event listener for Enter and Space keys in `static/js/collapsible.js` (attach to each trigger individually)
+- [ ] T065 Add error handling for missing content elements in `static/js/collapsible.js` (console.warn if aria-controls points to non-existent element)
+- [ ] T065a Add validation that each trigger's aria-controls points to exactly one element (warn if multiple or zero matches)
+- [ ] T066 Test JavaScript in Chrome, Firefox, Safari, Edge with multiple sections (manual cross-browser testing - verify independence)
 
-**Checkpoint**: Full interactive behavior complete, accessible via mouse and keyboard
+**Checkpoint**: Full interactive behavior complete, accessible via mouse and keyboard. VERIFIED: Multiple sections operate independently.
 
 ---
 
@@ -204,10 +215,10 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Implementation for Integration
 
-- [ ] T067 Verify if `include/wrapper.html` needs modification to include `static/css/collapsible.css` (check existing CSS inclusion pattern)
-- [ ] T068 Verify if `include/wrapper.html` needs modification to include `static/js/collapsible.js` (check existing JS inclusion pattern)
-- [ ] T069 If needed, add `<link rel="stylesheet" href="/static/css/collapsible.css">` to `include/wrapper.html`
-- [ ] T070 If needed, add `<script src="/static/js/collapsible.js"></script>` to `include/wrapper.html` (before closing </body>)
+- [ ] T067 Verify if `root/include/wrapper.tt` needs modification to include `static/css/collapsible.css` (check existing CSS inclusion pattern)
+- [ ] T068 Verify if `root/include/wrapper.tt` needs modification to include `static/js/collapsible.js` (check existing JS inclusion pattern)
+- [ ] T069 If needed, add `<link rel="stylesheet" href="/static/css/collapsible.css">` to `root/include/wrapper.tt`
+- [ ] T070 If needed, add `<script src="/static/js/collapsible.js"></script>` to `root/include/wrapper.tt` (before closing </body>)
 
 **Checkpoint**: CSS and JS properly loaded on all article pages
 
@@ -224,13 +235,14 @@ description: "Task list for collapsible sections feature implementation"
 - [ ] T075 Run perltidy on modified Perl files: `perltidy --profile=.perltidyrc lib/Template/Plugin/Ovid.pm t/template/plugin/ovid-collapse.t`
 - [ ] T076 Run full site rebuild: `perl bin/rebuild`
 - [ ] T077 Verify no build errors or warnings in `errors.err`
-- [ ] T078 Create sample article demonstrating collapsible sections feature (optional, for documentation)
+- [ ] T078 Create sample article demonstrating collapsible sections feature with multiple independent sections (optional, for documentation)
 - [ ] T079 Add accessibility validation: WAVE tool or axe DevTools on generated page (manual check)
 - [ ] T080 Validate HTML5 compliance: W3C Validator on generated article page (manual check)
 - [ ] T081 Test print styles: verify all collapsible content visible when printing (manual check)
 - [ ] T082 Test high contrast mode: verify collapsible sections readable in Windows High Contrast (manual check)
 - [ ] T083 Test reduced motion: verify no animations for users with prefers-reduced-motion (CSS check)
 - [ ] T084 Run quickstart.md validation scenarios (test all examples in quickstart guide)
+- [ ] T085 **Independence Validation**: Test page with 5+ collapsible sections - verify opening/closing one never affects others (manual test with various browsers)
 
 ---
 
@@ -370,29 +382,48 @@ With multiple developers:
 - **Manual testing**: JavaScript and accessibility features require browser-based validation
 - **Coverage target**: All new Perl code in `lib/Template/Plugin/Ovid.pm` must achieve 90%+ coverage
 
+### ⚠️ CRITICAL: Section Independence Requirement
+
+**Multiple collapsible sections MUST be completely independent:**
+
+1. **Unique Identifiers**: Each section must have its own unique trigger ID and content ID (e.g., `collapsible-trigger-1`, `collapsible-content-1`)
+2. **Isolated Event Handlers**: JavaScript event listeners must only affect their own section, never others
+3. **No Shared State**: No global variables or shared state between sections
+4. **ARIA Linking**: Each trigger's `aria-controls` must point ONLY to its own content element
+5. **CSS Classes**: Use instance-specific targeting (via unique IDs), not shared classes that could interfere
+6. **Testing**: Every test of multiple sections must verify that toggling one section does NOT change the state of any other section
+
+**Implementation Pattern**:
+- Perl: Counter-based unique ID generation (already in T014-T015)
+- HTML: Each trigger links to its content via `aria-controls="collapsible-content-{N}"`
+- JavaScript: Use `aria-controls` attribute to find the specific content element to toggle
+- Never use shared selectors like "toggle all expanded sections" or "close other sections when opening one"
+
 ---
 
 ## Summary Statistics
 
-- **Total Tasks**: 84
+- **Total Tasks**: 90 (updated to include T047a)
 - **Setup Tasks**: 3
 - **Foundational Tasks**: 2
 - **User Story 1 (P1)**: 15 tasks (7 tests + 8 implementation)
 - **User Story 2 (P2)**: 12 tasks (2 tests + 10 implementation)
 - **User Story 3 (P1)**: 8 tasks (4 tests + 4 implementation)
-- **User Story 4 (P2)**: 7 tasks (4 tests + 3 implementation)
+- **User Story 4 (P2)**: 11 tasks (6 tests + 5 implementation) - **Enhanced for independence requirement**
 - **User Story 5 (P2)**: 8 tasks (3 tests + 5 implementation)
-- **JavaScript (Cross-cutting)**: 11 tasks
+- **JavaScript (Cross-cutting)**: 14 tasks (updated) - **Enhanced for independence requirement**
 - **Integration**: 4 tasks
-- **Polish & Validation**: 14 tasks
+- **Polish & Validation**: 15 tasks (includes final independence validation)
 
 **Parallel Opportunities**: 35 tasks marked [P] can run in parallel within their respective phases
 
-**MVP Scope** (Recommended): Setup + Foundational + US1 + US3 + JavaScript + Integration = ~45 tasks for core functionality
+**MVP Scope** (Recommended): Setup + Foundational + US1 + US3 + JavaScript + Integration = ~48 tasks for core functionality
 
 **Independent Test Criteria**:
 - US1: Single collapsible section works (collapsed by default, expands on click, collapses on second click)
 - US2: Section spans full width with proper visual styling
 - US3: Blogdown syntax processed correctly in full content
-- US4: Multiple sections operate independently (3+ sections tested)
+- US4: **Multiple sections operate completely independently** (3+ sections tested, verify no state interference)
 - US5: Content accessible without JavaScript (noscript fallback with indentation)
+
+**CRITICAL SUCCESS CRITERION**: Multiple collapsible sections on the same page MUST operate in complete isolation. Opening or closing one section MUST NEVER affect any other section's state.

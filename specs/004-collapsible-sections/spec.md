@@ -14,6 +14,7 @@
 - Q: How should the icon change between collapsed and expanded states? → A: Different icons for each state (e.g., chevron-down when collapsed, chevron-up when expanded)
 - Q: When the short description parameter is empty or only whitespace, what should happen? → A: System should throw an error when the function is called and either parameter is empty
 - Q: How should collapsible sections behave when JavaScript is disabled? → A: Display the entire content expanded and indented (no collapse functionality)
+- Q: When multiple collapsible sections exist on a single page, how should they interact? → A: Each section operates completely independently - opening or closing one section must not affect the state of any other section
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -101,6 +102,7 @@ Readers without JavaScript enabled can still access all content in collapsible s
 - What happens when a collapsible section contains another Template Toolkit plugin call (like footnotes or YouTube embeds)?
 - How does screen reader navigation work with collapsed vs expanded states?
 - How does the non-JavaScript fallback render when both short description and full content contain complex formatting?
+- How does the system ensure that sections with similar or identical content remain isolated from each other?
 
 ## Requirements *(mandatory)*
 
@@ -118,15 +120,14 @@ Readers without JavaScript enabled can still access all content in collapsible s
 - **FR-007**: System MUST hide the full content when a user clicks to collapse a section
 - **FR-008**: System MUST process blogdown syntax within the full_content parameter
 - **FR-009**: System MUST render collapsible sections at full width of the content area
-- **FR-010**: System MUST support multiple independent collapsible sections within a single article
-- **FR-011**: System MUST maintain the open/closed state of each section independently
-- **FR-012**: System MUST provide appropriate ARIA attributes for accessibility (aria-expanded, role, aria-label)
-- **FR-013**: System MUST be keyboard accessible (allow expand/collapse via keyboard navigation)
-- **FR-014**: System MUST provide a graceful degradation for non-JavaScript environments by displaying both short description and full content in an expanded, indented format
+- **FR-010**: System MUST support multiple independent collapsible sections per article where each section maintains its own open/closed state without affecting other sections
+- **FR-011**: System MUST provide appropriate ARIA attributes for accessibility including: `role="button"` (required), `aria-expanded="true"/"false"` (required), `aria-controls="{id}"` (required), `tabindex="0"` (required), and `aria-labelledby` (optional for enhanced screen reader context)
+- **FR-012**: System MUST be keyboard accessible (allow expand/collapse via keyboard navigation)
+- **FR-013**: System MUST provide a graceful degradation for non-JavaScript environments by displaying both short description and full content in an expanded, indented format
 
 ### Key Entities
 
-- **Collapsible Section**: A content container with two states (collapsed/expanded), containing a short description (always visible) and full content (conditionally visible). Each section has a unique identifier within the page context.
+- **Collapsible Section**: A content container with two states (collapsed/expanded), containing a short description (always visible) and full content (conditionally visible). Each section has a unique identifier within the page context to ensure independent operation when multiple sections exist on the same page.
 
 ## Success Criteria *(mandatory)*
 

@@ -1,144 +1,132 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Collapsible Sections
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `004-collapsible-sections` | **Date**: 2025-11-16 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/specs/004-collapsible-sections/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-This feature implements collapsible sections for articles, allowing authors to hide supplementary content that readers can reveal by clicking. The implementation extends the existing `Template::Plugin::Ovid` module with a new `collapse(short_description, full_content)` method, following the established pattern from the `add_note()` footnote functionality.
-
-**Key Technical Decisions**:
-- **Architecture**: Extend `Template::Plugin::Ovid` (follows Constitution Principle I - CPAN-Style Module Architecture)
-- **Content Processing**: Apply blogdown to `full_content` parameter (Constitution Principle IX - Blogdown Content Format)
-- **Progressive Enhancement**: JavaScript-enabled interactive mode + noscript fallback (Constitution Principle IV - Accessible HTML5)
-- **State Management**: Instance counter for unique IDs (mirrors footnote implementation)
-- **Styling**: Dedicated CSS file (`static/css/collapsible.css`) with full-width responsive design
-- **JavaScript**: Vanilla JS module (`static/js/collapsible.js`) with zero external dependencies (Constitution Principle V)
-
-**Implementation Components**:
-1. Perl module extension: `Template::Plugin::Ovid.collapse()` method
-2. CSS stylesheet: `static/css/collapsible.css` (progressive enhancement)
-3. JavaScript module: `static/js/collapsible.js` (optional interaction layer)
-4. Test suite: `t/template/plugin/ovid-collapse.t` with 90%+ coverage
-5. Documentation: POD in module, quickstart guide for authors
+Add a Template Toolkit plugin method `Ovid.collapse(short_description, full_content)` to create collapsible sections in articles. Sections display collapsed by default (JavaScript-enabled), expand on click to show full content, and support blogdown formatting. Multiple sections per page operate independently with unique identifiers. Progressive enhancement ensures content accessibility when JavaScript is disabled (expanded, indented format).
 
 ## Technical Context
 
 **Language/Version**: Perl 5.40+ (per Constitution Principle VII)  
 **Primary Dependencies**: Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)  
 **Storage**: N/A (static site generation, no runtime database for this feature)  
-**Testing**: Test::Most 0.38+ with 90%+ coverage requirement (per Constitution Principle III)  
-**Target Platform**: Static HTML output with progressive enhancement (JavaScript optional)  
-**Project Type**: Static site generator module + client-side JavaScript enhancement  
-**Performance Goals**: No measurable build time increase (<50ms per collapsible section during build)  
-**Constraints**: Zero external service dependencies, accessible without JavaScript (Constitution Principles V & IV)  
-**Scale/Scope**: Support unlimited collapsible sections per article, each independent
+**Testing**: Test::Most (per Constitution Principle III, 90%+ coverage required)  
+**Target Platform**: Static HTML5 output for modern browsers (Chrome, Firefox, Safari, Edge)  
+**Project Type**: Static site generator - Template Toolkit plugin extension  
+**Performance Goals**: <100ms page load impact for 5 collapsible sections, <30 seconds authoring time  
+**Constraints**: Zero external dependencies (Constitution Principle V), WCAG 2.1 AA compliance, keyboard accessible  
+**Scale/Scope**: Multiple independent sections per article, blogdown content processing, progressive enhancement (no-JS fallback)
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-### Principle I - CPAN-Style Module Architecture ✅
+### Principle I: CPAN-Style Module Architecture ✅
 - **Status**: COMPLIANT
-- **Implementation**: New method `collapse()` added to existing `Template::Plugin::Ovid` module
-- **Rationale**: Extends existing plugin following same pattern as `add_note()` method
+- **Approach**: Extend existing `Template::Plugin::Ovid` module with new `collapse()` method, following same pattern as `add_note()`
+- **Namespace**: `Template::Plugin::Ovid` (already established)
+- **Documentation**: POD with NAME, SYNOPSIS, DESCRIPTION, METHODS
+- **Dependencies**: Declared in `cpanfile` (Template::Toolkit already present, Text::Markdown::Blog via Blogdown)
 
-### Principle II - CLI-First Interface Design ✅
-- **Status**: COMPLIANT (N/A)
-- **Rationale**: Template plugin provides Template Toolkit interface; no CLI needed for this feature
-
-### Principle III - Test::Most with 90%+ Coverage ⚠️
-- **Status**: MUST VERIFY
-- **Requirement**: All new code must achieve 90%+ test coverage
-- **Tests needed**: 
-  - Unit tests for `collapse()` method with various inputs
-  - Edge cases: empty parameters, blogdown syntax processing, multiple sections
-  - Integration tests for noscript rendering
-  - Template rendering tests
-
-### Principle IV - Accessible HTML5 Static Output ⚠️
-- **Status**: MUST VERIFY
-- **Requirements checklist**:
-  - Valid HTML5 markup (expandable sections)
-  - WCAG 2.1 Level AA compliance (ARIA attributes required)
-  - Keyboard navigation (expand/collapse via keyboard)
-  - No JavaScript required for core content access (noscript fallback)
-  - Semantic HTML elements
-
-### Principle V - Zero External Service Dependencies ✅
+### Principle II: CLI-First Interface Design ✅
 - **Status**: COMPLIANT
-- **Verification**: Feature uses only local Template processing and client-side JavaScript
+- **Approach**: Template Toolkit plugin accessible via `[% Ovid.collapse(...) %]` syntax in templates, processed during `bin/rebuild` execution
+- **CLI Tool**: Existing `bin/rebuild` script handles site generation
+- **No new CLI needed**: Feature integrates into existing build workflow
 
-### Principle VI - Production Data Protection ✅
+### Principle III: Test::Most with 90%+ Coverage ✅
+- **Status**: COMPLIANT - MUST ACHIEVE
+- **Testing Strategy**:
+  - Unit tests for `collapse()` method in `t/template_plugin_ovid.t`
+  - Test parameter validation (empty/whitespace detection)
+  - Test HTML output generation (collapsed state markup)
+  - Test unique ID generation for multiple sections
+  - Test blogdown processing integration
+  - Test no-JavaScript fallback rendering
+  - Integration test: full article build with multiple collapsible sections
+- **Mock Minimization**: Use real Template::Toolkit and blogdown processor; only mock if file I/O becomes performance bottleneck in tests
+- **Coverage Target**: 90%+ via Devel::Cover
+
+### Principle IV: Accessible HTML5 Static Output ✅
+- **Status**: COMPLIANT - CRITICAL REQUIREMENT
+- **Accessibility Features**:
+  - ARIA attributes: `aria-expanded`, `role="button"`, `aria-label`
+  - Keyboard navigation: Enter/Space to toggle collapse state
+  - Semantic HTML: `<div>` with appropriate ARIA, `<button>` or clickable region
+  - No JavaScript required for content access (progressive enhancement)
+  - Screen reader announcements for state changes
+- **Validation**: Test with NVDA/JAWS, keyboard-only navigation, W3C validator
+
+### Principle V: Zero External Service Dependencies ✅
 - **Status**: COMPLIANT
-- **Verification**: Tests will use fixtures in `t/fixtures/`, no database modifications needed
+- **Approach**: 
+  - All assets (CSS, JavaScript) served locally from `static/`
+  - No CDN dependencies (use local Font Awesome if icons needed)
+  - Build-time processing only, no runtime API calls
+  - Static HTML generation
 
-### Principle VII - Modern Perl 5.40+ Features ⚠️
-- **Status**: MUST VERIFY
-- **Requirements**:
-  - Use `use v5.40;` in any new modules
-  - Subroutine signatures for `collapse()` method
-  - Follow existing pattern in `Template::Plugin::Ovid`
+### Principle VI: Production Data Protection ✅
+- **Status**: COMPLIANT
+- **Approach**:
+  - Tests use fixtures in `t/fixtures/` directory
+  - No modification of `db/` directory during tests
+  - Read-only access to production data if needed for integration tests
+  - Use File::Temp for temporary test outputs
 
-### Principle VIII - AI Agent Safety ✅
-- **Status**: COMPLIANT (N/A)
-- **Rationale**: No destructive git operations required for this feature
+### Principle VII: Modern Perl 5.40+ Features Preferred ✅
+- **Status**: COMPLIANT
+- **Code Style**:
+  - `use v5.40;` at top of all modules
+  - Subroutine signatures: `sub collapse ($self, $short_desc, $full_content)`
+  - Postfix dereferencing where applicable
+  - Type::Tiny for parameter validation if complex types needed
+  - No legacy syntax (indirect object notation, bareword filehandles)
 
-### Principle IX - Blogdown Content Format ⚠️
-- **Status**: MUST VERIFY
-- **Requirement**: `collapse()` method must process blogdown syntax in `full_content` parameter
-- **Implementation**: Must apply blogdown processing similar to main article content
+### Principle VIII: AI Agent Safety Constraints ✅
+- **Status**: COMPLIANT - INFORMATIONAL
+- **Note**: No destructive git operations planned; all work on feature branch `004-collapsible-sections`
 
-### Gate Status: CONDITIONAL PASS
-All ⚠️ items will be resolved during implementation and verified in Phase 1 design.
+### Principle IX: Blogdown Content Format ✅
+- **Status**: COMPLIANT - CRITICAL INTEGRATION
+- **Approach**:
+  - Full content parameter supports blogdown Markdown syntax
+  - Process `full_content` through existing blogdown pipeline
+  - Preserve TT directives within collapsed content (nested plugins like footnotes)
+  - Template usage: `[% Ovid.collapse("Summary here", "~~~perl\ncode\n~~~") %]`
 
----
+### Quality Standards Check ✅
 
-## Post-Design Constitution Re-Evaluation
+**Code Organization**:
+- Module: Extend `lib/Template/Plugin/Ovid.pm`
+- Tests: Add to existing `t/template_plugin_ovid.t`
+- Static assets: JavaScript in `static/js/`, CSS in `css/`
+- Templates: Integration tests use `t/fixtures/test-article.tt2markdown`
 
-**Re-check Date**: 2025-11-16 (after Phase 1 design complete)
+**Documentation Requirements**:
+- POD for `collapse()` method with examples
+- Parameter descriptions (short_description, full_content)
+- Error conditions documented
+- Usage examples in SYNOPSIS
 
-### Principle III - Test::Most with 90%+ Coverage ✅
-- **Status**: DESIGN COMPLIANT
-- **Design includes**:
-  - Unit tests in `t/template/plugin/ovid-collapse.t`
-  - Test fixtures in `t/fixtures/collapsible-sections/`
-  - Edge case coverage (empty params, blogdown processing, multiple sections)
-  - Integration tests for noscript rendering
-  - Contract specifies comprehensive test requirements
+**Performance Expectations**:
+- Minimal build time impact (<100ms for 5 sections per spec)
+- No memory leaks from repeated section generation
+- HTML output minification compatible
 
-### Principle IV - Accessible HTML5 Static Output ✅
-- **Status**: DESIGN COMPLIANT
-- **Design includes**:
-  - Full ARIA attribute specification (aria-expanded, aria-controls, aria-labelledby, role)
-  - Keyboard navigation support (Tab, Enter, Space)
-  - Noscript fallback with indented content
-  - Semantic HTML structure
-  - WCAG 2.1 Level AA color contrast requirements
-  - Print styles (all content visible when printed)
-  - High contrast mode support
-  - Reduced motion support
+**Development Scope Boundaries** ✅:
+- **MODIFY**: `lib/Template/Plugin/Ovid.pm` (add `collapse()` method)
+- **CREATE**: `static/js/collapsible.js` (client-side toggle behavior)
+- **CREATE**: `static/css/collapsible.css` (section styling)
+- **CREATE**: `t/template/plugin/ovid-collapse.t` (unit tests for new functionality)
+- **DO NOT MODIFY**: `articles/`, `blog/`, `db/`, `tmp/`, generated content
 
-### Principle VII - Modern Perl 5.40+ Features ✅
-- **Status**: DESIGN COMPLIANT
-- **Design includes**:
-  - Subroutine signatures: `sub collapse ( $self, $short_description, $full_content )`
-  - Error handling with `croak()` (best practice)
-  - Follows existing module patterns in `Template::Plugin::Ovid`
+### Summary: ALL GATES PASSED ✅
 
-### Principle IX - Blogdown Content Format ✅
-- **Status**: DESIGN COMPLIANT
-- **Design includes**:
-  - Explicit blogdown processing via `Template::Plugin::Blogdown->filter()`
-  - Applied to `full_content` parameter before HTML generation
-  - Supports all blogdown features (code blocks, tables, smart quotes, external links)
-  - Tested with complex blogdown syntax in test fixtures
-
-### Final Gate Status: ✅ FULL PASS
-
-All constitution principles are satisfied by the design. Implementation can proceed with confidence that the architecture aligns with project standards.
+No violations. Feature fully compliant with constitution.
 
 ## Project Structure
 
@@ -159,52 +147,99 @@ specs/[###-feature]/
 ```text
 # Static site generator (Perl + Template Toolkit)
 lib/
-├── Template/
-│   └── Plugin/
-│       └── Ovid.pm                 # MODIFY: Add collapse() method
+└── Template/
+    └── Plugin/
+        └── Ovid.pm          # MODIFY: Add collapse() method
+
+bin/
+└── rebuild                   # Existing CLI (no changes needed)
+
+root/
+└── [no changes to templates] # Feature is plugin-based, used via [% Ovid.collapse() %]
+
+static/
+├── js/
+│   └── collapsible.js        # CREATE: Client-side expand/collapse logic
+└── css/
+    └── collapsible.css       # CREATE: Styling for collapsible sections
 
 t/
 ├── template/
 │   └── plugin/
-│       └── ovid-collapse.t         # CREATE: Tests for collapse() method
+│       └── ovid-collapse.t   # CREATE: Unit tests for collapse() method
 └── fixtures/
-    └── collapsible-sections/       # CREATE: Test fixtures
-        ├── basic.tt                # Single collapsible section
-        ├── multiple.tt             # Multiple sections
-        ├── blogdown-content.tt     # Complex blogdown in content
-        └── expected/               # Expected HTML output
-            ├── basic.html
-            ├── multiple.html
-            └── blogdown-content.html
+    └── test-collapsible.tt2markdown  # CREATE: Integration test fixture
 
-static/
-├── css/
-│   └── collapsible.css             # CREATE: Styling for collapsible sections
-└── js/
-    └── collapsible.js              # CREATE: JavaScript for expand/collapse behavior
-
-include/
-└── wrapper.html                    # POSSIBLY MODIFY: May need to include collapsible.js/css
-
-# Generated content - DO NOT MODIFY in feature tasks:
-# articles/, blog/, tags/         : Generated HTML
-# db/                             : Production databases
-# tmp/, cover_db/                 : Build artifacts
+# Generated content - DO NOT MODIFY:
+# articles/, blog/, tags/     : Generated HTML
+# db/                         : Production databases
+# tmp/, cover_db/             : Build artifacts
 ```
 
 **Structure Decision**: 
-- **lib/Template/Plugin/Ovid.pm**: Add `collapse($short_description, $full_content)` method following the pattern of `add_note()`
-- **t/template/plugin/ovid-collapse.t**: Comprehensive test suite for the new method
-- **t/fixtures/collapsible-sections/**: Template fixtures and expected HTML for testing
-- **static/css/collapsible.css**: Styles for collapsed/expanded states, noscript fallback
-- **static/js/collapsible.js**: Client-side JavaScript for interactive expand/collapse
-- **include/wrapper.html**: May need modification to include new CSS/JS files (TBD in research phase)
+- Extend `Template::Plugin::Ovid` with `collapse()` method (similar to `add_note()` pattern)
+- Create standalone JavaScript file at `static/js/collapsible.js` for progressive enhancement
+- Create separate CSS file at `static/css/collapsible.css` for section styling
+- Tests in `t/template/plugin/ovid-collapse.t` mirror existing `add_note()` test patterns
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+No violations found. This section is not applicable.
+
+---
+
+## Planning Status
+
+**Status**: ✅ COMPLETE  
+**Date Completed**: 2025-11-16  
+**Next Phase**: Implementation tasks (use `/speckit.tasks` command)
+
+### Completed Phases
+
+#### Phase 0: Research ✅
+- **Output**: `research.md`
+- **Status**: All technical unknowns resolved
+- **Key Decisions**:
+  - Auto-incrementing counter for unique section IDs
+  - Template::Plugin::Blogdown for content processing
+  - WAI-ARIA Disclosure Pattern for accessibility
+  - Event delegation for JavaScript interactions
+  - No-JS fallback with duplicate HTML blocks
+
+#### Phase 1: Design & Contracts ✅
+- **Outputs**:
+  - `data-model.md` - Entity structure and state management
+  - `quickstart.md` - Author-facing documentation
+  - `contracts/perl-api.md` - `collapse()` method contract
+  - `contracts/javascript-api.md` - Client-side API specification
+  - `contracts/css-contract.md` - Styling requirements
+- **Status**: All design artifacts complete
+- **Agent Context**: GitHub Copilot context updated with new technologies
+
+### Artifacts Summary
+
+| Artifact | Status | Purpose |
+|----------|--------|---------|
+| `spec.md` | ✅ Complete | Feature specification with clarifications |
+| `plan.md` | ✅ Complete | This implementation plan |
+| `research.md` | ✅ Complete | Technical research and decisions |
+| `data-model.md` | ✅ Complete | Entity definitions and validation |
+| `quickstart.md` | ✅ Complete | Author documentation |
+| `contracts/perl-api.md` | ✅ Complete | Perl API contract |
+| `contracts/javascript-api.md` | ✅ Complete | JavaScript API contract |
+| `contracts/css-contract.md` | ✅ Complete | CSS styling contract |
+| `tasks.md` | ⏳ Pending | Use `/speckit.tasks` to generate |
+
+### Ready for Implementation
+
+All planning phases complete. Feature is ready for task breakdown and implementation.
+
+**Constitution Re-check**: ✅ All gates still passed after design phase
+
+**Next Steps**:
+1. Run `/speckit.tasks` to break down implementation into actionable tasks
+2. Begin implementation following task priorities
+3. Maintain 90%+ test coverage throughout development
+4. Validate accessibility with screen readers and keyboard navigation

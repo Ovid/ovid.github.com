@@ -71,9 +71,9 @@ Perl 5.40+: Follow standard conventions from constitution.md
 
 ## Recent Changes
 - 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
+- 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
 - 002-footnote-noscript-fallback: Added Perl 5.40+ (project standard per constitution) + Template Toolkit 2.x, Dialog.js (client-side for JS mode)
 
-- 001-test-coverage-improvement: Added Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
