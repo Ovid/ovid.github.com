@@ -1,20 +1,17 @@
 <!--
 Sync Impact Report:
-Version: 1.3.0 → 1.4.0
-Modified Principles: None
-Added Sections: Principle VI - Production Data Protection (NON-NEGOTIABLE)
+Version: 1.4.0 → 1.5.0
+Modified Principles: 
+  - Quality Standards > Code Organization (added Development Scope Boundaries)
+Added Sections: Development Scope Boundaries subsection under Quality Standards
 Removed Sections: None
-Renumbered Principles: VI→VII (Modern Perl), VII→VIII (AI Agent Safety)
+Renumbered Principles: None
 Templates Status:
-  - ⚠ .specify/templates/plan-template.md (add production data protection guidance)
-  - ⚠ .specify/templates/spec-template.md (add constraint about not modifying db/)
-  - ⚠ .specify/templates/tasks-template.md (add verification tasks for db/ integrity)
+  - ✅ .specify/templates/plan-template.md (added Source Code scope guidance)
+  - ✅ .specify/templates/spec-template.md (no changes needed - already scope-agnostic)
+  - ✅ .specify/templates/tasks-template.md (added path conventions note about scope)
 Follow-up TODOs:
-  - Add db/ directory protection checks to test suite validation
-  - Update testing best practices to emphasize test fixtures over production data
-  - Add git status check for db/ in CI/CD validation
-  - Review all existing tests to ensure compliance with Principle VI
-  - Document test fixture patterns in testing guide
+  - None - all templates updated
 -->
 
 # Ovid's Website Constitution
@@ -143,6 +140,26 @@ AI agents operating on this codebase MUST NOT execute destructive git operations
 - Static assets in `static/` directory (images, CSS, JS)
 - Build artifacts in `tmp/` (excluded from version control)
 
+#### Development Scope Boundaries
+
+**Source Code Modification Scope**: All development work MUST be confined to three directories:
+
+- **`lib/`**: Perl modules implementing core functionality
+- **`bin/`**: Command-line scripts and build tools
+- **`root/`**: Template Toolkit templates (`.html` files with TT directives)
+
+**Generated/External Content**: The following directories contain auto-generated or user-initiated content and MUST NOT be modified by development tasks, agents, or tooling:
+
+- `articles/`, `blog/`, `tags/`: Generated HTML output (created by `bin/rebuild`)
+- `static/`, `css/`, `images/`: User-managed assets (uploaded by content authors)
+- `db/`: Production databases (see Principle VI - Production Data Protection)
+- `tmp/`, `cover_db/`, `coverage-report/`: Build artifacts and reports
+- `fixtures/`, `t/`: Test infrastructure (modified only when adding/updating tests)
+- `include/`: Template includes (generated or manually curated, not feature development targets)
+- Configuration files at root (`cpanfile`, `Makefile`, `.perltidyrc`, etc.): Modified only when adding dependencies or tools
+
+**Rationale**: This static site generator follows a clear separation between source code (templates + logic) and generated output. Modifying generated files creates confusion, causes data loss on rebuild, and violates the principle of single source of truth. Content authors manage assets directly; developers implement the generation logic.
+
 ### Documentation Requirements
 
 Every module and script MUST include:
@@ -238,9 +255,10 @@ Deviations from constitution principles require:
 - Plan for eventual compliance if temporary deviation
 - Review and approval for non-negotiable principles
 
-**Version**: 1.4.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-09
+**Version**: 1.5.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-16
 
 **Changelog**:
+- **1.5.0** (2025-11-16): Added Development Scope Boundaries under Code Organization to explicitly define modifiable directories (lib/, bin/, root/) vs. generated/external content
 - **1.4.0** (2025-11-09): Added Principle VI - Production Data Protection to prevent test contamination of production databases and data files
 - **1.3.0** (2025-11-09): Added Mock Minimization guidance under Principle III
 - **1.2.1**: Added compliance requirement for perltidy formatting

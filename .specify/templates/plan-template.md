@@ -53,46 +53,50 @@ specs/[###-feature]/
   for this feature. Delete unused options and expand the chosen structure with
   real paths (e.g., apps/admin, packages/something). The delivered plan must
   not include Option labels.
+  
+  IMPORTANT FOR THIS PROJECT: Per Constitution v1.5.0 Development Scope Boundaries,
+  all feature development must be confined to:
+  - lib/     : Perl modules (e.g., Ovid::*, Less::*, Template::Plugin::*)
+  - bin/     : CLI scripts (e.g., article, rebuild)
+  - root/    : Template Toolkit templates (.html files with TT directives)
+  
+  DO NOT modify generated content (articles/, blog/, tags/), user assets (static/, 
+  css/, images/), or production data (db/). These are auto-generated or user-managed.
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# This project: Static site generator (Perl + Template Toolkit)
+lib/
+├── Ovid/
+│   └── [feature modules].pm
+├── Less/
+│   └── [utility modules].pm
+└── Template/
+    └── Plugin/
+        └── [custom TT plugins].pm
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+bin/
+├── article      # CLI for creating articles
+├── rebuild      # Site generation script
+└── [new scripts]
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+root/
+├── [page templates].html
+└── [layouts].html
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+t/
+├── [test files mirroring lib/]
+└── fixtures/
+    └── [test data]
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+# Generated content - DO NOT MODIFY in feature tasks:
+# articles/, blog/, tags/     : Generated HTML
+# static/, css/, images/      : User-managed assets
+# db/                         : Production databases
+# tmp/, cover_db/             : Build artifacts
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: [Document which lib/, bin/, root/ files this feature will create/modify]
 
 ## Complexity Tracking
 

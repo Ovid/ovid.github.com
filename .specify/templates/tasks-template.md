@@ -20,10 +20,17 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
+**This Project (Static Site Generator)**:
+- **Development scope** (per Constitution v1.5.0): `lib/`, `bin/`, `root/`
+- **Generated content** (do NOT modify): `articles/`, `blog/`, `tags/`
+- **User assets** (do NOT modify): `static/`, `css/`, `images/`
+- **Tests**: `t/` (mirrors `lib/` structure)
+- **Fixtures**: `t/fixtures/` (test data only)
+
+**Generic Path Conventions** (for reference when working on other projects):
 - **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
   ============================================================================
@@ -41,6 +48,10 @@ description: "Task list template for feature implementation"
   - Delivered as an MVP increment
   
   DO NOT keep these sample tasks in the generated tasks.md file.
+  
+  FOR THIS PROJECT: All tasks must target lib/, bin/, or root/ directories only.
+  Never create tasks that modify articles/, blog/, tags/, static/, css/, images/, 
+  or db/ directories - these are auto-generated or user-managed per Constitution.
   ============================================================================
 -->
 
