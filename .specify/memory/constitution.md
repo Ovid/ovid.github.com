@@ -1,17 +1,19 @@
 <!--
 Sync Impact Report:
-Version: 1.4.0 → 1.5.0
-Modified Principles: 
-  - Quality Standards > Code Organization (added Development Scope Boundaries)
-Added Sections: Development Scope Boundaries subsection under Quality Standards
+Version: 1.5.0 → 1.6.0
+Modified Principles: None
+Added Sections: Principle IX - Blogdown Content Format (new principle documenting hybrid Markdown/TT content authoring)
 Removed Sections: None
 Renumbered Principles: None
 Templates Status:
-  - ✅ .specify/templates/plan-template.md (added Source Code scope guidance)
-  - ✅ .specify/templates/spec-template.md (no changes needed - already scope-agnostic)
-  - ✅ .specify/templates/tasks-template.md (added path conventions note about scope)
+  - ✅ .specify/templates/plan-template.md (no changes needed - content format principle doesn't affect planning)
+  - ✅ .specify/templates/spec-template.md (no changes needed - content format is orthogonal to spec requirements)
+  - ✅ .specify/templates/tasks-template.md (no changes needed - content format doesn't affect task categorization)
+  - ✅ .specify/templates/commands/*.md (no changes needed - command guidance doesn't reference content format)
 Follow-up TODOs:
-  - None - all templates updated
+  - None - all templates validated, no updates required for this additive principle
+Previous Changes (1.4.0 → 1.5.0):
+  - Added Development Scope Boundaries subsection under Quality Standards
 -->
 
 # Ovid's Website Constitution
@@ -128,6 +130,57 @@ AI agents operating on this codebase MUST NOT execute destructive git operations
 - REQUIRED: When creating branches or commits, agents must inform the user and wait for confirmation if the operation could affect remote state
 
 **Rationale**: AI agents can make mistakes in command construction or context interpretation. Destructive git operations can cause irrecoverable data loss, break collaboration workflows, and violate repository policies. Humans must retain ultimate control over repository history and remote state. Read-only and safe operations enable agents to gather context without risk.
+
+### IX. Blogdown Content Format
+
+All articles and blog posts MUST be authored using the "blogdown" format:
+- Template Toolkit files (`.tt` or `.tt2markdown`) with `blogdown=1` parameter in WRAPPER directive
+- Content written in Markdown syntax within TT templates
+- Template Toolkit directives embedded inline for dynamic functionality
+- Processed by `Template::Plugin::Blogdown` which delegates to `Text::Markdown::Blog`
+- Supports standard Markdown plus extended features (tables, smart quotes, syntax highlighting)
+
+**Blogdown Extended Syntax**:
+- **Code blocks**: Triple-tilde fencing with optional language specifier
+  ```
+  ~~~perl
+  my $code = "example";
+  ~~~
+  ```
+- **Special tokens**: `{{TOC}}` (generates table of contents), `{{TAGS tag1 tag2}}` (declares article tags)
+- **TT directives**: Full Template Toolkit syntax available inline (e.g., `[% Ovid.add_note('text') %]`)
+- **Smart quotes**: Automatically converts straight quotes to curly quotes outside code blocks
+- **External links**: Auto-adds `target="_blank"` and external link icon for URLs with protocols
+- **Tables**: MultiMarkdown-style table syntax with alignment support
+
+**File Structure**:
+```tt
+[%
+    title            = 'Article Title';
+    type             = 'article';  # or 'blog'
+    slug             = 'url-slug';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2025-11-16';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS programming perl}}
+
+# Article Content in Markdown
+
+Regular Markdown with [TT directives inline].[% Ovid.add_note('Footnote text') %]
+
+~~~perl
+my $code = "syntax highlighted";
+~~~
+
+[% END %]
+```
+
+**Rationale**: Blogdown combines the simplicity of Markdown for prose with the power of Template Toolkit for dynamic features (footnotes, includes, calculations). This hybrid approach enables content authors to write naturally while maintaining full programmatic control. The format separates content (Markdown) from presentation (TT/HTML), follows DRY principles via template includes, and ensures consistent processing through a single, tested pipeline. Static site generators benefit from deterministic, template-based content transformation.
 
 ## Quality Standards
 
@@ -255,9 +308,10 @@ Deviations from constitution principles require:
 - Plan for eventual compliance if temporary deviation
 - Review and approval for non-negotiable principles
 
-**Version**: 1.5.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-16
+**Version**: 1.6.0 | **Ratified**: 2025-11-09 | **Last Amended**: 2025-11-16
 
 **Changelog**:
+- **1.6.0** (2025-11-16): Added Principle IX - Blogdown Content Format documenting the hybrid Markdown/Template Toolkit authoring system for articles and blog posts
 - **1.5.0** (2025-11-16): Added Development Scope Boundaries under Code Organization to explicitly define modifiable directories (lib/, bin/, root/) vs. generated/external content
 - **1.4.0** (2025-11-09): Added Principle VI - Production Data Protection to prevent test contamination of production databases and data files
 - **1.3.0** (2025-11-09): Added Mock Minimization guidance under Principle III
