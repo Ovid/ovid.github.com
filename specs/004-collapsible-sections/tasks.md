@@ -80,21 +80,21 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 2 (TDD)
 
-- [ ] T021 [P] [US2] Add CSS selector tests to `t/template/plugin/ovid-collapse.t` (verify .collapsible-section class exists in output)
-- [ ] T022 [P] [US2] Add CSS class verification tests to `t/template/plugin/ovid-collapse.t` (trigger, icon, content classes present)
+- [X] T021 [P] [US2] Add CSS selector tests to `t/template/plugin/ovid-collapse.t` (verify .collapsible-section class exists in output)
+- [X] T022 [P] [US2] Add CSS class verification tests to `t/template/plugin/ovid-collapse.t` (trigger, icon, content classes present)
 
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] Implement base section container styles in `static/css/collapsible.css` (full width, margin, border, border-radius)
-- [ ] T024 [P] [US2] Implement trigger styles in `static/css/collapsible.css` (flexbox layout, padding, cursor, background)
-- [ ] T025 [P] [US2] Implement icon positioning styles in `static/css/collapsible.css` (margin-right, color, font-size)
-- [ ] T026 [P] [US2] Implement short description text styles in `static/css/collapsible.css` (flex: 1, font-weight, color)
-- [ ] T027 [P] [US2] Implement collapsed content state in `static/css/collapsible.css` (display: none, border-top, padding)
-- [ ] T028 [P] [US2] Implement expanded content state in `static/css/collapsible.css` (.expanded class with display: block)
-- [ ] T029 [P] [US2] Implement hover state styles in `static/css/collapsible.css` (.collapsible-trigger:hover)
-- [ ] T030 [P] [US2] Implement focus state styles for accessibility in `static/css/collapsible.css` (outline, outline-offset per WCAG 2.1 AA)
-- [ ] T031 [US2] Add responsive media query for mobile in `static/css/collapsible.css` (@media max-width: 550px)
-- [ ] T032 [US2] Verify CSS meets WCAG 2.1 Level AA contrast requirements (manual check or automated tool)
+- [X] T024 [P] [US2] Implement trigger styles in `static/css/collapsible.css` (flexbox layout, padding, cursor, background)
+- [X] T025 [P] [US2] Implement icon positioning styles in `static/css/collapsible.css` (margin-right, color, font-size)
+- [X] T026 [P] [US2] Implement short description text styles in `static/css/collapsible.css` (flex: 1, font-weight, color)
+- [X] T027 [P] [US2] Implement collapsed content state in `static/css/collapsible.css` (display: none, border-top, padding)
+- [X] T028 [P] [US2] Implement expanded content state in `static/css/collapsible.css` (.expanded class with display: block)
+- [X] T029 [P] [US2] Implement hover state styles in `static/css/collapsible.css` (.collapsible-trigger:hover)
+- [X] T030 [P] [US2] Implement focus state styles for accessibility in `static/css/collapsible.css` (outline, outline-offset per WCAG 2.1 AA)
+- [X] T031 [US2] Add responsive media query for mobile in `static/css/collapsible.css` (@media max-width: 550px)
+- [X] T032 [US2] Verify CSS meets WCAG 2.1 Level AA contrast requirements (manual check or automated tool)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - Perl generates proper HTML with full styling
 

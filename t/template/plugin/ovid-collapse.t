@@ -140,4 +140,75 @@ subtest 'Fixture-based integration test (T012)' => sub {
     is $output, $expected, 'Generated HTML matches expected output';
 };
 
+# ========================================
+# User Story 2 Tests - Full-Width Visual Integration
+# ========================================
+
+subtest 'CSS selector tests (T021)' => sub {
+    my $context = Template::Context->new();
+    my $plugin  = Template::Plugin::Ovid->new($context);
+
+    my $html = $plugin->collapse( "Summary text", "Details here" );
+
+    like $html, qr/class="collapsible-section"/,
+      'Output contains .collapsible-section class';
+    
+    like $html, qr/<div class="collapsible-section">/,
+      'collapsible-section is a div element';
+    
+    # Verify the class appears exactly once per collapse() call
+    my @matches = $html =~ /class="collapsible-section"/g;
+    is scalar(@matches), 1, 'collapsible-section class appears exactly once';
+};
+
+subtest 'CSS class verification tests (T022)' => sub {
+    my $context = Template::Context->new();
+    my $plugin  = Template::Plugin::Ovid->new($context);
+
+    my $html = $plugin->collapse( "Click to expand", "Full content" );
+
+    # Verify trigger class
+    like $html, qr/class="collapsible-trigger"/,
+      'Output contains .collapsible-trigger class';
+    
+    # Verify icon class
+    like $html, qr/class="fa fa-chevron-down collapsible-icon"/,
+      'Output contains .collapsible-icon class with Font Awesome';
+    
+    # Verify short description class
+    like $html, qr/class="collapsible-short"/,
+      'Output contains .collapsible-short class';
+    
+    # Verify content class
+    like $html, qr/class="collapsible-content"/,
+      'Output contains .collapsible-content class';
+    
+    # Verify noscript fallback classes
+    like $html, qr/class="collapsible-section-noscript"/,
+      'Output contains .collapsible-section-noscript class';
+    
+    like $html, qr/class="collapsible-short-noscript"/,
+      'Output contains .collapsible-short-noscript class';
+    
+    like $html, qr/class="collapsible-content-noscript"/,
+      'Output contains .collapsible-content-noscript class';
+    
+    # Verify all classes are present in a single collapse() call
+    my @expected_classes = (
+        'collapsible-section',
+        'collapsible-trigger',
+        'collapsible-icon',
+        'collapsible-short',
+        'collapsible-content',
+        'collapsible-section-noscript',
+        'collapsible-short-noscript',
+        'collapsible-content-noscript',
+    );
+    
+    for my $class (@expected_classes) {
+        like $html, qr/\Q$class\E/,
+          "Class '$class' is present in output";
+    }
+};
+
 done_testing;
