@@ -168,6 +168,7 @@ sub collapse ( $self, $short_description, $full_content ) {
     my $processed_content = $blogdown->filter($full_content);
 
     # Build HTML structure with ARIA attributes (T016, T017, T018)
+    # Progressive enhancement: content visible by default (no-JS), hidden by JavaScript
     my $html = <<"HTML";
 <div class="collapsible-section">
     <div class="collapsible-trigger"
@@ -189,21 +190,7 @@ sub collapse ( $self, $short_description, $full_content ) {
 </div>
 HTML
 
-    # Noscript fallback (T019)
-    my $noscript = <<"NOSCRIPT";
-<noscript>
-    <div class="collapsible-section-noscript">
-        <div class="collapsible-short-noscript">
-            <strong>$short_description</strong>
-        </div>
-        <div class="collapsible-content-noscript">
-            $processed_content
-        </div>
-    </div>
-</noscript>
-NOSCRIPT
-
-    return $html . $noscript;
+    return $html;
 }
 
 # NOTE: Called from Template Toolkit templates (multiple article templates)
