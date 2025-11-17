@@ -34,8 +34,8 @@ description: "Task list for collapsible sections feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add collapsible section counter instance variable to `lib/Template/Plugin/Ovid.pm` initialization
-- [ ] T005 Create test file `t/template/plugin/ovid-collapse.t` with Test::Most setup and basic structure
+- [X] T004 Add collapsible section counter instance variable to `lib/Template/Plugin/Ovid.pm` initialization
+- [X] T005 Create test file `t/template/plugin/ovid-collapse.t` with Test::Most setup and basic structure
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,24 +49,24 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 1 (TDD - Write FIRST, ensure FAIL before implementation)
 
-- [ ] T006 [P] [US1] Add parameter validation tests to `t/template/plugin/ovid-collapse.t` (empty short_description, empty full_content, undefined parameters)
-- [ ] T007 [P] [US1] Add basic collapse() method invocation test to `t/template/plugin/ovid-collapse.t` (returns HTML string)
-- [ ] T008 [P] [US1] Add HTML structure test to `t/template/plugin/ovid-collapse.t` (verify div.collapsible-section exists)
-- [ ] T009 [P] [US1] Add unique ID generation test to `t/template/plugin/ovid-collapse.t` (multiple calls produce sequential IDs)
-- [ ] T010 [P] [US1] Create test fixture `t/fixtures/collapsible-sections/basic.tt` with single collapsible section template
-- [ ] T011 [P] [US1] Create expected output `t/fixtures/collapsible-sections/expected/basic.html` with complete HTML structure
-- [ ] T012 [US1] Add fixture-based integration test to `t/template/plugin/ovid-collapse.t` (render basic.tt, compare to expected/basic.html)
+- [X] T006 [P] [US1] Add parameter validation tests to `t/template/plugin/ovid-collapse.t` (empty short_description, empty full_content, undefined parameters)
+- [X] T007 [P] [US1] Add basic collapse() method invocation test to `t/template/plugin/ovid-collapse.t` (returns HTML string)
+- [X] T008 [P] [US1] Add HTML structure test to `t/template/plugin/ovid-collapse.t` (verify div.collapsible-section exists)
+- [X] T009 [P] [US1] Add unique ID generation test to `t/template/plugin/ovid-collapse.t` (multiple calls produce sequential IDs)
+- [X] T010 [P] [US1] Create test fixture `t/fixtures/collapsible-sections/basic.tt` with single collapsible section template
+- [X] T011 [P] [US1] Create expected output `t/fixtures/collapsible-sections/expected/basic.html` with complete HTML structure
+- [X] T012 [US1] Add fixture-based integration test to `t/template/plugin/ovid-collapse.t` (render basic.tt, compare to expected/basic.html)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `collapse()` method signature with parameter validation in `lib/Template/Plugin/Ovid.pm` (croak on empty/undefined params)
-- [ ] T014 [US1] Implement collapsible section counter increment in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T015 [US1] Implement unique ID generation (trigger and content IDs) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T016 [US1] Implement basic HTML structure generation (container, trigger div, content div) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T017 [US1] Add ARIA attributes to HTML output (role, tabindex, aria-expanded, aria-controls, aria-labelledby) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T018 [US1] Add Font Awesome chevron-down icon to trigger element in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T019 [US1] Implement noscript fallback HTML structure in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
-- [ ] T020 [US1] Verify all US1 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
+- [X] T013 [US1] Implement `collapse()` method signature with parameter validation in `lib/Template/Plugin/Ovid.pm` (croak on empty/undefined params)
+- [X] T014 [US1] Implement collapsible section counter increment in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T015 [US1] Implement unique ID generation (trigger and content IDs) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T016 [US1] Implement basic HTML structure generation (container, trigger div, content div) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T017 [US1] Add ARIA attributes to HTML output (role, tabindex, aria-expanded, aria-controls, aria-labelledby) in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T018 [US1] Add Font Awesome chevron-down icon to trigger element in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T019 [US1] Implement noscript fallback HTML structure in `collapse()` method in `lib/Template/Plugin/Ovid.pm`
+- [X] T020 [US1] Verify all US1 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
 
 **Checkpoint**: At this point, User Story 1 Perl API should be fully functional and testable independently
 

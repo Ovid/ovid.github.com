@@ -13,18 +13,20 @@ use Ovid::Site::Utils qw(
   get_image_description
   set_image_description
 );
+use Template::Plugin::Blogdown;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
     open my $fh, '<', config()->{tagmap_file};
     my $json = do { local $/; <$fh> };
     bless {
-        _CONTEXT        => $context,
-        footnote_number => 1,
-        footnote_names  => {},
-        footnotes       => [],
-        pager           => Less::Pager->new( type => 'article' ),
-        tagmap          => decode_json($json),
+        _CONTEXT                   => $context,
+        footnote_number            => 1,
+        footnote_names             => {},
+        footnotes                  => [],
+        collapsible_section_number => 1,
+        pager                      => Less::Pager->new( type => 'article' ),
+        tagmap                     => decode_json($json),
     }, $class;
 }
 
@@ -43,15 +45,10 @@ sub cite ( $self, $path, $name ) {
       $name;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub tags ($self) {
     return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
 }
 
-# NOTE: Called from Template Toolkit templates (root/include/tags_for_article.tt)
-# Returns array of tags for a given URL. Static analysis cannot detect template usage.
 sub tags_for_url ( $self, $url ) {
     return $self->{tagmap}{__ALL__}{$url} // [];
 }
@@ -66,9 +63,6 @@ sub tags_by_weight($self) {
     return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub has_articles_for_tag ( $self, $tag ) {
     return exists $self->{tagmap}{$tag};
 }
@@ -105,9 +99,6 @@ sub count_for_tag ( $self, $tag ) {
     return $count;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub files_for_tag ( $self, $tag ) {
     my $files = $self->{tagmap}{$tag}{files}
       or croak("Cannot find files for unknown tag '$tag'");
@@ -156,6 +147,63 @@ HTML
     
     # Return both JavaScript dialog trigger and noscript anchor link
     return $dialog . $noscript;
+}
+
+sub collapse ( $self, $short_description, $full_content ) {
+    # Parameter validation (T013)
+    if ( !defined($short_description) || $short_description !~ /\S/ ) {
+        croak("collapse() requires short_description parameter");
+    }
+    if ( !defined($full_content) || $full_content !~ /\S/ ) {
+        croak("collapse() requires full_content parameter");
+    }
+
+    # Increment counter and generate unique IDs (T014, T015)
+    my $number     = $self->{collapsible_section_number}++;
+    my $trigger_id = "collapsible-trigger-$number";
+    my $content_id = "collapsible-content-$number";
+
+    # Process full_content through blogdown (for Phase 5/US3)
+    my $blogdown = Template::Plugin::Blogdown->new( $self->{_CONTEXT} );
+    my $processed_content = $blogdown->filter($full_content);
+
+    # Build HTML structure with ARIA attributes (T016, T017, T018)
+    my $html = <<"HTML";
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="$trigger_id"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="$content_id"
+         aria-label="Expand: $short_description">
+        <i class="fa fa-chevron-down collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">$short_description</span>
+    </div>
+    <div id="$content_id"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="$trigger_id">
+        $processed_content
+    </div>
+</div>
+HTML
+
+    # Noscript fallback (T019)
+    my $noscript = <<"NOSCRIPT";
+<noscript>
+    <div class="collapsible-section-noscript">
+        <div class="collapsible-short-noscript">
+            <strong>$short_description</strong>
+        </div>
+        <div class="collapsible-content-noscript">
+            $processed_content
+        </div>
+    </div>
+</noscript>
+NOSCRIPT
+
+    return $html . $noscript;
 }
 
 # NOTE: Called from Template Toolkit templates (multiple article templates)
@@ -230,9 +278,6 @@ sub next_post ( $self, $type, $slug ) {
     return $self->{pager}->next_post( $type, $slug );
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub is_blog ( $self, $type ) {
     return $type eq 'blog';
 }
