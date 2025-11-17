@@ -211,4 +211,168 @@ subtest 'CSS class verification tests (T022)' => sub {
     }
 };
 
+# ========================================
+# User Story 3 Tests - Template Syntax for Authors
+# ========================================
+
+subtest 'Blogdown processing (T033)' => sub {
+    my $context = Template::Context->new();
+    my $plugin  = Template::Plugin::Ovid->new($context);
+
+    # Test code block with ~~~perl syntax
+    my $markdown_content = <<'MARKDOWN';
+Example code:
+
+~~~perl
+use v5.40;
+say "Hello, World!";
+~~~
+MARKDOWN
+
+    my $html = $plugin->collapse( "Code Example", $markdown_content );
+
+    # Verify blogdown processes the code block
+    like $html, qr/<pre/,
+      'Blogdown converts code fence to <pre> tag';
+
+    like $html, qr/<code/,
+      'Blogdown creates <code> tag for syntax highlighting';
+
+    like $html, qr/class="[^"]*language-perl/,
+      'Blogdown adds language-perl class for syntax highlighting';
+
+    # Verify the code content is preserved
+    like $html, qr/use v5\.40/,
+      'Code content is preserved in output';
+
+    like $html, qr/Hello, World!/,
+      'String content is preserved in output';
+
+    # Test Markdown lists
+    my $list_content = <<'MARKDOWN';
+Key benefits:
+
+- **Improved readability**: Keep content focused
+- **Progressive disclosure**: Let readers choose depth
+- Better organization
+MARKDOWN
+
+    $html = $plugin->collapse( "Benefits", $list_content );
+
+    # Verify blogdown processes the list
+    like $html, qr/<ul>/,
+      'Blogdown converts Markdown list to <ul>';
+
+    like $html, qr/<li>/,
+      'Blogdown creates <li> elements';
+
+    like $html, qr/<strong>Improved readability<\/strong>/,
+      'Blogdown processes bold markdown (**text**)';
+
+    # Test external links
+    my $link_content = 'See [the documentation](https://example.com) for details.';
+
+    $html = $plugin->collapse( "Resources", $link_content );
+
+    # Verify blogdown processes external links with target="_blank"
+    like $html, qr/<a [^>]*href="https:\/\/example\.com"/,
+      'Blogdown converts Markdown link to anchor tag';
+
+    like $html, qr/<a [^>]*target="_blank"/,
+      'Blogdown adds target="_blank" for external links';
+
+    like $html, qr/fa-external-link/,
+      'Blogdown adds external link icon';
+};
+
+subtest 'Blogdown integration test (T036)' => sub {
+    my $tt = Template->new(
+        {   INCLUDE_PATH => 't/fixtures/collapsible-sections',
+        }
+    );
+
+    my $output;
+    ok $tt->process( 'blogdown-content.tt', {}, \$output ),
+      'Template with blogdown content processes successfully'
+      or diag $tt->error();
+
+    # Read expected output
+    my $expected_file = path('t/fixtures/collapsible-sections/expected/blogdown-content.html');
+    my $expected      = $expected_file->slurp_utf8;
+
+    # Verify key blogdown features are present in output
+    like $output, qr/<pre class="scrolled">/,
+      'Blogdown creates syntax-highlighted code block';
+
+    like $output, qr/class="language-perl"/,
+      'Blogdown adds language-perl class for code highlighting';
+
+    like $output, qr/<ul>/,
+      'Blogdown converts Markdown lists to HTML lists';
+
+    like $output, qr/<strong>Progressive disclosure<\/strong>/,
+      'Blogdown processes bold Markdown syntax';
+
+    like $output, qr/target="_blank"/,
+      'Blogdown adds target="_blank" to external links';
+
+    like $output, qr/fa-external-link/,
+      'Blogdown adds external link icons';
+
+    # Verify the content appears in both the collapsible-content div and noscript section
+    like $output, qr/<div id="collapsible-content-1"[^>]*>.*?<h2>Code Block Example<\/h2>/s,
+      'Blogdown processed content appears in collapsible-content div';
+
+    like $output, qr/<div class="collapsible-content-noscript">.*?<h2>Code Block Example<\/h2>/s,
+      'Blogdown processed content appears in noscript fallback';
+};
+
+subtest 'Nested TT directives edge case (T039)' => sub {
+    my $tt = Template->new(
+        {   INCLUDE_PATH => 't/fixtures/collapsible-sections',
+        }
+    );
+
+    # Test that collapse() can contain pre-processed TT content
+    # For example, you can build content with concatenation and other TT directives
+    my $template_with_html = '[% USE Ovid -%]
+[% SET note = Ovid.add_note("This is a footnote") -%]
+[% Ovid.collapse(
+    "Section with processed content",
+    "This content has a reference." _ note _ " More content."
+) %]';
+
+    my $output;
+    ok $tt->process( \$template_with_html, {}, \$output ),
+      'Template with pre-processed TT content works'
+      or diag $tt->error();
+
+    # The processed footnote HTML should be in the output
+    like $output, qr/<sup>/,
+      'Pre-processed TT content (footnote) appears in collapse output';
+
+    # Test that collapse() works with complex blogdown and regular content mixed
+    my $template_mixed = '[% USE Ovid -%]
+[% Ovid.collapse(
+    "Mixed content",
+    "Regular text with **bold** and a list:
+
+- Item 1
+- Item 2
+
+More text here."
+) %]';
+
+    $output = '';
+    ok $tt->process( \$template_mixed, {}, \$output ),
+      'Template with mixed Markdown content processes successfully'
+      or diag $tt->error();
+
+    like $output, qr/<strong>bold<\/strong>/,
+      'Blogdown processes bold Markdown in mixed content';
+
+    like $output, qr/<li>Item 1<\/li>/,
+      'Blogdown processes lists in mixed content';
+};
+
 done_testing;

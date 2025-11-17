@@ -108,17 +108,17 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 3 (TDD)
 
-- [ ] T033 [P] [US3] Add blogdown processing test to `t/template/plugin/ovid-collapse.t` (full_content with Markdown code blocks)
-- [ ] T034 [P] [US3] Create test fixture `t/fixtures/collapsible-sections/blogdown-content.tt` with complex blogdown syntax (code blocks, lists, links)
-- [ ] T035 [P] [US3] Create expected output `t/fixtures/collapsible-sections/expected/blogdown-content.html` with processed blogdown HTML
-- [ ] T036 [US3] Add blogdown integration test to `t/template/plugin/ovid-collapse.t` (render blogdown-content.tt, verify code highlighting)
+- [X] T033 [P] [US3] Add blogdown processing test to `t/template/plugin/ovid-collapse.t` (full_content with Markdown code blocks)
+- [X] T034 [P] [US3] Create test fixture `t/fixtures/collapsible-sections/blogdown-content.tt` with complex blogdown syntax (code blocks, lists, links)
+- [X] T035 [P] [US3] Create expected output `t/fixtures/collapsible-sections/expected/blogdown-content.html` with processed blogdown HTML
+- [X] T036 [US3] Add blogdown integration test to `t/template/plugin/ovid-collapse.t` (render blogdown-content.tt, verify code highlighting)
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Add Template::Plugin::Blogdown import to `lib/Template/Plugin/Ovid.pm` (if not already present)
-- [ ] T038 [US3] Implement blogdown processing in `collapse()` method in `lib/Template/Plugin/Ovid.pm` (filter full_content through blogdown)
-- [ ] T039 [US3] Test edge case: nested TT directives in full_content (e.g., Ovid.add_note() inside collapsible)
-- [ ] T040 [US3] Verify all US3 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
+- [X] T037 [US3] Add Template::Plugin::Blogdown import to `lib/Template/Plugin/Ovid.pm` (if not already present)
+- [X] T038 [US3] Implement blogdown processing in `collapse()` method in `lib/Template/Plugin/Ovid.pm` (filter full_content through blogdown)
+- [X] T039 [US3] Test edge case: nested TT directives in full_content (e.g., Ovid.add_note() inside collapsible)
+- [X] T040 [US3] Verify all US3 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work - full authoring capability with rich formatting
 

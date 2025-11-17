@@ -335,3 +335,159 @@ and has a link back to the footnote reference.
     [% IF Ovid.has_footnotes %]
 
 Returns true if any footnotes have been added.
+
+=head2 C<collapse($short_description, $full_content)>
+
+    [% Ovid.collapse("Click to see code example", "~~~perl
+    use v5.40;
+    say 'Hello, World!';
+    ~~~") %]
+
+Creates a collapsible section that displays a short description by default and expands
+to show full content when clicked. The full content supports blogdown Markdown formatting
+including code blocks, lists, bold/italic text, and external links.
+
+B<Parameters:>
+
+=over 4
+
+=item * C<$short_description> (required)
+
+The summary text displayed in the collapsed state. This appears in the clickable trigger
+area with a chevron icon. Must be non-empty and contain non-whitespace characters.
+
+=item * C<$full_content> (required)
+
+The detailed content shown when expanded. Supports full blogdown Markdown syntax:
+
+=over 4
+
+=item * Code blocks with syntax highlighting: C<~~~perl ... ~~~>
+
+=item * Markdown lists: C<- Item 1>, C<* Item 2>
+
+=item * Bold/italic: C<**bold**>, C<*italic*>
+
+=item * External links: Auto-adds C<target="_blank"> and external link icon
+
+=item * Headings, tables, and other standard Markdown features
+
+=back
+
+Must be non-empty and contain non-whitespace characters.
+
+=back
+
+B<Returns:>
+
+An HTML string containing:
+
+=over 4
+
+=item * Interactive collapsible section with unique IDs
+
+=item * ARIA attributes for accessibility (aria-expanded, aria-controls, role="button")
+
+=item * Keyboard navigation support (Enter/Space keys)
+
+=item * Noscript fallback showing both short and full content
+
+=back
+
+B<Examples:>
+
+Basic usage:
+
+    [% Ovid.collapse("Summary", "Details go here") %]
+
+With code highlighting:
+
+    [% Ovid.collapse(
+        "Example Code",
+        "Here's a Perl example:
+    
+    ~~~perl
+    use v5.40;
+    
+    sub fibonacci ($n) {
+        return $n if $n < 2;
+        return fibonacci($n - 1) + fibonacci($n - 2);
+    }
+    ~~~"
+    ) %]
+
+With lists and formatting:
+
+    [% Ovid.collapse(
+        "Key Features",
+        "Main benefits:
+    
+    - **Progressive disclosure**: Readers choose depth
+    - **Better organization**: Group related details
+    - Code highlighting support
+    - External link handling"
+    ) %]
+
+With external links:
+
+    [% Ovid.collapse(
+        "Further Reading",
+        "See [the Wikipedia article](https://en.wikipedia.org/wiki/Progressive_disclosure) for details."
+    ) %]
+
+Multiple sections in one article:
+
+    [% Ovid.collapse("Section 1", "Content 1") %]
+    
+    <p>Regular article content</p>
+    
+    [% Ovid.collapse("Section 2", "Content 2") %]
+    [% Ovid.collapse("Section 3", "Content 3") %]
+
+Each section operates independently with unique identifiers.
+
+B<Accessibility Features:>
+
+=over 4
+
+=item * Keyboard accessible (Enter/Space to toggle)
+
+=item * Screen reader support with ARIA attributes
+
+=item * Focus indicators meet WCAG 2.1 AA standards
+
+=item * No JavaScript required (progressive enhancement)
+
+=item * Noscript fallback displays all content expanded and indented
+
+=back
+
+B<Error Handling:>
+
+Throws an error (via C<croak>) if:
+
+=over 4
+
+=item * C<$short_description> is undefined, empty, or whitespace-only
+
+=item * C<$full_content> is undefined, empty, or whitespace-only
+
+=back
+
+All errors are fatal during template processing to prevent invalid HTML generation.
+
+B<Technical Details:>
+
+Each call generates unique IDs for the trigger and content elements
+(e.g., C<collapsible-trigger-1>, C<collapsible-content-1>) to ensure multiple
+sections on the same page operate independently. The counter increments with each
+call within a template processing session.
+
+The full content is processed through Template::Plugin::Blogdown for Markdown
+rendering before being inserted into the HTML structure.
+
+Requires C<static/css/collapsible.css> and C<static/js/collapsible.js> to be
+included in the page wrapper for styling and interactive behavior.
+
+=cut
+
