@@ -13,18 +13,20 @@ use Ovid::Site::Utils qw(
   get_image_description
   set_image_description
 );
+use Template::Plugin::Blogdown;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
     open my $fh, '<', config()->{tagmap_file};
     my $json = do { local $/; <$fh> };
     bless {
-        _CONTEXT        => $context,
-        footnote_number => 1,
-        footnote_names  => {},
-        footnotes       => [],
-        pager           => Less::Pager->new( type => 'article' ),
-        tagmap          => decode_json($json),
+        _CONTEXT                   => $context,
+        footnote_number            => 1,
+        footnote_names             => {},
+        footnotes                  => [],
+        collapsible_section_number => 1,
+        pager                      => Less::Pager->new( type => 'article' ),
+        tagmap                     => decode_json($json),
     }, $class;
 }
 
@@ -43,15 +45,10 @@ sub cite ( $self, $path, $name ) {
       $name;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub tags ($self) {
     return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
 }
 
-# NOTE: Called from Template Toolkit templates (root/include/tags_for_article.tt)
-# Returns array of tags for a given URL. Static analysis cannot detect template usage.
 sub tags_for_url ( $self, $url ) {
     return $self->{tagmap}{__ALL__}{$url} // [];
 }
@@ -66,9 +63,6 @@ sub tags_by_weight($self) {
     return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub has_articles_for_tag ( $self, $tag ) {
     return exists $self->{tagmap}{$tag};
 }
@@ -105,9 +99,6 @@ sub count_for_tag ( $self, $tag ) {
     return $count;
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub files_for_tag ( $self, $tag ) {
     my $files = $self->{tagmap}{$tag}{files}
       or croak("Cannot find files for unknown tag '$tag'");
@@ -156,6 +147,50 @@ HTML
     
     # Return both JavaScript dialog trigger and noscript anchor link
     return $dialog . $noscript;
+}
+
+sub collapse ( $self, $short_description, $full_content ) {
+    # Parameter validation (T013)
+    if ( !defined($short_description) || $short_description !~ /\S/ ) {
+        croak("collapse() requires short_description parameter");
+    }
+    if ( !defined($full_content) || $full_content !~ /\S/ ) {
+        croak("collapse() requires full_content parameter");
+    }
+
+    # Increment counter and generate unique IDs (T014, T015)
+    my $number     = $self->{collapsible_section_number}++;
+    my $trigger_id = "collapsible-trigger-$number";
+    my $content_id = "collapsible-content-$number";
+
+    # Process full_content through blogdown (for Phase 5/US3)
+    my $blogdown = Template::Plugin::Blogdown->new( $self->{_CONTEXT} );
+    my $processed_content = $blogdown->filter($full_content);
+
+    # Build HTML structure with ARIA attributes (T016, T017, T018)
+    # Progressive enhancement: content visible by default (no-JS), hidden by JavaScript
+    my $html = <<"HTML";
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="$trigger_id"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="$content_id"
+         aria-label="Expand: $short_description">
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">$short_description</span>
+    </div>
+    <div id="$content_id"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="$trigger_id">
+        $processed_content
+    </div>
+</div>
+HTML
+
+    return $html;
 }
 
 # NOTE: Called from Template Toolkit templates (multiple article templates)
@@ -230,9 +265,6 @@ sub next_post ( $self, $type, $slug ) {
     return $self->{pager}->next_post( $type, $slug );
 }
 
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub is_blog ( $self, $type ) {
     return $type eq 'blog';
 }
@@ -290,3 +322,159 @@ and has a link back to the footnote reference.
     [% IF Ovid.has_footnotes %]
 
 Returns true if any footnotes have been added.
+
+=head2 C<collapse($short_description, $full_content)>
+
+    [% Ovid.collapse("Click to see code example", "~~~perl
+    use v5.40;
+    say 'Hello, World!';
+    ~~~") %]
+
+Creates a collapsible section that displays a short description by default and expands
+to show full content when clicked. The full content supports blogdown Markdown formatting
+including code blocks, lists, bold/italic text, and external links.
+
+B<Parameters:>
+
+=over 4
+
+=item * C<$short_description> (required)
+
+The summary text displayed in the collapsed state. This appears in the clickable trigger
+area with a chevron icon. Must be non-empty and contain non-whitespace characters.
+
+=item * C<$full_content> (required)
+
+The detailed content shown when expanded. Supports full blogdown Markdown syntax:
+
+=over 4
+
+=item * Code blocks with syntax highlighting: C<~~~perl ... ~~~>
+
+=item * Markdown lists: C<- Item 1>, C<* Item 2>
+
+=item * Bold/italic: C<**bold**>, C<*italic*>
+
+=item * External links: Auto-adds C<target="_blank"> and external link icon
+
+=item * Headings, tables, and other standard Markdown features
+
+=back
+
+Must be non-empty and contain non-whitespace characters.
+
+=back
+
+B<Returns:>
+
+An HTML string containing:
+
+=over 4
+
+=item * Interactive collapsible section with unique IDs
+
+=item * ARIA attributes for accessibility (aria-expanded, aria-controls, role="button")
+
+=item * Keyboard navigation support (Enter/Space keys)
+
+=item * Noscript fallback showing both short and full content
+
+=back
+
+B<Examples:>
+
+Basic usage:
+
+    [% Ovid.collapse("Summary", "Details go here") %]
+
+With code highlighting:
+
+    [% Ovid.collapse(
+        "Example Code",
+        "Here's a Perl example:
+    
+    ~~~perl
+    use v5.40;
+    
+    sub fibonacci ($n) {
+        return $n if $n < 2;
+        return fibonacci($n - 1) + fibonacci($n - 2);
+    }
+    ~~~"
+    ) %]
+
+With lists and formatting:
+
+    [% Ovid.collapse(
+        "Key Features",
+        "Main benefits:
+    
+    - **Progressive disclosure**: Readers choose depth
+    - **Better organization**: Group related details
+    - Code highlighting support
+    - External link handling"
+    ) %]
+
+With external links:
+
+    [% Ovid.collapse(
+        "Further Reading",
+        "See [the Wikipedia article](https://en.wikipedia.org/wiki/Progressive_disclosure) for details."
+    ) %]
+
+Multiple sections in one article:
+
+    [% Ovid.collapse("Section 1", "Content 1") %]
+    
+    <p>Regular article content</p>
+    
+    [% Ovid.collapse("Section 2", "Content 2") %]
+    [% Ovid.collapse("Section 3", "Content 3") %]
+
+Each section operates independently with unique identifiers.
+
+B<Accessibility Features:>
+
+=over 4
+
+=item * Keyboard accessible (Enter/Space to toggle)
+
+=item * Screen reader support with ARIA attributes
+
+=item * Focus indicators meet WCAG 2.1 AA standards
+
+=item * No JavaScript required (progressive enhancement)
+
+=item * Noscript fallback displays all content expanded and indented
+
+=back
+
+B<Error Handling:>
+
+Throws an error (via C<croak>) if:
+
+=over 4
+
+=item * C<$short_description> is undefined, empty, or whitespace-only
+
+=item * C<$full_content> is undefined, empty, or whitespace-only
+
+=back
+
+All errors are fatal during template processing to prevent invalid HTML generation.
+
+B<Technical Details:>
+
+Each call generates unique IDs for the trigger and content elements
+(e.g., C<collapsible-trigger-1>, C<collapsible-content-1>) to ensure multiple
+sections on the same page operate independently. The counter increments with each
+call within a template processing session.
+
+The full content is processed through Template::Plugin::Blogdown for Markdown
+rendering before being inserted into the HTML structure.
+
+Requires C<static/css/collapsible.css> and C<static/js/collapsible.js> to be
+included in the page wrapper for styling and interactive behavior.
+
+=cut
+

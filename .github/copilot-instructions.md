@@ -5,6 +5,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-09
 ## Active Technologies
 - Perl 5.40+ (project standard per constitution) + Template Toolkit 2.x, Dialog.js (client-side for JS mode) (002-footnote-noscript-fallback)
 - N/A (static site generation, no database for this feature) (002-footnote-noscript-fallback)
+- Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown) (004-collapsible-sections)
+- N/A (static site generation, no runtime database for this feature) (004-collapsible-sections)
 
 - Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
@@ -68,9 +70,10 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
+- 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
+- 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
 - 002-footnote-noscript-fallback: Added Perl 5.40+ (project standard per constitution) + Template Toolkit 2.x, Dialog.js (client-side for JS mode)
 
-- 001-test-coverage-improvement: Added Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

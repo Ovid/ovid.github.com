@@ -1,0 +1,200 @@
+/**
+ * Collapsible Sections CSS
+ * 
+ * Purpose: Styling for collapsible sections in articles
+ * 
+ * Structure:
+ * - .collapsible-section: Container for entire collapsible component
+ * - .collapsible-trigger: Clickable header (short description)
+ * - .collapsible-icon: Font Awesome chevron icon
+ * - .collapsible-short: Short description text
+ * - .collapsible-content: Expandable content area (hidden by default)
+ * - .expanded: Class added when section is expanded
+ * 
+ * Accessibility:
+ * - WCAG 2.1 Level AA contrast requirements
+ * - Keyboard focus indicators
+ */
+
+/* ========================================
+   Base Section Container Styles
+   ======================================== */
+
+.collapsible-section {
+    width: 100%;                    /* Full width of content area */
+    margin: 1.5em 0;                /* Vertical spacing */
+    border: 1px solid #ddd;         /* Subtle border */
+    border-radius: 4px;             /* Rounded corners */
+    background: #fff;               /* White background */
+    overflow: hidden;               /* Contain floats */
+}
+
+/* ========================================
+   Trigger (Clickable Header) Styles
+   ======================================== */
+
+.collapsible-trigger {
+    display: flex;                  /* Icon + text layout */
+    align-items: center;            /* Vertical centering */
+    padding: 0.5em;                 /* Clickable area */
+    cursor: pointer;                /* Indicates interactivity */
+    background: #f9f9f9;            /* Subtle background */
+    border-radius: 4px 4px 0 0;     /* Rounded top corners */
+    transition: background-color 0.2s ease; /* Smooth hover */
+    user-select: none;              /* Prevent text selection on clicks */
+}
+
+/* ========================================
+   Icon Styles
+   ======================================== */
+
+.collapsible-icon {
+    margin-right: 0.75em;           /* Space between icon and text */
+    color: #666;                    /* Subtle color */
+    font-size: 1em;                 /* Match text size */
+    transition: transform 0.2s ease; /* Smooth icon change */
+}
+
+/* Icon rotation when expanded */
+.collapsible-trigger[aria-expanded="true"] .collapsible-icon {
+    transform: rotate(90deg);       /* Rotate chevron right → down */
+}
+
+/* ========================================
+   Short Description Text Styles
+   ======================================== */
+
+.collapsible-short {
+    flex: 1;                        /* Take remaining space */
+    font-weight: 500;               /* Slightly bold */
+    color: #333;                    /* Readable contrast */
+}
+
+/* ========================================
+   Content Area Styles
+   ======================================== */
+
+.collapsible-content {
+    padding: 0 0.5em 0.5em 0.5em;   /* Match trigger padding */
+    display: block;                 /* VISIBLE by default (no-JS fallback) */
+    border-top: 1px solid #e0e0e0;  /* Separator from trigger */
+    margin-left: 2em;               /* Indentation for no-JS users */
+    border-left: 3px solid #ccc;    /* Visual indicator for no-JS */
+}
+
+/* When JavaScript is enabled, hide content by default */
+.js-enabled .collapsible-content {
+    display: none;                  /* HIDDEN when JS available */
+    margin-left: 0;                 /* Remove indentation */
+    border-left: none;              /* Remove visual indicator */
+}
+
+/* ========================================
+   Expanded State
+   ======================================== */
+
+.js-enabled .collapsible-content.expanded {
+    display: block;                 /* VISIBLE when JS adds class */
+}
+
+/* ========================================
+   Hover and Focus States (Accessibility)
+   ======================================== */
+
+.collapsible-trigger:hover {
+    background: #f0f0f0;            /* Hover feedback */
+}
+
+.collapsible-trigger:focus {
+    outline: 2px solid #0066cc;     /* Keyboard focus indicator */
+    outline-offset: 2px;            /* Space around outline */
+    background: #f0f0f0;            /* Match hover state */
+}
+
+/* Modern focus-visible support (progressive enhancement) */
+.collapsible-trigger:focus:not(:focus-visible) {
+    outline: none;                  /* Hide for mouse users */
+}
+
+.collapsible-trigger:focus-visible {
+    outline: 2px solid #0066cc;     /* Show for keyboard users */
+}
+
+/* ========================================
+   NoScript/Progressive Enhancement Note
+   ======================================== */
+
+/* No-JS users see content expanded and indented by default
+ * JavaScript adds 'js-enabled' class to hide content initially
+ * See .collapsible-content styles above for implementation */
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 550px) {
+    .collapsible-trigger {
+        padding: 0.4em;             /* Reduce padding on small screens */
+    }
+    
+    .collapsible-content {
+        padding: 0 0.4em 0.4em 0.4em; /* Match trigger */
+        margin-left: 1em;           /* Less indentation on mobile (no-JS) */
+    }
+    
+    .js-enabled .collapsible-content {
+        margin-left: 0;             /* Remove indentation when JS enabled */
+    }
+    
+    .collapsible-icon {
+        margin-right: 0.5em;        /* Tighter spacing */
+    }
+}
+
+/* ========================================
+   Accessibility: High Contrast Mode
+   ======================================== */
+
+@media (prefers-contrast: high) {
+    .collapsible-trigger {
+        border: 2px solid currentColor; /* Stronger borders */
+    }
+    
+    .collapsible-trigger:focus {
+        outline: 3px solid currentColor; /* Thicker outline */
+    }
+}
+
+/* ========================================
+   Accessibility: Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .collapsible-trigger,
+    .collapsible-icon {
+        transition: none;            /* Disable transitions */
+    }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    .collapsible-section {
+        border: none;                /* Remove borders for print */
+    }
+    
+    .collapsible-content {
+        display: block !important;   /* Always show content when printing */
+    }
+    
+    .collapsible-trigger {
+        cursor: default;             /* No hover on print */
+        background: transparent;     /* Remove background */
+    }
+    
+    .collapsible-icon {
+        display: none;               /* Hide interactive icon */
+    }
+}
