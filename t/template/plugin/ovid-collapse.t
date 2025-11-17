@@ -83,8 +83,8 @@ subtest 'HTML structure test (T008)' => sub {
       'Contains collapsible-content element with ID';
     like $html, qr/class="collapsible-content"/,
       'Contains collapsible-content class';
-    like $html, qr/<noscript>/,
-      'Contains noscript fallback';
+    unlike $html, qr/<noscript>/,
+      'Does not contain noscript block (uses progressive enhancement instead)';
 };
 
 subtest 'Unique ID generation test (T009)' => sub {
@@ -172,8 +172,8 @@ subtest 'CSS class verification tests (T022)' => sub {
       'Output contains .collapsible-trigger class';
     
     # Verify icon class
-    like $html, qr/class="fa fa-chevron-down collapsible-icon"/,
-      'Output contains .collapsible-icon class with Font Awesome';
+    like $html, qr/class="fa fa-chevron-right collapsible-icon"/,
+      'Output contains .collapsible-icon class with Font Awesome (chevron-right when collapsed)';
     
     # Verify short description class
     like $html, qr/class="collapsible-short"/,
@@ -183,15 +183,10 @@ subtest 'CSS class verification tests (T022)' => sub {
     like $html, qr/class="collapsible-content"/,
       'Output contains .collapsible-content class';
     
-    # Verify noscript fallback classes
-    like $html, qr/class="collapsible-section-noscript"/,
-      'Output contains .collapsible-section-noscript class';
-    
-    like $html, qr/class="collapsible-short-noscript"/,
-      'Output contains .collapsible-short-noscript class';
-    
-    like $html, qr/class="collapsible-content-noscript"/,
-      'Output contains .collapsible-content-noscript class';
+    # Note: No noscript classes - we use progressive enhancement
+    # Content is visible by default, JavaScript adds 'js-enabled' class to hide it
+    unlike $html, qr/noscript/,
+      'Does not contain noscript elements (progressive enhancement approach)';
     
     # Verify all classes are present in a single collapse() call
     my @expected_classes = (
@@ -200,9 +195,6 @@ subtest 'CSS class verification tests (T022)' => sub {
         'collapsible-icon',
         'collapsible-short',
         'collapsible-content',
-        'collapsible-section-noscript',
-        'collapsible-short-noscript',
-        'collapsible-content-noscript',
     );
     
     for my $class (@expected_classes) {
@@ -319,12 +311,13 @@ subtest 'Blogdown integration test (T036)' => sub {
     like $output, qr/fa-external-link/,
       'Blogdown adds external link icons';
 
-    # Verify the content appears in both the collapsible-content div and noscript section
+    # Verify the content appears in the collapsible-content div
+    # Note: No duplication - progressive enhancement means content is only in one place
     like $output, qr/<div id="collapsible-content-1"[^>]*>.*?<h2>Code Block Example<\/h2>/s,
       'Blogdown processed content appears in collapsible-content div';
 
-    like $output, qr/<div class="collapsible-content-noscript">.*?<h2>Code Block Example<\/h2>/s,
-      'Blogdown processed content appears in noscript fallback';
+    unlike $output, qr/collapsible-content-noscript/,
+      'No noscript duplication (progressive enhancement approach)';
 };
 
 subtest 'Nested TT directives edge case (T039)' => sub {

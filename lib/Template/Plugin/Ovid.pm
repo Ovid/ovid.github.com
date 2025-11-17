@@ -178,7 +178,7 @@ sub collapse ( $self, $short_description, $full_content ) {
          aria-expanded="false"
          aria-controls="$content_id"
          aria-label="Expand: $short_description">
-        <i class="fa fa-chevron-down collapsible-icon" aria-hidden="true"></i>
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">$short_description</span>
     </div>
     <div id="$content_id"

@@ -80,21 +80,21 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 2 (TDD)
 
-- [X] T021 [P] [US2] Add CSS selector tests to `t/template/plugin/ovid-collapse.t` (verify .collapsible-section class exists in output)
-- [X] T022 [P] [US2] Add CSS class verification tests to `t/template/plugin/ovid-collapse.t` (trigger, icon, content classes present)
+- [ ] T021 [P] [US2] Add CSS selector tests to `t/template/plugin/ovid-collapse.t` (verify .collapsible-section class exists in output)
+- [ ] T022 [P] [US2] Add CSS class verification tests to `t/template/plugin/ovid-collapse.t` (trigger, icon, content classes present)
 
 ### Implementation for User Story 2
 
-- [X] T023 [P] [US2] Implement base section container styles in `static/css/collapsible.css` (full width, margin, border, border-radius)
-- [X] T024 [P] [US2] Implement trigger styles in `static/css/collapsible.css` (flexbox layout, padding, cursor, background)
-- [X] T025 [P] [US2] Implement icon positioning styles in `static/css/collapsible.css` (margin-right, color, font-size)
-- [X] T026 [P] [US2] Implement short description text styles in `static/css/collapsible.css` (flex: 1, font-weight, color)
-- [X] T027 [P] [US2] Implement collapsed content state in `static/css/collapsible.css` (display: none, border-top, padding)
-- [X] T028 [P] [US2] Implement expanded content state in `static/css/collapsible.css` (.expanded class with display: block)
-- [X] T029 [P] [US2] Implement hover state styles in `static/css/collapsible.css` (.collapsible-trigger:hover)
-- [X] T030 [P] [US2] Implement focus state styles for accessibility in `static/css/collapsible.css` (outline, outline-offset per WCAG 2.1 AA)
-- [X] T031 [US2] Add responsive media query for mobile in `static/css/collapsible.css` (@media max-width: 550px)
-- [X] T032 [US2] Verify CSS meets WCAG 2.1 Level AA contrast requirements (manual check or automated tool)
+- [ ] T023 [P] [US2] Implement base section container styles in `static/css/collapsible.css` (full width, margin, border, border-radius)
+- [ ] T024 [P] [US2] Implement trigger styles in `static/css/collapsible.css` (flexbox layout, padding, cursor, background)
+- [ ] T025 [P] [US2] Implement icon positioning styles in `static/css/collapsible.css` (margin-right, color, font-size)
+- [ ] T026 [P] [US2] Implement short description text styles in `static/css/collapsible.css` (flex: 1, font-weight, color)
+- [ ] T027 [P] [US2] Implement collapsed content state in `static/css/collapsible.css` (display: none, border-top, padding)
+- [ ] T028 [P] [US2] Implement expanded content state in `static/css/collapsible.css` (.expanded class with display: block)
+- [ ] T029 [P] [US2] Implement hover state styles in `static/css/collapsible.css` (.collapsible-trigger:hover)
+- [ ] T030 [P] [US2] Implement focus state styles for accessibility in `static/css/collapsible.css` (outline, outline-offset per WCAG 2.1 AA)
+- [ ] T031 [US2] Add responsive media query for mobile in `static/css/collapsible.css` (@media max-width: 550px)
+- [ ] T032 [US2] Verify CSS meets WCAG 2.1 Level AA contrast requirements (manual check or automated tool)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - Perl generates proper HTML with full styling
 
@@ -108,17 +108,17 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 3 (TDD)
 
-- [X] T033 [P] [US3] Add blogdown processing test to `t/template/plugin/ovid-collapse.t` (full_content with Markdown code blocks)
-- [X] T034 [P] [US3] Create test fixture `t/fixtures/collapsible-sections/blogdown-content.tt` with complex blogdown syntax (code blocks, lists, links)
-- [X] T035 [P] [US3] Create expected output `t/fixtures/collapsible-sections/expected/blogdown-content.html` with processed blogdown HTML
-- [X] T036 [US3] Add blogdown integration test to `t/template/plugin/ovid-collapse.t` (render blogdown-content.tt, verify code highlighting)
+- [ ] T033 [P] [US3] Add blogdown processing test to `t/template/plugin/ovid-collapse.t` (full_content with Markdown code blocks)
+- [ ] T034 [P] [US3] Create test fixture `t/fixtures/collapsible-sections/blogdown-content.tt` with complex blogdown syntax (code blocks, lists, links)
+- [ ] T035 [P] [US3] Create expected output `t/fixtures/collapsible-sections/expected/blogdown-content.html` with processed blogdown HTML
+- [ ] T036 [US3] Add blogdown integration test to `t/template/plugin/ovid-collapse.t` (render blogdown-content.tt, verify code highlighting)
 
 ### Implementation for User Story 3
 
-- [X] T037 [US3] Add Template::Plugin::Blogdown import to `lib/Template/Plugin/Ovid.pm` (if not already present)
-- [X] T038 [US3] Implement blogdown processing in `collapse()` method in `lib/Template/Plugin/Ovid.pm` (filter full_content through blogdown)
-- [X] T039 [US3] Test edge case: nested TT directives in full_content (e.g., Ovid.add_note() inside collapsible)
-- [X] T040 [US3] Verify all US3 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
+- [ ] T037 [US3] Add Template::Plugin::Blogdown import to `lib/Template/Plugin/Ovid.pm` (if not already present)
+- [ ] T038 [US3] Implement blogdown processing in `collapse()` method in `lib/Template/Plugin/Ovid.pm` (filter full_content through blogdown)
+- [ ] T039 [US3] Test edge case: nested TT directives in full_content (e.g., Ovid.add_note() inside collapsible)
+- [ ] T040 [US3] Verify all US3 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work - full authoring capability with rich formatting
 
@@ -161,14 +161,14 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Tests for User Story 5 (TDD)
 
-- [ ] T048 [P] [US5] Add noscript HTML structure test to `t/template/plugin/ovid-collapse.t` (verify <noscript> tag present)
-- [ ] T049 [P] [US5] Add noscript content test to `t/template/plugin/ovid-collapse.t` (verify both short and full content in noscript)
-- [ ] T050 [US5] Add noscript CSS class test to `t/template/plugin/ovid-collapse.t` (.collapsible-section-noscript, .collapsible-short-noscript, .collapsible-content-noscript)
+- [X] T048 [P] [US5] Add noscript HTML structure test to `t/template/plugin/ovid-collapse.t` (verify <noscript> tag present)
+- [X] T049 [P] [US5] Add noscript content test to `t/template/plugin/ovid-collapse.t` (verify both short and full content in noscript)
+- [X] T050 [US5] Add noscript CSS class test to `t/template/plugin/ovid-collapse.t` (.collapsible-section-noscript, .collapsible-short-noscript, .collapsible-content-noscript)
 
 ### Implementation for User Story 5
 
 - [X] T051 [US5] Verify noscript HTML generation in `lib/Template/Plugin/Ovid.pm` (already implemented in T019, validate)
-- [X] T052 [P] [US5] Implement noscript container styles in `static/css/collapsible.css` (border, padding, background)
+- [ ] T052 [P] [US5] Implement noscript container styles in `static/css/collapsible.css` (border, padding, background)
 - [X] T053 [P] [US5] Implement noscript short description styles in `static/css/collapsible.css` (font-weight, margin-bottom)
 - [X] T054 [US5] Implement noscript content indentation styles in `static/css/collapsible.css` (margin-left: 2em, border-left, padding-left per spec)
 - [X] T055 [US5] Verify all US5 tests pass (run `prove -l t/template/plugin/ovid-collapse.t`)
@@ -192,18 +192,18 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Implementation for JavaScript
 
-- [X] T057 [P] Implement DOMContentLoaded event listener in `static/js/collapsible.js`
-- [X] T058 [P] Implement querySelectorAll to find all .collapsible-trigger elements in `static/js/collapsible.js`
-- [X] T059 Implement toggleCollapsible() function in `static/js/collapsible.js` (receives specific trigger element, NOT global state)
-- [X] T059a Ensure toggleCollapsible() uses the trigger element's aria-controls to find its specific content (NOT a global selector)
-- [X] T060 Implement aria-expanded attribute toggling in toggleCollapsible() in `static/js/collapsible.js` (only on the specific trigger passed)
-- [X] T061 Implement .expanded class toggling on content element in toggleCollapsible() in `static/js/collapsible.js` (only on the content linked via aria-controls)
-- [X] T062 Implement icon class swapping (fa-chevron-down ↔ fa-chevron-up) in toggleCollapsible() in `static/js/collapsible.js` (only within the specific trigger element)
-- [X] T063 Implement click event listener attachment in `static/js/collapsible.js` (attach to each trigger individually, NOT delegated from parent)
-- [X] T064 Implement keydown event listener for Enter and Space keys in `static/js/collapsible.js` (attach to each trigger individually)
-- [X] T065 Add error handling for missing content elements in `static/js/collapsible.js` (console.warn if aria-controls points to non-existent element)
-- [X] T065a Add validation that each trigger's aria-controls points to exactly one element (warn if multiple or zero matches)
-- [X] T066 Test JavaScript in Chrome, Firefox, Safari, Edge with multiple sections (manual cross-browser testing - verify independence)
+- [ ] T057 [P] Implement DOMContentLoaded event listener in `static/js/collapsible.js`
+- [ ] T058 [P] Implement querySelectorAll to find all .collapsible-trigger elements in `static/js/collapsible.js`
+- [ ] T059 Implement toggleCollapsible() function in `static/js/collapsible.js` (receives specific trigger element, NOT global state)
+- [ ] T059a Ensure toggleCollapsible() uses the trigger element's aria-controls to find its specific content (NOT a global selector)
+- [ ] T060 Implement aria-expanded attribute toggling in toggleCollapsible() in `static/js/collapsible.js` (only on the specific trigger passed)
+- [ ] T061 Implement .expanded class toggling on content element in toggleCollapsible() in `static/js/collapsible.js` (only on the content linked via aria-controls)
+- [ ] T062 Implement icon class swapping (fa-chevron-down ↔ fa-chevron-up) in toggleCollapsible() in `static/js/collapsible.js` (only within the specific trigger element)
+- [ ] T063 Implement click event listener attachment in `static/js/collapsible.js` (attach to each trigger individually, NOT delegated from parent)
+- [ ] T064 Implement keydown event listener for Enter and Space keys in `static/js/collapsible.js` (attach to each trigger individually)
+- [ ] T065 Add error handling for missing content elements in `static/js/collapsible.js` (console.warn if aria-controls points to non-existent element)
+- [ ] T065a Add validation that each trigger's aria-controls points to exactly one element (warn if multiple or zero matches)
+- [ ] T066 Test JavaScript in Chrome, Firefox, Safari, Edge with multiple sections (manual cross-browser testing - verify independence)
 
 **Checkpoint**: Full interactive behavior complete, accessible via mouse and keyboard. VERIFIED: Multiple sections operate independently.
 
@@ -215,10 +215,10 @@ description: "Task list for collapsible sections feature implementation"
 
 ### Implementation for Integration
 
-- [X] T067 Verify if `root/include/wrapper.tt` needs modification to include `static/css/collapsible.css` (check existing CSS inclusion pattern)
-- [X] T068 Verify if `root/include/wrapper.tt` needs modification to include `static/js/collapsible.js` (check existing JS inclusion pattern)
-- [X] T069 If needed, add `<link rel="stylesheet" href="/static/css/collapsible.css">` to `root/include/wrapper.tt`
-- [X] T070 If needed, add `<script src="/static/js/collapsible.js"></script>` to `root/include/wrapper.tt` (before closing </body>)
+- [ ] T067 Verify if `root/include/wrapper.tt` needs modification to include `static/css/collapsible.css` (check existing CSS inclusion pattern)
+- [ ] T068 Verify if `root/include/wrapper.tt` needs modification to include `static/js/collapsible.js` (check existing JS inclusion pattern)
+- [ ] T069 If needed, add `<link rel="stylesheet" href="/static/css/collapsible.css">` to `root/include/wrapper.tt`
+- [ ] T070 If needed, add `<script src="/static/js/collapsible.js"></script>` to `root/include/wrapper.tt` (before closing </body>)
 
 **Checkpoint**: CSS and JS properly loaded on all article pages
 

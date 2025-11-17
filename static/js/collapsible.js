@@ -30,8 +30,32 @@
 
 /**
  * Initialize all collapsible sections when DOM is ready
- * To be implemented in Phase 8
  */
+document.addEventListener('DOMContentLoaded', function() {
+    // Add js-enabled class to enable JavaScript-specific styles
+    // This hides content by default and removes no-JS indentation
+    document.documentElement.classList.add('js-enabled');
+    
+    // Find all collapsible trigger elements
+    const triggers = document.querySelectorAll('.collapsible-trigger');
+    
+    // Attach event listeners to each trigger individually
+    triggers.forEach(function(trigger) {
+        // Click event listener
+        trigger.addEventListener('click', function(event) {
+            event.preventDefault();
+            toggleCollapsible(trigger);
+        });
+        
+        // Keyboard event listener (Enter and Space keys)
+        trigger.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCollapsible(trigger);
+            }
+        });
+    });
+});
 
 /* ========================================
    Event Handlers
@@ -40,39 +64,37 @@
 /**
  * Toggle a specific collapsible section
  * @param {HTMLElement} trigger - The trigger element that was clicked
- * To be implemented in Phase 8
  */
-
-/* ========================================
-   ARIA State Management
-   ======================================== */
-
-/**
- * Update ARIA attributes when section state changes
- * @param {HTMLElement} trigger - The trigger element
- * @param {boolean} isExpanded - Whether the section is now expanded
- * To be implemented in Phase 8
- */
-
-/* ========================================
-   CSS Class Toggling
-   ======================================== */
-
-/**
- * Toggle the .expanded class on content element
- * @param {HTMLElement} content - The content element to show/hide
- * To be implemented in Phase 8
- */
-
-/* ========================================
-   Keyboard Accessibility
-   ======================================== */
-
-/**
- * Handle keyboard events (Enter/Space) on trigger elements
- * @param {KeyboardEvent} event - The keyboard event
- * To be implemented in Phase 8
- */
+function toggleCollapsible(trigger) {
+    // Get the content element ID from aria-controls
+    const contentId = trigger.getAttribute('aria-controls');
+    
+    if (!contentId) {
+        console.warn('Collapsible trigger missing aria-controls attribute', trigger);
+        return;
+    }
+    
+    // Find the specific content element
+    const content = document.getElementById(contentId);
+    
+    if (!content) {
+        console.warn('Collapsible content element not found for ID:', contentId);
+        return;
+    }
+    
+    // Check current state
+    const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+    
+    // Toggle ARIA attribute
+    trigger.setAttribute('aria-expanded', !isExpanded);
+    
+    // Toggle expanded class on content
+    content.classList.toggle('expanded');
+    
+    // Note: Icon rotation is handled by CSS via aria-expanded attribute
+    // See collapsible.css: .collapsible-trigger[aria-expanded="true"] .collapsible-icon
+    // No need to manually toggle icon classes here
+}
 
 /* ========================================
    Independence Verification
