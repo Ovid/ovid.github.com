@@ -32,6 +32,10 @@
  * Initialize all collapsible sections when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Add js-enabled class to enable JavaScript-specific styles
+    // This hides content by default and removes no-JS indentation
+    document.documentElement.classList.add('js-enabled');
+    
     // Find all collapsible trigger elements
     const triggers = document.querySelectorAll('.collapsible-trigger');
     
