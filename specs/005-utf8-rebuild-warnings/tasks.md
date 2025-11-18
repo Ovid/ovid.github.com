@@ -53,11 +53,11 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T004 [US1] Create test fixture with UTF-8 content in `t/fixtures/utf8_test_template.tt2markdown` (smart quotes, em dashes, accented letters, HTML entities)
-- [ ] T005 [US1] Create test file `t/utf8_single_file_rebuild.t` that verifies no UTF-8 warnings appear during single-file rebuild
-- [ ] T006 [US1] Add test case to verify generated HTML contains correctly encoded UTF-8 characters
-- [ ] T007 [US1] Add test case to verify UTF-8 charset meta tag is present in generated HTML
-- [ ] T008 [US1] Run new test and verify it FAILS with current code: `prove -lv t/utf8_single_file_rebuild.t`
+- [X] T004 [US1] Create test fixture with UTF-8 content in `t/fixtures/templates/utf8_test_template.tt2markdown` (smart quotes, em dashes, accented letters, HTML entities)
+- [X] T005 [US1] Create test file `t/utf8_single_file_rebuild.t` that verifies no UTF-8 warnings appear during single-file rebuild
+- [X] T006 [US1] Add test case to verify generated HTML contains correctly encoded UTF-8 characters
+- [X] T007 [US1] Add test case to verify UTF-8 charset meta tag is present in generated HTML
+- [X] T008 [US1] Run new test and verify it FAILS with current code: `prove -lv t/utf8_single_file_rebuild.t`
 
 ### Implementation for User Story 1
 
