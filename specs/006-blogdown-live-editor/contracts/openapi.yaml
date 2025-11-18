@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: Blogdown Live Editor API
+  version: 1.0.0
+  description: API for the local live editor.
+servers:
+  - url: http://127.0.0.1:3000
+paths:
+  /:
+    get:
+      summary: Get the editor interface
+      responses:
+        '200':
+          description: HTML Editor Page
+          content:
+            text/html:
+              schema:
+                type: string
+  /api/save:
+    post:
+      summary: Save the current file content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: The raw content of the file.
+      responses:
+        '200':
+          description: File saved successfully
+        '500':
+          description: Error saving file
+  /preview:
+    get:
+      summary: Get the rendered preview
+      responses:
+        '200':
+          description: Rendered HTML
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          description: Error generating preview

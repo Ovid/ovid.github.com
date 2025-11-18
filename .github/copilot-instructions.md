@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-09
 - N/A (static site generation, no runtime database for this feature) (004-collapsible-sections)
 - Perl 5.40+ + Template::Toolkit 3.102+, HTML::TokeParser::Simple, Text::Markdown::Blog (005-utf8-rebuild-warnings)
 - SQLite (build-time data only, in `db/ovid.db`) (005-utf8-rebuild-warnings)
+- Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog (006-blogdown-live-editor)
+- Filesystem (source files), SQLite (read-only build data) (006-blogdown-live-editor)
 
 - Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
@@ -72,9 +74,9 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
-- 005-utf8-rebuild-warnings: Added Perl 5.40+ + Template::Toolkit 3.102+, HTML::TokeParser::Simple, Text::Markdown::Blog
-- 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
-- 004-collapsible-sections: Added Perl 5.40+ (per Constitution Principle VII) + Template::Toolkit 3.102+, Text::Markdown::Blog (via Template::Plugin::Blogdown)
+- 006-blogdown-live-editor: Added Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog
+- 006-blogdown-live-editor: Added Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog
+- 006-blogdown-live-editor: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 
 
 <!-- MANUAL ADDITIONS START -->
