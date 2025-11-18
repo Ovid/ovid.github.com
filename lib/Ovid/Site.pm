@@ -70,7 +70,7 @@ package Ovid::Site {
     sub build ($self) {
         say STDERR "Preprocessing files ...";
         if ( $self->file ) {
-            return $self->build_single_file;
+            return $self->_build_single_file;
         }
         $self->_assert_tt_config;
         $self->_set_files('root');
@@ -84,7 +84,7 @@ package Ovid::Site {
         $self->_build_tinysearch if $self->release;
     }
 
-    sub build_single_file ($self) {
+    sub _build_single_file ($self) {
         printf STDERR "Rebuilding single file: %s\n", $self->file;
 
         $self->_clean_tmp_directory;
