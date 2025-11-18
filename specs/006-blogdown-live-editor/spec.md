@@ -5,35 +5,44 @@
 **Status**: Draft
 **Input**: User description: "launch a Dancer2 interface that allows me to write in a web input my 'blogdown' for the current article or blog I'm writing (identified via the last sqitch migration) and use something like bin/rebuild --file <current file> to easily let me preview what I'm building."
 
+## Clarifications
+
+### Session 2025-11-18
+- Q: How is the file identified? → A: Explicit CLI argument (`launch <path>`).
+- Q: How is the preview triggered? → A: Manual "Refresh Preview" button.
+- Q: Web framework preference? → A: Dancer2 (explicit user choice).
+- Q: Network binding? → A: Localhost only (127.0.0.1).
+- Q: Save strategy? → A: Auto-save to disk (debounced ~1s) to support preview.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Launch Editor and Preview Content (Priority: P1)
 
-As a content author, I want to launch a web-based editor that automatically loads the article I am currently working on (based on the latest change record) so that I can write and preview my content in real-time without manual file selection.
+As a content author, I want to launch a web-based editor by specifying a file path so that I can write and preview my content in real-time.
 
-**Why this priority**: This is the core value proposition—reducing friction in the writing process by automating file selection and providing immediate visual feedback.
+**Why this priority**: This is the core value proposition—reducing friction in the writing process by providing immediate visual feedback.
 
-**Independent Test**: Can be fully tested by running the launch command and verifying that the web interface opens with the correct file content and displays a rendered preview.
+**Independent Test**: Can be fully tested by running the launch command with a filename and verifying that the web interface opens with the correct file content and displays a rendered preview.
 
 **Acceptance Scenarios**:
 
-1. **Given** a change record exists for a new article, **When** I run the editor launch command, **Then** the web interface opens with that article's content loaded in the text area.
+1. **Given** a valid file path to an article, **When** I run the editor launch command, **Then** the web interface opens with that article's content loaded in the text area.
 2. **Given** the editor is open, **When** I type in the text area, **Then** the preview pane updates to show the rendered HTML (either live or on demand).
-3. **Given** I am working on a blog post (not an article), **When** I launch the editor, **Then** it correctly identifies and loads the blog post file.
+3. **Given** I am working on a blog post (not an article), **When** I launch the editor with its path, **Then** it correctly loads the blog post file.
 
 ---
 
 ### User Story 2 - Save Changes to Disk (Priority: P1)
 
-As a content author, I want my edits in the web interface to be saved back to the source file on disk so that my work is persisted and can be committed to version control.
+As a content author, I want my edits in the web interface to be automatically saved back to the source file on disk so that my work is persisted without manual intervention.
 
 **Why this priority**: Essential for the tool to be useful; without saving, it's just a playground.
 
-**Independent Test**: Can be tested by making edits in the web UI, saving, and verifying the file content on disk matches the edits.
+**Independent Test**: Can be tested by making edits in the web UI, waiting for the debounce period, and verifying the file content on disk matches the edits.
 
 **Acceptance Scenarios**:
 
-1. **Given** I have made changes in the editor, **When** I click "Save" (or trigger auto-save), **Then** the corresponding file on the filesystem is updated with the new content.
+1. **Given** I have made changes in the editor, **When** I stop typing for a short period (e.g., 1 second), **Then** the corresponding file on the filesystem is automatically updated with the new content.
 2. **Given** the file is updated, **When** I reload the editor, **Then** the new content is preserved.
 
 ---
@@ -62,12 +71,14 @@ As a content author, I want the preview to use the actual site build logic so th
 ### Functional Requirements
 
 - **FR-001**: System MUST provide a CLI command to launch a local web server.
-- **FR-002**: System MUST identify the "current" file by inspecting the latest change record and mapping it to a file in the content directories.
+- **FR-002**: System MUST accept a file path argument to identify the content to be edited.
 - **FR-003**: System MUST provide a web interface with a split-screen view (or similar): one pane for editing Markdown/Blogdown, one for HTML preview.
 - **FR-004**: System MUST implement a capability to generate HTML for a single file without rebuilding the entire site.
-- **FR-005**: The web interface MUST allow the user to save the content back to the original source file.
+- **FR-005**: The web interface MUST automatically save content to the source file after a short debounce period (e.g., 1 second) of inactivity.
 - **FR-006**: The preview generation MUST use the project's existing template and markdown configuration to ensure fidelity.
 - **FR-007**: System MUST support both "article" and "blog" content types.
+- **FR-008**: The preview MUST be triggered manually by the user (e.g., "Refresh" button) to avoid performance issues.
+- **FR-009**: The web server MUST bind only to `127.0.0.1` (localhost) for security.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -76,7 +87,7 @@ As a content author, I want the preview to use the actual site build logic so th
 
 ## Success Criteria *(mandatory)*
 
-- **SC-001**: User can launch the editor with a single command and have the correct file loaded 100% of the time (assuming a valid record exists).
+- **SC-001**: User can launch the editor with a single command and have the correct file loaded 100% of the time (assuming valid path provided).
 - **SC-002**: Preview renders within 2 seconds of a change/save.
 - **SC-003**: Saved files are bit-for-bit identical to what would be written if edited manually (preserving encoding, etc.).
 - **SC-004**: The preview HTML matches the production build HTML for the content body.
@@ -84,7 +95,5 @@ As a content author, I want the preview to use the actual site build logic so th
 ## Assumptions
 
 - The local web server will be implemented using **Dancer2**.
-- The "change record" refers to **Sqitch migrations**.
 - The "standard build command" refers to `bin/rebuild`.
-- There is a deterministic way to map a migration name/tag to a filename.
 - The build system can be refactored or invoked to process a single file string.
