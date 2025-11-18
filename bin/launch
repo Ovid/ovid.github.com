@@ -4,6 +4,12 @@ use v5.40;
 use lib 'lib';
 use Ovid::App::LiveEditor;
 use Dancer2;
+use Path::Tiny;
+
+my $file = shift @ARGV or die "Usage: $0 <file>\n";
+die "File not found: $file\n" unless -f $file;
+
+$ENV{LIVE_EDITOR_FILE} = path($file)->absolute->stringify;
 
 # Security: Bind to localhost only
 set host => '127.0.0.1';

@@ -53,13 +53,13 @@ description: "Task list for Blogdown Live Editor feature"
 
 ### Implementation for User Story 1
 
-- [ ] T005a [US1] Create `t/Ovid/App/LiveEditor.t` boilerplate using `Test::Most`
-- [ ] T006 [US1] Implement argument parsing in `bin/launch` to accept file path and pass to app
-- [ ] T007 [US1] Implement `get '/'` route in `lib/Ovid/App/LiveEditor.pm` to read the target file and render `editor.tt`
-- [ ] T008 [US1] Implement editor UI in `root/editor.tt` with textarea (populated with content) and iframe for preview
-- [ ] T009 [US1] Implement `get '/preview'` route in `lib/Ovid/App/LiveEditor.pm` to return rendered HTML
-- [ ] T010 [US1] Implement preview generation logic in `lib/Ovid/App/LiveEditor.pm` (invoking `bin/rebuild` logic or similar)
-- [ ] T010a [US1] Add unit tests for route handlers in `t/Ovid/App/LiveEditor.t`
+- [x] T005a [US1] Create `t/Ovid/App/LiveEditor.t` boilerplate using `Test::Most`
+- [x] T006 [US1] Implement argument parsing in `bin/launch` to accept file path and pass to app
+- [x] T007 [US1] Implement `get '/'` route in `lib/Ovid/App/LiveEditor.pm` to read the target file and render `editor.tt`
+- [x] T008 [US1] Implement editor UI in `root/editor.tt` with textarea (populated with content) and iframe for preview
+- [x] T009 [US1] Implement `get '/preview'` route in `lib/Ovid/App/LiveEditor.pm` to return rendered HTML
+- [x] T010 [US1] Implement preview generation logic in `lib/Ovid/App/LiveEditor.pm` (invoking `bin/rebuild` logic or similar)
+- [x] T010a [US1] Add unit tests for route handlers in `t/Ovid/App/LiveEditor.t`
 
 ## Phase 4: User Story 2 - Save Changes to Disk (Priority: P1)
 

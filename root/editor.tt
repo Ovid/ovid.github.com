@@ -2,12 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Blogdown Live Editor</title>
+    <title>Editing: [% filename %]</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        #container { display: flex; height: 100vh; }
+        #editor-pane { width: 50%; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
+        #preview-pane { width: 50%; border-left: 1px solid #ccc; }
+        textarea { width: 100%; height: 100%; font-family: monospace; font-size: 14px; resize: none; }
+        iframe { width: 100%; height: 100%; border: none; }
+        header { padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc; }
+    </style>
 </head>
 <body>
-    <h1>Blogdown Live Editor</h1>
-    <div id="editor-container">
-        <!-- Editor will go here -->
+    <div id="container">
+        <div id="editor-pane">
+            <header>Editing: <strong>[% filename %]</strong></header>
+            <textarea id="content" name="content">[% content | html %]</textarea>
+        </div>
+        <div id="preview-pane">
+            <iframe src="/preview" id="preview-frame"></iframe>
+        </div>
     </div>
 </body>
 </html>
