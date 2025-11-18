@@ -36,19 +36,30 @@ get '/preview' => sub {
 };
 
 sub _render_preview($file) {
-    my $content = path($file)->slurp_utf8;
+    my $path_str = path($file)->absolute->stringify;
 
-    my $tt = Template->new({
-        INCLUDE_PATH => ['include', 'root'],
-        ENCODING     => 'utf8',
-        ABSOLUTE     => 1,
-        RELATIVE     => 1,
-    });
+    # We expect the file to be in a 'root' directory within the project
+    # e.g. /path/to/project/root/blog/post.tt
+    
+    if ($path_str =~ m{^(.*)/root/(.*)$}) {
+        my $project_root = path($1);
+        my $rel_path = $2;
+        
+        # Change extension to .html
+        $rel_path =~ s{\.(?:tt|tt2markdown)$}{.html};
+        
+        # Generated files are in $project_root/$rel_path
+        # e.g. /path/to/project/blog/post.html
+        my $generated = $project_root->child($rel_path);
+        
+        if ($generated->exists) {
+            return $generated->slurp_utf8;
+        } else {
+            return "Preview not available. Generated file not found: " . $generated->stringify;
+        }
+    }
 
-    my $output = '';
-    $tt->process(\$content, {}, \$output) || return $tt->error;
-
-    return $output;
+    return "File is not in a 'root/' directory. Cannot determine preview path.\n" .
+           "Expected a source file (e.g., root/blog/post.tt), but got:\n$path_str";
 }
-
 true;

@@ -7,9 +7,38 @@ use Dancer2;
 use Path::Tiny;
 
 my $file = shift @ARGV or die "Usage: $0 <file>\n";
-die "File not found: $file\n" unless -f $file;
+my $path = path($file)->absolute;
 
-$ENV{LIVE_EDITOR_FILE} = path($file)->absolute->stringify;
+# Auto-correct generated files to source files
+# If user provides blog/foo.html, switch to root/blog/foo.tt
+if ($path =~ m{/(?:articles|blog)/.*\.html$}) {
+    my $root = path('.')->absolute;
+    my $rel = eval { $path->relative($root) };
+    if (!$@ && $rel !~ /^\.\./) {
+        # Try .tt
+        my $base_path = $root->child('root')->child($rel);
+        my $try_tt = $base_path->stringify;
+        $try_tt =~ s/\.html$/.tt/;
+        
+        if (-f $try_tt) {
+            my $p = path($try_tt);
+            say STDERR "Notice: You provided a generated file. Switching to source file: " . $p->relative($root);
+            $path = $p;
+        } else {
+            # Try .tt2markdown
+            my $try_md = $try_tt . "2markdown";
+            if (-f $try_md) {
+                my $p = path($try_md);
+                say STDERR "Notice: You provided a generated file. Switching to source file: " . $p->relative($root);
+                $path = $p;
+            }
+        }
+    }
+}
+
+die "File not found: $path\n" unless -f $path;
+
+$ENV{LIVE_EDITOR_FILE} = $path->stringify;
 
 # Security: Bind to localhost only
 set host => '127.0.0.1';
