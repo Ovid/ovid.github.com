@@ -30,8 +30,8 @@ description: "Task list for Blogdown Live Editor feature"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Add `Dancer2` to `cpanfile`
-- [ ] T002 Create directory `lib/Ovid/App`
+- [x] T001 Add `Dancer2` to `cpanfile`
+- [x] T002 Create directory `lib/Ovid/App`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -39,9 +39,9 @@ description: "Task list for Blogdown Live Editor feature"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create `lib/Ovid/App/LiveEditor.pm` skeleton with basic package declaration
-- [ ] T004 Create `bin/launch` skeleton with shebang, basic usage, and strict localhost binding configuration (FR-009)
-- [ ] T005 Create `root/editor.tt` skeleton with basic HTML structure
+- [x] T003 Create `lib/Ovid/App/LiveEditor.pm` skeleton with basic package declaration
+- [x] T004 Create `bin/launch` skeleton with shebang, basic usage, and strict localhost binding configuration (FR-009)
+- [x] T005 Create `root/editor.tt` skeleton with basic HTML structure
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
