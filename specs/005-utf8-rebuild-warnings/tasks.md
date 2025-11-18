@@ -28,9 +28,9 @@
 
 **Purpose**: Project initialization and environment verification
 
-- [ ] T001 Verify Perl 5.40+ environment is activated via `source ~/.bash_profile && perl -v`
-- [ ] T002 Install/verify dependencies via `cpanm --installdeps . --with-configure --with-develop --with-all-features`
-- [ ] T003 Verify current problem exists by running `perl bin/rebuild --file root/blog/torturing-an-llm.tt2markdown --notest` and confirming UTF-8 warnings appear
+- [X] T001 Verify Perl 5.40+ environment is activated via `source ~/.bash_profile && perl -v`
+- [X] T002 Install/verify dependencies via `cpanm --installdeps . --with-configure --with-develop --with-all-features`
+- [X] T003 Verify current problem exists by running `perl bin/rebuild --file root/blog/torturing-an-llm.tt2markdown --notest` and confirming UTF-8 warnings appear
 
 ---
 
