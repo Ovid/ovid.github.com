@@ -135,6 +135,8 @@ package Ovid::Site {
             '--src=tmp',
             '--dest=.',
             '--lib=include',
+            '--binmode'  => 'utf8',     # encoding of output file (same as _run_ttree)
+            '--encoding' => 'utf8',     # encoding of input files (same as _run_ttree)
             $relative_file,
         );
 
