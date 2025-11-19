@@ -3,6 +3,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
   <script>
@@ -57,6 +67,8 @@
   <link rel="stylesheet" href="/static/css/dialog.css">
   <link rel="stylesheet" href="/static/css/image.css">
   <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -67,6 +79,10 @@
 
 </head>
 <body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
 
   <!-- Primary Page Layout -->
   <div class="container">
