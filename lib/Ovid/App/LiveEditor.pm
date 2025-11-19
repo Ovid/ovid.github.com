@@ -40,7 +40,22 @@ post '/api/save' => sub {
         return "No content provided.";
     }
 
-    path($file)->spew_utf8($content);
+    # Ensure file is writable
+    unless (-w $file) {
+        status 500;
+        error "File is not writable: $file";
+        return "Error: File is not writable.";
+    }
+
+    eval {
+        path($file)->spew_utf8($content);
+    };
+    if ($@) {
+        status 500;
+        error "Failed to save file $file: $@";
+        return "Error saving file: $@";
+    }
+
     return "Saved";
 };
 

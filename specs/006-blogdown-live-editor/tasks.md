@@ -83,15 +83,15 @@ description: "Task list for Blogdown Live Editor feature"
 ### Implementation for User Story 3
 
 - [x] T014 [US3] Verify and refine `lib/Ovid/App/LiveEditor.pm` preview logic to ensure it uses the full site context (e.g. correct layout, CSS links)
-- [ ] T014a [US3] Add integration test verifying preview output matches `bin/rebuild` output
+- [X] T014a [US3] Add integration test verifying preview output matches `bin/rebuild` output
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Final touches, error handling, and non-functional requirements
 
-- [ ] T015 Add CSS styling to `root/editor.tt` for a better editing experience (split pane layout)
-- [ ] T016 Add error handling in `bin/launch` for missing or invalid files
-- [ ] T017 Add error handling in `lib/Ovid/App/LiveEditor.pm` for save failures
+- [x] T015 Add CSS styling to `root/editor.tt` for a better editing experience (split pane layout)
+- [x] T016 Add error handling in `bin/launch` for missing or invalid files
+- [x] T017 Add error handling in `lib/Ovid/App/LiveEditor.pm` for save failures
 
 ## Dependencies
 

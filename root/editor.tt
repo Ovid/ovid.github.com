@@ -4,26 +4,89 @@
     <meta charset="UTF-8">
     <title>Editing: [% filename %]</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         #container { display: flex; height: 100vh; }
-        #editor-pane { width: 50%; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
-        #preview-pane { width: 50%; border-left: 1px solid #ccc; position: relative; }
-        textarea { width: 100%; height: 100%; font-family: monospace; font-size: 14px; resize: none; }
+        #editor-pane { width: 50%; display: flex; flex-direction: column; border-right: 1px solid #ddd; background: #f9f9f9; }
+        #preview-pane { width: 50%; position: relative; background: #fff; }
+        
+        header { 
+            padding: 12px 20px; 
+            background: #fff; 
+            border-bottom: 1px solid #ddd; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        
+        h1 { margin: 0; font-size: 16px; font-weight: 600; color: #333; }
+        
+        textarea { 
+            flex: 1; 
+            width: 100%; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            border: none; 
+            font-family: "Menlo", "Monaco", "Courier New", monospace; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            resize: none; 
+            outline: none;
+            background: #f9f9f9;
+            color: #333;
+        }
+        
         iframe { width: 100%; height: 100%; border: none; }
-        header { padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0056b3; }
+        
+        #status { 
+            font-size: 13px; 
+            color: #666; 
+            margin-right: 15px;
+            font-style: italic;
+        }
+        
         #loading-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 1.2em;
-            color: #333;
-            z-index: 10;
+            color: #555;
+            z-index: 20;
+            backdrop-filter: blur(2px);
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -31,14 +94,16 @@
     <div id="container">
         <div id="editor-pane">
             <header>
-                Editing: <strong>[% filename %]</strong>
-                <button id="refresh-btn" style="float: right;">Refresh Preview</button>
-                <span id="status" style="float: right; margin-right: 10px; color: #666;"></span>
+                <h1>Editing: [% filename %]</h1>
+                <div>
+                    <span id="status"></span>
+                    <button id="refresh-btn">Refresh Preview</button>
+                </div>
             </header>
             <textarea id="content" name="content">[% content | html %]</textarea>
         </div>
         <div id="preview-pane">
-            <div id="loading-overlay">Building preview...</div>
+            <div id="loading-overlay"><div class="spinner"></div>Building preview...</div>
             <iframe src="/preview" id="preview-frame"></iframe>
         </div>
     </div>

@@ -36,7 +36,15 @@ if ($path =~ m{/(?:articles|blog)/.*\.html$}) {
     }
 }
 
-die "File not found: $path\n" unless -f $path;
+die "File not found: $path\n" unless $path->exists;
+die "Path is a directory, not a file: $path\n" if $path->is_dir;
+die "File is not readable: $path\n" unless -r $path;
+
+# Ensure file is within the project root (basic security check)
+my $project_root = path('.')->absolute;
+if ( $path->stringify !~ /^\Q$project_root\E/ ) {
+    die "Security Error: Cannot edit files outside the project directory.\n";
+}
 
 $ENV{LIVE_EDITOR_FILE} = $path->stringify;
 
