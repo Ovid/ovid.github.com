@@ -11,5 +11,7 @@ like $content, qr/Refresh Preview/, 'Contains refresh button';
 like $content, qr/setTimeout\(saveContent, 1000\)/, 'Contains debounce logic';
 like $content, qr/id="loading-overlay"/, 'Contains loading overlay';
 like $content, qr/Building preview.../, 'Contains loading message';
+like $content, qr/id="splitter"/, 'Contains splitter';
+like $content, qr/id="theme-toggle"/, 'Contains theme toggle';
 
 done_testing;
