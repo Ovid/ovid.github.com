@@ -7,21 +7,95 @@
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         #container { display: flex; height: 100vh; }
         #editor-pane { width: 50%; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
-        #preview-pane { width: 50%; border-left: 1px solid #ccc; }
+        #preview-pane { width: 50%; border-left: 1px solid #ccc; position: relative; }
         textarea { width: 100%; height: 100%; font-family: monospace; font-size: 14px; resize: none; }
         iframe { width: 100%; height: 100%; border: none; }
         header { padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc; }
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #333;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="editor-pane">
-            <header>Editing: <strong>[% filename %]</strong></header>
+            <header>
+                Editing: <strong>[% filename %]</strong>
+                <button id="refresh-btn" style="float: right;">Refresh Preview</button>
+                <span id="status" style="float: right; margin-right: 10px; color: #666;"></span>
+            </header>
             <textarea id="content" name="content">[% content | html %]</textarea>
         </div>
         <div id="preview-pane">
+            <div id="loading-overlay">Building preview...</div>
             <iframe src="/preview" id="preview-frame"></iframe>
         </div>
     </div>
+    <script>
+        const textarea = document.getElementById('content');
+        const status = document.getElementById('status');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const previewFrame = document.getElementById('preview-frame');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        let timeoutId;
+
+        const showLoading = () => {
+            loadingOverlay.style.display = 'flex';
+        };
+
+        const hideLoading = () => {
+            loadingOverlay.style.display = 'none';
+        };
+
+        const saveContent = async () => {
+            status.textContent = 'Saving...';
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'content=' + encodeURIComponent(textarea.value)
+                });
+                
+                if (response.ok) {
+                    status.textContent = 'Saved';
+                    setTimeout(() => { status.textContent = ''; }, 2000);
+                } else {
+                    status.textContent = 'Error saving';
+                    console.error('Save failed', response);
+                }
+            } catch (e) {
+                status.textContent = 'Error saving';
+                console.error('Save failed', e);
+            }
+        };
+
+        textarea.addEventListener('input', () => {
+            status.textContent = 'Typing...';
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(saveContent, 1000);
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            showLoading();
+            previewFrame.src = '/preview?t=' + new Date().getTime();
+        });
+
+        previewFrame.addEventListener('load', () => {
+            hideLoading();
+        });
+    </script>
 </body>
 </html>

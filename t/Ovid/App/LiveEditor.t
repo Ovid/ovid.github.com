@@ -4,6 +4,7 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Path::Tiny;
 use Cwd qw(getcwd);
+use Test::MockModule;
 
 # Setup test environment before loading app
 my $cwd = getcwd();
@@ -32,6 +33,14 @@ $ENV{LIVE_EDITOR_FILE} = $source_file->absolute->stringify;
 
 use Ovid::App::LiveEditor;
 
+# Mock Ovid::Site to avoid full rebuild in tests
+my $site_mock = Test::MockModule->new('Ovid::Site');
+my $build_called = 0;
+$site_mock->mock('build', sub {
+    $build_called++;
+    return;
+});
+
 my $app = Ovid::App::LiveEditor->to_app;
 my $test = Plack::Test->create($app);
 
@@ -48,12 +57,25 @@ subtest 'Preview route' => sub {
     my $res = $test->request(GET '/preview');
     ok $res->is_success, 'Preview route successful';
     like $res->content, qr/Generated HTML Content/, 'Preview shows generated HTML';
+    ok $build_called, 'Ovid::Site->build was called';
 };
 
 subtest 'Static files' => sub {
     my $res = $test->request(GET '/static/css/style.css');
     ok $res->is_success, 'Static file served';
     is $res->content, 'body { color: red; }', 'Static file content matches';
+};
+
+subtest 'Save endpoint' => sub {
+    my $new_content = "Updated Content";
+    my $res = $test->request(POST '/api/save', [ content => $new_content ]);
+    ok $res->is_success, 'Save request successful';
+    is $source_file->slurp_utf8, $new_content, 'File on disk updated';
+    
+    # Test missing content
+    $res = $test->request(POST '/api/save', []);
+    ok !$res->is_success, 'Save request without content fails';
+    is $res->code, 400, 'Returns 400 Bad Request';
 };
 
 # Cleanup

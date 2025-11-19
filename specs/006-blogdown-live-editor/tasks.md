@@ -69,10 +69,10 @@ description: "Task list for Blogdown Live Editor feature"
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Implement `post '/api/save'` route in `lib/Ovid/App/LiveEditor.pm` to write content to disk
-- [ ] T012 [US2] Implement client-side JS in `root/editor.tt` to capture input, debounce, and POST to `/api/save`
-- [ ] T013 [US2] Implement client-side JS in `root/editor.tt` to handle "Refresh Preview" button click (manual trigger only, per FR-008)
-- [ ] T013a [US2] Add tests for save endpoint validation in `t/Ovid/App/LiveEditor.t`
+- [x] T011 [US2] Implement `post '/api/save'` route in `lib/Ovid/App/LiveEditor.pm` to write content to disk
+- [x] T012 [US2] Implement client-side JS in `root/editor.tt` to capture input, debounce, and POST to `/api/save`
+- [x] T013 [US2] Implement client-side JS in `root/editor.tt` to handle "Refresh Preview" button click (manual trigger only, per FR-008)
+- [x] T013a [US2] Add tests for save endpoint validation in `t/Ovid/App/LiveEditor.t`
 
 ## Phase 5: User Story 3 - Accurate Preview via Rebuild Logic (Priority: P2)
 
