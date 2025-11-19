@@ -6,14 +6,14 @@ use HTML::SimpleLinkExtor;
 use File::Find::Rule;
 use Less::Script;
 use Less::Config 'config';
+use IPC::Run qw(run);
+
 my $domain = config()->{domain};
 
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
+@files = filter_ignored_files(@files);
 
 foreach my $file (@files) {
-    next if $file =~ /^include/;    # XXX bug
-    next if $file =~ /^cover/;      # skip coverage reports
-    next if $file =~ m{^t/fixtures/}; # skip test fixtures
     try {
         my @errors = links_are_good($file);
 
@@ -28,6 +28,20 @@ foreach my $file (@files) {
 }
 
 done_testing;
+
+sub filter_ignored_files {
+    my @files = @_;
+    return @files unless @files;
+
+    my $in = join( "\n", @files ) . "\n";
+    my $out;
+    my $err;
+
+    run [ 'git', 'check-ignore', '--stdin' ], \$in, \$out, \$err;
+
+    my %ignored = map { $_ => 1 } split( /\n/, $out );
+    return grep { !$ignored{$_} } @files;
+}
 
 sub links_are_good ($file) {
     return if $file =~ /\bdemo.html$/;
