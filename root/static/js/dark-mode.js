@@ -3,12 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const icon = toggle.querySelector('i');
     const html = document.documentElement;
     
-    // Check preference
-    const currentTheme = localStorage.getItem('theme') || 
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        
-    if (currentTheme === 'dark') {
-        html.setAttribute('data-theme', 'dark');
+    // Sync icon with current state (set by inline script in header)
+    if (html.getAttribute('data-theme') === 'dark') {
         icon.classList.remove('fa-moon-o');
         icon.classList.add('fa-sun-o');
     }
