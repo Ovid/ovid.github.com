@@ -119,33 +119,16 @@ package Ovid::Site {
             die "FATAL: Source file '$file' does not exist before calling ttree.";
         }
 
-        my $ttree = which('ttree');
-        unless ($ttree) {
-            die "Could not find ttree command in PATH\n";
-        }
-
         # The file path for ttree must be relative to the --src directory
         my $relative_file = $file;
         $relative_file =~ s/^tmp\///;
 
-        my @command = (
-            'perl', '-Ilib',
-            $ttree,
+        my ( $stdout, $stderr ) = $self->_execute_ttree(
             '--verbose',
-            '--src=tmp',
-            '--dest=.',
             '--lib=include',
-            '--binmode'  => 'utf8',     # encoding of output file (same as _run_ttree)
-            '--encoding' => 'utf8',     # encoding of input files (same as _run_ttree)
             $relative_file,
         );
 
-        say STDERR "Running command: @command";
-        my ( $stdout, $stderr, $exit ) = capture { system(@command) };
-
-        if ( $exit != 0 ) {
-            die "ttree failed with exit code $exit.\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
-        }
         print $stdout;
         print $stderr;
     }
@@ -454,27 +437,47 @@ END
         }
     }
 
-    sub _run_ttree ($self) {
-        say STDERR "Rebuilding pages...";
+    sub _execute_ttree ( $self, @args ) {
         my $ttree = which('ttree');
-        my @args  = (
-            'perl', '-Ilib',                                # make sure we can find our plugins
-            $ttree,                                         # the ttree command
-            '-a',                                           # process all files
-            '-s'         => 'tmp',                          # use tmp/ as a source
-            '-d'         => '.',                            # use . as the target
-            '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
-            '--binmode'  => 'utf8',                         # encoding of output file
-            '--encoding' => 'utf8',                         # encoding of input files
+        unless ($ttree) {
+            die "Could not find ttree command in PATH\n";
+        }
+
+        my @command = (
+            'perl', '-Ilib',
+            $ttree,
+            '--src=tmp',
+            '--dest=.',
+            '--binmode'  => 'utf8',
+            '--encoding' => 'utf8',
+            @args
         );
-        my ( $stdout, undef, undef ) = capture { system(@args) };
+
+        if ( grep { $_ eq '--verbose' } @args ) {
+            say STDERR "Running command: @command";
+        }
+
+        my ( $stdout, $stderr, $exit ) = capture { system(@command) };
+
+        if ( $exit != 0 ) {
+            say STDERR "Command failed: @command";
+            die "ttree failed with exit code $exit.\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
+        }
 
         if ( $stdout =~ /!.*file error/ ) {
-
-            # yeah, ttree needs proper exit codes
-            say STDERR "@args";
+            say STDERR "Command failed: @command";
             croak($stdout);
         }
+
+        return ( $stdout, $stderr );
+    }
+
+    sub _run_ttree ($self) {
+        say STDERR "Rebuilding pages...";
+        my ($stdout) = $self->_execute_ttree(
+            '-a',
+            '--copy' => '\.(gif|png|jpg|jpeg|pdf)$',
+        );
         say $stdout;
     }
 
