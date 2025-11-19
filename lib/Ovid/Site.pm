@@ -10,6 +10,7 @@ package Ovid::Site {
     use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
     use Template::Plugin::Ovid;
+    use Template::App::ttree;
     use aliased 'Ovid::Template::File::Collection';
 
     use autodie ':all';
@@ -95,10 +96,6 @@ package Ovid::Site {
         $self->_assert_tt_config;
         $self->_set_files('root');
         $self->_preprocess_files;
-        $self->_write_tag_templates;
-        $self->_write_tagmap;
-        $self->_rebuild_rss_feeds;
-        $self->_rebuild_article_pagination;
 
         # Now find the path to our target file in the 'tmp' directory
         my $file = $self->file;
@@ -107,9 +104,8 @@ package Ovid::Site {
         say STDERR "Running ttree on $file";
         $self->_run_ttree_single($file);
 
-        # We should probably update the sitemap too
-        $self->_write_sitemap;
         say STDERR "Single file rebuild complete.";
+        say STDERR "YOU MUST REBUILD THE ENTIRE SITE WITH `bin/build --release` TO RELEASE"
     }
 
     sub _run_ttree_single ( $self, $file ) {
@@ -438,14 +434,7 @@ END
     }
 
     sub _execute_ttree ( $self, @args ) {
-        my $ttree = which('ttree');
-        unless ($ttree) {
-            die "Could not find ttree command in PATH\n";
-        }
-
-        my @command = (
-            'perl', '-Ilib',
-            $ttree,
+        my @ttree_args = (
             '--src=tmp',
             '--dest=.',
             '--binmode'  => 'utf8',
@@ -454,18 +443,27 @@ END
         );
 
         if ( grep { $_ eq '--verbose' } @args ) {
-            say STDERR "Running command: @command";
+            say STDERR "Running ttree in-process with args: @ttree_args";
         }
 
-        my ( $stdout, $stderr, $exit ) = capture { system(@command) };
+        my ( $stdout, $stderr, @result ) = capture {
+            local @ARGV = @ttree_args;
+            my $ttree = Template::App::ttree->new;
+            eval {
+                $ttree->run();
+            };
+            return $@;
+        };
 
-        if ( $exit != 0 ) {
-            say STDERR "Command failed: @command";
-            die "ttree failed with exit code $exit.\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
+        my $error = $result[0];
+
+        if ($error) {
+            say STDERR "Command failed: @ttree_args";
+            die "ttree failed with error: $error\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
         }
 
         if ( $stdout =~ /!.*file error/ ) {
-            say STDERR "Command failed: @command";
+            say STDERR "Command failed: @ttree_args";
             croak($stdout);
         }
 
