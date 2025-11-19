@@ -14,6 +14,7 @@ See https://metacpan.org/pod/CPAN::Meta::Spec#VERSION-NUMBERS for details.
 
 requires 'App::HTTPThis'             => 0.009;
 requires 'App::Sqitch'               => 1;
+requires 'Browser::Open'             => 0;
 requires 'CHI'                       => 0.61;
 requires 'Capture::Tiny'             => 0.50;
 requires 'Class::XSAccessor'         => 1.19;

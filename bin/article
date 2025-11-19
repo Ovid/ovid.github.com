@@ -7,12 +7,14 @@ use File::Spec::Functions qw(catfile);
 use DateTime;
 use Less::Script;
 use Ovid::Site::Utils qw(use_smart_quotes);
+use Browser::Open qw(open_browser);
 
 GetOptions(
     \my %opt_for,
     'nocomments',    # disables comments for an entry
     'type=s',        # one of 'article' or 'blog'
     'description=s',
+    'open',          # open the article in the live editor
 ) or die "Bad options";
 
 my $comments = $opt_for{nocomments} ? 0 : 1;
@@ -54,7 +56,7 @@ my $title    = join( ' ' => @ARGV );
 my $slug     = make_slug($title);
 my $template = write_article_stub( $title, $slug, \%opt_for );
 add_to_sqitch( $title, $slug, \%opt_for );
-edit_article($template);    #exits this program
+edit_article($template, \%opt_for);    #exits this program
 
 sub add_to_sqitch ( $title, $slug, $opt_for ) {
     my $dbh = dbh();
@@ -109,9 +111,23 @@ sub write_article_stub ( $title, $slug, $opt_for ) {
     return $template;
 }
 
-sub edit_article ($template) {
-    my $editor = $ENV{EDITOR} || 'vim';
-    system $editor => $template;
+sub edit_article ($template, $opt_for) {
+    if ( $opt_for->{open} ) {
+        my $pid = fork // die "Can't fork: $!";
+        if ( $pid == 0 ) {
+            exec 'bin/launch', $template;
+            die "Failed to exec bin/launch: $!";
+        }
+
+        sleep 1; # Wait for server to start
+        open_browser('http://127.0.0.1:3000/');
+
+        waitpid $pid, 0;
+    }
+    else {
+        my $editor = $ENV{EDITOR} || 'vim';
+        system $editor => $template;
+    }
 }
 
 sub template ( $title, $directory, $slug, $opt_for ) {
@@ -170,5 +186,6 @@ article - Write an article
     nocomments        If passed, comments are disabled for this article
     type              Must be one of 'article' or 'blog'
     description       A longer description of what the entry is about.
+    open              If passed, opens the article in the live editor (requires bin/launch)
 
 If you do not enter the type, description, or a title, you will be prompted for them.

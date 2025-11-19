@@ -92,6 +92,7 @@ description: "Task list for Blogdown Live Editor feature"
 - [x] T015 Add CSS styling to `root/editor.tt` for a better editing experience (split pane layout)
 - [x] T016 Add error handling in `bin/launch` for missing or invalid files
 - [x] T017 Add error handling in `lib/Ovid/App/LiveEditor.pm` for save failures
+- [x] T028 [Polish] Modify `bin/article` to use `Browser::Open` to launch the editor and open the browser automatically
 
 ## Phase 7: User Story 4 - File Switching (Priority: P2)
 
