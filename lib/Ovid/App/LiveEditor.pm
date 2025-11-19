@@ -12,26 +12,67 @@ our $VERSION = '0.1';
 set views => 'root';
 set template => 'template_toolkit';
 
+sub _get_target_file {
+    my $file_param = query_parameters->get('file') // body_parameters->get('file');
+    my $file = $file_param // $ENV{LIVE_EDITOR_FILE};
+
+    unless ($file) {
+        return (undef, "No file specified.");
+    }
+
+    my $path = path($file)->realpath;
+    my $root_dir = path('root')->realpath;
+
+    # Security check: Ensure file is within root/ directory
+    if ($path->stringify !~ /^\Q$root_dir\E/) {
+        return (undef, "Security Error: Can only edit files in the root/ directory.");
+    }
+
+    unless ($path->exists && -f $path) {
+        return (undef, "File not found: $file");
+    }
+
+    return ($path->stringify, undef);
+}
+
+get '/api/files' => sub {
+    my $root = path('root')->absolute;
+    my @files;
+    
+    # Visit all files in root/ recursively
+    $root->visit(sub {
+        my $path = shift;
+        if ($path->is_file && $path->basename !~ /^\./) { # Skip hidden files
+            push @files, $path->relative($root)->stringify;
+        }
+    }, { recurse => 1 });
+    
+    content_type 'application/json';
+    return to_json([sort @files]);
+};
+
 get '/' => sub {
-    my $file = $ENV{LIVE_EDITOR_FILE};
-    unless ($file && -f $file) {
+    my ($file, $error) = _get_target_file();
+    if ($error) {
         status 400;
-        return "No file specified or file not found.";
+        return $error;
     }
 
     my $content = path($file)->slurp_utf8;
+    my $rel_path = path($file)->relative(path('.')->absolute)->stringify;
 
     template 'editor' => {
         content  => $content,
         filename => path($file)->basename,
+        filepath => $rel_path,
     };
 };
 
 post '/api/save' => sub {
-    my $file = $ENV{LIVE_EDITOR_FILE};
-    unless ($file && -f $file) {
+    my ($file, $error) = _get_target_file();
+    if ($error) {
         status 400;
-        return "No file specified or file not found.";
+        return $error;
     }
 
     my $content = body_parameters->get('content');
@@ -60,10 +101,10 @@ post '/api/save' => sub {
 };
 
 get '/preview' => sub {
-    my $file = $ENV{LIVE_EDITOR_FILE};
-    unless ($file && -f $file) {
+    my ($file, $error) = _get_target_file();
+    if ($error) {
         status 400;
-        return "No file specified.";
+        return $error;
     }
 
     return _render_preview($file);

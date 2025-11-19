@@ -78,6 +78,47 @@ subtest 'Save endpoint' => sub {
     is $res->code, 400, 'Returns 400 Bad Request';
 };
 
+subtest 'File Switching' => sub {
+    # Create another file
+    my $other_file = $temp_dir->child('root/other.tt');
+    $other_file->spew_utf8("Other Content");
+    
+    # Test GET / with file param
+    my $res = $test->request(GET '/?file=' . $other_file->absolute->stringify);
+    ok $res->is_success, 'Switch file successful';
+    like $res->content, qr/Editor: Other Content/, 'Editor shows other file content';
+    
+    # Test Save with file param
+    my $new_other_content = "New Other Content";
+    $res = $test->request(POST '/api/save', [ content => $new_other_content, file => $other_file->absolute->stringify ]);
+    ok $res->is_success, 'Save other file successful';
+    is $other_file->slurp_utf8, $new_other_content, 'Other file on disk updated';
+    
+    # Test Security
+    my $outside_file = Path::Tiny->tempfile;
+    $res = $test->request(GET '/?file=' . $outside_file->absolute->stringify);
+    ok !$res->is_success, 'Accessing outside file fails';
+    like $res->content, qr/Security Error/, 'Security error message';
+    
+    # Test Security: File in project root but not in root/ directory
+    my $lib_file = $temp_dir->child('lib/Test.pm');
+    $lib_file->parent->mkpath;
+    $lib_file->spew_utf8("package Test;");
+    $res = $test->request(GET '/?file=' . $lib_file->absolute->stringify);
+    ok !$res->is_success, 'Accessing file outside root/ fails';
+    like $res->content, qr/Security Error/, 'Security error message for non-root/ file';
+};
+
+subtest 'File Listing' => sub {
+    my $res = $test->request(GET '/api/files');
+    ok $res->is_success, 'File listing successful';
+    my $json = $res->content;
+    like $json, qr/test\.tt/, 'Contains test.tt';
+    like $json, qr/other\.tt/, 'Contains other.tt';
+    like $json, qr/editor\.tt/, 'Contains editor.tt';
+    unlike $json, qr/Test\.pm/, 'Does not contain lib files';
+};
+
 # Cleanup
 chdir $cwd;
 done_testing;

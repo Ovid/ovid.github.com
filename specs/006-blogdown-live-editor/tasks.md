@@ -93,11 +93,40 @@ description: "Task list for Blogdown Live Editor feature"
 - [x] T016 Add error handling in `bin/launch` for missing or invalid files
 - [x] T017 Add error handling in `lib/Ovid/App/LiveEditor.pm` for save failures
 
+## Phase 7: User Story 4 - File Switching (Priority: P2)
+
+**Goal**: Allow user to switch files without restarting the server.
+
+**Independent Test**: Open editor, use "Open File" feature to switch to another file, verify content loads and can be saved.
+
+### Implementation for User Story 4
+
+- [x] T018 [US4] Implement `_get_target_file` helper in `lib/Ovid/App/LiveEditor.pm` to resolve file from query param or ENV, with security checks
+- [x] T019 [US4] Update `get '/'`, `post '/api/save'`, `get '/preview'` to use `_get_target_file`
+- [x] T020 [US4] Update `root/editor.tt` to include file path in API calls and display current filename
+- [x] T021 [US4] Add "Open File" UI to `root/editor.tt` and handle navigation
+- [x] T022 [US4] Add tests for file switching and security constraints in `t/Ovid/App/LiveEditor.t`
+
+## Phase 8: Refinement - File Picker (Priority: P1)
+
+**Goal**: Replace manual file path entry with a UI file picker restricted to the `root/` directory.
+
+**Independent Test**: Open editor, click "Change File", see list of files in `root/`, select one, and verify editor switches to it.
+
+### Implementation for Phase 8
+
+- [x] T023 [Refinement] Implement `get '/api/files'` in `lib/Ovid/App/LiveEditor.pm` to list all files in `root/` (recursive) as JSON
+- [x] T024 [Refinement] Update `_get_target_file` in `lib/Ovid/App/LiveEditor.pm` to strictly enforce files are within `root/` directory
+- [x] T025 [Refinement] Update `root/editor.tt` to replace text input with a "Change File" button and a modal dialog
+- [x] T026 [Refinement] Implement JS in `root/editor.tt` to fetch file list and populate the modal
+- [x] T027 [Refinement] Add tests for `/api/files` and stricter security in `t/Ovid/App/LiveEditor.t`
+
 ## Dependencies
 
 1. **US1** depends on **Foundational Phase**
 2. **US2** depends on **US1** (needs editor UI and server)
 3. **US3** depends on **US1** (needs preview mechanism)
+4. **US4** depends on **US1** (needs basic editor structure)
 
 ## Parallel Execution Examples
 
