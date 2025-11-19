@@ -82,7 +82,7 @@ description: "Task list for Blogdown Live Editor feature"
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Verify and refine `lib/Ovid/App/LiveEditor.pm` preview logic to ensure it uses the full site context (e.g. correct layout, CSS links)
+- [x] T014 [US3] Verify and refine `lib/Ovid/App/LiveEditor.pm` preview logic to ensure it uses the full site context (e.g. correct layout, CSS links)
 - [ ] T014a [US3] Add integration test verifying preview output matches `bin/rebuild` output
 
 ## Phase 6: Polish & Cross-Cutting Concerns

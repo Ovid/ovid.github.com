@@ -62,4 +62,15 @@ sub _render_preview($file) {
     return "File is not in a 'root/' directory. Cannot determine preview path.\n" .
            "Expected a source file (e.g., root/blog/post.tt), but got:\n$path_str";
 }
+
+get '/static/**' => sub {
+    my ($path) = splat;
+    my $file = path('.')->child('static', @$path);
+    if ($file->exists && -f $file) {
+        send_file $file->absolute->stringify, system_path => 1;
+    } else {
+        pass;
+    }
+};
+
 true;

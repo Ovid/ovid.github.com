@@ -24,6 +24,10 @@ Editor: [% content %]
 Iframe: <iframe src="/preview"></iframe>
 EOF
 
+# Create dummy static file
+$temp_dir->child('static/css')->mkpath;
+$temp_dir->child('static/css/style.css')->spew_utf8("body { color: red; }");
+
 $ENV{LIVE_EDITOR_FILE} = $source_file->absolute->stringify;
 
 use Ovid::App::LiveEditor;
@@ -44,6 +48,12 @@ subtest 'Preview route' => sub {
     my $res = $test->request(GET '/preview');
     ok $res->is_success, 'Preview route successful';
     like $res->content, qr/Generated HTML Content/, 'Preview shows generated HTML';
+};
+
+subtest 'Static files' => sub {
+    my $res = $test->request(GET '/static/css/style.css');
+    ok $res->is_success, 'Static file served';
+    is $res->content, 'body { color: red; }', 'Static file content matches';
 };
 
 # Cleanup
