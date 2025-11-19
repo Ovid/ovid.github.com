@@ -35,13 +35,9 @@ package Ovid::Site {
     use XML::RSS;
 
     has _files => (
-        traits  => ['Array'],
-        is      => 'rw',
-        isa     => ArrayRef [NonEmptySimpleStr],
-        handles => {
-            count => 'count',
-            all   => 'elements',
-        },
+        traits => ['Array'],
+        is     => 'rw',
+        isa    => ArrayRef [NonEmptySimpleStr],
     );
 
     has _base_url => (
@@ -74,8 +70,7 @@ package Ovid::Site {
             return $self->_build_single_file;
         }
         $self->_assert_tt_config;
-        $self->_set_files('root');
-        $self->_preprocess_files;
+        $self->_preprocess_files('root');
         $self->_write_tag_templates;
         $self->_write_tagmap;
         $self->_rebuild_rss_feeds;
@@ -94,8 +89,7 @@ package Ovid::Site {
         # and other context that templates might need.
         say STDERR "Preprocessing all files to build context...";
         $self->_assert_tt_config;
-        $self->_set_files('root');
-        $self->_preprocess_files;
+        $self->_preprocess_files('root/include');
 
         # Now find the path to our target file in the 'tmp' directory
         my $file = $self->file;
@@ -105,7 +99,7 @@ package Ovid::Site {
         $self->_run_ttree_single($file);
 
         say STDERR "Single file rebuild complete.";
-        say STDERR "YOU MUST REBUILD THE ENTIRE SITE WITH `bin/build --release` TO RELEASE"
+        say STDERR "YOU MUST REBUILD THE ENTIRE SITE WITH `bin/build --release` TO RELEASE";
     }
 
     sub _run_ttree_single ( $self, $file ) {
@@ -141,7 +135,8 @@ package Ovid::Site {
 
     }
 
-    sub _preprocess_files ($self) {
+    sub _preprocess_files ( $self, $location ) {
+        $self->_set_files($location);
         my @files = $self->_files->@*;
         $self->_clean_tmp_directory;
 
@@ -449,9 +444,7 @@ END
         my ( $stdout, $stderr, @result ) = capture {
             local @ARGV = @ttree_args;
             my $ttree = Template::App::ttree->new;
-            eval {
-                $ttree->run();
-            };
+            eval { $ttree->run(); };
             return $@;
         };
 
