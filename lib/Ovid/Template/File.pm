@@ -203,7 +203,7 @@ package Ovid::Template::File {
         }
         my $p = HTML::TokeParser::Simple->new( string => $contents );
 
-        state $seen = {};
+        my $seen = {};
 
         my $rewritten = '';
         my @links;

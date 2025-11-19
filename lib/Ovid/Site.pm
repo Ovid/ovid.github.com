@@ -10,6 +10,7 @@ package Ovid::Site {
     use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
     use Template::Plugin::Ovid;
+    use Template::App::ttree;
     use aliased 'Ovid::Template::File::Collection';
 
     use autodie ':all';
@@ -34,13 +35,9 @@ package Ovid::Site {
     use XML::RSS;
 
     has _files => (
-        traits  => ['Array'],
-        is      => 'rw',
-        isa     => ArrayRef [NonEmptySimpleStr],
-        handles => {
-            count => 'count',
-            all   => 'elements',
-        },
+        traits => ['Array'],
+        is     => 'rw',
+        isa    => ArrayRef [NonEmptySimpleStr],
     );
 
     has _base_url => (
@@ -73,8 +70,7 @@ package Ovid::Site {
             return $self->_build_single_file;
         }
         $self->_assert_tt_config;
-        $self->_set_files('root');
-        $self->_preprocess_files;
+        $self->_preprocess_files('root');
         $self->_write_tag_templates;
         $self->_write_tagmap;
         $self->_rebuild_rss_feeds;
@@ -93,12 +89,7 @@ package Ovid::Site {
         # and other context that templates might need.
         say STDERR "Preprocessing all files to build context...";
         $self->_assert_tt_config;
-        $self->_set_files('root');
-        $self->_preprocess_files;
-        $self->_write_tag_templates;
-        $self->_write_tagmap;
-        $self->_rebuild_rss_feeds;
-        $self->_rebuild_article_pagination;
+        $self->_preprocess_files('root/include');
 
         # Now find the path to our target file in the 'tmp' directory
         my $file = $self->file;
@@ -107,9 +98,8 @@ package Ovid::Site {
         say STDERR "Running ttree on $file";
         $self->_run_ttree_single($file);
 
-        # We should probably update the sitemap too
-        $self->_write_sitemap;
         say STDERR "Single file rebuild complete.";
+        say STDERR "YOU MUST REBUILD THE ENTIRE SITE WITH `bin/build --release` TO RELEASE";
     }
 
     sub _run_ttree_single ( $self, $file ) {
@@ -119,33 +109,16 @@ package Ovid::Site {
             die "FATAL: Source file '$file' does not exist before calling ttree.";
         }
 
-        my $ttree = which('ttree');
-        unless ($ttree) {
-            die "Could not find ttree command in PATH\n";
-        }
-
         # The file path for ttree must be relative to the --src directory
         my $relative_file = $file;
         $relative_file =~ s/^tmp\///;
 
-        my @command = (
-            'perl', '-Ilib',
-            $ttree,
+        my ( $stdout, $stderr ) = $self->_execute_ttree(
             '--verbose',
-            '--src=tmp',
-            '--dest=.',
             '--lib=include',
-            '--binmode'  => 'utf8',     # encoding of output file (same as _run_ttree)
-            '--encoding' => 'utf8',     # encoding of input files (same as _run_ttree)
             $relative_file,
         );
 
-        say STDERR "Running command: @command";
-        my ( $stdout, $stderr, $exit ) = capture { system(@command) };
-
-        if ( $exit != 0 ) {
-            die "ttree failed with exit code $exit.\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
-        }
         print $stdout;
         print $stderr;
     }
@@ -162,7 +135,8 @@ package Ovid::Site {
 
     }
 
-    sub _preprocess_files ($self) {
+    sub _preprocess_files ( $self, $location ) {
+        $self->_set_files($location);
         my @files = $self->_files->@*;
         $self->_clean_tmp_directory;
 
@@ -454,27 +428,47 @@ END
         }
     }
 
-    sub _run_ttree ($self) {
-        say STDERR "Rebuilding pages...";
-        my $ttree = which('ttree');
-        my @args  = (
-            'perl', '-Ilib',                                # make sure we can find our plugins
-            $ttree,                                         # the ttree command
-            '-a',                                           # process all files
-            '-s'         => 'tmp',                          # use tmp/ as a source
-            '-d'         => '.',                            # use . as the target
-            '--copy'     => '\.(gif|png|jpg|jpeg|pdf)$',    # copy, don't process images
-            '--binmode'  => 'utf8',                         # encoding of output file
-            '--encoding' => 'utf8',                         # encoding of input files
+    sub _execute_ttree ( $self, @args ) {
+        my @ttree_args = (
+            '--src=tmp',
+            '--dest=.',
+            '--binmode'  => 'utf8',
+            '--encoding' => 'utf8',
+            @args
         );
-        my ( $stdout, undef, undef ) = capture { system(@args) };
+
+        if ( grep { $_ eq '--verbose' } @args ) {
+            say STDERR "Running ttree in-process with args: @ttree_args";
+        }
+
+        my ( $stdout, $stderr, @result ) = capture {
+            local @ARGV = @ttree_args;
+            my $ttree = Template::App::ttree->new;
+            eval { $ttree->run(); };
+            return $@;
+        };
+
+        my $error = $result[0];
+
+        if ($error) {
+            say STDERR "Command failed: @ttree_args";
+            die "ttree failed with error: $error\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
+        }
 
         if ( $stdout =~ /!.*file error/ ) {
-
-            # yeah, ttree needs proper exit codes
-            say STDERR "@args";
+            say STDERR "Command failed: @ttree_args";
             croak($stdout);
         }
+
+        return ( $stdout, $stderr );
+    }
+
+    sub _run_ttree ($self) {
+        say STDERR "Rebuilding pages...";
+        my ($stdout) = $self->_execute_ttree(
+            '-a',
+            '--copy' => '\.(gif|png|jpg|jpeg|pdf)$',
+        );
         say $stdout;
     }
 

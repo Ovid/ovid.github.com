@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editing: [% filename %]</title>
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --header-bg: #fff;
+            --text-color: #333;
+            --border-color: #ddd;
+            --splitter-bg: #e1e1e1;
+            --splitter-hover: #bbb;
+            --textarea-bg: #f9f9f9;
+            --textarea-color: #333;
+            --status-color: #666;
+            --overlay-bg: rgba(255, 255, 255, 0.9);
+            --overlay-text: #555;
+            --modal-bg: #fff;
+            --modal-overlay: rgba(0,0,0,0.5);
+        }
+
+        body.dark-mode {
+            --bg-color: #1e1e1e;
+            --header-bg: #252526;
+            --text-color: #d4d4d4;
+            --border-color: #3e3e42;
+            --splitter-bg: #333;
+            --splitter-hover: #444;
+            --textarea-bg: #1e1e1e;
+            --textarea-color: #d4d4d4;
+            --status-color: #aaa;
+            --overlay-bg: rgba(30, 30, 30, 0.9);
+            --overlay-text: #ccc;
+            --modal-bg: #252526;
+            --modal-overlay: rgba(0,0,0,0.7);
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #container { display: flex; height: 100vh; }
+        #editor-pane { flex: 0 0 50%; display: flex; flex-direction: column; border-right: none; background: var(--bg-color); min-width: 200px; }
+        #splitter { width: 8px; background: var(--splitter-bg); cursor: col-resize; flex: 0 0 auto; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); transition: background 0.2s; }
+        #splitter:hover, #splitter.active { background: var(--splitter-hover); }
+        #preview-pane { flex: 1; position: relative; background: #fff; min-width: 200px; }
+        
+        header { 
+            padding: 12px 20px; 
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--border-color); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        
+        h1 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color); }
+        
+        textarea { 
+            flex: 1; 
+            width: 100%; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            border: none; 
+            font-family: "Menlo", "Monaco", "Courier New", monospace; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            resize: none; 
+            outline: none;
+            background: var(--textarea-bg);
+            color: var(--textarea-color);
+        }
+        
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0056b3; }
+        
+        #status { 
+            font-size: 13px; 
+            color: var(--status-color); 
+            margin-right: 15px;
+            font-style: italic;
+        }
+        
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: var(--overlay-text);
+            z-index: 20;
+            backdrop-filter: blur(2px);
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-family: "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        #file-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-overlay);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #file-modal {
+            background: var(--modal-bg);
+            width: 500px;
+            max-height: 80vh;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+        }
+        
+        #file-modal-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #file-modal-header h2 { margin: 0; font-size: 18px; }
+        
+        #file-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        #file-search {
+            margin: 15px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--textarea-bg);
+            color: var(--text-color);
+        }
+        
+        #file-list {
+            overflow-y: auto;
+            padding: 0 15px 15px 15px;
+            margin: 0;
+            list-style: none;
+        }
+        
+        #file-list li {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        #file-list li:hover {
+            background: var(--splitter-bg);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="editor-pane">
+            <header style="flex-direction: column; align-items: flex-start;">
+                <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;">
+                    <button id="change-file-btn" style="padding: 4px 8px; font-size: 12px;">Change File</button>
+                    <div>
+                        <span id="status"></span>
+                        <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
+                            <input type="checkbox" id="syntax-toggle"> Syntax Highlight
+                        </label>
+                        <button id="theme-toggle" style="margin-right: 10px;">Dark Mode</button>
+                        <button id="refresh-btn">Refresh Preview</button>
+                    </div>
+                </div>
+                <h1 style="margin: 0; font-size: 14px; font-weight: normal; color: var(--text-color); word-break: break-all;">Editing: <strong>[% filepath %]</strong></h1>
+            </header>
+            <textarea id="content" name="content">[% content | html %]</textarea>
+        </div>
+        <div id="splitter"></div>
+        <div id="preview-pane">
+            <div id="loading-overlay"><div class="spinner"></div>Building preview...</div>
+            <iframe src="/preview?file=[% filepath | url %]" id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <!-- File Picker Modal -->
+    <div id="file-modal-overlay">
+        <div id="file-modal">
+            <div id="file-modal-header">
+                <h2>Select File</h2>
+                <button id="file-modal-close">&times;</button>
+            </div>
+            <input type="text" id="file-search" placeholder="Search files...">
+            <ul id="file-list"></ul>
+        </div>
+    </div>
+    <script>
+        const textarea = document.getElementById('content');
+        const status = document.getElementById('status');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const syntaxToggle = document.getElementById('syntax-toggle');
+        const previewFrame = document.getElementById('preview-frame');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        let timeoutId;
+        let editor = null;
+
+        // Load preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = 'Light Mode';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            if (editor) {
+                editor.setOption('theme', isDark ? 'monokai' : 'default');
+            }
+        });
+
+        const initEditor = () => {
+            if (editor) return;
+            editor = CodeMirror.fromTextArea(textarea, {
+                mode: 'markdown',
+                theme: document.body.classList.contains('dark-mode') ? 'monokai' : 'default',
+                lineNumbers: true,
+                lineWrapping: true,
+                viewportMargin: Infinity
+            });
+            
+            editor.on('change', () => {
+                textarea.value = editor.getValue();
+                // Trigger the input event on textarea to reuse existing logic
+                textarea.dispatchEvent(new Event('input'));
+            });
+        };
+
+        const destroyEditor = () => {
+            if (!editor) return;
+            editor.toTextArea();
+            editor = null;
+        };
+
+        syntaxToggle.addEventListener('change', () => {
+            if (syntaxToggle.checked) {
+                initEditor();
+            } else {
+                destroyEditor();
+            }
+            localStorage.setItem('syntaxHighlight', syntaxToggle.checked);
+        });
+
+        // Load syntax preference
+        if (localStorage.getItem('syntaxHighlight') === 'true') {
+            syntaxToggle.checked = true;
+            // Initialize after a short delay to ensure styles are loaded
+            setTimeout(initEditor, 100);
+        }
+
+        const showLoading = () => {
+            loadingOverlay.style.display = 'flex';
+        };
+
+        const hideLoading = () => {
+            loadingOverlay.style.display = 'none';
+        };
+
+        // File Picker Logic
+        let currentFilePath = "[% filepath %]";
+        const changeFileBtn = document.getElementById('change-file-btn');
+        const modalOverlay = document.getElementById('file-modal-overlay');
+        const modalClose = document.getElementById('file-modal-close');
+        const fileSearch = document.getElementById('file-search');
+        const fileList = document.getElementById('file-list');
+        let allFiles = [];
+
+        const openModal = async () => {
+            modalOverlay.style.display = 'flex';
+            fileSearch.value = '';
+            fileSearch.focus();
+            
+            try {
+                const response = await fetch('/api/files');
+                if (response.ok) {
+                    allFiles = await response.json();
+                    renderFileList(allFiles);
+                } else {
+                    console.error('Failed to fetch files');
+                }
+            } catch (e) {
+                console.error('Error fetching files', e);
+            }
+        };
+
+        const closeModal = () => {
+            modalOverlay.style.display = 'none';
+        };
+
+        const renderFileList = (files) => {
+            fileList.innerHTML = '';
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                li.onclick = () => {
+                    window.location.href = '/?file=' + encodeURIComponent('root/' + file);
+                };
+                fileList.appendChild(li);
+            });
+        };
+
+        changeFileBtn.addEventListener('click', openModal);
+        modalClose.addEventListener('click', closeModal);
+        
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        fileSearch.addEventListener('input', () => {
+            const term = fileSearch.value.toLowerCase();
+            const filtered = allFiles.filter(f => f.toLowerCase().includes(term));
+            renderFileList(filtered);
+        });
+
+        const saveContent = async () => {
+            status.textContent = 'Saving...';
+            try {
+                // Prepend root/ if not present, though currentFilePath should come from server correctly
+                // The server expects path relative to project root.
+                // If currentFilePath is relative to root/, we need to prepend root/
+                // But wait, the server returns relative path from project root in _get_target_file?
+                // Let's check _get_target_file in LiveEditor.pm
+                // It returns $path->stringify which is absolute path.
+                // But the template receives 'filepath' which is relative to project root.
+                // So currentFilePath is e.g. "root/blog/foo.tt"
+                
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'content=' + encodeURIComponent(textarea.value) + '&file=' + encodeURIComponent(currentFilePath)
+                });
+                
+                if (response.ok) {
+                    status.textContent = 'Saved';
+                    setTimeout(() => { status.textContent = ''; }, 2000);
+                } else {
+                    status.textContent = 'Error saving';
+                    console.error('Save failed', response);
+                }
+            } catch (e) {
+                status.textContent = 'Error saving';
+                console.error('Save failed', e);
+            }
+        };
+
+        textarea.addEventListener('input', () => {
+            status.textContent = 'Typing...';
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(saveContent, 1000);
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            showLoading();
+            previewFrame.src = '/preview?t=' + new Date().getTime() + '&file=' + encodeURIComponent(currentFilePath);
+        });
+
+        previewFrame.addEventListener('load', () => {
+            hideLoading();
+        });
+
+        // Splitter functionality
+        const splitter = document.getElementById('splitter');
+        const editorPane = document.getElementById('editor-pane');
+        const container = document.getElementById('container');
+        let isResizing = false;
+
+        splitter.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            splitter.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            // Prevent text selection during drag
+            document.body.style.userSelect = 'none';
+            // Add overlay to iframe to prevent it capturing mouse events
+            const overlay = document.createElement('div');
+            overlay.id = 'drag-overlay';
+            overlay.style.position = 'absolute';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '9999';
+            document.getElementById('preview-pane').appendChild(overlay);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            let newWidth = e.clientX - containerRect.left;
+            
+            // Constraints
+            const minWidth = 200;
+            const maxWidth = containerRect.width - 200;
+            
+            if (newWidth < minWidth) newWidth = minWidth;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+            
+            // Convert to percentage for responsiveness
+            const percentage = (newWidth / containerRect.width) * 100;
+            editorPane.style.flex = `0 0 ${percentage}%`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                splitter.classList.remove('active');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                
+                // Remove overlay
+                const overlay = document.getElementById('drag-overlay');
+                if (overlay) overlay.remove();
+            }
+        });
+    </script>
+</body>
+</html>

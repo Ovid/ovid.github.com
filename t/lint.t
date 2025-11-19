@@ -10,8 +10,7 @@ my $MAX_IMAGE_SIZE = 300_000;
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
-    next if $file =~ /^include/;    # XXX bug
-    next if $file =~ /^cover/;      # skip coverage reports
+    next if $file =~ /^(?:include|cover|nytprof)/;
     try {
         my @errors = html_is_bad($file);
 
