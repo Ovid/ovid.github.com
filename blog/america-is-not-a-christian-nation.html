@@ -1,0 +1,665 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/blog/america-is-not-a-christian-nation.html">
+  
+  <meta property="og:title" content="America is Not a Christian Nation">
+  <meta property="og:description" content="Understanding the history of the Treaty of Tripoli shows that America's Founding Fathers didn't Intend for the US to be a Christian Nation.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/blog/america-is-not-a-christian-nation.html">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>America is Not a Christian Nation</title>
+  <meta name="description" content="America is Not a Christian Nation">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title blog">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>America is Not a Christian Nation</h1>
+        <time>2025-11-21</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="two columns">
+
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+    }
+  </script>
+
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+  <li><a href="/starmap.html">Starmap</a></li>
+  <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<ul>
+  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+  <li><a href="https://github.com/Ovid/">GitHub</a></li>
+  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+</ul>
+
+      </div>
+      <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/blog/torturing-an-llm.html" class="prevPost">&laquo; Torturing an LLM</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this blog">
+    <li>Tags:</li>
+
+    <li><a href="/tags/politics.html">Politics</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<h1><a name="a-brief-history-of-an-inconvenient-treaty"></a>A Brief History of an Inconvenient Treaty</h1>
+
+<p>Every few months, usually on social media, sometimes in earnest emails, I’m treated to an solemn declaration that the United States was founded as a <em>Christian</em> nation. And, inevitably, when I politely mention the <a href="https://en.wikipedia.org/wiki/Treaty_of_Tripoli" target="_blank">Treaty of Tripoli</a> <span class="fa fa-external-link fa_custom"></span>, ratified unanimously by the U.S. Senate in 1797, signed by President John Adams, and containing the following inconvenient sentence in Article 11:</p>
+
+<blockquote>
+  <p>The government of the United States of America is not, in any sense, founded on the Christian religion.</p>
+</blockquote>
+
+<p>... well, I’m informed that this line doesn’t count.</p>
+
+<p>You see, it’s <em>complicated</em>. Or <em>misunderstood</em>. Or <em>mistranslated</em>.</p>
+
+<p>Or the senators “didn’t realize it was there.”</p>
+
+<p>Or “it wasn’t public.”</p>
+
+<p>Or perhaps, one day, someone will suggest it was actually written by time-traveling French Freemasons with a grudge against George Washington.</p>
+
+<p>History can be so exciting.</p>
+
+<p>So let’s take a short walk through what actually happened, why the clause exists, and why every attempt to “explain it away” collapses as soon as you hold it up to the light.</p>
+
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="collapsible-trigger-1"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="collapsible-content-1"
+         aria-label="Expand: Read the text of the treaty ...">
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">Read the text of the treaty ...</span>
+    </div>
+    <div id="collapsible-content-1"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="collapsible-trigger-1">
+        <p><strong>Treaty of Peace and Friendship between the United States of America and the Bey and Subjects of Tripoli of Barbary.</strong></p>
+
+<p>ARTICLE 1.
+There is a firm and perpetual Peace and friendship between the United States of America and the Bey and subjects of Tripoli of Barbary, made by the free consent of both parties, and guaranteed by the most potent Dey &amp; regency of Algiers.</p>
+
+<p>ARTICLE 2.
+If any goods belonging to any nation with which either of the parties is at war shall be loaded on board of vessels belonging to the other party they shall pass free, and no attempt shall be made to take or detain them.</p>
+
+<p>ARTICLE 3.
+If any citizens, subjects or effects belonging to either party shall be found on board a prize vessel taken from an enemy by the other party, such citizens or subjects shall be set at liberty, and the effects restored to the owners.</p>
+
+<p>ARTICLE 4.
+Proper passports are to be given to all vessels of both parties, by which they are to be known. And, considering the distance between the two countries, eighteen months from the date of this treaty shall be allowed for procuring such passports. During this interval the other papers belonging to such vessels shall be sufficient for their protection.</p>
+
+<p>ARTICLE 5
+A citizen or subject of either party having bought a prize vessel condemned by the other party or by any other nation, the certificate of condemnation and bill of sale shall be a sufficient passport for such vessel for one year; this being a reasonable time for her to procure a proper passport.</p>
+
+<p>ARTICLE 6
+Vessels of either party putting into the ports of the other and having need of provissions or other supplies, they shall be furnished at the market price. And if any such vessel shall so put in from a disaster at sea and have occasion to repair, she shall be at liberty to land and reembark her cargo without paying any duties. But in no case shall she be compelled to land her cargo.</p>
+
+<p>ARTICLE 7.
+Should a vessel of either party be cast on the shore of the other, all proper assistance shall be given to her and her people; no pillage shall be allowed; the property shall remain at the disposition of the owners, and the crew protected and succoured till they can be sent to their country.</p>
+
+<p>ARTICLE 8.
+If a vessel of either party should be attacked by an enemy within gun-shot of the forts of the other she shall be defended as much as possible. If she be in port she shall not be seized or attacked when it is in the power of the other party to protect her. And when she proceeds to sea no enemy shall be allowed to pursue her from the same port within twenty four hours after her departure.</p>
+
+<p>ARTICLE 9.
+The commerce between the United States and Tripoli,-the protection to be given to merchants, masters of vessels and seamen,- the reciprocal right of establishing consuls in each country, and the privileges, immunities and jurisdictions to be enjoyed by such consuls, are declared to be on the same footing with those of the most favoured nations respectively.</p>
+
+<p>ARTICLE 10.
+The money and presents demanded by the Bey of Tripoli as a full and satisfactory consideration on his part and on the part of his subjects for this treaty of perpetual peace and friendship are acknowledged to have been recieved by him previous to his signing the same, according to a reciept which is hereto annexed, except such part as is promised on the part of the United States to be delivered and paid by them on the arrival of their Consul in Tripoly, of which part a note is likewise hereto annexed. And no presence of any periodical tribute or farther payment is ever to be made by either party.</p>
+
+<p>ARTICLE 11.
+As the government of the United States of America is not in any sense founded on the Christian Religion,-as it has in itself no character of enmity against the laws, religion or tranquility of Musselmen,-and as the said States never have entered into any war or act of hostility against any Mehomitan nation, it is declared by the parties that no pretext arising from religious opinions shall ever produce an interruption of the harmony existing between the two countries.</p>
+
+<p>ARTICLE 12.
+In case of any dispute arising from a notation of any of the articles of this treaty no appeal shall be made to arms, nor shall war be declared on any pretext whatever. But if the (consul residing at the place where the dispute shall happen shall not be able to settle the same, an amicable referrence shall be made to the mutual friend of the parties, the Dey of Algiers, the parties hereby engaging to abide by his decision. And he by virtue of his signature to this treaty engages for himself and successors to declare the justice of the case according to the true interpretation of the treaty, and to use all the means in his power to enforce the observance of the same.</p>
+
+<p>Signed and sealed at Tripoli of Barbary the 3d day of Jumad in the year of the Higera 1211-corresponding with the 4th day of Novr 1796 by</p>
+
+<ul>
+<li>JUSSUF BASHAW MAHOMET Bey</li>
+<li>SOLIMAN Kaya</li>
+<li>MAMET Treasurer</li>
+<li>GALIL Genl of the Troops</li>
+<li>AMET Minister of Marine</li>
+<li>MAHOMET Coml of the city</li>
+<li>AMET Chamberlain</li>
+<li>MAMET Secretary</li>
+<li>ALLY-Chief of the Divan</li>
+</ul>
+
+<p>Signed and sealed at Algiers the 4th day of Argib 1211-corresponding with the 3d day of January 1797 by</p>
+
+<p>HASSAN BASHAW Dey and by the Agent plenipotentiary of the United States of America [Seal] Joel BARLOW</p>
+
+    </div>
+</div>
+
+<h2><a name="the-senators-who-didnt-notice-the-clause"></a>The Senators Who “Didn’t Notice” the Clause</h2>
+
+<p>The Treaty of Tripoli was ratified by the Senate of the 5th Congress:</p>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Theodore_Sedgwick" target="_blank">Theodore Sedgwick</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://en.wikipedia.org/wiki/Stevens_T._Mason" target="_blank">Stevens Mason</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://en.wikipedia.org/wiki/Henry_Tazewell" target="_blank">Henry Tazewell</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://en.wikipedia.org/wiki/John_Eager_Howard" target="_blank">John Eager Howard</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://en.wikipedia.org/wiki/Benjamin_Goodhue" target="_blank">Benjamin Goodhue</a> <span class="fa fa-external-link fa_custom"></span></li>
+</ul>
+
+<p>Were they illiterate? Functionally comatose? Distracted by a 1790s version of TikTok?</p>
+
+<p>No.</p>
+
+<p>They read the treaty. They voted. They agreed. Unanimously.</p>
+
+<p>And because this was 1797 and there wasn’t much news to print, treaties were published in newspapers, along with the Treaty of Tripoli. The newspapers included the text of Article 11 ... and nobody said anything.</p>
+
+<p>Let me repeat that:</p>
+
+<p><strong>Nobody cared.</strong></p>
+
+<p>Not clerics, not politicians, not newspaper editors. The silence is deafening.</p>
+
+<p>If you want to argue that the United States was understood as a “Christian nation” in 1797, you now have to explain why not one person in that era found this sentence worth complaining about.</p>
+
+<p>Go ahead. I’ll wait.</p>
+
+<h2><a name="but-the-arabic-version-didnt-have-that-clause"></a>“But the Arabic Version Didn’t Have That Clause!”</h2>
+
+<p>This argument is usually delivered with the kind of triumphant flourish one reserves for revealing a surprise witness in a courtroom drama.</p>
+
+<p>Yes, the surviving Arabic text doesn’t contain Article 11, but there are three big problems with this argument:</p>
+
+<h3><a name="problem-1"></a>Problem 1:</h3>
+
+<p>Diplomatic treaties with North African states often didn’t match, word for word, across languages</p>
+
+<p>Multiple versions circulated; sometimes the American draft was longer. Sometimes the Arabic version was abridged. This was normal. The Department of Foreign Affairs (<a href="https://en.wikipedia.org/wiki/United_States_Department_of_State" target="_blank">a former name of the State Department</a> <span class="fa fa-external-link fa_custom"></span>), couldn’t easily email PDFs of treaties abroad. No one flew out for negotiations for amendments. Instead, ships spent weeks sailing back and forth and late 18th century US administrative procedures weren’t exactly, um, world class.</p>
+
+<h3><a name="problem-2"></a>Problem 2:</h3>
+
+<p>The U.S. Senate ratified the <em>English</em> version.</p>
+
+<p>The one with Article 11. The one everyone in America read. The one printed in newspapers.</p>
+
+<h3><a name="problem-3"></a>Problem 3:</h3>
+
+<p>People argue that the Arabic document we have is incomplete and ends abruptly.</p>
+
+<p>And their point is ...? Damned if I can figure it out.</p>
+
+<p>The Senate didn’t ratify the Arabic manuscript. They ratified the English text. They likely didn’t even know what was in the Arabic version. The attempt to wave Article 11 away by invoking missing Arabic lines is like claiming your mortgage isn’t binding because the Bank of America copy had coffee spilled on it.</p>
+
+<h2><a name="so-why-did-article-11-exist"></a>So Why Did Article 11 Exist?</h2>
+
+<p>Because the United States was negotiating with a Muslim state, and the diplomatic custom of the time was to assure such states that America had no religious quarrel with Islam.</p>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/joel-barlow.jpg" width="600" alt="A portrait of a very stereotypical 18th century statesman.">
+    <figcaption>Joel Barlow <a href="https://collections.discovernewfields.org/art/artwork/55337" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>And who wrote that clause? Probably <a href="https://en.wikipedia.org/wiki/Joel_Barlow" target="_blank">Joel Barlow</a> <span class="fa fa-external-link fa_custom"></span>, a poet, Enlightenment rationalist, ambassador, and also anti-slavery when anti-slavery wasn’t cool.</p>
+
+<p>Barlow didn’t add Article 11 because he wanted to destroy Christianity. He added it because:</p>
+
+<ul>
+<li>he understood the United States government had <strong>no established religion</strong>,</li>
+<li>and he wanted to emphasize a simple fact: <strong>The U.S. didn’t fight holy wars.</strong></li>
+</ul>
+
+<p>Europe might still have been winding down its centuries-long interfaith hobby of slaughtering one another, but the new American republic prided itself on separating church from state. Hence, no religous tests allowed by the US Constitution and a pretty damned explicit First Amendment<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
+
+<p>Barlow knew that. The Senate knew that. John Adams—no atheist—knew that. And nobody objected.</p>
+
+<h2><a name="but-surely-the-public-didnt-know-about-this-line"></a>“But surely the public didn’t know about this line!”</h2>
+
+<p>But surely they did.</p>
+
+<p>Early American newspapers were <strong>ferociously</strong> partisan and <strong>delighted</strong> to criticize the government for anything, including:</p>
+
+<ul>
+<li>being insufficiently Christian,</li>
+<li>being <em>too</em> Christian,</li>
+<li>breathing incorrectly in the direction of France or Britain,</li>
+<li>or, occasionally, existing at all.</li>
+</ul>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/anti-thomas-jefferson.jpeg" width="600" alt="Crude woodcut of an American Eagle attacking Thomas Jefferson">
+    <figcaption>Old woodcut attacking Thomas Jefferson for being &quot;pro French&quot; and &quot;anti Christian.&quot; <a href="https://www.americanyawp.com/reader/anti-thomas-jefferson-cartoon/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>If Federalists or Democratic-Republicans could have scored even a single political point by screaming, “The Adams administration just declared we’re not a Christian nation!” they would have pounced like  cats on a laser pointer.</p>
+
+<p>Instead? Crickets.</p>
+
+<p>That is not because the press was weak. It is because nobody in 1797 thought Article 11 contradicted American identity.</p>
+
+<p>The idea that the United States was founded as a Christian nation, in the modern political sense, is a much later invention.</p>
+
+<h2><a name="so-why-the-desperation-to-explain-it-away-today"></a>So Why the Desperation to Explain It Away Today?</h2>
+
+<p>Because Article 11 is inconvenient.</p>
+
+<p>It’s a clean, unambiguous sentence in a unanimously ratified treaty, signed by a Founding Father president, publicly circulated, widely printed, and uncontroversial in its own time.</p>
+
+<p>It’s a historical brick wall blocking the preferred narrative, so the only option is to try tunneling under it:</p>
+
+<ul>
+<li>“The senators didn’t read it!”</li>
+<li>“It wasn’t really public!”</li>
+<li>“The Arabic version is different!”</li>
+<li>“Maybe it was mistranslated!”</li>
+<li>“But America was really Christian—they just didn’t know it yet!”</li>
+</ul>
+
+<p>It’s admirable, in a way, like watching someone try to argue that “the Declaration of Independence doesn’t really say anything about independence,” because their cousin has a handwritten draft with some words crossed out.</p>
+
+<p>But the historical record is what it is.</p>
+
+<h1><a name="the-bottom-line"></a>The Bottom Line</h1>
+
+<p>In 1797, the U.S. government had no established religion, did not understand itself as Christian in any legal or institutional sense, and said so plainly to foreign powers when appropriate. This was because, if you’ll pardon me for being blisteringly obvious, many people fled <em>to</em> the new world to escape having a government dictate their faith.</p>
+
+<p>Only much later, long after memory had softened and myth had hardened, did Americans begin retrofitting a Christian-national identity onto the Founding Fathers, despite that being horrific to said fathers.</p>
+
+<p>And when those Americans encounter Article 11?</p>
+
+<p>Well... it’s difficult to build a myth on top of a document that says, “not in any sense founded on the Christian religion.”</p>
+
+<p>So the mythmakers improvise. Creatively. Heroically. Sometimes even entertainingly.</p>
+
+<p>But not historically.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "blog" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/blog/torturing-an-llm.html" class="prevPost">&laquo; Torturing an LLM</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai.html" data-weight="5">AI</a></li>
+
+    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+
+    <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+
+    <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+    <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/america-is-not-a-christian-nation.html";
+            this.page.identifier = "blog/america-is-not-a-christian-nation";
+            this.page.title      = "America is Not a Christian Nation";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div><strong>Congress shall make no law respecting an establishment of religion</strong>, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            <strong>Congress shall make no law respecting an establishment of religion</strong>, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
+</body>
+</html>
+
+
