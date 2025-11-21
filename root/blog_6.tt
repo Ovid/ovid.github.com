@@ -1,0 +1,31 @@
+[%
+    INCLUDE include/header.tt 
+    title         = 'Blog Entries by Ovid, page 6'
+    identifier    = 'blog_6'
+    canonical_url = "blog-all.html"
+%]
+
+<ul id="articles">
+    <li><a href="/blog/my-father.html">A Eulogy for My Father</a></li>
+</ul>
+
+<p><a href="/blog-all.html">All Blog Entries in a single page</a></p>
+
+<nav class="pagination">
+    <a href="/blog_5.html">&laquo;</a>
+    <a  href="/blog.html">1</a>
+    <a  href="/blog_2.html">2</a>
+    <a  href="/blog_3.html">3</a>
+    <a  href="/blog_4.html">4</a>
+    <a  href="/blog_5.html">5</a>
+    <a class="active" href="/blog_6.html">6</a>
+    <span class="inactive">&raquo;</span>
+</nav>
+[% IF 6 == 1 -%]
+<script>
+    var latestArticle  = document.getElementById("articles").firstElementChild.innerHTML;
+    document.getElementById("articles").firstElementChild.innerHTML = '<em>' + latestArticle + '</em> <span class="new">New!</span>'
+</script>
+[%- END %]
+
+[% INCLUDE include/footer.tt %]
