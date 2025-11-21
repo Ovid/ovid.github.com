@@ -98,16 +98,23 @@ This date will be displayed on the web page.
 
 If present, this will create an opengraph image that will be used by Facebook
 and other social media sites for displaying as a teaser image for the article.
-This must be an image in the `root/static/images/facebook` directory. For the
-size, 200 x 200 is the absolute minimum, [Facebook advises using an image
-that's at least 600 x 314
-pixels](https://developers.facebook.com/docs/sharing/best-practices#images).
-For the best display on high-resolution devices, the company suggests choosing
-an image that's at least 1200 x 630 pixels.
 
-      facebook_alt     = 'The planet Venus';
+# Live Editor
 
-This is the alt text that will be provided for the Facebook image.
+You can edit articles and blog posts using the live editor. This provides a side-by-side preview of your content as you type.
+
+    perl bin/launch path/to/article.tt
+
+## Options
+
+- `--port=N`: Bind the server to a specific port (default: 3000).
+
+## Image Uploads
+
+The editor includes an "Upload Image" feature in the header. You can upload PNG, GIF, or JPG images. They will be:
+1. Resized to fit within the configured maximum size (default 300KB).
+2. Saved to `root/static/images/`.
+3. Inserted into your document at the cursor position using the standard image include snippet.
 
 # CONFIGURATION
 

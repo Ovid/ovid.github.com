@@ -32,3 +32,30 @@ This command will:
 
 ## Stopping the Editor
 - Press `Ctrl+C` in the terminal running `bin/launch`. The CLI traps the signal, shuts down the child Dancer2 process, and exits cleanly.
+
+## Manual QA Verification (SC-003)
+
+To verify the implementation, perform the following checks:
+
+1.  **Launch with Defaults**:
+    - Run `perl bin/launch root/blog/my-post.tt`
+    - Verify server starts on port 3000.
+    - Verify browser does *not* open automatically.
+
+2.  **Launch with Flags**:
+    - Run `perl bin/launch root/blog/my-post.tt --open --port 3100`
+    - Verify server starts on port 3100.
+    - Verify browser opens automatically to `http://127.0.0.1:3100/`.
+
+3.  **Image Upload**:
+    - In the editor, click "Upload Image".
+    - Upload a PNG, GIF, and JPG image.
+    - Verify images are saved to `root/static/images/`.
+    - Verify the inserted snippet is correct: `[% INCLUDE include/image.tt ... %]`.
+    - Verify metadata (alt, caption, source) is correctly escaped in the snippet.
+    - Verify images larger than `max_image_size_bytes` are resized or rejected (depending on implementation details, here resized).
+
+4.  **Headless Environment**:
+    - If possible, run in a headless environment (e.g., Docker container).
+    - Run with `--open`.
+    - Verify warning is printed and server continues running.

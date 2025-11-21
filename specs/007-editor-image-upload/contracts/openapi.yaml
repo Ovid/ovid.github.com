@@ -58,6 +58,26 @@ paths:
           description: Missing file or content parameter
         '500':
           description: Disk write failure
+  /health:
+    get:
+      summary: Check server readiness
+      responses:
+        '200':
+          description: Server is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: integer
+                    example: 1
+                  file:
+                    type: string
+                    description: The file currently being edited
+                  timestamp:
+                    type: integer
+                    description: Unix timestamp
   /api/upload-image:
     post:
       summary: Upload, resize, and save an image asset, returning the snippet to insert
@@ -115,55 +135,3 @@ paths:
                 type: string
         '500':
           description: Build failure (error message returned as text/plain)
-  /health:
-    get:
-      summary: Lightweight readiness probe used by `bin/launch --open`
-      responses:
-        '200':
-          description: JSON payload with `ok: true` and target file metadata
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                  file:
-                    type: string
-                  timestamp:
-                    type: string
-                    format: date-time
-components:
-  schemas:
-    UploadResponse:
-      type: object
-      properties:
-        snippet:
-          type: string
-          description: Template Toolkit block ready to insert at caret
-        savedPath:
-          type: string
-          description: Absolute filesystem path to the stored image
-        publicSrc:
-          type: string
-          description: `/static/images/<filename>` path used in HTML
-        metadata:
-          type: object
-          properties:
-            alt:
-              type: string
-            caption:
-              type: string
-            source:
-              type: string
-        bytes:
-          type: integer
-          description: Final file size after resizing
-        dimensions:
-          type: object
-          properties:
-            width:
-              type: integer
-            height:
-              type: integer
-      required: [snippet, publicSrc, bytes]

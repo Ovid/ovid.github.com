@@ -69,13 +69,13 @@ description: "Task list for implementing editor image upload & launch enhancemen
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T011 [US2] Expand `t/bin/launch.t` to simulate `--open`, asserting Browser::Open is called once after `/health` passes and that headless environments emit a warning instead of failing.
+- [x] T011 [US2] Expand `t/bin/launch.t` to simulate `--open`, asserting Browser::Open is called once after `/health` passes and that headless environments emit a warning instead of failing.
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Add an `--open` flag to `bin/launch`, including headless detection, ensuring Browser::Open fires once per invocation, and logging failures without killing the server.
-- [ ] T013 [US2] Implement a lightweight `GET /health` route in `lib/Ovid/App/LiveEditor.pm` that reports `{ ok => 1, file => ..., timestamp => ... }` for readiness polling.
-- [ ] T014 [US2] Teach `bin/launch` to poll `http://127.0.0.1:<port>/health`, handle already-running servers gracefully, and only invoke Browser::Open after the poll succeeds.
+- [x] T012 [US2] Add an `--open` flag to `bin/launch`, including headless detection, ensuring Browser::Open fires once per invocation, and logging failures without killing the server.
+- [x] T013 [US2] Implement a lightweight `GET /health` route in `lib/Ovid/App/LiveEditor.pm` that reports `{ ok => 1, file => ..., timestamp => ... }` for readiness polling.
+- [x] T014 [US2] Teach `bin/launch` to poll `http://127.0.0.1:<port>/health`, handle already-running servers gracefully, and only invoke Browser::Open after the poll succeeds.
 
 **Checkpoint**: CLI auto-opens the browser reliably and communicates gracefully when display access is unavailable.
 
@@ -89,12 +89,12 @@ description: "Task list for implementing editor image upload & launch enhancemen
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T015 [US3] Extend `t/bin/launch.t` to cover valid/invalid `--port` values, conflict detection, and combinations with `--open`.
+- [x] T015 [US3] Extend `t/bin/launch.t` to cover valid/invalid `--port` values, conflict detection, and combinations with `--open`.
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Add `--port` parsing and validation (1024-65535 defaulting to 3000) to `bin/launch`, emitting actionable errors for out-of-range input.
-- [ ] T017 [US3] Update `bin/launch` to probe port availability before forking, bind the server to the requested port, and propagate the override to Browser::Open URLs and CLI messaging.
+- [x] T016 [US3] Add `--port` parsing and validation (1024-65535 defaulting to 3000) to `bin/launch`, emitting actionable errors for out-of-range input.
+- [x] T017 [US3] Update `bin/launch` to probe port availability before forking, bind the server to the requested port, and propagate the override to Browser::Open URLs and CLI messaging.
 
 **Checkpoint**: Launch command honors caller-selected ports and prevents conflicts before startup.
 
@@ -104,10 +104,10 @@ description: "Task list for implementing editor image upload & launch enhancemen
 
 **Purpose**: Align documentation and contracts with the delivered behavior.
 
-- [ ] T018 [P] Document `--open`, `--port`, and the upload workflow in `README.md`, including headless caveats and config instructions.
-- [ ] T019 [P] Refresh `specs/007-editor-image-upload/quickstart.md` steps to reflect the final CLI flags and modal behavior.
-- [ ] T020 [P] Update `specs/007-editor-image-upload/contracts/openapi.yaml` with the final response shapes for `/api/upload-image` and `/health` (bytes, dimensions, status codes).
-- [ ] T021 [P] Document the SC-003 manual QA run in `specs/007-editor-image-upload/quickstart.md`, covering PNG/GIF/JPG uploads with metadata proofs (screenshots or log excerpts) and noting any discrepancies for follow-up.
+- [x] T018 [P] Document `--open`, `--port`, and the upload workflow in `README.md`, including headless caveats and config instructions.
+- [x] T019 [P] Refresh `specs/007-editor-image-upload/quickstart.md` steps to reflect the final CLI flags and modal behavior.
+- [x] T020 [P] Update `specs/007-editor-image-upload/contracts/openapi.yaml` with the final response shapes for `/api/upload-image` and `/health` (bytes, dimensions, status codes).
+- [x] T021 [P] Document the SC-003 manual QA run in `specs/007-editor-image-upload/quickstart.md`, covering PNG/GIF/JPG uploads with metadata proofs (screenshots or log excerpts) and noting any discrepancies for follow-up.
 
 ---
 
