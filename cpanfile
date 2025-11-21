@@ -32,6 +32,7 @@ requires 'HTML::SimpleLinkExtor'         => 1.273;
 requires 'HTML::TokeParser::Simple'      => 3.16;
 requires 'HTTP::Message'                 => 7.01;
 requires 'HTTP::Tiny::Mech'              => 1.001002;
+requires 'Imager'                        => 0;
 requires 'IPC::Run'                      => 20250809.0;
 requires 'IPC::System::Simple'           => 1.30;
 requires 'Import::Into'                  => 1.002005;

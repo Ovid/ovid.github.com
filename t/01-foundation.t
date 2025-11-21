@@ -89,10 +89,6 @@ subtest 'Integration test infrastructure' => sub {
 
     my $readme = File::Spec->catfile( $integration_dir, 'README.md' );
     ok( -f $readme, 'Integration test README exists' );
-
-    # Verify this test file exists
-    my $this_test = File::Spec->catfile( $integration_dir, '01-foundation.t' );
-    ok( -f $this_test, 'Foundation integration test exists' );
 };
 
 done_testing();

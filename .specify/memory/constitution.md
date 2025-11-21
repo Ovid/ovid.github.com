@@ -205,6 +205,7 @@ my $code = "syntax highlighted";
 
 - `articles/`, `blog/`, `tags/`: Generated HTML output (created by `bin/rebuild`)
 - `static/`, `css/`, `images/`: User-managed assets (uploaded by content authors)
+  - **Exception**: User-triggered workflows (e.g., the live editor upload modal or approved CLI flags) may write new assets under `static/` or `images/`. Automated tests, build scripts, and agent-driven maintenance tasks MUST still avoid modifying or deleting these directories.
 - `db/`: Production databases (see Principle VI - Production Data Protection)
 - `tmp/`, `cover_db/`, `coverage-report/`: Build artifacts and reports
 - `fixtures/`, `t/`: Test infrastructure (modified only when adding/updating tests)

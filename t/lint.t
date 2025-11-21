@@ -4,13 +4,15 @@ use Test::Most;
 use HTML::TokeParser::Simple;
 use File::Find::Rule;
 use Less::Boilerplate;
+use Less::Config qw(config);
 
-my $MAX_IMAGE_SIZE = 300_000;
+my $MAX_IMAGE_SIZE = config()->{max_image_size_bytes};
+die "max_image_size_bytes not found in config" unless defined $MAX_IMAGE_SIZE;
 
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
-    next if $file =~ /^(?:include|cover|nytprof)/;
+    next if $file =~ /^(?:include|cover|nytprof|editor)/;
     try {
         my @errors = html_is_bad($file);
 

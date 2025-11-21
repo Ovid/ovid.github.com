@@ -16,7 +16,13 @@ sub config () {
             },
         }
     );
-    return $config->[0]{$file};
+    my $conf = $config->[0]{$file};
+
+    unless ( defined $conf->{max_image_size_bytes} && $conf->{max_image_size_bytes} =~ /^\d+$/ ) {
+        die "max_image_size_bytes must be defined and be an integer in $file";
+    }
+
+    return $conf;
 }
 
 1;
