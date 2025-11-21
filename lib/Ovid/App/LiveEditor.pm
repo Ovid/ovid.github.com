@@ -120,6 +120,10 @@ post '/api/upload-image' => sub {
         status 400;
         return to_json( { error => 'Filename is required' } );
     }
+    unless ($alt) {
+        status 400;
+        return to_json( { error => 'Alt text is required' } );
+    }
 
     my $result = Ovid::Util::Image->process(
         upload    => $upload,
@@ -149,11 +153,15 @@ post '/api/upload-image' => sub {
     my $esc_caption = _escape_tt( $caption // '' );
     my $esc_source  = _escape_tt( $source // '' );
 
-    my $snippet = qq{[% INCLUDE include/image.tt src="$esc_src"};
-    $snippet .= qq{ alt="$esc_alt"}         if length $esc_alt;
-    $snippet .= qq{ caption="$esc_caption"} if length $esc_caption;
-    $snippet .= qq{ source="$esc_source"}   if length $esc_source;
-    $snippet .= qq{ %]};
+    my $snippet = <<~"EOF";
+    [% INCLUDE include/image.tt
+       src      = "$esc_src"
+       source   = "$esc_source"
+       align    = "center" 
+       alt      = "$esc_alt"
+       caption  = "$esc_caption"
+    %]
+    EOF
 
     content_type 'application/json';
     return to_json(

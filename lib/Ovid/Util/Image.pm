@@ -20,14 +20,20 @@ sub process ( $class, %args ) {
     my $target_dir = $root->child('static/images');
     $target_dir->mkpath unless $target_dir->exists;
 
+    # Also copy to static/images in project root
+    my $project_root = path('.')->absolute;
+    my $static_dir   = $project_root->child('static/images');
+    $static_dir->mkpath unless $static_dir->exists;
+
     my $target_file = $target_dir->child($filename);
+    my $static_file = $static_dir->child($filename);
 
     # Security check: Ensure filename doesn't traverse directories
     if ( $filename =~ m{/|\\} || $filename eq '.' || $filename eq '..' ) {
         return { success => 0, code => 'invalid_filename', error => 'Invalid filename' };
     }
 
-    if ( $target_file->exists && !$overwrite ) {
+    if ( ( $target_file->exists || $static_file->exists ) && !$overwrite ) {
         return { success => 0, code => 'exists', error => 'File exists' };
     }
 
@@ -61,6 +67,7 @@ sub process ( $class, %args ) {
 
     if ( $size <= $max_bytes ) {
         $upload->copy_to( $target_file->stringify );
+        $target_file->copy( $static_file->stringify );
         return { success => 1, path => "/static/images/$filename" };
     }
 
@@ -111,6 +118,7 @@ sub process ( $class, %args ) {
 
         if ( length($out_data) <= $max_bytes ) {
             $target_file->spew_raw($out_data);
+            $static_file->spew_raw($out_data);
             return { success => 1, path => "/static/images/$filename" };
         }
 
