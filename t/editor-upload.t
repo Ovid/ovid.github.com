@@ -52,6 +52,7 @@ subtest 'Upload success' => sub {
       Content      => [
         image    => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
         filename => 'test.png',
+        alt      => 'Test image',
       ];
 
     my $res = $test->request($req);
@@ -79,6 +80,7 @@ subtest 'Overwrite rejection' => sub {
       Content      => [
         image    => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
         filename => 'test.png',
+        alt      => 'Test image',
       ];
 
     my $res = $test->request($req);
@@ -108,6 +110,7 @@ subtest 'MIME filtering' => sub {
       Content      => [
         image    => [ undef, 'test.txt', Content_Type => 'text/plain', Content => 'text' ],
         filename => 'test.txt',
+        alt      => 'Test image',
       ];
 
     my $res = $test->request($req);
@@ -134,6 +137,7 @@ subtest 'Config-sized failures' => sub {
       Content      => [
         image    => [ undef, 'huge.png', Content_Type => 'image/png', Content => 'huge' ],
         filename => 'huge.png',
+        alt      => 'Test image',
       ];
 
     my $res = $test->request($req);
