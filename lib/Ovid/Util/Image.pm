@@ -68,9 +68,9 @@ sub process ( $class, %args ) {
     my $quality      = 80;    # Start with 80% quality for JPEG
     my $scale        = 1.0;
     my $attempts     = 0;
-    my $max_attempts = 10;
+    my $max_attempts = 20;
 
-    my $data;
+    my $out_data;
     my $format = $filename =~ /\.png$/i ? 'png' : ( $filename =~ /\.gif$/i ? 'gif' : 'jpeg' );
 
     while ( $attempts < $max_attempts ) {
@@ -96,10 +96,13 @@ sub process ( $class, %args ) {
         }
 
         # Try to write to memory to check size
-        my $out_data;
+        $out_data = undef;
         my %write_args = ( data => \$out_data, type => $format );
         if ( $format eq 'jpeg' ) {
             $write_args{jpegquality} = $quality;
+        }
+        elsif ( $format eq 'png' ) {
+            $write_args{pngcompressionlevel} = 9;
         }
 
         $img->write(%write_args) or do {
@@ -122,7 +125,11 @@ sub process ( $class, %args ) {
 
     return {
         success => 0, code => 'too_large',
-        error   => "Unable to compress image below " . ( $max_bytes / 1000 ) . "KB"
+        error   => "Unable to compress image below "
+          . ( $max_bytes / 1000 )
+          . "KB. Final size: "
+          . ( length($out_data) / 1000 )
+          . "KB after $attempts attempts."
     };
 }
 
