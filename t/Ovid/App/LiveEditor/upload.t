@@ -50,7 +50,7 @@ subtest 'Upload success' => sub {
     my $req = POST '/api/upload-image',
       Content_Type => 'form-data',
       Content      => [
-        file     => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
+        image    => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
         filename => 'test.png',
       ];
 
@@ -77,7 +77,7 @@ subtest 'Overwrite rejection' => sub {
     my $req = POST '/api/upload-image',
       Content_Type => 'form-data',
       Content      => [
-        file     => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
+        image    => [ undef, 'test.png', Content_Type => 'image/png', Content => 'fakeimage' ],
         filename => 'test.png',
       ];
 
@@ -106,7 +106,7 @@ subtest 'MIME filtering' => sub {
     my $req = POST '/api/upload-image',
       Content_Type => 'form-data',
       Content      => [
-        file     => [ undef, 'test.txt', Content_Type => 'text/plain', Content => 'text' ],
+        image    => [ undef, 'test.txt', Content_Type => 'text/plain', Content => 'text' ],
         filename => 'test.txt',
       ];
 
@@ -132,7 +132,7 @@ subtest 'Config-sized failures' => sub {
     my $req = POST '/api/upload-image',
       Content_Type => 'form-data',
       Content      => [
-        file     => [ undef, 'huge.png', Content_Type => 'image/png', Content => 'huge' ],
+        image    => [ undef, 'huge.png', Content_Type => 'image/png', Content => 'huge' ],
         filename => 'huge.png',
       ];
 

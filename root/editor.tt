@@ -211,7 +211,10 @@
         <div id="editor-pane">
             <header style="flex-direction: column; align-items: flex-start;">
                 <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;">
-                    <button id="change-file-btn" style="padding: 4px 8px; font-size: 12px;">Change File</button>
+                    <div>
+                        <button id="change-file-btn" style="padding: 4px 8px; font-size: 12px;">Change File</button>
+                        <button id="upload-image-btn" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;">Upload Image</button>
+                    </div>
                     <div>
                         <span id="status"></span>
                         <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
@@ -241,6 +244,53 @@
             </div>
             <input type="text" id="file-search" placeholder="Search files...">
             <ul id="file-list"></ul>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div id="upload-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 100; justify-content: center; align-items: center;">
+        <div id="upload-modal" style="background: var(--modal-bg); width: 500px; max-height: 90vh; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; flex-direction: column; color: var(--text-color);">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 18px;">Upload Image</h2>
+                <button id="upload-modal-close" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color);">&times;</button>
+            </div>
+            <div style="padding: 20px; overflow-y: auto;">
+                <form id="upload-form">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">File</label>
+                        <input type="file" id="upload-file" accept="image/png, image/jpeg, image/gif" style="width: 100%;">
+                        <div id="upload-preview" style="margin-top: 10px; max-width: 100%; max-height: 200px; overflow: hidden; display: none;">
+                            <img src="" style="max-width: 100%; height: auto; border: 1px solid var(--border-color);">
+                            <div id="upload-info" style="font-size: 12px; color: var(--status-color); margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Filename (required)</label>
+                        <input type="text" id="upload-filename" placeholder="e.g., my-image.png" style="width: 100%; padding: 8px; box-sizing: border-box; background: var(--textarea-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Source URL (optional)</label>
+                        <input type="text" id="upload-source" placeholder="https://..." style="width: 100%; padding: 8px; box-sizing: border-box; background: var(--textarea-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Alt Text (optional)</label>
+                        <input type="text" id="upload-alt" placeholder="Description for screen readers" style="width: 100%; padding: 8px; box-sizing: border-box; background: var(--textarea-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Caption (optional)</label>
+                        <input type="text" id="upload-caption" placeholder="Image caption" style="width: 100%; padding: 8px; box-sizing: border-box; background: var(--textarea-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div id="upload-overwrite-container" style="margin-bottom: 15px; display: none; background: #fff3cd; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba; color: #856404;">
+                        <label>
+                            <input type="checkbox" id="upload-overwrite"> <strong>File exists. Overwrite?</strong>
+                        </label>
+                    </div>
+                    <div id="upload-error" style="margin-bottom: 15px; color: #dc3545; display: none;"></div>
+                    <div style="text-align: right;">
+                        <button type="submit" id="upload-submit-btn">Save & Insert</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <script>
@@ -473,6 +523,130 @@
                 // Remove overlay
                 const overlay = document.getElementById('drag-overlay');
                 if (overlay) overlay.remove();
+            }
+        });
+
+        // Upload Modal Logic
+        const uploadBtn = document.getElementById('upload-image-btn');
+        const uploadModalOverlay = document.getElementById('upload-modal-overlay');
+        const uploadModalClose = document.getElementById('upload-modal-close');
+        const uploadForm = document.getElementById('upload-form');
+        const uploadFile = document.getElementById('upload-file');
+        const uploadFilename = document.getElementById('upload-filename');
+        const uploadPreview = document.getElementById('upload-preview');
+        const uploadPreviewImg = uploadPreview.querySelector('img');
+        const uploadInfo = document.getElementById('upload-info');
+        const uploadOverwriteContainer = document.getElementById('upload-overwrite-container');
+        const uploadOverwrite = document.getElementById('upload-overwrite');
+        const uploadError = document.getElementById('upload-error');
+
+        uploadBtn.addEventListener('click', () => {
+            uploadModalOverlay.style.display = 'flex';
+            uploadForm.reset();
+            uploadPreview.style.display = 'none';
+            uploadOverwriteContainer.style.display = 'none';
+            uploadError.style.display = 'none';
+            uploadError.textContent = '';
+        });
+
+        const closeUploadModal = () => {
+            uploadModalOverlay.style.display = 'none';
+        };
+
+        uploadModalClose.addEventListener('click', closeUploadModal);
+        uploadModalOverlay.addEventListener('click', (e) => {
+            if (e.target === uploadModalOverlay) closeUploadModal();
+        });
+
+        uploadFile.addEventListener('change', () => {
+            const file = uploadFile.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        document.addEventListener('paste', (e) => {
+            if (uploadModalOverlay.style.display === 'flex') {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        handleFileSelect(file);
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        uploadFile.files = dataTransfer.files;
+                    }
+                }
+            }
+        });
+
+        function handleFileSelect(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadPreviewImg.src = e.target.result;
+                uploadPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            uploadInfo.textContent = `Type: ${file.type}, Size: ${(file.size / 1024).toFixed(2)} KB`;
+            if (!uploadFilename.value) {
+                let name = file.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\.\-_]/g, '');
+                uploadFilename.value = name;
+            }
+        }
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            uploadError.style.display = 'none';
+            uploadError.textContent = '';
+
+            const formData = new FormData();
+            const file = uploadFile.files[0];
+            
+            if (!file) {
+                uploadError.textContent = 'Please select an image.';
+                uploadError.style.display = 'block';
+                return;
+            }
+
+            formData.append('image', file);
+            formData.append('filename', uploadFilename.value);
+            formData.append('source', document.getElementById('upload-source').value);
+            formData.append('alt', document.getElementById('upload-alt').value);
+            formData.append('caption', document.getElementById('upload-caption').value);
+            if (uploadOverwrite.checked) {
+                formData.append('overwrite', '1');
+            }
+
+            try {
+                const response = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (editor) {
+                        const doc = editor.getDoc();
+                        const cursor = doc.getCursor();
+                        doc.replaceRange(result.snippet, cursor);
+                    } else {
+                        textarea.value += result.snippet;
+                    }
+                    closeUploadModal();
+                    refreshBtn.click();
+                } else if (response.status === 409) {
+                    uploadOverwriteContainer.style.display = 'block';
+                    uploadError.textContent = 'File exists. Check the box to overwrite.';
+                    uploadError.style.display = 'block';
+                } else {
+                    uploadError.textContent = result.error || 'Upload failed.';
+                    uploadError.style.display = 'block';
+                }
+            } catch (err) {
+                uploadError.textContent = 'Network error: ' + err.message;
+                uploadError.style.display = 'block';
             }
         });
     </script>

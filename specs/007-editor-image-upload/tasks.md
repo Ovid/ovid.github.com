@@ -53,9 +53,9 @@ description: "Task list for implementing editor image upload & launch enhancemen
 ### Implementation for User Story 1
 
 - [x] T007 [P] [US1] Introduce `lib/Ovid/Util/Image.pm` (or similar) to validate filenames, call Imager for resizing/compression, and persist files under `root/static/images/` while respecting temp dirs during tests.
-- [ ] T008 [US1] Extend `lib/Ovid/App/LiveEditor.pm` with a `POST /api/upload-image` route that streams uploads, uses the image helper, escapes metadata, prompts for overwrite via status codes, and returns the snippet/public paths defined in contracts/openapi.yaml.
-- [ ] T009 [P] [US1] Update `root/editor.tt` header markup to add the "Upload Image" button, modal structure, and accessible form fields (filename, source, alt, caption, overwrite confirmation UI).
-- [ ] T010 [US1] Implement the accompanying JavaScript in `root/editor.tt` to handle file selection or clipboard paste, call the API, manage overwrite prompts, surface error/success notifications, and insert the snippet at the current cursor position.
+- [x] T008 [US1] Extend `lib/Ovid/App/LiveEditor.pm` with a `POST /api/upload-image` route that streams uploads, uses the image helper, escapes metadata, prompts for overwrite via status codes, and returns the snippet/public paths defined in contracts/openapi.yaml.
+- [x] T009 [P] [US1] Update `root/editor.tt` header markup to add the "Upload Image" button, modal structure, and accessible form fields (filename, source, alt, caption, overwrite confirmation UI).
+- [x] T010 [US1] Implement the accompanying JavaScript in `root/editor.tt` to handle file selection or clipboard paste, call the API, manage overwrite prompts, surface error/success notifications, and insert the snippet at the current cursor position.
 
 **Checkpoint**: Upload flow stores assets under the byte limit, and the editor inserts the escaped snippet automatically.
 

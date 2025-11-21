@@ -7,6 +7,7 @@ use Template;
 use Ovid::Site;
 use Capture::Tiny qw(capture);
 use Less::Config ();
+use Ovid::Util::Image;
 
 our $VERSION = '0.1';
 
@@ -99,8 +100,75 @@ post '/api/save' => sub {
         return "Error saving file: $@";
     }
 
-    return "Saved";
+    return "File saved successfully.";
 };
+
+post '/api/upload-image' => sub {
+    my $upload = request->upload('image');
+    unless ($upload) {
+        status 400;
+        return to_json( { error => 'No image uploaded' } );
+    }
+
+    my $filename  = body_parameters->get('filename');
+    my $overwrite = body_parameters->get('overwrite') ? 1 : 0;
+    my $source    = body_parameters->get('source');
+    my $alt       = body_parameters->get('alt');
+    my $caption   = body_parameters->get('caption');
+
+    unless ($filename) {
+        status 400;
+        return to_json( { error => 'Filename is required' } );
+    }
+
+    my $result = Ovid::Util::Image->process(
+        upload    => $upload,
+        filename  => $filename,
+        overwrite => $overwrite,
+    );
+
+    unless ( $result->{success} ) {
+        if ( $result->{code} eq 'exists' ) {
+            status 409;
+        }
+        elsif ( $result->{code} eq 'invalid_type' ) {
+            status 415;
+        }
+        elsif ( $result->{code} eq 'too_large' ) {
+            status 413;
+        }
+        else {
+            status 400;
+        }
+        return to_json( { error => $result->{error}, code => $result->{code} } );
+    }
+
+    # Escape values for TT double-quoted strings
+    my $esc_src     = _escape_tt( $result->{path} );
+    my $esc_alt     = _escape_tt( $alt // '' );
+    my $esc_caption = _escape_tt( $caption // '' );
+    my $esc_source  = _escape_tt( $source // '' );
+
+    my $snippet = qq{[% INCLUDE include/image.tt src="$esc_src"};
+    $snippet .= qq{ alt="$esc_alt"}         if length $esc_alt;
+    $snippet .= qq{ caption="$esc_caption"} if length $esc_caption;
+    $snippet .= qq{ source="$esc_source"}   if length $esc_source;
+    $snippet .= qq{ %]};
+
+    content_type 'application/json';
+    return to_json(
+        {
+            snippet => $snippet,
+            path    => $result->{path},
+        }
+    );
+};
+
+sub _escape_tt {
+    my $str = shift;
+    $str =~ s/"/&quot;/g;
+    return $str;
+}
 
 get '/preview' => sub {
     my ($file, $error) = _get_target_file();
