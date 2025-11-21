@@ -22,8 +22,8 @@ description: "Task list for implementing editor image upload & launch enhancemen
 
 **Purpose**: Prepare shared configuration and dependencies required across the feature.
 
-- [ ] T001 Add `max_image_size_bytes: 300000` plus explanatory comment to `config/ovid.yaml` so linting and uploads share one limit.
-- [ ] T002 [P] Ensure `Imager` and `Browser::Open` runtime dependencies are declared (or updated) in `cpanfile` for installation.
+- [x] T001 Add `max_image_size_bytes: 300000` plus explanatory comment to `config/ovid.yaml` so linting and uploads share one limit.
+- [x] T002 [P] Ensure `Imager` and `Browser::Open` runtime dependencies are declared (or updated) in `cpanfile` for installation.
 
 ---
 
@@ -33,7 +33,7 @@ description: "Task list for implementing editor image upload & launch enhancemen
 **⚠️ CRITICAL**: No user story work may begin until this phase is complete.
 
 - [ ] T003 Add a `max_image_size_bytes` accessor and validation in `lib/Less/Config.pm`, returning an integer for downstream consumers.
-- [ ] T004 Update `lib/Ovid/App/LiveEditor.pm` bootstrap to load `Less::Config->max_image_size_bytes` once and stash it in the Dancer app config for reuse.
+- [ ] T004 Update `lib/Ovid/App/LiveEditor.pm` bootstrap to load `Less::Config qw(config)` and use `config()->{max_image_size_bytes}` once and stash it in the Dancer app config for reuse.
 - [ ] T005 Replace the hard-coded `MAX_IMAGE_SIZE` in `t/lint.t` with the config-driven value (fail test if config is missing) to enforce single source of truth.
 
 **Checkpoint**: Config limit exposed and enforced project-wide; user stories can now begin.
