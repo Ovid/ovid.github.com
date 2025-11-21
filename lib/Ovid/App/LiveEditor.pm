@@ -6,11 +6,13 @@ use Path::Tiny;
 use Template;
 use Ovid::Site;
 use Capture::Tiny qw(capture);
+use Less::Config ();
 
 our $VERSION = '0.1';
 
 set views => 'root';
 set template => 'template_toolkit';
+set max_image_size_bytes => Less::Config::config()->{max_image_size_bytes};
 
 sub _get_target_file {
     my $file_param = query_parameters->get('file') // body_parameters->get('file');

@@ -36,6 +36,10 @@ subtest 'config structure and common keys' => sub {
     if ( exists $config->{tagmap} ) {
         isa_ok $config->{tagmap}, 'HASH', 'tagmap should be a hash reference';
     }
+
+    # Test max_image_size_bytes
+    ok exists $config->{max_image_size_bytes}, 'Config should contain max_image_size_bytes key';
+    like $config->{max_image_size_bytes}, qr/^\d+$/, 'max_image_size_bytes should be an integer';
 };
 
 subtest 'config caching and consistency' => sub {

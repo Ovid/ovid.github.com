@@ -32,9 +32,9 @@ description: "Task list for implementing editor image upload & launch enhancemen
 **Purpose**: Centralize configuration access so subsequent stories can rely on a single MAX_IMAGE_SIZE source.
 **⚠️ CRITICAL**: No user story work may begin until this phase is complete.
 
-- [ ] T003 Add a `max_image_size_bytes` accessor and validation in `lib/Less/Config.pm`, returning an integer for downstream consumers.
-- [ ] T004 Update `lib/Ovid/App/LiveEditor.pm` bootstrap to load `Less::Config qw(config)` and use `config()->{max_image_size_bytes}` once and stash it in the Dancer app config for reuse.
-- [ ] T005 Replace the hard-coded `MAX_IMAGE_SIZE` in `t/lint.t` with the config-driven value (fail test if config is missing) to enforce single source of truth.
+- [x] T003 Add a `max_image_size_bytes` accessor and validation in `lib/Less/Config.pm`, returning an integer for downstream consumers.
+- [x] T004 Update `lib/Ovid/App/LiveEditor.pm` bootstrap to load `Less::Config qw(config)` and use `config()->{max_image_size_bytes}` once and stash it in the Dancer app config for reuse.
+- [x] T005 Replace the hard-coded `MAX_IMAGE_SIZE` in `t/lint.t` with the config-driven value (fail test if config is missing) to enforce single source of truth.
 
 **Checkpoint**: Config limit exposed and enforced project-wide; user stories can now begin.
 
