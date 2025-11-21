@@ -11,6 +11,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-09
 - SQLite (build-time data only, in `db/ovid.db`) (005-utf8-rebuild-warnings)
 - Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog (006-blogdown-live-editor)
 - Filesystem (source files), SQLite (read-only build data) (006-blogdown-live-editor)
+- Perl 5.40+ + Dancer2, Template Toolkit 2, Browser::Open, Imager (for PNG/GIF/JPG resizing) (007-editor-image-upload)
+- Filesystem (root/, static/), YAML config via `Less::Config`, SQLite read-only for builds (007-editor-image-upload)
 
 - Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
@@ -74,9 +76,9 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
+- 007-editor-image-upload: Added Perl 5.40+ + Dancer2, Template Toolkit 2, Browser::Open, Imager (for PNG/GIF/JPG resizing)
 - 006-blogdown-live-editor: Added Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog
 - 006-blogdown-live-editor: Added Perl 5.40+ + Dancer2, Template::Toolkit, Text::Markdown::Blog
-- 006-blogdown-live-editor: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 
 
 <!-- MANUAL ADDITIONS START -->

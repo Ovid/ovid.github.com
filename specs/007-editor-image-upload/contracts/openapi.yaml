@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: Editor Image Upload & Launch API
+  version: 1.0.0
+  description: >-
+    Local Dancer2 application that powers the live editor, upload modal, and CLI
+    launch workflow.
+servers:
+  - url: http://127.0.0.1:{port}
+    description: Local dev server started via `bin/launch`
+    variables:
+      port:
+        default: '3000'
+paths:
+  /:
+    get:
+      summary: Render the editor UI
+      responses:
+        '200':
+          description: HTML editor shell containing textarea + preview
+          content:
+            text/html:
+              schema:
+                type: string
+  /api/files:
+    get:
+      summary: List template files under `root/` for the file picker modal
+      responses:
+        '200':
+          description: JSON array of relative file paths
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/save:
+    post:
+      summary: Persist the editor content to disk
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: Absolute or project-relative path being edited
+                content:
+                  type: string
+                  description: Raw TT/Markdown markup to save
+              required: [file, content]
+      responses:
+        '200':
+          description: File saved successfully
+        '400':
+          description: Missing file or content parameter
+        '500':
+          description: Disk write failure
+  /api/upload-image:
+    post:
+      summary: Upload, resize, and save an image asset, returning the snippet to insert
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: PNG/GIF/JPG bytes selected or pasted by the user
+                filename:
+                  type: string
+                  description: Destination filename (no directories)
+                source:
+                  type: string
+                  description: Optional citation URL
+                alt:
+                  type: string
+                  description: Optional alt text
+                caption:
+                  type: string
+                  description: Optional caption text
+                overwrite:
+                  type: boolean
+                  description: Required true when replacing an existing file
+              required: [image, filename]
+      responses:
+        '200':
+          description: Image stored and snippet returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: Validation failure (bad filename, missing data)
+        '409':
+          description: Destination exists and overwrite flag not set
+        '413':
+          description: Input exceeds `max_image_size_bytes` even after resizing
+        '415':
+          description: Unsupported MIME type
+  /preview:
+    get:
+      summary: Return the rendered HTML for the currently edited file
+      responses:
+        '200':
+          description: Rendered HTML snippet
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          description: Build failure (error message returned as text/plain)
+  /health:
+    get:
+      summary: Lightweight readiness probe used by `bin/launch --open`
+      responses:
+        '200':
+          description: JSON payload with `ok: true` and target file metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  file:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+components:
+  schemas:
+    UploadResponse:
+      type: object
+      properties:
+        snippet:
+          type: string
+          description: Template Toolkit block ready to insert at caret
+        savedPath:
+          type: string
+          description: Absolute filesystem path to the stored image
+        publicSrc:
+          type: string
+          description: `/static/images/<filename>` path used in HTML
+        metadata:
+          type: object
+          properties:
+            alt:
+              type: string
+            caption:
+              type: string
+            source:
+              type: string
+        bytes:
+          type: integer
+          description: Final file size after resizing
+        dimensions:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+      required: [snippet, publicSrc, bytes]
