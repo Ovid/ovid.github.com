@@ -24,7 +24,7 @@ Extend the live editor so writers can upload PNG/GIF/JPG assets directly beside 
 **Target Platform**: Localhost Dancer2 app on macOS/Linux (CLI-launched)  
 **Project Type**: CLI + local web UI (single-user)  
 **Performance Goals**: Upload-save-resize-insert cycle completes <5s (SC-001); launch command brings up server and browser <3s  
-**Constraints**: Bind to 127.0.0.1, zero external services, upload button to live in existing header action row even though spec references a non-existent "Change Size" control  
+**Constraints**: Bind to 127.0.0.1, zero external services, upload button to live in existing header action row to the right of the "Change File" control in `root/editor.tt`  
 **Scale/Scope**: Single concurrent writer/session; assets stored under `root/static/images` but tests must avoid touching production data  
 **Configuration**: `max_image_size_bytes` in `config/ovid.yaml` becomes the single source of truth for lint + upload byte limits (default 300_000)
 
