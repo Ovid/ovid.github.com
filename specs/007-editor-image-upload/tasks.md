@@ -107,7 +107,7 @@ description: "Task list for implementing editor image upload & launch enhancemen
 - [ ] T018 [P] Document `--open`, `--port`, and the upload workflow in `README.md`, including headless caveats and config instructions.
 - [ ] T019 [P] Refresh `specs/007-editor-image-upload/quickstart.md` steps to reflect the final CLI flags and modal behavior.
 - [ ] T020 [P] Update `specs/007-editor-image-upload/contracts/openapi.yaml` with the final response shapes for `/api/upload-image` and `/health` (bytes, dimensions, status codes).
-- [ ] T021 [P] Document the SC-004 manual QA run in `specs/007-editor-image-upload/quickstart.md`, covering PNG/GIF/JPG uploads with metadata proofs (screenshots or log excerpts) and noting any discrepancies for follow-up.
+- [ ] T021 [P] Document the SC-003 manual QA run in `specs/007-editor-image-upload/quickstart.md`, covering PNG/GIF/JPG uploads with metadata proofs (screenshots or log excerpts) and noting any discrepancies for follow-up.
 
 ---
 

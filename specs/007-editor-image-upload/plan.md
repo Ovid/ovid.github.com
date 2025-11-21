@@ -23,7 +23,6 @@ Extend the live editor so writers can upload PNG/GIF/JPG assets directly beside 
 **Testing**: Test::Most + Devel::Cover (>=90%)  
 **Target Platform**: Localhost Dancer2 app on macOS/Linux (CLI-launched)  
 **Project Type**: CLI + local web UI (single-user)  
-**Performance Goals**: Upload-save-resize-insert cycle completes <5s (SC-001); launch command brings up server and browser <3s  
 **Constraints**: Bind to 127.0.0.1, zero external services, upload button to live in existing header action row to the right of the "Change File" control in `root/editor.tt`  
 **Scale/Scope**: Single concurrent writer/session; assets stored under `root/static/images` but tests must avoid touching production data  
 **Configuration**: `max_image_size_bytes` in `config/ovid.yaml` becomes the single source of truth for lint + upload byte limits (default 300_000)
@@ -113,6 +112,23 @@ t/
 - `config/ovid.yaml`: Add `max_image_size_bytes` entry consumed via `Less::Config` and reused in code/tests.
 - `t/lint.t`: Load config-driven MAX_IMAGE_SIZE and keep warnings consistent.
 - `t/Ovid/App/LiveEditor/upload.t` & `t/bin/launch.t`: Ensure new behaviors have coverage.
+
+## Data Model & Contracts
+
+- **ImageAsset**: `{ filename, mime_type, bytes, resized_dimensions, source?, alt?, caption?, storage_path }` encapsulates each upload. The upload endpoint accepts multipart data (file + JSON metadata), enforces PNG/GIF/JPG mimetypes, and returns the sanitized filename, public path, and rendered snippet payload so the client can insert it verbatim.
+- **LaunchSession**: `{ article, port, open_flag, server_pid, readiness_url }` represents a single invocation of `bin/launch`. The CLI polls `/health` (JSON `{ ok => 1, file => <article>, timestamp => <iso8601> }`) before triggering Browser::Open.
+- **Snippet Contract**: Successful uploads must return the Template Toolkit include code:
+
+  ```
+  [% INCLUDE include/image.tt
+     src      = "/static/images/<filename>"
+     source   = "<source>"
+     alt      = "<alt>"
+     caption  = "<caption>"
+  %]
+  ```
+
+  The client replaces placeholder tokens with escaped metadata prior to insertion, ensuring the editor, API contract, and template stay in sync.
 
 ## Complexity Tracking
 

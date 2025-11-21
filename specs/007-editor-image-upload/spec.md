@@ -3,7 +3,9 @@
 **Feature Branch**: `007-editor-image-upload`  
 **Created**: 2025-11-21  
 **Status**: Draft  
-**Input**: User description: "When I run `bin/launch <article>`, I want an --open flag that will use Browser::Open to automatically open my browser to edit the article I'm opening. I also need a `--port` flag that will let me specify a port other than the default one of 3000. Finally, to the right of the 'Change File` button defined in `root/editor.tt`, I would like an \"Upload Image\" button that will let me select or paste an image as png, gif, or jpg. The upload form should allow me to add the filename, optional source, optional alt, and optional caption. When I click \"Save\", it should resize or recompress the image so the output file is just below `$MAX_IMAGE_SIZE_BYTES` (300000 bytes) defined in `config/ovid.yaml`, and save it to `root/static/images/<filename>`. After the image is saved, in the current position of the cursor in the editor, the snippet should be inserted with HTML escaping."
+**Input**: User description: "When I run `bin/launch <article>`, I want an --open flag that will use Browser::Open to automatically open my browser to edit the article I'm opening. I also need a `--port` flag that will let me specify a port other than the default one of 3000. Finally, to the right of the 'Change File` button defined in `root/editor.tt`, I would like an \"Upload Image\" button that will let me select or paste an image as png, gif, or jpg. The upload form should allow me to add the filename, optional source, optional alt, and optional caption. When I click \"Save\", it should resize or recompress the image so the output file is just below `$MAX_IMAGE_SIZE_BYTES` (300000 bytes) and save it to `root/static/images/<filename>`. After the image is saved, in the current position of the cursor in the editor, the snippet should be inserted with HTML escaping."
+
+**Current state**: The maximum image size limit is presently hard-coded inside the editor stack; part of this feature is relocating that constant into `config/ovid.yaml` so every consumer reuses the same configuration entry.
 
 ## Clarifications
 
@@ -81,7 +83,22 @@ As a developer with port conflicts, I can pass `--port <number>` when running `b
 - **FR-008**: Successfully saved assets MUST be written to `root/static/images/<filename>` (creating directories as needed) and, if a file already exists, the system MUST prompt for explicit overwrite confirmation before writing.
 - **FR-009**: After saving, the editor MUST insert the provided Template Toolkit snippet at the cursor position, escaping HTML entities in metadata fields to prevent double-quote issues.
 - **FR-010**: The editor MUST surface clear error states for validation failures (unsupported type, missing filename, oversized file, write failure) without losing the user's metadata inputs.
-- **FR-011**: The editor MUST display in-editor toast notifications that confirm the target path and snippet insertion, with optional server logging for operators who need historical traces.
+- **FR-011**: The editor MUST display in-editor toast notifications that confirm the target path and snippet insertion so writers get immediate feedback without checking logs.
+
+### Snippet Template
+
+All successful uploads MUST insert the canonical Template Toolkit snippet at the cursor location using escaped metadata:
+
+```
+[% INCLUDE include/image.tt
+	src      = "/static/images/<filename>"
+	source   = "<source>"
+	alt      = "<alt>"
+	caption  = "<caption>"
+%]
+```
+
+Replace the placeholder tokens with the sanitized filename and metadata strings before insertion.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -92,10 +109,9 @@ As a developer with port conflicts, I can pass `--port <number>` when running `b
 
 ### Measurable Outcomes
 
-- **SC-001**: 95% of attempted uploads that meet type/size rules complete (resize + save + snippet insert) in under 5 seconds on a standard local machine.
-- **SC-002**: 100% of `bin/launch` executions that include `--open` open exactly one browser tab/window pointed at the requested article editor, with failures logged and reported to the user.
-- **SC-003**: 100% of `--port` overrides within the valid range result in the server listening on the requested port, verified via automated tests.
-- **SC-004**: Editorial QA confirms that metadata entered in the upload modal appears verbatim (properly escaped) in the resulting snippet across at least three manual test cases (one per supported image format).
+- **SC-001**: 100% of `bin/launch` executions that include `--open` open exactly one browser tab/window pointed at the requested article editor, with failures logged and reported to the user.
+- **SC-002**: 100% of `--port` overrides within the valid range result in the server listening on the requested port, verified via automated tests.
+- **SC-003**: Editorial QA confirms that metadata entered in the upload modal appears verbatim (properly escaped) in the resulting snippet across at least three manual test cases (one per supported image format).
 
 ## Assumptions
 
