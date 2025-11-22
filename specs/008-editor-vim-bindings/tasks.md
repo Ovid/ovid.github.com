@@ -49,11 +49,11 @@ description: "Task list for Editor Vim Bindings feature"
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Update `root/editor.tt` to reference local CodeMirror assets (`static/js/codemirror/*`) instead of CDN
-- [ ] T008 [US1] Add "Vim Mode" checkbox and status container HTML to `root/editor.tt` header
-- [ ] T009 [US1] Implement `vimMode` localStorage persistence logic in `root/editor.tt`
-- [ ] T010 [US1] Implement keymap toggling logic (setOption 'keyMap') in `root/editor.tt`
-- [ ] T011 [US1] Implement Vim mode status display logic (event listener for 'vim-mode-change') in `root/editor.tt`
+- [x] T007 [US1] Update `root/editor.tt` to reference local CodeMirror assets (`static/js/codemirror/*`) instead of CDN
+- [x] T008 [US1] Add "Vim Mode" checkbox and status container HTML to `root/editor.tt` header
+- [x] T009 [US1] Implement `vimMode` localStorage persistence logic in `root/editor.tt`
+- [x] T010 [US1] Implement keymap toggling logic (setOption 'keyMap') in `root/editor.tt`
+- [x] T011 [US1] Implement Vim mode status display logic (event listener for 'vim-mode-change') in `root/editor.tt`
 
 **Checkpoint**: User Story 1 fully functional. Editor works with local assets and Vim mode toggle.
 
