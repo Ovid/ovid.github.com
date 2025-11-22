@@ -34,10 +34,10 @@ description: "Task list for Editor Vim Bindings feature"
 - [x] T002 [P] Vendor CodeMirror 5.65.16 core JS to `static/js/codemirror/codemirror.js` (Source: `https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js`)
 - [x] T003 [P] Vendor CodeMirror Vim keymap to `static/js/codemirror/vim.js` (Source: `https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/keymap/vim.min.js`)
 - [x] T004 [P] Vendor CodeMirror CSS to `static/js/codemirror/codemirror.css` (Source: `https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css`)
-- [ ] T005 Create `lib/Ovid/Editor/VimMode.pm` with asset path helpers and configuration logic
-- [ ] T006 Create `t/Ovid/Editor/VimMode.t` to test module instantiation and asset path methods
+- [x] T005 Configure editor assets in `config/ovid.yaml` (Replaced `Ovid::Editor::VimMode` class)
+- [x] T006 (Skipped) `Ovid::Editor::VimMode` deemed unnecessary; using `Less::Config` directly
 
-**Checkpoint**: Foundation ready - Assets exist and backend module is tested.
+**Checkpoint**: Foundation ready - Assets exist and configuration is set.
 
 ---
 

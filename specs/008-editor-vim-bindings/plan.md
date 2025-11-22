@@ -13,7 +13,7 @@ Add optional Vim keybindings to the existing CodeMirror-based editor with a UI c
 **Primary Dependencies**: Vendored CodeMirror 5.65.16 core, `keymap/vim.js`; existing `saveContent()` logic; `localStorage`  
 
 **Storage**: Client-side only (`localStorage: vimMode`); no new server storage  
-**Testing**: Perl: Test::Most unit test for new module `Ovid::Editor::VimMode` (injection/config); JS behavior manually verifiable + optional future harness (NEEDS CLARIFICATION: JS automated test approach)  
+**Testing**: Perl: None required for config change; JS behavior manually verifiable + optional future harness (NEEDS CLARIFICATION: JS automated test approach)  
 
 **Target Platform**: Modern desktop browsers (Chrome, Firefox, Safari) within site editor page  
 **Project Type**: Static site generator enhancement (frontend asset + minor backend module)  
@@ -26,28 +26,28 @@ Outstanding Clarifications Resolved in `research.md`: location of existing edito
 
 ## Constitution Check
 Pre-Design Gate Evaluation:
-- Principle I (CPAN-Style Module): Will add `lib/Ovid/Editor/VimMode.pm` to encapsulate asset path logic and future expansion. PASS (pending implementation).
+- Principle I (CPAN-Style Module): Configuration added to `config/ovid.yaml` accessed via `Less::Config`. PASS.
 - Principle II (CLI-First): No new CLI necessary; feature integrates with existing editor page. Justification: purely client-side enhancement; no backend workflow change. PASS.
-- Principle III (90%+ Coverage): New Perl module will include tests; existing JS not under Perl coverage metrics (acceptable—JS harness TBD). PASS (commit requires tests).
+- Principle III (90%+ Coverage): No new Perl code to test; existing JS not under Perl coverage metrics (acceptable—JS harness TBD). PASS.
 - Principle IV (Accessible HTML5): Checkbox will include `<label>` and status text; no impact on generated HTML validity. PASS.
 - Principle V (Zero External Dependencies): CDN links replaced with local vendored assets. PASS.
 - Principle VI (Production Data Protection): No writes to `db/`; only static assets and template edits. PASS.
-- Principle VII (Modern Perl 5.40+): New module uses signatures & `use v5.40;`. PASS.
+- Principle VII (Modern Perl 5.40+): N/A (No new Perl modules). PASS.
 - Principle VIII (AI Safety): Plan does not invoke destructive git operations. PASS.
 - Principle IX (Blogdown Format): Unaffected (editor UI only). PASS.
 
 GATE STATUS: All non-negotiables satisfied or planned; proceed to Phase 0 (already completed previously) and Phase 1 design artifacts.
 **Structure Decision**:
-- Add: `lib/Ovid/Editor/VimMode.pm` (module to expose asset registration and potential future editor config helpers)
+- Modify: `config/ovid.yaml` (add editor asset paths)
 - Modify: `root/editor.tt` (swap CDN for local assets; add Vim Mode checkbox, status area, initialization logic)
 - Add Assets: `static/js/codemirror/*` (vendored CodeMirror core + vim keymap)
 - No changes: `bin/` (no CLI needed)
-- Tests: `t/Ovid/Editor/VimMode.t` covering module functions (asset path provision, configuration hints)
+- Tests: None (configuration only)
 
 ## Phases
 
 1. **Setup**: Project initialization and basic structure.
-2. **Foundational**: Core infrastructure (vendoring assets, Perl module) - Blocking.
+2. **Foundational**: Core infrastructure (vendoring assets, configuration) - Blocking.
 3. **User Story 1 (MVP)**: Toggle Vim Mode, persistence, and status display.
 4. **User Story 2**: Save with Keyboard Shortcut (Ctrl-S/Cmd-S).
 5. **Polish**: Accessibility and error checking.
