@@ -310,6 +310,7 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         let timeoutId;
         let editor = null;
+        let isSaving = false;
 
         // Load preference
         if (localStorage.getItem('theme') === 'dark') {
@@ -327,6 +328,11 @@
             }
         });
 
+        const handleSaveCommand = () => {
+            clearTimeout(timeoutId);
+            saveContent();
+        };
+
         const initEditor = () => {
             if (editor) return;
             editor = CodeMirror.fromTextArea(textarea, {
@@ -335,7 +341,11 @@
                 keyMap: vimModeToggle.checked ? 'vim' : 'default',
                 lineNumbers: true,
                 lineWrapping: true,
-                viewportMargin: Infinity
+                viewportMargin: Infinity,
+                extraKeys: {
+                    "Ctrl-S": handleSaveCommand,
+                    "Cmd-S": handleSaveCommand
+                }
             });
             
             editor.on('change', () => {
@@ -459,6 +469,8 @@
         });
 
         const saveContent = async () => {
+            if (isSaving) return;
+            isSaving = true;
             status.textContent = 'Saving...';
             try {
                 // Prepend root/ if not present, though currentFilePath should come from server correctly
@@ -488,6 +500,8 @@
             } catch (e) {
                 status.textContent = 'Error saving';
                 console.error('Save failed', e);
+            } finally {
+                isSaving = false;
             }
         };
 

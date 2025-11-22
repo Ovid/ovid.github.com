@@ -67,8 +67,8 @@ description: "Task list for Editor Vim Bindings feature"
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Implement `Ctrl-S` and `Cmd-S` interception in `root/editor.tt` using CodeMirror `extraKeys`
-- [ ] T013 [US2] Ensure save shortcut triggers existing `saveContent()` function, prevents default browser behavior, and implements debounce logic (FR-010) in `root/editor.tt`
+- [x] T012 [US2] Implement `Ctrl-S` and `Cmd-S` interception in `root/editor.tt` using CodeMirror `extraKeys`
+- [x] T013 [US2] Ensure save shortcut triggers existing `saveContent()` function, prevents default browser behavior, and implements debounce logic (FR-010) in `root/editor.tt`
 
 **Checkpoint**: User Stories 1 AND 2 work.
 
