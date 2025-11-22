@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: Editor Save API
+  version: 1.0.0
+  description: API contract for saving editor content; extended by Vim bindings feature (keyboard shortcut trigger).
+servers:
+  - url: https://example.com   # Replace with actual base URL if applicable
+paths:
+  /api/save:
+    post:
+      summary: Save edited content
+      description: Persists editor content for a given file. Triggered by UI save button or Ctrl-S/Cmd-S (including when Vim Mode active).
+      operationId: saveContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file, content]
+              properties:
+                file:
+                  type: string
+                  description: Path or identifier of the file being edited.
+                  example: root/index.tt
+                content:
+                  type: string
+                  description: Full text content to persist.
+                mode:
+                  type: string
+                  description: Optional editor mode indicator (e.g., 'vim-normal', 'vim-insert', 'standard').
+      responses:
+        '200':
+          description: Save succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  savedBytes:
+                    type: integer
+                    description: Size of saved content
+                  mode:
+                    type: string
+                    description: Echoes mode value if supplied
+        '400':
+          description: Validation error (missing file or content)
+        '500':
+          description: Internal server error
+      x-feature:
+        name: Editor Vim Bindings
+        shortcuts:
+          - ctrl-s
+          - cmd-s
+        persistence: localStorage.vimMode
+components:
+  securitySchemes: {}
+  schemas: {}
