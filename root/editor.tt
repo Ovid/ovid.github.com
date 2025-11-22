@@ -530,6 +530,15 @@
 
         previewFrame.addEventListener('load', () => {
             hideLoading();
+            try {
+                const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                const article = iframeDoc.getElementById('article');
+                if (article) {
+                    article.scrollIntoView();
+                }
+            } catch (e) {
+                console.log('Could not scroll to article:', e);
+            }
         });
 
         // Splitter functionality
