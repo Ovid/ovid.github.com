@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <title>Editing: [% filename %]</title>
     <!-- CodeMirror -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <link rel="stylesheet" href="/static/js/codemirror/codemirror.css">
+    <link rel="stylesheet" href="/static/js/codemirror/monokai.min.css">
+    <link rel="stylesheet" href="/static/js/codemirror/dialog.css">
+    <script src="/static/js/codemirror/codemirror.js"></script>
+    <script src="/static/js/codemirror/xml.min.js"></script>
+    <script src="/static/js/codemirror/markdown.min.js"></script>
+    <script src="/static/js/codemirror/htmlmixed.min.js"></script>
+    <script src="/static/js/codemirror/dialog.js"></script>
+    <script src="/static/js/codemirror/vim.js"></script>
     <style>
         :root {
             --bg-color: #f9f9f9;
@@ -136,6 +139,16 @@
             font-size: 14px;
         }
 
+        /* Dialog overrides */
+        .CodeMirror-dialog-top, .CodeMirror-dialog-bottom {
+            border-color: var(--border-color);
+            background: var(--header-bg);
+            color: var(--text-color);
+        }
+        .CodeMirror-dialog input {
+            color: var(--text-color);
+        }
+
         /* Modal Styles */
         #file-modal-overlay {
             display: none;
@@ -218,6 +231,10 @@
                     <div>
                         <span id="status"></span>
                         <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
+                            <input type="checkbox" id="vim-mode-toggle"> Vim Mode
+                        </label>
+                        <span id="vim-status" style="margin-right: 10px; font-size: 13px; font-weight: bold; color: var(--text-color);"></span>
+                        <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
                             <input type="checkbox" id="syntax-toggle"> Syntax Highlight
                         </label>
                         <button id="theme-toggle" style="margin-right: 10px;">Dark Mode</button>
@@ -299,10 +316,13 @@
         const refreshBtn = document.getElementById('refresh-btn');
         const themeToggle = document.getElementById('theme-toggle');
         const syntaxToggle = document.getElementById('syntax-toggle');
+        const vimModeToggle = document.getElementById('vim-mode-toggle');
+        const vimStatus = document.getElementById('vim-status');
         const previewFrame = document.getElementById('preview-frame');
         const loadingOverlay = document.getElementById('loading-overlay');
         let timeoutId;
         let editor = null;
+        let isSaving = false;
 
         // Load preference
         if (localStorage.getItem('theme') === 'dark') {
@@ -320,14 +340,24 @@
             }
         });
 
+        const handleSaveCommand = () => {
+            clearTimeout(timeoutId);
+            saveContent();
+        };
+
         const initEditor = () => {
             if (editor) return;
             editor = CodeMirror.fromTextArea(textarea, {
                 mode: 'markdown',
                 theme: document.body.classList.contains('dark-mode') ? 'monokai' : 'default',
+                keyMap: vimModeToggle.checked ? 'vim' : 'default',
                 lineNumbers: true,
                 lineWrapping: true,
-                viewportMargin: Infinity
+                viewportMargin: Infinity,
+                extraKeys: {
+                    "Ctrl-S": handleSaveCommand,
+                    "Cmd-S": handleSaveCommand
+                }
             });
             
             editor.on('change', () => {
@@ -351,6 +381,33 @@
             }
             localStorage.setItem('syntaxHighlight', syntaxToggle.checked);
         });
+
+        // Vim Mode Logic
+        const updateVimStatus = (mode) => {
+            if (mode && mode !== 'normal') {
+                vimStatus.textContent = '-- ' + mode.toUpperCase() + ' --';
+            } else {
+                vimStatus.textContent = '';
+            }
+        };
+
+        CodeMirror.on(document, 'vim-mode-change', (e) => {
+            updateVimStatus(e.mode);
+        });
+
+        vimModeToggle.addEventListener('change', () => {
+            const isVim = vimModeToggle.checked;
+            localStorage.setItem('vimMode', isVim);
+            if (editor) {
+                editor.setOption('keyMap', isVim ? 'vim' : 'default');
+                if (!isVim) updateVimStatus(null);
+            }
+        });
+
+        // Load Vim preference
+        if (localStorage.getItem('vimMode') === 'true') {
+            vimModeToggle.checked = true;
+        }
 
         // Load syntax preference
         if (localStorage.getItem('syntaxHighlight') === 'true') {
@@ -424,6 +481,8 @@
         });
 
         const saveContent = async () => {
+            if (isSaving) return;
+            isSaving = true;
             status.textContent = 'Saving...';
             try {
                 // Prepend root/ if not present, though currentFilePath should come from server correctly
@@ -453,6 +512,8 @@
             } catch (e) {
                 status.textContent = 'Error saving';
                 console.error('Save failed', e);
+            } finally {
+                isSaving = false;
             }
         };
 
@@ -469,6 +530,15 @@
 
         previewFrame.addEventListener('load', () => {
             hideLoading();
+            try {
+                const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                const article = iframeDoc.getElementById('article');
+                if (article) {
+                    article.scrollIntoView();
+                }
+            } catch (e) {
+                console.log('Could not scroll to article:', e);
+            }
         });
 
         // Splitter functionality

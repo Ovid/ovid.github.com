@@ -12,16 +12,12 @@ use Time::HiRes qw(sleep);
 
 my $port = 3000;
 
-warn "DEBUG: Launching with args: @ARGV\n";
-
 GetOptions(
     'port=i' => \$port,
 ) or die "Usage: $0 [--open] [--port=N] <file>\n";
 
 my $file = shift @ARGV or die "Usage: $0 [--open] [--port=N] <file>\n";
-warn "DEBUG: file=$file\n";
 my $path = path($file)->absolute;
-warn "DEBUG: path=$path\n";
 
 # Auto-correct generated files to source files
 # If user provides blog/foo.html, switch to root/blog/foo.tt
@@ -69,7 +65,6 @@ set host => '127.0.0.1';
 set port => $port;
 
 my $pid = fork();
-warn "DEBUG: fork returned " . ( defined $pid ? $pid : "undef" ) . "\n";
 if ( !defined $pid ) {
     warn "Failed to fork for browser launch: $!";
 }
@@ -85,7 +80,6 @@ elsif ( $pid == 0 ) {
     # Poll for server readiness
     my $max_retries = 50;    # 5 seconds
     for ( 1 .. $max_retries ) {
-        warn "DEBUG: loop $_\n";
         my $resp = $http->get($health_url);
         if ( $resp->{success} ) {
             my $err = Browser::Open::open_browser($url);
