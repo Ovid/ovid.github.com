@@ -302,14 +302,7 @@
                     </div>
                     <div>
                         <span id="status"></span>
-                        <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
-                            <input type="checkbox" id="vim-mode-toggle"> Vim Mode
-                        </label>
                         <span id="vim-status" style="margin-right: 10px; font-size: 13px; font-weight: bold; color: var(--text-color);"></span>
-                        <label style="margin-right: 10px; font-size: 13px; color: var(--text-color);">
-                            <input type="checkbox" id="syntax-toggle"> Syntax Highlight
-                        </label>
-                        <button id="theme-toggle" style="margin-right: 10px;">Dark Mode</button>
                         <div class="dropdown" style="margin-left: 10px;">
                             <button id="menu-toggle" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
                                 ☰
@@ -318,6 +311,9 @@
                                 <button class="dropdown-item" id="menu-edit-post">Edit Post</button>
                                 <button class="dropdown-item" id="menu-upload-image">Upload Image</button>
                                 <div class="dropdown-divider"></div>
+                                <button class="dropdown-item" id="menu-light-mode">Light Mode</button>
+                                <button class="dropdown-item" id="menu-vim-mode">Vim Mode</button>
+                                <button class="dropdown-item" id="menu-syntax-highlight">Syntax Highlight</button>
                             </div>
                         </div>
                     </div>
@@ -395,9 +391,9 @@
         const textarea = document.getElementById('content');
         const status = document.getElementById('status');
         const refreshBtn = document.getElementById('refresh-btn');
-        const themeToggle = document.getElementById('theme-toggle');
-        const syntaxToggle = document.getElementById('syntax-toggle');
-        const vimModeToggle = document.getElementById('vim-mode-toggle');
+        const menuLightMode = document.getElementById('menu-light-mode');
+        const menuVimMode = document.getElementById('menu-vim-mode');
+        const menuSyntaxHighlight = document.getElementById('menu-syntax-highlight');
         const vimStatus = document.getElementById('vim-status');
         const previewFrame = document.getElementById('preview-frame');
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -405,17 +401,28 @@
         let editor = null;
         let isSaving = false;
 
-        // Load preference
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.textContent = 'Light Mode';
-        }
+        // Helper to toggle checkmark
+        const toggleCheck = (el, checked) => {
+            if (checked) {
+                el.classList.add('checked');
+            } else {
+                el.classList.remove('checked');
+            }
+        };
 
-        themeToggle.addEventListener('click', () => {
+        // Load preference
+        const isDark = localStorage.getItem('theme') === 'dark';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+        }
+        toggleCheck(menuLightMode, !isDark);
+
+        menuLightMode.addEventListener('click', (e) => {
+            e.stopPropagation();
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
-            themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            toggleCheck(menuLightMode, !isDark);
             if (editor) {
                 editor.setOption('theme', isDark ? 'monokai' : 'default');
             }
@@ -428,10 +435,11 @@
 
         const initEditor = () => {
             if (editor) return;
+            const isVim = localStorage.getItem('vimMode') === 'true';
             editor = CodeMirror.fromTextArea(textarea, {
                 mode: 'markdown',
                 theme: document.body.classList.contains('dark-mode') ? 'monokai' : 'default',
-                keyMap: vimModeToggle.checked ? 'vim' : 'default',
+                keyMap: isVim ? 'vim' : 'default',
                 lineNumbers: true,
                 lineWrapping: true,
                 viewportMargin: Infinity,
@@ -454,13 +462,18 @@
             editor = null;
         };
 
-        syntaxToggle.addEventListener('change', () => {
-            if (syntaxToggle.checked) {
+        menuSyntaxHighlight.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isChecked = menuSyntaxHighlight.classList.contains('checked');
+            const newState = !isChecked;
+            toggleCheck(menuSyntaxHighlight, newState);
+            
+            if (newState) {
                 initEditor();
             } else {
                 destroyEditor();
             }
-            localStorage.setItem('syntaxHighlight', syntaxToggle.checked);
+            localStorage.setItem('syntaxHighlight', newState);
         });
 
         // Vim Mode Logic
@@ -476,23 +489,27 @@
             updateVimStatus(e.mode);
         });
 
-        vimModeToggle.addEventListener('change', () => {
-            const isVim = vimModeToggle.checked;
-            localStorage.setItem('vimMode', isVim);
+        menuVimMode.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isChecked = menuVimMode.classList.contains('checked');
+            const newState = !isChecked;
+            toggleCheck(menuVimMode, newState);
+            
+            localStorage.setItem('vimMode', newState);
             if (editor) {
-                editor.setOption('keyMap', isVim ? 'vim' : 'default');
-                if (!isVim) updateVimStatus(null);
+                editor.setOption('keyMap', newState ? 'vim' : 'default');
+                if (!newState) updateVimStatus(null);
             }
         });
 
         // Load Vim preference
         if (localStorage.getItem('vimMode') === 'true') {
-            vimModeToggle.checked = true;
+            toggleCheck(menuVimMode, true);
         }
 
         // Load syntax preference
         if (localStorage.getItem('syntaxHighlight') === 'true') {
-            syntaxToggle.checked = true;
+            toggleCheck(menuSyntaxHighlight, true);
             // Initialize after a short delay to ensure styles are loaded
             setTimeout(initEditor, 100);
         }

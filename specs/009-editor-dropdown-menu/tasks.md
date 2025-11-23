@@ -28,12 +28,12 @@
 *Goal: Move preference toggles to the menu and implement state indication.*
 *Independent Test: Toggle each preference in menu, verify editor state changes and checkmark updates. Reload page to verify persistence.*
 
-- [ ] T009 [US2] Implement "Light Mode" menu item with checkmark logic in `root/editor.tt`
-- [ ] T010 [US2] Implement "Vim Mode" menu item with checkmark logic in `root/editor.tt`
-- [ ] T011 [US2] Implement "Syntax Highlight" menu item with checkmark logic in `root/editor.tt`
-- [ ] T012 [US2] Update JS to keep menu open when clicking toggle items in `root/editor.tt`
-- [ ] T013 [US2] Update JS to initialize menu item states from `localStorage` on load in `root/editor.tt`
-- [ ] T014 [US2] Remove legacy "Light Mode" button and checkboxes from toolbar in `root/editor.tt`
+- [x] T009 [US2] Implement "Light Mode" menu item with checkmark logic in `root/editor.tt`
+- [x] T010 [US2] Implement "Vim Mode" menu item with checkmark logic in `root/editor.tt`
+- [x] T011 [US2] Implement "Syntax Highlight" menu item with checkmark logic in `root/editor.tt`
+- [x] T012 [US2] Update JS to keep menu open when clicking toggle items in `root/editor.tt`
+- [x] T013 [US2] Update JS to initialize menu item states from `localStorage` on load in `root/editor.tt`
+- [x] T014 [US2] Remove legacy "Light Mode" button and checkboxes from toolbar in `root/editor.tt`
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 *Goal: Ensure usability and accessibility.*
