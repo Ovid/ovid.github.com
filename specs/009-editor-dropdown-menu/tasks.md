@@ -6,14 +6,14 @@
 ## Phase 1: Setup
 *Goal: Prepare environment for UI modifications.*
 
-- [ ] T001 Verify `root/editor.tt` exists and is writable
+- [x] T001 Verify `root/editor.tt` exists and is writable
 
 ## Phase 2: Foundational
 *Goal: Establish the visual and functional structure of the dropdown menu.*
 
-- [ ] T002 Implement Dropdown Menu HTML structure (trigger button using Font Awesome `fa-bars` + menu container) with ARIA attributes (`aria-expanded`, `aria-haspopup`, `role="menu"`) in `root/editor.tt`
-- [ ] T003 Implement Dropdown Menu CSS (positioning, z-index, visibility, styling) including active state checkmark styles in `root/editor.tt`
-- [ ] T004 Implement basic JS for opening/closing menu (click trigger, click outside listener, close on action item click, Escape key support) in `root/editor.tt`
+- [x] T002 Implement Dropdown Menu HTML structure (trigger button using Font Awesome `fa-bars` + menu container) with ARIA attributes (`aria-expanded`, `aria-haspopup`, `role="menu"`) in `root/editor.tt`
+- [x] T003 Implement Dropdown Menu CSS (positioning, z-index, visibility, styling) including active state checkmark styles in `root/editor.tt`
+- [x] T004 Implement basic JS for opening/closing menu (click trigger, click outside listener, close on action item click, Escape key support) in `root/editor.tt`
 
 ## Phase 3: User Story 1 - Access Editor Actions via Menu
 *Goal: Move file and image actions to the new menu.*
