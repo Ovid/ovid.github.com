@@ -17,6 +17,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-09
 - `localStorage` (Client-side preference persistence) (008-editor-vim-bindings)
 - Perl 5.40+ (backend), JavaScript ES6 (frontend), CodeMirror 5.65.16 + Vendored CodeMirror 5.65.16 core, `keymap/vim.js`; existing `saveContent()` logic; `localStorage` (008-editor-vim-bindings)
 - Client-side only (`localStorage: vimMode`); no new server storage (008-editor-vim-bindings)
+- Perl 5.40+ (Backend), JavaScript ES6+ (Frontend), HTML5, CSS3 + Template Toolkit (Server-side), CodeMirror (Client-side Editor) (009-editor-dropdown-menu)
+- `localStorage` (Client-side preferences for theme, vim mode, syntax highlight) (009-editor-dropdown-menu)
 
 - Perl 5.40+ + Devel::Cover, Test::Most, Type::Tiny, Getopt::Long, SQLite (001-test-coverage-improvement)
 
@@ -80,9 +82,9 @@ Perl 5.40+: Follow standard conventions from constitution.md
 - All tasks must pass entire test suite before completion
 
 ## Recent Changes
+- 009-editor-dropdown-menu: Added Perl 5.40+ (Backend), JavaScript ES6+ (Frontend), HTML5, CSS3 + Template Toolkit (Server-side), CodeMirror (Client-side Editor)
 - 008-editor-vim-bindings: Added Perl 5.40+ (backend), JavaScript ES6 (frontend), CodeMirror 5.65.16 + Vendored CodeMirror 5.65.16 core, `keymap/vim.js`; existing `saveContent()` logic; `localStorage`
 - 008-editor-vim-bindings: Added JavaScript (ES6+), Perl 5.40+ (Backend existing) + CodeMirror 5.65.16 (Client-side editor)
-- 007-editor-image-upload: Added Perl 5.40+ + Dancer2, Template Toolkit 2, Browser::Open, Imager (for PNG/GIF/JPG resizing)
 
 
 <!-- MANUAL ADDITIONS START -->
