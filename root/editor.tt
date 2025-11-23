@@ -832,19 +832,68 @@
         const menuToggle = document.getElementById('menu-toggle');
         const dropdownMenu = document.getElementById('dropdown-menu');
         
-        const toggleMenu = (e) => {
-            e.stopPropagation();
-            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
-            menuToggle.setAttribute('aria-expanded', !isExpanded);
-            dropdownMenu.classList.toggle('show');
+        const openMenu = () => {
+            menuToggle.setAttribute('aria-expanded', 'true');
+            dropdownMenu.classList.add('show');
+            const firstItem = dropdownMenu.querySelector('.dropdown-item');
+            if (firstItem) firstItem.focus();
         };
-        
+
         const closeMenu = () => {
             menuToggle.setAttribute('aria-expanded', 'false');
             dropdownMenu.classList.remove('show');
         };
         
+        const toggleMenu = (e) => {
+            e.stopPropagation();
+            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        };
+        
         menuToggle.addEventListener('click', toggleMenu);
+        
+        // Keyboard navigation for the menu
+        dropdownMenu.addEventListener('keydown', (e) => {
+            const items = Array.from(dropdownMenu.querySelectorAll('.dropdown-item'));
+            const currentIndex = items.indexOf(document.activeElement);
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const nextIndex = (currentIndex + 1) % items.length;
+                items[nextIndex].focus();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prevIndex = (currentIndex - 1 + items.length) % items.length;
+                items[prevIndex].focus();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                items[0].focus();
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                items[items.length - 1].focus();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeMenu();
+                menuToggle.focus();
+            } else if (e.key === 'Tab') {
+                closeMenu();
+            }
+        });
+
+        // Allow opening with arrow keys from toggle
+        menuToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (menuToggle.getAttribute('aria-expanded') !== 'true') {
+                    openMenu();
+                }
+            }
+        });
         
         dropdownMenu.addEventListener('click', (e) => {
             // Close menu when an item is clicked, unless it's just a container click
@@ -862,8 +911,10 @@
         
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeMenu();
-                menuToggle.focus();
+                if (menuToggle.getAttribute('aria-expanded') === 'true') {
+                    closeMenu();
+                    menuToggle.focus();
+                }
             }
         });
     </script>

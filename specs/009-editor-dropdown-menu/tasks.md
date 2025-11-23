@@ -38,8 +38,8 @@
 ## Phase 5: Polish & Cross-Cutting Concerns
 *Goal: Ensure usability and accessibility.*
 
-- [ ] T015 Verify keyboard accessibility for Dropdown Menu in `root/editor.tt`
-- [ ] T016 Verify responsive layout of toolbar with new menu in `root/editor.tt`
+- [x] T015 Verify keyboard accessibility for Dropdown Menu in `root/editor.tt`
+- [x] T016 Verify responsive layout of toolbar with new menu in `root/editor.tt`
 
 ## Dependencies
 
