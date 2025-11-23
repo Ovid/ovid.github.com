@@ -483,7 +483,9 @@
         const saveContent = async () => {
             if (isSaving) return;
             isSaving = true;
-            status.textContent = 'Saving...';
+            // XXX Seems that when we try to save, the editor sometimes jumps up
+            // and down. Let's try to preserve scroll position.
+            // status.textContent = 'Saving...';
             try {
                 // Prepend root/ if not present, though currentFilePath should come from server correctly
                 // The server expects path relative to project root.
