@@ -56,7 +56,7 @@ As a content editor, I want to toggle editor display preferences from the menu s
 
 ### Functional Requirements
 
-- **FR-001**: The editor toolbar MUST contain a dropdown menu trigger using a standard Hamburger Icon (☰).
+- **FR-001**: The editor toolbar MUST contain a dropdown menu trigger using the Font Awesome `fa-bars` icon.
 - **FR-002**: The dropdown menu MUST contain exactly these items in this order:
     1. Edit Post
     2. Upload Image
