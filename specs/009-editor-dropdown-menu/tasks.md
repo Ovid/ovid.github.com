@@ -19,10 +19,10 @@
 *Goal: Move file and image actions to the new menu.*
 *Independent Test: Open menu, click "Edit Post" (opens file dialog), click "Upload Image" (opens upload dialog).*
 
-- [ ] T005 [US1] Implement "Edit Post" menu item and wire to existing file selection logic in `root/editor.tt`
-- [ ] T006 [US1] Implement "Upload Image" menu item and wire to existing upload logic in `root/editor.tt`
-- [ ] T007 [US1] Move "Refresh Preview" button to left side of toolbar in `root/editor.tt`
-- [ ] T008 [US1] Remove legacy "Change File" and "Upload Image" buttons from toolbar in `root/editor.tt`
+- [x] T005 [US1] Implement "Edit Post" menu item and wire to existing file selection logic in `root/editor.tt`
+- [x] T006 [US1] Implement "Upload Image" menu item and wire to existing upload logic in `root/editor.tt`
+- [x] T007 [US1] Move "Refresh Preview" button to left side of toolbar in `root/editor.tt`
+- [x] T008 [US1] Remove legacy "Change File" and "Upload Image" buttons from toolbar in `root/editor.tt`
 
 ## Phase 4: User Story 2 - Toggle Editor Preferences via Menu
 *Goal: Move preference toggles to the menu and implement state indication.*

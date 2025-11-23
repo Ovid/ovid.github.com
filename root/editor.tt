@@ -298,8 +298,7 @@
             <header style="flex-direction: column; align-items: flex-start;">
                 <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;">
                     <div>
-                        <button id="change-file-btn" style="padding: 4px 8px; font-size: 12px;">Change File</button>
-                        <button id="upload-image-btn" style="padding: 4px 8px; font-size: 12px; margin-left: 10px;">Upload Image</button>
+                        <button id="refresh-btn" style="padding: 4px 8px; font-size: 12px;">Refresh Preview</button>
                     </div>
                     <div>
                         <span id="status"></span>
@@ -311,13 +310,14 @@
                             <input type="checkbox" id="syntax-toggle"> Syntax Highlight
                         </label>
                         <button id="theme-toggle" style="margin-right: 10px;">Dark Mode</button>
-                        <button id="refresh-btn">Refresh Preview</button>
                         <div class="dropdown" style="margin-left: 10px;">
                             <button id="menu-toggle" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
                                 ☰
                             </button>
                             <div id="dropdown-menu" class="dropdown-menu" role="menu">
-                                <!-- Menu items will be added here -->
+                                <button class="dropdown-item" id="menu-edit-post">Edit Post</button>
+                                <button class="dropdown-item" id="menu-upload-image">Upload Image</button>
+                                <div class="dropdown-divider"></div>
                             </div>
                         </div>
                     </div>
@@ -507,7 +507,7 @@
 
         // File Picker Logic
         let currentFilePath = "[% filepath %]";
-        const changeFileBtn = document.getElementById('change-file-btn');
+        const menuEditPost = document.getElementById('menu-edit-post');
         const modalOverlay = document.getElementById('file-modal-overlay');
         const modalClose = document.getElementById('file-modal-close');
         const fileSearch = document.getElementById('file-search');
@@ -548,7 +548,12 @@
             });
         };
 
-        changeFileBtn.addEventListener('click', openModal);
+        if (menuEditPost) {
+            menuEditPost.addEventListener('click', () => {
+                closeMenu();
+                openModal();
+            });
+        }
         modalClose.addEventListener('click', closeModal);
         
         modalOverlay.addEventListener('click', (e) => {
@@ -680,7 +685,7 @@
         });
 
         // Upload Modal Logic
-        const uploadBtn = document.getElementById('upload-image-btn');
+        const menuUploadImage = document.getElementById('menu-upload-image');
         const uploadModalOverlay = document.getElementById('upload-modal-overlay');
         const uploadModalClose = document.getElementById('upload-modal-close');
         const uploadForm = document.getElementById('upload-form');
@@ -693,14 +698,17 @@
         const uploadOverwrite = document.getElementById('upload-overwrite');
         const uploadError = document.getElementById('upload-error');
 
-        uploadBtn.addEventListener('click', () => {
-            uploadModalOverlay.style.display = 'flex';
-            uploadForm.reset();
-            uploadPreview.style.display = 'none';
-            uploadOverwriteContainer.style.display = 'none';
-            uploadError.style.display = 'none';
-            uploadError.textContent = '';
-        });
+        if (menuUploadImage) {
+            menuUploadImage.addEventListener('click', () => {
+                closeMenu();
+                uploadModalOverlay.style.display = 'flex';
+                uploadForm.reset();
+                uploadPreview.style.display = 'none';
+                uploadOverwriteContainer.style.display = 'none';
+                uploadError.style.display = 'none';
+                uploadError.textContent = '';
+            });
+        }
 
         const closeUploadModal = () => {
             uploadModalOverlay.style.display = 'none';
