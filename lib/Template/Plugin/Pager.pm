@@ -3,9 +3,17 @@ package Template::Plugin::Pager;
 use v5.40;
 use base 'Template::Plugin';
 use Less::Pager;
+use Carp qw(croak);
 
 sub new ( $class, $context, $params = {} ) {
-    return Less::Pager->new( $params->%* );
+    my $pager = eval {
+        return Less::Pager->new( $params->%* );
+    };
+    if ($@) {
+        croak("Template::Plugin::Pager error: $@\n"
+          . "Usage: [% USE pager = Pager(type => 'article') %]");
+    }
+    return $pager;
 }
 
 1;
@@ -19,8 +27,8 @@ Template::Plugin::Pager - Thin wrapper for Less::Pager in Template Toolkit
 =head1 SYNOPSIS
 
     [% USE pager = Pager(type => 'article') %]
-    [% prev = pager.prev_post(type, slug) %]
-    [% next = pager.next_post(type, slug) %]
+    [% prev = pager.prev_post(directory, slug) %]
+    [% next = pager.next_post(directory, slug) %]
 
 =head1 DESCRIPTION
 
