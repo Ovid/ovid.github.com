@@ -261,7 +261,7 @@
          class="collapsible-content"
          role="region"
          aria-labelledby="collapsible-trigger-1">
-        <p>I get it. I really do. Many people object to AI, but the “no business value” argument doesn’t wash. Instead, focus on the <em>real</em> problems with genenative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.</p>
+        <p>I get it. I really do. Many people object to AI, but the “no business value” argument doesn’t wash. Instead, focus on the <em>real</em> problems with generative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.</p>
 
     </div>
 </div>
@@ -321,15 +321,15 @@
 
 <p>Fast forward to a couple of weeks ago when I revisited it. This time, after playing with it for a few minutes, he gave a firm, “f***ing awesome.” He said that more than once.</p>
 
-<p>There were a couple of tweaks I had made, but the implemtation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:</p>
+<p>There were a couple of tweaks I had made, but the implementation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:</p>
 
 <ol>
-<li>The setup explaining the AI’s role and its task </li>
+<li>The setup explaining the AI’s role and its task</li>
 <li>A PRD template to use as a guide</li>
 <li>A “pushback layer” to find problems</li>
 </ol>
 
-<p>Structurally, the prompt was similar to the following. For this example, I’m imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been changed).</p>
+<p>Structurally, the prompt was similar to the following. For this example, I’m imagining a retail banking company with an online presence (this is structurally what I used, but all identifying details have been changed).</p>
 
 <hr />
 
@@ -341,8 +341,8 @@
   <p><strong>Task:</strong> You will receive a high-level “Requirements Statement” from the user.</p>
   
   <ol>
-  <li><strong>Analyze</strong> the request through a dual lens: Retail (Physical) vs. Online (Digital).  </li>
-  <li><strong>Generate</strong> a high-fidelity PRD using the strictly mandated template below.  </li>
+  <li><strong>Analyze</strong> the request through a dual lens: Retail (Physical) vs. Online (Digital).</li>
+  <li><strong>Generate</strong> a high-fidelity PRD using the strictly mandated template below.</li>
   <li><strong>Identify</strong> regulatory divergences where a “one-size-fits-all” feature would break compliance laws (e.g., AML, KYC, DORA 2025).</li>
   </ol>
   
@@ -355,7 +355,7 @@
   <h2><strong>1. Product Vision &amp; Strategy</strong></h2>
   
   <ul>
-  <li><strong>Problem Statement:</strong> What pain point does this solve for both the bank and the user?  </li>
+  <li><strong>Problem Statement:</strong> What pain point does this solve for both the bank and the user?</li>
   <li><strong>Success Metrics:</strong> Quantifiable KPIs for both Retail and Online channels.</li>
   </ul>
   
@@ -372,7 +372,7 @@
   <p><em>Focus on the “Hand-off” (e.g., starting online, finishing in-branch).</em></p>
   
   <ul>
-  <li><strong>User Story:</strong> “As a [User], I want to [Action] so that [Value].”  </li>
+  <li><strong>User Story:</strong> “As a [User], I want to [Action] so that [Value].”</li>
   <li><strong>Acceptance Criteria (AC):</strong> Include at least 3 ACs per story.</li>
   </ul>
   
@@ -391,8 +391,8 @@
   <p><strong>Crucial Instruction:</strong> After you present the PRD, you must transition into <strong>“Critical Reviewer”</strong> mode. Provide a final section titled <strong>“The Pushback Layer”</strong> where you:</p>
   
   <ol>
-  <li><strong>Challenge Ambiguities:</strong> Ask me 3-5 specific questions about missing edge cases (e.g., “What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?“).  </li>
-  <li><strong>Suggest Missing Components:</strong> Identify a high-risk area I ignored (e.g., “The PRD lacks a ‘Deceased Account' workflow for online-only users”).  </li>
+  <li><strong>Challenge Ambiguities:</strong> Ask me 3-5 specific questions about missing edge cases (e.g., “What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?“).</li>
+  <li><strong>Suggest Missing Components:</strong> Identify a high-risk area I ignored (e.g., “The PRD lacks a ‘Deceased Account' workflow for online-only users”).</li>
   <li><strong>Proposed Tool Call:</strong> If you have access to search or internal documentation tools (MCP), state which specific regulatory database or internal API you would query to finalize the “Technical Constraints” section.</li>
   </ol>
   
@@ -466,19 +466,19 @@
 <p>This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt. Think about how many people are involved in that, calculate the money saved per project, multiplied by the number of projects, and that comes to ... well, I can’t give you real numbers, but here are some plausible ones, assuming we have 200 projects per year.</p>
 
 <ul>
-<li><strong>Time saved:</strong> ~2 days (16 hours) per project.  </li>
-<li><strong>Who:</strong> 1 Product Owner.  </li>
-<li><strong>Cost:</strong> At an average fully-loaded rate of <strong>$100/hr</strong>, that’s <strong>$1,600</strong> per project.  </li>
+<li><strong>Time saved:</strong> ~2 days (16 hours) per project.</li>
+<li><strong>Who:</strong> 1 Product Owner.</li>
+<li><strong>Cost:</strong> At an average fully-loaded rate of <strong>$100/hr</strong>, that’s <strong>$1,600</strong> per project.</li>
 <li><strong>Annual Subtotal:</strong> $320,000.</li>
 </ul>
 
 <p>That’s not the real savings; it’s in the downstream effort. Vague requirements are the #1 cause of “Requirement Churn” (re-coding something that was misunderstood). Industry data shows that fixing a requirement during the design phase is far cheaper than fixing it during coding and even more so than in testing.</p>
 
 <ul>
-<li><strong>Time saved:</strong> By catching edge cases before a single line of code is written, you save an average of <strong>2 weeks (80 hours)</strong> of aggregate team time.  </li>
-<li><strong>Who:</strong> The “Quad” (1 PO, 1 Lead Dev, 1 Designer, 1 QA).  </li>
-<li><strong>Weighted Avg Rate:</strong> <strong>$125/hr</strong> (reflecting engineering premiums).  </li>
-<li><strong>Calculation:</strong> 80 hours × $125/hr = <strong>$10,000</strong> saved in avoided rework per project.  </li>
+<li><strong>Time saved:</strong> By catching edge cases before a single line of code is written, you save an average of <strong>2 weeks (80 hours)</strong> of aggregate team time.</li>
+<li><strong>Who:</strong> The “Quad” (1 PO, 1 Lead Dev, 1 Designer, 1 QA).</li>
+<li><strong>Weighted Avg Rate:</strong> <strong>$125/hr</strong> (reflecting engineering premiums).</li>
+<li><strong>Calculation:</strong> 80 hours × $125/hr = <strong>$10,000</strong> saved in avoided rework per project.</li>
 <li><strong>Annual Subtotal:</strong> $2,000,000.</li>
 </ul>
 

@@ -16,7 +16,7 @@
 {{TAGS ai business}}
 
 [% Ovid.collapse('Click here if you really object to AI ...',
-"I get it. I really do. Many people object to AI, but the \"no business value\" argument doesn't wash. Instead, focus on the <em>real</em> problems with genenative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.
+"I get it. I really do. Many people object to AI, but the \"no business value\" argument doesn't wash. Instead, focus on the <em>real</em> problems with generative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.
 ")%]
 
 # When To Use AI
@@ -70,68 +70,68 @@ I wanted that. Except that I'm a firm believer in the Pareto 80/20 rule: eighty 
 
 Fast forward to a couple of weeks ago when I revisited it. This time, after playing with it for a few minutes, he gave a firm, "f\*\*\*ing awesome." He said that more than once.
 
-There were a couple of tweaks I had made, but the implemtation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:
+There were a couple of tweaks I had made, but the implementation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:
 
-1. The setup explaining the AI's role and its task 
+1. The setup explaining the AI's role and its task
 2. A PRD template to use as a guide
 3. A "pushback layer" to find problems
 
-Structurally, the prompt was similar to the following. For this example, I'm imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been changed).
+Structurally, the prompt was similar to the following. For this example, I'm imagining a retail banking company with an online presence (this is structurally what I used, but all identifying details have been changed).
 
 ---
 
 > ### **Section 1: The Setup (Role & Objective)**
-> 
+>
 > **Role:** You are a Senior Product Owner with 15+ years of experience in **Regulated Fintech and Retail Banking**. You specialize in omnichannel digital transformation—specifically bridge-building between physical branch operations and modern mobile/web platforms.
-> 
+>
 > **Task:** You will receive a high-level "Requirements Statement" from the user.
-> 
-> 1. **Analyze** the request through a dual lens: Retail (Physical) vs. Online (Digital).  
-> 2. **Generate** a high-fidelity PRD using the strictly mandated template below.  
+>
+> 1. **Analyze** the request through a dual lens: Retail (Physical) vs. Online (Digital).
+> 2. **Generate** a high-fidelity PRD using the strictly mandated template below.
 > 3. **Identify** regulatory divergences where a "one-size-fits-all" feature would break compliance laws (e.g., AML, KYC, DORA 2025).
-> 
+>
 > ---
-> 
+>
 > ### **Section 2: The Mandated PRD Template**
-> 
+>
 > **Instructions:** You must follow this structure exactly. Do not skip sections.
-> 
+>
 > ## **1\. Product Vision & Strategy**
-> 
-> * **Problem Statement:** What pain point does this solve for both the bank and the user?  
+>
+> * **Problem Statement:** What pain point does this solve for both the bank and the user?
 > * **Success Metrics:** Quantifiable KPIs for both Retail and Online channels.
-> 
+>
 > ## **2\. Channel-Specific Functional Requirements**
-> 
+>
 > *Define requirements in a comparison table to highlight the split.*
-> 
+>
 > * **Requirement Name | Retail (Branch) Spec | Online (Digital) Spec | Regulatory Driver**
-> 
+>
 > ## **3\. Cross-Channel User Stories**
-> 
+>
 > *Focus on the "Hand-off" (e.g., starting online, finishing in-branch).*
-> 
-> * **User Story:** "As a \[User\], I want to \[Action\] so that \[Value\]."  
+>
+> * **User Story:** "As a \[User\], I want to \[Action\] so that \[Value\]."
 > * **Acceptance Criteria (AC):** Include at least 3 ACs per story.
-> 
+>
 > ## **4\. RACI Matrix**
-> 
+>
 > *Map out: Product, Engineering, Compliance, and Branch Operations.*
-> 
+>
 > ## **5\. Non-Functional Requirements (NFRs)**
-> 
+>
 > *Focus on Security, Latency, and Accessibility (WCAG 2.1).*
-> 
+>
 > ---
-> 
+>
 > ### **Section 3: The "Pushback Layer"**
-> 
+>
 > **Crucial Instruction:** After you present the PRD, you must transition into **"Critical Reviewer"** mode. Provide a final section titled **"The Pushback Layer"** where you:
-> 
-> 1. **Challenge Ambiguities:** Ask me 3-5 specific questions about missing edge cases (e.g., "What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?").  
-> 2. **Suggest Missing Components:** Identify a high-risk area I ignored (e.g., "The PRD lacks a 'Deceased Account' workflow for online-only users").  
+>
+> 1. **Challenge Ambiguities:** Ask me 3-5 specific questions about missing edge cases (e.g., "What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?").
+> 2. **Suggest Missing Components:** Identify a high-risk area I ignored (e.g., "The PRD lacks a 'Deceased Account' workflow for online-only users").
 > 3. **Proposed Tool Call:** If you have access to search or internal documentation tools (MCP), state which specific regulatory database or internal API you would query to finalize the "Technical Constraints" section.
-> 
+>
 > **Wait for my input to refine the PRD before declaring the version "Final."**
 
 ---
@@ -182,17 +182,17 @@ The PRD MVP appears to be solid and we're trialing it. Only _after_ we validate 
 
 This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt. Think about how many people are involved in that, calculate the money saved per project, multiplied by the number of projects, and that comes to ... well, I can't give you real numbers, but here are some plausible ones, assuming we have 200 projects per year.
 
-* **Time saved:** ~2 days (16 hours) per project.  
-* **Who:** 1 Product Owner.  
-* **Cost:** At an average fully-loaded rate of **$100/hr**, that’s **$1,600** per project.  
+* **Time saved:** ~2 days (16 hours) per project.
+* **Who:** 1 Product Owner.
+* **Cost:** At an average fully-loaded rate of **$100/hr**, that’s **$1,600** per project.
 * **Annual Subtotal:** $320,000.
 
 That's not the real savings; it's in the downstream effort. Vague requirements are the \#1 cause of "Requirement Churn" (re-coding something that was misunderstood). Industry data shows that fixing a requirement during the design phase is far cheaper than fixing it during coding and even more so than in testing.
 
-* **Time saved:** By catching edge cases before a single line of code is written, you save an average of **2 weeks (80 hours)** of aggregate team time.  
-* **Who:** The "Quad" (1 PO, 1 Lead Dev, 1 Designer, 1 QA).  
-* **Weighted Avg Rate:** **$125/hr** (reflecting engineering premiums).  
-* **Calculation:** 80 hours × $125/hr = **$10,000** saved in avoided rework per project.  
+* **Time saved:** By catching edge cases before a single line of code is written, you save an average of **2 weeks (80 hours)** of aggregate team time.
+* **Who:** The "Quad" (1 PO, 1 Lead Dev, 1 Designer, 1 QA).
+* **Weighted Avg Rate:** **$125/hr** (reflecting engineering premiums).
+* **Calculation:** 80 hours × $125/hr = **$10,000** saved in avoided rework per project.
 * **Annual Subtotal:** $2,000,000.
 
 All told, that could be over $2 million a year saved by a tiny prompt.
