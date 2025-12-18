@@ -1,0 +1,639 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/real-world-value-with-generative-ai.html">
+  
+  <meta property="og:title" content="Real-World Value with Generative AI">
+  <meta property="og:description" content="Despite claims to the contrary, AI is generating strong real-world value and it is easy to demonstrate.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/real-world-value-with-generative-ai.html">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Real-World Value with Generative AI</title>
+  <meta name="description" content="Real-World Value with Generative AI">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Real-World Value with Generative AI</h1>
+        <time>2025-12-18</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="two columns">
+
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+    }
+  </script>
+
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+  <li><a href="/starmap.html">Starmap</a></li>
+  <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<ul>
+  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+  <li><a href="https://github.com/Ovid/">GitHub</a></li>
+  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+</ul>
+
+      </div>
+      <div class="ten columns verticalLine article">
+
+        <div class="prevNext">
+        
+        <a href="/articles/ai-today-is-like-the-early-internet.html" class="prevPost">&laquo; AI Today Is Like the Early Internet</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+    <li><a href="/tags/business.html">Business</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#when-to-use-ai">When To Use AI</a></li>
+    <li class="indent-1"><a href="#if-humans-do-it-ai-can-help">If Humans Do It, AI Can Help</a></li>
+    <li class="indent-2"><a href="#product-requirements-document">Product Requirements Document</a></li>
+    <li class="indent-2"><a href="#my-prd-generator">My PRD Generator</a></li>
+    <li class="indent-2"><a href="#objection">Objection!</a></li>
+    <li class="indent-1"><a href="#the-result">The Result</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="collapsible-trigger-1"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="collapsible-content-1"
+         aria-label="Expand: Click here if you really object to AI ...">
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">Click here if you really object to AI ...</span>
+    </div>
+    <div id="collapsible-content-1"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="collapsible-trigger-1">
+        <p>I get it. I really do. Many people object to AI, but the “no business value” argument doesn’t wash. Instead, focus on the <em>real</em> problems with genenative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.</p>
+
+    </div>
+</div>
+
+<h1><a name="when-to-use-ai"></a>When To Use AI</h1>
+
+<p>This might be a bit of a long article, but when companies are flushing away millions of dollars on disastrous generative AI failures, isn’t spending a few minutes understanding where you can get value be worth it? I’ll show you how I reduced two days of error-prone work down to 15 minutes of less error-prone work, potentially saving $2 million or more a year.</p>
+
+<hr />
+
+<p>There was a proposal for using AI to generate data in our compliance system.</p>
+
+<p>I shut that down quickly but was thinking, “are you insane?” AI hallucinates. Hallucinations and lawyers do not play well together. Even if it doesn’t hallucinate, the compliance system has to transparently explain how it generated the data. Not only is that another potential source for hallucinations, but AI has been known to be, um, not entirely honest about how it arrives at answers if it’s “concerned” about how the real answer will be received. AI is a black box and trying to peer inside will often reveals what the AI wants you to see, not what you need to know.</p>
+
+<p>Of the <em>real</em> complaints about generative AI, hallucinations aren’t the slam dunk people think they are. It’s not understanding when they’re a serious problem which is the issue. People also complain when AI has blind spots and misses things an expert would see. But again, “experts” often miss critical issues.</p>
+
+<p>So at the risk of hugely oversimplifying the problem, let’s break work down into two areas.</p>
+
+<ol>
+<li>Areas where an error is catastrophic. Don’t use AI.</li>
+<li>Anything else. AI is on the table.</li>
+</ol>
+
+<p>What qualifies as “anything else?” Well, consider that we humans hallucinate constantly. Consider how many times you’ve read news articles about an area you know well and you’re ready to cry at the mistakes and omissions. A case in point is when I was writing up a sample PRD (product requirements document) and I was proud of the work I put into it, and just a couple of seconds later my AI asked, “what happens if the user uploads a file with a duplicate filename but different contents?”</p>
+
+<p>How could I have missed such a blindingly obvious requirement? It happens to all of us from time to time.</p>
+
+<h1><a name="if-humans-do-it-ai-can-help"></a>If Humans Do It, AI Can Help</h1>
+
+<p>At this point, you probably understand where I’m going: if a human can do a thing, there’s a good chance that an AI can do it. However, it’s not that simple. AI cannot, and should not, be blindly trusted. Humans must remain in the driver’s seat because AI just predicts the next token. Those predictions often go wrong. However, so long as the humans assume this role, AI is amazingly valuable. A case in point: the aforementioned PRDs.</p>
+
+<h2><a name="product-requirements-document"></a>Product Requirements Document</h2>
+
+<p>Throughout all of the following, the key thing to remember is that for error-prone work humans do, the value from AI is that it can produce <em>better</em> work—albeit imperfect—faster than humans can.</p>
+
+<p>Many businesses have very strong top-down mandates on how work is to be generated. A typical portion of the workflow in the product creation process is (oversimplified):</p>
+
+<ol>
+<li>A product owner (PO) generates a PRD</li>
+<li>An architect generates a high-level design</li>
+<li>Developers implement it</li>
+</ol>
+
+<p>If the PRD is vague, wrong, or incomplete, everything downstream becomes more difficult. Meetings are held. Alignment is sought. Someone forgets to write down a decision. UAT points out that they uploaded a file with a duplicate filename and overwrote important data.</p>
+
+<p>Oops.</p>
+
+<p>Then everything goes back upstream, requirements are refined (in theory), the design may get altered, developers grumble, and so on. The corporate death march drummer is tired.</p>
+
+<p>Wouldn’t it be nice if that PRD was much better in the first place? And what it was much faster, instead of the two to three days many POs take to generate a PRD?</p>
+
+<p>What follows is a very simple example, similar to what I have just demonstrated internally.</p>
+
+<p>A couple of months ago, I saw a demo where another one of our divisions had created a genAI PRD generator. It was fancy. It used RAG. It took a lot of time to build. I took one look and thought, “mine!”</p>
+
+<p>I wanted that. Except that I’m a firm believer in the Pareto 80/20 rule: eighty percent of your results are handled by 20% of your actions. I was pretty sure I could get that eighty percent with a custom GPT and a single prompt. I built that and showed it to a senior product owner. He thought it was interesting, but he gave a firm, “no.” My PRD was, to be kind, mediocre.</p>
+
+<p>Fast forward to a couple of weeks ago when I revisited it. This time, after playing with it for a few minutes, he gave a firm, “f***ing awesome.” He said that more than once.</p>
+
+<p>There were a couple of tweaks I had made, but the implemtation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:</p>
+
+<ol>
+<li>The setup explaining the AI’s role and its task </li>
+<li>A PRD template to use as a guide</li>
+<li>A “pushback layer” to find problems</li>
+</ol>
+
+<p>Structurally, the prompt was similar to the following. For this example, I’m imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been changed).</p>
+
+<hr />
+
+<blockquote>
+  <h3><strong>Section 1: The Setup (Role &amp; Objective)</strong></h3>
+  
+  <p><strong>Role:</strong> You are a Senior Product Owner with 15+ years of experience in <strong>Regulated Fintech and Retail Banking</strong>. You specialize in omnichannel digital transformation—specifically bridge-building between physical branch operations and modern mobile/web platforms.</p>
+  
+  <p><strong>Task:</strong> You will receive a high-level “Requirements Statement” from the user.</p>
+  
+  <ol>
+  <li><strong>Analyze</strong> the request through a dual lens: Retail (Physical) vs. Online (Digital).  </li>
+  <li><strong>Generate</strong> a high-fidelity PRD using the strictly mandated template below.  </li>
+  <li><strong>Identify</strong> regulatory divergences where a “one-size-fits-all” feature would break compliance laws (e.g., AML, KYC, DORA 2025).</li>
+  </ol>
+  
+  <hr />
+  
+  <h3><strong>Section 2: The Mandated PRD Template</strong></h3>
+  
+  <p><strong>Instructions:</strong> You must follow this structure exactly. Do not skip sections.</p>
+  
+  <h2><strong>1. Product Vision &amp; Strategy</strong></h2>
+  
+  <ul>
+  <li><strong>Problem Statement:</strong> What pain point does this solve for both the bank and the user?  </li>
+  <li><strong>Success Metrics:</strong> Quantifiable KPIs for both Retail and Online channels.</li>
+  </ul>
+  
+  <h2><strong>2. Channel-Specific Functional Requirements</strong></h2>
+  
+  <p><em>Define requirements in a comparison table to highlight the split.</em></p>
+  
+  <ul>
+  <li><strong>Requirement Name | Retail (Branch) Spec | Online (Digital) Spec | Regulatory Driver</strong></li>
+  </ul>
+  
+  <h2><strong>3. Cross-Channel User Stories</strong></h2>
+  
+  <p><em>Focus on the “Hand-off” (e.g., starting online, finishing in-branch).</em></p>
+  
+  <ul>
+  <li><strong>User Story:</strong> “As a [User], I want to [Action] so that [Value].”  </li>
+  <li><strong>Acceptance Criteria (AC):</strong> Include at least 3 ACs per story.</li>
+  </ul>
+  
+  <h2><strong>4. RACI Matrix</strong></h2>
+  
+  <p><em>Map out: Product, Engineering, Compliance, and Branch Operations.</em></p>
+  
+  <h2><strong>5. Non-Functional Requirements (NFRs)</strong></h2>
+  
+  <p><em>Focus on Security, Latency, and Accessibility (WCAG 2.1).</em></p>
+  
+  <hr />
+  
+  <h3><strong>Section 3: The “Pushback Layer”</strong></h3>
+  
+  <p><strong>Crucial Instruction:</strong> After you present the PRD, you must transition into <strong>“Critical Reviewer”</strong> mode. Provide a final section titled <strong>“The Pushback Layer”</strong> where you:</p>
+  
+  <ol>
+  <li><strong>Challenge Ambiguities:</strong> Ask me 3-5 specific questions about missing edge cases (e.g., “What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?“).  </li>
+  <li><strong>Suggest Missing Components:</strong> Identify a high-risk area I ignored (e.g., “The PRD lacks a ‘Deceased Account' workflow for online-only users”).  </li>
+  <li><strong>Proposed Tool Call:</strong> If you have access to search or internal documentation tools (MCP), state which specific regulatory database or internal API you would query to finalize the “Technical Constraints” section.</li>
+  </ol>
+  
+  <p><strong>Wait for my input to refine the PRD before declaring the version “Final.”</strong></p>
+</blockquote>
+
+<hr />
+
+<p>Let’s break down why this single prompt is so powerful:</p>
+
+<p><strong>The setup explaining the AI’s role and its task</strong></p>
+
+<p>Telling an AI its role makes it “think” like that role and can often dramatically improve its output.</p>
+
+<p><strong>A PRD template to use as a guide</strong></p>
+
+<p>The template serves two purposes. The obvious one is telling the AI what sort of output to produce. The second it less obvious, but it’s critical: the AI is much more likely to think about things like “WCAG 2.1” if they’re in the prompt, so the better the template, the better the responses you will get.</p>
+
+<p><strong>A “pushback layer” to find problems</strong></p>
+
+<p>This is the key and it’s one where many AI systems fall down on. Maybe you ask the AI, “how do I get to Paris?” and it tells you how to buy plane tickets to France, but you live in Texas and you meant, “Paris, Texas.” Most of the time, the assumption is OK, but for PRDs, such assumptions would be bad. So many good AI systems include “pushback layers.” When you ask “where’s the museum in London,” it would reasonably ask what kind of museum you have in mind. Having no pushback layer means the AI guesses at the answer. You do not want this.</p>
+
+<h2><a name="my-prd-generator"></a>My PRD Generator</h2>
+
+<p>Adding the pushback layer turned my PRD generator from an interesting toy to “f***ing amazing.” A senior PO, who usually takes only a day to produce high-quality PRDs, tried it out with a PRD he had recently worked on. He started by explaining the problem and the edge cases. A minute later, he had a draft. He gave feedback and the AI improved the draft. When he finally accepted the draft, the pushback layer kicked in.</p>
+
+<p>The layer hit him with many questions that weren’t covered in the PRD he accepted, and he was amazed when it hit him with edge cases he hadn’t previously considered. He’s now asking his other POs to give it a try. In just a few minutes, they could get work done that used to take them days, and it catches edge cases that they previously missed.</p>
+
+<p>But that’s not all! Remember the design, build, and test phases? Most of those are likely to go smoother, with fewer “alignment” meetings because the PRDs are higher quality in the first place. The entire software development life cycle gets faster <em>and</em> higher quality.</p>
+
+<h2><a name="objection"></a>Objection!</h2>
+
+<p>At this point, those who are very experienced in this area can point out some flaws in the above. You probably need custom prompts for different business areas. And what about pesky regulatory requirements that differ from region to region? And it’s a custom GPT. Nobody wants to retype all of that in Confluence.</p>
+
+<p>None of those objections hold up. The point of this process is to generate an MVP to prove that the concept works. After we have a few POs give their feedback, and we measure both accuracy and productivity, we can build an internal product that can:</p>
+
+<ol>
+<li>Customize the prompt per product area</li>
+<li>Use MCP to pull in and cite regulatory requirements</li>
+<li>Create the final draft to Confluence for review and approval</li>
+</ol>
+
+<p>Another objection is that POs will over-rely on this and push PRDs they haven’t reviewed. That is a real risk. Given that these already appear to be higher quality than what we have, this risk seems minimized, but hallucinations could hit us hard. I have no clear guidance on this other than the fact that we mandate review and sign off.</p>
+
+<p>A final objection is that this means we need fewer POs and they’ll lose their jobs. In reality, this frees POs to spend more time on the valuable parts of their work, such as interpreting nuanced customer feedback, balancing trade-offs between competing stakeholders, and obsessing over the strategic “why” that ensures the product delivers actual market value rather than just technical compliance.</p>
+
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="collapsible-trigger-2"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="collapsible-content-2"
+         aria-label="Expand: But, but, but ...">
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">But, but, but ...</span>
+    </div>
+    <div id="collapsible-content-2"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="collapsible-trigger-2">
+        <p>There’s also anchor bias, skill atrophy, prompt drift, and other objections that can easily be brought up, but if I deal with the long tail of all objections, I’ll miss dinner and you won’t read it anyway.</p>
+
+    </div>
+</div>
+
+<h1><a name="the-result"></a>The Result</h1>
+
+<p>The PRD MVP appears to be solid and we’re trialing it. Only <em>after</em> we validate the results will we spend the time and money for a production build. Too many companies strive to build large AI systems without first trialing small POCs and validating results. This is a huge part of me being the human “pushback layer” in my current role.</p>
+
+<p>This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt. Think about how many people are involved in that, calculate the money saved per project, multiplied by the number of projects, and that comes to ... well, I can’t give you real numbers, but here are some plausible ones, assuming we have 200 projects per year.</p>
+
+<ul>
+<li><strong>Time saved:</strong> ~2 days (16 hours) per project.  </li>
+<li><strong>Who:</strong> 1 Product Owner.  </li>
+<li><strong>Cost:</strong> At an average fully-loaded rate of <strong>$100/hr</strong>, that’s <strong>$1,600</strong> per project.  </li>
+<li><strong>Annual Subtotal:</strong> $320,000.</li>
+</ul>
+
+<p>That’s not the real savings; it’s in the downstream effort. Vague requirements are the #1 cause of “Requirement Churn” (re-coding something that was misunderstood). Industry data shows that fixing a requirement during the design phase is far cheaper than fixing it during coding and even more so than in testing.</p>
+
+<ul>
+<li><strong>Time saved:</strong> By catching edge cases before a single line of code is written, you save an average of <strong>2 weeks (80 hours)</strong> of aggregate team time.  </li>
+<li><strong>Who:</strong> The “Quad” (1 PO, 1 Lead Dev, 1 Designer, 1 QA).  </li>
+<li><strong>Weighted Avg Rate:</strong> <strong>$125/hr</strong> (reflecting engineering premiums).  </li>
+<li><strong>Calculation:</strong> 80 hours × $125/hr = <strong>$10,000</strong> saved in avoided rework per project.  </li>
+<li><strong>Annual Subtotal:</strong> $2,000,000.</li>
+</ul>
+
+<p>All told, that could be over $2 million a year saved by a tiny prompt.</p>
+
+<p>And as mentioned previously, the key is to use AI for its strengths: the same areas where humans fail. There are many, many areas where techniques like this bring huge ROI to back office and administrative functions. The big, sexy, “ready, shoot, aim” projects dominate the news, especially when they fail. This quiet work is where much of the solid value is. AI is here to stay.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    <div class="prevNext">
+        
+        <a href="/articles/ai-today-is-like-the-early-internet.html" class="prevPost">&laquo; AI Today Is Like the Early Internet</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai.html" data-weight="5">AI</a></li>
+
+    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+
+    <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+
+    <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+        <hr>
+        <p>Copyright &copy; 2018-2025 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+    <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/real-world-value-with-generative-ai.html";
+            this.page.identifier = "articles/real-world-value-with-generative-ai";
+            this.page.title      = "Real-World Value with Generative AI";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+</body>
+</html>
+
+
