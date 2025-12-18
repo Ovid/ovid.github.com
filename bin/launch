@@ -98,3 +98,343 @@ elsif ( $pid == 0 ) {
 
 dance;
 
+__END__
+
+=head1 NAME
+
+launch - Start the live editor for editing blog posts and articles
+
+=head1 SYNOPSIS
+
+    perl bin/launch [OPTIONS] <file>
+
+    # Edit an article with default port (3000)
+    perl bin/launch root/articles/my-article.tt
+
+    # Edit a blog post on custom port
+    perl bin/launch --port=3001 root/blog/my-post.tt
+
+    # Works with .tt2markdown files too
+    perl bin/launch root/blog/my-post.tt2markdown
+
+    # Auto-corrects if you provide generated HTML
+    perl bin/launch blog/my-post.html
+    # Notice: Switching to source file: root/blog/my-post.tt
+
+=head1 DESCRIPTION
+
+The C<launch> script starts a live editor server for editing Template Toolkit
+files. It provides a side-by-side editing experience with real-time preview of
+your content as you type.
+
+The editor runs a Dancer2 web application (L<Ovid::App::LiveEditor>) that serves:
+
+=over 4
+
+=item * A CodeMirror-based editor with syntax highlighting
+
+=item * Real-time Markdown preview
+
+=item * Auto-save functionality (saves after 1 second of inactivity)
+
+=item * Image upload with automatic resizing
+
+=item * Vim mode support (toggleable)
+
+=item * Dark mode support (toggleable)
+
+=item * File browser for navigating between templates
+
+=back
+
+The script automatically opens your default browser to the editor interface once
+the server is ready.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--port=N>
+
+Specify the port number for the server. Default is 3000.
+
+    perl bin/launch --port=8080 root/blog/my-post.tt
+
+=back
+
+=head1 ARGUMENTS
+
+=over 4
+
+=item B<file>
+
+Path to the Template Toolkit file to edit. Can be:
+
+=over 8
+
+=item * Relative path: C<root/blog/my-post.tt>
+
+=item * Absolute path: C</Users/username/website/root/articles/foo.tt>
+
+=item * Generated HTML (auto-corrected): C<blog/my-post.html> → C<root/blog/my-post.tt>
+
+=item * Either C<.tt> or C<.tt2markdown> extensions
+
+=back
+
+The file must exist within the project directory for security reasons.
+
+=back
+
+=head1 AUTO-CORRECTION
+
+If you accidentally provide a generated HTML file path (e.g., C<blog/foo.html>),
+the script will automatically find and use the corresponding source template:
+
+    # You provide: blog/foo.html
+    # Script uses: root/blog/foo.tt
+
+    # Or if that doesn't exist:
+    # Script uses: root/blog/foo.tt2markdown
+
+This is convenient when you're browsing the generated site and want to quickly
+edit the source.
+
+=head1 SECURITY
+
+The server is bound to C<127.0.0.1> (localhost) only and cannot be accessed from
+other machines. This is a security feature to prevent unauthorized access to your
+content.
+
+The script also validates that the file path is within the project directory to
+prevent path traversal attacks.
+
+=head1 EDITOR FEATURES
+
+=head2 Auto-Save
+
+Content is automatically saved to disk after 1 second of typing inactivity. You'll
+see a "Typing..." indicator while typing and "Saved" when the save completes.
+
+=head2 Keyboard Shortcuts
+
+=over 4
+
+=item * C<Ctrl-S> or C<Cmd-S> - Manually trigger save and refresh preview
+
+=back
+
+=head2 Vim Mode
+
+Toggle vim mode from the dropdown menu (☰). When enabled:
+
+=over 4
+
+=item * Standard vim keybindings (hjkl, dd, yy, p, etc.)
+
+=item * Mode indicator shows current mode (NORMAL, INSERT, VISUAL)
+
+=item * Preference persisted in browser localStorage
+
+=item * Key repeat works naturally after initial delay
+
+=back
+
+=head2 Image Upload
+
+From the dropdown menu, select "Upload Image" to:
+
+=over 4
+
+=item * Upload PNG, GIF, or JPG images
+
+=item * Images automatically resized to max 300KB
+
+=item * Saved to C<root/static/images/>
+
+=item * Template snippet inserted at cursor position
+
+=item * Supports drag-and-drop and paste from clipboard
+
+=back
+
+=head2 Dark Mode
+
+Toggle dark mode from the dropdown menu. Uses Monokai theme for CodeMirror when
+enabled. Preference persisted in browser localStorage.
+
+=head2 File Browser
+
+Click "Edit Post" from the dropdown menu to browse and switch between all template
+files in the C<root/> directory.
+
+=head1 IMPLEMENTATION DETAILS
+
+=over 4
+
+=item 1. The script validates the file path and sets C<$ENV{LIVE_EDITOR_FILE}>
+
+=item 2. Forks a child process to monitor server startup
+
+=item 3. Child polls C</health> endpoint every 100ms (max 5 seconds)
+
+=item 4. Once server is ready, child opens default browser
+
+=item 5. Parent process starts the Dancer2 application
+
+=back
+
+The Dancer2 app provides these endpoints:
+
+=over 4
+
+=item * C<GET /> - Editor interface
+
+=item * C<POST /api/save> - Save content
+
+=item * C<GET /preview> - Rendered preview
+
+=item * C<GET /api/files> - List all template files
+
+=item * C<POST /api/upload-image> - Upload and resize images
+
+=item * C<GET /health> - Health check for startup polling
+
+=back
+
+=head1 EXIT STATUS
+
+=over 4
+
+=item 0
+
+Success - server started and running
+
+=item 1
+
+Error - invalid arguments, file not found, or security violation
+
+=back
+
+=head1 EXAMPLES
+
+    # Basic usage
+    perl bin/launch root/blog/my-new-post.tt
+
+    # Custom port (useful if 3000 is in use)
+    perl bin/launch --port=5000 root/articles/tutorial.tt
+
+    # Edit from anywhere in the project
+    cd some/subdirectory
+    perl ../../bin/launch ../../root/blog/post.tt
+
+    # Quick edit from generated file
+    perl bin/launch articles/my-article.html
+    # → Automatically switches to root/articles/my-article.tt
+
+=head1 TROUBLESHOOTING
+
+=over 4
+
+=item B<"Server did not become ready in time">
+
+The server took longer than 5 seconds to start. Try:
+
+=over 8
+
+=item * Check if port is already in use: C<lsof -i :3000>
+
+=item * Try a different port: C<--port=3001>
+
+=item * Open the URL manually (shown in the warning)
+
+=back
+
+=item B<"Security Error: Cannot edit files outside the project directory">
+
+You're trying to edit a file outside the project root. The editor only allows
+editing files within the project for security.
+
+=item B<"File not found">
+
+The specified file doesn't exist. Check the path and ensure it's a C<.tt> or
+C<.tt2markdown> file in the C<root/> directory.
+
+=item B<Browser doesn't open automatically>
+
+The browser should open automatically within 5 seconds. If not:
+
+=over 8
+
+=item * Manually navigate to C<http://127.0.0.1:3000/>
+
+=item * Check that Browser::Open is installed: C<cpanm Browser::Open>
+
+=item * Check C<child_debug.log> for errors
+
+=back
+
+=back
+
+=head1 DEPENDENCIES
+
+=over 4
+
+=item * L<Ovid::App::LiveEditor> - The Dancer2 application
+
+=item * L<Dancer2> - Web framework
+
+=item * L<Path::Tiny> - File path handling
+
+=item * L<Getopt::Long> - Command-line option parsing
+
+=item * L<Browser::Open> - Automatic browser launching
+
+=item * L<HTTP::Tiny> - Health check polling
+
+=item * L<Time::HiRes> - Sub-second sleep delays
+
+=back
+
+=head1 FILES
+
+=over 4
+
+=item C<child_debug.log>
+
+Debug log for the browser-launching child process. Created in the current directory.
+
+=item C<root/>
+
+Directory containing all template files that can be edited.
+
+=item C<root/static/images/>
+
+Destination directory for uploaded images.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item * L<Ovid::App::LiveEditor> - The live editor Dancer2 application
+
+=item * L<bin/article> - Create new articles and blog posts
+
+=item * L<bin/rebuild> - Rebuild the entire site
+
+=item * L<Template::Plugin::Blogdown> - Markdown processing for content
+
+=back
+
+=head1 AUTHOR
+
+Curtis "Ovid" Poe
+
+=head1 LICENSE
+
+Copyright 2018-2025, Curtis "Ovid" Poe. Released under The MIT License.
+
+=cut
+
