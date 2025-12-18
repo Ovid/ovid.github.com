@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+
 export function search(query: string, num_results: number): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -14,6 +15,7 @@ export interface InitOutput {
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
+
 /**
 * Instantiates the given `module`, which can either be bytes or
 * a precompiled `WebAssembly.Module`.

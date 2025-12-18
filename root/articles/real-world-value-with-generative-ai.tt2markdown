@@ -21,13 +21,13 @@
 
 # When To Use AI
 
-This might be a bit of a long article, but when companies are flushing away millions of dollars on disastrous generative AI failures, isn't spending a few minutes understanding where you can get value be worth it? I'll show you how I reduced two days of error-prone work down to 15 minutes of less error-prone work.
+This might be a bit of a long article, but when companies are flushing away millions of dollars on disastrous generative AI failures, isn't spending a few minutes understanding where you can get value be worth it? I'll show you how I reduced two days of error-prone work down to 15 minutes of less error-prone work, potentially saving $2 million or more a year.
 
 ---
 
 There was a proposal for using AI to generate data in our compliance system.
 
-I shut that down quickly but was thinking, "are you insane?" AI hallucinates. Hallucinations and lawyers do not play well together. Even if it doesn't hallucinate, the compliance system has to transparently explain how it generated the data. Not only is that another potential source for hallucinations, but AI has been known to, um, not be entirely honest about how it arrives at answers if it's "concerned" about how the real answer will be received. AI is a black box and trying to peer inside will often reveals what the AI wants you to see, not what you need to know.
+I shut that down quickly but was thinking, "are you insane?" AI hallucinates. Hallucinations and lawyers do not play well together. Even if it doesn't hallucinate, the compliance system has to transparently explain how it generated the data. Not only is that another potential source for hallucinations, but AI has been known to be, um, not entirely honest about how it arrives at answers if it's "concerned" about how the real answer will be received. AI is a black box and trying to peer inside will often reveals what the AI wants you to see, not what you need to know.
 
 Of the _real_ complaints about generative AI, hallucinations aren't the slam dunk people think they are. It's not understanding when they're a serious problem which is the issue. People also complain when AI has blind spots and misses things an expert would see. But again, "experts" often miss critical issues.
 
@@ -54,7 +54,7 @@ Many businesses have very strong top-down mandates on how work is to be generate
 2. An architect generates a high-level design
 3. Developers implement it
 
-If the PRD is vague, wrong, or incomplete, everything downstream becomes more difficult. Meetings are held. Alignement is sought. Someone forgets to write down a decision, UAT points out that they uploaded a file with a duplicate filename and overwrote important data.
+If the PRD is vague, wrong, or incomplete, everything downstream becomes more difficult. Meetings are held. Alignment is sought. Someone forgets to write down a decision. UAT points out that they uploaded a file with a duplicate filename and overwrote important data.
 
 Oops.
 
@@ -76,7 +76,9 @@ There were a couple of tweaks I had made, but the implemtation of a pushback lay
 2. A PRD template to use as a guide
 3. A "pushback layer" to find problems
 
-Structurally, the prompt was similar to the following. For this example, I'm imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been removed).
+Structurally, the prompt was similar to the following. For this example, I'm imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been changed).
+
+---
 
 > ### **Section 1: The Setup (Role & Objective)**
 > 
@@ -132,6 +134,8 @@ Structurally, the prompt was similar to the following. For this example, I'm ima
 > 
 > **Wait for my input to refine the PRD before declaring the version "Final."**
 
+---
+
 Let's break down why this single prompt is so powerful:
 
 **The setup explaining the AI's role and its task**
@@ -148,7 +152,7 @@ This is the key and it's one where many AI systems fall down on. Maybe you ask t
 
 ## My PRD Generator
 
-Adding the pushback layer turned my PRD generator from an intersting toy to "f\*\*\*ing amazing." A senior PO, who usually takes only a day to produce high-quality PRDs, tried it out with a PRD he had recently worked on. He started by explaining the problem and the edge cases. A minute later, he had a draft. He gave feedback and the AI improved the draft. When he finally accepted the draft, the pushback layer kicked in.
+Adding the pushback layer turned my PRD generator from an interesting toy to "f\*\*\*ing amazing." A senior PO, who usually takes only a day to produce high-quality PRDs, tried it out with a PRD he had recently worked on. He started by explaining the problem and the edge cases. A minute later, he had a draft. He gave feedback and the AI improved the draft. When he finally accepted the draft, the pushback layer kicked in.
 
 The layer hit him with many questions that weren't covered in the PRD he accepted, and he was amazed when it hit him with edge cases he hadn't previously considered. He's now asking his other POs to give it a try. In just a few minutes, they could get work done that used to take them days, and it catches edge cases that they previously missed.
 
@@ -164,7 +168,7 @@ None of those objections hold up. The point of this process is to generate an MV
 2. Use MCP to pull in and cite regulatory requirements
 3. Create the final draft to Confluence for review and approval
 
-Another objection is that POs will over-rely on this and push PRDs they haven't reviewed. That is a real risk. Given that these already appear to be higher quality than what we have, this risk seems minimized, but hallucinations could hit us hard. I have no clear guidance on this.
+Another objection is that POs will over-rely on this and push PRDs they haven't reviewed. That is a real risk. Given that these already appear to be higher quality than what we have, this risk seems minimized, but hallucinations could hit us hard. I have no clear guidance on this other than the fact that we mandate review and sign off.
 
 A final objection is that this means we need fewer POs and they'll lose their jobs. In reality, this frees POs to spend more time on the valuable parts of their work, such as interpreting nuanced customer feedback, balancing trade-offs between competing stakeholders, and obsessing over the strategic "why" that ensures the product delivers actual market value rather than just technical compliance.
 
@@ -176,7 +180,22 @@ A final objection is that this means we need fewer POs and they'll lose their jo
 
 The PRD MVP appears to be solid and we're trialing it. Only _after_ we validate the results will we spend the time and money for a production build. Too many companies strive to build large AI systems without first trialing small POCs and validating results. This is a huge part of me being the human "pushback layer" in my current role.
 
-This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt.
+This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt. Think about how many people are involved in that, calculate the money saved per project, multiplied by the number of projects, and that comes to ... well, I can't give you real numbers, but here are some plausible ones, assuming we have 200 projects per year.
+
+* **Time saved:** ~2 days (16 hours) per project.  
+* **Who:** 1 Product Owner.  
+* **Cost:** At an average fully-loaded rate of **$100/hr**, that’s **$1,600** per project.  
+* **Annual Subtotal:** $320,000.
+
+That's not the real savings; it's in the downstream effort. Vague requirements are the \#1 cause of "Requirement Churn" (re-coding something that was misunderstood). Industry data shows that fixing a requirement during the design phase is far cheaper than fixing it during coding and even more so than in testing.
+
+* **Time saved:** By catching edge cases before a single line of code is written, you save an average of **2 weeks (80 hours)** of aggregate team time.  
+* **Who:** The "Quad" (1 PO, 1 Lead Dev, 1 Designer, 1 QA).  
+* **Weighted Avg Rate:** **$125/hr** (reflecting engineering premiums).  
+* **Calculation:** 80 hours × $125/hr = **$10,000** saved in avoided rework per project.  
+* **Annual Subtotal:** $2,000,000.
+
+All told, that could be over $2 million a year saved by a tiny prompt.
 
 And as mentioned previously, the key is to use AI for its strengths: the same areas where humans fail. There are many, many areas where techniques like this bring huge ROI to back office and administrative functions. The big, sexy, "ready, shoot, aim" projects dominate the news, especially when they fail. This quiet work is where much of the solid value is. AI is here to stay.
 
