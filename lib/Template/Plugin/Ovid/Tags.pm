@@ -8,8 +8,13 @@ use Path::Tiny 'path';
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
-    my $tagmap_file = config()->{tagmap_file};
-    my $json        = path($tagmap_file)->slurp_utf8;
+    my $tagmap_file = config()->{tagmap_file}
+        or croak("tagmap_file not configured");
+
+    my $path = path($tagmap_file);
+    croak("Tagmap file not found: $tagmap_file") unless $path->exists;
+
+    my $json = $path->slurp_utf8;
 
     bless {
         _CONTEXT => $context,
@@ -36,11 +41,22 @@ sub weight_for_tag ( $self, $tag ) {
     state $weight_max = 9;
     state $weight_min = 1;
     unless ( exists $weight_for->{$tag} ) {
+        croak("Cannot find weight for unknown tag '$tag'")
+            unless exists $self->{tagmap}{$tag};
+
         my $counts = [ map { $self->{tagmap}{$_}{count} } $self->_tags ];
         my $min    = min @$counts;
         my $max    = max @$counts;
         my $count  = $self->{tagmap}{$tag}{count};
-        my $weight = $weight_min + ( ( $weight_max - $weight_min ) * ( $count - $min ) ) / ( $max - $min );
+
+        my $weight;
+        if ( $max == $min ) {
+            # All tags have equal count, use middle weight
+            $weight = int( ( $weight_max + $weight_min ) / 2 );
+        }
+        else {
+            $weight = $weight_min + ( ( $weight_max - $weight_min ) * ( $count - $min ) ) / ( $max - $min );
+        }
         $weight_for->{$tag} = int( $weight + .5 );
     }
     return $weight_for->{$tag};
