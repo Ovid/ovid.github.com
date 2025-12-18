@@ -1,0 +1,183 @@
+[%
+    title            = 'Real-World Value with Generative AI';
+    type             = 'articles';
+    slug             = 'real-world-value-with-generative-ai';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2025-12-18';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai business}}
+
+[% Ovid.collapse('Click here if you really object to AI ...',
+"I get it. I really do. Many people object to AI, but the \"no business value\" argument doesn't wash. Instead, focus on the <em>real</em> problems with genenative AI: environmental concerns, bias, IP theft, job loss, and so on. By denying business value, you destroy your credibility.
+")%]
+
+# When To Use AI
+
+This might be a bit of a long article, but when companies are flushing away millions of dollars on disastrous generative AI failures, isn't spending a few minutes understanding where you can get value be worth it? I'll show you how I reduced two days of error-prone work down to 15 minutes of less error-prone work.
+
+---
+
+There was a proposal for using AI to generate data in our compliance system.
+
+I shut that down quickly but was thinking, "are you insane?" AI hallucinates. Hallucinations and lawyers do not play well together. Even if it doesn't hallucinate, the compliance system has to transparently explain how it generated the data. Not only is that another potential source for hallucinations, but AI has been known to, um, not be entirely honest about how it arrives at answers if it's "concerned" about how the real answer will be received. AI is a black box and trying to peer inside will often reveals what the AI wants you to see, not what you need to know.
+
+Of the _real_ complaints about generative AI, hallucinations aren't the slam dunk people think they are. It's not understanding when they're a serious problem which is the issue. People also complain when AI has blind spots and misses things an expert would see. But again, "experts" often miss critical issues.
+
+So at the risk of hugely oversimplifying the problem, let's break work down into two areas.
+
+1. Areas where an error is catastrophic. Don't use AI.
+2. Anything else. AI is on the table.
+
+What qualifies as "anything else?" Well, consider that we humans hallucinate constantly. Consider how many times you've read news articles about an area you know well and you're ready to cry at the mistakes and omissions. A case in point is when I was writing up a sample PRD (product requirements document) and I was proud of the work I put into it, and just a couple of seconds later my AI asked, "what happens if the user uploads a file with a duplicate filename but different contents?"
+
+How could I have missed such a blindingly obvious requirement? It happens to all of us from time to time.
+
+# If Humans Do It, AI Can Help
+
+At this point, you probably understand where I'm going: if a human can do a thing, there's a good chance that an AI can do it. However, it's not that simple. AI cannot, and should not, be blindly trusted. Humans must remain in the driver's seat because AI just predicts the next token. Those predictions often go wrong. However, so long as the humans assume this role, AI is amazingly valuable. A case in point: the aforementioned PRDs.
+
+## Product Requirements Document
+
+Throughout all of the following, the key thing to remember is that for error-prone work humans do, the value from AI is that it can produce _better_ work—albeit imperfect—faster than humans can.
+
+Many businesses have very strong top-down mandates on how work is to be generated. A typical portion of the workflow in the product creation process is (oversimplified):
+
+1. A product owner (PO) generates a PRD
+2. An architect generates a high-level design
+3. Developers implement it
+
+If the PRD is vague, wrong, or incomplete, everything downstream becomes more difficult. Meetings are held. Alignement is sought. Someone forgets to write down a decision, UAT points out that they uploaded a file with a duplicate filename and overwrote important data.
+
+Oops.
+
+Then everything goes back upstream, requirements are refined (in theory), the design may get altered, developers grumble, and so on. The corporate death march drummer is tired.
+
+Wouldn't it be nice if that PRD was much better in the first place? And what it was much faster, instead of the two to three days many POs take to generate a PRD?
+
+What follows is a very simple example, similar to what I have just demonstrated internally.
+
+A couple of months ago, I saw a demo where another one of our divisions had created a genAI PRD generator. It was fancy. It used RAG. It took a lot of time to build. I took one look and thought, "mine!"
+
+I wanted that. Except that I'm a firm believer in the Pareto 80/20 rule: eighty percent of your results are handled by 20% of your actions. I was pretty sure I could get that eighty percent with a custom GPT and a single prompt. I built that and showed it to a senior product owner. He thought it was interesting, but he gave a firm, "no." My PRD was, to be kind, mediocre.
+
+Fast forward to a couple of weeks ago when I revisited it. This time, after playing with it for a few minutes, he gave a firm, "f\*\*\*ing awesome." He said that more than once.
+
+There were a couple of tweaks I had made, but the implemtation of a pushback layer was the critical one. Effectively, I wrote a custom GPT as a proof-of-concept using a single prompt:
+
+1. The setup explaining the AI's role and its task 
+2. A PRD template to use as a guide
+3. A "pushback layer" to find problems
+
+Structurally, the prompt was similar to the following. For this example, I'm imagining a retail banking company with an online presense (this is structurally what I used, but all identifying details have been removed).
+
+> ### **Section 1: The Setup (Role & Objective)**
+> 
+> **Role:** You are a Senior Product Owner with 15+ years of experience in **Regulated Fintech and Retail Banking**. You specialize in omnichannel digital transformation—specifically bridge-building between physical branch operations and modern mobile/web platforms.
+> 
+> **Task:** You will receive a high-level "Requirements Statement" from the user.
+> 
+> 1. **Analyze** the request through a dual lens: Retail (Physical) vs. Online (Digital).  
+> 2. **Generate** a high-fidelity PRD using the strictly mandated template below.  
+> 3. **Identify** regulatory divergences where a "one-size-fits-all" feature would break compliance laws (e.g., AML, KYC, DORA 2025).
+> 
+> ---
+> 
+> ### **Section 2: The Mandated PRD Template**
+> 
+> **Instructions:** You must follow this structure exactly. Do not skip sections.
+> 
+> ## **1\. Product Vision & Strategy**
+> 
+> * **Problem Statement:** What pain point does this solve for both the bank and the user?  
+> * **Success Metrics:** Quantifiable KPIs for both Retail and Online channels.
+> 
+> ## **2\. Channel-Specific Functional Requirements**
+> 
+> *Define requirements in a comparison table to highlight the split.*
+> 
+> * **Requirement Name | Retail (Branch) Spec | Online (Digital) Spec | Regulatory Driver**
+> 
+> ## **3\. Cross-Channel User Stories**
+> 
+> *Focus on the "Hand-off" (e.g., starting online, finishing in-branch).*
+> 
+> * **User Story:** "As a \[User\], I want to \[Action\] so that \[Value\]."  
+> * **Acceptance Criteria (AC):** Include at least 3 ACs per story.
+> 
+> ## **4\. RACI Matrix**
+> 
+> *Map out: Product, Engineering, Compliance, and Branch Operations.*
+> 
+> ## **5\. Non-Functional Requirements (NFRs)**
+> 
+> *Focus on Security, Latency, and Accessibility (WCAG 2.1).*
+> 
+> ---
+> 
+> ### **Section 3: The "Pushback Layer"**
+> 
+> **Crucial Instruction:** After you present the PRD, you must transition into **"Critical Reviewer"** mode. Provide a final section titled **"The Pushback Layer"** where you:
+> 
+> 1. **Challenge Ambiguities:** Ask me 3-5 specific questions about missing edge cases (e.g., "What happens if a customer’s biometric scan fails but they claim they can’t travel to a branch?").  
+> 2. **Suggest Missing Components:** Identify a high-risk area I ignored (e.g., "The PRD lacks a 'Deceased Account' workflow for online-only users").  
+> 3. **Proposed Tool Call:** If you have access to search or internal documentation tools (MCP), state which specific regulatory database or internal API you would query to finalize the "Technical Constraints" section.
+> 
+> **Wait for my input to refine the PRD before declaring the version "Final."**
+
+Let's break down why this single prompt is so powerful:
+
+**The setup explaining the AI's role and its task**
+
+Telling an AI its role makes it "think" like that role and can often dramatically improve its output.
+
+**A PRD template to use as a guide**
+
+The template serves two purposes. The obvious one is telling the AI what sort of output to produce. The second it less obvious, but it's critical: the AI is much more likely to think about things like "WCAG 2.1" if they're in the prompt, so the better the template, the better the responses you will get.
+
+**A "pushback layer" to find problems**
+
+This is the key and it's one where many AI systems fall down on. Maybe you ask the AI, "how do I get to Paris?" and it tells you how to buy plane tickets to France, but you live in Texas and you meant, "Paris, Texas." Most of the time, the assumption is OK, but for PRDs, such assumptions would be bad. So many good AI systems include "pushback layers." When you ask "where's the museum in London," it would reasonably ask what kind of museum you have in mind. Having no pushback layer means the AI guesses at the answer. You do not want this.
+
+## My PRD Generator
+
+Adding the pushback layer turned my PRD generator from an intersting toy to "f\*\*\*ing amazing." A senior PO, who usually takes only a day to produce high-quality PRDs, tried it out with a PRD he had recently worked on. He started by explaining the problem and the edge cases. A minute later, he had a draft. He gave feedback and the AI improved the draft. When he finally accepted the draft, the pushback layer kicked in.
+
+The layer hit him with many questions that weren't covered in the PRD he accepted, and he was amazed when it hit him with edge cases he hadn't previously considered. He's now asking his other POs to give it a try. In just a few minutes, they could get work done that used to take them days, and it catches edge cases that they previously missed.
+
+But that's not all! Remember the design, build, and test phases? Most of those are likely to go smoother, with fewer "alignment" meetings because the PRDs are higher quality in the first place. The entire software development life cycle gets faster *and* higher quality.
+
+## Objection!
+
+At this point, those who are very experienced in this area can point out some flaws in the above. You probably need custom prompts for different business areas. And what about pesky regulatory requirements that differ from region to region? And it's a custom GPT. Nobody wants to retype all of that in Confluence.
+
+None of those objections hold up. The point of this process is to generate an MVP to prove that the concept works. After we have a few POs give their feedback, and we measure both accuracy and productivity, we can build an internal product that can:
+
+1. Customize the prompt per product area
+2. Use MCP to pull in and cite regulatory requirements
+3. Create the final draft to Confluence for review and approval
+
+Another objection is that POs will over-rely on this and push PRDs they haven't reviewed. That is a real risk. Given that these already appear to be higher quality than what we have, this risk seems minimized, but hallucinations could hit us hard. I have no clear guidance on this.
+
+A final objection is that this means we need fewer POs and they'll lose their jobs. In reality, this frees POs to spend more time on the valuable parts of their work, such as interpreting nuanced customer feedback, balancing trade-offs between competing stakeholders, and obsessing over the strategic "why" that ensures the product delivers actual market value rather than just technical compliance.
+
+[% Ovid.collapse('But, but, but ...',
+"There's also anchor bias, skill atrophy, prompt drift, and other objections that can easily be brought up, but if I deal with the long tail of all objections, I'll miss dinner and you won't read it anyway.
+")%]
+
+# The Result
+
+The PRD MVP appears to be solid and we're trialing it. Only _after_ we validate the results will we spend the time and money for a production build. Too many companies strive to build large AI systems without first trialing small POCs and validating results. This is a huge part of me being the human "pushback layer" in my current role.
+
+This looks like it will save around two days of work per PRD, but across the SDLC? Possibly a week or two of work, even if we stick with the current small prompt.
+
+And as mentioned previously, the key is to use AI for its strengths: the same areas where humans fail. There are many, many areas where techniques like this bring huge ROI to back office and administrative functions. The big, sexy, "ready, shoot, aim" projects dominate the news, especially when they fail. This quiet work is where much of the solid value is. AI is here to stay.
+
+[%- END %]
