@@ -5,6 +5,9 @@ use Plack::Test;
 use HTTP::Request::Common;
 use JSON::MaybeXS qw(decode_json);
 
+# Prevent side effects (launching browser) during tests
+$ENV{TESTING} = 1;
+
 # Load the app
 my $app;
 lives_ok { $app = do './bin/review' } 'bin/review loads without errors';
