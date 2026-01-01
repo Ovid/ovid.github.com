@@ -4,6 +4,28 @@ use v5.40;
 use Dancer2;
 use Path::Tiny;
 
+hook after => sub {
+    my $response = shift;
+
+    # Skip delayed responses (like send_file)
+    return if $response->isa('Dancer2::Core::Response::Delayed');
+
+    # Only inject into HTML responses
+    return unless $response->content_type &&
+                  $response->content_type =~ m{text/html};
+
+    my $content = $response->content;
+
+    # Inject dev mode flag and script reference in <head>
+    my $injection = q{
+    <script>window.DEV_MODE = true;</script>
+    <script src="/static/dev-tools.js"></script>
+};
+
+    $content =~ s{</head>}{$injection</head>};
+    $response->content($content);
+};
+
 post '/api/launch-editor' => sub {
     my $data = from_json(request->body);
     my $file = $data->{file};
@@ -47,7 +69,15 @@ get '/**' => sub {
 
     # Return file if it exists
     if ($file->exists && -f $file) {
-        send_file($file->stringify, system_path => 1);
+        # For HTML files, read and return content directly to allow hook injection
+        if ($path_str =~ /\.html?$/i) {
+            content_type 'text/html; charset=UTF-8';
+            return $file->slurp_utf8;
+        }
+        # For other files, use send_file
+        else {
+            send_file($file->stringify, system_path => 1);
+        }
     }
     else {
         status 'not_found';
