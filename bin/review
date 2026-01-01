@@ -2,9 +2,23 @@
 
 use v5.40;
 use Dancer2;
+use Path::Tiny;
 
-get '/' => sub {
-    return "Dev Server";
+# Serve static files
+get '/**' => sub {
+    my ($splat) = splat;
+    my $path_str = join('/', @$splat) || 'index.html';
+
+    my $file = path($path_str)->absolute;
+
+    # Return file if it exists
+    if ($file->exists && -f $file) {
+        send_file($file->stringify, system_path => 1);
+    }
+    else {
+        status 'not_found';
+        return "404 - Not Found: $path_str";
+    }
 };
 
 to_app;

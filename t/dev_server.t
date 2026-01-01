@@ -17,4 +17,13 @@ test_psgi $app => sub {
     ok $res, 'GET / returns a response';
 };
 
+test_psgi $app => sub {
+    my $cb = shift;
+
+    # Test serving index.html
+    my $res = $cb->(GET '/index.html');
+    is $res->code, 200, 'index.html returns 200';
+    like $res->content, qr/Curtis.*Poe/i, 'index.html contains expected content';
+};
+
 done_testing;
