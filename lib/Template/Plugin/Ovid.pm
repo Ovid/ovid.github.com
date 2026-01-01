@@ -1,7 +1,6 @@
 package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
-use Less::Pager;
 use Less::Script ();    # import nothing
 use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
@@ -18,7 +17,6 @@ sub new ( $class, $context ) {
         footnote_names             => {},
         footnotes                  => [],
         collapsible_section_number => 1,
-        pager                      => Less::Pager->new( type => 'article' ),
     }, $class;
 }
 
@@ -174,22 +172,6 @@ sub get_footnotes($self) {
 # Checks if any footnotes exist before rendering footer. Static analysis cannot detect template usage.
 sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
-}
-
-sub this_post ( $self, $type, $slug ) {
-    return $self->{pager}->this_post( $type, $slug );
-}
-
-sub prev_post ( $self, $type, $slug ) {
-    return $self->{pager}->prev_post( $type, $slug );
-}
-
-sub next_post ( $self, $type, $slug ) {
-    return $self->{pager}->next_post( $type, $slug );
-}
-
-sub is_blog ( $self, $type ) {
-    return $type eq 'blog';
 }
 
 1;
