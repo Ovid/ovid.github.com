@@ -4,6 +4,37 @@ use v5.40;
 use Dancer2;
 use Path::Tiny;
 
+post '/api/launch-editor' => sub {
+    my $data = from_json(request->body);
+    my $file = $data->{file};
+
+    # Validate file parameter
+    unless ($file) {
+        status 'bad_request';
+        return to_json({ error => 'No file specified' });
+    }
+
+    # Prevent directory traversal
+    if ($file =~ /\.\./) {
+        status 'bad_request';
+        return to_json({ error => 'Invalid file path' });
+    }
+
+    # Check file exists
+    my $path = path($file);
+    unless ($path->exists) {
+        status 'not_found';
+        return to_json({ error => "File not found: $file" });
+    }
+
+    # Launch editor in background (fire-and-forget)
+    my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $file);
+    system($launch_cmd);
+
+    content_type 'application/json';
+    return to_json({ success => 1, file => $file });
+};
+
 # Serve static files
 get '/**' => sub {
     my ($splat) = splat;
