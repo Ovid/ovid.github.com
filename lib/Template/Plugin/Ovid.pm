@@ -2,6 +2,7 @@ package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
 use Less::Script ();    # import nothing
+use Path::Tiny 'path';
 use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
   get_image_description
