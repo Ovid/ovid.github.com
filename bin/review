@@ -3,6 +3,7 @@
 use v5.40;
 use Dancer2;
 use Path::Tiny;
+use open ':std', ':encoding(UTF-8)';
 
 hook after => sub {
     my $response = shift;
@@ -66,6 +67,9 @@ get '/**' => sub {
     my $path_str = join('/', @$splat) || 'index.html';
 
     my $file = path($path_str)->absolute;
+
+    # Debug logging
+    say STDERR "DEBUG: Requested path_str='$path_str', absolute='$file', exists=" . ($file->exists ? 'YES' : 'NO');
 
     # Return file if it exists
     if ($file->exists && -f $file) {
