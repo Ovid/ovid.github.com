@@ -21,6 +21,7 @@
     gtag('config', 'G-BVDP76N9NB');
   </script>
   [% USE Ovid; USE Config -%]
+  [% IF type %][% USE pager = Pager(type => type) %][% END %]
 
   <!-- Facebook -->
 
@@ -43,7 +44,7 @@
   <meta property="og:url" content="[% Config.url %]">
   [% END %]
   <meta property="og:title" content="[% title |html %]">
-  <meta property="og:description" content="[% Ovid.this_post(type, slug).description |html %]">
+  <meta property="og:description" content="[% IF type && slug %][% pager.this_post(type, slug).description |html %][% ELSE %][% title |html %][% END %]">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">

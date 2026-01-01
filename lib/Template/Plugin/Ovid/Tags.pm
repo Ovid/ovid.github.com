@@ -9,7 +9,7 @@ use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
     my $tagmap_file = config()->{tagmap_file}
-        or croak("tagmap_file not configured");
+      or croak("tagmap_file not configured");
 
     my $path = path($tagmap_file);
     croak("Tagmap file not found: $tagmap_file") unless $path->exists;
@@ -42,7 +42,7 @@ sub weight_for_tag ( $self, $tag ) {
     state $weight_min = 1;
     unless ( exists $weight_for->{$tag} ) {
         croak("Cannot find weight for unknown tag '$tag'")
-            unless exists $self->{tagmap}{$tag};
+          unless exists $self->{tagmap}{$tag};
 
         my $counts = [ map { $self->{tagmap}{$_}{count} } $self->_tags ];
         my $min    = min @$counts;
@@ -51,6 +51,7 @@ sub weight_for_tag ( $self, $tag ) {
 
         my $weight;
         if ( $max == $min ) {
+
             # All tags have equal count, use middle weight
             $weight = int( ( $weight_max + $weight_min ) / 2 );
         }
@@ -66,6 +67,10 @@ sub name_for_tag ( $self, $tag ) {
     my $name = config()->{tagmap}{$tag}
       or croak("Cannot find name for unknown tag '$tag'");
     return $name;
+}
+
+sub tags_for_url ( $self, $url ) {
+    return $self->{tagmap}{__ALL__}{$url} // [];
 }
 
 1;
@@ -99,5 +104,9 @@ Returns display weight for tag (1-9 scale) based on article count.
 =head2 C<name_for_tag($tag)>
 
 Returns display name for tag from config.
+
+=head2 C<tags_for_url($url)>
+
+Returns array reference of tags for a given URL. Returns empty arrayref if URL has no tags.
 
 =cut
