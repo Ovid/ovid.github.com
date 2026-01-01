@@ -44,4 +44,34 @@ test_psgi $app => sub {
     is $data->{file}, 'root/404.tt', 'Response includes file path';
 };
 
+test_psgi $app => sub {
+    my $cb = shift;
+
+    # Test missing file parameter
+    my $res = $cb->(
+        POST '/api/launch-editor',
+        Content_Type => 'application/json',
+        Content => '{}'
+    );
+    is $res->code, 400, 'Missing file returns 400';
+    my $data = decode_json($res->content);
+    ok $data->{error}, 'Error message present';
+
+    # Test path traversal attempt
+    $res = $cb->(
+        POST '/api/launch-editor',
+        Content_Type => 'application/json',
+        Content => '{"file":"../etc/passwd"}'
+    );
+    is $res->code, 400, 'Path traversal returns 400';
+
+    # Test non-existent file
+    $res = $cb->(
+        POST '/api/launch-editor',
+        Content_Type => 'application/json',
+        Content => '{"file":"nonexistent/file.tt"}'
+    );
+    is $res->code, 404, 'Non-existent file returns 404';
+};
+
 done_testing;
