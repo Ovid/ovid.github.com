@@ -60,7 +60,7 @@ perl bin/launch --port=3001 root/blog/my-post.tt
 ### Testing
 ```bash
 # Run all tests
-prove -l t/
+prove -rl t/
 
 # Run single test file
 prove -lv t/blogdown.t
