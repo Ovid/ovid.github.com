@@ -28,8 +28,11 @@ post '/api/launch-editor' => sub {
     }
 
     # Launch editor in background (fire-and-forget)
-    my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $file);
-    system($launch_cmd);
+    # Skip actual launch during tests to avoid side effects
+    unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
+        my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $file);
+        system($launch_cmd);
+    }
 
     content_type 'application/json';
     return to_json({ success => 1, file => $file });
