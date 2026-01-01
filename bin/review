@@ -85,4 +85,27 @@ get '/**' => sub {
     }
 };
 
-to_app;
+# If loaded by tests, return PSGI app
+# Otherwise, start the server
+if (caller) {
+    to_app;
+}
+else {
+    # Set server port
+    set port => 7007;
+
+    # Print startup message
+    say "\n" . "=" x 60;
+    say "🚀 Development Server Starting";
+    say "=" x 60;
+    say "\n📍 URL: http://127.0.0.1:7007/";
+    say "\n✨ Features:";
+    say "   • Edit button (✏️) appears on every page";
+    say "   • Click to launch live editor for current page";
+    say "   • Dev tools active (window.DEV_MODE = true)";
+    say "\n⏹  Press Ctrl+C to stop the server";
+    say "=" x 60 . "\n";
+
+    # Start the server
+    start;
+}
