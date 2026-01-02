@@ -75,8 +75,17 @@ post '/api/launch-editor' => sub {
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
     unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
-        my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $actual_file);
-        system($launch_cmd);
+        my $pid = fork();
+        if (!defined $pid) {
+            warn "Failed to fork: $!";
+        } elsif ($pid == 0) {
+            # Child process - launch editor
+            close STDOUT;
+            close STDERR;
+            exec('perl', 'bin/launch', $actual_file);
+            exit 1; # Should never reach here
+        }
+        # Parent continues immediately
     }
 
     content_type 'application/json';
