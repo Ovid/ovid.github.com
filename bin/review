@@ -47,22 +47,38 @@ post '/api/launch-editor' => sub {
         return to_json({ error => 'Invalid file path' });
     }
 
-    # Check file exists
+    # Check file exists - try both .tt and .tt2markdown extensions
     my $path = path($file);
-    unless ($path->exists) {
-        status 'not_found';
-        return to_json({ error => "File not found: $file" });
+    my $actual_file = $file;
+
+    if (!$path->exists) {
+        # Try alternate extension
+        my $alt_file = $file;
+        if ($file =~ /\.tt$/) {
+            $alt_file =~ s/\.tt$/.tt2markdown/;
+        } elsif ($file =~ /\.tt2markdown$/) {
+            $alt_file =~ s/\.tt2markdown$/.tt/;
+        }
+
+        my $alt_path = path($alt_file);
+        if ($alt_path->exists) {
+            $path = $alt_path;
+            $actual_file = $alt_file;
+        } else {
+            status 'not_found';
+            return to_json({ error => "File not found: $file (also tried $alt_file)" });
+        }
     }
 
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
     unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
-        my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $file);
+        my $launch_cmd = sprintf("perl bin/launch '%s' >/dev/null 2>&1 &", $actual_file);
         system($launch_cmd);
     }
 
     content_type 'application/json';
-    return to_json({ success => 1, file => $file });
+    return to_json({ success => 1, file => $actual_file });
 };
 
 # Serve static files
