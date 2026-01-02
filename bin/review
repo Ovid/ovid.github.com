@@ -27,6 +27,10 @@ hook after => sub {
     $response->content($content);
 };
 
+get '/' => sub {
+    redirect '/index.html';
+};
+
 post '/api/launch-editor' => sub {
     my $data = from_json(request->body);
     my $file = $data->{file};
