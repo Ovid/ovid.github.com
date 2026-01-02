@@ -77,10 +77,23 @@ make clean
 
 ### Local Development Server
 ```bash
-# Serve site locally (requires App::HTTPThis)
+# Serve site locally with dev tools (recommended for development)
+perl bin/review
+# Opens at http://127.0.0.1:7007/
+
+# Or serve without dev tools (basic HTTP server)
 http_this
 # Opens at http://127.0.0.1:7007/
 ```
+
+**Development Server Features** (`bin/review`):
+- Serves static files on port 7007
+- Injects Edit button on every page (✏️ icon in upper left)
+- Click Edit button to launch live editor for current page
+- API endpoint for editor launching
+- Auto-maps URLs to source files (e.g., `/blog/post.html` → `root/blog/post.tt`)
+
+**Note**: Dev tools only appear when using `bin/review`. Static files remain clean for production deployment.
 
 ### Code Formatting
 ```bash
@@ -327,9 +340,32 @@ perl bin/launch root/articles/my-article.tt
 
 **Security**: Editor only allows editing files within `root/` directory
 
+### Development Server Troubleshooting
+
+**Edit button doesn't appear:**
+- The Edit button only appears when browsing via `perl bin/review`
+- If using `http_this` or viewing static files directly, the button won't be present
+- Check browser console (F12) for JavaScript errors
+
+**"Cannot open editor" error:**
+- This occurs for generated pages without direct source files:
+  - Tag pages (`/tags/*.html`) - generated from tag metadata
+  - Paginated indexes (`/blog_2.html`) - generated from pagination logic
+  - Generated content that doesn't map to a single source file
+
+**Editor launches but shows wrong file:**
+- The URL-to-file mapping assumes standard patterns
+- If you've customized the build process, you may need to adjust the `urlToSourceFile()` function in `static/dev-tools.js`
+
+**Port 3000 already in use:**
+- The live editor uses port 3000 by default
+- `bin/review` automatically kills existing editor instances before launching new ones
+- To use a different port: `perl bin/launch --port=3001 root/file.tt`
+
 ## Important Files
 
 - `bin/rebuild` - Main build orchestrator
+- `bin/review` - Development server with Edit button feature
 - `bin/article` - Create new article/blog post with metadata
 - `bin/launch` - Start live editor server
 - `lib/Ovid/Site.pm` - Core build pipeline logic
