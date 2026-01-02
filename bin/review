@@ -84,6 +84,10 @@ post '/api/launch-editor' => sub {
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
     unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
+        # Kill any existing bin/launch processes to free port 3000
+        system("pkill -f 'perl bin/launch'");
+        sleep 0.5;  # Give it time to shut down
+
         my $pid = fork();
         if (!defined $pid) {
             warn "Failed to fork: $!";
