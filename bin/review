@@ -89,8 +89,9 @@ post '/api/launch-editor' => sub {
             warn "Failed to fork: $!";
         } elsif ($pid == 0) {
             # Child process - launch editor
-            close STDOUT;
-            close STDERR;
+            # Redirect output to log file for debugging
+            open STDOUT, '>>', 'bin_launch.log' or die "Can't open log: $!";
+            open STDERR, '>&STDOUT' or die "Can't dup STDOUT: $!";
             exec('perl', 'bin/launch', $actual_file);
             exit 1; # Should never reach here
         }
