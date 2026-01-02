@@ -32,8 +32,10 @@ get '/' => sub {
 };
 
 post '/api/launch-editor' => sub {
+    say STDERR "DEBUG: API /api/launch-editor called";
     my $data = from_json(request->body);
     my $file = $data->{file};
+    say STDERR "DEBUG: Requested file='$file'";
 
     # Validate file parameter
     unless ($file) {
