@@ -53,6 +53,8 @@ post '/api/launch-editor' => sub {
     my $path = path($file);
     my $actual_file = $file;
 
+    say STDERR "DEBUG: Checking if '$file' exists: " . ($path->exists ? 'YES' : 'NO');
+
     if (!$path->exists) {
         # Try alternate extension
         my $alt_file = $file;
@@ -62,15 +64,22 @@ post '/api/launch-editor' => sub {
             $alt_file =~ s/\.tt2markdown$/.tt/;
         }
 
+        say STDERR "DEBUG: Trying alternate file: '$alt_file'";
         my $alt_path = path($alt_file);
+        say STDERR "DEBUG: Alternate file exists: " . ($alt_path->exists ? 'YES' : 'NO');
+
         if ($alt_path->exists) {
             $path = $alt_path;
             $actual_file = $alt_file;
+            say STDERR "DEBUG: Using alternate file: '$actual_file'";
         } else {
+            say STDERR "DEBUG: Neither file found, returning 404";
             status 'not_found';
             return to_json({ error => "File not found: $file (also tried $alt_file)" });
         }
     }
+
+    say STDERR "DEBUG: Final file to launch: '$actual_file'";
 
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
