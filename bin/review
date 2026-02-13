@@ -1,0 +1,146 @@
+#!/usr/bin/env perl
+
+use v5.40;
+use Dancer2;
+use Path::Tiny;
+use open ':std', ':encoding(UTF-8)';
+
+hook after => sub {
+    my $response = shift;
+
+    # Skip delayed responses (like send_file)
+    return if $response->isa('Dancer2::Core::Response::Delayed');
+
+    # Only inject into HTML responses
+    return unless $response->content_type &&
+                  $response->content_type =~ m{text/html};
+
+    my $content = $response->content;
+
+    # Inject dev mode flag and script reference in <head>
+    my $injection = q{
+    <script>window.DEV_MODE = true;</script>
+    <script src="/static/dev-tools.js"></script>
+};
+
+    $content =~ s{</head>}{$injection</head>};
+    $response->content($content);
+};
+
+get '/' => sub {
+    redirect '/index.html';
+};
+
+post '/api/launch-editor' => sub {
+    my $data = from_json(request->body);
+    my $file = $data->{file};
+
+    # Validate file parameter
+    unless ($file) {
+        status 'bad_request';
+        return to_json({ error => 'No file specified' });
+    }
+
+    # Prevent directory traversal
+    if ($file =~ /\.\./) {
+        status 'bad_request';
+        return to_json({ error => 'Invalid file path' });
+    }
+
+    # Check file exists - try both .tt and .tt2markdown extensions
+    my $path = path($file);
+    my $actual_file = $file;
+
+    if (!$path->exists) {
+        # Try alternate extension
+        my $alt_file = $file;
+        if ($file =~ /\.tt$/) {
+            $alt_file =~ s/\.tt$/.tt2markdown/;
+        } elsif ($file =~ /\.tt2markdown$/) {
+            $alt_file =~ s/\.tt2markdown$/.tt/;
+        }
+
+        my $alt_path = path($alt_file);
+        if ($alt_path->exists) {
+            $path = $alt_path;
+            $actual_file = $alt_file;
+        } else {
+            status 'not_found';
+            return to_json({ error => "File not found: $file (also tried $alt_file)" });
+        }
+    }
+
+    # Launch editor in background (fire-and-forget)
+    # Skip actual launch during tests to avoid side effects
+    unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
+        # Kill any existing bin/launch processes to free port 3000
+        system("pkill -f 'perl bin/launch'");
+        sleep 0.5;  # Give it time to shut down
+
+        my $pid = fork();
+        if (!defined $pid) {
+            warn "Failed to fork: $!";
+        } elsif ($pid == 0) {
+            # Child process - launch editor
+            # Redirect output to log file for debugging
+            open STDOUT, '>>', 'bin_launch.log' or die "Can't open log: $!";
+            open STDERR, '>&STDOUT' or die "Can't dup STDOUT: $!";
+            exec('perl', 'bin/launch', $actual_file);
+            exit 1; # Should never reach here
+        }
+        # Parent continues immediately
+    }
+
+    content_type 'application/json';
+    return to_json({ success => 1, file => $actual_file });
+};
+
+# Serve static files
+get '/**' => sub {
+    my ($splat) = splat;
+    my $path_str = join('/', @$splat) || 'index.html';
+
+    my $file = path($path_str)->absolute;
+
+    # Return file if it exists
+    if ($file->exists && -f $file) {
+        # For HTML files, read and return content directly to allow hook injection
+        if ($path_str =~ /\.html?$/i) {
+            content_type 'text/html; charset=UTF-8';
+            return $file->slurp_utf8;
+        }
+        # For other files, use send_file
+        else {
+            send_file($file->stringify, system_path => 1);
+        }
+    }
+    else {
+        status 'not_found';
+        return "404 - Not Found: $path_str";
+    }
+};
+
+# If loaded by tests, return PSGI app
+# Otherwise, start the server
+if (caller) {
+    to_app;
+}
+else {
+    # Set server port
+    set port => 7007;
+
+    # Print startup message
+    say "\n" . "=" x 60;
+    say "🚀 Development Server Starting";
+    say "=" x 60;
+    say "\n📍 URL: http://127.0.0.1:7007/";
+    say "\n✨ Features:";
+    say "   • Edit button (✏️) appears on every page";
+    say "   • Click to launch live editor for current page";
+    say "   • Dev tools active (window.DEV_MODE = true)";
+    say "\n⏹  Press Ctrl+C to stop the server";
+    say "=" x 60 . "\n";
+
+    # Start the server
+    start;
+}

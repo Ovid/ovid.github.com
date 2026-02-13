@@ -303,6 +303,7 @@
                     <div>
                         <span id="status"></span>
                         <span id="vim-status" style="margin-right: 10px; font-size: 13px; font-weight: bold; color: var(--text-color);"></span>
+                        <button id="theme-toggle" style="padding: 4px 8px; font-size: 12px; margin-right: 10px;" aria-label="Toggle theme">🌓</button>
                         <div class="dropdown" style="margin-left: 10px;">
                             <button id="menu-toggle" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
                                 ☰
@@ -391,6 +392,7 @@
         const textarea = document.getElementById('content');
         const status = document.getElementById('status');
         const refreshBtn = document.getElementById('refresh-btn');
+        const themeToggle = document.getElementById('theme-toggle');
         const menuLightMode = document.getElementById('menu-light-mode');
         const menuVimMode = document.getElementById('menu-vim-mode');
         const menuSyntaxHighlight = document.getElementById('menu-syntax-highlight');
@@ -419,6 +421,17 @@
 
         menuLightMode.addEventListener('click', (e) => {
             e.stopPropagation();
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            toggleCheck(menuLightMode, !isDark);
+            if (editor) {
+                editor.setOption('theme', isDark ? 'monokai' : 'default');
+            }
+        });
+
+        // Theme toggle button (same functionality as menu item)
+        themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');

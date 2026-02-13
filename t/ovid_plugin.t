@@ -255,89 +255,6 @@ is $ovid->image_type('test.gif'),  'image/gif',  'image_type() should identify G
 throws_ok { $ovid->image_type('test.webp') } qr/Cannot determine image type/,
   'image_type() should croak on unknown types';
 
-# Test tag-related methods
-my @tags = $ovid->tags();
-ok scalar(@tags) > 0, 'tags() should return a list of tags';
-ok( ( grep { $_ ne '__ALL__' } @tags ) == scalar(@tags),
-    'tags() should filter out __ALL__'
-);
-
-# Test tags_by_weight()
-my @weighted_tags = $ovid->tags_by_weight();
-ok scalar(@weighted_tags) > 0, 'tags_by_weight() should return tags';
-is_deeply [ sort @weighted_tags ], [ sort @tags ],
-  'tags_by_weight() should return same tags as tags()';
-
-# Test has_articles_for_tag()
-my $first_tag = $tags[0];
-ok $ovid->has_articles_for_tag($first_tag),
-  "has_articles_for_tag() should return true for valid tag '$first_tag'";
-
-# Test name_for_tag()
-my $tag_name = $ovid->name_for_tag($first_tag);
-ok $tag_name, "name_for_tag() should return name for tag '$first_tag'";
-
-# Test name_for_tag() error branch - unknown tag
-throws_ok { $ovid->name_for_tag('nonexistent_tag_12345') }
-qr/Cannot find name for unknown tag/,
-  'name_for_tag() should croak for unknown tag';
-
-# Test count_for_tag()
-my $count = $ovid->count_for_tag($first_tag);
-ok $count > 0, "count_for_tag() should return positive count for tag '$first_tag'";
-
-# Test count_for_tag() error branch - unknown tag
-throws_ok { $ovid->count_for_tag('nonexistent_tag_12345') }
-qr/Cannot find count for unknown tag/,
-  'count_for_tag() should croak for unknown tag';
-
-# Test weight_for_tag()
-my $weight = $ovid->weight_for_tag($first_tag);
-ok $weight >= 1 && $weight <= 9, "weight_for_tag() should return weight between 1-9";
-
-# Test weight_for_tag() caching branch - call it again for same tag
-my $weight2 = $ovid->weight_for_tag($first_tag);
-is $weight2, $weight, 'weight_for_tag() should return cached weight on second call';
-
-# Test tags_for_url()
-my $files_collection = $ovid->files_for_tag($first_tag);
-ok ref($files_collection) eq 'Ovid::Template::File::Collection',
-  'files_for_tag() should return Collection object';
-
-# Test files_for_tag() error branch - unknown tag
-throws_ok { $ovid->files_for_tag('nonexistent_tag_12345') }
-qr/Cannot find files for unknown tag/,
-  'files_for_tag() should croak for unknown tag';
-
-# Get first file URL from tagmap directly for testing title_for_tag_file
-my $tagmap_first_file = $ovid->{tagmap}{$first_tag}{files}[0];
-if ($tagmap_first_file) {
-    my $url_tags = $ovid->tags_for_url($tagmap_first_file);
-    ok ref($url_tags) eq 'ARRAY', 'tags_for_url() should return array reference';
-
-    # Test title_for_tag_file() - use the actual file URL from tagmap
-    my $title = eval { $ovid->title_for_tag_file( $first_tag, $tagmap_first_file ) };
-    ok $title, "title_for_tag_file() should return title for valid tag '$first_tag' and file"
-      or diag "Error: $@";
-}
-
-# Test title_for_tag_file() error branch - unknown tag
-throws_ok { $ovid->title_for_tag_file( 'nonexistent_tag_12345', 'some_file.html' ) }
-qr/Cannot find title for unknown tag/,
-  'title_for_tag_file() should croak for unknown tag';
-
-# Test tags_for_url() branch - URL not found (returns [])
-my $empty_tags = $ovid->tags_for_url('/nonexistent/url.html');
-is_deeply $empty_tags, [], 'tags_for_url() should return empty arrayref for unknown URL';
-
-# Test is_blog()
-ok $ovid->is_blog('blog'),      'is_blog() should return true for "blog"';
-ok !$ovid->is_blog('articles'), 'is_blog() should return false for "articles"';
-
-# Test this_post()
-my $this_post = $ovid->this_post( 'articles', 'fixing-mvc-in-web-applications' );
-is $this_post->{slug}, 'fixing-mvc-in-web-applications', 'this_post() should return current post';
-
 # Test describe_image() with non-existent file
 throws_ok { $ovid->describe_image('root/static/images/nonexistent.png') }
 qr/File does not exist or is not readable/,
@@ -369,19 +286,5 @@ SKIP: {
 # NOTE: The branch where no cached description exists (requiring AI call) is not tested
 # to avoid external API dependencies. This branch is covered by integration tests.
 # See: specs/001-test-coverage-improvement/coverage-exceptions.md
-
-explain "I should fix this one day. It's currently coupled to my personal data";
-my $prev_post = $ovid->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
-is $prev_post->{slug}, 'avoid-common-software-project-mistakes',
-  'prev post should be correct';
-my $next_post = $ovid->next_post( 'articles', 'fixing-mvc-in-web-applications' );
-is $next_post->{slug}, 'how-to-defeat-facebook', 'next post should be correct';
-ok !$ovid->next_post( 'articles', 'no-such-post' ),
-  '... but we should not be able to fetch non-existing posts';
-
-my $bug = $ovid->next_post( 'articles', 'fixing-mvc-in-web-applications' );
-explain $bug;
-$bug = $ovid->prev_post( 'articles', 'fixing-mvc-in-web-applications' );
-explain $bug;
 
 done_testing;

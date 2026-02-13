@@ -1,12 +1,7 @@
 package Template::Plugin::Ovid;
 
 use Less::Boilerplate;
-use Less::Pager;
 use Less::Script ();    # import nothing
-use aliased 'Ovid::Template::File::Collection';
-use Mojo::JSON 'decode_json';
-use List::Util qw(sum0 max min);
-use Less::Config 'config';
 use Path::Tiny 'path';
 use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
@@ -17,16 +12,12 @@ use Template::Plugin::Blogdown;
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
-    open my $fh, '<', config()->{tagmap_file};
-    my $json = do { local $/; <$fh> };
     bless {
         _CONTEXT                   => $context,
         footnote_number            => 1,
         footnote_names             => {},
         footnotes                  => [],
         collapsible_section_number => 1,
-        pager                      => Less::Pager->new( type => 'article' ),
-        tagmap                     => decode_json($json),
     }, $class;
 }
 
@@ -43,75 +34,6 @@ sub image_type ( $self, $image ) {
 sub cite ( $self, $path, $name ) {
     return sprintf '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>' => $path,
       $name;
-}
-
-sub tags ($self) {
-    return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
-}
-
-sub tags_for_url ( $self, $url ) {
-    return $self->{tagmap}{__ALL__}{$url} // [];
-}
-
-# NOTE: Called from Template Toolkit templates (root/include/links.tt)
-# Returns tags sorted by weight for tag cloud display. Static analysis cannot detect template usage.
-sub tags_by_weight($self) {
-    my %tags = map { $_ => $self->weight_for_tag($_) } $self->tags;
-
-    # Perl's sort is stable, so by sorting the keys, we ensure
-    # that tags with equal weight are sorted alphabetically.
-    return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
-}
-
-sub has_articles_for_tag ( $self, $tag ) {
-    return exists $self->{tagmap}{$tag};
-}
-
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
-sub name_for_tag ( $self, $tag ) {
-    my $name = config()->{tagmap}{$tag}
-      or croak("Cannot find name for unknown tag '$tag'");
-    return $name;
-}
-
-sub weight_for_tag ( $self, $tag ) {
-
-    # https://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
-    state $weight_for = {};
-    state $weight_max = 9;
-    state $weight_min = 1;
-    unless ( exists $weight_for->{$tag} ) {
-        my $counts = [ map { $self->count_for_tag($_) } $self->tags ];
-        my $min    = min @$counts;
-        my $max    = max @$counts;
-        my $count  = $self->count_for_tag($tag);
-        my $weight = $weight_min + ( ( $weight_max - $weight_min ) * ( $count - $min ) ) / ( $max - $min );
-        $weight_for->{$tag} = int( $weight + .5 );
-    }
-    return $weight_for->{$tag};
-}
-
-sub count_for_tag ( $self, $tag ) {
-    my $count = $self->{tagmap}{$tag}{count}
-      or croak("Cannot find count for unknown tag '$tag'");
-    return $count;
-}
-
-sub files_for_tag ( $self, $tag ) {
-    my $files = $self->{tagmap}{$tag}{files}
-      or croak("Cannot find files for unknown tag '$tag'");
-    return Collection->new( files => $files );
-}
-
-# TODO (Coverage Improvement 001): Verify template usage before removal
-# Static analysis shows no Perl code calls, check .tt/.tt2markdown files
-# See: specs/001-test-coverage-improvement/unused-code-decisions.md
-sub title_for_tag_file ( $self, $tag, $file ) {
-    my $title = $self->{tagmap}{$tag}{titles}{$file}
-      or croak("Cannot find title for unknown tag '$tag'");
-    return $title;
 }
 
 sub add_note ( $self, $note ) {
@@ -251,22 +173,6 @@ sub get_footnotes($self) {
 # Checks if any footnotes exist before rendering footer. Static analysis cannot detect template usage.
 sub has_footnotes($self) {
     return scalar $self->{footnotes}->@*;
-}
-
-sub this_post ( $self, $type, $slug ) {
-    return $self->{pager}->this_post( $type, $slug );
-}
-
-sub prev_post ( $self, $type, $slug ) {
-    return $self->{pager}->prev_post( $type, $slug );
-}
-
-sub next_post ( $self, $type, $slug ) {
-    return $self->{pager}->next_post( $type, $slug );
-}
-
-sub is_blog ( $self, $type ) {
-    return $type eq 'blog';
 }
 
 1;

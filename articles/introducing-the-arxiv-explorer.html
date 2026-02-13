@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+    
+
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/introducing-the-arxiv-explorer.html">
+  
+  <meta property="og:title" content="Introducing the arXiv Explorer">
+  <meta property="og:description" content="The arXiv Explorer uses a novel recursive language model technique to allow you to  use a normal AI-chat to query megabytes of arXiv documents at a time.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/introducing-the-arxiv-explorer.html">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Introducing the arXiv Explorer</title>
+  <meta name="description" content="Introducing the arXiv Explorer">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Introducing the arXiv Explorer</h1>
+        <time>2026-02-13</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="two columns">
+
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+    }
+  </script>
+
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+  <li><a href="/starmap.html">Starmap</a></li>
+  <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<ul>
+  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+  <li><a href="https://github.com/Ovid/">GitHub</a></li>
+  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+</ul>
+
+      </div>
+      <div class="ten columns verticalLine article">
+
+        
+    <div class="prevNext">
+        
+        <a href="/articles/real-world-value-with-generative-ai.html" class="prevPost">&laquo; Real-World Value with Generative AI</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+    <li><a href="/tags/programming.html">Software</a> </li>
+
+    <li><a href="/tags/science.html">Science</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#the-ai-that-researches-like-you-do">The AI That Researches Like You Do</a></li>
+    <li class="indent-1"><a href="#give-the-ai-a-desk-not-a-search-bar">Give the AI a desk, not a search bar</a></li>
+    <li class="indent-1"><a href="#the-ai-writes-its-own-research-plan">The AI writes its own research plan</a></li>
+    <li class="indent-1"><a href="#when-the-reading-gets-heavy-it-calls-for-help">When the reading gets heavy, it calls for help</a></li>
+    <li class="indent-1"><a href="#the-ai-decides-when-its-done">The AI decides when it’s done</a></li>
+    <li class="indent-1"><a href="#trust-but-verify">Trust, but verify</a></li>
+    <li class="indent-1"><a href="#putting-it-all-together">Putting it all together</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="introduction"></a>Introduction</h1>
+
+<p>Have you ever loaded a paper from <a href="https://arxiv.org/" target="_blank">arxiv.org</a> <span class="fa fa-external-link fa_custom"></span> to ChatGPT or another LLM and and enjoyed asking questions about it? I do. I’m a nerd. But sometimes you might want to upload a <em>ton</em> of papers, only to discover file size limits, or you can’t upload more than 5 papers. I’ve just released some experimental software to make that go problem go away.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/shesha.png" width="600" alt="Screenshot of the arXiv explorer. It shows a complex question being asked and answered, using almost 25 megs of data across 30 documents.">
+    <figcaption>The arXiv Explorer interface. </figcaption>
+    </div>
+</figure></p>
+
+<p>The backend is powered by my <a href="https://github.com/Ovid/shesha" target="_blank">Shesha</a> <span class="fa fa-external-link fa_custom"></span> software, based on recently released research from MIT: <a href="https://arxiv.org/abs/2512.24601" target="_blank">recursive language models</a> <span class="fa fa-external-link fa_custom"></span>. These effectively allow you to extend <em>any</em> LLM with unlimited context. They’re fantastic at long-horizon reasoning and for many use cases, can completely eliminate the need for RAG solutions. What’s astounding is that they’re dead simple to build.</p>
+
+<p>In short, all of the docs are stored in a single variable and the LLM writes <em>Python</em> code to figure out how to respond to your prompts! </p>
+
+<h1><a name="the-ai-that-researches-like-you-do"></a>The AI That Researches Like You Do</h1>
+
+<p>Most AI document tools work like a search engine. You ask a question, they find the most relevant paragraphs, and the AI reads those paragraphs to form an answer. That’s fine when the answer is sitting right there in
+one spot.</p>
+
+<p>But what if the answer isn’t in any single paragraph? <a href="https://github.com/Ovid/shesha/blob/main/examples/barsoom.py" target="_blank">What if you need to read across 7 books to track every event in a character’s life</a> <span class="fa fa-external-link fa_custom"></span>? What if you need to understand <a href="https://github.com/Ovid/shesha/blob/main/examples/repo.py" target="_blank">how an authentication system works across 40 source files</a> <span class="fa fa-external-link fa_custom"></span>?</p>
+
+<p>Shesha solves this in a surprisingly human way.</p>
+
+<h1><a name="give-the-ai-a-desk-not-a-search-bar"></a>Give the AI a desk, not a search bar</h1>
+
+<p>When you ask Shesha a question, it doesn’t search for relevant snippets. Instead, it gives the AI something much more powerful: a workspace.</p>
+
+<p>Your documents are loaded into a secure environment — think of it as a private desk where the AI can spread out all your files. The AI can see how many documents there are, how big they are, and what they’re about.</p>
+
+<p>Then it starts working.</p>
+
+<h1><a name="the-ai-writes-its-own-research-plan"></a>The AI writes its own research plan</h1>
+
+<p>Here’s where it gets interesting. The AI doesn’t follow a fixed recipe. It writes small programs to explore your documents — searching for keywords, reading specific sections, counting occurrences, comparing passages across files.</p>
+
+<p>After each step, the AI sees what it found and decides what to do next. Maybe the first search turned up 15 mentions of “authentication.” Now it writes another program to read those sections in detail. Then it cross-references what it found with the configuration files. Then it checks the test files to confirm its understanding.</p>
+
+<p>This loop — explore, see results, adjust, explore again — is what makes Shesha different. The AI is designing its own research strategy based on your specific question, not following a one-size-fits-all pipeline.</p>
+
+<h1><a name="when-the-reading-gets-heavy-it-calls-for-help"></a>When the reading gets heavy, it calls for help</h1>
+
+<p>Some documents are too large for the AI to process in one pass. When that happens, it can delegate: “Read this 200-page document and tell me every mention of authentication.” A second AI handles that focused task and reports back, so the main AI can keep working on the bigger picture.</p>
+
+<p>Think of it as a lead researcher asking a research assistant to scan a specific source — the lead stays focused on the overall question while the assistant handles the detailed reading.</p>
+
+<h1><a name="the-ai-decides-when-its-done"></a>The AI decides when it’s done</h1>
+
+<p>There’s no fixed number of steps. The AI keeps exploring until it’s confident it has the answer. Then it signals “I’m done, here’s what I found.”</p>
+
+<p>For a simple factual question, this might take a few seconds and two or three steps. For a complex question that spans multiple documents, it might take several minutes and a dozen rounds of exploration.</p>
+
+<h1><a name="trust-but-verify"></a>Trust, but verify</h1>
+
+<p>Once the AI produces an answer, Shesha doesn’t just take its word for it. It runs two layers of verification:</p>
+
+<ol>
+<li>Citation check: Did the AI reference real documents? Do the quotes it cited actually appear in those documents, word for word?</li>
+<li>Adversarial review: A separate AI reads the answer and actively tries to find flaws — unsupported claims, logical gaps, or misinterpretations.</li>
+</ol>
+
+<p>This is like peer review: the answer has to survive scrutiny before it reaches you.</p>
+
+<p> 
+ # Everything runs in a locked room</p>
+
+<p>All the code the AI writes runs in an isolated container — a sealed-off environment with no access to the internet, your filesystem, or anything outside the documents you gave it. If the AI writes bad code, it can’t do any damage. The worst that happens is it gets an error message and tries a different approach.</p>
+
+<h1><a name="putting-it-all-together"></a>Putting it all together</h1>
+
+<p>So when you ask Shesha “What are the major events in Carthoris’s life across all 7 Barsoom novels?“, here’s what actually happens:</p>
+
+<ol>
+<li>Your 7 novels are loaded into a secure workspace</li>
+<li>The AI writes code to search all 7 books for mentions of Carthoris</li>
+<li>It sees hundreds of results and writes more code to read each passage in detail</li>
+<li>For the longest books, it delegates focused reading to a helper AI</li>
+<li>It organizes everything chronologically, pulling supporting quotes</li>
+<li>It notices a contradiction between two books and flags it</li>
+<li>It signals it’s done: here are 30 events with citations</li>
+<li>Shesha verifies the citations actually exist in the source material</li>
+<li>You get the answer, the full reasoning trace, and the verification report</li>
+</ol>
+
+<p>That whole process designed on the fly by the AI, not pre-programmedm is what lets Shesha handle questions that other tools can’t handle.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    
+    <div class="prevNext">
+        
+        <a href="/articles/real-world-value-with-generative-ai.html" class="prevPost">&laquo; Real-World Value with Generative AI</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai.html" data-weight="5">AI</a></li>
+
+    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+
+    <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+
+    <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+        <hr>
+        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+    <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/introducing-the-arxiv-explorer.html";
+            this.page.identifier = "articles/introducing-the-arxiv-explorer";
+            this.page.title      = "Introducing the arXiv Explorer";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+</body>
+</html>
+
+
