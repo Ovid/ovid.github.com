@@ -1,0 +1,242 @@
+[%
+    title            = 'AI for Coding: Where We Stand Today';
+    type             = 'articles';
+    slug             = 'ai-for-coding-where-we-stand-today';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-03-07';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai programming}}
+
+# The AI Tramp Freighter
+
+[Tramp Freighter Blues](https://github.com/Ovid/tramp-freighter/) is a game that I wrote entirely with AI. I did not read the code. I did not review the code. After months of work, I felt I was finally at the point where I could build larger AI systems using only English as my programming language. It's roughly 30,000 lines of React and TypeScript. I don't know React or TypeScript.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/tramp-freighter-blues-screenshot.png"
+   source   = ""
+   align    = "center"
+   alt      = "A screenshot of the Tramp Freighter Blues"
+   caption  = "About to dock at Barnard's Star, six light years from Earth"
+%]
+
+
+## You Don't Debug with an Oscilloscope
+
+There are those who who will sneer at my 4+ decades of programming in (rough order of learning them) BASIC, Assembly, C, UniBASIC, COBOL, VBA, EasyTrieve, JavaScript, Perl, Java, Prolog, Python, and probably some that I've forgotten about, and tell me that I obviously don't understand programming.
+
+I'll ignore them. I'm talking to **you**.
+
+In in 1940s, programming mean rewiring a computer. Debugging often meant using an oscilloscope or using a voltmeter to find a blown vacuum tube. Computer science meant having an electrical engineering degree.
+
+Punch cards were revolutionary, letting people store assembly, and later, high-level langauges like FORTRAN and COBOL, separately from the computer.
+
+By the 1970s, C arrived, marking one of the first truly portable system languages.
+
+Today, languages like Perl and Java would have been science fiction in the 1940s. Today, they're just another tool in the toolbox. If their output is buggy, very few who use them would ever bother to check the machine code; they'd just rewrite the real source of truth: the programming language.
+
+The next leap is already here: English (or whatever language you speak) is becoming the source code. The product is still the source of truth
+
+_Note: two years ago I wrote about [building an iPhone app with ChatGPT](/articles/building-an-iphone-app-with-chatgpt.html). That post is already laughably out of date._
+
+With AI, we moved from autocompleting methods to building entire apps. I don't mean "vibe coding." I gave that up quickly because it's miserable. I've also used [Spec-Driven Development](https://en.wikipedia.org/wiki/Spec-driven_development) (SDD),[% Ovid.note("Many view SDD as revelatory, but it actually started back in the 1960s.") %] There are various ways of interpreting SDD, so I'll skip that argument. Instead, I'll say that I've spent much of the past year on a quest: how  well can I build larger software using these AI tools? My first few attempts were failures, but I kept getting further each time.
+
+I don't really have a choice in this. My role involves uplifting the technical skills of 200+ developers and that includes AI. If they're turning out slop, I've failed.
+
+Over this year, I've finally narrowed down the AI coding issues to four core areas. I built a 30K-line game to find out if I'm right.
+
+---
+
+## The AI Coding PAAD
+
+The PAAD is my model of the issues with AI coding. "All models are wrong; some are useful." Mine, I've found, is useful. By clarifying _what_ the problems are, I've been able to systematically tackle these problems one by one. This has come from tons of personal experience, reading where others are struggling, and discovering that _all_ AI systems fall prey to these problems.
+
+### Pushback Against the Yes Men
+
+By now, you've certainly heard about the [sycophancy](https://www.techpolicy.press/what-research-says-about-ai-sycophancy/) problem with AI. You ask it to build a web site to sell a blockchain-based loyalty program for a lemonade stand and it tells you you're brilliant!
+
+The worse problem, though, is that it tends to be a "yes man." Sycophants are yes men, but they're also constantly telling you how amazing you are. "Yes men," by contrast, don't try to butter you up, but they'll do what you say without question. This is not the AI you want.
+
+Recently, a development team was struggling to get good results from AI programming, so I pair programmed with one of them. As soon as he created his spec, he was about to move onto the plan. I stopped him and asked if he had heard about my "clarification prompt." (I call it "clarification" in the office because it sounds nicer than "pushback")
+
+He hadn't, so I sent it to him and asked him to run it.
+
+The pushback prompt looks at your spec and searches for obviously missing requirements, contradictory requirements, bad ideas, and so on. Only once have I had this prompt not catch a problem with my specs. This developer has written a _very careful_ spec, so I was surprised that the prompt only found a single issue, but it was a doozy. Seems someone had just pushed a feature that meant his spec was wrong. Without the prompt, Kiro would have happily built something that didnt't work and he would have understandably blamed Kiro!
+
+
+[% Ovid.collapse('Click to see a pushback prompt', '
+<div class="shadow"><pre class="scrolled"><code>
+The requirements.md file has just been edited.
+Please analyze it for:
+
+1. Obvious omissions - missing requirements
+   that should be included based on the context
+   of this project
+2. Ambiguous requirements - requirements that need
+   clarification or are unclear
+3. Contradictory requirements
+4. Security concerns - any requirement that might
+   present a security issue
+5. Anything in the code which might conflict with
+   the requirements
+6. Any requirements not in EARS format
+
+If you find issues:
+
+- Ask the user ONE question at a time
+- Present specific options, from best to worst,
+  with your recommendation for fixing the issue,
+  along with a short explanation
+- Wait for their answer before asking the next
+  question
+- After all questions are answered, update the
+  requirements.md file with the clarifications
+  and additions based on the user’s responses
+
+If no issues are found, inform the user that
+the requirements look complete and clear.
+</code></pre></div>
+') %]
+
+
+
+### Alignment
+
+- After AI "understands" a task, it often implements *most* of it — and sometimes things you didn't ask for
+- The gap between intent and implementation widens with task size
+
+### Architecture
+- AI is bad at architecture. When a feature is hard to implement because of bad architecture, it forces the feature through rather than recognizing the structural problem
+- This is the one that compounds — bad architecture makes every subsequent task harder
+
+### Degradation
+- A broad category: security holes, weird edge cases at scale, subtle rot
+- Software quickly hits complexity levels where edge cases pop up constantly and the AI can't see them
+- Humans struggle to articulate the broad patterns here, so it's hard to communicate them to AI
+- Anthropic's zero-day bug work is promising, but cost remains a question
+
+---
+
+## 3. The Historical Analogy (Expanded)
+
+- 1950s–70s: "Full stack" meant physical reality — no OS, no abstraction, assembly mapped 1:1 to CPU operations
+- The shift: high-level languages emerged → we stopped caring about hardware → EE split from CS
+- Today: we write Python/Perl/Java and trust the compiler. Nobody reviews the machine code output
+- Tomorrow: our children will find it quaint that we typed `while` loops into a terminal
+- The progression: Autocomplete → Vibe Coding → Full Apps
+- **Programming isn't going away** — but the "electrical engineering" layer of it is. The source of truth shifts upward again
+
+---
+
+## 4. The Experiment: Building a Game Without Reviewing Code
+
+### Why a Game?
+- Most software has isolated components (registration, cart, search) communicating across well-defined boundaries
+- Games are different: actions have **ripple effects across everything**. This stress-tests AI coding in ways a typical CRUD app doesn't
+- Chose the most complicated scenario from AI-generated options — not because it was hardest, but because it was most **interesting**
+
+### The Approach
+- Original intent: how far can I push AI **without writing or reviewing code**?
+- Started by reviewing AI code obsessively, but saw an easier path as quality improved
+- Used Claude for scenario generation (best at writing rich, interconnected scenarios). Gemini and ChatGPT produced "flat" results
+- Long session to refine the vision, then broke it into 8 stages (some later broken into substages)
+- Practical rule: keep context under 50%. Quality drops after that
+- Desktop browser only — not mobile
+
+### The Tools
+- Kiro, then Claude
+- Claude Chrome vs. Playwright for testing/UAT
+- Copilot for PR reviews
+- [Decide whether to detail the tool choices or keep it brief]
+
+---
+
+## 5. Solving PAAD (What Worked)
+
+### Pushback & Alignment: Largely Solved
+- Specialized hooks in Kiro handle these two
+- [Expand on what the hooks do and why they work — this is the actionable takeaway readers will want]
+
+### Architecture: Solvable with Exceptional Diligence
+- Pause between tasks. Ask specialized AI to find architectural issues and plan migration strategies
+- Can be automated, but still risky
+- Why did I try to fix architecture? **That was the whole point** of what I was trying to learn
+- Greenfield vs. brownfield matters here:
+  - This project was greenfield, medium-sized, deliberately kept "sane" with constant AI architecture review
+  - Tried AI on one brownfield, somewhat messy codebase — the verdict? **Tests. Lots of tests.** (Tau Station example)
+
+### Degradation: Still Stuck
+- Humans struggle to articulate the broad patterns, so it's hard to hand them to AI
+- Anthropic's zero-day work is promising, but expense is an open question
+- Manual review still catches plenty of tiny issues (some just stylistic), but codebases are growing and they *tend to work* — with quirks
+
+---
+
+## 6. Tests: More Than People Expect
+
+- Far more tests than people expect — and that's deliberate
+- Testing has been a long-standing passion; with AI, it's **even more important**
+- The numbers tell the story:
+  - Total project: ~2.4M lines (including dependencies)
+  - Code written (src + tests): ~70K lines
+  - Source only (no tests): ~27K lines
+  - **That's roughly 60% tests by line count** [verify — 70,868 total vs 26,939 src-only = ~44K lines of tests, so ~62%]
+  - [Decide: what story do these numbers tell? "AI needs a safety net" or "testing is how you trust AI output" or both?]
+- Greenfield vs. brownfield: on the brownfield codebase, tests were the essential prerequisite
+
+---
+
+## 7. The Surreal Middle: Watching AI Test Your Game
+
+- It's surreal watching Claude **play my game** — doing UAT on something I built
+- Practical hazard: easy to use Chrome while Claude is doing UAT and accidentally interfere
+- Running three projects simultaneously; found myself pasting issues into the wrong window (GitHub MCP as a fix?)
+- The workflow shift: explain how development used to work vs. how it works now (including Copilot PR reviews)
+
+---
+
+## 8. The Uncomfortable Question
+
+- "I can often see errors the AI is fixing and I can guide it because I've been programming for decades."
+- **How long before that skill isn't needed?**
+- The interstitial period — where human expertise is still essential but visibly shrinking — is going to be painful
+- This isn't abstract. It's happening now, to people reading this article
+
+---
+
+## 9. Closing: The Source of Truth Shifts Again
+
+- Circle back to the historical analogy
+- EE → high-level languages → AI: each shift moved the "source of truth" up one layer of abstraction
+- Programming isn't dying. The **layer** is changing
+- PAAD is what stands between "AI can write code" and "AI can build software"
+- Current status: personal projects are largely working. The codebases grow, they tend to work, but with quirks. That gap is closing
+
+---
+
+## Open Questions / Notes to Self
+
+- **Timeline**: How long did this actually take? Notes mention a two-month break and part-time hobby work. "Were this full time, probably a week or two." Decide how prominently to feature this
+- **The cloc numbers**: Choose the narrative — impressive scale? Test coverage? Both?
+- **Audience**: Are you writing for developers who haven't tried AI coding yet, or for those who have and hit the same walls?
+- **Greenfield vs. brownfield**: You flag this multiple times but hedge ("hard to say"). Worth committing to a clearer take?
+
+<!-- example image
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/bed.jpg"
+   alt      = "A slightly messy bed"
+   source   = 'https://unsplash.com/photos/OZiflZqq0N0',
+   caption  = "Make that bed!"
+%]
+-->
+
+[%- END %]
+
