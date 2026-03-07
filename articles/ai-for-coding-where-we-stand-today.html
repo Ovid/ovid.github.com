@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+    
+
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/ai-for-coding-where-we-stand-today.html">
+  
+  <meta property="og:title" content="AI for Coding: Where We Stand Today">
+  <meta property="og:description" content="In the 1940s, changing a computer's program meant rewiring it. Today, we can literally just tell it what to do, but how well does it work?">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/ai-for-coding-where-we-stand-today.html">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>AI for Coding: Where We Stand Today</title>
+  <meta name="description" content="AI for Coding: Where We Stand Today">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>AI for Coding: Where We Stand Today</h1>
+        <time>2026-03-07</time>
+        
+        <p><span id="time"></span> minute read</p>
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="two columns">
+
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init('/static/js/search/tinysearch_engine_bg.wasm');
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+    }
+  </script>
+
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <!-- <li><a href="/tau-station.html">Tau Station</a></li> -->
+  <li><a href="/starmap.html">Starmap</a></li>
+  <li><a href="/escape.html"><strong>Escape!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<ul>
+  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+  <li><a href="https://github.com/Ovid/">GitHub</a></li>
+  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+</ul>
+
+      </div>
+      <div class="ten columns verticalLine article">
+
+        
+    <div class="prevNext">
+        
+        <a href="/articles/introducing-the-arxiv-explorer.html" class="prevPost">&laquo; Introducing the arXiv Explorer</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+    
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+    <li><a href="/tags/programming.html">Software</a> </li>
+
+</ul>
+
+
+        <hr>
+    <!-- nada -->
+
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#the-ai-tramp-freighter">The AI Tramp Freighter</a></li>
+    <li class="indent-2"><a href="#you-dont-debug-with-an-oscilloscope">You Don’t Debug with an Oscilloscope</a></li>
+    <li class="indent-2"><a href="#the-ai-coding-paad">The AI Coding PAAD</a></li>
+    <li class="indent-3"><a href="#pushback-against-the-yes-men">Pushback Against the Yes Men</a></li>
+    <li class="indent-3"><a href="#alignment">Alignment</a></li>
+    <li class="indent-3"><a href="#architecture">Architecture</a></li>
+    <li class="indent-3"><a href="#degradation">Degradation</a></li>
+    <li class="indent-2"><a href="#3-the-historical-analogy-expanded">3. The Historical Analogy (Expanded)</a></li>
+    <li class="indent-2"><a href="#4-the-experiment-building-a-game-without-reviewing-code">4. The Experiment: Building a Game Without Reviewing Code</a></li>
+    <li class="indent-3"><a href="#why-a-game">Why a Game?</a></li>
+    <li class="indent-3"><a href="#the-approach">The Approach</a></li>
+    <li class="indent-3"><a href="#the-tools">The Tools</a></li>
+    <li class="indent-2"><a href="#5-solving-paad-what-worked">5. Solving PAAD (What Worked)</a></li>
+    <li class="indent-3"><a href="#pushback-alignment-largely-solved">Pushback &amp; Alignment: Largely Solved</a></li>
+    <li class="indent-3"><a href="#architecture-solvable-with-exceptional-diligence">Architecture: Solvable with Exceptional Diligence</a></li>
+    <li class="indent-3"><a href="#degradation-still-stuck">Degradation: Still Stuck</a></li>
+    <li class="indent-2"><a href="#6-tests-more-than-people-expect">6. Tests: More Than People Expect</a></li>
+    <li class="indent-2"><a href="#7-the-surreal-middle-watching-ai-test-your-game">7. The Surreal Middle: Watching AI Test Your Game</a></li>
+    <li class="indent-2"><a href="#8-the-uncomfortable-question">8. The Uncomfortable Question</a></li>
+    <li class="indent-2"><a href="#9-closing-the-source-of-truth-shifts-again">9. Closing: The Source of Truth Shifts Again</a></li>
+    <li class="indent-2"><a href="#open-questions-notes-to-self">Open Questions / Notes to Self</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h1><a name="the-ai-tramp-freighter"></a>The AI Tramp Freighter</h1>
+
+<p><a href="https://github.com/Ovid/tramp-freighter/" target="_blank">Tramp Freighter Blues</a> <span class="fa fa-external-link fa_custom"></span> is a game that I wrote entirely with AI. I did not read the code. I did not review the code. After months of work, I felt I was finally at the point where I could build larger AI systems using only English as my programming language. It’s roughly 30,000 lines of React and TypeScript. I don’t know React or TypeScript.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/tramp-freighter-blues-screenshot.png" width="600" alt="A screenshot of the Tramp Freighter Blues">
+    <figcaption>About to dock at Barnard’s Star, six light years from Earth </figcaption>
+    </div>
+</figure></p>
+
+<h2><a name="you-dont-debug-with-an-oscilloscope"></a>You Don’t Debug with an Oscilloscope</h2>
+
+<p>There are those who who will sneer at my 4+ decades of programming in (rough order of learning them) BASIC, Assembly, C, UniBASIC, COBOL, VBA, EasyTrieve, JavaScript, Perl, Java, Prolog, Python, and probably some that I’ve forgotten about, and tell me that I obviously don’t understand programming.</p>
+
+<p>I’ll ignore them. I’m talking to <strong>you</strong>.</p>
+
+<p>In in 1940s, programming mean rewiring a computer. Debugging often meant using an oscilloscope or using a voltmeter to find a blown vacuum tube. Computer science meant having an electrical engineering degree.</p>
+
+<p>Punch cards were revolutionary, letting people store assembly, and later, high-level langauges like FORTRAN and COBOL, separately from the computer.</p>
+
+<p>By the 1970s, C arrived, marking one of the first truly portable system languages.</p>
+
+<p>Today, languages like Perl and Java would have been science fiction in the 1940s. Today, they’re just another tool in the toolbox. If their output is buggy, very few who use them would ever bother to check the machine code; they’d just rewrite the real source of truth: the programming language.</p>
+
+<p>The next leap is already here: English (or whatever language you speak) is becoming the source code. The product is still the source of truth</p>
+
+<p><em>Note: two years ago I wrote about <a href="/articles/building-an-iphone-app-with-chatgpt.html">building an iPhone app with ChatGPT</a>. That post is already laughably out of date.</em></p>
+
+<p>With AI, we moved from autocompleting methods to building entire apps. I don’t mean “vibe coding.” I gave that up quickly because it’s miserable. I’ve also used <a href="https://en.wikipedia.org/wiki/Spec-driven_development" target="_blank">Spec-Driven Development</a> <span class="fa fa-external-link fa_custom"></span> (SDD),<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> There are various ways of interpreting SDD, so I’ll skip that argument. Instead, I’ll say that I’ve spent much of the past year on a quest: how  well can I build larger software using these AI tools? My first few attempts were failures, but I kept getting further each time.</p>
+
+<p>I don’t really have a choice in this. My role involves uplifting the technical skills of 200+ developers and that includes AI. If they’re turning out slop, I’ve failed.</p>
+
+<p>Over this year, I’ve finally narrowed down the AI coding issues to four core areas. I built a 30K-line game to find out if I’m right.</p>
+
+<hr />
+
+<h2><a name="the-ai-coding-paad"></a>The AI Coding PAAD</h2>
+
+<p>The PAAD is my model of the issues with AI coding. “All models are wrong; some are useful.” Mine, I’ve found, is useful. By clarifying <em>what</em> the problems are, I’ve been able to systematically tackle these problems one by one. This has come from tons of personal experience, reading where others are struggling, and discovering that <em>all</em> AI systems fall prey to these problems.</p>
+
+<h3><a name="pushback-against-the-yes-men"></a>Pushback Against the Yes Men</h3>
+
+<p>By now, you’ve certainly heard about the <a href="https://www.techpolicy.press/what-research-says-about-ai-sycophancy/" target="_blank">sycophancy</a> <span class="fa fa-external-link fa_custom"></span> problem with AI. You ask it to build a web site to sell a blockchain-based loyalty program for a lemonade stand and it tells you you’re brilliant!</p>
+
+<p>The worse problem, though, is that it tends to be a “yes man.” Sycophants are yes men, but they’re also constantly telling you how amazing you are. “Yes men,” by contrast, don’t try to butter you up, but they’ll do what you say without question. This is not the AI you want.</p>
+
+<p>Recently, a development team was struggling to get good results from AI programming, so I pair programmed with one of them. As soon as he created his spec, he was about to move onto the plan. I stopped him and asked if he had heard about my “clarification prompt.” (I call it “clarification” in the office because it sounds nicer than “pushback”)</p>
+
+<p>He hadn’t, so I sent it to him and asked him to run it.</p>
+
+<p>The pushback prompt looks at your spec and searches for obviously missing requirements, contradictory requirements, bad ideas, and so on. Only once have I had this prompt not catch a problem with my specs. This developer has written a <em>very careful</em> spec, so I was surprised that the prompt only found a single issue, but it was a doozy. Seems someone had just pushed a feature that meant his spec was wrong. Without the prompt, Kiro would have happily built something that didnt’t work and he would have understandably blamed Kiro!</p>
+
+<div class="collapsible-section">
+    <div class="collapsible-trigger"
+         id="collapsible-trigger-1"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-controls="collapsible-content-1"
+         aria-label="Expand: Click to see a pushback prompt">
+        <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
+        <span class="collapsible-short">Click to see a pushback prompt</span>
+    </div>
+    <div id="collapsible-content-1"
+         class="collapsible-content"
+         role="region"
+         aria-labelledby="collapsible-trigger-1">
+        <div class="shadow"><pre class="scrolled"><code>
+The requirements.md file has just been edited.
+Please analyze it for:
+
+1. Obvious omissions - missing requirements
+   that should be included based on the context
+   of this project
+2. Ambiguous requirements - requirements that need
+   clarification or are unclear
+3. Contradictory requirements
+4. Security concerns - any requirement that might
+   present a security issue
+5. Anything in the code which might conflict with
+   the requirements
+6. Any requirements not in EARS format
+
+If you find issues:
+
+- Ask the user ONE question at a time
+- Present specific options, from best to worst,
+  with your recommendation for fixing the issue,
+  along with a short explanation
+- Wait for their answer before asking the next
+  question
+- After all questions are answered, update the
+  requirements.md file with the clarifications
+  and additions based on the user’s responses
+
+If no issues are found, inform the user that
+the requirements look complete and clear.
+</code></pre></div>
+
+    </div>
+</div>
+
+<h3><a name="alignment"></a>Alignment</h3>
+
+<ul>
+<li>After AI “understands” a task, it often implements <em>most</em> of it — and sometimes things you didn’t ask for</li>
+<li>The gap between intent and implementation widens with task size</li>
+</ul>
+
+<h3><a name="architecture"></a>Architecture</h3>
+
+<ul>
+<li>AI is bad at architecture. When a feature is hard to implement because of bad architecture, it forces the feature through rather than recognizing the structural problem</li>
+<li>This is the one that compounds — bad architecture makes every subsequent task harder</li>
+</ul>
+
+<h3><a name="degradation"></a>Degradation</h3>
+
+<ul>
+<li>A broad category: security holes, weird edge cases at scale, subtle rot</li>
+<li>Software quickly hits complexity levels where edge cases pop up constantly and the AI can’t see them</li>
+<li>Humans struggle to articulate the broad patterns here, so it’s hard to communicate them to AI</li>
+<li>Anthropic’s zero-day bug work is promising, but cost remains a question</li>
+</ul>
+
+<hr />
+
+<h2><a name="3-the-historical-analogy-expanded"></a>3. The Historical Analogy (Expanded)</h2>
+
+<ul>
+<li>1950s–70s: “Full stack” meant physical reality — no OS, no abstraction, assembly mapped 1:1 to CPU operations</li>
+<li>The shift: high-level languages emerged → we stopped caring about hardware → EE split from CS</li>
+<li>Today: we write Python/Perl/Java and trust the compiler. Nobody reviews the machine code output</li>
+<li>Tomorrow: our children will find it quaint that we typed <code>while</code> loops into a terminal</li>
+<li>The progression: Autocomplete → Vibe Coding → Full Apps</li>
+<li><strong>Programming isn’t going away</strong> — but the “electrical engineering” layer of it is. The source of truth shifts upward again</li>
+</ul>
+
+<hr />
+
+<h2><a name="4-the-experiment-building-a-game-without-reviewing-code"></a>4. The Experiment: Building a Game Without Reviewing Code</h2>
+
+<h3><a name="why-a-game"></a>Why a Game?</h3>
+
+<ul>
+<li>Most software has isolated components (registration, cart, search) communicating across well-defined boundaries</li>
+<li>Games are different: actions have <strong>ripple effects across everything</strong>. This stress-tests AI coding in ways a typical CRUD app doesn’t</li>
+<li>Chose the most complicated scenario from AI-generated options — not because it was hardest, but because it was most <strong>interesting</strong></li>
+</ul>
+
+<h3><a name="the-approach"></a>The Approach</h3>
+
+<ul>
+<li>Original intent: how far can I push AI <strong>without writing or reviewing code</strong>?</li>
+<li>Started by reviewing AI code obsessively, but saw an easier path as quality improved</li>
+<li>Used Claude for scenario generation (best at writing rich, interconnected scenarios). Gemini and ChatGPT produced “flat” results</li>
+<li>Long session to refine the vision, then broke it into 8 stages (some later broken into substages)</li>
+<li>Practical rule: keep context under 50%. Quality drops after that</li>
+<li>Desktop browser only — not mobile</li>
+</ul>
+
+<h3><a name="the-tools"></a>The Tools</h3>
+
+<ul>
+<li>Kiro, then Claude</li>
+<li>Claude Chrome vs. Playwright for testing/UAT</li>
+<li>Copilot for PR reviews</li>
+<li>[Decide whether to detail the tool choices or keep it brief]</li>
+</ul>
+
+<hr />
+
+<h2><a name="5-solving-paad-what-worked"></a>5. Solving PAAD (What Worked)</h2>
+
+<h3><a name="pushback-alignment-largely-solved"></a>Pushback & Alignment: Largely Solved</h3>
+
+<ul>
+<li>Specialized hooks in Kiro handle these two</li>
+<li>[Expand on what the hooks do and why they work — this is the actionable takeaway readers will want]</li>
+</ul>
+
+<h3><a name="architecture-solvable-with-exceptional-diligence"></a>Architecture: Solvable with Exceptional Diligence</h3>
+
+<ul>
+<li>Pause between tasks. Ask specialized AI to find architectural issues and plan migration strategies</li>
+<li>Can be automated, but still risky</li>
+<li>Why did I try to fix architecture? <strong>That was the whole point</strong> of what I was trying to learn</li>
+<li>Greenfield vs. brownfield matters here:
+<ul>
+<li>This project was greenfield, medium-sized, deliberately kept “sane” with constant AI architecture review</li>
+<li>Tried AI on one brownfield, somewhat messy codebase — the verdict? <strong>Tests. Lots of tests.</strong> (Tau Station example)</li>
+</ul></li>
+</ul>
+
+<h3><a name="degradation-still-stuck"></a>Degradation: Still Stuck</h3>
+
+<ul>
+<li>Humans struggle to articulate the broad patterns, so it’s hard to hand them to AI</li>
+<li>Anthropic’s zero-day work is promising, but expense is an open question</li>
+<li>Manual review still catches plenty of tiny issues (some just stylistic), but codebases are growing and they <em>tend to work</em> — with quirks</li>
+</ul>
+
+<hr />
+
+<h2><a name="6-tests-more-than-people-expect"></a>6. Tests: More Than People Expect</h2>
+
+<ul>
+<li>Far more tests than people expect — and that’s deliberate</li>
+<li>Testing has been a long-standing passion; with AI, it’s <strong>even more important</strong></li>
+<li>The numbers tell the story:
+<ul>
+<li>Total project: ~2.4M lines (including dependencies)</li>
+<li>Code written (src + tests): ~70K lines</li>
+<li>Source only (no tests): ~27K lines</li>
+<li><strong>That’s roughly 60% tests by line count</strong> [verify — 70,868 total vs 26,939 src-only = ~44K lines of tests, so ~62%]</li>
+<li>[Decide: what story do these numbers tell? “AI needs a safety net” or “testing is how you trust AI output” or both?]</li>
+</ul></li>
+<li>Greenfield vs. brownfield: on the brownfield codebase, tests were the essential prerequisite</li>
+</ul>
+
+<hr />
+
+<h2><a name="7-the-surreal-middle-watching-ai-test-your-game"></a>7. The Surreal Middle: Watching AI Test Your Game</h2>
+
+<ul>
+<li>It’s surreal watching Claude <strong>play my game</strong> — doing UAT on something I built</li>
+<li>Practical hazard: easy to use Chrome while Claude is doing UAT and accidentally interfere</li>
+<li>Running three projects simultaneously; found myself pasting issues into the wrong window (GitHub MCP as a fix?)</li>
+<li>The workflow shift: explain how development used to work vs. how it works now (including Copilot PR reviews)</li>
+</ul>
+
+<hr />
+
+<h2><a name="8-the-uncomfortable-question"></a>8. The Uncomfortable Question</h2>
+
+<ul>
+<li>“I can often see errors the AI is fixing and I can guide it because I’ve been programming for decades.”</li>
+<li><strong>How long before that skill isn’t needed?</strong></li>
+<li>The interstitial period — where human expertise is still essential but visibly shrinking — is going to be painful</li>
+<li>This isn’t abstract. It’s happening now, to people reading this article</li>
+</ul>
+
+<hr />
+
+<h2><a name="9-closing-the-source-of-truth-shifts-again"></a>9. Closing: The Source of Truth Shifts Again</h2>
+
+<ul>
+<li>Circle back to the historical analogy</li>
+<li>EE → high-level languages → AI: each shift moved the “source of truth” up one layer of abstraction</li>
+<li>Programming isn’t dying. The <strong>layer</strong> is changing</li>
+<li>PAAD is what stands between “AI can write code” and “AI can build software”</li>
+<li>Current status: personal projects are largely working. The codebases grow, they tend to work, but with quirks. That gap is closing</li>
+</ul>
+
+<hr />
+
+<h2><a name="open-questions-notes-to-self"></a>Open Questions / Notes to Self</h2>
+
+<ul>
+<li><strong>Timeline</strong>: How long did this actually take? Notes mention a two-month break and part-time hobby work. “Were this full time, probably a week or two.” Decide how prominently to feature this</li>
+<li><strong>The cloc numbers</strong>: Choose the narrative — impressive scale? Test coverage? Both?</li>
+<li><strong>Audience</strong>: Are you writing for developers who haven’t tried AI coding yet, or for those who have and hit the same walls?</li>
+<li><strong>Greenfield vs. brownfield</strong>: You flag this multiple times but hedge (“hard to say”). Worth committing to a clearer take?</li>
+</ul>
+
+<!-- example image
+<figure class="captioned">
+    <div class="image-container">
+        <img src="/static/images/bed.jpg" width="600" alt="A slightly messy bed">
+    <figcaption>Make that bed! <a href="https://unsplash.com/photos/OZiflZqq0N0" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure>
+
+-->
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+<hr>
+    
+    <div class="prevNext">
+        
+        <a href="/articles/introducing-the-arxiv-explorer.html" class="prevPost">&laquo; Introducing the arXiv Explorer</a>
+        
+        <a href="/#" class="nextPost"></a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai.html" data-weight="6">AI</a></li>
+
+    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+
+    <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+
+    <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+        <hr>
+        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+    <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/ai-for-coding-where-we-stand-today.html";
+            this.page.identifier = "articles/ai-for-coding-where-we-stand-today";
+            this.page.title      = "AI for Coding: Where We Stand Today";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/prism.js"></script>
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Many view SDD as revelatory, but it actually started back in the 1960s.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Many view SDD as revelatory, but it actually started back in the 1960s.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
+</body>
+</html>
+
+
