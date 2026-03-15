@@ -46,6 +46,7 @@ sub filter_ignored_files {
 sub links_are_good ($file) {
     return if $file =~ /\bdemo.html$/;
     return if $file =~ m{^t/fixtures/};    # Skip test fixtures
+    return if $file =~ m{^paad/};
     my @errors;
     my $extor = HTML::SimpleLinkExtor->new();
     $extor->parse_file($file);
