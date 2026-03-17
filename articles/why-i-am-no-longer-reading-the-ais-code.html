@@ -35,7 +35,7 @@
   
   <meta property="og:url" content="https://curtispoe.org/articles/why-i-am-no-longer-reading-the-ais-code.html">
   
-  <meta property="og:title" content="Why I Am No Longer Reading the AI's Code">
+  <meta property="og:title" content="Why I Am No Longer Reading the AI’s Code">
   <meta property="og:description" content="I set out on a year-long quest to find out if we can really use AI to write production-quality code. I assumed the answer was no. I was wrong.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -47,8 +47,8 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Why I Am No Longer Reading the AI's Code</title>
-  <meta name="description" content="Why I Am No Longer Reading the AI's Code">
+  <title>Why I Am No Longer Reading the AI’s Code</title>
+  <meta name="description" content="Why I Am No Longer Reading the AI’s Code">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -98,7 +98,7 @@
     <div class="row title">
         <!-- Back to top button -->
         <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Why I Am No Longer Reading the AI's Code</h1>
+        <h1><a name="-title-no-title-found-"></a>Why I Am No Longer Reading the AI’s Code</h1>
         <time>2026-03-17</time>
         
         <p><span id="time"></span> minute read</p>
@@ -237,15 +237,19 @@
 <p><nav role="navigation" class="table-of-contents">
     <ul>
     <li class="indent-1"><a href="#why-i-am-no-longer-reading-the-ais-code">Why I Am No Longer Reading the AI’s Code</a></li>
-    <li class="indent-1"><a href="#the-journey"><strong>The Journey</strong></a></li>
-    <li class="indent-2"><a href="#first-steps"><strong>First Steps</strong></a></li>
-    <li class="indent-2"><a href="#the-breakthrough-spec-driven-development"><strong>The Breakthrough: Spec-Driven Development</strong></a></li>
-    <li class="indent-2"><a href="#the-architecture-wall"><strong>The Architecture Wall</strong></a></li>
-    <li class="indent-2"><a href="#degradation-the-final-piece"><strong>Degradation: The Final Piece</strong></a></li>
-    <li class="indent-1"><a href="#english-is-the-new-source-code"><strong>English Is the New Source Code</strong></a></li>
-    <li class="indent-1"><a href="#putting-it-all-together"><strong>Putting It All Together</strong></a></li>
-    <li class="indent-2"><a href="#a-few-more-things"><strong>A Few More Things</strong></a></li>
-    <li class="indent-1"><a href="#conclusion"><strong>Conclusion</strong></a></li>
+    <li class="indent-1"><a href="#the-journey">The Journey</a></li>
+    <li class="indent-2"><a href="#first-steps">First Steps</a></li>
+    <li class="indent-2"><a href="#the-first-breakthrough-spec-driven-development">The First Breakthrough: Spec-Driven Development</a></li>
+    <li class="indent-2"><a href="#the-architecture-wall">The Architecture Wall</a></li>
+    <li class="indent-2"><a href="#degradation-the-final-piece">Degradation: The Final Piece</a></li>
+    <li class="indent-1"><a href="#english-is-the-new-source-code">English Is the New Source Code</a></li>
+    <li class="indent-1"><a href="#putting-it-all-together">Putting It All Together</a></li>
+    <li class="indent-2"><a href="#a-few-more-things">A Few More Things</a></li>
+    <li class="indent-3"><a href="#context-management">Context management</a></li>
+    <li class="indent-3"><a href="#accessibility-a11y">Accessibility (a11y)</a></li>
+    <li class="indent-3"><a href="#vibe-coding">Vibe coding</a></li>
+    <li class="indent-3"><a href="#shesha">Shesha</a></li>
+    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
     </ul>
 </nav>
 <hr></p>
@@ -260,218 +264,57 @@
 
 <p>So I decided to try the Hail Mary pass. Can AI-assisted programming produce production-quality software without me reading or reviewing the code?</p>
 
-<p>My hypothesis was clear: even if this turned out to be impossible, the pursuit would teach me so much about pushing AI to its limits that it would benefit me elsewhere. I’m currently trying to help 200+ software developers write better software with AI. Even a spectacular failure would be useful.</p>
+<p>My hypothesis was clear: even if this turned out to be impossible, which I assumed it was, the pursuit would teach me so much about pushing AI to its limits that it would benefit me elsewhere. I’m currently trying to help 200+ software developers write better software with AI. Even a spectacular failure would be useful.</p>
 
 <p>Except the goal wasn’t impossible. I’ve been producing production-quality software without writing or reviewing code. Some caveats:</p>
 
 <ul>
 <li>“Production quality” just means code that is at least as good as what experienced software developers would produce. They look at it and say, “yeah, I can work with this.”</li>
 <li>This has mostly been on medium-sized (30K to 80K lines of code) codebases.</li>
-<li>With some exceptions, these have been greenfield codebases. The jury’s still out for brownfield code, but we’re getting closer.</li>
+<li>With some exceptions, these have been greenfield codebases. The jury’s still out for brownfield code, but we’re getting closer.
+<figure class="captioned">
+<div class="image-container">
+    <img src="/static/images/paad.png" width="600" alt="The PAAD Logo: Slaying the Four Horseman of the AIpocalypse">
+<figcaption>PAAD Logo <a href="https://github.com/Ovid/paad" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+</div>
+</figure></li>
 </ul>
 
-<p>I do not want to overpromise. But I’ve had people review the code I’ve generated—not always being aware that AI was involved—and they’ve largely given it a thumbs up. The result of that year is <a href="https://github.com/Ovid/paad/" target="_blank">a Claude Code plugin named PAAD</a> <span class="fa fa-external-link fa_custom"></span> encodes what I’ve learned over the past year.</p>
+<p>I do not want to overpromise. But I’ve had people review the code I’ve generated (not always being aware that AI was involved) and they’ve largely given it a thumbs up. The one time I clearly got a thumbs down was in showing a web-based game (more on this later) where I had built an unmaintainable pile of raw HTML. That wasn’t the AI’s fault: it was doing what I told it to do. Your skill is a developer is <em>still</em> the most important skill in all of this.</p>
 
-<p><figure class="image">
-    <div class="image-container">
-        <img src="/static/images/tramp-freighter-blues-screenshot.png" width="600" alt="A screenshot of the Tramp Freighter Blues">
-    <figcaption>About to dock at Barnard’s Star, six light years from Earth </figcaption>
-    </div>
-</figure></p>
+<p>The result of that year is <a href="https://github.com/Ovid/paad/" target="_blank">a Claude Code plugin named PAAD</a> <span class="fa fa-external-link fa_custom"></span> (pronounced “pad”) which encodes what I’ve learned over the past year.</p>
 
-<p><strong>Disclaimer</strong>: I do not recommend <strong>not</strong> reviewing the code that AI writes. This was a deliberate year-long experiment to push AI beyond its apparent limits. If you aren’t reviewing the code, when things go wrong, you’ll struggle to know why and the AI might not be able to help you.</p>
+<p>For the rest of this article, unless otherwise stated, “AI” means “generative AI,” and I’ll use “AAP” for “AI-Assisted Programming.”</p>
 
-<p>Note: for the rest of this article, unless otherwise stated, “AI” means “generative AI,” and I’ll use “AAP” for “AI-Assisted Programming.”</p>
+<p><strong>Disclaimer</strong>: <strong>I do not recommend skipping the code review</strong> of the code that AI writes. I skipped this because it was a deliberate year-long experiment to push AI beyond its apparent limits. If you aren’t reviewing the code, when things go wrong, you’ll struggle to know why and the AI might not be able to help you.</p>
 
-<hr />
+<p>If you skip code review, you’re still responsible. “Human in the loop” becomes “human in the noose.”</p>
 
-<h1><a name="the-journey"></a>**The Journey**</h1>
+<p><strong>DO NOT SKIP CODE REVIEW</strong>.</p>
 
-<h2><a name="first-steps"></a>**First Steps**</h2>
+<h1><a name="the-journey"></a>The Journey</h1>
+
+<h2><a name="first-steps"></a>First Steps</h2>
 
 <p>I haven’t talked about this much, because telling even experienced AI developers that I was on a solo quest to build production-quality code without reviewing it would lead them to see me as Quixote tilting at windmills. I’m also not a giant corporation or <a href="https://www.hlyr.dev/" target="_blank">a well-funded Y Combinator startup trying to pull off the same thing</a> <span class="fa fa-external-link fa_custom"></span> (their founder’s talk on <a href="https://www.youtube.com/watch?v=IS_y40zY-hc" target="_blank">context engineering</a> <span class="fa fa-external-link fa_custom"></span> is excellent). I’m just one guy with limited resources.</p>
 
-<p>I’ll mostly skip tool-specific details, but I’ve tried Windsurf, Cursor, Copilot, Kiro, Spec Kit with VS Code, and have now settled on Claude Code with <a href="https://github.com/obra/superpowers/" target="_blank">Superpowers</a> <span class="fa fa-external-link fa_custom"></span>, along with my PAAD skills.</p>
+<p>I’ll mostly skip tool-specific details, but I’ve tried Windsurf, Cursor, Copilot, Kiro, Spec Kit with VS Code, and have now settled on Claude Code with <a href="https://github.com/obra/superpowers/" target="_blank">Superpowers</a> <span class="fa fa-external-link fa_custom"></span>, along with my mad PAAD skills.</p>
 
 <p>My first experiments were dreadful. One project, porting some complex Perl code to Python, was a miserable failure. I figured having the Perl code as <em>the</em> source of truth meant I had a perfect spec. I did not.</p>
 
 <p>I tried again, this time porting the Perl modules in dependency order, starting with the leaves of the dependency graph. I got much farther—until I discovered that my failure to review had allowed a critical design flaw into a core module that meant the system could not possibly work. It would take as much time to unravel the mess as to restart. I stopped and regrouped.</p>
 
-<p>The problem was clear: there were subtle errors in my prompts, and even when there weren’t, the AI wasn’t writing what I asked for, sometimes adding things I did not ask for. This, compounded with AI’s tendency to output slop and ignore architecture, meant that I could only scale so far.</p>
+<p>The problem was clear: there were subtle errors in my prompts, and even when there weren’t, the AI wasn’t writing what I asked for, sometimes adding things I did not ask for and skipping things that I had. This, compounded with AI’s tendency to output slop and ignore architecture, meant that I could only scale so far.</p>
 
-<p>But I wasn’t giving up. I <em>knew</em> this could be done, if I could just figure out the trick.</p>
+<p>But I wasn’t giving up. I had become <em>sure</em> this could be done, if I could just figure out the trick.</p>
 
-<h2><a name="the-breakthrough-spec-driven-development"></a>**The Breakthrough: Spec-Driven Development**</h2>
+<h2><a name="the-first-breakthrough-spec-driven-development"></a>The First Breakthrough: Spec-Driven Development</h2>
 
 <p>That’s when I discovered <a href="https://en.wikipedia.org/wiki/Spec-driven_development" target="_blank">Spec-Driven Development</a> <span class="fa fa-external-link fa_custom"></span> (SDD). It’s actually been around since the 1960s, but wasn’t standardized until about 20 years ago. AI is merely using a well-established methodology. Specifically, I discovered <a href="https://github.com/github/spec-kit" target="_blank">GitHub’s spec-kit</a> <span class="fa fa-external-link fa_custom"></span>, and it turned my thinking around completely. In particular, two commands that spec-kit lists as optional: <a href="https://github.com/github/spec-kit/blob/main/templates/commands/clarify.md" target="_blank">clarify</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://github.com/github/spec-kit/blob/main/templates/commands/analyze.md" target="_blank">analyze</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 <p>They are not optional.</p>
 
 <p>In PAAD, these became skills named <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/pushback/SKILL.md" target="_blank">pushback</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/alignment/SKILL.md" target="_blank">alignment</a> <span class="fa fa-external-link fa_custom"></span>. Together, they were the first real breakthrough.</p>
-
-<p><strong>Pushback</strong> runs after you’ve created a spec. It looks for omissions, ambiguities, contradictions, and recent changes to the codebase that might impact your spec, presenting them one at a time so you can resolve each one. Only once have I used this skill and not had it find something.</p>
-
-<p><strong>Alignment</strong> takes the task list and compares it to the spec. Are all requirements addressed? Did extra “features” creep into the tasks? Your tasks must be 100% aligned with what you asked for. Even when building out specs and tasks using Claude Opus 4.6 on max thinking, I have <em>never</em> run the alignment check without it finding misalignments. Never. Not once. No matter what tool or methodology I’ve used, without running alignment—usually more than once—the AI is <em>never</em> building exactly what I asked for.</p>
-
-<p>This was a critical discovery. The AI doesn’t betray you with obviously wrong code. It betrays you with almost-right code that does slightly more, or slightly less, than what you specified. Pushback and alignment catch these drifts before they compound.</p>
-
-<p>I was asked if I thought SDD was the “end goal” of AAP. I don’t believe it is. We’re still discovering and exploring. PAAD is an interim solution, covering gaps with AAP. As we push further, I fully expect—and hope—that it will become unnecessary.</p>
-
-<p>Pretty confident in my newfound skills, I set out to create <a href="/paad/tramp-freighter/">Tramp Freighter Blues</a>, a browser-based space trading game (about 30K lines of JavaScript and <a href="http://Three.js" target="_blank">Three.js</a> <span class="fa fa-external-link fa_custom"></span>, or 95K if you count the tests, too). You can <a href="https://github.com/Ovid/tramp-freighter" target="_blank">play the game and read the code</a> <span class="fa fa-external-link fa_custom"></span> and judge for yourself. (Note: it can run on mobile, but it’s unplayable—it was designed for a full browser.)</p>
-
-<p><figure class="image">
-    <div class="image-container">
-        <img src="/static/images/tramp-freighter-blues-screenshot.png" width="600" alt="A screenshot of the Tramp Freighter Blues">
-    <figcaption>About to dock at Barnard’s Star, six light years from Earth </figcaption>
-    </div>
-</figure></p>
-
-<h2><a name="the-architecture-wall"></a>**The Architecture Wall**</h2>
-
-<p>Tramp Freighter Blues took a long time to build, largely because it was a “spare time” project with a two-month gap at one point. I was also constantly stopping and refining my process, taking every new learning and asking, “how can AI make this problem go away?”</p>
-
-<p>My prompts were getting more sophisticated, the game was coming to life, and I was proud of what I was accomplishing. I would push to GitHub, Copilot would review, I’d ask my AI to look at the reviews and fix the correct ones.</p>
-
-<p>But despite rigorously following SDD, using pushback and alignment, things sometimes broke in mysterious ways. Some features took longer to build than I expected. I was hitting complexity limits I couldn’t explain.</p>
-
-<p>So I asked Claude to review the architecture. It found several serious issues. I had been getting sloppy. I had pushback and alignment, but I had ignored the structural integrity of the codebase itself.</p>
-
-<p>I used metaprompting—asking OpenAI, Claude, and Gemini to each build me an architectural review prompt—and combined the best of all three. The result was devastating. I had built a house of cards.</p>
-
-<p><code>$ git lg|grep 'Merge.*architecture'</code>
-<code>*   dbc1a5f - Merge branch 'ovid/architecture' (4 days ago) &lt;Ovid&gt;</code>
-<code>*   091b86b - Merge branch 'ovid/architecture' (8 days ago) &lt;Ovid&gt;</code>
-<code>*   3c87b6a - Merge branch 'ovid/architecture' (9 days ago) &lt;Ovid&gt;</code>
-<code>*   e2be7db - Merge branch 'ovid/architecture' (2 weeks ago) &lt;Ovid&gt;</code>
-<code>*   1b0d243 - Merge branch 'ovid/architecture' (3 weeks ago) &lt;Ovid&gt;</code>
-<code>*   1c6a5c3 - Merge branch 'ovid/architecture' (3 weeks ago) &lt;Ovid&gt;</code></p>
-
-<p>Fortunately, I had a secret weapon: AI. I pointed it at my architecture reports and told it to fix them, one at a time. This dreaded grunt work became a background task.</p>
-
-<p>Currently, my <code>/paad:agentic-architecture</code> skill runs five specialized agents (inspired by <a href="https://claude.com/blog/code-review" target="_blank">Claude’s code review tool</a> <span class="fa fa-external-link fa_custom"></span>):</p>
-
-<ol>
-<li><strong>Structure &amp; Boundaries</strong> — module organization, responsibility distribution, domain modeling</li>
-<li><strong>Coupling &amp; Dependencies</strong> — how components connect, abstraction quality, dependency direction</li>
-<li><strong>Integration &amp; Data</strong> — data ownership, API contracts, save/load integrity, transactional boundaries</li>
-<li><strong>Error Handling &amp; Observability</strong> — error strategies, logging, config, business logic placement</li>
-<li><strong>Security &amp; Code Quality</strong> — input validation, dead code, test coverage, secrets</li>
-</ol>
-
-<p>The results are passed to a validator agent that organizes, deduplicates findings, and validates that each one is real. And yes, this process eats tokens like popcorn at a horror movie.</p>
-
-<p><a href="https://gist.github.com/Ovid/a14fc4290d15a62a825a5fa5bdbf08a7" target="_blank">Here’s an architecture report for Tramp Freighter Blues</a> <span class="fa fa-external-link fa_custom"></span> so you can see what to expect.</p>
-
-<p><strong>A warning</strong>: do not assume the architecture report is always correct. It is a guide, not a mandate. For one codebase, it flagged a God Object that was terrible, I rewrote it in a clean façade pattern, and it reflagged it as a God Object solely based on the length of the code. I’ve since tightened the architecture reporting, but you still need human judgment.</p>
-
-<p><strong>Note</strong>: For all PAAD commands, such as <code>/paad:pushback</code>, you can usually omit the <code>paad:</code> part. <code>/pushback</code> works fine. However, if you have another plugin providing skills with the same name, the <code>paad:</code> namespace makes it ambiguous.</p>
-
-<h2><a name="degradation-the-final-piece"></a>**Degradation: The Final Piece**</h2>
-
-<p>So now I had three pillars—Pushback, Alignment, Architecture—but something was still missing. I do a lot of context switching: writing training material, trying out new AI tools, mentoring developers, and attending lots of meetings. For one internal project, I ran <code>make cover</code>, only to discover I had forgotten to add a <code>Makefile</code> target for code coverage.</p>
-
-<p>This kind of drift—small things falling through the cracks—is degradation. PAAD now includes a <code>/paad:makefile</code> skill that creates or updates a <code>Makefile</code> with all the standard commands I need across projects. When I switch to a new project, I run that and don’t have to remember the unique commands for each codebase.</p>
-
-<p>Linting and formatting are nice, but <code>make cover</code> is the high-value win. I strive for over 90% test coverage, hoping for at least 95%. <strong>This is the number one guard against degradation</strong>. When you get a bug, have your AI figure out how to write a test that exposes it. If that test exists, it’s much harder for the bug to return.</p>
-
-<p>But some bugs are hard to expose through unit tests. For Tramp Freighter Blues, I kept running <code>make dev</code> and manually playtesting. I would get lazy, sloppy. I missed things.</p>
-
-<p>Then Anthropic released <a href="https://code.claude.com/docs/en/chrome" target="_blank">Chrome integration for Claude Code</a> <span class="fa fa-external-link fa_custom"></span>. AI gets sloppy, but it doesn’t get tired. I now have a UAT (User Acceptance Testing) skill. I throw my last spec at it and it runs acceptance tests for me. I have custom versions, such as one that tells it to be a new player and try to complete the game. I run it before bedtime and have a full report when I wake up.</p>
-
-<p>You still need manual UAT because things obvious to a human aren’t necessarily obvious to an AI. But the AI catches things humans miss. Doing the “Alpha Centauri A to Epsilon Eridani” run for the tenth time is <em>boring</em>. AI doesn’t get bored (though sometimes, it gets cranky).</p>
-
-<p>I haven’t added the UAT skill to the public PAAD release yet because it’s still in beta and has a massive security hole. I discovered this in a meeting, when my browser suddenly woke up and started running a UAT pass against Tramp Freighter. My computer <em>at home</em> had started the run, but <a href="https://github.com/anthropics/claude-code/issues/25551#issuecomment-4000032444" target="_blank">connected to my computer in an office in another city</a> <span class="fa fa-external-link fa_custom"></span>.</p>
-
-<p>And that’s the full acronym: <strong>P</strong>ushback, <strong>A</strong>lignment, <strong>A</strong>rchitecture, <strong>D</strong>egradation. Four pillars, each born from a specific failure, each addressing a specific way that AI-assisted programming silently goes wrong.</p>
-
-<hr />
-
-<h1><a name="english-is-the-new-source-code"></a>**English Is the New Source Code**</h1>
-
-<p>At this point, some people inevitably say “you didn’t write the code, the AI did.”</p>
-
-<p>Ignore them. That’s like telling a C developer they didn’t write the code because their C compiled to machine code. When there are bugs in a C program, you don’t rewrite the machine code—you rewrite the C. For AAP, <strong>you</strong> wrote the code. Your programming language is English now.</p>
-
-<p>Yes, C compilation is deterministic and AI is not. That’s a real difference, and it’s exactly why PAAD exists. Each pillar—pushback, alignment, architecture review, degradation checks—substitutes systematic verification for the determinism you’ve lost. You’re not trusting the compiler blindly. You’re trusting a process that catches the compiler’s mistakes.</p>
-
-<p>But here’s the key shift: you review the spec, not the code. English is the new source code and you always review source code, right? <strong>Review it.</strong></p>
-
-<hr />
-
-<h1><a name="putting-it-all-together"></a>**Putting It All Together**</h1>
-
-<p>If you want to try this yourself, <a href="https://github.com/ovid/paad" target="_blank">PAAD is a Claude Code plugin</a> <span class="fa fa-external-link fa_custom"></span>. Installing it is simple:</p>
-
-<div class="shadow"><pre class="scrolled"><code>/plugin marketplace add Ovid/paad
-/plugin install paad@paad
-</code></pre></div>
-
-<p>(If you’re not running Claude Code, you can still adopt the methodology—you’ll just need to do more manual work adapting it to your tools.)</p>
-
-<p><strong>A note on safety</strong>: through all of this, you probably want to run in a locked-down Docker container, a VM, or some other isolated environment. AI still does bad things, like <a href="https://www.pcmag.com/news/meta-security-researchers-openclaw-ai-agent-accidentally-deleted-her-emails" target="_blank">deleting your entire inbox</a> <span class="fa fa-external-link fa_custom"></span>.</p>
-
-<p>The workflow looks like this:</p>
-
-<p><strong>Start with your steering files.</strong> They might be called <code>CLAUDE.md</code>, <code>AGENTS.md</code>, a constitution, or something else—it’s tool-specific at this point. Read them carefully. The team should meet regularly to review and update them.</p>
-
-<p>This is worth pausing on, because it’s easy to underestimate. Errors in AAP cascade. If a ticket has errors, you write some bad code—one bad ticket, one bad feature. If the design has errors, you get lots of bad tickets. If the spec is wrong, you get even more design errors and even more bad tickets. But if the steering is wrong, it doesn’t matter if your spec is perfect—<em>everything</em> the AI builds will be impacted, across every ticket, every feature, every sprint. The higher up the chain the error lives, the more it multiplies on the way down. This is also why pushback on your specs is so critical: catching a flaw in the spec prevents a cascade of flawed implementations.</p>
-
-<p><strong>Check your test coverage.</strong> The lower your coverage, the harder it is to prevent AAP from making mistakes. If your system is too messy for comprehensive unit tests, try writing end-to-end integration tests along critical paths. These tests are fragile on legacy codebases—obscure changes deep in the codebase will break them—but at least you’ll see errors you otherwise wouldn’t.</p>
-
-<p><strong>Run an architecture review</strong> (<code>/paad:agentic-architecture</code>) if you have the token budget. The more architectural issues you have, the worse your AAP experience, unless you’re very careful to steer around the problems. “Steering” means providing the agent with a lot more context to ensure it’s really doing what you want. If you’re on a team, prioritize the issues together and fix one per sprint. Fixing too many too fast is a recipe for disaster.</p>
-
-<p><strong>For each ticket</strong>: create a branch (please don’t commit directly to <code>main</code>), write your spec, run <code>/paad:pushback</code>, resolve what it finds, then generate your implementation tasks and run <code>/paad:alignment</code>. Fix the misalignments. You will be shocked how many there are.</p>
-
-<p><strong>Run the agentic review</strong> (<code>/paad:agentic-review</code>). Grab coffee—it takes a while. It spawns specialized agents, each reviewing a different dimension (spec conformance, security, architecture), and a validator agent that checks the reviewers' work. Think of it as GitHub’s Copilot review, except deeper and with fewer false positives. For one Java codebase of about 40K lines, it took five minutes at a cost of about $5 in tokens.</p>
-
-<p><strong>Wash, rinse, repeat.</strong></p>
-
-<h2><a name="a-few-more-things"></a>**A Few More Things**</h2>
-
-<p><strong>Context management</strong>: keep an eye on how much context you consume. Start new sessions before you hit 50%. Your code quality will be better. When your context fills up, context rot sets in. Try not to compact your session either—you’ll lose information that may be critical to the success of your code.</p>
-
-<p><strong>Accessibility</strong>: try <code>/paad:agentic-a11y</code> for a thorough report of accessibility gaps. Here’s <a href="https://gist.github.com/Ovid/43e31aa6a9baebe15fbb060550712721" target="_blank">an accessibility report for Tramp Freighter Blues</a> <span class="fa fa-external-link fa_custom"></span> that I’m working through now.</p>
-
-<p><strong>Vibe coding</strong>: yeah, we need to talk about this. Some argue that with SDD, if you need to “vibe” a fix, your spec is wrong and you should go back and fix it. That might be true once the tooling is good enough, but most of us aren’t there yet. So PAAD includes <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/vibe/SKILL.md" target="_blank">a vibe coding skill</a> <span class="fa fa-external-link fa_custom"></span> that has <em>just enough structure</em> for small fixes, with checks for code duplication and architecture flaws. One time I used it and it stopped cold because it found an architectural problem in my messaging system.</p>
-
-<p>The vibe skill uses red/green/refactor. In fact, the alignment skill, when it finishes aligning, <em>rewrites your tasks in red/green/refactor</em>. Why?</p>
-
-<p><strong>Red</strong>: write a failing test first. The very first time I tried TDD years ago, I wrote a failing test—and it passed. I scratched my head for a while before realizing I’d been asked to implement a feature that already existed, but no one knew. Mind-blowing. More commonly, your “failing” test fails in ways you didn’t expect, which highlights unknown issues.</p>
-
-<p><strong>Green</strong>: tell the AI to write minimal code to pass the test. This forces it to approach the problem simply. You’re less likely to get slop.</p>
-
-<p><strong>Refactor</strong>: this is what AI almost never does unless you tell it to. So we tell it. It finds duplicated code, hard-coded values that should come from config, and any number of small issues that accumulate into big ones.</p>
-
-<hr />
-
-<h1><a name="conclusion"></a>**Conclusion**</h1>
-
-<p>This was a fool’s journey. One guy trying to do something that everyone said was impossible—something that <em>I</em> thought was impossible. I set out to build production-quality software without ever reading the code, expecting to fail instructively.</p>
-
-<p>Instead, I found that for greenfield code, it <em>is</em> possible—but only with both the token budget and the discipline. Without pushback, your specs have gaps. Without alignment, the AI builds something almost-but-not-quite what you asked for. Without architecture review, the codebase silently rots. Without degradation checks, everything you’ve built slowly falls apart.</p>
-
-<p>The brownfield story is still developing. I’m finding that PAAD helps with legacy systems, but it’s slower and you need to give it more context. One promising sign: a team that insisted AI wasn’t working with their legacy codebase let me pair with them. When they built out their spec, my pushback skill politely informed them that a recent change to the codebase meant their meticulously crafted specification could not work. That was a happy accident—I’ve since updated the skill to deliberately check this—but it showed that the methodology scales beyond greenfield.</p>
-
-<p>The release of Opus 4.5 last November was a major upgrade in capabilities. Just a few days ago, Claude Code landed with a <em>one million token context window</em> for Opus 4.6. These systems keep getting better.</p>
-
-<p>But here’s what I keep coming back to. For decades, we’ve been writing code and hoping the compiler turns it into the right binary. Almost nobody reviews the assembly output. We trust the process. What I’ve learned over the past year is that with enough discipline—with the right pushback, alignment, architecture, and degradation checks—you can start to extend that same trust one level higher.</p>
-
-<p>I’m not reading the AI’s code anymore. I’m reading the specs, the alignment reports, the architecture reviews. I’m reading the <em>intent</em>, and verifying that the intent was honored.</p>
-
-<p>That’s not reckless. That’s the next abstraction layer. And like every abstraction layer before it, it’s terrifying until you realize it works.</p>
-
-<p>—-</p>
-
-<p><strong>Disclaimer</strong>: Again, I do <em>not</em> recommend not reading the code. Absolutely not. In my current role, we have an experimental project where I used this methodology, but I was up-front about it and made it clear that the code is only a proof-of-concept.</p>
-
-<p>But when I finally read the code, I thought, “yeah, I can work with this.”</p>
-
-<p><figure class="image">
-    <div class="image-container">
-        <img src="/static/images/shesha-tcm.png" width="600" alt="Shesha answers a question about using synchronous output with a module">
-    <figcaption><a href="https://github.com/Ovid/shesha" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
-    </div>
-</figure></p>
 
 <div class="collapsible-section">
     <div class="collapsible-trigger"
@@ -500,9 +343,8 @@ Please analyze it for:
 3. Contradictory requirements
 4. Security concerns - any requirement that might
    present a security issue
-5. A quick check in the code for anything which
+5. A quick check of recent commits for anything which
    might conflict with the requirements
-6. Any requirements not in EARS format
 
 If you find issues:
 
@@ -522,6 +364,184 @@ the requirements look complete and clear.
 
     </div>
 </div>
+
+<p><strong>Pushback</strong> runs after you’ve created a spec. It looks for omissions, ambiguities, contradictions, and recent changes to the codebase that might impact your spec, presenting them one at a time so you can resolve each one. Only <em>once</em> have I used this skill and not had it find something.</p>
+
+<p><strong>Alignment</strong> takes the task list and compares it to the spec. Are all requirements addressed? Did extra “features” creep into the tasks? Your tasks must be 100% aligned with what you asked for. Even when building out specs and tasks using Claude Opus 4.6 on max thinking, I have <em>never</em> run the alignment check without it finding misalignments. Never. Not once. No matter what tool or methodology I’ve used, without running alignment—usually more than once—the AI is <em>never</em> building exactly what I asked for.</p>
+
+<p>This was a critical discovery. The AI doesn’t betray you with obviously wrong code. It betrays you with almost-right code that does slightly more, or slightly less, than what you specified. Pushback and alignment catch these drifts before they compound.</p>
+
+<p>I was asked if I thought SDD was the “end goal” of AAP. I don’t believe it is. We’re still discovering and exploring. PAAD is an interim solution, covering gaps with AAP. As we push further, I fully expect, and hope, that it will become unnecessary.</p>
+
+<p>Pretty confident in my newfound skills, I set out to create Tramp Freighter Blues, a browser-based space trading game (about 30K lines of React, TypeScript, and <a href="http://Three.js" target="_blank">Three.js</a> <span class="fa fa-external-link fa_custom"></span>, or 95K if you also count the tests). You can <a href="/paad/tramp-freighter">play the game</a> and <a href="https://github.com/Ovid/tramp-freighter" target="_blank">read the code</a> <span class="fa fa-external-link fa_custom"></span> and judge for yourself. (Note: it can run on mobile, but it’s unplayable—it was designed for a full browser.)</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/tramp-freighter-blues-screenshot.png" width="600" alt="A screenshot of the Tramp Freighter Blues">
+    <figcaption>About to dock at Barnard’s Star, six light years from Earth </figcaption>
+    </div>
+</figure></p>
+
+<h2><a name="the-architecture-wall"></a>The Architecture Wall</h2>
+
+<p>Tramp Freighter Blues took a long time to build, largely because it was a “spare time” project with a two-month gap at one point. I was also constantly stopping and refining my process, taking every new learning and asking, “how can AI make this problem go away?”</p>
+
+<p>My prompts were getting more sophisticated, the game was coming to life, and I was proud of what I was accomplishing. I would push to GitHub, Copilot would review (badly), I’d ask my AI to look at the reviews and fix the correct ones.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+
+<p>But despite rigorously following SDD, using pushback and alignment, things sometimes broke in mysterious ways. Some features took longer to build than I expected. I was hitting complexity limits I couldn’t explain.</p>
+
+<p>So I asked Claude to review the architecture. It found several serious issues. I had been getting sloppy. I had pushback and alignment, but I had ignored the structural integrity of the codebase itself.</p>
+
+<p>I used metaprompting—asking OpenAI, Claude, and Gemini to each build me an architectural review prompt—and combined the best of all three. The result was devastating. I had built a house of cards.</p>
+
+<div class="shadow"><pre class="scrolled"><code>$ git lg|grep 'Merge.*architecture'
+*   dbc1a5f - Merge branch 'ovid/architecture' (4 days ago) &lt;Ovid&gt;
+*   091b86b - Merge branch 'ovid/architecture' (8 days ago) &lt;Ovid&gt;
+*   3c87b6a - Merge branch 'ovid/architecture' (9 days ago) &lt;Ovid&gt;
+*   e2be7db - Merge branch 'ovid/architecture' (2 weeks ago) &lt;Ovid&gt;
+*   1b0d243 - Merge branch 'ovid/architecture' (3 weeks ago) &lt;Ovid&gt;
+*   1c6a5c3 - Merge branch 'ovid/architecture' (3 weeks ago) &lt;Ovid&gt;
+</code></pre></div>
+
+<p>Fortunately, I had a secret weapon: AI. I pointed it at my architecture reports and told it to fix them, one at a time. This dreaded grunt work became a background task.</p>
+
+<p>Currently, my <code>/paad:agentic-architecture</code> skill runs five specialized agents (inspired by <a href="https://claude.com/blog/code-review" target="_blank">Claude’s code review tool</a> <span class="fa fa-external-link fa_custom"></span>):</p>
+
+<ol>
+<li><strong>Structure &amp; Boundaries</strong> — module organization, responsibility distribution, domain modeling</li>
+<li><strong>Coupling &amp; Dependencies</strong> — how components connect, abstraction quality, dependency direction</li>
+<li><strong>Integration &amp; Data</strong> — data ownership, API contracts, save/load integrity, transactional boundaries</li>
+<li><strong>Error Handling &amp; Observability</strong> — error strategies, logging, config, business logic placement</li>
+<li><strong>Security &amp; Code Quality</strong> — input validation, dead code, test coverage, secrets</li>
+</ol>
+
+<p>The results are passed to a validator agent that organizes, deduplicates findings, and validates that each one is real. And yes, <strong>this process eats tokens like popcorn at a horror movie</strong>.</p>
+
+<p><a href="https://gist.github.com/Ovid/a14fc4290d15a62a825a5fa5bdbf08a7" target="_blank">In the interest of full disclosure, here’s an architecture report for Tramp Freighter Blues</a> <span class="fa fa-external-link fa_custom"></span> so you can see what to expect. You can see that it’s pretty good now, but still has some gaps. PAAD is helping me fill those gaps.</p>
+
+<p><strong>A warning</strong>: do not assume the architecture report is always correct. It is a guide, not a mandate. For one codebase, it flagged a God Object that was terrible, I rewrote it in a clean façade pattern, and it reflagged it as a God Object solely based on the length of the code. I’ve since tightened the architecture reporting, but you still need human judgment.</p>
+
+<p><strong>Note</strong>: For all PAAD commands, such as <code>/paad:pushback</code>, you can usually omit the <code>paad:</code> part. Running <code>/pushback</code> works fine. However, if you have another plugin providing skills with the same name, the <code>paad:</code> namespace makes it unambiguous.</p>
+
+<h2><a name="degradation-the-final-piece"></a>Degradation: The Final Piece</h2>
+
+<p>So now I had three pillars—Pushback, Alignment, Architecture—but something was still missing. I do a lot of context switching: writing training material, trying out new AI tools, mentoring developers, and attending lots of meetings. For one internal project, I ran <code>make cover</code>, only to discover I had forgotten to add a <code>Makefile</code> target for code coverage.</p>
+
+<p>This kind of drift—small things falling through the cracks—is degradation. Degradation leads to bugs, security holes, unexpected behaviors, and so on. Solving this is akin to solving the halting problem. You can’t, but you can be vigilant.</p>
+
+<p>PAAD now includes a <code>/paad:makefile</code> skill that creates or updates a <code>Makefile</code> with all the standard commands I need across projects. When I switch to a new project, I run that and don’t have to remember the unique commands for each codebase.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+
+<p>Linting and formatting are nice, but <code>make cover</code> is the high-value win. I strive for over 90% test coverage, hoping for at least 95%. <strong>This is the number one guard against degradation</strong>. When you get a bug, have your AI figure out how to write a test that exposes it. If that test exists, it’s much harder for the bug to return.</p>
+
+<p>But some bugs are hard to expose through unit tests. For Tramp Freighter Blues, I kept running <code>make dev</code> and manually playtesting. I would get lazy, sloppy. I missed things.</p>
+
+<p>Then Anthropic released <a href="https://code.claude.com/docs/en/chrome" target="_blank">Chrome integration for Claude Code</a> <span class="fa fa-external-link fa_custom"></span>. AI gets sloppy, but it doesn’t get tired. I now have a UAT (User Acceptance Testing) skill. I throw my last spec at it and it runs acceptance tests for me. I have custom versions, such as one that tells it to be a new player and try to complete the game. I run it before bedtime and have a full report when I wake up.</p>
+
+<p>You still need manual UAT because things obvious to a human aren’t necessarily obvious to an AI. But the AI catches things humans miss. Doing the “Alpha Centauri A to Epsilon Eridani” run for the tenth time is <em>boring</em>. AI doesn’t get bored (though sometimes it gets cranky).</p>
+
+<p>I haven’t added the UAT skill to the public PAAD release yet because it’s still in beta and has a massive security hole. I discovered this in a meeting, when my browser suddenly woke up and started running a UAT pass against Tramp Freighter. My computer <em>at home</em> had started the run, but <a href="https://github.com/anthropics/claude-code/issues/25551#issuecomment-4000032444" target="_blank">connected to my computer in an office in another city</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/claude-chrome-plugin.jpeg" width="600" alt="A computer on the left is running the Claude Chrome plugin. The computer on the right is the one that Claude connected to!">
+    <figcaption>Claude Chrome plugin (on the left) running my code on another computer. </figcaption>
+    </div>
+</figure></p>
+
+<p>And that’s the full acronym: <strong>P</strong>ushback, <strong>A</strong>lignment, <strong>A</strong>rchitecture, <strong>D</strong>egradation. Four pillars, each born from a specific failure, each addressing a specific way that AI-assisted programming silently goes wrong.</p>
+
+<h1><a name="english-is-the-new-source-code"></a>English Is the New Source Code</h1>
+
+<p>At this point, some people inevitably say “you didn’t write the code, the AI did.”</p>
+
+<p>Ignore them. That’s like telling a C developer they didn’t write the code because their C compiled to machine code. When there are bugs in a C program, you don’t rewrite the machine code—you rewrite the C. For AAP, <strong>you</strong> wrote the code. Your programming language is English now.</p>
+
+<p>Yes, C compilation is deterministic and AI is not. That’s a real difference, and it’s exactly why PAAD exists. Each pillar—pushback, alignment, architecture review, degradation checks—substitutes systematic verification for the determinism you’ve lost. You’re not trusting the compiler blindly. You’re trusting a process that catches the compiler’s mistakes.</p>
+
+<p>But here’s the key shift: you review the spec, not the code. English is the new source code and you always review source code, right? <strong>Review it.</strong></p>
+
+<h1><a name="putting-it-all-together"></a>Putting It All Together</h1>
+
+<p>If you want to try this yourself, <a href="https://github.com/ovid/paad" target="_blank">PAAD is a Claude Code plugin</a> <span class="fa fa-external-link fa_custom"></span>. Installing it is simple:</p>
+
+<div class="shadow"><pre class="scrolled"><code>/plugin marketplace add Ovid/paad
+/plugin install paad@paad
+</code></pre></div>
+
+<p>(If you’re not running Claude Code, you can still adopt the methodology—you’ll just need to do some work adapting it to your tools.)</p>
+
+<p><strong>A note on safety</strong>: through all of this, you probably want to run in a locked-down Docker container, a VM, or some other isolated environment. AI still does bad things, like <a href="https://www.pcmag.com/news/meta-security-researchers-openclaw-ai-agent-accidentally-deleted-her-emails" target="_blank">deleting your entire inbox</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>The PAAD workflow looks like this:</p>
+
+<p><strong>Start with your steering files.</strong> They might be called <code>CLAUDE.md</code>, <code>AGENTS.md</code>, a constitution, or something else—it’s tool-specific at this point. Read them carefully. The team should meet regularly to review and update them.</p>
+
+<p>This is worth pausing on, because it’s easy to underestimate. Errors in software development cascade. If a ticket has errors, you write some bad code—one bad ticket, one bad feature. If the design has errors, you get lots of bad tickets. If the spec is wrong, you get even more design errors and even more bad tickets. But if the steering is wrong, it doesn’t matter if your spec is perfect—<em>everything</em> the AI builds will be impacted, across every ticket, every feature, every sprint. The higher up the chain the error lives, the more it multiplies on the way down. This is also why pushback on your specs is so critical: catching a flaw in the spec prevents a cascade of flawed implementations.</p>
+
+<p><strong>Check your test coverage.</strong> The lower your coverage, the harder it is to prevent AAP from making mistakes. If your system is too messy for comprehensive unit tests, try writing end-to-end integration tests along critical paths. These tests are fragile on legacy codebases—obscure changes deep in the codebase will break them—but at least you’ll see errors you otherwise wouldn’t.</p>
+
+<p><strong>Run an architecture review</strong> (<code>/paad:agentic-architecture</code>) if you have the token budget. The more architectural issues you have, the worse your AAP experience, unless you’re very careful to steer around the problems. “Steering” means providing the agent with a lot more context to ensure it’s really doing what you want. If you’re on a team, prioritize the issues together and fix one per sprint. Fixing too many too fast is a recipe for disaster.</p>
+
+<p><strong>For each ticket</strong>: create a branch (please don’t commit directly to <code>main</code>), write your spec, run <code>/paad:pushback</code>, resolve what it finds, then generate your implementation tasks and run <code>/paad:alignment</code>. Fix the misalignments. You will be shocked how many there are.</p>
+
+<p><strong>Run the agentic review</strong> (<code>/paad:agentic-review</code>). Grab coffee—it takes a while. It spawns specialized agents, each reviewing a different dimension (spec conformance, security, architecture), and a validator agent that checks the reviewers' work. Think of it as GitHub’s Copilot review, except deeper and with fewer false positives. For one Java codebase of about 40K lines, it took five minutes at a cost of about $5 in tokens.</p>
+
+<p><strong>Wash, rinse, repeat.</strong></p>
+
+<h2><a name="a-few-more-things"></a>A Few More Things</h2>
+
+<h3><a name="context-management"></a>Context management</h3>
+
+<p>Keep an eye on how much context you consume. Start new sessions before you hit 50%. Your code quality will be better. When your context fills up, context rot sets in. Don’t compact your session either; you’ll lose information that may be critical to the success of your code.</p>
+
+<h3><a name="accessibility-a11y"></a>Accessibility (a11y)</h3>
+
+<p>Try <code>/paad:agentic-a11y</code> for a thorough report of accessibility gaps. Here’s <a href="https://gist.github.com/Ovid/43e31aa6a9baebe15fbb060550712721" target="_blank">an accessibility report for Tramp Freighter Blues</a> <span class="fa fa-external-link fa_custom"></span> that I’m working through now.</p>
+
+<h3><a name="vibe-coding"></a>Vibe coding</h3>
+
+<p>Yeah, we need to talk about this. Some argue that with SDD, if you need to “vibe” a fix, your spec is wrong and you should go back and fix it. That might be true once the tooling is good enough, but most of us aren’t there yet. So PAAD includes <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/vibe/SKILL.md" target="_blank">a vibe coding skill</a> <span class="fa fa-external-link fa_custom"></span> that has <em>just enough structure</em> for small fixes, with checks for code duplication and architecture flaws. One time I used it and it stopped cold because it found an architectural problem in my messaging system.</p>
+
+<p>The vibe skill uses red/green/refactor. In fact, the alignment skill, when it finishes aligning, <em>rewrites your tasks in red/green/refactor</em>. Why?</p>
+
+<ul>
+<li><strong>Red</strong>: write a failing test first. The very first time I tried TDD years ago, I wrote a failing test. It passed. I scratched my head for a while before realizing I’d been asked to implement a feature that already existed, but no one knew. Mind-blowing. More commonly, your “failing” test fails in ways you didn’t expect, which highlights unknown issues.</li>
+<li><strong>Green</strong>: tell the AI to write minimal code to pass the test. This forces it to approach the problem simply. You’re less likely to get slop.</li>
+<li><strong>Refactor</strong>: this is what AI almost never does unless you tell it to. So we tell it. It finds duplicated code, hard-coded values that should come from config, and any number of small issues that accumulate into big ones.</li>
+</ul>
+
+<h3><a name="shesha"></a>Shesha</h3>
+
+<p>Tramp Freighter isn’t the only code that I’m writing with this technique. There’s also <a href="https://github.com/Ovid/shesha" target="_blank">Shesha</a> <span class="fa fa-external-link fa_custom"></span>, a recursive language model that effectively gives <em>any</em> LLM unlimited context (bound by how much RAM you can safely let it use).</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/shesha.png" width="600" alt="Shesha answers a complex question about abiogensis, searching over 60 megabytes of scientific research.">
+    <figcaption>The Shesha arXiv Explorer <a href="https://github.com/Ovid/shesha" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+    </div>
+</figure></p>
+
+<p>With that, I bundled the <a href="https://github.com/Ovid/shesha/tree/main/code-explorer" target="_blank">Shesha Code Explorer</a> <span class="fa fa-external-link fa_custom"></span>. I recently threw three large GitHub repositories at it, totalling about 39 megabytes of data, described a project I wanted to build, and asked for a high-level design (HLD). These often take architects days or weeks to build out. <a href="https://gist.github.com/Ovid/1610fcffa51bc6ba0f48acd8ef167127" target="_blank">I had it done in a couple of minutes</a> <span class="fa fa-external-link fa_custom"></span>. Interestingly, while the overall design was good, it was missing some critical details of the hardest problems. A bit of digging revealed the cause: I was thinking in “RAG” terms and the system prompt tells the AI to only answer the questions based on information in the documents. Hence, my limitation. Now that I know the problem, the solution itself is simple, but I need to think carefully about the UX so that users know the difference between information from the documents and information that the LLM inferred.</p>
+
+<h1><a name="conclusion"></a>Conclusion</h1>
+
+<p>This was a fool’s journey. One guy trying to do something that everyone said was impossible—something that <em>I</em> thought was impossible. I set out to build production-quality software without ever reading the code, expecting to fail instructively.</p>
+
+<p>Instead, I found that for greenfield code, it <em>is</em> possible—but only with both the token budget and the discipline. Without pushback, your specs have gaps. Without alignment, the AI builds something almost-but-not-quite what you asked for. Without architecture review, the codebase silently rots. Without degradation checks, everything you’ve built slowly falls apart.</p>
+
+<p>The brownfield story is still developing. I’m finding that PAAD helps with legacy systems, but it’s slower and you need to give it more context. One promising sign: a team that insisted AI wasn’t working with their legacy codebase let me pair with them. When they built out their spec, my pushback skill politely informed them that a recent change to the codebase meant their meticulously crafted specification could not work. That was a happy accident—I’ve since updated the skill to deliberately check this—but it hints that the methodology scales beyond greenfield.</p>
+
+<p>The release of Opus 4.5 last November was a major upgrade in capabilities. Just a few days ago, Claude Code landed with a <em>one million token context window</em> for Opus 4.6. These systems keep getting better.</p>
+
+<p>But here’s what I keep coming back to. For decades, we’ve been writing code and hoping the compiler turns it into the right binary. Almost nobody reviews the assembly output. We trust the process. What I’ve learned over the past year is that with enough discipline—with the right pushback, alignment, architecture, and degradation checks—you can start to extend that same trust one level higher.</p>
+
+<p>For personal projects (not work!), I’m not reading the AI’s code anymore. I’m reading the specs, the alignment reports, the architecture reviews. I’m reading the <em>intent</em>, and verifying that the intent was honored. But I have a confession: for one of my PAAD projects, I cheated. I finally sat down and started reading through 40K lines of code.</p>
+
+<p>And I thought, “yeah, I can work with this.”</p>
+
+<p>This is the next abstraction layer. And like every abstraction layer before it, it’s terrifying until it works.</p>
+
+<p><strong>Disclaimer</strong>: Again, <strong>always review the code</strong>. Absolutely do not skip this.</p>
 
 </article>
 
@@ -653,7 +673,7 @@ the requirements look complete and clear.
         var disqus_config = function () {
             this.page.url        = "https://curtispoe.org/articles/why-i-am-no-longer-reading-the-ais-code.html";
             this.page.identifier = "articles/why-i-am-no-longer-reading-the-ais-code";
-            this.page.title      = "Why I Am No Longer Reading the AI's Code";
+            this.page.title      = "Why I Am No Longer Reading the AI’s Code";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -672,6 +692,68 @@ the requirements look complete and clear.
     
     <script src="/static/js/collapsible.js"></script>
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>Sometimes Copilot says that it has suppressed some comments due to low confidence. Check those anyway. They are often correctly calling out issues.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>Plus, you can write a global <tt>CLAUD.md</tt> file which then knows how to run all of these commands for all of your projects!</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Sometimes Copilot says that it has suppressed some comments due to low confidence. Check those anyway. They are often correctly calling out issues.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            Plus, you can write a global <tt>CLAUD.md</tt> file which then knows how to run all of these commands for all of your projects!
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
 </body>
 </html>
 
