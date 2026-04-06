@@ -54,6 +54,25 @@ __END__
 
 Ovid::Site::Utils - Utility functions for building our site.
 
+=head1 SYNOPSIS
+
+    use Ovid::Site::Utils qw(
+      use_smart_quotes
+      get_image_description
+      set_image_description
+    );
+
+    my $pretty = use_smart_quotes($raw_text);
+
+    my $desc = get_image_description('photo.jpg');
+    set_image_description('photo.jpg', 'A sunset over the ocean.');
+
+=head1 DESCRIPTION
+
+Exports utility functions used across the site build pipeline. Provides
+typographic smart-quote conversion and accessors for the image description
+table in the SQLite database.
+
 =head1 FUNCTIONS
 
 =head2 use_smart_quotes

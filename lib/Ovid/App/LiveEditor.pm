@@ -259,3 +259,104 @@ get '/static/**' => sub {
 };
 
 true;
+
+__END__
+
+=head1 NAME
+
+Ovid::App::LiveEditor - Dancer2 web application for real-time template editing and preview
+
+=head1 SYNOPSIS
+
+    # Set the file to edit via environment variable
+    $ENV{LIVE_EDITOR_FILE} = 'root/blog/my-post.tt';
+
+    # Launch via the CLI wrapper
+    perl bin/launch root/blog/my-post.tt
+
+    # Or start directly with Dancer2
+    plackup -a bin/app.psgi
+
+=head1 DESCRIPTION
+
+Ovid::App::LiveEditor is a Dancer2 application that provides a browser-based
+editor for Template Toolkit source files. It offers side-by-side editing with
+live preview, image uploading with automatic compression, and a file browser
+for navigating all templates under the C<root/> directory.
+
+For security, the editor restricts all file operations to files within the
+C<root/> directory. Path traversal attempts are rejected.
+
+The target file can be specified either via the C<LIVE_EDITOR_FILE>
+environment variable or the C<file> query/body parameter on each request.
+
+=head1 API ENDPOINTS
+
+=head2 GET /
+
+Renders the editor interface for the target file. The file's content is
+loaded and passed to the C<editor> template along with its filename and
+relative path.
+
+Returns HTTP 400 if no file is specified or the file is not found.
+
+=head2 GET /preview
+
+Rebuilds the target file using L<Ovid::Site> and returns the generated HTML.
+The rebuild runs in-process with output captured via L<Capture::Tiny>.
+
+The endpoint maps the source path (e.g., C<root/blog/post.tt>) to its
+generated output (e.g., C<blog/post.html>) and returns the HTML content.
+
+Returns HTTP 400 if no file is specified or the file cannot be found.
+
+=head2 POST /api/save
+
+Saves new content to the target file. Expects a C<content> body parameter
+containing the full file text and a C<file> parameter identifying the target.
+
+Returns a success message on success, or HTTP 400/500 on error.
+
+=head2 POST /api/upload-image
+
+Uploads and processes an image file. Accepts a multipart form with:
+
+=over 4
+
+=item C<image> - The uploaded image file (required)
+
+=item C<filename> - Target filename for the image (required)
+
+=item C<alt> - Alt text for accessibility (required)
+
+=item C<overwrite> - If true, overwrite an existing file with the same name
+
+=item C<source> - Attribution source URL
+
+=item C<caption> - Image caption text
+
+=back
+
+The image is processed via L<Ovid::Util::Image> and saved to both
+C<root/static/images/> and C<static/images/>. On success, returns a JSON
+response containing a Template Toolkit C<snippet> for embedding the image
+and the image C<path>.
+
+HTTP status codes: 409 (file exists), 415 (invalid type), 413 (too large),
+400 (other errors).
+
+=head2 GET /api/files
+
+Returns a JSON array of all non-hidden file paths under the C<root/>
+directory, sorted alphabetically. Paths are relative to C<root/>.
+
+=head2 GET /health
+
+Returns a JSON health check response with C<ok>, the current C<file> being
+edited, and a C<timestamp>.
+
+=head2 GET /static/**
+
+Serves static files from the C<static/> directory in the project root.
+
+=cut

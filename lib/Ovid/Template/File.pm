@@ -273,3 +273,138 @@ TOC
 
     __PACKAGE__->meta->make_immutable;
 }
+
+__END__
+
+=head1 NAME
+
+Ovid::Template::File - Preprocessor for individual Template Toolkit source files
+
+=head1 SYNOPSIS
+
+    use Ovid::Template::File;
+
+    my $file = Ovid::Template::File->new( filename => 'root/blog/my-post.tt' );
+
+    # Access metadata extracted from the template preamble
+    say $file->title;    # 'My Post Title'
+    say $file->date;     # '2025-11-16'
+    say $file->type;     # 'article' or 'blog'
+    say $file->slug;     # 'my-post'
+    say $file->tags;     # ['perl', 'testing']
+
+    # Preprocess and rewrite the file for the build pipeline
+    my $tagmap = {};
+    my $contents = $file->rewrite( 'tmp/blog/my-post.tt', $tagmap );
+
+=head1 DESCRIPTION
+
+C<Ovid::Template::File> handles preprocessing of a single Template Toolkit
+source file (C<.tt> or C<.tt2markdown>) as part of the site build pipeline.
+On construction, it parses the template preamble to extract metadata such as
+title, date, type, slug, and tags.
+
+The C<rewrite> method performs the full preprocessing pass: converting
+triple-tilde fenced code blocks into C<[% WRAPPER include/code.tt %]>
+directives, expanding C<{{TOC}}> markers into a generated table of contents,
+extracting C<{{TAGS ...}}> declarations into a tag map, and converting
+Markdown headings into HTML with anchor links.
+
+This module consumes the L<Ovid::Template::Role::Debug> and
+L<Ovid::Template::Role::File> roles, and delegates code block detection to
+L<Ovid::Template::File::FindCode>.
+
+=head1 METHODS
+
+=head2 new
+
+    my $file = Ovid::Template::File->new(
+        filename => 'root/articles/some-article.tt',
+    );
+
+Constructor. Requires C<filename>, the path to a Template Toolkit source
+file. Automatically parses the template preamble to populate metadata
+attributes.
+
+=head2 title
+
+    my $title = $file->title;
+
+Returns the article title extracted from the template preamble, or C<undef>
+if not present.
+
+=head2 date
+
+    my $date = $file->date;
+
+Returns the publication date string from the template preamble.
+
+=head2 type
+
+    my $type = $file->type;
+
+Returns the content type (typically C<'article'> or C<'blog'>).
+
+=head2 slug
+
+    my $slug = $file->slug;
+
+Returns the URL slug for the content.
+
+=head2 tags
+
+    my $tags = $file->tags;    # arrayref of strings
+
+Returns an arrayref of tag strings declared in the template preamble.
+
+=head2 rewrite
+
+    my $contents = $file->rewrite( $destfile, $tagmap );
+
+Preprocesses the template file and returns the rewritten content as a string.
+This method:
+
+=over 4
+
+=item * Converts triple-tilde fenced code blocks (e.g., C<~~~perl>) into
+Template Toolkit C<WRAPPER> directives for syntax highlighting.
+
+=item * Converts Markdown headings (C<#>, C<##>, etc.) into HTML heading
+tags with anchor links.
+
+=item * Generates a table of contents from headings and inserts it at the
+C<{{TOC}}> marker.
+
+=item * Extracts C<{{TAGS tag1 tag2 ...}}> declarations and populates the
+provided C<$tagmap> hashref with tag metadata including file URLs and titles.
+
+=back
+
+C<$destfile> is the destination path (used to derive the URL for the tag
+map). C<$tagmap> is a hashref that accumulates tag data across multiple
+files during a build.
+
+=head2 next
+
+    my $line = $file->next;
+
+Returns the next line from the file, advancing the internal line counter and
+updating code block state. Returns C<undef> when all lines have been
+consumed. Primarily used for testing.
+
+=head2 is_in_code
+
+    if ( $file->is_in_code ) { ... }
+
+Returns true if the current line position is inside a code block. Delegated
+from L<Ovid::Template::File::FindCode>.
+
+=head2 language
+
+    my $lang = $file->language;
+
+Returns the language identifier for the current code block (e.g., C<'perl'>),
+or C<undef> if not in a code block or no language was specified. Delegated
+from L<Ovid::Template::File::FindCode>.
+
+=cut

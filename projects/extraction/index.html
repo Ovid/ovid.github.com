@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BVDP76N9NB');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Extraction Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-text">
+    <h1>The Extraction Index</h1>
+    <p>Mapping how value is systematically captured from populations — across politics, economics, finance, institutions, information, labor, and transnational flows.</p>
+  </div>
+  <div class="header-controls">
+    <div class="country-picker" id="country-picker">
+      <button class="picker-button" id="picker-button">Select a country…</button>
+      <div class="picker-dropdown" id="picker-dropdown">
+        <button class="picker-sort-toggle" id="picker-sort-toggle">⇅ Sort by: Name</button>
+        <div class="picker-list" id="picker-list"></div>
+      </div>
+    </div>
+    <button class="header-btn" id="methodology-btn" aria-label="About the data">?</button>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">☀</button>
+  </div>
+</header>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="methodology-modal">
+    <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+    <h2>About the Data</h2>
+    <p class="modal-links">By <a href="https://curtispoe.org/" target="_blank" rel="noopener">Curtis "Ovid" Poe</a> | <a href="https://github.com/Ovid/Extraction" target="_blank" rel="noopener">Source on GitHub</a></p>
+
+    <h3>What This Measures</h3>
+    <p>The Extraction Index measures systematic value capture — the degree to which a country's institutions, economy, and power structures transfer value from the many to the few, whether or not those transfers are legal. Extraction is not the same as corruption. A country can have low corruption and high extraction.</p>
+
+    <h3>The Seven Domains</h3>
+    <ol>
+      <li><strong>Political Capture</strong> — elite monopolization of political power</li>
+      <li><strong>Economic Concentration</strong> — wealth inequality, labor share decline</li>
+      <li><strong>Financial Extraction</strong> — financialization, financial secrecy</li>
+      <li><strong>Institutional Gatekeeping</strong> — whether institutions serve broad populations or narrow interests</li>
+      <li><strong>Information &amp; Media Capture</strong> — media freedom, information control</li>
+      <li><strong>Resource &amp; Labor Extraction</strong> — natural resource governance, labor rights</li>
+      <li><strong>Transnational Facilitation</strong> — enabling extraction elsewhere (tax havens, profit shifting)</li>
+    </ol>
+
+    <h3>Data Sources</h3>
+    <p>Scores are computed from four independent datasets:</p>
+    <ul>
+      <li><strong>World Bank</strong> — Gini index, governance indicators (WGI), domestic credit, resource rents</li>
+      <li><strong>V-Dem</strong> — democracy, corruption, clientelism, media freedom, rule of law</li>
+      <li><strong>RSF</strong> — Reporters Without Borders Press Freedom Index</li>
+      <li><strong>Tax Justice Network</strong> — Financial Secrecy Index</li>
+    </ul>
+
+    <h3>Source Reliability &amp; Bias</h3>
+
+    <h4>World Bank (WGI, Gini, economic indicators)</h4>
+    <p><strong>Why chosen:</strong> The most widely used governance and economic dataset globally. Covers 190+ countries with annual updates. No comparable alternative for breadth.</p>
+    <p><strong>Strengths:</strong> Institutional credibility, extensive academic validation, long time series, transparent methodology. Economic indicators (Gini, GDP, credit) are measured from survey data and relatively uncontroversial.</p>
+    <p><strong>Limitations:</strong> Governance indicators (WGI) aggregate 24+ sub-sources in opaque ways. Perception-based measures may not reflect ground reality. Limited actionability — measures how secure business people feel, not why.</p>
+    <p><strong>Known biases:</strong> Over-represents business and elite perspectives. Gallup's World Poll (which captures ordinary citizens' views) gets zero or marginal weight on most WGI dimensions. Better coverage and likely more accurate for OECD countries.</p>
+
+    <h4>V-Dem (Varieties of Democracy)</h4>
+    <p><strong>Why chosen:</strong> The most granular democracy dataset available — 450+ indicators vs. Freedom House's ~25. Expert-coded with a sophisticated statistical model that adjusts for individual coder bias and reliability.</p>
+    <p><strong>Strengths:</strong> 3,700+ country experts, covers 202 countries back to 1789, transparent methodology with published measurement model. Considered the gold standard for democracy measurement in political science.</p>
+    <p><strong>Limitations:</strong> Expert-coded data can produce false positives compared to observational data. Potential selection bias toward easier-to-code cases. Some conceptual debates about specific sub-indices.</p>
+    <p><strong>Known biases:</strong> Like all expert surveys, reflects the academic community's assumptions about what democracy looks like. May under-weight non-Western democratic forms.</p>
+
+    <h4>RSF (Reporters Without Borders Press Freedom Index)</h4>
+    <p><strong>Why chosen:</strong> The only comprehensive annual press freedom index with near-global coverage (180 countries). No clearly superior alternative exists.</p>
+    <p><strong>Strengths:</strong> Combines quantitative abuse tallies with qualitative expert assessment. Annual updates, high public visibility, drives policy discussion.</p>
+    <p><strong>Limitations:</strong> Concerns about small sample sizes per country (reportedly as few as 3-4 questionnaires). Methodology has been criticized as opaque. Scores are not directly comparable across major methodology revisions (e.g., 2022 overhaul).</p>
+    <p><strong>Known biases:</strong> Potential Western bias — penalizes government media ownership in developing countries but not press subsidies in Scandinavia. Has faced allegations of political motivation from Latin American and Asian governments. This is our most contested source; confidence scores for domains relying solely on RSF are capped accordingly.</p>
+
+    <h4>Tax Justice Network (Financial Secrecy Index)</h4>
+    <p><strong>Why chosen:</strong> The only comprehensive index of financial secrecy. Evaluates 100+ questions across 20 indicators. No competing dataset offers comparable coverage of secrecy jurisdictions.</p>
+    <p><strong>Strengths:</strong> Methodologically detailed, covers 141 jurisdictions, widely cited in EU policy reports and academic research. Uniquely captures the transnational facilitation dimension that other indices miss entirely.</p>
+    <p><strong>Limitations:</strong> Secrecy scores are not directly comparable across editions due to evolving methodology. Focuses on legal structures rather than actual secrecy activity. Scores what laws permit, not what actually happens.</p>
+    <p><strong>Known biases:</strong> TJN is an advocacy organization, not a neutral academic body. Some critics argue the methodology is back-engineered from desired outputs. However, no alternative exists with comparable rigor for this domain.</p>
+
+    <h3>Scoring Methodology</h3>
+    <p>Each raw indicator is normalized to a 0–100 scale using min-max scaling across all countries. For inverted indicators (where higher values mean <em>less</em> extraction, such as democracy scores), values are flipped. Indicators within each domain are averaged with equal weight. The composite score is the average of all available domains.</p>
+
+    <h3>Confidence Levels</h3>
+    <p>Confidence reflects how reliable a score is likely to be, based on three factors:</p>
+    <ul>
+      <li><strong>Completeness</strong> — how many indicators have data for this country</li>
+      <li><strong>Source diversity</strong> — how many independent datasets contribute</li>
+      <li><strong>Recency</strong> — how recent the most recent data point is</li>
+    </ul>
+    <p>Overall confidence is also capped by domain coverage: a country with data for only 3 of 7 domains cannot exceed "low" confidence, regardless of the quality of those 3 domains. This means countries like North Korea (sparse data, externally estimated) show lower confidence than countries like the United States (dense, multi-source, recent data).</p>
+
+    <h3>Weights</h3>
+    <p>The composite score uses equal weights (1/7 each) by default. You can adjust weights using the controls in the side panel to explore how different priorities change the rankings.</p>
+
+    <h3>Limitations</h3>
+    <ul>
+      <li>Institutional gatekeeping is under-measured — no existing index directly measures "who does the law serve"</li>
+      <li>OECD data bias — sources have better coverage for wealthy nations</li>
+      <li>The most extractive regimes produce the worst data (the legibility paradox)</li>
+      <li>Trend indicators are directional estimates, not full time series</li>
+    </ul>
+
+  </div>
+</div>
+
+<div class="layout">
+  <div class="map-container">
+    <svg id="map-svg"></svg>
+    <div class="map-controls">
+      <button id="zoom-in" title="Zoom in">+</button>
+      <button id="zoom-out" title="Zoom out">−</button>
+      <button id="zoom-reset" title="Reset view">⟳</button>
+    </div>
+    <div class="legend" id="legend">
+      <span class="legend-title">Composite Extraction Score</span>
+      <canvas class="legend-gradient" id="legend-gradient" width="180" height="12"></canvas>
+      <div class="legend-labels"><span>0 — Low</span><span>100 — Extreme</span></div>
+    </div>
+    <div class="no-data-note">Grey countries: no data yet</div>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <div class="panel-divider" id="panel-divider"></div>
+  <div class="panel" id="panel">
+    <div class="panel-empty" id="panel-empty">
+      <h3>Select a country</h3>
+      <p style="font-size:0.85rem">Click any country on the map to see its extraction profile, radar chart, and per-domain breakdown.</p>
+    </div>
+    <div id="panel-content" style="display:none">
+      <div class="country-header">
+        <h2 id="country-name"></h2>
+        <div class="country-meta">
+          <span class="composite-score" id="composite-score"></span>
+          <div class="meta-details">
+            <span>Composite Score</span>
+            <span class="confidence-badge" id="overall-confidence"></span>
+            <span class="trend-badge" id="overall-trend"></span>
+          </div>
+        </div>
+      </div>
+      <p class="country-notes" id="country-notes"></p>
+
+      <div class="radar-section">
+        <div class="section-label">Extraction Profile</div>
+        <svg id="radar-svg" viewBox="0 0 460 340"></svg>
+      </div>
+
+      <div class="section-label">Domain Breakdown</div>
+      <div class="domain-list" id="domain-list"></div>
+
+      <div class="weights-section">
+        <button class="weights-toggle" id="weights-toggle">Adjust Weights</button>
+        <div class="weights-controls" id="weights-controls">
+          <div id="weight-sliders"></div>
+          <button class="reset-weights" id="reset-weights">Reset to equal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

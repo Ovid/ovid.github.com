@@ -25,6 +25,30 @@ sub import ( $class, %arg_for ) {
     Getopt::Long->import::into(1);
 }
 
+=head1 NAME
+
+Less::Script - Common imports and utilities for CLI scripts
+
+=head1 SYNOPSIS
+
+    use Less::Script;
+
+    my $slug = make_slug('My Article Title');
+    my $type = article_type('blog');
+    my $dbh  = dbh();
+
+    my $text = slurp('input.txt');
+    splat('output.txt', $text);
+
+=head1 DESCRIPTION
+
+C<Less::Script> is a convenience module for CLI scripts in the site build
+toolchain. Importing it automatically enables L<Less::Boilerplate> (which
+activates modern Perl features) and L<Getopt::Long>. It also exports several
+utility functions for file I/O, slug generation, and database access.
+
+=head1 METHODS
+
 =head2 C<article_type>
 
     my $type = article_type('blog');

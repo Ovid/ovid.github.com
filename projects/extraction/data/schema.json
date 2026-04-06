@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Extraction Index Country Data",
+  "description": "Schema for per-country extraction index scores across seven domains.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "last_updated": { "type": "string", "format": "date" },
+        "methodology_url": { "type": "string", "format": "uri" },
+        "default_weights": {
+          "type": "object",
+          "description": "Default equal weights for each domain (must sum to 1.0)",
+          "patternProperties": {
+            "^[a-z_]+$": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "required": ["version", "last_updated"]
+    },
+    "countries": {
+      "type": "object",
+      "description": "Keyed by ISO 3166-1 alpha-3 country code",
+      "patternProperties": {
+        "^[A-Z]{3}$": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "domains": {
+              "type": "object",
+              "properties": {
+                "political_capture": { "$ref": "#/definitions/domain_score" },
+                "economic_concentration": { "$ref": "#/definitions/domain_score" },
+                "financial_extraction": { "$ref": "#/definitions/domain_score" },
+                "institutional_gatekeeping": { "$ref": "#/definitions/domain_score" },
+                "information_capture": { "$ref": "#/definitions/domain_score" },
+                "resource_capture": { "$ref": "#/definitions/domain_score" },
+                "transnational_facilitation": { "$ref": "#/definitions/domain_score" }
+              },
+              "required": [
+                "political_capture",
+                "economic_concentration",
+                "financial_extraction",
+                "institutional_gatekeeping",
+                "information_capture",
+                "resource_capture",
+                "transnational_facilitation"
+              ]
+            },
+            "composite_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Weighted composite (0 = least extractive, 100 = most extractive)"
+            },
+            "overall_confidence": {
+              "$ref": "#/definitions/confidence_level"
+            },
+            "overall_trend": {
+              "$ref": "#/definitions/trend"
+            },
+            "notes": {
+              "type": "string",
+              "description": "Brief editorial note on this country's extraction profile"
+            },
+            "disputed": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether this entity's statehood or borders are internationally contested"
+            }
+          },
+          "required": ["name", "domains", "composite_score", "overall_confidence", "overall_trend"]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "domain_score": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "0 = no extraction detected, 100 = extreme extraction"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence_level"
+        },
+        "trend": {
+          "$ref": "#/definitions/trend"
+        },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Source keys referencing the sources documentation"
+        },
+        "indicators": {
+          "type": "array",
+          "description": "Structured indicator entries with questions, labels, and context facts",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string", "description": "Source key for this indicator" },
+              "question": { "type": "string", "description": "Human-readable question about this aspect of extraction" },
+              "label": { "type": "string", "description": "Answer label (Very low, Low, Moderate, High, Very high)" },
+              "facts": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "1-2 concrete facts: raw value and optional peer comparison"
+              }
+            },
+            "required": ["key", "question", "label"]
+          }
+        },
+        "justification_detail": {
+          "type": "string",
+          "description": "Technical breakdown with raw values and normalized scores"
+        }
+      },
+      "required": ["score", "confidence"]
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "moderate", "low", "very_low"],
+      "description": "high = multiple independent sources; moderate = some sources with gaps; low = limited/indirect data; very_low = extrapolation or single unreliable source"
+    },
+    "trend": {
+      "type": "string",
+      "enum": ["rising", "falling", "stable", "unknown"],
+      "description": "Direction of change over roughly the past decade"
+    }
+  }
+}

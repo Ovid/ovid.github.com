@@ -669,3 +669,103 @@ END
 
     __PACKAGE__->meta->make_immutable;
 }
+
+__END__
+
+=head1 NAME
+
+Ovid::Site - Main orchestrator for the static site build pipeline
+
+=head1 SYNOPSIS
+
+    use Ovid::Site;
+
+    # Full site build
+    my $site = Ovid::Site->new;
+    $site->build;
+
+    # Release build (includes search engine index generation)
+    my $site = Ovid::Site->new( release => 1 );
+    $site->build;
+
+    # Rebuild a single file only
+    my $site = Ovid::Site->new( file => 'root/blog/my-post.tt' );
+    $site->build;
+
+=head1 DESCRIPTION
+
+C<Ovid::Site> orchestrates the complete build pipeline for the static website.
+It coordinates preprocessing of Template Toolkit source files, tag template
+generation, RSS feed creation, article pagination, Template Toolkit
+processing via C<ttree>, sitemap generation, and optionally the WebAssembly
+search engine index.
+
+The build pipeline executes the following steps in order:
+
+=over 4
+
+=item 1. B<Preprocessing> - Scans C<root/> for C<.tt> and C<.tt2markdown>
+files, rewrites code blocks and macros via L<Ovid::Template::File>, and
+copies processed files to C<tmp/>.
+
+=item 2. B<Tag template generation> - Creates tag index pages in C<root/tags/>
+based on the collected tag map and the configured tag names from
+L<Less::Config>.
+
+=item 3. B<Tag map output> - Writes the accumulated tag map as JSON for
+client-side tag navigation.
+
+=item 4. B<RSS feed generation> - Builds C<article.rss> and C<blog.rss> feeds
+from article metadata in the SQLite database using L<XML::RSS>.
+
+=item 5. B<Article pagination> - Creates paginated index pages
+(C<articles.html>, C<articles_2.html>, etc.) and an "all articles" page for
+both articles and blog posts.
+
+=item 6. B<Template Toolkit processing> - Runs C<ttree> (via
+L<Template::App::ttree>) on the C<tmp/> directory to produce final HTML
+output.
+
+=item 7. B<Sitemap generation> - Crawls the generated HTML files and writes
+C<sitemap.xml> with priorities, change frequencies, and last-modified dates
+derived from git history.
+
+=item 8. B<Search engine> (release builds only) - Generates a WebAssembly
+search index using C<tinysearch> from the rendered HTML content.
+
+=back
+
+When the C<file> attribute is set, only that single file is rebuilt. This
+is useful during development for rapid iteration but does not update RSS
+feeds, pagination, or the sitemap.
+
+=head1 ATTRIBUTES
+
+=head2 release
+
+    my $site = Ovid::Site->new( release => 1 );
+
+Boolean, defaults to false. When true, the build includes search engine
+index generation via C<tinysearch>. This is intended for production release
+builds only.
+
+=head2 file
+
+    my $site = Ovid::Site->new( file => 'root/blog/my-post.tt' );
+
+Optional. When set, C<build()> only rebuilds this single file rather than
+running the full pipeline. The value should be a path to a Template Toolkit
+source file under C<root/>.
+
+=head1 METHODS
+
+=head2 build
+
+    $site->build;
+
+Executes the site build pipeline. If C<file> is set, performs a single-file
+rebuild. Otherwise, runs the full build sequence: preprocessing, tag
+generation, RSS feeds, pagination, C<ttree> processing, and sitemap
+generation (plus search engine indexing if C<release> is true).
+
+=cut
