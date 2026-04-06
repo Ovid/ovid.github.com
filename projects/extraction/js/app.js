@@ -38,11 +38,15 @@ const TREND_TIPS = {
   unknown: 'Not enough data to determine trend',
 };
 
-// Color scale: green (low) → yellow (mid) → red (high)
+// Color scale: Crameri "lajolla" — perceptually uniform, colorblind-safe
+// See: Crameri et al. (2020) "The misuse of colour in science communication"
+// https://www.nature.com/articles/s41467-020-19160-7
 // Domain is recalibrated from actual data in init() via updateColorScale()
+const LAJOLLA_COLORS = ['#FFFFCC', '#FBE69C', '#F6D869', '#EEB655', '#E89652',
+                         '#E1744F', '#CE534C', '#A04543', '#702E2E', '#402716', '#1A1A00'];
 let extractionColor = d3.scaleLinear()
-  .domain([0, 50, 100])
-  .range(['#2ecc71', '#f1c40f', '#e74c3c'])
+  .domain(LAJOLLA_COLORS.map((_, i) => i / (LAJOLLA_COLORS.length - 1) * 100))
+  .range(LAJOLLA_COLORS)
   .clamp(true);
 
 function updateColorScale() {
@@ -50,11 +54,10 @@ function updateColorScale() {
   const scores = Object.values(countries).map(c => c.composite_score ?? 0).sort((a, b) => a - b);
   if (scores.length < 3) return;
   const lo = scores[0];
-  const mid = scores[Math.floor(scores.length / 2)];
   const hi = scores[scores.length - 1];
   extractionColor = d3.scaleLinear()
-    .domain([lo, mid, hi])
-    .range(['#2ecc71', '#f1c40f', '#e74c3c'])
+    .domain(LAJOLLA_COLORS.map((_, i) => lo + (i / (LAJOLLA_COLORS.length - 1)) * (hi - lo)))
+    .range(LAJOLLA_COLORS)
     .clamp(true);
 }
 
@@ -366,6 +369,18 @@ function selectCountry(alpha3, numericId) {
   const notesEl = document.getElementById('country-notes');
   notesEl.textContent = cd.notes || '';
   notesEl.style.display = cd.notes ? 'block' : 'none';
+
+  // Data advisories
+  const advisories = [];
+  if (numericId == null) {
+    advisories.push('This territory is too small to display on the world map.');
+  }
+  const nDomains = Object.keys(cd.domains).length;
+  if (nDomains <= 3) {
+    advisories.push(`Score is based on ${nDomains} of 7 domains \u2014 may not reflect overall extraction.`);
+  }
+  const advisoryEl = document.getElementById('data-advisory');
+  advisoryEl.innerHTML = advisories.join(' ');
 
   drawRadar(cd.domains);
   drawDomainList(cd.domains);
