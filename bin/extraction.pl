@@ -6,6 +6,9 @@ use Less::Script;
 use File::Copy::Recursive qw(dircopy);
 use File::Path qw(mkpath rmtree);
 
+use Less::Config qw(config);
+
+my $ga_id     = config()->{google_analytics_id};
 my $repo_url  = 'https://github.com/Ovid/Extraction.git';
 my $clone_dir = 'Extraction';
 my $dest_dir  = 'projects/extraction';
@@ -49,6 +52,28 @@ for my $item (@to_copy) {
         File::Copy::copy( $src, $dst ) or die "Failed to copy $src to $dst: $!";
         say "  Copied $item";
     }
+}
+
+# Inject Google Analytics tag into index.html
+my $index = "$dest_dir/index.html";
+my $html  = slurp($index);
+my $gtag  = <<"GTAG";
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=$ga_id"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '$ga_id');
+</script>
+GTAG
+
+if ( $html =~ s{(<head[^>]*>)}{$1\n$gtag} ) {
+    splat( $index, $html );
+    say "  Injected Google Analytics tag";
+}
+else {
+    warn "Could not find <head> tag in $index to inject analytics\n";
 }
 
 say "Done. Extraction site deployed to $dest_dir/";
