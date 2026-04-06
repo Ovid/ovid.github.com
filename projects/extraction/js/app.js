@@ -39,10 +39,24 @@ const TREND_TIPS = {
 };
 
 // Color scale: green (low) → yellow (mid) → red (high)
-const extractionColor = d3.scaleLinear()
+// Domain is recalibrated from actual data in init() via updateColorScale()
+let extractionColor = d3.scaleLinear()
   .domain([0, 50, 100])
   .range(['#2ecc71', '#f1c40f', '#e74c3c'])
   .clamp(true);
+
+function updateColorScale() {
+  const countries = scoreData?.countries || {};
+  const scores = Object.values(countries).map(c => c.composite_score ?? 0).sort((a, b) => a - b);
+  if (scores.length < 3) return;
+  const lo = scores[0];
+  const mid = scores[Math.floor(scores.length / 2)];
+  const hi = scores[scores.length - 1];
+  extractionColor = d3.scaleLinear()
+    .domain([lo, mid, hi])
+    .range(['#2ecc71', '#f1c40f', '#e74c3c'])
+    .clamp(true);
+}
 
 let scoreData = null;
 let currentWeights = {};
@@ -62,6 +76,7 @@ async function init() {
     currentWeights[k] = scores.metadata.default_weights[k] || (1 / DOMAIN_KEYS.length);
   });
 
+  updateColorScale();
   drawMap(world);
   drawLegendGradient();
   setupWeightControls();
@@ -279,10 +294,17 @@ function refreshMapColors() {
 function drawLegendGradient() {
   const canvas = document.getElementById('legend-gradient');
   const ctx = canvas.getContext('2d');
+  const domain = extractionColor.domain();
+  const lo = domain[0], hi = domain[domain.length - 1];
   for (let x = 0; x < 180; x++) {
-    const score = (x / 179) * 100;
+    const score = lo + (x / 179) * (hi - lo);
     ctx.fillStyle = extractionColor(score);
     ctx.fillRect(x, 0, 1, 12);
+  }
+  // Update labels to show actual range
+  const labels = document.querySelector('.legend-labels');
+  if (labels) {
+    labels.innerHTML = `<span>${lo} — Low</span><span>${hi} — Extreme</span>`;
   }
 }
 
