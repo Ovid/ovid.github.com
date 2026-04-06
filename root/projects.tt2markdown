@@ -51,4 +51,70 @@ lifetime ago.
 
 [Play Tramp Freighter Blues](/paad/tramp-freighter) | [View the source code](https://github.com/Ovid/tramp-freighter)
 
+# Ananta
+
+Most AI document tools grab a few relevant paragraphs and hope the answer is in
+there. Ananta takes a different approach: the AI reads your documents directly,
+writes code to search and cross-reference them, and keeps iterating until it's
+confident. No context window limits, no lost information.
+
+The result is deep, cross-document reasoning that standard approaches get wrong.
+In one demo, Ananta searched across seven novels, extracted thirty chronological
+events with supporting quotes, and spotted a continuity conflict between
+books—the kind of analysis that typically trips up AI.
+
+Ananta works with text, code, PDFs, and Word documents. It supports over 100 LLM
+providers, or you can run it locally with Ollama so nothing leaves your machine.
+Point it at a GitHub repository and ask how authentication works—it'll answer
+with file and line citations. The approach is based on [Recursive Language
+Models](https://arxiv.org/abs/2512.24601), a technique that gives AI effectively
+unlimited reading capacity.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/ananta-arxiv-explorer.png"
+   source   = "https://github.com/Ovid/ananta"
+   align    = "center"
+   alt      = "The Ananta arXiv Explorer searching nearly 25 megabytes of research papers to answer a complex question"
+   caption  = "The Ananta arXiv Explorer"
+%]
+
+[View the source code](https://github.com/Ovid/ananta)
+
+# PAAD
+
+Everyone is focused on making AI coding "better." But think about how we already
+build software with humans: we write tests, do code reviews, run CI/CD, have QA,
+run user acceptance testing, and still need ITSM to clean up the mess when bugs
+make it through. We don't trust any single step—we apply defense in depth.
+
+Why would we treat AI any differently?
+
+PAAD is a Claude Code plugin that applies that same defense in depth to
+AI-assisted development. It encodes four disciplines that catch the ways AI
+silently goes wrong:
+
+* **Pushback**—challenges your specs for omissions, ambiguities, and
+  contradictions before a single line of code is written
+* **Alignment**—verifies that implementation tasks match the spec exactly,
+  catching the scope drift that AI introduces every time
+* **Architecture**—dispatches five specialized agents to review your codebase's
+  structural integrity, because AI builds features without caring whether they
+  fit together
+* **Discipline**—the ongoing practices that prevent decay: test coverage,
+  linting, formatting, and automated checks that catch what slips through
+  everything else
+
+Each discipline was born from a specific failure I hit while building these
+projects. Together, they're the reason the code holds up.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/paad-logo.png"
+   source   = "https://github.com/Ovid/paad"
+   align    = "center"
+   alt      = "The PAAD logo: Slaying the Four Horsemen of the AIpocalypse"
+   caption  = "PAAD: Don't Fear AI's Mistakes, Manage Them"
+%]
+
+[View the source code](https://github.com/Ovid/paad)
+
 [%- END %]
