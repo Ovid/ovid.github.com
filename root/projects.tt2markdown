@@ -43,7 +43,6 @@ lifetime ago.
 
 [% INCLUDE include/image.tt
    src      = "/static/images/tramp-freighter-blues-screenshot.png"
-   source   = "/paad/tramp-freighter"
    align    = "center"
    alt      = "A screenshot of Tramp Freighter Blues showing a 3D starmap with the player about to dock at a space station"
    caption  = "Tramp Freighter Blues"
@@ -53,9 +52,16 @@ lifetime ago.
 
 # Ananta
 
-Many AI document tools grab a few relevant paragraphs and hope the answer is in
-there. Ananta takes a different approach: the AI reads your documents directly,
-writes code to search and cross-reference them, and keeps iterating until it's
+The standard approach to AI document search is RAG—Retrieval-Augmented
+Generation. It chops your documents into chunks, finds the ones that seem
+relevant, and feeds them to the AI. But RAG is inherently lossy: it discards
+context that didn't match the query. It often needs careful tuning depending on
+what you're analyzing. And if you take the simpler "just answer from these
+documents" approach, you can easily blow through context windows before the AI
+has seen enough to give a good answer.
+
+Ananta takes a different approach: the AI reads your documents directly, writes
+code to search and cross-reference them, and keeps iterating until it's
 confident. No context window limits, no lost information.
 
 The result is deep, cross-document reasoning that standard approaches get wrong.
@@ -72,7 +78,6 @@ unlimited reading capacity.
 
 [% INCLUDE include/image.tt
    src      = "/static/images/ananta-arxiv-explorer.png"
-   source   = "https://github.com/Ovid/ananta"
    align    = "center"
    alt      = "The Ananta arXiv Explorer searching nearly 25 megabytes of research papers to answer a complex question"
    caption  = "The Ananta arXiv Explorer"
@@ -109,7 +114,6 @@ projects. Together, they're the reason the code holds up.
 
 [% INCLUDE include/image.tt
    src      = "/static/images/paad-logo.png"
-   source   = "https://github.com/Ovid/paad"
    align    = "center"
    alt      = "The PAAD logo: Slaying the Four Horsemen of the AIpocalypse"
    caption  = "PAAD: Don't Fear AI's Mistakes, Manage Them"
