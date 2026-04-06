@@ -467,7 +467,7 @@ END
         say STDERR "Rebuilding pages...";
         my ($stdout) = $self->_execute_ttree(
             '-a',
-            '--copy' => '\.(gif|png|jpg|jpeg|pdf)$',
+            '--copy' => '\.(gif|png|jpg|jpeg|pdf|wasm)$',
         );
         say $stdout;
     }
@@ -608,6 +608,7 @@ END
         my @files = qw(
           hireme.html
           index.html
+          projects.html
           publicspeaking.html
           starmap.html
           tau-station.html

@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-BVDP76N9NB');
+  </script>
+    
+
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/projects.html">
+  
+  <meta property="og:title" content="Projects">
+  <meta property="og:description" content="Projects">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/projects.html">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Projects</title>
+  <meta name="description" content="Projects">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+
+  <!-- Primary Page Layout -->
+  <div class="container">
+    <div class="row books">
+        <div class="twelve columns header">
+            <ul>
+              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
+              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
+              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row title">
+        <!-- Back to top button -->
+        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
+        <h1><a name="-title-no-title-found-"></a>Projects</h1>
+        
+        
+        <hr>
+        <div class="twelve columns header">
+        </div>
+    </div>
+    <div class="row">
+      <div class="two columns">
+
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+    }
+  </script>
+
+<ul>
+  <li><a href="/index.html">Home</a></li>
+  <li><a href="/articles.html">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/blog.html">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
+  <li><a href="/projects.html">Projects</a></li>
+  <li><a href="/videos.html">Talks</a></li>
+  <li><a href="/hireme.html">Hire Me</a></li>
+  <li><a href="/wildagile.html">WildAgile</a></li>
+  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
+</ul>
+<strong>Visit me on ...</strong>
+<ul>
+  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
+  <li><a href="https://github.com/Ovid/">GitHub</a></li>
+  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
+  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
+</ul>
+
+      </div>
+      <div class="ten columns verticalLine article">
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#tramp-freighter-blues">Tramp Freighter Blues</a></li>
+    <li class="indent-1"><a href="#ananta">Ananta</a></li>
+    <li class="indent-1"><a href="#paad">PAAD</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<p>I spend my days helping companies get real value from AI across the entire
+software development lifecycle—not just coding, but requirements, architecture,
+testing, and review. To keep my skills sharp, I use my spare time to see how far
+I can push this technology.</p>
+
+<p>These are the projects that came out of that work. Each one taught me something
+different about where AI works, where it breaks, and what discipline it takes to
+close the gap. The methodology that emerged became
+<a href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span class="fa fa-external-link fa_custom"></span>, a Claude Code plugin that encodes what
+I’ve learned. More projects will appear here over time.</p>
+
+<h1><a name="tramp-freighter-blues"></a>Tramp Freighter Blues</h1>
+
+<p>A browser-based space trading game where you captain a struggling freighter
+across 117 real star systems, trading cargo, dodging pirates, and managing a ship
+that’s slowly falling apart. Built with React, Three.js, and TypeScript—roughly
+30,000 lines of code backed by over 2,300 tests.</p>
+
+<p>This was my proving ground. I wanted to know if AI-assisted development could
+produce something that experienced developers would look at and say “yeah, I can
+work with this.” A game was the perfect stress test: complex state management, 3D
+rendering, economic simulation, NPC dialogue, and combat—all the things that
+expose architectural cracks fast.</p>
+
+<p>The answer was yes, but only with serious discipline. Building Tramp Freighter is
+what taught me that AI needs pushback on your specs, alignment checks on your
+tasks, regular architecture reviews, and constant vigilance against degradation.
+Those four lessons became PAAD.</p>
+
+<p>To see how far both AI and I have come, compare Tramp Freighter to <a href="/escape.html">an earlier
+AI experiment</a>—a simple escape room game that now feels like a
+lifetime ago.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/tramp-freighter-blues-screenshot.png" width="600" alt="A screenshot of Tramp Freighter Blues showing a 3D starmap with the player about to dock at a space station">
+    <figcaption>Tramp Freighter Blues </figcaption>
+    </div>
+</figure></p>
+
+<p><a href="/paad/tramp-freighter">Play Tramp Freighter Blues</a> | <a href="https://github.com/Ovid/tramp-freighter" target="_blank">View the source code</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<h1><a name="ananta"></a>Ananta</h1>
+
+<p>The standard approach to AI document search is RAG—Retrieval-Augmented
+Generation. It chops your documents into chunks, finds the ones that seem
+relevant, and feeds them to the AI. But RAG is inherently lossy: it discards
+context that didn’t match the query. It often needs careful tuning depending on
+what you’re analyzing. And if you take the simpler “just answer from these
+documents” approach, you can easily blow through context windows before the AI
+has seen enough to give a good answer.</p>
+
+<p>Ananta takes a different approach: the AI reads your documents directly, writes
+code to search and cross-reference them, and keeps iterating until it’s
+confident. No context window limits, no lost information.</p>
+
+<p>The result is deep, cross-document reasoning that standard approaches get wrong.
+In one demo, Ananta searched across seven novels, extracted thirty chronological
+events with supporting quotes, and spotted a continuity conflict between
+books—the kind of analysis that typically trips up AI.</p>
+
+<p>Ananta works with text, code, PDFs, and Word documents. It supports ChatGPT,
+Claude, or Gemini APIs or you can run it locally with Ollama so nothing leaves
+your machine.</p>
+
+<p>Point the <a href="https://github.com/Ovid/ananta/blob/main/code-explorer/code-explorer.sh" target="_blank">Code
+Explorer</a> <span class="fa fa-external-link fa_custom"></span>
+at a GitHub repository and ask how authentication works—it’ll answer
+with file and line citations. Or have it load up multiple projects and ask it to
+build out an HLD (high-level diagram) of new work and get a rough draft in
+minutes instead of days of an architect’s time.</p>
+
+<p>The approach is based on <a href="https://arxiv.org/abs/2512.24601" target="_blank">Recursive Language
+Models</a> <span class="fa fa-external-link fa_custom"></span>, a technique that gives AI effectively
+unlimited reading capacity.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/ananta-arxiv-explorer.png" width="600" alt="The Ananta arXiv Explorer searching nearly 25 megabytes of research papers to answer a complex question">
+    <figcaption>The Ananta arXiv Explorer </figcaption>
+    </div>
+</figure></p>
+
+<p><a href="https://github.com/Ovid/ananta" target="_blank">View the source code</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+<h1><a name="paad"></a>PAAD</h1>
+
+<p>Everyone is focused on making AI coding “better.” But think about how we already
+build software with humans: we write tests, do code reviews, run CI/CD, have QA,
+run user acceptance testing, and still need ITSM to clean up the mess when bugs
+make it through. We don’t trust any single step—we apply defense in depth.</p>
+
+<p>Why would we treat AI any differently?</p>
+
+<p>PAAD is a Claude Code plugin that applies that same defense in depth to
+AI-assisted development. It encodes four disciplines that catch the ways AI
+silently goes wrong:</p>
+
+<ul>
+<li><strong>Pushback</strong>—challenges your specs for omissions, ambiguities, and
+contradictions before a single line of code is written</li>
+<li><strong>Alignment</strong>—verifies that implementation tasks match the spec exactly,
+catching the scope drift that AI introduces every time</li>
+<li><strong>Architecture</strong>—dispatches five specialized agents to review your codebase’s
+structural integrity, because AI builds features without caring whether they
+fit together</li>
+<li><strong>Discipline</strong>—the ongoing practices that prevent decay: test coverage,
+linting, formatting, and automated checks that catch what slips through
+everything else</li>
+</ul>
+
+<p>Each discipline was born from a specific failure I hit while building these
+projects. Together, they’re the reason the code holds up.</p>
+
+<p>PAAD was built for Claude Code but also works with Cursor, Kiro, and
+Antigravity, and should be easily portable to most AI coding tools that support
+skills.</p>
+
+<p><figure class="image">
+    <div class="image-container">
+        <img src="/static/images/paad-logo.png" width="600" alt="The PAAD logo: Slaying the Four Horsemen of the AIpocalypse">
+    <figcaption>PAAD: Don’t Fear AI’s Mistakes, Manage Them </figcaption>
+    </div>
+</figure></p>
+
+<p><a href="https://github.com/Ovid/paad" target="_blank">View the source code</a> <span class="fa fa-external-link fa_custom"></span></p>
+
+</article>
+
+
+
+
+
+
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay">
+    <img id="overlayImage" src="" alt="Full-size image">
+</div>
+<script>
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.getElementById('overlayImage');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read my <a href="/hireme.html">hire me</a> page
+          to learn more about my background.</p>
+        </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai.html" data-weight="6">AI</a></li>
+
+    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+
+    <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
+
+    <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math.html" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science.html" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns">
+        <hr>
+        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
+      </div>
+    </div>
+    <div id="disqus_thread"></div>
+    <div class="row">
+      <div class="twelve columns">
+      
+        </div>
+    </div>
+    </div>
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+</body>
+</html>
+
+
