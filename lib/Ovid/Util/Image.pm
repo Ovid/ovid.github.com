@@ -142,3 +142,91 @@ sub process ( $class, %args ) {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Ovid::Util::Image - Process and optimize uploaded images for the website
+
+=head1 SYNOPSIS
+
+    use Ovid::Util::Image;
+
+    my $result = Ovid::Util::Image->process(
+        upload    => $dancer_upload,    # Dancer2::Core::Request::Upload
+        filename  => 'my-photo.jpg',
+        overwrite => 0,
+    );
+
+    if ( $result->{success} ) {
+        say "Image saved to $result->{path}";
+        # e.g. "/static/images/my-photo.jpg"
+    }
+    else {
+        warn "Error ($result->{code}): $result->{error}";
+    }
+
+=head1 DESCRIPTION
+
+Ovid::Util::Image handles image uploads for the live editor. It validates
+the uploaded file, checks for supported formats (PNG, JPG, GIF), and ensures
+the final file size is within the configured maximum (default 300KB from
+L<Less::Config>).
+
+Images that are already under the size limit are copied as-is to preserve
+quality and animation (for GIFs). Oversized images are iteratively
+compressed and downscaled using L<Imager> until they fit within the limit.
+For JPEG images, quality is reduced first (from 80% down to 60%) before
+spatial downscaling is applied.
+
+Processed images are saved to both C<root/static/images/> (for the build
+pipeline) and C<static/images/> (for immediate serving).
+
+=head1 METHODS
+
+=head2 process
+
+    my $result = Ovid::Util::Image->process(
+        upload    => $upload_object,
+        filename  => 'image.jpg',
+        overwrite => 1,             # optional, default 0
+    );
+
+Class method that processes an uploaded image. Parameters are validated
+using L<Type::Params>.
+
+B<Parameters:>
+
+=over 4
+
+=item C<upload> (required)
+
+A L<Dancer2::Core::Request::Upload> object representing the uploaded file.
+
+=item C<filename> (required)
+
+The target filename. Must not contain path separators. Only C<.png>,
+C<.jpg>, C<.jpeg>, and C<.gif> extensions are accepted.
+
+=item C<overwrite> (optional)
+
+Boolean. If false (the default), the method returns an error when a file
+with the same name already exists.
+
+=back
+
+B<Returns> a hashref with the following structure:
+
+On success:
+
+    { success => 1, path => "/static/images/filename.jpg" }
+
+On failure:
+
+    { success => 0, code => $error_code, error => $message }
+
+Possible error codes: C<invalid_filename>, C<exists>, C<invalid_type>,
+C<invalid_image>, C<write_error>, C<too_large>.
+
+=cut

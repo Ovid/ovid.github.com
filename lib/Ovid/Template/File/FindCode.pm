@@ -138,3 +138,102 @@ package Ovid::Template::File::FindCode {
 
     __PACKAGE__->meta->make_immutable;
 }
+
+__END__
+
+=head1 NAME
+
+Ovid::Template::File::FindCode - Detect and track code block boundaries in template files
+
+=head1 SYNOPSIS
+
+    use Ovid::Template::File::FindCode;
+
+    my $finder = Ovid::Template::File::FindCode->new;
+
+    for my $line (@lines) {
+        $finder->parse($line);
+
+        if ( $finder->is_in_code ) {
+            # Currently inside a code block
+            my $lang = $finder->language;  # e.g. 'perl', 'python', ''
+        }
+
+        if ( $finder->is_start_marker ) {
+            # This line opens a new code block
+        }
+
+        if ( $finder->is_end_marker ) {
+            # This line closes the current code block
+        }
+    }
+
+=head1 DESCRIPTION
+
+Ovid::Template::File::FindCode is a stateful parser that tracks whether the
+current line of a template file is inside a code block. It recognizes two
+styles of code block markers:
+
+=over 4
+
+=item Markdown triple-backtick fences
+
+    ```perl
+    my $code = 1;
+    ```
+
+=item Template Toolkit WRAPPER directives
+
+    [% WRAPPER include/code.tt language="perl" %]
+    my $code = 1;
+    [% END %]
+
+=back
+
+The parser correctly matches opening and closing markers, ensuring that a
+Markdown fence is only closed by another Markdown fence and a TT WRAPPER
+block is only closed by its corresponding C<[% END %]>.
+
+This module consumes the L<Ovid::Template::Role::Debug> and
+L<Ovid::Template::Role::File> roles.
+
+=head1 METHODS
+
+=head2 parse
+
+    $finder->parse($line);
+
+Parses a single line of template content and updates the internal state.
+Call this method once per line, in order. Returns true.
+
+After calling C<parse>, you can query the state with C<is_in_code>,
+C<is_start_marker>, C<is_end_marker>, and C<language>.
+
+=head2 is_in_code
+
+    if ( $finder->is_in_code ) { ... }
+
+Returns true if the parser is currently inside a code block (i.e., between
+an opening and closing marker).
+
+=head2 is_start_marker
+
+    if ( $finder->is_start_marker ) { ... }
+
+Returns true if the most recently parsed line was a code block opening marker.
+
+=head2 is_end_marker
+
+    if ( $finder->is_end_marker ) { ... }
+
+Returns true if the most recently parsed line was a code block closing marker.
+
+=head2 language
+
+    my $lang = $finder->language;
+
+Returns the language identifier from the most recent code block opening
+marker (e.g., C<'perl'>, C<'python'>). Returns an empty string if no
+language was specified.
+
+=cut

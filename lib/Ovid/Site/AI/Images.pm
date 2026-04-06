@@ -103,3 +103,54 @@ Ovid::Site::AI::Images - AI image tools
         croak "File does not exist or is not readable: $image\n";
     }
     my $response = $chat->describe_image($image);
+
+=head1 DESCRIPTION
+
+Uses the OpenAI API (via L<OpenAPI::Client::OpenAI>) to generate accessibility
+descriptions for images. The image is base64-encoded and sent to a
+multi-modal model which returns a short textual description suitable for use
+as alt text.
+
+=head1 METHODS
+
+=head2 new
+
+    my $ai = Ovid::Site::AI::Images->new(
+        model       => 'gpt-4o-mini',   # optional, default 'gpt-4o-mini'
+        temperature => 0.1,              # optional, default 0.1
+        prompt      => 'Describe ...',   # optional
+    );
+
+Constructor. All attributes are optional and have sensible defaults.
+
+=head2 describe_image
+
+    my $description = $ai->describe_image($filename);
+
+Reads the image at C<$filename>, sends it to the OpenAI API, and returns a
+one- or two-sentence text description. Croaks on API errors or JSON decoding
+failures.
+
+=head2 system_message
+
+    my $msg = $ai->system_message;
+
+Returns the system prompt sent to the model. Read-only.
+
+=head2 model
+
+    my $model = $ai->model;
+
+Returns the OpenAI model name. Read-only.
+
+=head2 temperature
+
+    my $temp = $ai->temperature;
+
+Returns the sampling temperature. Read-only.
+
+=head2 prompt
+
+    my $prompt = $ai->prompt;
+
+Returns the user prompt sent alongside the image. Read-only.

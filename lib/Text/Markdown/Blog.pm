@@ -395,11 +395,59 @@ __END__
 
 Text::Markdown::Blog - Ovid's Markdown hack
 
+=head1 SYNOPSIS
+
+    use Text::Markdown::Blog;
+
+    my $parser = Text::Markdown::Blog->new;
+    my $html   = $parser->markdown($text);
+
+    # Or use the blogdown method for full processing
+    my $html = $parser->blogdown($text);
+
+    # Disable smart quotes
+    my $parser = Text::Markdown::Blog->new(use_smart_quotes => 0);
+
 =head1 DESCRIPTION
 
 No user-serviceable parts inside.
 
 Just like L<Text::Markdown>, but with a few extra features.
+
+=head1 METHODS
+
+=head2 new
+
+    my $parser = Text::Markdown::Blog->new(%options);
+
+Constructor. Accepts all options supported by L<Text::Markdown>, plus:
+
+=over 4
+
+=item * C<use_smart_quotes> - Enable typographic smart quotes (default: 1).
+
+=back
+
+=head2 blogdown
+
+    my $html = $parser->blogdown($text, \%options);
+
+Processes C<$text> through code-block handling, Markdown conversion, and smart
+quote substitution. Returns the final HTML string. The optional C<\%options>
+hashref is passed through to L<Text::Markdown/markdown>.
+
+=head2 markdown
+
+    my $html = $parser->markdown($text, \%options);
+
+Inherited from L<Text::Markdown>. Converts Markdown to HTML with this
+module's extensions (external link targets, table support).
+
+=head2 should_use_smart_quotes
+
+    my $bool = $parser->should_use_smart_quotes;
+
+Returns whether smart quote processing is enabled for this instance.
 
 =head1 FEATURES
 

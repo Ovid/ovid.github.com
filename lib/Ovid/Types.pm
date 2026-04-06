@@ -28,7 +28,25 @@ __END__
 
 =head1 NAME
 
-Ovid::Types - Basic Types
+Ovid::Types - Type library for the Ovid website codebase
+
+=head1 SYNOPSIS
+
+    use Ovid::Types qw(Str Int Bool EmptyStr compile_named);
+
+    my $check = compile_named(
+        name => Str,
+        age  => Int,
+    );
+    my $args = $check->(@_);
+
+=head1 DESCRIPTION
+
+C<Ovid::Types> is a L<Type::Library>-based type library that re-exports all
+types from L<Types::Standard>, L<Types::Common::String>, and
+L<Types::Common::Numeric>. It also provides the C<compile> and
+C<compile_named> functions from L<Type::Params> and declares project-specific
+custom types.
 
 =head1 Types
 
