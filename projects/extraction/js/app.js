@@ -169,8 +169,20 @@ const COUNTRY_NAMES = {
   PSE: 'Palestine', GRL: 'Greenland', GUY: 'Guyana', KGZ: 'Kyrgyzstan',
   LSO: 'Lesotho', MDA: 'Moldova', MNE: 'Montenegro', VUT: 'Vanuatu',
   GNB: 'Guinea-Bissau', TLS: 'Timor-Leste', SVK: 'Slovakia', SVN: 'Slovenia',
-  ESH: 'Western Sahara'
+  ESH: 'Western Sahara', XKX: 'Kosovo', SML: 'Somaliland', NCY: 'Northern Cyprus'
 };
+
+// TopoJSON geometries with no numeric id — map properties.name → alpha3
+const NAME_TO_ALPHA3 = {
+  'Kosovo': 'XKX',
+  'Somaliland': 'SML',
+  'N. Cyprus': 'NCY',
+};
+
+function getCountryAlpha3FromFeature(d) {
+  if (d.id != null) return numericToAlpha3[String(d.id)] || null;
+  return NAME_TO_ALPHA3[d.properties?.name] || null;
+}
 
 function getCountryAlpha3(numericId) {
   return numericToAlpha3[String(numericId)] || null;
@@ -228,19 +240,19 @@ function drawMap(world) {
     .data(countries)
     .join('path')
     .attr('class', d => {
-      const a3 = getCountryAlpha3(d.id);
+      const a3 = getCountryAlpha3FromFeature(d);
       const cd = getCountryData(a3);
       let cls = 'country-path';
       if (cd?.disputed) cls += ' disputed';
       return cls;
     })
     .attr('d', mapPath)
-    .attr('fill', d => countryFill(d.id))
-    .attr('opacity', d => countryOpacity(d.id))
+    .attr('fill', d => countryFill(d))
+    .attr('opacity', d => countryOpacity(d))
     .on('mousemove', (event, d) => {
-      const a3 = getCountryAlpha3(d.id);
+      const a3 = getCountryAlpha3FromFeature(d);
       const cd = getCountryData(a3);
-      const name = getCountryName(a3) || `#${d.id}`;
+      const name = getCountryName(a3) || d.properties?.name || `#${d.id}`;
       const score = cd ? computeComposite(cd.domains) : null;
       tooltip.html(
         `<strong>${name}</strong>` +
@@ -252,7 +264,7 @@ function drawMap(world) {
     })
     .on('mouseleave', () => tooltip.classed('visible', false))
     .on('click', (event, d) => {
-      const a3 = getCountryAlpha3(d.id);
+      const a3 = getCountryAlpha3FromFeature(d);
       selectCountry(a3, d.id);
     });
 
@@ -271,16 +283,16 @@ function drawMap(world) {
   d3.select('#zoom-reset').on('click', () => mapSvg.transition().duration(500).call(mapZoom.transform, d3.zoomIdentity));
 }
 
-function countryFill(numericId) {
-  const a3 = getCountryAlpha3(numericId);
+function countryFill(d) {
+  const a3 = getCountryAlpha3FromFeature(d);
   const cd = getCountryData(a3);
   if (!cd) return getComputedStyle(document.documentElement).getPropertyValue('--no-data-fill').trim();
   const score = computeComposite(cd.domains);
   return extractionColor(score);
 }
 
-function countryOpacity(numericId) {
-  const a3 = getCountryAlpha3(numericId);
+function countryOpacity(d) {
+  const a3 = getCountryAlpha3FromFeature(d);
   const cd = getCountryData(a3);
   if (!cd) return 0.8;
   return 1.0;
@@ -289,8 +301,8 @@ function countryOpacity(numericId) {
 function refreshMapColors() {
   d3.selectAll('.country-path')
     .transition().duration(400)
-    .attr('fill', d => countryFill(d.id))
-    .attr('opacity', d => countryOpacity(d.id));
+    .attr('fill', d => countryFill(d))
+    .attr('opacity', d => countryOpacity(d));
 }
 
 // -- Legend gradient --
@@ -314,9 +326,11 @@ function drawLegendGradient() {
 // -- Country selection --
 function selectCountry(alpha3, numericId) {
   d3.selectAll('.country-path').classed('selected', false);
-  if (numericId != null) {
+  if (numericId != null || alpha3) {
     const sel = d3.selectAll('.country-path')
-      .filter(d => String(d.id) === String(numericId));
+      .filter(d => numericId != null
+        ? String(d.id) === String(numericId)
+        : getCountryAlpha3FromFeature(d) === alpha3);
     sel.classed('selected', true).raise();
 
     // Center map on selected country
