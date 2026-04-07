@@ -798,13 +798,46 @@ ul.domain-justification li .context-fact {
 }
 
 @media (max-width: 900px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+  header {
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1rem 1.2rem;
+  }
+  header h1 { font-size: 1.4rem; }
+  header p { font-size: 0.8rem; }
+  .header-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .picker-button { min-width: 160px; }
   .layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 55vh 1fr;
-    height: auto;
+    grid-template-rows: 50vh auto;
+    flex: none;
   }
   .panel-divider { display: none; }
-  .panel { border-left: none; border-top: 1px solid var(--border); }
-  header { padding: 1.5rem; }
-  header h1 { font-size: 1.6rem; }
+  .panel {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    overflow-y: visible;
+  }
+  .legend { bottom: 8px; left: 8px; }
+  .no-data-note { left: 2.8rem; font-size: 0.7rem; }
+  .modal { padding: 1.5rem; }
+  .modal-backdrop { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+  header { padding: 0.8rem 1rem; }
+  header h1 { font-size: 1.2rem; }
+  header p { font-size: 0.75rem; }
+  .picker-button { min-width: 140px; font-size: 0.8rem; }
+  .layout { grid-template-rows: 40vh auto; }
+  .legend { font-size: 0.65rem; padding: 0.4rem 0.6rem; }
+  .legend-gradient { width: 120px; }
 }
