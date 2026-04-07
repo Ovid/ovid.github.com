@@ -180,12 +180,12 @@ const NAME_TO_ALPHA3 = {
 };
 
 function getCountryAlpha3FromFeature(d) {
-  if (d.id != null) return numericToAlpha3[String(d.id)] || null;
+  if (d.id != null) return numericToAlpha3[String(d.id).padStart(3, '0')] || null;
   return NAME_TO_ALPHA3[d.properties?.name] || null;
 }
 
 function getCountryAlpha3(numericId) {
-  return numericToAlpha3[String(numericId)] || null;
+  return numericToAlpha3[String(numericId).padStart(3, '0')] || null;
 }
 
 function getCountryName(alpha3) {
@@ -386,7 +386,11 @@ function selectCountry(alpha3, numericId) {
 
   // Data advisories
   const advisories = [];
-  if (numericId == null) {
+  const sel = d3.selectAll('.country-path').filter(d =>
+    numericId != null
+      ? String(d.id) === String(numericId)
+      : getCountryAlpha3FromFeature(d) === alpha3);
+  if (sel.size() === 0) {
     advisories.push('This territory is too small to display on the world map.');
   }
   const nDomains = Object.keys(cd.domains).length;
@@ -743,7 +747,7 @@ function populateCountrySelect(sortBy) {
     if (!item) return;
     const code = item.dataset.code;
     const numId = Object.entries(numericToAlpha3).find(([, a3]) => a3 === code)?.[0];
-    selectCountry(code, numId ? Number(numId) : null);
+    selectCountry(code, numId || null);
     button.textContent = item.textContent;
     dropdown.classList.remove('open');
   });
