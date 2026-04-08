@@ -507,9 +507,16 @@ function setupWeightControls() {
   const controls = document.getElementById('weights-controls');
   const sliderContainer = document.getElementById('weight-sliders');
 
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
     controls.classList.toggle('open');
-    toggle.textContent = controls.classList.contains('open') ? 'Hide Weights' : 'Adjust Weights';
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!controls.contains(e.target) && e.target !== toggle) {
+      controls.classList.remove('open');
+    }
   });
 
   DOMAIN_KEYS.forEach((k) => {
