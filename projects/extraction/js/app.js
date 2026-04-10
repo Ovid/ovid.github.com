@@ -2,7 +2,8 @@ import { DOMAIN_LABELS, DOMAIN_KEYS, NUMERIC_MAP, COUNTRY_NAMES, computeComposit
 
 const SOURCE_URLS = {
   wb_gini: 'https://data.worldbank.org/indicator/SI.POV.GINI',
-  wb_labor_share: 'https://data.worldbank.org/indicator/SL.GDP.PCAP.EM.KD',
+  ilo_labor_share: 'https://ilostat.ilo.org/data/',
+  wb_net_interest_margin: 'https://data.worldbank.org/indicator/GFDD.EI.01',
   wb_domestic_credit: 'https://data.worldbank.org/indicator/FS.AST.PRVT.GD.ZS',
   wb_natural_rents: 'https://data.worldbank.org/indicator/NY.GDP.TOTL.RT.ZS',
   wb_wgi_corruption: 'https://data.worldbank.org/indicator/CC.EST',
@@ -241,10 +242,10 @@ function drawLegendGradient() {
     ctx.fillStyle = extractionColor(score);
     ctx.fillRect(x, 0, 1, 12);
   }
-  // Update labels to show actual range
+  // Labels always show the theoretical 0–100 scale
   const labels = document.querySelector('.legend-labels');
   if (labels) {
-    labels.innerHTML = `<span>${lo} — Low</span><span>${hi} — Extreme</span>`;
+    labels.innerHTML = `<span>0 — Low</span><span>100 — Extreme</span>`;
   }
 }
 
