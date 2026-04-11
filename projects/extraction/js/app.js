@@ -312,7 +312,6 @@ function selectCountry(alpha3, numericId) {
   document.getElementById('country-name').textContent = cd.name;
   const scoreEl = document.getElementById('composite-score');
   scoreEl.textContent = composite;
-  scoreEl.style.color = extractionColor(composite);
 
   document.getElementById('overall-confidence').textContent = `Confidence: ${cd.overall_confidence.replace('_', ' ')}`;
 
@@ -483,7 +482,7 @@ function drawDomainList(domains) {
         <span class="trend-badge ${trend}" style="font-size:0.7rem">${TREND_ARROWS[trend]} ${TREND_TIPS[trend]}</span>
       </div>
       <div class="domain-score-row">
-        <span class="domain-score-value" style="color:${color}">${d.score}</span>
+        <span class="domain-score-value">${d.score}</span>
         <div class="domain-bar-track">
           <div class="domain-bar-fill" style="width:${d.score}%; background:${color}; opacity:${CONFIDENCE_OPACITY[conf]}"></div>
         </div>
@@ -575,7 +574,6 @@ function setupWeightControls() {
           const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
           const scoreEl = document.getElementById('composite-score');
           scoreEl.textContent = composite;
-          scoreEl.style.color = extractionColor(composite);
         }
       }
     });
@@ -596,7 +594,6 @@ function setupWeightControls() {
       if (cd) {
         const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
         document.getElementById('composite-score').textContent = composite;
-        document.getElementById('composite-score').style.color = extractionColor(composite);
       }
     }
   });
@@ -680,7 +677,9 @@ function populateCountrySelect(sortBy, query) {
   entries.sort((a, b) => b.composite - a.composite);
   const rankMap = new Map(entries.map((e, i) => [e.code, i + 1]));
 
-  if (countrySortMode !== 'score') {
+  if (countrySortMode === 'score') {
+    entries.sort((a, b) => a.composite - b.composite || a.name.localeCompare(b.name));
+  } else {
     entries.sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -690,12 +689,12 @@ function populateCountrySelect(sortBy, query) {
   const visible = filterEntries(entries, query || '');
 
   list.innerHTML = '';
-  visible.forEach(({ code, name, composite }) => {
-    const rank = rankMap.get(code);
+  visible.forEach(({ code, name, composite }, i) => {
     const div = document.createElement('div');
     div.className = 'picker-item' + (code === selectedCountryCode ? ' selected' : '');
     div.dataset.code = code;
-    div.textContent = countrySortMode === 'score' ? `${rank}. ${name} (${composite})` : `${name} (#${rank})`;
+    div.textContent =
+      countrySortMode === 'score' ? `${i + 1}. ${name} (${composite})` : `${name} (#${rankMap.get(code)})`;
     list.appendChild(div);
   });
 }
