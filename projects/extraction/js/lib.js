@@ -120,7 +120,6 @@ export const NUMERIC_MAP = {
   686: 'SEN',
   688: 'SRB',
   694: 'SLE',
-  699: 'IND',
   704: 'VNM',
   706: 'SOM',
   710: 'ZAF',
@@ -369,6 +368,12 @@ export const COUNTRY_NAMES = {
   SML: 'Somaliland',
   NCY: 'Northern Cyprus',
 };
+
+export function filterEntries(entries, query) {
+  if (!query) return entries;
+  const q = query.toLowerCase();
+  return entries.filter((e) => e.name.toLowerCase().includes(q));
+}
 
 export function computeComposite(domains, weights, domainKeys) {
   let sum = 0,

@@ -1,16 +1,24 @@
-import { DOMAIN_LABELS, DOMAIN_KEYS, NUMERIC_MAP, COUNTRY_NAMES, computeComposite, normalizeWeights } from './lib.js';
+import {
+  DOMAIN_LABELS,
+  DOMAIN_KEYS,
+  NUMERIC_MAP,
+  COUNTRY_NAMES,
+  computeComposite,
+  normalizeWeights,
+  filterEntries,
+} from './lib.js';
 
 const SOURCE_URLS = {
   wb_gini: 'https://data.worldbank.org/indicator/SI.POV.GINI',
   ilo_labor_share: 'https://ilostat.ilo.org/data/',
   wb_net_interest_margin: 'https://data.worldbank.org/indicator/GFDD.EI.01',
   wb_domestic_credit: 'https://data.worldbank.org/indicator/FS.AST.PRVT.GD.ZS',
+  wb_top10_income: 'https://data.worldbank.org/indicator/SI.DST.10TH.10',
   wb_natural_rents: 'https://data.worldbank.org/indicator/NY.GDP.TOTL.RT.ZS',
   wb_wgi_corruption: 'https://data.worldbank.org/indicator/CC.EST',
-  wb_reg_quality: 'https://data.worldbank.org/indicator/RQ.EST',
-  wb_wgi_gov_eff: 'https://data.worldbank.org/indicator/GE.EST',
   rsf_press: 'https://rsf.org/en/index',
   tjn_fsi: 'https://fsi.taxjustice.net/',
+  tjn_fsi_secrecy: 'https://fsi.taxjustice.net/',
   vdem_political_corruption: 'https://www.v-dem.net/',
   vdem_clientelism: 'https://www.v-dem.net/',
   vdem_electoral_democracy: 'https://www.v-dem.net/',
@@ -20,6 +28,7 @@ const SOURCE_URLS = {
   vdem_rule_of_law: 'https://www.v-dem.net/',
   vdem_egalitarian: 'https://www.v-dem.net/',
   vdem_participatory_democracy: 'https://www.v-dem.net/',
+  vdem_legislative_corruption: 'https://www.v-dem.net/',
 };
 
 const CONFIDENCE_OPACITY = { high: 1.0, moderate: 0.75, low: 0.5, very_low: 0.3 };
@@ -168,7 +177,7 @@ function drawMap(world) {
       const name = getCountryName(a3) || d.properties?.name || `#${d.id}`;
       const score = cd ? computeComposite(cd.domains, currentWeights, DOMAIN_KEYS) : null;
       tooltip.html(
-        `<strong>${name}</strong>` +
+        `<strong>${esc(name)}</strong>` +
           (score !== null
             ? `<span class="tooltip-score">${score}</span>`
             : ' <span style="color:var(--text-muted)">No data</span>'),
@@ -223,6 +232,7 @@ function countryOpacity(d) {
 }
 
 function refreshMapColors() {
+  if (!mapG) return;
   d3.selectAll('.country-path')
     .transition()
     .duration(400)
@@ -252,11 +262,26 @@ function drawLegendGradient() {
 // -- Country selection --
 function selectCountry(alpha3, numericId) {
   d3.selectAll('.country-path').classed('selected', false);
+
+  const cd = getCountryData(alpha3);
+  const empty = document.getElementById('panel-empty');
+  const content = document.getElementById('panel-content');
+  const pickerBtn = document.getElementById('picker-button');
+
+  if (!cd) {
+    selectedCountryCode = null;
+    if (pickerBtn) pickerBtn.textContent = 'Select a country\u2026';
+    empty.style.display = 'flex';
+    content.style.display = 'none';
+    empty.querySelector('h3').textContent = alpha3 ? `No data for ${getCountryName(alpha3)}` : 'Select a country';
+    return;
+  }
+
   if (numericId != null || alpha3) {
     const sel = d3
       .selectAll('.country-path')
       .filter((d) =>
-        numericId != null ? String(d.id) === String(numericId) : getCountryAlpha3FromFeature(d) === alpha3,
+        numericId != null ? Number(d.id) === Number(numericId) : getCountryAlpha3FromFeature(d) === alpha3,
       );
     sel.classed('selected', true).raise();
 
@@ -276,23 +301,11 @@ function selectCountry(alpha3, numericId) {
     }
   }
 
-  const cd = getCountryData(alpha3);
-  const empty = document.getElementById('panel-empty');
-  const content = document.getElementById('panel-content');
-
-  if (!cd) {
-    empty.style.display = 'flex';
-    content.style.display = 'none';
-    empty.querySelector('h3').textContent = alpha3 ? `No data for ${getCountryName(alpha3)}` : 'Select a country';
-    return;
-  }
-
   selectedCountryCode = alpha3;
   empty.style.display = 'none';
   content.style.display = 'block';
 
   // Sync dropdown button text
-  const pickerBtn = document.getElementById('picker-button');
   if (pickerBtn && cd) pickerBtn.textContent = cd.name;
 
   const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
@@ -316,7 +329,7 @@ function selectCountry(alpha3, numericId) {
   const sel = d3
     .selectAll('.country-path')
     .filter((d) =>
-      numericId != null ? String(d.id) === String(numericId) : getCountryAlpha3FromFeature(d) === alpha3,
+      numericId != null ? Number(d.id) === Number(numericId) : getCountryAlpha3FromFeature(d) === alpha3,
     );
   if (sel.size() === 0) {
     advisories.push('This territory is too small to display on the world map.');
@@ -325,8 +338,11 @@ function selectCountry(alpha3, numericId) {
   if (nDomains <= 3) {
     advisories.push(`Score is based on ${nDomains} of 7 domains \u2014 may not reflect overall extraction.`);
   }
+  if (cd.data_quality_notes) {
+    advisories.push(cd.data_quality_notes);
+  }
   const advisoryEl = document.getElementById('data-advisory');
-  advisoryEl.innerHTML = advisories.join(' ');
+  advisoryEl.textContent = advisories.join(' ');
 
   drawRadar(cd.domains);
   drawDomainList(cd.domains);
@@ -438,6 +454,13 @@ function drawRadar(domains) {
   });
 }
 
+// Escape a plain-text string for safe insertion into innerHTML templates
+function esc(s) {
+  const el = document.createElement('span');
+  el.textContent = s;
+  return el.innerHTML;
+}
+
 // -- Domain list --
 function drawDomainList(domains) {
   const container = document.getElementById('domain-list');
@@ -469,21 +492,22 @@ function drawDomainList(domains) {
         d.indicators?.length
           ? `<ul class="domain-justification">${d.indicators
               .map((ind) => {
-                const factsHtml = (ind.facts || []).map((f) => `<span class="context-fact">${f}</span>`).join('');
-                return `<li>${ind.question} ${ind.label}${factsHtml}</li>`;
+                const factsHtml = (ind.facts || []).map((f) => `<span class="context-fact">${esc(f)}</span>`).join('');
+                return `<li>${esc(ind.question)} ${esc(ind.label)}${factsHtml}</li>`;
               })
               .join('')}</ul>`
           : d.justification
             ? `<ul class="domain-justification">${d.justification
                 .split(/(?<=\.)\s+/)
                 .filter((s) => s.trim())
-                .map((s) => `<li>${s.replace(/\.$/, '')}</li>`)
+                .map((s) => `<li>${esc(s.replace(/\.$/, ''))}</li>`)
                 .join('')}</ul>`
             : ''
       }
-      ${d.justification_detail ? `<a class="raw-data-toggle" href="#">Show raw data &#9656;</a><div class="raw-data-detail" style="display:none"><div class="domain-justification">${d.justification_detail}</div>${d.sources?.length ? `<div class="domain-sources">Sources: ${d.sources.map((s) => (SOURCE_URLS[s] ? `<a href="${SOURCE_URLS[s]}" target="_blank" rel="noopener">${s}</a>` : s)).join(', ')}</div>` : ''}</div>` : ''}
+      ${d.related_jurisdictions_note ? `<div class="related-jurisdictions-note">${esc(d.related_jurisdictions_note)}</div>` : ''}
+      ${d.justification_detail ? `<a class="raw-data-toggle" href="#">Show raw data &#9656;</a><div class="raw-data-detail" style="display:none"><div class="domain-justification">${esc(d.justification_detail)}</div>${d.sources?.length ? `<div class="domain-sources">Sources: ${d.sources.map((s) => (SOURCE_URLS[s] ? `<a href="${SOURCE_URLS[s]}" target="_blank" rel="noopener">${esc(s)}</a>` : esc(s))).join(', ')}</div>` : ''}</div>` : ''}
       <div class="domain-meta">
-        <span class="confidence-badge">Confidence: ${conf.replace('_', ' ')}</span>
+        <span class="confidence-badge">Confidence: ${esc(conf.replace('_', ' '))}</span>
       </div>
     `;
     container.appendChild(div);
@@ -641,7 +665,7 @@ window.addEventListener('resize', () => {
 // -- Country picker --
 let countrySortMode = 'alpha';
 
-function populateCountrySelect(sortBy) {
+function populateCountrySelect(sortBy, query) {
   countrySortMode = sortBy || countrySortMode;
   const list = document.getElementById('picker-list');
   const toggle = document.getElementById('picker-sort-toggle');
@@ -661,10 +685,12 @@ function populateCountrySelect(sortBy) {
   }
 
   const sortLabel = countrySortMode === 'score' ? 'Score' : 'Name';
-  toggle.textContent = `\u21C5 Sort by: ${sortLabel}`;
+  toggle.textContent = `Sort by: ${sortLabel}`;
+
+  const visible = filterEntries(entries, query || '');
 
   list.innerHTML = '';
-  entries.forEach(({ code, name, composite }) => {
+  visible.forEach(({ code, name, composite }) => {
     const rank = rankMap.get(code);
     const div = document.createElement('div');
     div.className = 'picker-item' + (code === selectedCountryCode ? ' selected' : '');
@@ -680,9 +706,16 @@ function populateCountrySelect(sortBy) {
   const dropdown = document.getElementById('picker-dropdown');
   const toggle = document.getElementById('picker-sort-toggle');
   const list = document.getElementById('picker-list');
+  const search = document.getElementById('picker-search');
 
   button.addEventListener('click', () => {
+    const opening = !dropdown.classList.contains('open');
     dropdown.classList.toggle('open');
+    if (opening) {
+      search.value = '';
+      populateCountrySelect(undefined, '');
+      search.focus();
+    }
   });
 
   // Close when clicking outside
@@ -692,10 +725,15 @@ function populateCountrySelect(sortBy) {
     }
   });
 
-  // Sort toggle — stays open
+  // Filter as user types
+  search.addEventListener('input', () => {
+    populateCountrySelect(undefined, search.value);
+  });
+
+  // Sort toggle — stays open, preserves filter
   toggle.addEventListener('click', () => {
     countrySortMode = countrySortMode === 'alpha' ? 'score' : 'alpha';
-    populateCountrySelect();
+    populateCountrySelect(undefined, search.value);
   });
 
   // Country selection — closes dropdown
@@ -705,7 +743,6 @@ function populateCountrySelect(sortBy) {
     const code = item.dataset.code;
     const numId = Object.entries(numericToAlpha3).find(([, a3]) => a3 === code)?.[0];
     selectCountry(code, numId || null);
-    button.textContent = item.textContent;
     dropdown.classList.remove('open');
   });
 })();

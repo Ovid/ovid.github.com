@@ -61,6 +61,10 @@
               "type": "boolean",
               "default": false,
               "description": "Whether this entity's statehood or borders are internationally contested"
+            },
+            "data_quality_notes": {
+              "type": "string",
+              "description": "Methodological or data-quality caveat for this country"
             }
           },
           "required": ["name", "domains", "composite_score", "overall_confidence", "overall_trend"]
@@ -110,6 +114,23 @@
         "justification_detail": {
           "type": "string",
           "description": "Technical breakdown with raw values and normalized scores"
+        },
+        "related_jurisdictions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "code": { "type": "string" },
+              "secrecy_score": { "type": "number" },
+              "fsi_share_pct": { "type": "number" }
+            }
+          },
+          "description": "Related jurisdictions that contribute to this country's domain profile"
+        },
+        "related_jurisdictions_note": {
+          "type": "string",
+          "description": "Explanatory note about related jurisdictions"
         }
       },
       "required": ["score", "confidence"]
