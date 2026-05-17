@@ -159,7 +159,7 @@ package Ovid::Site {
         my $name = basename($file);
 
         if ( $dir !~ /static/ && !$is_tt_file ) {
-            next FILE;
+            return;
         }
 
         # make sure we have our destination directory
