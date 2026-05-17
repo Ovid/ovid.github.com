@@ -3,7 +3,35 @@
 use v5.40;
 use Dancer2;
 use Path::Tiny;
+use Time::HiRes qw(sleep);
 use open ':std', ':encoding(UTF-8)';
+
+# Security: bind to localhost only. Dancer2 defaults to 0.0.0.0, which
+# would expose the dev server (including the editor-launch endpoint
+# and the static file handler) on every interface. The startup banner
+# advertises 127.0.0.1; this is what makes that claim true.
+set host => '127.0.0.1';
+set port => 7007;
+
+# Where static GETs may resolve to. Anything outside these prefixes
+# (sensitive files like cpanfile, Makefile, db/, lib/, .git/) is
+# rejected by the static handler below.
+my @ALLOWED_TOP_DIRS    = qw(static articles blog tags);
+my $ALLOWED_TOP_EXT_RE  = qr/\.(?:html?|xml|rss|txt|ico|png|jpg|jpeg|gif|svg|webmanifest)$/i;
+my $PROJECT_ROOT        = path('.')->absolute->realpath;
+my $ROOT_TEMPLATES_ROOT = $PROJECT_ROOT->child('root')->realpath;
+
+# Tracks the most recent editor child PID across requests so we can
+# target it precisely instead of running `pkill -f 'perl bin/launch'`
+# (which, with concurrent POSTs, would kill each others' editors).
+my $editor_child_pid;
+
+sub _terminate_previous_editor () {
+    return unless $editor_child_pid;
+    kill 'TERM', $editor_child_pid;
+    waitpid $editor_child_pid, 0;
+    $editor_child_pid = undef;
+}
 
 hook after => sub {
     my $response = shift;
@@ -33,7 +61,12 @@ get '/' => sub {
 };
 
 post '/api/launch-editor' => sub {
-    my $data = from_json( request->body );
+    my $data = eval { from_json( request->body ) };
+    if ( $@ || ref($data) ne 'HASH' ) {
+        status 'bad_request';
+        return to_json( { error => 'Invalid JSON body' } );
+    }
+
     my $file = $data->{file};
 
     # Validate file parameter
@@ -48,39 +81,64 @@ post '/api/launch-editor' => sub {
         return to_json( { error => 'Invalid file path' } );
     }
 
+    # Reject absolute paths up front — they bypass the project-root
+    # scoping below if the file happens to exist.
+    if ( path($file)->is_absolute ) {
+        status 'bad_request';
+        return to_json( { error => 'Absolute paths are not allowed' } );
+    }
+
     # Check file exists - try both .tt and .tt2markdown extensions
     my $path        = path($file);
     my $actual_file = $file;
 
     if ( !$path->exists ) {
 
-        # Try alternate extension
-        my $alt_file = $file;
+        # Try alternate extension — but only when the original path
+        # actually carries a .tt/.tt2markdown extension. Otherwise the
+        # fallback re-checks the same path and emits a confusing
+        # "File not found: X (also tried X)" error.
+        my $alt_file;
         if ( $file =~ /\.tt$/ ) {
-            $alt_file =~ s/\.tt$/.tt2markdown/;
+            ( $alt_file = $file ) =~ s/\.tt$/.tt2markdown/;
         }
         elsif ( $file =~ /\.tt2markdown$/ ) {
-            $alt_file =~ s/\.tt2markdown$/.tt/;
+            ( $alt_file = $file ) =~ s/\.tt2markdown$/.tt/;
         }
 
-        my $alt_path = path($alt_file);
-        if ( $alt_path->exists ) {
-            $path        = $alt_path;
+        if ( defined $alt_file && path($alt_file)->exists ) {
+            $path        = path($alt_file);
             $actual_file = $alt_file;
         }
         else {
             status 'not_found';
-            return to_json( { error => "File not found: $file (also tried $alt_file)" } );
+            my $msg
+              = defined $alt_file
+              ? "File not found: $file (also tried $alt_file)"
+              : "File not found: $file";
+            return to_json( { error => $msg } );
         }
+    }
+
+    # Security: editor targets must live under `root/`. Resolve the
+    # absolute path and confirm it starts with the project's `root/`
+    # directory — anything else (db/, lib/, cpanfile, etc.) is rejected.
+    my $resolved = eval { $path->realpath };
+    if ( !defined $resolved
+        || index( "$resolved", "$ROOT_TEMPLATES_ROOT/" ) != 0 )
+    {
+        status 'forbidden';
+        return to_json( { error => 'File is not under root/' } );
     }
 
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
     unless ( $ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING} ) {
 
-        # Kill any existing bin/launch processes to free port 3000
-        system("pkill -f 'perl bin/launch'");
-        sleep 0.5;    # Give it time to shut down
+        # Replace any previous editor we spawned. Targeted kill avoids
+        # racing concurrent /api/launch-editor calls that each pkill
+        # the other's freshly spawned child.
+        _terminate_previous_editor();
 
         my $pid = fork();
         if ( !defined $pid ) {
@@ -95,8 +153,9 @@ post '/api/launch-editor' => sub {
             exec( 'perl', 'bin/launch', $actual_file );
             exit 1;    # Should never reach here
         }
-
-        # Parent continues immediately
+        else {
+            $editor_child_pid = $pid;
+        }
     }
 
     content_type 'application/json';
@@ -106,12 +165,49 @@ post '/api/launch-editor' => sub {
 # Serve static files
 get '/**' => sub {
     my ($splat) = splat;
-    my $path_str = join( '/', @$splat ) || 'index.html';
+    my @segments = @$splat;
+
+    # Reject any segment starting with '.' (covers '..', '.git', '.env',
+    # editor swapfiles, etc.) before any filesystem touch.
+    if ( grep { /^\./ } @segments ) {
+        status 'forbidden';
+        return '403 - Forbidden';
+    }
+
+    # Empty splat means GET / which is already redirected; defensive default.
+    my $path_str = join( '/', @segments ) || 'index.html';
+
+    # Enforce the allowlist: top-level files must have a permitted
+    # extension; nested paths must live under a permitted top-level
+    # directory.
+    my $is_allowed;
+    if ( @segments <= 1 ) {
+        $is_allowed = $path_str =~ $ALLOWED_TOP_EXT_RE;
+    }
+    else {
+        my $top = $segments[0];
+        $is_allowed = grep { $top eq $_ } @ALLOWED_TOP_DIRS;
+    }
+
+    unless ($is_allowed) {
+        status 'forbidden';
+        return '403 - Forbidden';
+    }
 
     my $file = path($path_str)->absolute;
 
     # Return file if it exists
     if ( $file->exists && -f $file ) {
+
+        # Defense in depth: confirm the realpath still lies inside the
+        # project root (catches symlink trickery).
+        my $resolved = eval { $file->realpath };
+        if ( !defined $resolved
+            || index( "$resolved", "$PROJECT_ROOT/" ) != 0 )
+        {
+            status 'forbidden';
+            return '403 - Forbidden';
+        }
 
         # For HTML files, read and return content directly to allow hook injection
         if ( $path_str =~ /\.html?$/i ) {
@@ -136,8 +232,6 @@ if (caller) {
     to_app;
 }
 else {
-    # Set server port
-    set port => 7007;
 
     # Print startup message
     say "\n" . "=" x 60;
