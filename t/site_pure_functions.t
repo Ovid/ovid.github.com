@@ -2,6 +2,7 @@
 
 use Test::Most;
 use lib 'lib';
+use Less::Boilerplate;
 use Test2::Plugin::UTF8;
 use Path::Tiny qw(path);
 use Ovid::Site;
@@ -20,6 +21,7 @@ subtest '_get_sitemap_priority assigns priorities by filename and parent' => sub
     is $site->_get_sitemap_priority( path('index.html') ),       1.0, 'homepage';
     is $site->_get_sitemap_priority( path('articles.html') ),    0.8, 'main section';
     is $site->_get_sitemap_priority( path('blog.html') ),        0.8, 'main section (blog)';
+    is $site->_get_sitemap_priority( path('videos.html') ),      0.8, 'main section (videos)';
     is $site->_get_sitemap_priority( path('articles_2.html') ),  0.6, 'pagination page 2';
     is $site->_get_sitemap_priority( path('blog_3.html') ),      0.5, 'pagination page 3';
     is $site->_get_sitemap_priority( path('articles_7.html') ),  0.4, 'pagination beyond page 3';
