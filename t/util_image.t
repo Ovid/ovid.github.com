@@ -107,6 +107,8 @@ subtest 'overwrite=1 permits replacing an existing file' => sub {
         );
         ok $result->{success}, 'overwrite allowed';
         is $result->{path}, '/static/images/under_limit.png', 'path returned';
+        ok -e $tempdir->child('root/static/images/under_limit.png'),
+            'file written to root/static/images/';
     };
 };
 
