@@ -59,13 +59,18 @@ sub write_cpanfile($needs_install) {
 
 sub get_modules ( $filenames, $is_local ) {
 
-    # the following are not detected, so we force them
+    # the following are not detected, so we force them.
+    # Devel::Cover and Perl::Tidy are invoked as binaries by the Makefile
+    # (`make cover`, `make format`) rather than `use`d, so scan_deps misses
+    # them. Without these, a clean checkout cannot run `make all`.
     my %modules = (
         'YAML::LibYAML'           => 0.83,
         'HTML::SimpleLinkExtor'   => 1.273,
         'App::HTTPThis'           => 0,
         'App::Sqitch'             => 1,
         'Perl::Critic::Community' => 'v1.0.4',
+        'Devel::Cover'            => 1.44,
+        'Perl::Tidy'              => 20250912,
     );
     my $current = 1;
     my $total   = @$filenames;
