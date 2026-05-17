@@ -124,7 +124,7 @@ post '/api/launch-editor' => sub {
     # absolute path and confirm it starts with the project's `root/`
     # directory — anything else (db/, lib/, cpanfile, etc.) is rejected.
     my $resolved = eval { $path->realpath };
-    if ( !defined $resolved
+    if (  !defined $resolved
         || index( "$resolved", "$ROOT_TEMPLATES_ROOT/" ) != 0 )
     {
         status 'forbidden';
@@ -169,7 +169,7 @@ get '/**' => sub {
 
     # Reject any segment starting with '.' (covers '..', '.git', '.env',
     # editor swapfiles, etc.) before any filesystem touch.
-    if ( grep { /^\./ } @segments ) {
+    if ( grep {/^\./} @segments ) {
         status 'forbidden';
         return '403 - Forbidden';
     }
@@ -202,7 +202,7 @@ get '/**' => sub {
         # Defense in depth: confirm the realpath still lies inside the
         # project root (catches symlink trickery).
         my $resolved = eval { $file->realpath };
-        if ( !defined $resolved
+        if (  !defined $resolved
             || index( "$resolved", "$PROJECT_ROOT/" ) != 0 )
         {
             status 'forbidden';
