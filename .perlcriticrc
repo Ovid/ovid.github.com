@@ -1,0 +1,15 @@
+# The core ProhibitSubroutinePrototypes policy can't distinguish
+# Perl 5.20+ signatures from old-style prototypes (PPI tokenises both
+# the same way — see Perl-Critic/PPI#194). Replace it with the
+# Community policy, which auto-skips files that enable signatures
+# (including any `use v5.36`+).
+[-Subroutines::ProhibitSubroutinePrototypes]
+[Community::Prototypes]
+
+# The core RequireUseStrict / RequireUseWarnings policies don't peek
+# inside `package NAME { ... }` block syntax, so they flag every file
+# in this codebase. The Community equivalents handle block-form
+# packages correctly.
+[-TestingAndDebugging::RequireUseStrict]
+[-TestingAndDebugging::RequireUseWarnings]
+[Community::StrictWarnings]

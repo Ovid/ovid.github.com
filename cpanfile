@@ -44,6 +44,7 @@ requires 'Moose'                         => 2.4000;
 requires 'MooseX::Extended'              => 0.35;
 requires 'OpenAPI::Client::OpenAI'       => 0.24;
 requires 'Path::Tiny'                    => 0.150;
+requires 'Perl::Critic::Community'       => 'v1.0.4';
 requires 'PerlX::Maybe'                  => 1.202;
 requires 'Plack'                         => 1.0051;
 requires 'Set::Object'                   => 1.43;
