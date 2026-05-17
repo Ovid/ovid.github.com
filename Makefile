@@ -1,13 +1,16 @@
 # Makefile for website project
 
-.PHONY: all test cover lint format loc build clean help
+.PHONY: all test cover lint format loc build release clean help
 
-all: lint format test build ## Lint, format, test, then release build
+all: lint format test release ## Lint, format, test, then release build
 
 test: ## Run the full test suite (recursive, picks up t/integration/)
 	prove -rl t/
 
-build: ## Run the release build (skips tests; use `make test` for that)
+build: ## Run a plain site build (skips tests; needs only Perl deps)
+	perl bin/rebuild --notest
+
+release: ## Run a release build with search index (needs tinysearch + wasm-pack)
 	perl bin/rebuild --release --notest
 
 cover: ## Generate HTML coverage report (one-shot)
