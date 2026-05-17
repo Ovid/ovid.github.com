@@ -4,7 +4,7 @@ package Ovid::Types {
       -base,
       -declare => qw(
       EmptyStr
-    );
+      );
     use Type::Utils -all;
     use Type::Params;
     our @EXPORT_OK;

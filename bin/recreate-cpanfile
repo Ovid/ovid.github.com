@@ -30,12 +30,11 @@ my %needs_install = get_modules( [ keys $dependencies->%* ], \%local );
 write_cpanfile( \%needs_install );
 
 sub write_cpanfile($needs_install) {
-    my $max      = max map { length } keys $needs_install->%*;
+    my $max      = max map {length} keys $needs_install->%*;
     my $requires = '';
     foreach my $module ( sort keys $needs_install->%* ) {
         my $padding = ' ' x ( ( $max + 2 ) - length $module );
-        $requires .=
-          "requires '$module'$padding=> $needs_install->{$module};\n";
+        $requires .= "requires '$module'$padding=> $needs_install->{$module};\n";
     }
     my $now      = localtime;
     my $cpanfile = <<~"CPANFILE";
@@ -105,8 +104,8 @@ sub guess_distribution ($module) {
 
 sub filename_to_module ( $filename, $prefix = '' ) {
     return unless $filename =~ s/\.pm$//;
-    $filename =~ s/^\Q$prefix//;
-    $filename =~ s{/}{::}g;
+    $filename               =~ s/^\Q$prefix//;
+    $filename               =~ s{/}{::}g;
     return $filename;
 }
 

@@ -10,9 +10,8 @@ use experimental 'try';
 use namespace::autoclean;
 
 has system_message => (
-    is => 'ro',
-    default =>
-      'You are an accessibility expert, able to describe images for the visually impaired'
+    is      => 'ro',
+    default => 'You are an accessibility expert, able to describe images for the visually impaired'
 );
 
 # gpt-4o-mini is smaller and cheaper than gpt4o, but it's still very good.
@@ -20,12 +19,11 @@ has system_message => (
 # vision models have now been deprecated.
 has model       => ( is => 'ro', default => 'gpt-4o-mini' );
 has temperature => ( is => 'ro', default => .1 );
-has prompt      => (
+has prompt => (
     is      => 'ro',
     default => 'Describe the image in one or two sentences.',
 );
-has _client =>
-  ( is => 'ro', default => sub { OpenAPI::Client::OpenAI->new } );
+has _client => ( is => 'ro', default => sub { OpenAPI::Client::OpenAI->new } );
 
 sub describe_image ( $self, $filename ) {
     my $filetype = $filename =~ /\.png$/ ? 'png' : 'jpeg';
@@ -48,9 +46,7 @@ sub describe_image ( $self, $filename ) {
 
                         {
                             type      => "image_url",
-                            image_url => {
-                                url => "data:image/$filetype;base64, $image"
-                            }
+                            image_url => { url => "data:image/$filetype;base64, $image" }
                         }
                     ],
                 }

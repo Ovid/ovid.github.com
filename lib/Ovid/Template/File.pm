@@ -16,7 +16,7 @@ package Ovid::Template::File {
     use Less::Script;
     use HTML::TokeParser::Simple;
     use Less::Config qw(config);
-    use Ovid::Types qw(
+    use Ovid::Types  qw(
       ArrayRef
       InstanceOf
       NonEmptySimpleStr
@@ -40,7 +40,7 @@ package Ovid::Template::File {
     foreach my $attr (@TEMPLATE_ATTRS) {
         has $attr => (
             is       => 'rw',
-            isa      => $attr eq 'tags' ? ArrayRef[NonEmptySimpleStr] : NonEmptySimpleStr,
+            isa      => $attr eq 'tags' ? ArrayRef [NonEmptySimpleStr] : NonEmptySimpleStr,
             writer   => "_set_$attr",
             init_arg => undef,
         );
@@ -216,7 +216,8 @@ package Ovid::Template::File {
                 my $title = $p->peek(1);
                 my $slug  = make_slug($title);
                 if ( $seen->{$file}{$slug}++ ) {
-                    # we've already seen it, so let's prepend the number on the 
+
+                    # we've already seen it, so let's prepend the number on the
                     # heading slug so we can have unique links
                     $slug = "$slug-$seen->{$file}{$slug}";
                 }

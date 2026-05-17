@@ -14,8 +14,8 @@ package Ovid::Template::File::Collection {
     has files => (
         traits   => ['Array'],
         is       => 'rw',
-        isa      => ArrayRef [NonEmptySimpleStr|InstanceOf['Ovid::Template::File']],
-        writer => '_files',
+        isa      => ArrayRef [ NonEmptySimpleStr | InstanceOf ['Ovid::Template::File'] ],
+        writer   => '_files',
         required => 1,
         handles  => {
             count => 'count',
@@ -36,10 +36,10 @@ package Ovid::Template::File::Collection {
         init_arg => undef,
     );
 
-    sub BUILD ($self, @) {
+    sub BUILD ( $self, @ ) {
         return if $self->raw;
         my @files = sort { $b->date cmp $a->date } map { $self->_get_file($_) } $self->files->@*;
-        $self->_files(\@files);
+        $self->_files( \@files );
     }
 
     # TODO (Coverage Improvement 001): Verify template usage before removal

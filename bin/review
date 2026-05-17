@@ -12,8 +12,9 @@ hook after => sub {
     return if $response->isa('Dancer2::Core::Response::Delayed');
 
     # Only inject into HTML responses
-    return unless $response->content_type &&
-                  $response->content_type =~ m{text/html};
+    return
+      unless $response->content_type
+      && $response->content_type =~ m{text/html};
 
     my $content = $response->content;
 
@@ -32,86 +33,95 @@ get '/' => sub {
 };
 
 post '/api/launch-editor' => sub {
-    my $data = from_json(request->body);
+    my $data = from_json( request->body );
     my $file = $data->{file};
 
     # Validate file parameter
     unless ($file) {
         status 'bad_request';
-        return to_json({ error => 'No file specified' });
+        return to_json( { error => 'No file specified' } );
     }
 
     # Prevent directory traversal
-    if ($file =~ /\.\./) {
+    if ( $file =~ /\.\./ ) {
         status 'bad_request';
-        return to_json({ error => 'Invalid file path' });
+        return to_json( { error => 'Invalid file path' } );
     }
 
     # Check file exists - try both .tt and .tt2markdown extensions
-    my $path = path($file);
+    my $path        = path($file);
     my $actual_file = $file;
 
-    if (!$path->exists) {
+    if ( !$path->exists ) {
+
         # Try alternate extension
         my $alt_file = $file;
-        if ($file =~ /\.tt$/) {
+        if ( $file =~ /\.tt$/ ) {
             $alt_file =~ s/\.tt$/.tt2markdown/;
-        } elsif ($file =~ /\.tt2markdown$/) {
+        }
+        elsif ( $file =~ /\.tt2markdown$/ ) {
             $alt_file =~ s/\.tt2markdown$/.tt/;
         }
 
         my $alt_path = path($alt_file);
-        if ($alt_path->exists) {
-            $path = $alt_path;
+        if ( $alt_path->exists ) {
+            $path        = $alt_path;
             $actual_file = $alt_file;
-        } else {
+        }
+        else {
             status 'not_found';
-            return to_json({ error => "File not found: $file (also tried $alt_file)" });
+            return to_json( { error => "File not found: $file (also tried $alt_file)" } );
         }
     }
 
     # Launch editor in background (fire-and-forget)
     # Skip actual launch during tests to avoid side effects
-    unless ($ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING}) {
+    unless ( $ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING} ) {
+
         # Kill any existing bin/launch processes to free port 3000
         system("pkill -f 'perl bin/launch'");
-        sleep 0.5;  # Give it time to shut down
+        sleep 0.5;    # Give it time to shut down
 
         my $pid = fork();
-        if (!defined $pid) {
+        if ( !defined $pid ) {
             warn "Failed to fork: $!";
-        } elsif ($pid == 0) {
+        }
+        elsif ( $pid == 0 ) {
+
             # Child process - launch editor
             # Redirect output to log file for debugging
             open STDOUT, '>>', 'bin_launch.log' or die "Can't open log: $!";
-            open STDERR, '>&', \*STDOUT or die "Can't dup STDOUT: $!";
-            exec('perl', 'bin/launch', $actual_file);
-            exit 1; # Should never reach here
+            open STDERR, '>&', \*STDOUT         or die "Can't dup STDOUT: $!";
+            exec( 'perl', 'bin/launch', $actual_file );
+            exit 1;    # Should never reach here
         }
+
         # Parent continues immediately
     }
 
     content_type 'application/json';
-    return to_json({ success => 1, file => $actual_file });
+    return to_json( { success => 1, file => $actual_file } );
 };
 
 # Serve static files
 get '/**' => sub {
     my ($splat) = splat;
-    my $path_str = join('/', @$splat) || 'index.html';
+    my $path_str = join( '/', @$splat ) || 'index.html';
 
     my $file = path($path_str)->absolute;
 
     # Return file if it exists
-    if ($file->exists && -f $file) {
+    if ( $file->exists && -f $file ) {
+
         # For HTML files, read and return content directly to allow hook injection
-        if ($path_str =~ /\.html?$/i) {
+        if ( $path_str =~ /\.html?$/i ) {
             content_type 'text/html; charset=UTF-8';
             return $file->slurp_utf8;
         }
+
         # For other files, use send_file
         else {
-            send_file($file->stringify, system_path => 1);
+            send_file( $file->stringify, system_path => 1 );
         }
     }
     else {

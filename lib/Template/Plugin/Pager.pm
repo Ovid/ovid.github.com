@@ -6,6 +6,7 @@ use Less::Pager;
 use Carp qw(croak);
 
 sub new ( $class, $context, $params = {} ) {
+
     # Map directory names to article types and provide default
     my $type = $params->{type} // 'article';
 
@@ -15,12 +16,10 @@ sub new ( $class, $context, $params = {} ) {
     # Default empty string to 'article'
     $type = 'article' if $type eq '';
 
-    my $pager = eval {
-        return Less::Pager->new( type => $type );
-    };
+    my $pager = eval { return Less::Pager->new( type => $type ); };
     if ($@) {
-        croak("Template::Plugin::Pager error: $@\n"
-          . "Usage: [% USE pager = Pager(type => 'article') %] or [% USE pager = Pager(type => 'blog') %]");
+        croak(  "Template::Plugin::Pager error: $@\n"
+              . "Usage: [% USE pager = Pager(type => 'article') %] or [% USE pager = Pager(type => 'blog') %]" );
     }
     return $pager;
 }

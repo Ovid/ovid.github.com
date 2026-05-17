@@ -7,7 +7,7 @@ use File::Spec::Functions qw(catfile);
 use DateTime;
 use Less::Script;
 use Ovid::Site::Utils qw(use_smart_quotes);
-use Browser::Open qw(open_browser);
+use Browser::Open     qw(open_browser);
 
 GetOptions(
     \my %opt_for,
@@ -56,7 +56,7 @@ my $title    = join( ' ' => @ARGV );
 my $slug     = make_slug($title);
 my $template = write_article_stub( $title, $slug, \%opt_for );
 add_to_sqitch( $title, $slug, \%opt_for );
-edit_article($template, \%opt_for);    #exits this program
+edit_article( $template, \%opt_for );    #exits this program
 
 sub add_to_sqitch ( $title, $slug, $opt_for ) {
     my $dbh = dbh();
@@ -111,7 +111,7 @@ sub write_article_stub ( $title, $slug, $opt_for ) {
     return $template;
 }
 
-sub edit_article ($template, $opt_for) {
+sub edit_article ( $template, $opt_for ) {
     if ( $opt_for->{open} ) {
         my $pid = fork // die "Can't fork: $!";
         if ( $pid == 0 ) {
@@ -119,7 +119,7 @@ sub edit_article ($template, $opt_for) {
             die "Failed to exec bin/launch: $!";
         }
 
-        sleep 1; # Wait for server to start
+        sleep 1;    # Wait for server to start
         open_browser('http://127.0.0.1:3000/');
 
         waitpid $pid, 0;

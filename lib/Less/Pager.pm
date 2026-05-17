@@ -10,7 +10,7 @@ enum ArticleType => [qw/article blog/];
 has items_per_page => (
     is      => 'ro',
     isa     => 'Int',
-    default => sub { 10 },
+    default => sub {10},
 );
 
 has total => (
@@ -46,14 +46,14 @@ has _current_offset => (
     is      => 'rw',
     isa     => 'Int',
     lazy    => 1,
-    default => sub { 0 },
+    default => sub {0},
 );
 
 has current_page_number => (
     is      => 'ro',
     isa     => 'Int',
     writer  => '_set_page_number',
-    default => sub { 0 },
+    default => sub {0},
 );
 
 sub total_pages ($self) {
@@ -67,11 +67,10 @@ sub total_pages ($self) {
 # See: specs/001-test-coverage-improvement/unused-code-decisions.md
 sub next ($self) {
     return if $self->_current_offset >= $self->total;
-    my $limit  = $self->items_per_page;
-    my $offset = $self->_current_offset;
-    my $order  = $self->oldest_first ? 'ASC' : 'DESC';
-    my $records =
-      dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
+    my $limit   = $self->items_per_page;
+    my $offset  = $self->_current_offset;
+    my $order   = $self->oldest_first ? 'ASC' : 'DESC';
+    my $records = dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $self->type );
     SELECT a.title,
            a.slug,
            a.description,
@@ -108,10 +107,7 @@ SQL
 
     my $func     = $direction < 0 ? 'MAX' : 'MIN';
     my $operator = $direction < 0 ? '<'   : '>';
-    $result =
-      dbh()
-      ->selectall_arrayref(
-        <<"SQL", { Slice => {} }, $article_type_id, $sort_order ) or return;
+    $result = dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $article_type_id, $sort_order ) or return;
     SELECT a.title,
            a.slug,
            a.description,
@@ -132,10 +128,7 @@ SQL
 }
 
 sub this_post ( $self, $directory, $slug ) {
-    my $result =
-      dbh()
-      ->selectall_arrayref(
-        <<"SQL", { Slice => {} }, $directory, $slug ) or return;
+    my $result = dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $directory, $slug ) or return;
     SELECT a.title,
            a.slug,
            a.description,

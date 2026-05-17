@@ -6,7 +6,7 @@ use warnings;
 use Getopt::Long qw(GetOptions);
 use File::Spec;
 use File::Basename qw(basename dirname);
-use Cwd qw(abs_path);
+use Cwd            qw(abs_path);
 
 # CLI argument parsing
 my %options = (
@@ -24,36 +24,37 @@ GetOptions(
 ) or die "Error in command line arguments\n";
 
 # Show help if requested
-if ($options{help}) {
+if ( $options{help} ) {
     print_usage();
     exit 0;
 }
 
 # Validate required arguments
-unless ($options{module}) {
+unless ( $options{module} ) {
     print_usage();
     exit 1;
 }
 
 # Validate format
-unless ($options{format} =~ /^(json|text)$/) {
+unless ( $options{format} =~ /^(json|text)$/ ) {
     die "Error: --format must be 'json' or 'text'\n";
 }
 
 # Validate module file exists
-unless (-f $options{module}) {
+unless ( -f $options{module} ) {
     print STDERR "Error: Module file not found: $options{module}\n";
     exit 1;
 }
 
 # Main execution
 eval {
-    my $analysis = analyze_module($options{module});
-    my $output = format_output($analysis, $options{format});
-    
-    if ($options{output}) {
-        write_output($options{output}, $output);
-    } else {
+    my $analysis = analyze_module( $options{module} );
+    my $output   = format_output( $analysis, $options{format} );
+
+    if ( $options{output} ) {
+        write_output( $options{output}, $output );
+    }
+    else {
         print $output;
     }
 };
@@ -85,39 +86,40 @@ sub print_usage {
 # Placeholder functions to be implemented
 sub analyze_module ($module_path) {
     my @methods = extract_methods($module_path);
-    
+
     # Determine workspace root (go up from module path to find project root)
     my $workspace_root = find_workspace_root($module_path);
-    
+
     # For each method, search for call sites
     for my $method (@methods) {
-        my @call_sites = find_method_calls($method->{name}, $workspace_root);
-        
-        $method->{call_count} = scalar @call_sites;
-        $method->{call_locations} = \@call_sites;
-        $method->{potentially_unused} = (@call_sites == 0) ? 1 : 0;
+        my @call_sites = find_method_calls( $method->{name}, $workspace_root );
+
+        $method->{call_count}         = scalar @call_sites;
+        $method->{call_locations}     = \@call_sites;
+        $method->{potentially_unused} = ( @call_sites == 0 ) ? 1 : 0;
     }
-    
+
     return {
-        module => $module_path,
+        module  => $module_path,
         methods => \@methods,
     };
 }
 
 sub find_workspace_root ($module_path) {
     my $abs_path = abs_path($module_path);
-    my $dir = dirname($abs_path);
-    
+    my $dir      = dirname($abs_path);
+
     # Walk up until we find a directory containing lib/, bin/, or t/
-    while ($dir ne '/' && $dir ne '.') {
-        if (-d File::Spec->catdir($dir, 'lib') || 
-            -d File::Spec->catdir($dir, 'bin') || 
-            -d File::Spec->catdir($dir, 't')) {
+    while ( $dir ne '/' && $dir ne '.' ) {
+        if (   -d File::Spec->catdir( $dir, 'lib' )
+            || -d File::Spec->catdir( $dir, 'bin' )
+            || -d File::Spec->catdir( $dir, 't' ) )
+        {
             return $dir;
         }
         $dir = dirname($dir);
     }
-    
+
     # Fallback to current directory
     return Cwd::getcwd();
 }
@@ -126,127 +128,129 @@ sub extract_methods ($module_path) {
     open my $fh, '<', $module_path or die "Cannot read $module_path: $!\n";
     my @lines = <$fh>;
     close $fh;
-    
+
     my @methods;
     my $in_pod = 0;
-    
-    for my $i (0 .. $#lines) {
+
+    for my $i ( 0 .. $#lines ) {
         my $line = $lines[$i];
-        
+
         # Track POD sections
-        if ($line =~ /^=\w+/) {
+        if ( $line =~ /^=\w+/ ) {
             $in_pod = 1;
             next;
         }
-        if ($line =~ /^=cut/) {
+        if ( $line =~ /^=cut/ ) {
             $in_pod = 0;
             next;
         }
-        
+
         next if $in_pod;
-        next if $line =~ /^\s*#/;  # Skip comments
-        
+        next if $line =~ /^\s*#/;    # Skip comments
+
         # Match subroutine definitions
         # Handles: sub name, sub name ($params), sub name :exported, etc.
-        if ($line =~ /^\s*sub\s+([a-zA-Z_]\w*)\s*[\(\{:]/) {
+        if ( $line =~ /^\s*sub\s+([a-zA-Z_]\w*)\s*[\(\{:]/ ) {
             my $method_name = $1;
-            
+
             # Skip private methods (starting with _)
             next if $method_name =~ /^_/;
-            
+
             push @methods, {
-                name => $method_name,
-                call_count => 0,
-                call_locations => [],
-                potentially_unused => 1,  # Will be updated by usage search
+                name               => $method_name,
+                call_count         => 0,
+                call_locations     => [],
+                potentially_unused => 1,              # Will be updated by usage search
             };
         }
     }
-    
+
     return @methods;
 }
 
-sub find_method_calls ($method_name, $workspace_root) {
+sub find_method_calls ( $method_name, $workspace_root ) {
     my @call_sites;
-    my @search_dirs = ('lib', 'bin', 't');
-    
+    my @search_dirs = ( 'lib', 'bin', 't' );
+
     for my $dir (@search_dirs) {
-        my $full_path = File::Spec->catdir($workspace_root, $dir);
+        my $full_path = File::Spec->catdir( $workspace_root, $dir );
         next unless -d $full_path;
-        
+
         my @files = find_perl_files($full_path);
-        
+
         for my $file (@files) {
-            my @locations = search_file_for_method($file, $method_name);
+            my @locations = search_file_for_method( $file, $method_name );
             push @call_sites, @locations;
         }
     }
-    
+
     return @call_sites;
 }
 
 sub find_perl_files ($dir) {
     my @files;
-    
+
     opendir my $dh, $dir or return @files;
     my @entries = readdir $dh;
     closedir $dh;
-    
+
     for my $entry (@entries) {
         next if $entry eq '.' || $entry eq '..';
-        
-        my $path = File::Spec->catfile($dir, $entry);
-        
-        if (-d $path) {
+
+        my $path = File::Spec->catfile( $dir, $entry );
+
+        if ( -d $path ) {
             push @files, find_perl_files($path);
-        } elsif ($entry =~ /\.(pm|pl|t)$/ || (-f $path && -x $path)) {
+        }
+        elsif ( $entry =~ /\.(pm|pl|t)$/ || ( -f $path && -x $path ) ) {
             push @files, $path;
         }
     }
-    
+
     return @files;
 }
 
-sub search_file_for_method ($filepath, $method_name) {
+sub search_file_for_method ( $filepath, $method_name ) {
     my @locations;
-    
+
     open my $fh, '<', $filepath or return @locations;
     my @lines = <$fh>;
     close $fh;
-    
+
     my $in_pod = 0;
-    
-    for my $i (0 .. $#lines) {
+
+    for my $i ( 0 .. $#lines ) {
         my $line = $lines[$i];
-        
+
         # Track POD sections
-        if ($line =~ /^=\w+/) {
+        if ( $line =~ /^=\w+/ ) {
             $in_pod = 1;
             next;
         }
-        if ($line =~ /^=cut/) {
+        if ( $line =~ /^=cut/ ) {
             $in_pod = 0;
             next;
         }
-        
+
         next if $in_pod;
-        next if $line =~ /^\s*#/;  # Skip full-line comments
-        
+        next if $line =~ /^\s*#/;    # Skip full-line comments
+
         # Look for method calls: ->method, ::method, or method(
         # But skip the definition line itself
-        if ($line =~ /(?:->|::|\s)$method_name\s*[\(\{]/ && $line !~ /^\s*sub\s+$method_name\b/) {
+        if ( $line =~ /(?:->|::|\s)$method_name\s*[\(\{]/ && $line !~ /^\s*sub\s+$method_name\b/ ) {
             my $line_num = $i + 1;
             push @locations, "$filepath:$line_num";
         }
     }
-    
+
     return @locations;
 }
 
-sub format_output ($analysis, $format) {
-    if ($format eq 'json') {
+sub format_output ( $analysis, $format ) {
+    if ( $format eq 'json' ) {
         return format_json($analysis);
-    } else {
+    }
+    else {
         return format_text($analysis);
     }
 }
@@ -259,28 +263,30 @@ sub format_json ($analysis) {
 
 sub format_text ($analysis) {
     my $output = "Module: $analysis->{module}\n";
-    
-    if (@{$analysis->{methods}} == 0) {
+
+    if ( @{ $analysis->{methods} } == 0 ) {
         $output .= "  No methods found\n";
-    } else {
-        for my $method (@{$analysis->{methods}}) {
+    }
+    else {
+        for my $method ( @{ $analysis->{methods} } ) {
             $output .= "Method: $method->{name}\n";
             $output .= "  Calls: $method->{call_count}\n";
             $output .= "  Locations: ";
-            if (@{$method->{call_locations}}) {
-                $output .= join(", ", @{$method->{call_locations}}) . "\n";
-            } else {
+            if ( @{ $method->{call_locations} } ) {
+                $output .= join( ", ", @{ $method->{call_locations} } ) . "\n";
+            }
+            else {
                 $output .= "(none)\n";
             }
-            $output .= "  Status: " . ($method->{potentially_unused} ? "potentially unused" : "used") . "\n";
+            $output .= "  Status: " . ( $method->{potentially_unused} ? "potentially unused" : "used" ) . "\n";
             $output .= "\n";
         }
     }
-    
+
     return $output;
 }
 
-sub write_output ($filepath, $content) {
+sub write_output ( $filepath, $content ) {
     eval {
         open my $fh, '>', $filepath or die "Cannot write to $filepath: $!\n";
         print {$fh} $content;
