@@ -64,6 +64,12 @@ package Ovid::Site {
         required => 0,
     );
 
+    has dbh => (
+        is      => 'ro',
+        lazy    => 1,
+        default => sub { Less::Script::dbh() },
+    );
+
     sub build ($self) {
         say STDERR "Preprocessing files ...";
         if ( $self->file ) {
@@ -218,7 +224,7 @@ package Ovid::Site {
     }
 
     sub _rebuild_rss_feeds ($self) {
-        my $types = dbh()->selectall_arrayref(
+        my $types = $self->dbh->selectall_arrayref(
             'SELECT name, type, directory, description FROM article_types',
             { Slice => {} }
         );
@@ -257,7 +263,7 @@ package Ovid::Site {
                 pubDate        => $now->strftime("%a, %d %b %Y %H:%M:%S %z"),
                 managingEditor => 'curtis.poe@gmail.com (Curtis "Ovid" Poe)',
             );
-            my $articles = dbh()->selectall_arrayref( <<"SQL", { Slice => {} }, $type->{type} );
+            my $articles = $self->dbh->selectall_arrayref( <<"SQL", { Slice => {} }, $type->{type} );
     SELECT a.title,
         a.slug,
         a.description,
@@ -291,9 +297,20 @@ SQL
         }
     }
 
+    sub _article_type_lookup ( $self, $type ) {
+        my $row = $self->dbh->selectall_arrayref(
+            'SELECT name, type, directory FROM article_types WHERE type = ?',
+            { Slice => {} }, $type,
+        )->[0];
+        unless ( $row && keys $row->%* ) {
+            croak("Could not fetch article_type information for '$type'");
+        }
+        return $row;
+    }
+
     sub _rebuild_article_pagination ($self) {
         foreach my $type (qw/article blog/) {
-            my $article_type = article_type($type);
+            my $article_type = $self->_article_type_lookup($type);
             my $pager        = Less::Pager->new( type => $type );
             my $name         = $type eq 'article' ? 'articles' : $type;
 
