@@ -66,7 +66,7 @@ prove -rl t/
 prove -lv t/blogdown.t
 
 # Generate coverage report
-make coverage
+make cover
 # or
 cover -test
 cover -report html -outputdir coverage-report
