@@ -5,6 +5,7 @@ use Less::Config 'config';
 use Mojo::JSON 'decode_json';
 use List::Util qw(max min);
 use Path::Tiny 'path';
+use aliased 'Ovid::Template::File::Collection';
 use base 'Template::Plugin';
 
 sub new ( $class, $context ) {
@@ -73,6 +74,16 @@ sub tags_for_url ( $self, $url ) {
     return $self->{tagmap}{__ALL__}{$url} // [];
 }
 
+sub has_articles_for_tag ( $self, $tag ) {
+    return exists $self->{tagmap}{$tag};
+}
+
+sub files_for_tag ( $self, $tag ) {
+    my $files = $self->{tagmap}{$tag}{files}
+      or croak("Cannot find files for unknown tag '$tag'");
+    return Collection->new( files => $files );
+}
+
 1;
 
 __END__
@@ -108,5 +119,14 @@ Returns display name for tag from config.
 =head2 C<tags_for_url($url)>
 
 Returns array reference of tags for a given URL. Returns empty arrayref if URL has no tags.
+
+=head2 C<has_articles_for_tag($tag)>
+
+Returns true if the tagmap contains an entry for the given tag.
+
+=head2 C<files_for_tag($tag)>
+
+Returns an L<Ovid::Template::File::Collection> of files associated with the
+given tag. Croaks if the tag is unknown.
 
 =cut

@@ -69,6 +69,49 @@ subtest 'weight_for_tag croaks for unknown tag' => sub {
     qr/Cannot find weight for unknown tag/, 'Should croak for unknown tag in weight_for_tag';
 };
 
+subtest 'has_articles_for_tag returns true for known tags' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+    my @tags   = $plugin->tags_by_weight;
+
+    ok scalar(@tags) > 0, 'Should have at least one tag to test';
+
+    foreach my $tag (@tags) {
+        ok $plugin->has_articles_for_tag($tag),
+          "Should return true for known tag '$tag'";
+    }
+};
+
+subtest 'has_articles_for_tag returns false for unknown tags' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+    ok !$plugin->has_articles_for_tag('nonexistent_tag_xyz'),
+      'Should return false for unknown tag';
+};
+
+subtest 'files_for_tag returns a Collection of files' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+    my @tags   = $plugin->tags_by_weight;
+
+    ok scalar(@tags) > 0, 'Should have at least one tag to test';
+
+    foreach my $tag (@tags) {
+        my $collection = $plugin->files_for_tag($tag);
+        isa_ok $collection, 'Ovid::Template::File::Collection',
+          "files_for_tag('$tag') return value";
+        ok $collection->count > 0,
+          "Collection for '$tag' should contain at least one file";
+    }
+};
+
+subtest 'files_for_tag croaks for unknown tag' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+
+    throws_ok {
+        $plugin->files_for_tag('nonexistent_tag_xyz');
+    }
+    qr/Cannot find files for unknown tag/,
+      'Should croak for unknown tag in files_for_tag';
+};
+
 subtest 'division by zero protection exists' => sub {
     # This test verifies that the division by zero protection code exists
     # by reading the source and checking for the guard condition.
