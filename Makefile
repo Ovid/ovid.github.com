@@ -19,7 +19,7 @@ lint: ## Run perlcritic on lib/ and bin/
 
 format: ## Format Perl source with perltidy (bin/ is filtered to files with a Perl shebang so bash scripts like bin/release are left alone)
 	find lib -name '*.pm' ! -name '*.bak' -print0 | xargs -0 perltidy --profile=.perltidyrc -b
-	find bin -type f ! -name '*.bak' -exec grep -lE '^#!.*perl' {} + | xargs perltidy --profile=.perltidyrc -b
+	find bin -type f ! -name '*.bak' -exec grep --null -lE '^#!.*perl' {} + | xargs -0 perltidy --profile=.perltidyrc -b
 	find lib bin -name '*.bak' -delete
 
 loc: ## Count lines of our own code (lib/, bin/, t/)
