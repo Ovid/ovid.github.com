@@ -180,8 +180,7 @@ package Ovid::Site {
         else {
             my $parser = Ovid::Template::File->new( filename => $file );
 
-            my $contents = $parser->rewrite( $destfile, $tagmap )
-              if $is_tt_file;
+            my $contents = $parser->rewrite( $destfile, $tagmap );
 
             splat( $destfile, $contents );
         }

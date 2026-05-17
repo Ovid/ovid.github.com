@@ -28,11 +28,13 @@ sub tags_by_weight ($self) {
 
     # Perl's sort is stable, so by sorting the keys, we ensure
     # that tags with equal weight are sorted alphabetically.
-    return sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
+    my @sorted = sort { $tags{$b} <=> $tags{$a} } sort keys %tags;
+    return @sorted;
 }
 
 sub _tags ($self) {
-    return sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
+    my @tags = sort grep { $_ ne '__ALL__' } keys $self->{tagmap}->%*;
+    return @tags;
 }
 
 sub weight_for_tag ( $self, $tag ) {

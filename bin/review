@@ -84,7 +84,7 @@ post '/api/launch-editor' => sub {
             # Child process - launch editor
             # Redirect output to log file for debugging
             open STDOUT, '>>', 'bin_launch.log' or die "Can't open log: $!";
-            open STDERR, '>&STDOUT' or die "Can't dup STDOUT: $!";
+            open STDERR, '>&', \*STDOUT or die "Can't dup STDOUT: $!";
             exec('perl', 'bin/launch', $actual_file);
             exit 1; # Should never reach here
         }
