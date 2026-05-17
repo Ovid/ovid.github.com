@@ -4,7 +4,7 @@ package Ovid::Site {
     # sloppy and the `build()` methods need to be called in precise order
     # because some methods set data for subsequent methods
     use Moose;
-    use Less::Script;
+    use Less::Script qw(article_type article make_slug splat slurp trim);
     use Less::Pager;
     use Less::Config qw(config);
     use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
