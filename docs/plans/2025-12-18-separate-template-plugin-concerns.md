@@ -667,7 +667,7 @@ Check key pages:
 
 **Step 3: Run test coverage**
 
-Run: `make coverage` or `cover -test`
+Run: `make cover` or `cover -test`
 Expected: Coverage maintained or improved
 
 **Step 4: Check file sizes**

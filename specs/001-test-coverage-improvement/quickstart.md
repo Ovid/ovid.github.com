@@ -37,7 +37,7 @@ covert
 
 # OR use make commands (recommended)
 make test      # Run tests only
-make coverage  # Run tests with coverage
+make cover     # Run tests with coverage
 
 # Generate HTML report
 cover -report html -outputdir coverage-report
