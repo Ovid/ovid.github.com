@@ -613,6 +613,10 @@ END
         $sitemap->spew_utf8($xml);
     }
 
+    # Coverage note: this method is intentionally uncovered. It shells
+    # out to `tinysearch` and `wasm-pack` Rust binaries that are only
+    # present in release builds. Covering it would require those
+    # binaries in test environments.
     sub _build_tinysearch($self) {
 
         # see https://github.com/tinysearch/tinysearch
