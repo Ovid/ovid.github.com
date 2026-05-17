@@ -48,9 +48,8 @@ package Ovid::Template::File::Collection {
     # See: specs/001-test-coverage-improvement/unused-code-decisions.md
     sub next ($self) {
         my $i = $self->_index;
-        return if $i - 1 > $self->count;
+        return if $i >= $self->count;
         $self->_index( $i + 1 );
-        my $file = $self->files->[$i];
         return $self->files->[$i];
     }
 

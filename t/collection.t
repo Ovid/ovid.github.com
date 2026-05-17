@@ -56,15 +56,31 @@ subtest 'iterating over html docs' => sub {
       '... and they should be returned as objects pointing to templates, in decending date order';
 };
 
-# Test iteration edge case: calling next() beyond collection bounds
-# Covers line 51: if $i - 1 > $self->count (T branch)
+# Test iteration edge case: calling next() beyond collection bounds.
 subtest 'iteration boundary conditions' => sub {
     my $coll = Collection->new( files => [qw/foo bar/], raw => 1 );
     is $coll->next, 'foo', 'First item should be foo';
     is $coll->next, 'bar', 'Second item should be bar';
     ok !defined $coll->next, 'Third call should return undef (past end)';
     ok !defined $coll->next, 'Fourth call should also return undef';
-    ok !defined $coll->next, 'Fifth call triggers early return (i - 1 > count)';
+    ok !defined $coll->next, 'Fifth call should also return undef';
+};
+
+# Regression test: the guard used to be `if $i - 1 > $self->count`, which
+# let the iterator keep incrementing `_index` for two extra rounds past
+# `count`, returning undef via out-of-bounds array reads. The fix is
+# `if $i >= $self->count`, so `_index` stops at `count` and stays there.
+subtest 'iterator stops cleanly at count (off-by-one regression)' => sub {
+    my $coll = Collection->new( files => [qw/a b c/], raw => 1 );
+    my @items;
+    push @items, $_ while defined( $_ = $coll->next );
+    is_deeply \@items, [qw/a b c/], 'returns exactly the items, in order';
+    is $coll->_index, 3,
+      'index stops at count after exhaustion (not count+1 or beyond)';
+
+    # Calling next again should not advance the index further.
+    ok !defined $coll->next, 'extra next call returns undef';
+    is $coll->_index, 3, 'extra next call does not advance index';
 };
 
 # Test file path handling for non-.html files
