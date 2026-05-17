@@ -418,8 +418,8 @@ SQL
     }
 
     sub _assert_tt_config ($self) {
-        unless ( -f "$ENV{HOME}/.ttreerc" ) {
-            warn <<"END";
+        return if -f "$ENV{HOME}/.ttreerc";
+        croak( <<"END" );
 No $ENV{HOME}/.ttreerc file found
 
 It should have a structure like this:
@@ -432,15 +432,13 @@ It should have a structure like this:
     src  = ~/website/root
     dest  = ~/website
 
-    ignore = \b(CVS|RCS|sw[pot])\b
+    ignore = \\b(CVS|RCS|sw[pot])\\b
     ignore = ^#
     ignore = ^.git
 
     suffix tt=html
     suffix tt2markdown=html
 END
-            exit 1;
-        }
     }
 
     sub _execute_ttree ( $self, @args ) {
