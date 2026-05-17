@@ -195,11 +195,10 @@ package Ovid::Site {
             my $name     = config()->{tagmap}{$tag};
             my $file     = "root/tags/$tag.tt2markdown";
             my $template = <<~"END";
-            [% 
+            [%
                 title = 'Tags: $name';
                 type  = 'tags';
                 slug  = '$tag';
-                USE Ovid;
                 WRAPPER include/wrapper.tt blogdown=1;
                     INCLUDE include/tags.tt tag="$tag";
                 END;
