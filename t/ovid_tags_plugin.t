@@ -112,6 +112,79 @@ subtest 'files_for_tag croaks for unknown tag' => sub {
       'Should croak for unknown tag in files_for_tag';
 };
 
+# Regression test for [I4]: reading `$self->{tagmap}{$tag}{files}` used to
+# autovivify `$self->{tagmap}{$tag} = {}` as a side effect, even when the
+# call croaked. That left `has_articles_for_tag($tag)` returning true on
+# subsequent calls — symmetry broken, long-running processes accumulate
+# junk keys.
+subtest 'files_for_tag does not autovivify the tagmap on unknown tag' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+    my $unknown = 'nonexistent_tag_for_autoviv_test';
+
+    eval { $plugin->files_for_tag($unknown) };
+    ok $@, 'files_for_tag croaks for unknown tag';
+
+    ok !exists $plugin->{tagmap}{$unknown},
+      'tagmap should not gain an entry after the failed call';
+    ok !$plugin->has_articles_for_tag($unknown),
+      'has_articles_for_tag still returns false after the failed call';
+};
+
+# Regression test for [I5]: __ALL__ is a reserved key in tagmap.json that
+# stores the URL→tags reverse index. It must not be exposed via the
+# public tag-query API. `_tags` and `tags_by_weight` already filter it;
+# `has_articles_for_tag` and `files_for_tag` did not.
+subtest '__ALL__ is treated as a reserved key, not a queryable tag' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+
+    ok !$plugin->has_articles_for_tag('__ALL__'),
+      'has_articles_for_tag returns false for __ALL__';
+    throws_ok {
+        $plugin->files_for_tag('__ALL__');
+    }
+    qr/unknown tag/,
+      'files_for_tag treats __ALL__ as an unknown tag';
+};
+
+# Regression test for [I9]: `name_for_tag` used to read from
+# `config()->{tagmap}{$tag}` even though `_build_tags` stores the name
+# into tagmap.json. Two read paths for the same datum is a recipe for
+# drift; the in-memory tagmap is the source of truth for the plugin.
+subtest 'name_for_tag reads from loaded tagmap, not from config' => sub {
+    my $plugin = Template::Plugin::Ovid::Tags->new(undef);
+    my $tag    = ( $plugin->tags_by_weight )[0];
+
+    # Mutate just the loaded tagmap (not config).
+    $plugin->{tagmap}{$tag}{name} = 'MUTATED_NAME_FOR_TEST';
+    is $plugin->name_for_tag($tag), 'MUTATED_NAME_FOR_TEST',
+      'name_for_tag returns the in-memory tagmap value';
+};
+
+# Regression test for [I10]: the weight cache used `state $weight_for = {}`,
+# which lives for the lifetime of the Perl process and is shared across
+# every plugin instance. Long-running processes (live editor) saw stale
+# weights after content changes. Cache should be per-instance.
+subtest 'weight cache is per-instance, not shared across plugin instances' => sub {
+    my $plugin1 = Template::Plugin::Ovid::Tags->new(undef);
+    my $plugin2 = Template::Plugin::Ovid::Tags->new(undef);
+
+    my $tag = ( $plugin1->tags_by_weight )[0];
+
+    # Prime plugin1's cache.
+    $plugin1->weight_for_tag($tag);
+
+    # Mutate plugin2's view so its weight calc would now croak.
+    delete $plugin2->{tagmap}{$tag};
+
+    # If the cache is shared, plugin2 returns the cached value (no croak).
+    # If per-instance, plugin2 recomputes and croaks on the missing tag.
+    throws_ok {
+        $plugin2->weight_for_tag($tag);
+    }
+    qr/unknown tag/,
+      'plugin2 recomputes from its own data (no process-scoped cache leak)';
+};
+
 subtest 'division by zero protection exists' => sub {
     # This test verifies that the division by zero protection code exists
     # by reading the source and checking for the guard condition.

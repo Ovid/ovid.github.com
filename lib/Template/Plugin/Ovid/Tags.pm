@@ -40,9 +40,9 @@ sub _tags ($self) {
 sub weight_for_tag ( $self, $tag ) {
 
     # https://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value
-    state $weight_for = {};
     state $weight_max = 9;
     state $weight_min = 1;
+    my $weight_for = $self->{_weight_for} //= {};
     unless ( exists $weight_for->{$tag} ) {
         croak("Cannot find weight for unknown tag '$tag'")
           unless exists $self->{tagmap}{$tag};
@@ -67,23 +67,27 @@ sub weight_for_tag ( $self, $tag ) {
 }
 
 sub name_for_tag ( $self, $tag ) {
-    my $name = config()->{tagmap}{$tag}
-      or croak("Cannot find name for unknown tag '$tag'");
-    return $name;
+    croak("Cannot find name for unknown tag '$tag'")
+      unless exists $self->{tagmap}{$tag}
+      && exists $self->{tagmap}{$tag}{name};
+    return $self->{tagmap}{$tag}{name};
 }
 
 sub tags_for_url ( $self, $url ) {
+    return [] unless exists $self->{tagmap}{__ALL__};
     return $self->{tagmap}{__ALL__}{$url} // [];
 }
 
 sub has_articles_for_tag ( $self, $tag ) {
-    return exists $self->{tagmap}{$tag};
+    return $tag ne '__ALL__' && exists $self->{tagmap}{$tag};
 }
 
 sub files_for_tag ( $self, $tag ) {
-    my $files = $self->{tagmap}{$tag}{files}
-      or croak("Cannot find files for unknown tag '$tag'");
-    return Collection->new( files => $files );
+    croak("Cannot find files for unknown tag '$tag'")
+      if $tag eq '__ALL__'
+      || !exists $self->{tagmap}{$tag}
+      || !exists $self->{tagmap}{$tag}{files};
+    return Collection->new( files => $self->{tagmap}{$tag}{files} );
 }
 
 1;
@@ -116,7 +120,12 @@ Returns display weight for tag (1-9 scale) based on article count.
 
 =head2 C<name_for_tag($tag)>
 
-Returns display name for tag from config.
+Returns the display name for the tag from the loaded tagmap. Croaks
+when called for an unknown tag (one without a tagmap entry). The
+tagmap's C<name> field is populated by L<Ovid::Template::File> at
+build time from C<Less::Config>'s C<tagmap> mapping, so config remains
+the upstream source — but render-time lookups go through the in-memory
+tagmap to avoid drift between two read paths.
 
 =head2 C<tags_for_url($url)>
 
