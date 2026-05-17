@@ -83,9 +83,13 @@ Split by tier so each file pays its setup cost once.
   - `exists` (no-overwrite collision)
   - `invalid_type` (unsupported extension)
   - `invalid_image` (corrupt bytes with valid extension)
-  - `write_error` (Imager `write` failure — driven by writing to a
-    read-only target if reachable, otherwise via a synthetic input that
-    Imager refuses to re-encode in the chosen format)
+  - `write_error` — `Imager::write` returning false. This branch is
+    reachable in practice only via a targeted local mock: temporarily
+    replace `Imager::write` with `sub { 0 }` for one test (using
+    `local *Imager::write = sub { ... }`) and assert the error code,
+    message, and that no file was created. This is the one place in
+    `Util/Image.pm` where a real-Imager test isn't practical; the mock
+    is scoped to a single subtest.
   - `too_large` (synthetic image that won't compress under the limit even
     after 20 attempts)
 
