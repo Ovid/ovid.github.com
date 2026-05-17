@@ -1,0 +1,130 @@
+#!/usr/bin/env perl
+
+# Run-once helper that produces the image fixtures used by t/util_image.t.
+# Re-run this script if Imager output drifts and a fixture goes stale.
+# Fixtures live at t/fixtures/images/.
+#
+# Fixture calibration notes:
+#
+#   under_limit.png  — 32x32 solid-colour PNG, well under 300 KB.
+#                      Used by the copy-as-is (happy-path) branch.
+#
+#   over_limit.jpg   — 700x700 random-noise JPEG. At quality 80 it is
+#                      ~331 KB (> 300 KB); at quality 70 it is ~274 KB
+#                      (<= 300 KB). Forces process() through exactly one
+#                      quality-drop iteration before returning success.
+#
+#   incompressible.jpg — 500x500 random-noise JPEG (~170 KB at q=80).
+#                      Used to trigger the too_large branch by configuring
+#                      max_image_size_bytes = 500 in the test. After 20
+#                      iterations of quality-drop + 0.9x scale-down the
+#                      smallest possible output from this image is ~855 bytes
+#                      (at 57x57 pixels, q=60), so the 500-byte limit is
+#                      genuinely unreachable. The test MUST override
+#                      max_image_size_bytes via Less::Config mock; the default
+#                      300 KB limit would pass immediately because 170 KB < 300 KB.
+#                      Note: the 300 KB limit is not a hard physical barrier —
+#                      random-noise JPEGs are smoothed by repeated 0.9x
+#                      downscaling, so iterative compression always eventually
+#                      wins at 300 KB. A 500-byte floor is genuinely
+#                      unreachable for any JPEG output.
+#
+#   corrupt.jpg      — Non-image bytes with a .jpg extension. Forces the
+#                      invalid_image branch (Imager cannot parse the file).
+
+use v5.40;
+use Imager;
+use Imager::File::JPEG;
+use Imager::File::PNG;
+use Path::Tiny qw(path);
+
+my $out_dir = path('t/fixtures/images');
+$out_dir->mkpath;
+
+# under_limit.png — small PNG (well under 300 KB) used to exercise the
+# copy-as-is happy path.
+{
+    my $img = Imager->new( xsize => 32, ysize => 32, channels => 3 );
+    $img->box( filled => 1, color => 'red' );
+    $img->write( file => $out_dir->child('under_limit.png')->stringify )
+        or die "under_limit.png: " . $img->errstr;
+    say STDERR "under_limit.png: " . ( -s $out_dir->child('under_limit.png') ) . " bytes";
+}
+
+# over_limit.jpg — JPEG that's over 300 KB at quality 80 but fits at
+# quality 70. Forces process() through at least one quality-drop
+# iteration before returning success.
+#
+# Calibration: 700x700 random-noise produces ~331 KB at q=80, ~274 KB
+# at q=70. Re-run this script if the calibration drifts (Imager/libjpeg
+# version change).
+{
+    my $img = Imager->new( xsize => 700, ysize => 700, channels => 3 );
+    for my $y ( 0 .. $img->getheight - 1 ) {
+        for my $x ( 0 .. $img->getwidth - 1 ) {
+            $img->setpixel(
+                x     => $x,
+                y     => $y,
+                color => [ int rand 256, int rand 256, int rand 256 ],
+            );
+        }
+    }
+
+    # Verify the calibration before writing.
+    my $at_80;
+    $img->write( data => \$at_80, type => 'jpeg', jpegquality => 80 );
+    my $at_70;
+    $img->write( data => \$at_70, type => 'jpeg', jpegquality => 70 );
+    die "over_limit.jpg miscalibrated: q=80 is "
+        . length($at_80)
+        . " bytes (want > 300_000)"
+        unless length($at_80) > 300_000;
+    die "over_limit.jpg miscalibrated: q=70 is "
+        . length($at_70)
+        . " bytes (want <= 300_000)"
+        unless length($at_70) <= 300_000;
+
+    path( $out_dir->child('over_limit.jpg') )->spew_raw($at_80);
+    say STDERR sprintf "over_limit.jpg: %d bytes at q=80, %d bytes at q=70",
+        length($at_80), length($at_70);
+}
+
+# incompressible.jpg — JPEG calibrated so that process() cannot compress
+# it below max_image_size_bytes within 20 attempts, when the test
+# configures max_image_size_bytes = 500 (bytes).
+#
+# Physical reasoning: starting from 500x500, after 20 iterations of 0.9x
+# scale-down, the image shrinks to ~57x57 pixels. A 57x57 JPEG at quality
+# 60 is ~855 bytes — still above 500. So the 500-byte limit is genuinely
+# unreachable regardless of how many quality drops and scale-downs occur.
+#
+# The test MUST mock Less::Config to set max_image_size_bytes = 500.
+# Do NOT rely on the default 300 KB limit; this 500x500 image is ~170 KB
+# and would pass immediately without entering the compression loop.
+{
+    my $img = Imager->new( xsize => 500, ysize => 500, channels => 3 );
+    for my $y ( 0 .. $img->getheight - 1 ) {
+        for my $x ( 0 .. $img->getwidth - 1 ) {
+            $img->setpixel(
+                x     => $x,
+                y     => $y,
+                color => [ int rand 256, int rand 256, int rand 256 ],
+            );
+        }
+    }
+    my $data;
+    $img->write( data => \$data, type => 'jpeg', jpegquality => 80 )
+        or die "incompressible.jpg: " . $img->errstr;
+    path( $out_dir->child('incompressible.jpg') )->spew_raw($data);
+    say STDERR sprintf "incompressible.jpg: %d bytes (use max_image_size_bytes=500 in test)",
+        length($data);
+}
+
+# corrupt.jpg — bytes that look nothing like an image file but carry a
+# .jpg extension. Forces the `invalid_image` branch.
+{
+    $out_dir->child('corrupt.jpg')->spew_raw('not an image, just text bytes');
+    say STDERR "corrupt.jpg: " . ( -s $out_dir->child('corrupt.jpg') ) . " bytes";
+}
+
+say STDERR 'Done. Fixtures written to ', $out_dir->stringify;
