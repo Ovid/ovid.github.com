@@ -101,7 +101,7 @@ Overall Coverage         90.0%  93.3%  ✅     +3.3%  A
 
 2. **Build System**: `Makefile`
    - `make test` - Run test suite
-   - `make coverage` - Generate coverage reports
+   - `make cover` - Generate coverage reports
    - `make clean` - Remove coverage artifacts
    - `make help` - Display available targets
 
@@ -189,7 +189,7 @@ Makefile                           # Build automation
 
 ### Recommendations for Maintenance
 
-1. **Monitor Coverage**: Run `make coverage` weekly
+1. **Monitor Coverage**: Run `make cover` weekly
 2. **CI Integration**: Implement GitHub Actions workflow from ci-integration.md
 3. **Coverage Regression**: Alert if any module drops below 85%
 4. **New Code Standard**: Require 90%+ coverage for new modules

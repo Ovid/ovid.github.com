@@ -1,7 +1,7 @@
 package Template::Plugin::Config;
 use Less::Boilerplate;
 use Less::Config qw(config);
-use base qw (Template::Plugin);
+use base         qw (Template::Plugin);
 
 our $VERSION = 0.02;
 

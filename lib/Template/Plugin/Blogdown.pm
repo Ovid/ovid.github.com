@@ -8,12 +8,12 @@ our $VERSION = 0.02;
 sub init {
     my $self = shift;
     $self->{_DYNAMIC} = 1;
-    $self->install_filter($self->{_ARGS}->[0] || 'blogdown');
+    $self->install_filter( $self->{_ARGS}->[0] || 'blogdown' );
     $self;
 }
 
 sub filter {
-    my ($self, $text, $args, $config) = @_;
+    my ( $self, $text, $args, $config ) = @_;
     my $m = Text::Markdown::Blog->new;
     return $m->blogdown($text);
 }

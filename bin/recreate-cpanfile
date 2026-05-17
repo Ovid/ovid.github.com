@@ -30,12 +30,11 @@ my %needs_install = get_modules( [ keys $dependencies->%* ], \%local );
 write_cpanfile( \%needs_install );
 
 sub write_cpanfile($needs_install) {
-    my $max      = max map { length } keys $needs_install->%*;
+    my $max      = max map {length} keys $needs_install->%*;
     my $requires = '';
     foreach my $module ( sort keys $needs_install->%* ) {
         my $padding = ' ' x ( ( $max + 2 ) - length $module );
-        $requires .=
-          "requires '$module'$padding=> $needs_install->{$module};\n";
+        $requires .= "requires '$module'$padding=> $needs_install->{$module};\n";
     }
     my $now      = localtime;
     my $cpanfile = <<~"CPANFILE";
@@ -60,12 +59,18 @@ sub write_cpanfile($needs_install) {
 
 sub get_modules ( $filenames, $is_local ) {
 
-    # the following are not detected, so we force them
+    # the following are not detected, so we force them.
+    # Devel::Cover and Perl::Tidy are invoked as binaries by the Makefile
+    # (`make cover`, `make format`) rather than `use`d, so scan_deps misses
+    # them. Without these, a clean checkout cannot run `make all`.
     my %modules = (
-        'YAML::LibYAML'         => 0.83,
-        'HTML::SimpleLinkExtor' => 1.273,
-        'App::HTTPThis'         => 0,
-        'App::Sqitch'           => 1,
+        'YAML::LibYAML'           => 0.83,
+        'HTML::SimpleLinkExtor'   => 1.273,
+        'App::HTTPThis'           => 0,
+        'App::Sqitch'             => 1,
+        'Perl::Critic::Community' => 'v1.0.4',
+        'Devel::Cover'            => 1.44,
+        'Perl::Tidy'              => 20250912,
     );
     my $current = 1;
     my $total   = @$filenames;
@@ -104,8 +109,8 @@ sub guess_distribution ($module) {
 
 sub filename_to_module ( $filename, $prefix = '' ) {
     return unless $filename =~ s/\.pm$//;
-    $filename =~ s/^\Q$prefix//;
-    $filename =~ s{/}{::}g;
+    $filename               =~ s/^\Q$prefix//;
+    $filename               =~ s{/}{::}g;
     return $filename;
 }
 

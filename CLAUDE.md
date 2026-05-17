@@ -17,15 +17,17 @@ This is a personal static website built with Perl and Template Toolkit. Content 
 
 ### Environment Setup
 ```bash
-# CRITICAL: Run this in every new terminal session
-source ~/.bash_profile  # Activates perlbrew and Perl 5.40+
+# Verify Perl version (should be 5.40 or higher via perlbrew)
+perl -v
 
-# Verify correct Perl version
-perl -v  # Should show 5.40 or higher
+# If perl resolves to the system Perl, activate perlbrew first:
+source ~/.bash_profile
 
 # Install all dependencies
 cpanm --installdeps . --with-configure --with-develop --with-all-features
 ```
+
+**Note for Claude Code sessions:** `BASH_ENV` is set in `~/.claude/settings.json` to source `~/.bash_profile` automatically, so non-interactive bash shells already have perlbrew activated. Individual commands do not need to prefix `source ~/.bash_profile`.
 
 ### Building the Site
 ```bash
@@ -66,7 +68,7 @@ prove -rl t/
 prove -lv t/blogdown.t
 
 # Generate coverage report
-make coverage
+make cover
 # or
 cover -test
 cover -report html -outputdir coverage-report
@@ -376,7 +378,7 @@ perl bin/launch root/articles/my-article.tt
 
 ## Tips for Working with This Codebase
 
-- **Always activate perlbrew first**: `source ~/.bash_profile`
+- **Perlbrew activation**: In a normal shell, run `source ~/.bash_profile` if needed. Claude Code sessions get this automatically via `BASH_ENV` (see Environment Setup).
 - **Read before modifying**: Never propose changes to code you haven't read
 - **Test incrementally**: Run tests for modules as you modify them
 - **Respect the build order**: Some `Ovid::Site` methods must run in sequence

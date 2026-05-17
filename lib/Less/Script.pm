@@ -58,8 +58,7 @@ utility functions for file I/O, slug generation, and database access.
 =cut
 
 sub article_type ($type) {
-    my $article_type =
-      dbh()->selectall_arrayref( <<'SQL', { Slice => {} }, $type )->[0];
+    my $article_type = dbh()->selectall_arrayref( <<'SQL', { Slice => {} }, $type )->[0];
     SELECT name, type, directory
       FROM article_types
      WHERE type = ?

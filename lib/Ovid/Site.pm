@@ -159,7 +159,7 @@ package Ovid::Site {
         my $name = basename($file);
 
         if ( $dir !~ /static/ && !$is_tt_file ) {
-            next FILE;
+            return;
         }
 
         # make sure we have our destination directory
@@ -180,8 +180,7 @@ package Ovid::Site {
         else {
             my $parser = Ovid::Template::File->new( filename => $file );
 
-            my $contents = $parser->rewrite( $destfile, $tagmap )
-              if $is_tt_file;
+            my $contents = $parser->rewrite( $destfile, $tagmap );
 
             splat( $destfile, $contents );
         }
@@ -196,11 +195,10 @@ package Ovid::Site {
             my $name     = config()->{tagmap}{$tag};
             my $file     = "root/tags/$tag.tt2markdown";
             my $template = <<~"END";
-            [% 
+            [%
                 title = 'Tags: $name';
                 type  = 'tags';
                 slug  = '$tag';
-                USE Ovid;
                 WRAPPER include/wrapper.tt blogdown=1;
                     INCLUDE include/tags.tt tag="$tag";
                 END;

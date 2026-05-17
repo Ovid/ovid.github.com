@@ -18,8 +18,7 @@ print build_sql_statements( \%args );
 sub build_sql_statements {
     my $arg_for = shift @_;
 
-    my ( $begin_fk, $fk_check, $end_fk ) =
-      ( "-- foreign keys were not enabled for $arg_for->{database}", '', '', );
+    my ( $begin_fk, $fk_check, $end_fk ) = ( "-- foreign keys were not enabled for $arg_for->{database}", '', '', );
     if ( $arg_for->{foreign_keys} ) {
         $begin_fk = 'PRAGMA foreign_keys = OFF;';
         $fk_check = 'PRAGMA foreign_key_check;';
@@ -37,7 +36,7 @@ sub build_sql_statements {
     my $create_new = $create;
     $create_new =~ s/\bCREATE\s+TABLE\s+$table\b/CREATE TABLE $new_table/is;
 
-    my $filename = splat( ".mode insert $new_table", "SELECT * FROM $table;" );
+    my $filename             = splat( ".mode insert $new_table", "SELECT * FROM $table;" );
     my $copy_old_data_to_new = `$sqlite3 $db --init $filename '.q' 2>/dev/null`;
 
     return <<"SQL";
@@ -92,18 +91,14 @@ sub validate_arguments {
     }
 
     unless ( table_exists($arg_for) ) {
-        croak(
-"Table '$arg_for->{table}' not found in database '$arg_for->{database}'"
-        );
+        croak("Table '$arg_for->{table}' not found in database '$arg_for->{database}'");
     }
 }
 
 sub table_exists {
     my $arg_for = shift @_;
-    my $sql =
-"SELECT name FROM sqlite_master WHERE type='table' AND name='$arg_for->{table}';";
-    my $output =
-      `$arg_for->{sqlite3} --line $arg_for->{database} "$sql" 2>/dev/null`;
+    my $sql     = "SELECT name FROM sqlite_master WHERE type='table' AND name='$arg_for->{table}';";
+    my $output  = `$arg_for->{sqlite3} --line $arg_for->{database} "$sql" 2>/dev/null`;
     foreach my $line ( split /\n/, $output ) {
         return 1 if $line =~ /^\s*name = $arg_for->{table}\s*$/;
     }
@@ -112,15 +107,12 @@ sub table_exists {
 
 sub uses_foreign_keys {
     my $arg_for = shift @_;
-    my $output =
-`$arg_for->{sqlite3} --line $arg_for->{database} 'pragma foreign_keys' 2>/dev/null`;
+    my $output  = `$arg_for->{sqlite3} --line $arg_for->{database} 'pragma foreign_keys' 2>/dev/null`;
     foreach my $line ( split /\n/, $output ) {
         next unless $line =~ /^foreign_keys = (\d)$/;
         return $1;
     }
-    carp(
-"Could not determine if $arg_for->{database} uses foreign keys, so we assume it doesn't."
-    );
+    carp("Could not determine if $arg_for->{database} uses foreign keys, so we assume it doesn't.");
     return 0;
 }
 
@@ -128,7 +120,7 @@ sub splat {
     my $text = join "\n", @_;
     my ( $fh, $filename ) = tempfile();
     print $fh $text || croak "Could not print to $filename: $!";
-    close $fh || croak "Could not close $filename: $!";
+    close $fh       || croak "Could not close $filename: $!";
     return $filename;
 }
 

@@ -1,7 +1,7 @@
-[% USE Ovid %]
-[% IF Ovid.has_articles_for_tag(tag) %]
+[% USE tag_plugin = Ovid.Tags %]
+[% IF tag_plugin.has_articles_for_tag(tag) %]
 <ul>
-    [% collection = Ovid.files_for_tag(tag) %]
+    [% collection = tag_plugin.files_for_tag(tag) %]
     [% WHILE ( file = collection.next ) %]
   <li><a href="/[% file.references %]">[% file.title -%]</a> <time>[% file.date %]</time></li>
     [%- END -%]

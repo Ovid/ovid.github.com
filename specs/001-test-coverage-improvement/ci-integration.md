@@ -158,7 +158,7 @@ cover -report codecov
 
 ```bash
 # Generate HTML report
-make coverage
+make cover
 
 # Copy to web-accessible location
 rsync -av coverage-report/ /var/www/coverage/
@@ -170,7 +170,7 @@ rsync -av coverage-report/ /var/www/coverage/
 
 ```bash
 # Generate coverage report
-make coverage
+make cover
 
 # Check for coverage regressions
 cover -report text | grep "Total" | awk '{print $8}'
@@ -248,7 +248,7 @@ The project includes these coverage-related make targets:
 
 ```bash
 make test       # Run all tests
-make coverage   # Generate full coverage report
+make cover      # Generate full coverage report
 make clean      # Remove coverage artifacts
 ```
 
@@ -277,7 +277,7 @@ cover -test
 ```bash
 # Clean and regenerate
 make clean
-make coverage
+make cover
 ```
 
 ## References

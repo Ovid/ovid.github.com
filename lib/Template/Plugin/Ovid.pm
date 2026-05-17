@@ -39,17 +39,17 @@ sub cite ( $self, $path, $name ) {
 sub add_note ( $self, $note ) {
     my $number = $self->{footnote_number}++;
     my $id     = "note-$number";
-    
+
     # JavaScript-enabled mode: span that triggers dialog
     # Hidden when JS is disabled via CSS (see static/css/dialog.css)
     my $dialog
       = qq{<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
-    
+
     # NoScript mode: anchor link to footnote at end of article (Feature 002)
     # Shows superscript number instead of icon for better UX
     my $noscript
       = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"><sup>[$number]</sup></a></noscript>};
-    
+
     my $body = <<"HTML";
     <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number" aria-hidden="true">
         <strong id="$id">Footnotes</strong>
@@ -61,17 +61,18 @@ HTML
 
     # the footnotes are read and displayed in the template footer
     # 'content' field added for noscript rendering (Feature 002)
-    push $self->{footnotes}->@* => { 
-        number  => $number, 
+    push $self->{footnotes}->@* => {
+        number  => $number,
         body    => $body,
         content => $note,
     };
-    
+
     # Return both JavaScript dialog trigger and noscript anchor link
     return $dialog . $noscript;
 }
 
 sub collapse ( $self, $short_description, $full_content ) {
+
     # Parameter validation (T013)
     if ( !defined($short_description) || $short_description !~ /\S/ ) {
         croak("collapse() requires short_description parameter");
@@ -86,7 +87,7 @@ sub collapse ( $self, $short_description, $full_content ) {
     my $content_id = "collapsible-content-$number";
 
     # Process full_content through blogdown (for Phase 5/US3)
-    my $blogdown = Template::Plugin::Blogdown->new( $self->{_CONTEXT} );
+    my $blogdown          = Template::Plugin::Blogdown->new( $self->{_CONTEXT} );
     my $processed_content = $blogdown->filter($full_content);
 
     # Build HTML structure with ARIA attributes (T016, T017, T018)
@@ -134,6 +135,7 @@ HTML
 }
 
 sub describe_image( $self, $image ) {
+
     # OpenAI costs money, so let's see if we have an image description. If we
     # do, just return that. Otherwise, get it from OpenAI and cache it.
     $image = path($image);
