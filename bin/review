@@ -137,7 +137,7 @@ post '/api/launch-editor' => sub {
     # when TESTING is set), which redirects the exec target to that
     # command — typically `perl -e 'exit 0'` for a clean immediate
     # exit.
-    my $launch_cmd     = $ENV{OVID_REVIEW_TEST_LAUNCH_CMD};
+    my $launch_cmd     = $ENV{TESTING} && $ENV{OVID_REVIEW_TEST_LAUNCH_CMD};
     my $skip_fork      = $ENV{PLACK_TEST_EXTERNALSERVER_URI}
                        || ( $ENV{TESTING} && !$launch_cmd );
 
