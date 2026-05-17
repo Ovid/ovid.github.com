@@ -70,8 +70,8 @@ prove -lv t/blogdown.t
 # Generate coverage report
 make cover
 # or
-cover -test
-cover -report html -outputdir coverage-report
+cover -test +ignore_re '^t/'
+cover -report html -outputdir coverage-report +ignore_re '^t/'
 
 # Clean coverage data
 make clean
