@@ -47,7 +47,7 @@ $out_dir->mkpath;
     my $img = Imager->new( xsize => 32, ysize => 32, channels => 3 );
     $img->box( filled => 1, color => 'red' );
     $img->write( file => $out_dir->child('under_limit.png')->stringify )
-        or die "under_limit.png: " . $img->errstr;
+      or die "under_limit.png: " . $img->errstr;
     say STDERR "under_limit.png: " . ( -s $out_dir->child('under_limit.png') ) . " bytes";
 }
 
@@ -75,18 +75,14 @@ $out_dir->mkpath;
     $img->write( data => \$at_80, type => 'jpeg', jpegquality => 80 );
     my $at_70;
     $img->write( data => \$at_70, type => 'jpeg', jpegquality => 70 );
-    die "over_limit.jpg miscalibrated: q=80 is "
-        . length($at_80)
-        . " bytes (want > 300_000)"
-        unless length($at_80) > 300_000;
-    die "over_limit.jpg miscalibrated: q=70 is "
-        . length($at_70)
-        . " bytes (want <= 300_000)"
-        unless length($at_70) <= 300_000;
+    die "over_limit.jpg miscalibrated: q=80 is " . length($at_80) . " bytes (want > 300_000)"
+      unless length($at_80) > 300_000;
+    die "over_limit.jpg miscalibrated: q=70 is " . length($at_70) . " bytes (want <= 300_000)"
+      unless length($at_70) <= 300_000;
 
     path( $out_dir->child('over_limit.jpg') )->spew_raw($at_80);
     say STDERR sprintf "over_limit.jpg: %d bytes at q=80, %d bytes at q=70",
-        length($at_80), length($at_70);
+      length($at_80), length($at_70);
 }
 
 # incompressible.jpg — JPEG calibrated so that process() cannot compress
@@ -114,10 +110,10 @@ $out_dir->mkpath;
     }
     my $data;
     $img->write( data => \$data, type => 'jpeg', jpegquality => 80 )
-        or die "incompressible.jpg: " . $img->errstr;
+      or die "incompressible.jpg: " . $img->errstr;
     path( $out_dir->child('incompressible.jpg') )->spew_raw($data);
     say STDERR sprintf "incompressible.jpg: %d bytes (use max_image_size_bytes=500 in test)",
-        length($data);
+      length($data);
 }
 
 # corrupt.jpg — bytes that look nothing like an image file but carry a
