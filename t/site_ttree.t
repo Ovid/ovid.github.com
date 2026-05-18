@@ -5,8 +5,9 @@ use lib 'lib';
 use lib 't/lib';
 use Less::Boilerplate;
 use Test2::Plugin::UTF8;
-use Path::Tiny qw(path);
-use Cwd        qw(getcwd);
+use Path::Tiny   qw(path);
+use Cwd          qw(getcwd);
+use Capture::Tiny qw(capture);
 use Ovid::Site;
 
 my $cwd = getcwd();
@@ -55,7 +56,9 @@ subtest '_run_ttree renders sample.tt through wrapper.tt' => sub {
             = path('t/fixtures/ttree/.ttreerc')->absolute($cwd)->stringify;
 
         my $site = Ovid::Site->new;
-        lives_ok { $site->_run_ttree } '_run_ttree completes without dying';
+        # Wrap in capture() so the "Rebuilding pages..." diagnostic from
+        # _run_ttree doesn't leak into the test output.
+        lives_ok { capture { $site->_run_ttree } } '_run_ttree completes without dying';
 
         my $out = $tempdir->child('sample.html');
         ok -e $out, 'sample.html generated';
@@ -80,7 +83,9 @@ subtest '_run_ttree_single renders one file' => sub {
             = path('t/fixtures/ttree/.ttreerc')->absolute($cwd)->stringify;
 
         my $site = Ovid::Site->new;
-        lives_ok { $site->_run_ttree_single('tmp/sample.tt') }
+        # Wrap in capture() so the verbose "Running ttree in-process..."
+        # diagnostic from _execute_ttree doesn't leak into the test output.
+        lives_ok { capture { $site->_run_ttree_single('tmp/sample.tt') } }
             '_run_ttree_single completes without dying';
 
         ok -e $tempdir->child('sample.html'), 'sample.html generated';

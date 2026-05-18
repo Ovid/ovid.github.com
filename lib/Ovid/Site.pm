@@ -551,8 +551,14 @@ END
         # Try to get the last commit date for the file
         my $git_date;
         eval {
-            $git_date = IPC::System::Simple::capture( 'git', 'log', '-1', '--format=%ai', $file );
-            chomp($git_date);
+            # Wrap in capture() to swallow git's stderr ("fatal: not a git
+            # repository", "outside repository", etc.) on the fallback path —
+            # IPC::System::Simple::capture only grabs stdout, so without this
+            # those messages would leak to the terminal during test runs.
+            capture {
+                $git_date = IPC::System::Simple::capture( 'git', 'log', '-1', '--format=%ai', '--', $file );
+            };
+            chomp($git_date) if defined $git_date;
         };
 
         if ( $@ || !$git_date ) {
