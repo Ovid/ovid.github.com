@@ -191,7 +191,7 @@ subtest 'division by zero protection exists' => sub {
     # We can't easily test it in isolation due to state variables,
     # but we can verify the code is present.
 
-    my $source_file = '/Users/ovid/website/lib/Template/Plugin/Ovid/Tags.pm';
+    my $source_file = 'lib/Template/Plugin/Ovid/Tags.pm';
     open my $fh, '<', $source_file or die "Cannot read $source_file: $!";
     my $source = do { local $/; <$fh> };
     close $fh;

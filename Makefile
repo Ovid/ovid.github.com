@@ -14,8 +14,8 @@ release: ## Run a release build with search index (needs tinysearch + wasm-pack)
 	perl bin/rebuild --release --notest
 
 cover: ## Generate HTML coverage report (one-shot)
-	cover -test
-	cover -report html -outputdir coverage-report
+	cover -test +ignore_re '^t/'
+	cover -report html -outputdir coverage-report +ignore_re '^t/'
 
 lint: ## Run perlcritic on lib/ and bin/
 	perlcritic lib bin

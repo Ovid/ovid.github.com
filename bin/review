@@ -131,9 +131,17 @@ post '/api/launch-editor' => sub {
         return to_json( { error => 'File is not under root/' } );
     }
 
-    # Launch editor in background (fire-and-forget)
-    # Skip actual launch during tests to avoid side effects
-    unless ( $ENV{PLACK_TEST_EXTERNALSERVER_URI} || $ENV{TESTING} ) {
+    # Decide whether to fork. Default test runs ($ENV{TESTING}) skip
+    # the fork entirely. A test that wants to exercise the fork path
+    # can opt in via $ENV{OVID_REVIEW_TEST_LAUNCH_CMD} (only honored
+    # when TESTING is set), which redirects the exec target to that
+    # command — typically `perl -e 'exit 0'` for a clean immediate
+    # exit.
+    my $launch_cmd = $ENV{TESTING} && $ENV{OVID_REVIEW_TEST_LAUNCH_CMD};
+    my $skip_fork  = $ENV{PLACK_TEST_EXTERNALSERVER_URI}
+      || ( $ENV{TESTING} && !$launch_cmd );
+
+    unless ($skip_fork) {
 
         # Replace any previous editor we spawned. Targeted kill avoids
         # racing concurrent /api/launch-editor calls that each pkill
@@ -150,7 +158,12 @@ post '/api/launch-editor' => sub {
             # Redirect output to log file for debugging
             open STDOUT, '>>', 'bin_launch.log' or die "Can't open log: $!";
             open STDERR, '>&', \*STDOUT         or die "Can't dup STDOUT: $!";
-            exec( 'perl', 'bin/launch', $actual_file );
+            if ($launch_cmd) {
+                exec( $launch_cmd, '-e', 'exit 0' );
+            }
+            else {
+                exec( 'perl', 'bin/launch', $actual_file );
+            }
             exit 1;    # Should never reach here
         }
         else {

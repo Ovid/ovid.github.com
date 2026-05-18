@@ -19,8 +19,13 @@ our @EXPORT = qw(
   trim
 );
 
-sub import ( $class, %arg_for ) {
-    $class->export_to_level(1);
+sub import ( $class, @exports ) {
+    if (@exports) {
+        $class->export_to_level( 1, $class, @exports );
+    }
+    else {
+        $class->export_to_level(1);
+    }
     Less::Boilerplate->import::into(1);
     Getopt::Long->import::into(1);
 }

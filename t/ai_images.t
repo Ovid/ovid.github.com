@@ -2,6 +2,13 @@
 
 use Test::Most;
 use lib 'lib';
+
+# OpenAPI::Client::OpenAI's constructor dies if OPENAI_API_KEY is unset,
+# and Ovid::Site::AI::Images instantiates that client at object construction
+# (Moo `default` fires eagerly), so even the static "does the object exist"
+# assertions can't run without the env var.
+plan skip_all => 'OPENAI_API_KEY not set' unless $ENV{OPENAI_API_KEY};
+
 use Test::MockModule;
 use Path::Tiny qw(path);
 use File::Temp qw(tempdir tempfile);

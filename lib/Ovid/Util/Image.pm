@@ -113,7 +113,7 @@ sub process ( $class, %args ) {
         }
 
         $img->write(%write_args) or do {
-            return { success => 0, code => 'write_error', error => 'Failed to process image: ' . $img->errstr };
+            return { success => 0, code => 'write_error', error => 'Failed to process image: ' . ( $img->errstr // 'unknown error' ) };
         };
 
         if ( length($out_data) <= $max_bytes ) {

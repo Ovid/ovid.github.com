@@ -178,4 +178,97 @@ subtest 'static handler still serves legitimate site content' => sub {
     };
 };
 
+subtest 'launch-editor honors OVID_REVIEW_TEST_LAUNCH_CMD for fork path' => sub {
+    # When TESTING is set without the knob, the fork is skipped. With
+    # the knob set, exercise the fork/dup/exec path + _terminate_previous_editor
+    # against a benign command (`perl -e 'exit 0'`) instead of bin/launch.
+    local $ENV{OVID_REVIEW_TEST_LAUNCH_CMD} = $^X;
+
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        # First call: spawns child A.
+        my $res = $cb->(
+            POST '/api/launch-editor',
+            Content_Type => 'application/json',
+            Content      => '{"file":"root/404.tt"}'
+        );
+        ok $res->is_success, 'first fork-path request succeeds';
+
+        # Second call: terminates child A and spawns child B.
+        # Exercises _terminate_previous_editor.
+        $res = $cb->(
+            POST '/api/launch-editor',
+            Content_Type => 'application/json',
+            Content      => '{"file":"root/404.tt"}'
+        );
+        ok $res->is_success, 'second fork-path request succeeds';
+    };
+
+    # Reap any child the fork left behind.
+    1 while waitpid( -1, 1 ) > 0;
+};
+
+subtest 'static handler serves binary asset (Delayed path)' => sub {
+    # The `after` hook short-circuits when the response is
+    # Dancer2::Core::Response::Delayed (returned by send_file). Hit
+    # that branch by requesting a non-HTML static asset that exists.
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        # Use a static file that's likely to exist in this repo.
+        for my $candidate (
+            'static/favicon.ico',
+            'static/css/main.css',
+            'static/js/codemirror/codemirror.js',
+          )
+        {
+            next unless -e $candidate;
+            my $res = $cb->( GET "/$candidate" );
+            is $res->code, 200, "served $candidate as binary";
+            last;
+        }
+    };
+};
+
+subtest 'after hook does not inject when content-type is not text/html' => sub {
+    test_psgi $app => sub {
+        my $cb = shift;
+        for my $candidate ( 'static/favicon.ico', 'static/css/main.css' ) {
+            next unless -e $candidate;
+            my $res = $cb->( GET "/$candidate" );
+            unlike $res->content, qr/window\.DEV_MODE/,
+                "dev-tools script not injected into $candidate";
+            last;
+        }
+    };
+};
+
+subtest 'static handler rejects symlinks pointing outside project root' => sub {
+    # Create a symlink inside the project that points to a file
+    # outside the project (e.g. /etc/hosts). The handler's realpath
+    # check should reject it.
+    my $tmplink = path('static/symlink-test.txt');
+    return if $tmplink->exists;    # don't clobber
+
+    # Find a safe target outside the project root that's readable.
+    my $target;
+    for my $candidate ('/etc/hostname', '/etc/hosts') {
+        $target = $candidate if -r $candidate;
+        last if $target;
+    }
+    return unless $target;
+
+    eval { symlink $target, "$tmplink" or die "symlink failed: $!" };
+    return if $@;
+
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/static/symlink-test.txt' );
+        isnt $res->code, 200, 'symlink outside project root is rejected';
+    };
+
+    unlink "$tmplink";
+};
+
 done_testing;
