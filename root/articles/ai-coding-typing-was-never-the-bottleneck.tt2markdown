@@ -1,0 +1,167 @@
+[%
+    title            = 'AI Coding: Typing Was Never the Bottleneck';
+    type             = 'articles';
+    slug             = 'ai-coding-typing-was-never-the-bottleneck';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-05-19';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai programming}}
+
+# How I Wrote This Article
+
+As part of my many AI experiments, I've experimented with having AI write for
+me. It's usually ended poorly. This time, it did not. In fact, by the time you
+finish, you'll see why allowing AI to write most of this was actually the
+perfect choice to reinforce the core point: typing is not the bottleneck.
+
+The bulk of the _typing_ for this article is from Anthropic's Opus 4.7 model. It
+seems appropriate given the context of this piece. However, the Opus "typing"
+out this article wasn't the hard part.  The hard part was hours of playing
+around with ideas, shaping and reshaping them, pushing back on the narrative,
+trying different LLMs to see what they would make of this content, and finally
+settling on a draft from Opus 4.7. **A draft.** That's key. Er, or as an AI is
+wont to say, that's "load bearing."
+
+Then the "code review" came in. I carefully went through this line-by-line.
+It's solid. It says what I want it to say. It says it differently from how I
+would say it, but it does so in a more structured, coherent way than I sometimes
+do.
+
+And, thanks to Claude's [memory
+tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool),
+it not only pulled up relevant information from past conversations, making this
+much easier to write, but it also hallucinated bits that, while not
+fundamentally changing the structure, subtly weakened the argument. That's where
+most of my editing time went. It was me, using my judgment, using my experience,
+which let me say, "this is good enough for production."[% Ovid.note("I've since
+corrected the memory, so hopefully this won't happen again.") %]
+
+So without further ado, here's what Claude has to say, with some heavy editing from me.
+
+# The Bottleneck Was Never Typing
+
+There is a question the industry would like you to argue about, and a better question underneath it.
+
+The question on offer is: *will AI replace developers?* It is a good question for selling things. Vendors selling AI tools want you to say yes. Vendors selling reassurance want you to say no. Executives looking for headcount cover want you to say yes loudly enough that nobody asks follow-up questions. Almost everyone with a financial position is rooting for one answer or the other, which is usually a sign that the question is the wrong one.
+
+The better question is: *what was actually the bottleneck in software development, and does making non-bottlenecks faster help?*
+
+I have been thinking about this for the last year, partly because I now spend my
+working hours trying to help a couple hundred developers use AI well, and partly
+because I ran a private experiment that disproved one of my core beliefs.
+
+## I was wrong about something specific
+
+About a year ago I decided to find out whether AI-assisted programming could produce production-quality code without me reading any of it. I expected the answer to be no. I expected to fail in ways that taught me something useful, because even a spectacular failure would be educational for the work I was doing with other developers.
+
+It wasn't a failure. On greenfield codebases up to roughly eighty thousand
+lines, with enough discipline, the goal turned out to be achievable. I have
+written about this elsewhere ([Why I Am No Longer Reading the AI's
+Code](/articles/why-i-am-no-longer-reading-the-ais-code.html)), and I am not
+going to relitigate it here. What matters for this article is what the result
+implies.
+
+If you had asked me two years ago whether I would be writing this paragraph, I would have told you no. So when I argue, below, that AI is not going to replace developers any time soon, please understand that I am not arguing it because I think AI is bad at writing code. I am arguing it because I think writing code was never the hard part.
+
+> Side note: In a professional environment, I do _not_ recommend doing what I
+did.  **READ YOUR CODE**.  Sure, for your personal work, have fun. For
+professional work, the idea is idiotic. I failed many, many times, and there are
+plenty of cases where the developer simply has to roll up their sleeves and open
+their editor. Pushing ideas to their extremes to see where they break isn't a
+good idea when you're building a regulatory system, or medical software, or, or,
+or ...
+
+## What actually happened when typing got cheap
+
+The experiment started working not because the AI got smart enough to write
+code on its own (though November 2025 was a huge step forward). It started
+working because every time it failed, I asked myself one question: why? When I
+figured out the way, I asked myself a follow-up question: how would I, as a
+human, fix this? Then I wrote that down and gave it to the AI.
+
+I built layers of process around the AI to catch the ways its output went
+wrong: a pushback layer to interrogate the spec, an alignment layer to verify
+the tasks matched the spec, a agentic PR review to catch where the AI failed,
+and an agentic architecture review layer to catch structural drift. And I wrote
+more tools. If "English is the new programming language," these tools are the
+code review. I built plenty of tools, for plenty of problems.
+
+I was ... coding.
+
+I call the result [PAAD](https://github.com/Ovid/paad) (pronounced "pad"), and
+the acronym is just the multiple failure modes I had to address before the
+experiment stopped failing.
+
+Each of those tools exists because making code generation fast made some other
+stage of the work harder, not easier. Pushback exists because when typing is
+cheap, the cost of a vague spec multiplies — the AI happily generates ten
+thousand lines around a misunderstanding it should have flagged. Alignment
+exists because the AI never builds exactly what you ask for and those subtle
+gaps compound over time.  Architecture review exists because the AI does not
+feel the long-term weight of structural decisions, so somebody has to.
+Discipline is required, because human judgment is required. No AI can replace
+that at this time.[% Ovid.note("An earlier draft referred to 'degradation'
+instead of 'discipline' because the 'D' in PAAD originally stood for
+degradation.") %]
+
+In other words: when I made the cheap stage of software development much cheaper, the expensive stages got more expensive in aggregate. The work did not disappear. It migrated.
+
+This is not a complaint. It is the shape of what happened.
+
+## The bottleneck was never typing
+
+The "AI replaces developers" narrative depends on a hidden assumption: that code production is the bottleneck. Make code production fast and cheap, the argument goes, and the demand for developers falls. The flaw is that code production is not the bottleneck. Judgment is. Integration is. Understanding what the system actually needed to do, in what order, with what tradeoffs, given which constraints — that is the bottleneck.
+
+Making typing free does not help when the bottleneck is somewhere else. It can actively hurt, because more code flowing through the pipeline means more code arriving at the expensive stages: review, integration, deployment, incident response. Productivity metrics that show big AI gains almost always measure stage one and ignore the rest. That is not a measurement of productivity. It is a measurement of where the work *used* to be.
+
+A real example, the kind I keep thinking about: a system I worked on had heavy database load. About half a million lines of backend code, no realistic prospect of a rewrite. I noticed that a large share of queries were fetching data that could not change between application restarts. So I built a transparent layer around the ORM that served static queries from cache and let everything else hit the database. Minimal blast radius. One conditional in one place.
+
+A reviewer pushed back. He said the code was complicated. He was right; it was. He then said the cached version was, in some benchmarks, slower than the raw database read. He was right about that too.
+
+He was wrong about what those two facts implied. The complexity was contained and the slowness was real but irrelevant, because database servers were hard to scale and application servers were trivial to scale. The right metric was not request latency. It was system throughput under load, given the cost structure of the infrastructure we actually had. Moving CPU work from the bottleneck tier to the scalable tier was the entire point.
+
+I do not tell this story to argue that humans are smart and AI is dumb. The reviewer was a good engineer and he got it wrong. I tell it because the relevant information for that decision was not in the code. It was in the infrastructure topology, the organization's scaling constraints, and the cost model of the cloud provider (Google, if you're wondering). A sufficiently instrumented AI agent with access to all of that *might*, in principle, make this call. But the tooling to give an AI that context does not exist in any production environment I have seen, and the people most loudly claiming AI will replace this work are not the people building that tooling.
+
+This kind of decision — cross-layer reasoning, under constraints that are not local to the code, where the most defensible local answer is the wrong global answer — is not rare. It is most of senior engineering. And it is precisely the work that gets harder, not easier, when there is more code flowing through the system faster.
+
+## Whose interests does the replacement narrative serve?
+
+I want to be careful here, because cynicism is cheap and I am not interested in cheap cynicism. Most of the people promoting the "AI replaces developers" narrative believe it sincerely. That is part of what makes the narrative effective. You do not need a conspiracy when incentives are aligned.
+
+But the incentives are worth naming. AI vendors benefit from the narrative whether or not it is true, because the implied capability is what justifies the spend. Executives under pressure to reduce headcount benefit from a story that frames the reduction as inevitable technological progress rather than a choice. Consultants selling AI transformation benefit from the urgency. None of these people is necessarily acting in bad faith. They are reading the same evidence everyone else is, and the evidence happens to confirm what is useful for them to believe.
+
+The people whose interests the narrative does not serve are the developers themselves, and — more importantly — the organizations that will discover, two or three years from now, that they cut the people who actually understood their systems and now have nobody to ask why production is on fire. We've already seen so many examples published that there's no point in me linking them here.
+
+There is a particular risk worth naming directly. The pipeline from junior to senior developer historically runs through doing the work that AI is now doing. Writing the boilerplate. Reading the codebase. Fixing the small bugs. Reviewing other people's code in low-stakes settings. If we automate the apprenticeship, we are not just losing junior jobs in the short term. We are starving the supply of seniors in the long term. The seniors who will be most valuable in five years are the people writing code in anger today. If we stop them from doing that, we will be very surprised in five years.
+
+## What this actually means for the work
+
+I am not arguing that the work does not change. It changes a lot. The developers who are most valuable now are the ones who can frame problems, hold context across layers, recognize when a confident output is wrong, and exercise calibrated dissent against tools and reviewers who are individually correct but collectively missing the point. These were always the senior jobs. AI makes the seniority gap more visible, and more expensive.
+
+The developers most at risk are the ones whose value really was mostly typing under supervision. That is a labor-market problem and it is real. I am not going to pretend otherwise.
+
+But the framing that "AI replaces developers" gets the shape of the change wrong in a way that is going to cost organizations a lot of money before they figure it out. Code production was not the bottleneck. The bottleneck migrated. The expensive work got more expensive, and the people doing it became more valuable, not less. Anyone selling you the opposite story should be asked what they are selling.
+
+In regulated industries, by the way, this is not a hypothetical. "The model said so" is not an answer a regulator accepts. Accountability has to live somewhere, and it lives in a person, and that person needs the judgment to defend the decision. That requirement is not going away because the typing got faster.
+
+The bottleneck was never typing. The narrative that says otherwise is selling something.
+
+<!-- example image
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/bed.jpg"
+   alt      = "A slightly messy bed"
+   source   = 'https://unsplash.com/photos/OZiflZqq0N0',
+   caption  = "Make that bed!"
+%]
+-->
+
+[%- END %]
