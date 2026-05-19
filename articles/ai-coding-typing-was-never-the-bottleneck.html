@@ -217,6 +217,15 @@
 
     
 
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai.html">AI</a> </li>
+
+    <li><a href="/tags/programming.html">Software</a> </li>
+
+</ul>
+
 
         <hr>
     <!-- nada -->
@@ -240,16 +249,19 @@
 <h1><a name="how-i-wrote-this-article"></a>How I Wrote This Article</h1>
 
 <p>As part of my many AI experiments, I’ve experimented with having AI write for
-me. It’s usually ended poorly. This time, it did not.</p>
+me. It’s usually ended poorly. This time, it did not. In fact, by the time you
+finish, you’ll see why allowing AI to write most of this was actually the
+perfect choice to reinforce the core point: typing is not the bottleneck.</p>
 
 <p>The bulk of the <em>typing</em> for this article is from Anthropic’s Opus 4.7 model. It
 seems appropriate given the context of this piece. However, the Opus “typing”
 out this article wasn’t the hard part.  The hard part was hours of playing
 around with ideas, shaping and reshaping them, pushing back on the narrative,
 trying different LLMs to see what they would make of this content, and finally
-settling on a draft — draft — from Opus 4.7.</p>
+settling on a draft from Opus 4.7. <strong>A draft.</strong> That’s key. Er, or as an AI is
+wont to say, that’s “load bearing.”</p>
 
-<p>Then the “code review” came in and I carefully went through this line-by-line.
+<p>Then the “code review” came in. I carefully went through this line-by-line.
 It’s solid. It says what I want it to say. It says it differently from how I
 would say it, but it does so in a more structured, coherent way than I sometimes
 do.</p>
@@ -257,12 +269,12 @@ do.</p>
 <p>And, thanks to Claude’s <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool" target="_blank">memory
 tool</a> <span class="fa fa-external-link fa_custom"></span>,
 it not only pulled up relevant information from past conversations, making this
-much easier to write, it also hallucinated bits that, while not fundamentally
-changing the structure, subtly weakened the argument. That’s where most of my
-editing time went. It was me, using my judgment, using my experience, which let
-me say, “this is good enough for production.”</p>
+much easier to write, but it also hallucinated bits that, while not
+fundamentally changing the structure, subtly weakened the argument. That’s where
+most of my editing time went. It was me, using my judgment, using my experience,
+which let me say, “this is good enough for production.”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
-<p>So without further ado, here’s what Claude has to say, with some light editing from me.</p>
+<p>So without further ado, here’s what Claude has to say, with some heavy editing from me.</p>
 
 <h1><a name="the-bottleneck-was-never-typing"></a>The Bottleneck Was Never Typing</h1>
 
@@ -272,21 +284,63 @@ me say, “this is good enough for production.”</p>
 
 <p>The better question is: <em>what was actually the bottleneck in software development, and does making non-bottlenecks faster help?</em></p>
 
-<p>I have been thinking about this for the last year, partly because I now spend my working hours trying to help a couple hundred developers use AI well, and partly because I ran a private experiment that turned out to disprove something I was sure was true.</p>
+<p>I have been thinking about this for the last year, partly because I now spend my
+working hours trying to help a couple hundred developers use AI well, and partly
+because I ran a private experiment that disproved one of my core beliefs.</p>
 
 <h2><a name="i-was-wrong-about-something-specific"></a>I was wrong about something specific</h2>
 
 <p>About a year ago I decided to find out whether AI-assisted programming could produce production-quality code without me reading any of it. I expected the answer to be no. I expected to fail in ways that taught me something useful, because even a spectacular failure would be educational for the work I was doing with other developers.</p>
 
-<p>It wasn’t a failure. On greenfield codebases up to roughly eighty thousand lines, with enough discipline, the goal turned out to be achievable. I have written about this elsewhere (<a href="/articles/why-i-am-no-longer-reading-the-ais-code.html">Why I Am No Longer Reading the AI’s Code</a>), and I am not going to relitigate it here. What matters for this article is what the result implies.</p>
+<p>It wasn’t a failure. On greenfield codebases up to roughly eighty thousand
+lines, with enough discipline, the goal turned out to be achievable. I have
+written about this elsewhere (<a href="/articles/why-i-am-no-longer-reading-the-ais-code.html">Why I Am No Longer Reading the AI’s
+Code</a>), and I am not
+going to relitigate it here. What matters for this article is what the result
+implies.</p>
 
 <p>If you had asked me two years ago whether I would be writing this paragraph, I would have told you no. So when I argue, below, that AI is not going to replace developers any time soon, please understand that I am not arguing it because I think AI is bad at writing code. I am arguing it because I think writing code was never the hard part.</p>
 
+<blockquote>
+  <p>Side note: In a professional environment, I do <em>not</em> recommend doing what I
+  did.  <strong>READ YOUR CODE</strong>.  Sure, for your personal work, have fun. For
+  professional work, the idea is idiotic. I failed many, many times, and there are
+  plenty of cases where the developer simply has to roll up their sleeves and open
+  their editor. Pushing ideas to their extremes to see where they break isn’t a
+  good idea when you’re building a regulatory system, or medical software, or, or,
+  or ...</p>
+</blockquote>
+
 <h2><a name="what-actually-happened-when-typing-got-cheap"></a>What actually happened when typing got cheap</h2>
 
-<p>The experiment that worked did not work because the AI got smart enough to write code on its own. It worked because I built four layers of process around the AI to catch the ways its output went wrong: a pushback layer to interrogate the spec, an alignment layer to verify the tasks matched the spec, a agentic PR review to catch where the AI failed, and an agentic architecture review layer to catch structural drift. I called the result <a href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span class="fa fa-external-link fa_custom"></span>, and the acronym is just the four failure modes I had to address before the experiment stopped failing.</p>
+<p>The experiment started working not because the AI got smart enough to write
+code on its own (though November 2025 was a huge step forward). It started
+working because every time it failed, I asked myself one question: why? When I
+figured out the way, I asked myself a follow-up question: how would I, as a
+human, fix this? Then I wrote that down and gave it to the AI.</p>
 
-<p>Each of those layers exists because making code generation fast made some other stage of the work harder, not easier. Pushback exists because when typing is cheap, the cost of a vague spec multiplies — the AI happily generates ten thousand lines around a misunderstanding it should have flagged. Alignment exists because the AI never builds exactly what you asked for, and the gap between what you specified and what got built has to be checked explicitly, because it will not advertise itself. Architecture review exists because the AI does not feel the long-term weight of structural decisions, so somebody has to. Discipline is required, because human judgment is required. No AI can replace that at this time.</p>
+<p>I built layers of process around the AI to catch the ways its output went
+wrong: a pushback layer to interrogate the spec, an alignment layer to verify
+the tasks matched the spec, a agentic PR review to catch where the AI failed,
+and an agentic architecture review layer to catch structural drift. And I wrote
+more tools. If “English is the new programming language,” these tools are the
+code review. I built plenty of tools, for plenty of problems.</p>
+
+<p>I was ... coding.</p>
+
+<p>I call the result <a href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span class="fa fa-external-link fa_custom"></span> (pronounced “pad”), and
+the acronym is just the multiple failure modes I had to address before the
+experiment stopped failing.</p>
+
+<p>Each of those tools exists because making code generation fast made some other
+stage of the work harder, not easier. Pushback exists because when typing is
+cheap, the cost of a vague spec multiplies — the AI happily generates ten
+thousand lines around a misunderstanding it should have flagged. Alignment
+exists because the AI never builds exactly what you ask for and those subtle
+gaps compound over time.  Architecture review exists because the AI does not
+feel the long-term weight of structural decisions, so somebody has to.
+Discipline is required, because human judgment is required. No AI can replace
+that at this time.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>In other words: when I made the cheap stage of software development much cheaper, the expensive stages got more expensive in aggregate. The work did not disappear. It migrated.</p>
 
@@ -294,7 +348,7 @@ me say, “this is good enough for production.”</p>
 
 <h2><a name="the-bottleneck-was-never-typing-2"></a>The bottleneck was never typing</h2>
 
-<p>The “AI replaces developers” narrative depends on a hidden assumption: that code production was the bottleneck. Make code production fast and cheap, the argument goes, and the demand for developers falls. The flaw is that code production was not the bottleneck. Judgment was. Integration was. Understanding what the system actually needed to do, in what order, with what tradeoffs, given which constraints — that was the bottleneck.</p>
+<p>The “AI replaces developers” narrative depends on a hidden assumption: that code production is the bottleneck. Make code production fast and cheap, the argument goes, and the demand for developers falls. The flaw is that code production is not the bottleneck. Judgment is. Integration is. Understanding what the system actually needed to do, in what order, with what tradeoffs, given which constraints — that is the bottleneck.</p>
 
 <p>Making typing free does not help when the bottleneck is somewhere else. It can actively hurt, because more code flowing through the pipeline means more code arriving at the expensive stages: review, integration, deployment, incident response. Productivity metrics that show big AI gains almost always measure stage one and ignore the rest. That is not a measurement of productivity. It is a measurement of where the work <em>used</em> to be.</p>
 
@@ -302,9 +356,9 @@ me say, “this is good enough for production.”</p>
 
 <p>A reviewer pushed back. He said the code was complicated. He was right; it was. He then said the cached version was, in some benchmarks, slower than the raw database read. He was right about that too.</p>
 
-<p>He was also wrong about what those two facts implied, and so was I, briefly. The complexity was contained and the slowness was real but irrelevant, because database servers were hard to scale and application servers were trivial to scale. The right metric was not request latency. It was system throughput under load, given the cost structure of the infrastructure we actually had. Moving CPU work from the bottleneck tier to the scalable tier was the entire point.</p>
+<p>He was wrong about what those two facts implied. The complexity was contained and the slowness was real but irrelevant, because database servers were hard to scale and application servers were trivial to scale. The right metric was not request latency. It was system throughput under load, given the cost structure of the infrastructure we actually had. Moving CPU work from the bottleneck tier to the scalable tier was the entire point.</p>
 
-<p>I do not tell this story to argue that humans are smart and AI is dumb. The reviewer was a good engineer and he got it wrong. I tell it because the relevant information for that decision was not in the code. It was in the infrastructure topology, the organization’s scaling constraints, and the cost model of the cloud provider. A sufficiently instrumented AI agent with access to all of that <em>might</em>, in principle, make this call. But the tooling to give an AI that context does not exist in any production environment I have seen, and the people most loudly claiming AI will replace this work are not the people building that tooling.</p>
+<p>I do not tell this story to argue that humans are smart and AI is dumb. The reviewer was a good engineer and he got it wrong. I tell it because the relevant information for that decision was not in the code. It was in the infrastructure topology, the organization’s scaling constraints, and the cost model of the cloud provider (Google, if you’re wondering). A sufficiently instrumented AI agent with access to all of that <em>might</em>, in principle, make this call. But the tooling to give an AI that context does not exist in any production environment I have seen, and the people most loudly claiming AI will replace this work are not the people building that tooling.</p>
 
 <p>This kind of decision — cross-layer reasoning, under constraints that are not local to the code, where the most defensible local answer is the wrong global answer — is not rare. It is most of senior engineering. And it is precisely the work that gets harder, not easier, when there is more code flowing through the system faster.</p>
 
@@ -314,7 +368,7 @@ me say, “this is good enough for production.”</p>
 
 <p>But the incentives are worth naming. AI vendors benefit from the narrative whether or not it is true, because the implied capability is what justifies the spend. Executives under pressure to reduce headcount benefit from a story that frames the reduction as inevitable technological progress rather than a choice. Consultants selling AI transformation benefit from the urgency. None of these people is necessarily acting in bad faith. They are reading the same evidence everyone else is, and the evidence happens to confirm what is useful for them to believe.</p>
 
-<p>The people whose interests the narrative does not serve are the developers themselves, and — more importantly — the organizations that will discover, two or three years from now, that they cut the people who actually understood their systems and now have nobody to ask why production is on fire.</p>
+<p>The people whose interests the narrative does not serve are the developers themselves, and — more importantly — the organizations that will discover, two or three years from now, that they cut the people who actually understood their systems and now have nobody to ask why production is on fire. We’ve already seen so many examples published that there’s no point in me linking them here.</p>
 
 <p>There is a particular risk worth naming directly. The pipeline from junior to senior developer historically runs through doing the work that AI is now doing. Writing the boilerplate. Reading the codebase. Fixing the small bugs. Reviewing other people’s code in low-stakes settings. If we automate the apprenticeship, we are not just losing junior jobs in the short term. We are starving the supply of seniors in the long term. The seniors who will be most valuable in five years are the people writing code in anger today. If we stop them from doing that, we will be very surprised in five years.</p>
 
@@ -428,33 +482,33 @@ me say, “this is good enough for production.”</p>
 
     <li><a href="/tags/programming.html" data-weight="9">Software</a></li>
 
-    <li><a href="/tags/business.html" data-weight="7">Business</a></li>
-
     <li><a href="/tags/ai.html" data-weight="6">AI</a></li>
 
-    <li><a href="/tags/oop.html" data-weight="5">OOP</a></li>
+    <li><a href="/tags/business.html" data-weight="6">Business</a></li>
 
     <li><a href="/tags/perl.html" data-weight="5">Perl</a></li>
 
     <li><a href="/tags/corinna.html" data-weight="4">Corinna</a></li>
 
-    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
+    <li><a href="/tags/oop.html" data-weight="4">OOP</a></li>
 
-    <li><a href="/tags/personal.html" data-weight="3">Personal</a></li>
+    <li><a href="/tags/writing.html" data-weight="4">Writing</a></li>
 
     <li><a href="/tags/politics.html" data-weight="3">Politics</a></li>
 
-    <li><a href="/tags/space.html" data-weight="3">Space</a></li>
-
     <li><a href="/tags/databases.html" data-weight="2">Databases</a></li>
-
-    <li><a href="/tags/family.html" data-weight="2">Family</a></li>
 
     <li><a href="/tags/math.html" data-weight="2">Math</a></li>
 
+    <li><a href="/tags/personal.html" data-weight="2">Personal</a></li>
+
     <li><a href="/tags/science.html" data-weight="2">Science</a></li>
 
+    <li><a href="/tags/space.html" data-weight="2">Space</a></li>
+
     <li><a href="/tags/expat.html" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/family.html" data-weight="1">Family</a></li>
 
 </ul>
 
@@ -493,6 +547,74 @@ me say, “this is good enough for production.”</p>
     
     <script src="/static/js/collapsible.js"></script>
 	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+        <strong id="note-1">Footnotes</strong>
+        <p id="note-description-1" class="sr-only">Note number 1</p>
+	    <div>I've since
+corrected the memory, so hopefully this won't happen again.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+        <strong id="note-2">Footnotes</strong>
+        <p id="note-description-2" class="sr-only">Note number 2</p>
+	    <div>An earlier draft referred to 'degradation'
+instead of 'discipline' because the 'D' in PAAD originally stood for
+degradation.</div>
+        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            I've since
+corrected the memory, so hopefully this won't happen again.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            An earlier draft referred to 'degradation'
+instead of 'discipline' because the 'D' in PAAD originally stood for
+degradation.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
 </body>
 </html>
 
