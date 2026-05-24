@@ -100,6 +100,8 @@ subtest 'rewrite logic transforms root-relative .html hrefs' => sub {
         <a href="foo.html">Relative</a>
         <a href="mailto:x@y.z">Mail</a>
         <a href="/[% IF prev; type _ '/' _ prev.slug _ '.html'; END %]">Templated</a>
+        See [Markdown](/articles/intro.html) for more.
+        [% Ovid.link('/articles/about.html', 'About') %]
         EOT
     $tmproot->child('root/all-cases.tt')->spew_utf8($fixture);
 
@@ -123,8 +125,114 @@ subtest 'rewrite logic transforms root-relative .html hrefs' => sub {
     like   $after, qr{href="foo\.html">},                   'relative untouched';
     like   $after, qr{href="mailto:},                       'mailto untouched';
     like   $after, qr{prev\.slug _ '\.html'},               'templated TT untouched';
+    like   $after, qr{\]\(/articles/intro\)},               'Markdown link .html stripped';
+    like   $after, qr{Ovid\.link\('/articles/about',},      'Ovid.link .html stripped';
 
     chdir $cwd;
+};
+
+subtest 'Step C rewrites Markdown links' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+
+    my $fixture = <<~'EOT';
+        [Root link](/articles/intro.html)
+        [Fragment link](/articles/intro.html#section)
+        [Query link](/articles/intro.html?utm=1)
+        [External](https://example.com/page.html)
+        [Relative](foo.html)
+        EOT
+    $tmproot->child('root/md-cases.tt2markdown')->spew_utf8($fixture);
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+
+    my ( $out, $err ) = run_in( $tmproot );
+    ok !$err, 'Markdown rewrite runs cleanly';
+
+    my $after = $tmproot->child('root/md-cases.tt2markdown')->slurp_utf8;
+
+    like   $after, qr{\]\(/articles/intro\)},          'root-relative .html stripped';
+    like   $after, qr{\]\(/articles/intro#section\)},  '#anchor preserved after strip';
+    like   $after, qr{\]\(/articles/intro\?utm=1\)},   '?query preserved after strip';
+    like   $after, qr{\]\(https://example\.com/page\.html\)}, 'external link untouched';
+    like   $after, qr{\]\(foo\.html\)},                'relative link untouched';
+
+    chdir $cwd;
+};
+
+subtest 'Step D rewrites Ovid.link calls' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+
+    my $fixture = <<~'EOT';
+        [% Ovid.link('/articles/about.html', 'About') %]
+        [% Ovid.link('/articles/about.html#section', 'About section') %]
+        [% Ovid.link('/articles/about.html?q=1', 'About q') %]
+        EOT
+    $tmproot->child('root/ovid-link.tt')->spew_utf8($fixture);
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+
+    my ( $out, $err ) = run_in( $tmproot );
+    ok !$err, 'Ovid.link rewrite runs cleanly';
+
+    my $after = $tmproot->child('root/ovid-link.tt')->slurp_utf8;
+
+    like   $after, qr{Ovid\.link\('/articles/about',},         '.html stripped';
+    like   $after, qr{Ovid\.link\('/articles/about#section',}, '#anchor preserved';
+    like   $after, qr{Ovid\.link\('/articles/about\?q=1',},    '?query preserved';
+
+    chdir $cwd;
+};
+
+subtest 'Steps C and D are idempotent' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+
+    my $fixture = <<~'EOT';
+        [Markdown link](/articles/intro.html)
+        [% Ovid.link('/articles/about.html', 'About') %]
+        EOT
+    $tmproot->child('root/idem.tt')->spew_utf8($fixture);
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+    chdir $cwd;
+
+    run_in( $tmproot );
+    chdir $tmproot;
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'first pass' );
+    chdir $cwd;
+
+    run_in( $tmproot );
+    chdir $tmproot;
+    my $diff = `git diff --stat`;
+    chdir $cwd;
+    is $diff, '', 'second pass produces no further changes (C and D idempotent)';
 };
 
 subtest 'rewrite is idempotent' => sub {

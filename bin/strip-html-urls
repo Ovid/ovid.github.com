@@ -77,7 +77,13 @@ for my $file ( File::Find::Rule->file
     # Step B: any root-relative .html href, preserving #anchor / ?query.
     my $b_count = ( $contents =~ s{href="(/[^"#?]+)\.html(["#?])}{href="$1$2}g );
 
-    my $n = ( $a_count // 0 ) + ( $b_count // 0 );
+    # Step C: Markdown links: [text](/path.html...) → [text](/path...)
+    my $c_count = ( $contents =~ s{\]\((/[^)#?]+)\.html([)#?])}{]($1$2}g );
+
+    # Step D: Ovid.link('/path.html', ...) → Ovid.link('/path', ...)
+    my $d_count = ( $contents =~ s{Ovid\.link\(\s*'(/[^'#?]+)\.html(['#?])}{Ovid.link('$1$2}g );
+
+    my $n = ( $a_count // 0 ) + ( $b_count // 0 ) + ( $c_count // 0 ) + ( $d_count // 0 );
     next unless $n;
 
     $changed{$file}  = $n;
