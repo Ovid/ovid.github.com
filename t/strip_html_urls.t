@@ -60,4 +60,28 @@ subtest 'dirty-tree gate rejects unless --force' => sub {
     chdir $cwd;
 };
 
+subtest 'quote-form survey gate rejects single-quoted or space-padded hrefs' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+
+    $tmproot->child('root/bad.tt')->spew(q{<a href='/foo.html'>x</a>});
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+
+    my ( $out, $err ) = run_in( $tmproot, '--dry-run' );
+    ok $err, 'aborts when single-quoted root-relative .html href present';
+    like "$err$out", qr/quote.?form|single.?quote|widen.*regex/i,
+        'error message mentions the form the rewriter cannot handle';
+
+    chdir $cwd;
+};
+
 done_testing;
