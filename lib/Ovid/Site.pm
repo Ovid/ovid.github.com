@@ -372,12 +372,12 @@ SQL
                     INCLUDE include/header.tt 
                     title         = '$title'
                     identifier    = '$identifier'
-                    canonical_url = "$name-all.html"
+                    canonical_url = "$name-all"
                 %]
 
                 $articles
 
-                <p><a href="/$name-all.html">All $article_type->{name} in a single page</a></p>
+                <p><a href="/$name-all">All $article_type->{name} in a single page</a></p>
 
                 $pagination
                 [% IF $page_number == 1 -%]
@@ -418,7 +418,7 @@ SQL
                 INCLUDE include/header.tt 
                 title         = '$title'
                 identifier    = '$identifier'
-                canonical_url = "$name-all.html"
+                canonical_url = "$name-all"
             %]
 
             $articles
