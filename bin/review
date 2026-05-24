@@ -57,7 +57,13 @@ hook after => sub {
 };
 
 get '/' => sub {
-    redirect '/index.html';
+    my $file = path('index.html')->absolute;
+    if ( $file->exists && -f $file ) {
+        content_type 'text/html; charset=UTF-8';
+        return $file->slurp_utf8;
+    }
+    status 'not_found';
+    return '404 - Not Found: index.html';
 };
 
 post '/api/launch-editor' => sub {
@@ -187,7 +193,7 @@ get '/**' => sub {
         return '403 - Forbidden';
     }
 
-    # Empty splat means GET / which is already redirected; defensive default.
+    # Empty splat means GET / (handled here, no redirect).
     my $path_str = join( '/', @segments ) || 'index.html';
 
     # Enforce the allowlist: top-level files must have a permitted

@@ -178,6 +178,16 @@ subtest 'static handler still serves legitimate site content' => sub {
     };
 };
 
+subtest 'GET / serves index.html directly without redirect' => sub {
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/' );
+        is $res->code, 200, 'GET / returns 200 (no redirect)';
+        like $res->content, qr/Curtis.*Poe/i,
+            'GET / returns homepage content';
+    };
+};
+
 subtest 'launch-editor honors OVID_REVIEW_TEST_LAUNCH_CMD for fork path' => sub {
     # When TESTING is set without the knob, the fork is skipped. With
     # the knob set, exercise the fork/dup/exec path + _terminate_previous_editor
