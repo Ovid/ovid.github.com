@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use v5.40;
+use Path::Tiny;
+use Getopt::Long;
+use IPC::System::Simple qw(capturex);
+
+my $dry_run = 0;
+my $force   = 0;
+GetOptions(
+    'dry-run' => \$dry_run,
+    'force'   => \$force,
+) or die "Usage: $0 [--dry-run] [--force]\n";
+
+# Pre-flight: CWD scope check.
+for my $marker (qw(root lib bin/rebuild)) {
+    unless ( -e $marker ) {
+        die "ERROR: $marker not found in CWD — run from project root (must contain root/, lib/, bin/rebuild)\n";
+    }
+}
+
+say "CWD pre-flight: OK";
+exit 0;
