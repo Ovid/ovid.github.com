@@ -45,7 +45,7 @@ subtest 'tagmap.json structure - __ALL__ key' => sub {
           "File '$file' in __ALL__ should map to an array of tags";
 
         # Verify file path format
-        like $file, qr{^(?:articles|blog)/[^/]+\.html$},
+        like $file, qr{^(?:articles|blog)/[^/]+$},
           "File '$file' should match expected path pattern";
 
         # Each tag in the array should be a string
@@ -211,9 +211,9 @@ subtest 'tagmap.json all files have valid paths' => sub {
 
     foreach my $file ( keys %$all ) {
 
-        # Files should be HTML files in articles/ or blog/ directories
-        like $file, qr{^(?:articles|blog)/[^/]+\.html$},
-          "File '$file' should be in articles/ or blog/ directory with .html extension";
+        # Files should be extensionless paths in articles/ or blog/ directories
+        like $file, qr{^(?:articles|blog)/[^/]+$},
+          "File '$file' should be in articles/ or blog/ directory without extension";
 
         # Files should not have double slashes or other path issues
         unlike $file, qr{//},
@@ -222,6 +222,17 @@ subtest 'tagmap.json all files have valid paths' => sub {
           "File '$file' should not start with ./";
         unlike $file, qr{\.$},
           "File '$file' should not end with .";
+    }
+};
+
+subtest '__ALL__ keys are extensionless (no trailing .html)' => sub {
+    my $tagmap_file = config()->{tagmap_file};
+    my $tagmap      = decode_json( path($tagmap_file)->slurp_utf8 );
+
+    my $all = $tagmap->{__ALL__};
+    for my $key ( keys %$all ) {
+        unlike $key, qr/\.html$/,
+            "tagmap key '$key' should not end in .html";
     }
 };
 

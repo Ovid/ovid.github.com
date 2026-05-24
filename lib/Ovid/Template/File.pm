@@ -150,18 +150,18 @@ package Ovid::Template::File {
               or croak("Tags found for '$file' but could not determine title");
 
             # XXX nasty hack alert
-            my $url = $destfile;
-            $url =~ s{^tmp/}{};
-            $url =~ s/\.tt(?:2markdown)?$/.html/;
-            $tagmap->{__ALL__}{$url} = $tags;
+            my $tagmap_key = $destfile;
+            $tagmap_key =~ s{^tmp/}{};
+            $tagmap_key =~ s/\.tt(?:2markdown)?$//;
+            $tagmap->{__ALL__}{$tagmap_key} = $tags;
 
             foreach my $tag ( $tags->@* ) {
                 if ( my $name = $config->{tagmap}{$tag} ) {
                     $tagmap->{$tag}{name} = $name;
                     $tagmap->{$tag}{count}++;
                     $tagmap->{$tag}{files} //= [];
-                    $tagmap->{$tag}{titles}{$url} = $title;
-                    push $tagmap->{$tag}{files}->@* => $url;
+                    $tagmap->{$tag}{titles}{$tagmap_key} = $title;
+                    push $tagmap->{$tag}{files}->@* => $tagmap_key;
                 }
                 else {
                     die "No tagmap: entry found for tag '$tag' in file '$file'";
