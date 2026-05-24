@@ -59,24 +59,24 @@ subtest '_rebuild_rss_feeds emits extensionless links and non-permalink guids' =
 
     for my $rss_file (qw/blog.rss article.rss/) {
         next unless -e $rss_file;
-        my $rss = XML::RSS->new;
+        my $body = path($rss_file)->slurp_utf8;
+        my $rss  = XML::RSS->new;
         $rss->parsefile($rss_file);
 
         for my $item ( $rss->{items}->@* ) {
             unlike $item->{link}, qr/\.html(?:[?#]|$)/,
                 "$rss_file item link is extensionless: $item->{link}";
 
-            my $body      = path($rss_file)->slurp_utf8;
-            my $guid_node = $item->{guid};
-            if ( ref $guid_node eq 'HASH' ) {
-                is $guid_node->{isPermaLink}, 'false',
-                    "$rss_file item guid is marked isPermaLink=false";
-            }
-            else {
-                like $body,
-                    qr{<guid\s+isPermaLink="false">},
-                    "$rss_file raw guid carries isPermaLink=\"false\"";
-            }
+            # Verify the raw XML carries the isPermaLink="false" attribute
+            like $body,
+                qr{<guid\s+isPermaLink="false">},
+                "$rss_file raw guid carries isPermaLink=\"false\"";
+
+            # Verify guid content is the slug path, not a stringified ref
+            unlike $item->{guid}, qr/^HASH\(0x/,
+                "$rss_file guid is not a stringified hash ref";
+            like $item->{guid}, qr{^(?:blog|article)/[^/]+$},
+                "$rss_file guid content is a slug path";
         }
     }
 

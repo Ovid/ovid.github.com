@@ -294,7 +294,7 @@ SQL
                     link        => $url,
                     description => $article->{description},
                     creator     => 'Curtis "Ovid" Poe',
-                    guid        => { isPermaLink => 'false', content => "$type->{type}/$article->{slug}" },
+                    guid        => "$type->{type}/$article->{slug}",
                     pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
                 );
             }
