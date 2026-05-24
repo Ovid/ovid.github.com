@@ -62,4 +62,39 @@ if (@bad) {
 }
 
 say "Quote-form pre-flight: OK";
+
+my %changed;
+my $total_changes = 0;
+
+for my $file ( File::Find::Rule->file
+        ->name( '*.tt', '*.tt2markdown' )
+        ->in('root') ) {
+    my $contents = path($file)->slurp_utf8;
+
+    # Step A: explicit /index.html → / (homepage form).
+    my $a_count = ( $contents =~ s{href="/index\.html(["#?])}{href="/$1}g );
+
+    # Step B: any root-relative .html href, preserving #anchor / ?query.
+    my $b_count = ( $contents =~ s{href="(/[^"#?]+)\.html(["#?])}{href="$1$2}g );
+
+    my $n = ( $a_count // 0 ) + ( $b_count // 0 );
+    next unless $n;
+
+    $changed{$file}  = $n;
+    $total_changes  += $n;
+
+    if ($dry_run) {
+        say "DRY-RUN $file: $n change(s)";
+    }
+    else {
+        path($file)->spew_utf8($contents);
+        say "WROTE   $file: $n change(s)";
+    }
+}
+
+say "";
+say sprintf( "Total: %d change(s) across %d file(s)%s",
+    $total_changes, scalar keys %changed,
+    $dry_run ? ' (dry-run, no writes)' : '' );
+
 exit 0;
