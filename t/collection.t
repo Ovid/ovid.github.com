@@ -88,20 +88,19 @@ subtest 'iterator stops cleanly at count (off-by-one regression)' => sub {
 subtest 'file path handling edge cases' => sub {
 
     # Test with actual template files that exist (non-.html paths)
-    # This triggers the elsif F branch (file exists, not .html)
+    # This triggers the "file exists on disk" branch
     my $coll = Collection->new( files => ['root/blog/life-on-venus.tt'] );
     is $coll->count, 1, 'Should accept non-.html file paths that exist';
 
-    # Test error handling for missing non-.html file
-    # This triggers the elsif T branch (file doesn't exist, not .html)
+    # Test error handling for missing input that has no matching template
     throws_ok {
-        Collection->new( files => ['nonexistent/file.txt'] )
+        Collection->new( files => ['nonexistent/file-xyz-missing'] )
     }
-    qr/Cannot find file/, 'Should croak when non-.html file does not exist';
+    qr/Cannot find template file/, 'Should croak when no matching template exists';
 };
 
 # Test error handling for missing template files
-# Covers line 71: unless (-e $file) branch (T branch - missing .tt2markdown)
+# Covers the croak branch (neither .tt nor .tt2markdown exists)
 subtest 'missing template file error handling' => sub {
 
     # This tests the case where .html file maps to missing .tt and .tt2markdown
@@ -110,6 +109,38 @@ subtest 'missing template file error handling' => sub {
     }
     qr/Cannot find template file/,
       'Should croak when neither .tt nor .tt2markdown exists for .html file';
+};
+
+# Test that extensionless tagmap keys (Task 5/6 form) resolve correctly
+subtest '_get_file handles all three input forms' => sub {
+
+    # Form 1: extensionless tagmap key (new form after Task 5)
+    # 'blog/life-on-venus' → root/blog/life-on-venus.tt
+    ok my $coll_ext = Collection->new( files => ['blog/life-on-venus'] ),
+      'Extensionless tagmap key should resolve to a template';
+    my ($file_ext) = $coll_ext->all;
+    is $file_ext->filename, 'root/blog/life-on-venus.tt',
+      '... and should point at the .tt source file';
+    is $file_ext->references, 'blog/life-on-venus',
+      '... preserving the original extensionless key as references';
+
+    # Form 2: .html-suffixed tagmap key (legacy form)
+    # 'blog/life-on-venus.html' → root/blog/life-on-venus.tt
+    ok my $coll_html = Collection->new( files => ['blog/life-on-venus.html'] ),
+      '.html-suffixed tagmap key should still resolve correctly';
+    my ($file_html) = $coll_html->all;
+    is $file_html->filename, 'root/blog/life-on-venus.tt',
+      '... and should point at the same .tt source file';
+    is $file_html->references, 'blog/life-on-venus.html',
+      '... preserving the original .html key as references';
+
+    # Form 3: literal filesystem path (already a .tt file on disk)
+    # 'root/blog/life-on-venus.tt' → used as-is
+    ok my $coll_lit = Collection->new( files => ['root/blog/life-on-venus.tt'] ),
+      'Literal filesystem path should be accepted as-is';
+    my ($file_lit) = $coll_lit->all;
+    is $file_lit->filename, 'root/blog/life-on-venus.tt',
+      '... and filename should be the path itself';
 };
 
 done_testing;
