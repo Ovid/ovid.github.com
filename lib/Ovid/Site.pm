@@ -546,7 +546,24 @@ END
         say $stdout;
     }
 
+    sub _resolve_source ( $self, $file ) {
+
+        # Map a generated HTML path back to its source template under root/.
+        # Returns undef when neither extension exists on disk so callers can
+        # fall back to the original path.
+        ( my $stem = $file ) =~ s/\.html\z//;
+        for my $ext (qw(tt2markdown tt)) {
+            my $candidate = "root/$stem.$ext";
+            return $candidate if -f $candidate;
+        }
+        return undef;
+    }
+
     sub _get_git_lastmod ( $self, $file ) {    # for sitemap
+
+        # Look up the source template so the sitemap's lastmod reflects when
+        # the content actually changed, not when the HTML was regenerated.
+        my $target = $self->_resolve_source($file) // $file;
 
         # Try to get the last commit date for the file
         my $git_date;
@@ -556,7 +573,7 @@ END
             # IPC::System::Simple::capture only grabs stdout, so without this
             # those messages would leak to the terminal during test runs.
             capture {
-                $git_date = IPC::System::Simple::capture( 'git', 'log', '-1', '--format=%ai', '--', $file );
+                $git_date = IPC::System::Simple::capture( 'git', 'log', '-1', '--format=%ai', '--', $target );
             };
             chomp($git_date) if defined $git_date;
         };
@@ -565,7 +582,7 @@ END
 
             # If git command fails or returns empty (file not in git),
             # fall back to file mtime
-            return strftime( "%Y-%m-%d", localtime( path($file)->stat->mtime ) );
+            return strftime( "%Y-%m-%d", localtime( path($target)->stat->mtime ) );
         }
 
         # Git date format is like "2024-01-06 12:34:56 -0500"
@@ -575,7 +592,7 @@ END
         }
 
         # Fallback to file mtime if git date parsing fails
-        return strftime( "%Y-%m-%d", localtime( path($file)->stat->mtime ) );
+        return strftime( "%Y-%m-%d", localtime( path($target)->stat->mtime ) );
     }
 
     # Function to determine priority based on filename and path
