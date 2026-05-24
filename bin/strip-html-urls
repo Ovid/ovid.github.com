@@ -20,4 +20,20 @@ for my $marker (qw(root lib bin/rebuild)) {
 }
 
 say "CWD pre-flight: OK";
+
+# Pre-flight: dirty-tree check (skip with --force).
+unless ($force) {
+    my $status = eval { capturex( 'git', 'status', '--porcelain', 'root/' ) };
+    die "git not available; cannot check working tree state\n" if $@;
+    if ( defined $status && length $status ) {
+        die <<~"END";
+        ERROR: uncommitted changes detected in root/:
+
+        $status
+        Commit, stash, or re-run with --force to override.
+        END
+    }
+}
+
+say "Dirty-tree pre-flight: OK";
 exit 0;

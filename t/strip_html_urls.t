@@ -32,4 +32,32 @@ subtest 'CWD pre-flight gate rejects non-project directories' => sub {
         'error message mentions the missing project markers';
 };
 
+subtest 'dirty-tree gate rejects unless --force' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+    $tmproot->child('root/test.tt')->spew('initial content');
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+
+    $tmproot->child('root/test.tt')->spew('dirty content');
+
+    my ( $out, $err ) = run_in( $tmproot, '--dry-run' );
+    ok $err, 'aborts when root/ has uncommitted changes';
+    like "$err$out", qr/uncommitted|dirty|--force/i,
+        'error message references --force escape hatch';
+
+    ( $out, $err ) = run_in( $tmproot, '--dry-run', '--force' );
+    ok !$err, '--force bypasses dirty-tree gate';
+
+    chdir $cwd;
+};
+
 done_testing;
