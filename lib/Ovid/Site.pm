@@ -658,6 +658,15 @@ END
         return 'yearly';    # default for other pages
     }
 
+    # Maps an on-disk .html filename to a public sitemap URL (strips .html,
+    # collapses index.html to /). See also _tinysearch_url_for_file (Task 12),
+    # which strips .html without the index.html special case.
+    sub _sitemap_loc ( $self, $base_url, $file ) {
+        return "$base_url/" if $file eq 'index.html';
+        (my $url = $file) =~ s/\.html\z//;
+        return "$base_url/$url";
+    }
+
     sub _write_sitemap ($self) {
 
         # Find all HTML files
@@ -686,9 +695,10 @@ END
             my $changefreq = $self->_get_change_frequency($path);
             my $lastmod    = $self->_get_git_lastmod($file);
 
+            my $loc = $self->_sitemap_loc( $base_url, $file );
             $xml .= <<~"XML";
                 <url>
-                    <loc>$base_url/$file</loc>
+                    <loc>$loc</loc>
                     <lastmod>$lastmod</lastmod>
                     <changefreq>$changefreq</changefreq>
                     <priority>$priority</priority>

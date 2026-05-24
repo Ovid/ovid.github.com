@@ -111,6 +111,14 @@ subtest '_get_article_list emits extensionless hrefs' => sub {
     like $html, qr{href="/blog/bar">Bar}, 'bar link extensionless';
 };
 
+subtest '_sitemap_loc maps on-disk filename to public URL' => sub {
+    my $base = 'https://curtispoe.org';
+    is $site->_sitemap_loc( $base, 'index.html' ),       "$base/",                'index.html → /';
+    is $site->_sitemap_loc( $base, 'articles.html' ),    "$base/articles",        'top-level → /articles';
+    is $site->_sitemap_loc( $base, 'blog/foo.html' ),    "$base/blog/foo",        'nested → /blog/foo';
+    is $site->_sitemap_loc( $base, 'articles_2.html' ),  "$base/articles_2",      'pagination → /articles_2';
+};
+
 subtest '_html_to_text extracts title and article text' => sub {
     my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
     $tmp->spew_utf8( <<~'HTML' );
