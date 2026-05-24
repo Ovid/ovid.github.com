@@ -102,6 +102,7 @@ subtest 'rewrite logic transforms root-relative .html hrefs' => sub {
         <a href="/[% IF prev; type _ '/' _ prev.slug _ '.html'; END %]">Templated</a>
         See [Markdown](/articles/intro.html) for more.
         [% Ovid.link('/articles/about.html', 'About') %]
+        [% Ovid.cite('/articles/foo.html', 'Foo') %]
         EOT
     $tmproot->child('root/all-cases.tt')->spew_utf8($fixture);
 
@@ -127,6 +128,7 @@ subtest 'rewrite logic transforms root-relative .html hrefs' => sub {
     like   $after, qr{prev\.slug _ '\.html'},               'templated TT untouched';
     like   $after, qr{\]\(/articles/intro\)},               'Markdown link .html stripped';
     like   $after, qr{Ovid\.link\('/articles/about',},      'Ovid.link .html stripped';
+    like   $after, qr{Ovid\.cite\('/articles/foo',},        'Ovid.cite rewritten';
 
     chdir $cwd;
 };
@@ -201,7 +203,40 @@ subtest 'Step D rewrites Ovid.link calls' => sub {
     chdir $cwd;
 };
 
-subtest 'Steps C and D are idempotent' => sub {
+subtest 'Step E rewrites Ovid.cite calls' => sub {
+    my $tmproot = Path::Tiny->tempdir;
+    $tmproot->child('root')->mkpath;
+    $tmproot->child('lib')->mkpath;
+    $tmproot->child('bin')->mkpath;
+    $tmproot->child('bin/rebuild')->spew('# stub');
+
+    my $fixture = <<~'EOT';
+        [% Ovid.cite('/articles/paper.html', 'Paper') %]
+        [% Ovid.cite('/articles/paper.html#section', 'Paper section') %]
+        [% Ovid.cite('/articles/paper.html?q=1', 'Paper q') %]
+        EOT
+    $tmproot->child('root/ovid-cite.tt')->spew_utf8($fixture);
+
+    chdir $tmproot;
+    system( 'git', 'init', '-q' );
+    system( 'git', 'config', 'user.email', 't@t' );
+    system( 'git', 'config', 'user.name',  't' );
+    system( 'git', 'add', '-A' );
+    system( 'git', 'commit', '-q', '-m', 'init' );
+
+    my ( $out, $err ) = run_in( $tmproot );
+    ok !$err, 'Ovid.cite rewrite runs cleanly';
+
+    my $after = $tmproot->child('root/ovid-cite.tt')->slurp_utf8;
+
+    like   $after, qr{Ovid\.cite\('/articles/paper',},         '.html stripped';
+    like   $after, qr{Ovid\.cite\('/articles/paper#section',}, '#anchor preserved';
+    like   $after, qr{Ovid\.cite\('/articles/paper\?q=1',},    '?query preserved';
+
+    chdir $cwd;
+};
+
+subtest 'Steps C, D, and E are idempotent' => sub {
     my $tmproot = Path::Tiny->tempdir;
     $tmproot->child('root')->mkpath;
     $tmproot->child('lib')->mkpath;
@@ -211,6 +246,7 @@ subtest 'Steps C and D are idempotent' => sub {
     my $fixture = <<~'EOT';
         [Markdown link](/articles/intro.html)
         [% Ovid.link('/articles/about.html', 'About') %]
+        [% Ovid.cite('/articles/paper.html', 'Paper') %]
         EOT
     $tmproot->child('root/idem.tt')->spew_utf8($fixture);
 
@@ -232,7 +268,7 @@ subtest 'Steps C and D are idempotent' => sub {
     chdir $tmproot;
     my $diff = `git diff --stat`;
     chdir $cwd;
-    is $diff, '', 'second pass produces no further changes (C and D idempotent)';
+    is $diff, '', 'second pass produces no further changes (C, D, and E idempotent)';
 };
 
 subtest 'rewrite is idempotent' => sub {

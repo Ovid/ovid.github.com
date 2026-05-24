@@ -83,7 +83,10 @@ for my $file ( File::Find::Rule->file
     # Step D: Ovid.link('/path.html', ...) → Ovid.link('/path', ...)
     my $d_count = ( $contents =~ s{Ovid\.link\(\s*'(/[^'#?]+)\.html(['#?])}{Ovid.link('$1$2}g );
 
-    my $n = ( $a_count // 0 ) + ( $b_count // 0 ) + ( $c_count // 0 ) + ( $d_count // 0 );
+    # Step E: Ovid.cite('/path.html', ...) → Ovid.cite('/path', ...)
+    my $e_count = $contents =~ s{Ovid\.cite\(\s*'(/[^'#?]+)\.html(['#?])}{Ovid.cite('$1$2}g;
+
+    my $n = ( $a_count // 0 ) + ( $b_count // 0 ) + ( $c_count // 0 ) + ( $d_count // 0 ) + ( $e_count // 0 );
     next unless $n;
 
     $changed{$file}  = $n;
