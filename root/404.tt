@@ -1,5 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head><title>404 Not Found</title></head>
-<body><h1>404 Not Found</h1><p>The requested page could not be found.</p></body>
-</html>
+[%
+    title      = '404 — Page Not Found';
+    identifier = '404';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=0 -%]
+<h1>404 — Page Not Found</h1>
+
+<p>The page you were looking for has been
+<code>undef</code>ined. Either I never wrote it, I moved it, or
+the URL slipped past a regex that forgot to anchor with <code>\z</code>.</p>
+
+<p><code>SELECT * FROM pages WHERE url = ?</code> returned zero
+rows. As discussed in <a href="/articles/death-by-database.html">Death
+by Database</a>, this is a feature, not a bug.</p>
+
+<p>A few things you can try:</p>
+
+<ul>
+    <li>Head back to the <a href="/index.html">homepage</a>.</li>
+    <li>Browse the <a href="/articles.html">articles</a> or the <a href="/blog.html">blog</a>.</li>
+    <li>Search above &mdash; the search box runs on WebAssembly and is offended that you can't find what you wanted.</li>
+    <li>If you arrived here from a link on this site, please <a href="mailto:curtis.poe@gmail.com">email me</a> so I can fix it.</li>
+</ul>
+
+[% END %]
