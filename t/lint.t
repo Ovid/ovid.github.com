@@ -12,7 +12,7 @@ die "max_image_size_bytes not found in config" unless defined $MAX_IMAGE_SIZE;
 my @files = @ARGV ? @ARGV : File::Find::Rule->file->name('*.html')->in('.');
 
 foreach my $file (@files) {
-    next if $file =~ /^(?:include|cover|nytprof|editor|\.worktrees)/;
+    next if $file =~ /^(?:include|cover|nytprof|editor|\.worktrees|t\/fixtures|scratch)/;
     try {
         my @errors = html_is_bad($file);
 
@@ -24,7 +24,28 @@ foreach my $file (@files) {
     catch {
         fail "Parting $file failed: $_";
     };
+    try {
+        my @ext_errors = extensionless_violations($file);
+        ok !@ext_errors, "$file should have no extensionless-URL violations"
+          or diag join "\n" => @ext_errors;
+    }
+    catch {
+        fail "Extensionless lint of $file failed: $_";
+    };
 }
+
+subtest 'extensionless URL check flags root-relative + curtispoe.org absolute .html' => sub {
+    my $fixture = 't/fixtures/lint/extensionless_violations.html';
+    my @errors  = extensionless_violations($fixture);
+
+    is scalar(@errors), 3,
+        '3 violations found (1 root-relative <a>, 1 canonical, 1 og:url)';
+    ok( ( grep { /\/blog\/y\.html/    } @errors ), 'root-relative <a> flagged' );
+    ok( ( grep { /canonical.*x\.html/ } @errors ), 'canonical absolute flagged' );
+    ok( ( grep { /og:url.*x\.html/    } @errors ), 'og:url absolute flagged' );
+    ok( ( !grep { /example\.com/      } @errors ), 'external URL not flagged' );
+    ok( ( !grep { /\/blog\/z[^.]/     } @errors ), 'clean extensionless link not flagged' );
+};
 
 done_testing;
 
@@ -88,6 +109,37 @@ sub html_is_bad ($file) {
                     next TOKEN;    # ignore it
                 }
                 push @stack => $token;
+            }
+        }
+    }
+    return @errors;
+}
+
+sub extensionless_violations ($file) {
+    my @errors;
+    my $parser = HTML::TokeParser::Simple->new( file => $file );
+
+    my $root_re     = qr{^/[^#?]*\.html(?:[#?].*)?$};
+    my $absolute_re = qr{^https?://curtispoe\.org/[^#?]*\.html(?:[#?].*)?$};
+
+    while ( my $token = $parser->get_tag ) {
+        next unless $token->is_start_tag;
+        my $tag = $token->get_tag;
+
+        if ( $tag eq 'a' || $tag eq 'link' ) {
+            my $href = $token->get_attr('href') // next;
+            if ( $href =~ $root_re || $href =~ $absolute_re ) {
+                my $rel  = $tag eq 'link' ? ( $token->get_attr('rel') // '' ) : '';
+                my $kind = $tag eq 'link' && $rel eq 'canonical' ? 'canonical' : $tag;
+                push @errors, "$kind href '$href' should be extensionless";
+            }
+        }
+        elsif ( $tag eq 'meta' ) {
+            my $prop = $token->get_attr('property') // '';
+            next unless $prop eq 'og:url';
+            my $content = $token->get_attr('content') // next;
+            if ( $content =~ $root_re || $content =~ $absolute_re ) {
+                push @errors, "og:url content '$content' should be extensionless";
             }
         }
     }
