@@ -154,8 +154,8 @@ subtest '_write_sitemap writes sitemap.xml with urlset entries' => sub {
         my $xml = $sitemap->slurp_utf8;
         like $xml, qr{<\?xml version="1\.0" encoding="UTF-8"\?>}, 'xml declaration';
         like $xml, qr{<urlset xmlns="http://www\.sitemaps\.org/schemas/sitemap/0\.9">}, 'urlset open';
-        like $xml, qr{<loc>https://curtispoe\.org/index\.html</loc>}, 'index.html entry';
-        like $xml, qr{<loc>https://curtispoe\.org/articles/foo\.html</loc>}, 'articles/foo.html entry';
+        like $xml, qr{<loc>https://curtispoe\.org/</loc>}, 'index.html entry collapsed to /';
+        like $xml, qr{<loc>https://curtispoe\.org/articles/foo</loc>}, 'articles/foo extensionless entry';
         like $xml, qr{<priority>(?:1\.0|1)</priority>},   'priority assigned for index';
         like $xml, qr{<changefreq>monthly</changefreq>}, 'changefreq assigned for index';
         like $xml, qr{</urlset>}, 'urlset close';
