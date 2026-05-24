@@ -668,6 +668,7 @@ END
     }
 
     sub _tinysearch_url_for_file ( $self, $file ) {
+        return '/' if $file eq 'index.html';
         (my $clickable = $file) =~ s/\.html\z//;
         return $clickable =~ m{^/} ? $clickable : "/$clickable";
     }
