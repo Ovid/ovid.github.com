@@ -125,4 +125,54 @@ subtest '_get_git_lastmod falls back to mtime for an untracked file' => sub {
         'mtime fallback date is one of the two valid timezone-shifted values';
 };
 
+subtest '_resolve_source prefers .tt2markdown when both extensions exist' => sub {
+    _in_tempdir sub ($tempdir) {
+        $tempdir->child('root/articles')->mkpath;
+        $tempdir->child('root/articles/foo.tt2markdown')->spew('md source');
+        $tempdir->child('root/articles/foo.tt')->spew('tt source');
+
+        my $site = Ovid::Site->new;
+        is $site->_resolve_source('articles/foo.html'),
+            'root/articles/foo.tt2markdown',
+            '.tt2markdown wins when both exist';
+    };
+};
+
+subtest '_resolve_source returns .tt when only .tt exists' => sub {
+    _in_tempdir sub ($tempdir) {
+        $tempdir->child('root')->mkpath;
+        $tempdir->child('root/foo.tt')->spew('tt source');
+
+        my $site = Ovid::Site->new;
+        is $site->_resolve_source('foo.html'),
+            'root/foo.tt',
+            '.tt is used when no .tt2markdown sibling exists';
+    };
+};
+
+subtest '_resolve_source returns undef when neither source extension exists' => sub {
+    _in_tempdir sub ($tempdir) {
+        my $site = Ovid::Site->new;
+        is $site->_resolve_source('articles_2.html'),
+            undef,
+            'undef returned when neither .tt2markdown nor .tt is on disk';
+    };
+};
+
+subtest '_get_git_lastmod uses the source template date for a generated HTML' => sub {
+    # root/404.tt is committed in this repo (with no .tt2markdown sibling).
+    # 404.html, if it exists, is the generated output — possibly untracked.
+    # _get_git_lastmod('404.html') should resolve to root/404.tt and return
+    # that file's committed date, regardless of the HTML's own state.
+    my $site = Ovid::Site->new;
+
+    chomp( my $raw = `git log -1 --format=%ai -- root/404.tt` );
+    $raw =~ /^(\d{4}-\d{2}-\d{2})/
+        or die "unexpected git log output for root/404.tt: [$raw]";
+    my $expected = $1;
+
+    is $site->_get_git_lastmod('404.html'), $expected,
+        "lastmod for 404.html comes from root/404.tt ($expected)";
+};
+
 done_testing;
