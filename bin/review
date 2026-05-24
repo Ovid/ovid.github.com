@@ -26,6 +26,13 @@ my $ROOT_TEMPLATES_ROOT = $PROJECT_ROOT->child('root')->realpath;
 # (which, with concurrent POSTs, would kill each others' editors).
 my $editor_child_pid;
 
+# Set text/html content-type and return the file's UTF-8 content so that
+# the `after` hook can inject the dev-tools script into the response.
+sub _slurp_html ($path) {
+    content_type 'text/html; charset=UTF-8';
+    return $path->slurp_utf8;
+}
+
 sub _terminate_previous_editor () {
     return unless $editor_child_pid;
     kill 'TERM', $editor_child_pid;
@@ -59,8 +66,7 @@ hook after => sub {
 get '/' => sub {
     my $file = path('index.html')->absolute;
     if ( $file->exists && -f $file ) {
-        content_type 'text/html; charset=UTF-8';
-        return $file->slurp_utf8;
+        return _slurp_html($file);
     }
     status 'not_found';
     return '404 - Not Found: index.html';
@@ -240,8 +246,7 @@ get '/**' => sub {
 
         # For HTML files, read and return content directly to allow hook injection
         if ( $path_str =~ /\.html?$/i ) {
-            content_type 'text/html; charset=UTF-8';
-            return $file->slurp_utf8;
+            return _slurp_html($file);
         }
 
         # For other files, use send_file
@@ -251,6 +256,11 @@ get '/**' => sub {
     }
     else {
         status 'not_found';
+        my $custom = path('404.html');
+        if ( $custom->exists && -f $custom ) {
+            return _slurp_html($custom);
+        }
+        # Falls back to plaintext when 404.html hasn't been built yet (fresh checkout).
         return "404 - Not Found: $path_str";
     }
 };

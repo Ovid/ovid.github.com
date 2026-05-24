@@ -305,4 +305,24 @@ subtest 'extensionless URLs resolve to .html files' => sub {
     };
 };
 
+subtest 'unknown paths serve the custom 404.html body' => sub {
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/definitely-not-a-real-page' );
+        is $res->code, 404, 'unknown path returns 404';
+        like $res->content, qr/Page Not Found/,
+            'unknown path returns 404.html body, not the plaintext fallback';
+        like $res->content, qr/window\.DEV_MODE/,
+            'after hook still injects dev-tools script into 404 body';
+    };
+
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/cpanfile' );
+        is $res->code, 404, 'allowed-by-pattern-but-missing returns 404';
+        unlike $res->content, qr/^404 - Not Found:/,
+            'not the plaintext fallback';
+    };
+};
+
 done_testing;
