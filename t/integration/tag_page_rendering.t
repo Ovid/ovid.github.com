@@ -39,7 +39,7 @@ subtest 'tag page lists articles for a known tag' => sub {
 
     unlike $output, qr/No articles found/,
       "Known tag '$tag' should not render the empty-state message";
-    like $output, qr{<li><a href="/(?:articles|blog)/[^"]+\.html">[^<]+</a>}i,
+    like $output, qr{<li><a href="/(?:articles|blog)/[^"]+">[^<]+</a>}i,
       "Known tag '$tag' should render at least one article-or-blog link";
 };
 
