@@ -196,6 +196,16 @@ get '/**' => sub {
     # Empty splat means GET / (handled here, no redirect).
     my $path_str = join( '/', @segments ) || 'index.html';
 
+    # Extensionless resolution: if the final segment has no extension
+    # (i.e. no dot at all — we mean *any* dot, not just a leading dot
+    # like the dot-segment check above), treat the resolved file as
+    # <path>.html for both allow-list and filesystem lookup.
+    # So /blog/foo → blog/foo.html, /blog → blog.html.
+    my $final_segment = $segments[-1] // '';
+    if ( $final_segment ne '' && $final_segment !~ /\./ ) {
+        $path_str .= '.html';
+    }
+
     # Enforce the allowlist: top-level files must have a permitted
     # extension; nested paths must live under a permitted top-level
     # directory.

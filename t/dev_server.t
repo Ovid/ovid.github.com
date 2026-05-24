@@ -281,4 +281,28 @@ subtest 'static handler rejects symlinks pointing outside project root' => sub {
     unlink "$tmplink";
 };
 
+subtest 'extensionless URLs resolve to .html files' => sub {
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/blog' );
+        is $res->code, 200, 'GET /blog returns 200';
+
+        my $html_res = $cb->( GET '/blog.html' );
+        is $res->content, $html_res->content,
+            'GET /blog and GET /blog.html return identical bodies';
+
+        my ($post) = glob('blog/*.html');
+        if ( $post ) {
+            (my $extless = $post) =~ s{^blog/}{};
+            $extless =~ s/\.html$//;
+            my $r1 = $cb->( GET "/blog/$extless" );
+            my $r2 = $cb->( GET "/blog/$extless.html" );
+            is $r1->code, 200, "GET /blog/$extless returns 200";
+            is $r1->content, $r2->content,
+                "GET /blog/$extless == GET /blog/$extless.html";
+        }
+    };
+};
+
 done_testing;
