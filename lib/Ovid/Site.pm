@@ -277,11 +277,16 @@ SQL
             my $new_links = 0;
             foreach my $article ( $articles->@* ) {
                 my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
-                my $url     = "$base_url$directory/$article->{slug}.html";
+                my $url     = "$base_url$directory/$article->{slug}";
 
                 # Every time we changed an article, we kept updating the
                 # publication date of the entire RSS feed. Now we only do this if
                 # we have found at least one new article/blog entry.
+                # Note: pre-existing RSS files on disk may have .html links;
+                # after the switch to extensionless URLs the dedup set keyed
+                # on old .html values won't match, so the first post-change
+                # build will treat all items as new and rewrite both feeds.
+                # One-time cost; subsequent builds dedup correctly.
                 $new_links++ if not $already_added{$url};
 
                 $rss->add_item(
@@ -289,7 +294,7 @@ SQL
                     link        => $url,
                     description => $article->{description},
                     creator     => 'Curtis "Ovid" Poe',
-                    guid        => "$type->{type}/$article->{slug}",
+                    guid        => { isPermaLink => 'false', content => "$type->{type}/$article->{slug}" },
                     pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
                 );
             }
