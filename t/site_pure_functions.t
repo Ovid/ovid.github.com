@@ -56,8 +56,8 @@ subtest '_get_article_list renders an HTML list of articles' => sub {
     ];
     my $html = $site->_get_article_list( $records, $article_type );
     like   $html, qr{<ul id="articles">},                                'wraps in <ul id="articles">';
-    like   $html, qr{<a href="/blog/first\.html">First Post</a>},        'first entry rendered';
-    like   $html, qr{<a href="/blog/second\.html">Second Post</a>},      'second entry rendered';
+    like   $html, qr{<a href="/blog/first">First Post</a>},              'first entry rendered';
+    like   $html, qr{<a href="/blog/second">Second Post</a>},            'second entry rendered';
     like   $html, qr{</ul>\z},                                           'closes with </ul>';
 
     my $empty = $site->_get_article_list( [], $article_type );
@@ -73,21 +73,42 @@ subtest '_get_pagination produces nav HTML or empty string' => sub {
     my $page1 = $site->_get_pagination( 3, 1, $article_type );
     like $page1, qr{<nav class="pagination">},               'opens nav';
     like $page1, qr{<span class="inactive">&laquo;</span>},  'prev is inactive on page 1';
-    like $page1, qr{<a class="active" href="/blog\.html">1</a>}, 'page 1 marked active';
-    like $page1, qr{<a  href="/blog_2\.html">2</a>},         'page 2 link present';
-    like $page1, qr{<a  href="/blog_3\.html">3</a>},         'page 3 link present';
-    like $page1, qr{<a href="/blog_2\.html">&raquo;</a>},    'next links to page 2';
+    like $page1, qr{<a class="active" href="/blog">1</a>},   'page 1 marked active';
+    like $page1, qr{<a  href="/blog_2">2</a>},               'page 2 link present';
+    like $page1, qr{<a  href="/blog_3">3</a>},               'page 3 link present';
+    like $page1, qr{<a href="/blog_2">&raquo;</a>},          'next links to page 2';
     like $page1, qr{</nav>\z},                                'closes nav';
 
     my $page2 = $site->_get_pagination( 3, 2, $article_type );
-    like $page2, qr{<a href="/blog\.html">&laquo;</a>},      'prev links back to page 1';
-    like $page2, qr{<a class="active" href="/blog_2\.html">2</a>}, 'page 2 marked active';
-    like $page2, qr{<a href="/blog_3\.html">&raquo;</a>},    'next links to page 3';
+    like $page2, qr{<a href="/blog">&laquo;</a>},            'prev links back to page 1';
+    like $page2, qr{<a class="active" href="/blog_2">2</a>}, 'page 2 marked active';
+    like $page2, qr{<a href="/blog_3">&raquo;</a>},          'next links to page 3';
 
     my $page3 = $site->_get_pagination( 3, 3, $article_type );
-    like $page3, qr{<a href="/blog_2\.html">&laquo;</a>},    'prev links to page 2';
-    like $page3, qr{<a class="active" href="/blog_3\.html">3</a>}, 'page 3 marked active';
+    like $page3, qr{<a href="/blog_2">&laquo;</a>},          'prev links to page 2';
+    like $page3, qr{<a class="active" href="/blog_3">3</a>}, 'page 3 marked active';
     like $page3, qr{<span class="inactive">&raquo;</span>},  'next is inactive on last page';
+};
+
+subtest '_get_pagination emits extensionless hrefs' => sub {
+    my $type = { directory => 'articles', name => 'Articles' };
+    my $html = $site->_get_pagination( 3, 2, $type );
+    unlike $html, qr/\.html"/, 'no .html" appears in paginator anchors';
+    like $html, qr{href="/articles"},          'page-1 anchor extensionless';
+    like $html, qr{href="/articles_3"},        'last-page anchor extensionless';
+    like $html, qr{href="/articles_2"},        'current-page anchor extensionless';
+};
+
+subtest '_get_article_list emits extensionless hrefs' => sub {
+    my $type    = { directory => 'blog', name => 'Blog' };
+    my $records = [
+        { slug => 'foo', title => 'Foo' },
+        { slug => 'bar', title => 'Bar' },
+    ];
+    my $html = $site->_get_article_list( $records, $type );
+    unlike $html, qr/\.html"/, 'no .html" appears in article list';
+    like $html, qr{href="/blog/foo">Foo}, 'foo link extensionless';
+    like $html, qr{href="/blog/bar">Bar}, 'bar link extensionless';
 };
 
 subtest '_html_to_text extracts title and article text' => sub {

@@ -441,7 +441,7 @@ SQL
         if ( $current > 1 ) {
             my $prev    = $current - 1;
             my $article = $self->_article_page( $prev, $article_type );
-            $pagination .= qq{    <a href="/$article.html">&laquo;</a>\n};
+            $pagination .= qq{    <a href="/$article">&laquo;</a>\n};
         }
         else {
             $pagination .= qq{    <span class="inactive">&laquo;</span>\n};
@@ -449,12 +449,12 @@ SQL
         for my $page ( 1 .. $total ) {
             my $class   = $page == $current ? 'class="active"' : '';
             my $article = $self->_article_page( $page, $article_type );
-            $pagination .= qq{    <a $class href="/$article.html">$page</a>\n};
+            $pagination .= qq{    <a $class href="/$article">$page</a>\n};
         }
         if ( $current < $total ) {
             my $next    = $current + 1;
             my $article = $self->_article_page( $next, $article_type );
-            $pagination .= qq{    <a href="/$article.html">&raquo;</a>\n};
+            $pagination .= qq{    <a href="/$article">&raquo;</a>\n};
         }
         else {
             $pagination .= qq{    <span class="inactive">&raquo;</span>\n};
@@ -472,7 +472,7 @@ SQL
         my $list = qq{<ul id="articles">\n};
         foreach my $article ( $records->@* ) {
             $list
-              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article->{title}</a></li>\n};
+              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
         }
         $list .= "</ul>";
         return $list;
