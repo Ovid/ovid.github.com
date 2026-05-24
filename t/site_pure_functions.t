@@ -119,6 +119,13 @@ subtest '_sitemap_loc maps on-disk filename to public URL' => sub {
     is $site->_sitemap_loc( $base, 'articles_2.html' ),  "$base/articles_2",      'pagination → /articles_2';
 };
 
+subtest '_tinysearch_url_for_file builds extensionless click-through URLs' => sub {
+    is $site->_tinysearch_url_for_file('index.html'),            '/index',          'top-level html';
+    is $site->_tinysearch_url_for_file('blog/foo.html'),         '/blog/foo',       'nested html';
+    is $site->_tinysearch_url_for_file('articles/bar.html'),     '/articles/bar',   'articles html';
+    is $site->_tinysearch_url_for_file('/already/leading.html'), '/already/leading','leading slash preserved, .html stripped';
+};
+
 subtest '_html_to_text extracts title and article text' => sub {
     my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
     $tmp->spew_utf8( <<~'HTML' );

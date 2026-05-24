@@ -667,6 +667,11 @@ END
         return "$base_url/$url";
     }
 
+    sub _tinysearch_url_for_file ( $self, $file ) {
+        (my $clickable = $file) =~ s/\.html\z//;
+        return $clickable =~ m{^/} ? $clickable : "/$clickable";
+    }
+
     sub _write_sitemap ($self) {
 
         # Find all HTML files
@@ -754,7 +759,7 @@ END
             $title =~ s/[‘’]/'/g;
 
             # uncoverable statement
-            my $url = $file =~ /^\// ? $file : "/$file";
+            my $url = $self->_tinysearch_url_for_file($file);
 
             # uncoverable statement
             push @index => { url => $url, title => $title, body => $text };
