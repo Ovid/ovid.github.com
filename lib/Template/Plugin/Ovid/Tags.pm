@@ -102,7 +102,7 @@ Template::Plugin::Ovid::Tags - Tag operations for Template Toolkit
 
     [% USE tags = Ovid.Tags %]
     [% FOREACH tag IN tags.tags_by_weight %]
-        <a href="/tags/[% tag %].html"
+        <a href="/tags/[% tag %]"
            data-weight="[% tags.weight_for_tag(tag) %]">
             [% tags.name_for_tag(tag) %]
         </a>
