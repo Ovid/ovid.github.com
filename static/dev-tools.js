@@ -67,13 +67,22 @@
         const urlObj = new URL(url);
         let path = urlObj.pathname;
 
-        // Remove leading slash and .html extension
-        path = path.replace(/^\//, '').replace(/\.html$/, '');
+        path = path.replace(/^\//, '');
 
-        // Default to index if empty
+        // If the final segment has no extension, treat it as the
+        // extensionless form of a .html page (matches bin/review's
+        // server-side resolution). Then strip .html for source-file mapping.
+        // The two-step approach (append .html, then strip .html) ensures
+        // both /blog/foo and /blog/foo.html go through one canonical form
+        // before deriving the source file path.
+        const finalSegment = path.split('/').pop() || '';
+        if (finalSegment !== '' && !finalSegment.includes('.')) {
+            path = path + '.html';
+        }
+        path = path.replace(/\.html$/, '');
+
         if (!path) path = 'index';
 
-        // Map to source file (try .tt first)
         return 'root/' + path + '.tt';
     }
 })();

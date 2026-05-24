@@ -24,4 +24,9 @@ like $content, qr{/api/launch-editor},
 like $content, qr/addEventListener.*DOMContentLoaded/,
     'Waits for DOM ready';
 
+subtest 'urlToSourceFile handles extensionless URLs' => sub {
+    like $content, qr/finalSegment.*includes\('\.'\)|includes\('\.'\).*finalSegment/,
+        'urlToSourceFile branches on whether the final path segment has an extension';
+};
+
 done_testing;
