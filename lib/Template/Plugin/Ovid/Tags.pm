@@ -73,9 +73,9 @@ sub name_for_tag ( $self, $tag ) {
     return $self->{tagmap}{$tag}{name};
 }
 
-sub tags_for_url ( $self, $url ) {
+sub tags_for_url ( $self, $slug_key ) {
     return [] unless exists $self->{tagmap}{__ALL__};
-    return $self->{tagmap}{__ALL__}{$url} // [];
+    return $self->{tagmap}{__ALL__}{$slug_key} // [];
 }
 
 sub has_articles_for_tag ( $self, $tag ) {
@@ -127,9 +127,13 @@ build time from C<Less::Config>'s C<tagmap> mapping, so config remains
 the upstream source — but render-time lookups go through the in-memory
 tagmap to avoid drift between two read paths.
 
-=head2 C<tags_for_url($url)>
+=head2 C<tags_for_url($slug_key)>
 
-Returns array reference of tags for a given URL. Returns empty arrayref if URL has no tags.
+Returns array reference of tags for a given slug-key (the C<type/slug>
+form used as the tagmap C<__ALL__> key, e.g. C<blog/foo>). Returns
+empty arrayref if the key has no entry. The method name is historical
+— it predates the extensionless-URL migration, when tagmap keys still
+looked like article URLs.
 
 =head2 C<has_articles_for_tag($tag)>
 
