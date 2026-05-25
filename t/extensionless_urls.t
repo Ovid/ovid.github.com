@@ -50,8 +50,11 @@ subtest 'sitemap pass against fixtures' => sub {
 };
 
 subtest 'RSS pass against fixtures' => sub {
+    # Violating fixture contains a .html in BOTH <link> and <guid>, so
+    # this exercises the guid branch of rss_violations (which used to
+    # be dead — the fixture's guid was 'blog/foo' with no .html).
     cmp_ok( scalar rss_violations('t/fixtures/extensionless_urls/violating-feed.rss'),
-        '==', 1, 'one violation in violating fixture' );
+        '==', 2, 'link and guid violations both flagged in violating fixture' );
     cmp_ok( scalar rss_violations('t/fixtures/extensionless_urls/clean-feed.rss'),
         '==', 0, 'no violations in clean fixture' );
 };
