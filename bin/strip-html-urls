@@ -38,10 +38,11 @@ unless ($force) {
 
 say "Dirty-tree pre-flight: OK";
 
-# Pre-flight: quote-form survey. The Step B regex only matches
-# href="..." (double-quoted, no whitespace around =). Abort if any
-# source file uses single quotes or whitespace around =, so the operator
-# can either normalize the source or widen the regex.
+# Pre-flight: quote-form survey. The rewriters below only match a narrow
+# set of shapes (Step B: href="..."; Steps D/E: Ovid.link('...')/
+# Ovid.cite('...')). Abort if any source file uses a form the rewriter
+# cannot handle, so the operator can either normalize the source or
+# widen the regex.
 my @bad;
 for my $file ( File::Find::Rule->file
         ->name( '*.tt', '*.tt2markdown' )
@@ -51,12 +52,13 @@ for my $file ( File::Find::Rule->file
            $contents =~ m{href\s*=\s*'(/[^']*\.html)}
         || $contents =~ m{href\s{1,}=\s*"(/[^"]*\.html)}
         || $contents =~ m{href=\s{1,}"(/[^"]*\.html)}
+        || $contents =~ m{(Ovid\.(?:link|cite)\(\s*"/[^"]*\.html)}
     ) {
         push @bad, "$file: $1";
     }
 }
 if (@bad) {
-    die "ERROR: quote-form survey found hrefs the rewriter cannot handle:\n"
+    die "ERROR: source forms the rewriter cannot handle (quote-form survey):\n"
       . join( "\n", @bad )
       . "\nNormalize the source or widen the rewriter regex.\n";
 }

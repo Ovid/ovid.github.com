@@ -91,6 +91,39 @@ subtest 'quote-form survey gate rejects single-quoted or space-padded hrefs' => 
     chdir $cwd;
 };
 
+subtest 'quote-form survey rejects double-quoted Ovid.link/cite calls' => sub {
+    # Steps D/E only accept single-quoted arguments. A double-quoted
+    # form silently slips past the rewriter, leaving stray .html URLs.
+    # The survey must flag this shape so authors are nudged to normalize
+    # quotes (or to widen the rewriter) before the build.
+    for my $shape (
+        [ 'ovid-link-dq.tt',  q{[% Ovid.link("/articles/about.html", 'About') %]} ],
+        [ 'ovid-cite-dq.tt',  q{[% Ovid.cite("/articles/paper.html", 'Paper') %]} ],
+    ) {
+        my ( $name, $content ) = @$shape;
+
+        my $tmproot = Path::Tiny->tempdir;
+        $tmproot->child('root')->mkpath;
+        $tmproot->child('lib')->mkpath;
+        $tmproot->child('bin')->mkpath;
+        $tmproot->child('bin/rebuild')->spew('# stub');
+        $tmproot->child("root/$name")->spew_utf8($content);
+
+        chdir $tmproot;
+        system( 'git', 'init', '-q' );
+        system( 'git', 'config', 'user.email', 't@t' );
+        system( 'git', 'config', 'user.name',  't' );
+        system( 'git', 'add', '-A' );
+        system( 'git', 'commit', '-q', '-m', 'init' );
+        chdir $cwd;
+
+        my ( $out, $err ) = run_in( $tmproot, '--dry-run' );
+        ok $err, "$name: aborts on double-quoted Ovid form the rewriter cannot handle";
+        like "$err$out", qr/quote.?form|Ovid\.(?:link|cite)/i,
+            "$name: error message points at the offending form";
+    }
+};
+
 subtest 'rewrite logic transforms root-relative .html hrefs' => sub {
     my $tmproot = Path::Tiny->tempdir;
     $tmproot->child('root')->mkpath;
