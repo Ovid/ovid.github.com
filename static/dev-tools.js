@@ -1,4 +1,12 @@
 (function() {
+    // Test hook: expose urlToSourceFile to Node via CommonJS without
+    // requiring a browser. The browser path has no `module` global, so
+    // this branch is invisible to bin/review-served pages.
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = { urlToSourceFile: urlToSourceFile };
+        return;
+    }
+
     // Only run if dev mode is enabled
     if (!window.DEV_MODE) return;
 
@@ -68,6 +76,15 @@
         let path = urlObj.pathname;
 
         path = path.replace(/^\//, '');
+
+        // Trailing slash → directory index (mirrors bin/review's
+        // /projects/extraction/ → projects/extraction/index.html).
+        // Handle this BEFORE the extensionless branch, because
+        // path.split('/').pop() on a trailing-slash path returns ''
+        // and would skip the .html append, producing 'root/foo/.tt'.
+        if (path === '' || path.endsWith('/')) {
+            path = path + 'index.html';
+        }
 
         // If the final segment has no extension, treat it as the
         // extensionless form of a .html page (matches bin/review's
