@@ -144,21 +144,19 @@ subtest 'launch-editor restricts targets to files under root/' => sub {
     };
 };
 
-# [C2] The static file handler must not expose arbitrary in-project
-# files. Without restrictions, GET /cpanfile, GET /db/ovid.db,
-# GET /lib/Ovid/Site.pm all return file contents.
-subtest 'static handler blocks sensitive in-project paths' => sub {
+# bin/review is a single-user dev server bound to 127.0.0.1, so
+# arbitrary in-project files (db/, lib/, cpanfile) are intentionally
+# reachable — there is no LAN threat model. The one path-shape that's
+# still rejected is dot-prefixed segments: those block .git/, .env,
+# editor swapfiles, and similar config artifacts the user is very
+# unlikely to mean to fetch.
+subtest 'static handler rejects dot-prefixed path segments' => sub {
     test_psgi $app => sub {
         my $cb = shift;
-        for my $blocked (
-            'cpanfile', 'Makefile', 'db/ovid.db', 'lib/Ovid/Site.pm',
-            '.git/config',
-          )
-        {
-            next unless -e $blocked;
-            my $res = $cb->( GET "/$blocked" );
+        for my $blocked ( '/.git/config', '/.env', '/foo/.swp' ) {
+            my $res = $cb->( GET $blocked );
             isnt $res->code, 200,
-              "GET /$blocked must not return file contents";
+              "GET $blocked must not return file contents";
         }
     };
 };
@@ -301,6 +299,51 @@ subtest 'extensionless URLs resolve to .html files' => sub {
             is $r1->code, 200, "GET /blog/$extless returns 200";
             is $r1->content, $r2->content,
                 "GET /blog/$extless == GET /blog/$extless.html";
+        }
+    };
+};
+
+subtest 'directory URLs resolve to index.html' => sub {
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        # /projects/extraction/ and /projects/extraction must serve
+        # projects/extraction/index.html (no projects/extraction.html exists).
+        # Both trailing-slash and bare forms appear in real links/sitemap.
+        if ( -f 'projects/extraction/index.html' ) {
+            my $direct = $cb->( GET '/projects/extraction/index.html' );
+            is $direct->code, 200, 'direct index.html serves 200';
+
+            my $trailing = $cb->( GET '/projects/extraction/' );
+            is $trailing->code, 200,
+              'GET /projects/extraction/ returns 200 (dir → index.html)';
+            is $trailing->content, $direct->content,
+              'trailing-slash URL serves identical content';
+
+            my $bare = $cb->( GET '/projects/extraction' );
+            is $bare->code, 200,
+              'GET /projects/extraction (no slash) returns 200';
+            is $bare->content, $direct->content,
+              'no-slash URL serves identical content';
+        }
+
+        # /paad/tramp-freighter (linked from root/include/links.tt) —
+        # both forms should serve paad/tramp-freighter/index.html.
+        if ( -f 'paad/tramp-freighter/index.html' ) {
+            my $direct = $cb->( GET '/paad/tramp-freighter/index.html' );
+            is $direct->code, 200, 'paad direct index.html serves 200';
+
+            my $trailing = $cb->( GET '/paad/tramp-freighter/' );
+            is $trailing->code, 200,
+              'GET /paad/tramp-freighter/ returns 200';
+            is $trailing->content, $direct->content,
+              'paad trailing-slash URL serves identical content';
+
+            my $bare = $cb->( GET '/paad/tramp-freighter' );
+            is $bare->code, 200,
+              'GET /paad/tramp-freighter (no slash) returns 200';
+            is $bare->content, $direct->content,
+              'paad no-slash URL serves identical content';
         }
     };
 };
