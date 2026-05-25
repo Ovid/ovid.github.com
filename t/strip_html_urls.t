@@ -1,5 +1,12 @@
 #!/usr/bin/env perl
 
+# Less::Boilerplate (loaded below) pulls in `use utf8`, so the `→` in
+# a test description on line 121 becomes a wide character. Push the
+# UTF-8 encoding layer onto STDIO *before* Test::Most loads — Test2
+# dups STDOUT at module-load time, and the dup inherits whatever
+# layers are on STDOUT at that moment.
+use open ':std', ':encoding(UTF-8)';
+
 use Test::Most;
 use lib 'lib';
 use Less::Boilerplate;
