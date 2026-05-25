@@ -659,8 +659,9 @@ END
     }
 
     # Maps an on-disk .html filename to a public sitemap URL (strips .html,
-    # collapses index.html to /). See also _tinysearch_url_for_file (Task 12),
-    # which strips .html without the index.html special case.
+    # collapses index.html to /). _tinysearch_url_for_file applies the same
+    # rules without the base-URL prefix and also tolerates leading-slash
+    # input.
     sub _sitemap_loc ( $self, $base_url, $file ) {
         return "$base_url/" if $file eq 'index.html';
         (my $url = $file) =~ s/\.html\z//;
