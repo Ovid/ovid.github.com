@@ -1,10 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  [% IF identifier == '404' %]
+  <script>
+    // GitHub Pages doesn't strip trailing slashes from extensionless
+    // URLs: /articles/foo serves foo.html, but /articles/foo/ 404s.
+    // When the 404 page loads, check whether the slash-less form
+    // exists (HEAD) and redirect there. Body is hidden during the
+    // check to avoid flashing 404 content before the redirect.
+    (function() {
+      var path = location.pathname;
+      if (path === '/' || !path.endsWith('/')) return;
+      var style = document.createElement('style');
+      style.textContent = 'body { visibility: hidden; }';
+      document.head.appendChild(style);
+      var target = path.replace(/\/+$/, '');
+      function reveal() { style.remove(); }
+      fetch(target, { method: 'HEAD' }).then(function(r) {
+        if (r.ok) {
+          location.replace(target + location.search + location.hash);
+        } else {
+          reveal();
+        }
+      }).catch(reveal);
+    })();
+  </script>
+  [% END %]
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      const theme = localStorage.getItem('theme') ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
