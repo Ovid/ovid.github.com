@@ -19,62 +19,54 @@ command.
 
 Use the `bin/article` program to start writing an article:
 
-    perl bin/article -type=article Name of Article
+    perl bin/article --type article "Name of Article"
+
+Pass `--type blog` instead for a blog post, and `--open` to launch the
+new article in the live editor.
 
 After writing the article, run `bin/rebuild` from this directory to rebuild
-the html docs.
+the html docs. Add `--release` to also regenerate the WebAssembly search
+engine (needs `tinysearch` and `wasm-pack` installed via `cargo`).
 
 Note: If you need a table of contents for a TT doc, include the string `{{TOC}}`
 on a blank line by itself. We try to build the table of contents automatically
 from the "H" tags in the HTML (`<h1>`, `<h2>`, up to `<h6>`).
 
-You may find installing
-[App::HTTPThis](https://metacpan.org/pod/App::HTTPThis) to be useful for local
-testing. After installation, simply run this from the root directory:
+For local testing, run the development server from the root directory:
 
-    $ http_this
-    Exporting '.', available at:
-       http://127.0.0.1:7007/
+    perl bin/review
 
-You can then navigate to `http://127.0.0.1:7007/` in your browser to see the
-results. See `perldoc http_this` for more details.
+It serves the generated site at <http://127.0.0.1:7007/> and injects an
+Edit button (✏️ in the upper-left of every page) that launches the live
+editor on the source `.tt` file for the page you are viewing. See
+`perldoc bin/review` for details.
 
 # Article Metadata
 
-At the top of any new article or blog entry, you'll often see a premable like
+At the top of any new article or blog entry, you'll often see a preamble like
 this:
 
-  [%
-      title            = 'Life on Venus?';
-      type             = 'blog';
-      slug             = 'life-on-venus';
-      include_comments = 1;
-      syntax_highlight = 1;
-      date             = '2020-09-15';
-      facebook         = 'venus.jpg';
-      facebook_alt     = 'The planet Venus';
-      USE Ovid;
-  %]
+    [%
+        title            = 'Life on Venus?';
+        type             = 'blog';
+        slug             = 'life-on-venus';
+        include_comments = 1;
+        syntax_highlight = 1;
+        date             = '2020-09-15';
+        facebook         = 'venus.jpg';
+        facebook_alt     = 'The planet Venus';
+        USE Ovid;
+    %]
 
-      title            = 'Life on Venus?';
+`title` is the title of the entry. It will be used in the `<title>` tag
+and also as the title displayed on the page.
 
-The `title` is the title of the entry. It will be used in the `<title>` tag
-and also as the title in the page.
+`type` should be one of `blog` or `article`.
 
-      type             = 'blog';
+`slug` is the slug used to build the URL.
 
-The `type` should be one of `blog` or `article`.
-
-      slug             = 'life-on-venus';
-
-This is the slug that will be used to build the URL.
-
-      include_comments = 1;
-
-If set to a true value, `include_comments` will enable Disqus comments for the
-page.
-
-      syntax_highlight = 1;
+If set to a true value, `include_comments` will enable Disqus comments for
+the page.
 
 If `syntax_highlight` is true, you can wrap your code and have it syntax
 highlighted:
@@ -90,14 +82,11 @@ highlighted:
     done_testing();
     [% END %]
 
-      date             = '2020-09-15';
+`date` will be displayed on the web page.
 
-This date will be displayed on the web page.
-
-      facebook         = 'venus.jpg';
-
-If present, this will create an opengraph image that will be used by Facebook
-and other social media sites for displaying as a teaser image for the article.
+If present, `facebook` will create an OpenGraph image used by Facebook and
+other social media sites as a teaser image for the article. `facebook_alt`
+sets the alt text for that image.
 
 # Live Editor
 
@@ -140,14 +129,14 @@ You will also want to edit the following files:
 The header has Google tracking code and various bits about the author. The
 footer has the author's Disqus code. If you'd like comments on your site and
 wish to use Disqus, see [the Disqus website](https://disqus.com/) for more
-information..
+information.
 
 # STOCK PHOTOS
 
-Many photos from are from the free stock photo sites
+Many photos are from the free stock photo sites
 [Unsplash](https://unsplash.com/) or [Pexels](https://www.pexels.com/).
 
 # LICENSE
 
-Copyright 2018-2020, Curtis "Ovid" Poe. Released under [The MIT
-License](http://opensource.org/licenses/MIT).
+Copyright 2018-2026, Curtis "Ovid" Poe. Released under [The MIT
+License](https://opensource.org/licenses/MIT).

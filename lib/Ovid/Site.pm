@@ -731,18 +731,9 @@ END
         # needed to run `cargo install --features="bin" tinysearch` for installation
         # and rerun `cargo install wasm-pack` for wasm-pack
         # uncoverable statement
-        my @files = qw(
-          hireme.html
-          index.html
-          projects.html
-          publicspeaking.html
-          starmap.html
-          tau-station.html
-          wildagile.html
-        );
-
-        # uncoverable statement
-        push @files => File::Find::Rule->file()->name('*.html')->in(qw/blog articles/);
+        my @files =
+          grep { $self->_is_searchable($_) }
+          File::Find::Rule->file->name('*.html')->relative->in('.');
 
         # uncoverable statement
         my @index;
@@ -787,27 +778,144 @@ END
     }
 
     sub _html_to_text ( $self, $file ) {
-        my $html   = slurp($file);                                       # This handles UTF8 correctly
-        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        my $html = slurp($file);    # This handles UTF8 correctly
 
-        my $title;
-        my $text = '';
-        my $in_article;
+        my $title = $self->_extract_title($html);
+
+        # Modern pages use <article id="article"> via include/wrapper.tt.
+        # Legacy pages (those that INCLUDE include/header.tt directly) only
+        # have a <div class="...article..."> wrapping their body. Try the
+        # semantic tag first, then fall back so legacy pages stay
+        # searchable.
+        my $text = $self->_extract_article_text($html);
+        if ( $text eq '' ) {
+            $text = $self->_extract_article_div_text($html);
+        }
+        return ( $title, $text );
+    }
+
+    sub _extract_title ( $self, $html ) {
+        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        while ( my $token = $parser->get_token ) {
+            if ( $token->is_start_tag('title') ) {
+                return $parser->get_trimmed_text;
+            }
+        }
+        return undef;
+    }
+
+    sub _extract_article_text ( $self, $html ) {
+        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        my $text     = '';
+        my $depth    = 0;
+        my $suppress = 0;    # >0 while inside <script>/<style>
         while ( my $token = $parser->get_token ) {
             if ( $token->is_start_tag('article') ) {
-                $in_article = 1;
+                $depth++;
             }
             elsif ( $token->is_end_tag('article') ) {
-                $in_article = 0;
+                $depth-- if $depth > 0;
             }
-            if ( $token->is_start_tag('title') ) {
-                $title = $parser->get_trimmed_text;
+            elsif ( $token->is_start_tag('script')
+                || $token->is_start_tag('style') )
+            {
+                $suppress++;
             }
-            elsif ( $in_article && $token->is_text ) {
+            elsif ( $token->is_end_tag('script')
+                || $token->is_end_tag('style') )
+            {
+                $suppress-- if $suppress > 0;
+            }
+            elsif ( $depth && !$suppress && $token->is_text ) {
                 $text .= $self->_clean_text( $token->as_is ) . ' ';
             }
         }
-        return ( $title, $text );
+        return $text;
+    }
+
+    # Find the first <div> whose class contains "article" (as a whole word)
+    # and emit text inside it, tracking <div> depth so we close on the
+    # matching </div> rather than the first one we see. Skip <script> and
+    # <style> bodies so legacy templates' inline JS/CSS doesn't pollute
+    # the search index.
+    sub _extract_article_div_text ( $self, $html ) {
+        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        my $text     = '';
+        my $div_depth = 0;
+        my $article_at_depth;    # undef = not in; else depth we entered at
+        my $suppress  = 0;       # >0 while inside <script>/<style>
+
+        while ( my $token = $parser->get_token ) {
+            if ( $token->is_start_tag('div') ) {
+                $div_depth++;
+                if ( !defined $article_at_depth ) {
+                    my $class = $token->get_attr('class') // '';
+                    if ( $class =~ /\barticle\b/ ) {
+                        $article_at_depth = $div_depth;
+                    }
+                }
+            }
+            elsif ( $token->is_end_tag('div') ) {
+                if (   defined $article_at_depth
+                    && $div_depth == $article_at_depth )
+                {
+                    $article_at_depth = undef;
+                }
+                $div_depth-- if $div_depth > 0;
+            }
+            elsif ( $token->is_start_tag('script')
+                || $token->is_start_tag('style') )
+            {
+                $suppress++;
+            }
+            elsif ( $token->is_end_tag('script')
+                || $token->is_end_tag('style') )
+            {
+                $suppress-- if $suppress > 0;
+            }
+            elsif ( defined $article_at_depth
+                && !$suppress
+                && $token->is_text )
+            {
+                $text .= $self->_clean_text( $token->as_is ) . ' ';
+            }
+        }
+        return $text;
+    }
+
+    # Decide whether an on-disk .html file should be added to the search
+    # index. Excludes listing/pagination pages, tag pages, error/admin
+    # pages, and anything under build/cache/template/static subtrees.
+    sub _is_searchable ( $self, $file ) {
+
+        # Anything inside a dot-directory (.git, .worktrees, .cache, ...)
+        return 0 if $file =~ m{(?:^|/)\.[^/]+/};
+
+        # node_modules and dist/ at any depth: build artefacts that
+        # duplicate or mirror tracked source pages.
+        return 0 if $file =~ m{(?:^|/)(?:node_modules|dist)/};
+
+        # Build, cache, source and other non-content subtrees at the root.
+        return 0
+          if $file =~ m{^(?:
+                tmp | wasm_output | static | root | include
+              | coverage-report | cover_db | nytprof
+              | spellchecking | specs | docs | paad | backlog
+              | some | scratch | temp | fixtures | t
+              | Dancer2 | Template2 | sqitch | db | lib | bin
+              | css | js | images | data
+          )/}x;
+
+        # Tag pages are listings of articles, not content.
+        return 0 if $file =~ m{^tags/};
+
+        # Top-level listing and pagination pages
+        return 0 if $file =~ /^(?:articles|blog)(?:_\d+|-all)?\.html\z/;
+
+        # Top-level error/admin/game pages with no useful prose
+        return 0 if $file =~ /^(?:404|editor|escape)\.html\z/;
+
+        return 1;
     }
 
     sub _clean_text ( $self, $text ) {

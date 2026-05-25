@@ -153,4 +153,191 @@ subtest '_html_to_text extracts title and article text' => sub {
     unlike $text, qr/Ignored footer text/,'footer text excluded (outside article)';
 };
 
+subtest '_html_to_text falls back to <div class="...article..."> when no <article> tag' => sub {
+    my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
+    $tmp->spew_utf8( <<~'HTML' );
+        <!DOCTYPE html>
+        <html>
+        <head><title>Legacy Page</title></head>
+        <body>
+            <header>Ignored header text</header>
+            <div class="row">
+                <div class="two columns sidebar">Sidebar links</div>
+                <div class="ten columns verticalLine article">
+                    <h1>Legacy Heading</h1>
+                    <p>Legacy paragraph body.</p>
+                    <div class="prevNext">prev next nav</div>
+                </div>
+            </div>
+            <footer>Ignored footer text</footer>
+        </body>
+        </html>
+        HTML
+
+    my ( $title, $text ) = $site->_html_to_text( $tmp->stringify );
+    is $title, 'Legacy Page', 'title extracted';
+    like $text,   qr/Legacy Heading/,         'heading inside legacy article div included';
+    like $text,   qr/Legacy paragraph body\./,'paragraph inside legacy article div included';
+    like $text,   qr/prev next nav/,          'nested content inside the article div included';
+    unlike $text, qr/Sidebar links/,          'sibling div content excluded';
+    unlike $text, qr/Ignored header text/,    'header excluded';
+    unlike $text, qr/Ignored footer text/,    'footer excluded';
+};
+
+subtest '_html_to_text prefers <article> over <div class="article"> when both present' => sub {
+    my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
+    $tmp->spew_utf8( <<~'HTML' );
+        <!DOCTYPE html>
+        <html>
+        <head><title>Both</title></head>
+        <body>
+            <div class="article">Should NOT appear (we have a real article tag)</div>
+            <article>Real article body.</article>
+        </body>
+        </html>
+        HTML
+
+    my ( $title, $text ) = $site->_html_to_text( $tmp->stringify );
+    is $title, 'Both', 'title extracted';
+    like   $text, qr/Real article body\./, 'article tag content extracted';
+    unlike $text, qr/Should NOT appear/,   'div fallback skipped when article tag present';
+};
+
+subtest '_html_to_text skips <script> and <style> bodies inside <article>' => sub {
+    my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
+    $tmp->spew_utf8( <<~'HTML' );
+        <!DOCTYPE html>
+        <html>
+        <head><title>Modern With Script</title></head>
+        <body>
+            <article>
+                <p>The word function appears in prose here.</p>
+                <script>
+                    function showOverlay(img) { document.getElementById('x'); }
+                    const wpm = 250;
+                </script>
+                <style>.foo { color: red; }</style>
+                <p>More real prose after the script.</p>
+            </article>
+        </body>
+        </html>
+        HTML
+
+    my ( undef, $text ) = $site->_html_to_text( $tmp->stringify );
+    like   $text, qr/word function appears in prose/, 'prose text retained';
+    like   $text, qr/More real prose/,                'post-script prose retained';
+    unlike $text, qr/showOverlay/,                    'script function name excluded';
+    unlike $text, qr/getElementById/,                 'script DOM call excluded';
+    unlike $text, qr/const wpm/,                      'script variable excluded';
+    unlike $text, qr/color: red/,                     'style rules excluded';
+};
+
+subtest '_html_to_text skips <script> and <style> bodies inside legacy article div' => sub {
+    my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
+    $tmp->spew_utf8( <<~'HTML' );
+        <!DOCTYPE html>
+        <html>
+        <head><title>Legacy With Script</title></head>
+        <body>
+            <div class="ten columns verticalLine article">
+                <p>Legacy prose with the word function in it.</p>
+                <script>
+                    function showOverlay(img) { document.getElementById('x'); }
+                    const wpm = 350;
+                </script>
+                <style>.bar { color: blue; }</style>
+                <p>Closing prose.</p>
+            </div>
+        </body>
+        </html>
+        HTML
+
+    my ( undef, $text ) = $site->_html_to_text( $tmp->stringify );
+    like   $text, qr/Legacy prose with the word function/, 'legacy prose retained';
+    like   $text, qr/Closing prose/,                       'post-script prose retained';
+    unlike $text, qr/showOverlay/,                         'script function name excluded';
+    unlike $text, qr/getElementById/,                      'script DOM call excluded';
+    unlike $text, qr/const wpm/,                           'script variable excluded';
+    unlike $text, qr/color: blue/,                         'style rules excluded';
+};
+
+subtest '_html_to_text returns empty body when neither container present' => sub {
+    my $tmp = Path::Tiny->tempfile( SUFFIX => '.html' );
+    $tmp->spew_utf8( <<~'HTML' );
+        <!DOCTYPE html>
+        <html>
+        <head><title>Bare</title></head>
+        <body><p>Loose content with no recognised container.</p></body>
+        </html>
+        HTML
+
+    my ( $title, $text ) = $site->_html_to_text( $tmp->stringify );
+    is $title, 'Bare', 'title still extracted';
+    is $text,  '',     'no body extracted when no container present';
+};
+
+subtest '_is_searchable picks content pages and rejects listings/build dirs' => sub {
+    # Content pages: top-level pages
+    ok $site->_is_searchable('index.html'),         'index.html is content';
+    ok $site->_is_searchable('hireme.html'),        'hireme.html is content';
+    ok $site->_is_searchable('projects.html'),      'projects.html is content';
+    ok $site->_is_searchable('publicspeaking.html'),'publicspeaking.html is content';
+    ok $site->_is_searchable('starmap.html'),       'starmap.html is content';
+    ok $site->_is_searchable('tau-station.html'),   'tau-station.html is content';
+    ok $site->_is_searchable('videos.html'),        'videos.html is content (previously missing)';
+    ok $site->_is_searchable('wildagile.html'),     'wildagile.html is content';
+
+    # Content pages: subdirectory content
+    ok $site->_is_searchable('articles/foo.html'),       'articles/* is content';
+    ok $site->_is_searchable('blog/bar.html'),           'blog/* is content';
+    ok $site->_is_searchable('Extraction/index.html'),   'Extraction/ subpage indexed';
+    ok $site->_is_searchable('tramp-freighter/index.html'), 'tramp-freighter/ subpage indexed';
+    ok $site->_is_searchable('projects/extraction/index.html'), 'projects/extraction/ subpage indexed';
+
+    # Reject: listing/pagination pages
+    ok !$site->_is_searchable('articles.html'),     'articles.html (listing) excluded';
+    ok !$site->_is_searchable('articles-all.html'), 'articles-all.html (listing) excluded';
+    ok !$site->_is_searchable('articles_2.html'),   'articles_2 (paginated) excluded';
+    ok !$site->_is_searchable('articles_7.html'),   'articles_7 (paginated) excluded';
+    ok !$site->_is_searchable('blog.html'),         'blog.html (listing) excluded';
+    ok !$site->_is_searchable('blog-all.html'),     'blog-all.html (listing) excluded';
+    ok !$site->_is_searchable('blog_3.html'),       'blog_3 (paginated) excluded';
+
+    # Reject: tag/admin/error pages
+    ok !$site->_is_searchable('tags/perl.html'),    'tag pages (listings) excluded';
+    ok !$site->_is_searchable('404.html'),          '404 page excluded';
+    ok !$site->_is_searchable('editor.html'),       'editor (dev tool) excluded';
+    ok !$site->_is_searchable('escape.html'),       'escape (JS game with no prose) excluded';
+
+    # Reject: build / dev / generated / template subtrees
+    ok !$site->_is_searchable('tmp/anything.html'),        'tmp/ excluded';
+    ok !$site->_is_searchable('root/index.tt'),            'root/ source excluded';
+    ok !$site->_is_searchable('include/header.html'),      'include/ fragments excluded';
+    ok !$site->_is_searchable('static/js/search/demo.html'),'static/ excluded';
+    ok !$site->_is_searchable('wasm_output/demo.html'),    'wasm_output/ excluded';
+    ok !$site->_is_searchable('coverage-report/foo.html'), 'coverage report excluded';
+    ok !$site->_is_searchable('nytprof/index.html'),       'nytprof excluded';
+    ok !$site->_is_searchable('node_modules/x/y.html'),    'node_modules excluded';
+    ok !$site->_is_searchable('cover_db/foo.html'),        'cover_db excluded';
+
+    # Reject: git worktree checkouts and node_modules at any depth
+    ok !$site->_is_searchable('.worktrees/foo/index.html'),
+      '.worktrees/ (sibling checkouts) excluded';
+    ok !$site->_is_searchable('.worktrees/foo/blog/bar.html'),
+      'nested .worktrees content excluded';
+    ok !$site->_is_searchable('tramp-freighter/node_modules/three/foo.html'),
+      'nested node_modules excluded';
+    ok !$site->_is_searchable('Extraction/node_modules/x/y.html'),
+      'nested node_modules under content dir excluded';
+
+    # Reject anything in a dot-directory (eg .git, .worktrees, .cache)
+    ok !$site->_is_searchable('.git/foo.html'), '.git/ excluded';
+
+    # Reject build-output dist/ directories at any depth (avoid
+    # duplicate-indexing built copies of sibling source pages).
+    ok !$site->_is_searchable('tramp-freighter/dist/index.html'),
+      'nested dist/ excluded';
+    ok !$site->_is_searchable('dist/foo.html'), 'top-level dist/ excluded';
+};
+
 done_testing;
