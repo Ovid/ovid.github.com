@@ -1,4 +1,12 @@
 (function() {
+    // Test hook: expose urlToSourceFile to Node via CommonJS without
+    // requiring a browser. The browser path has no `module` global, so
+    // this branch is invisible to bin/review-served pages.
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = { urlToSourceFile: urlToSourceFile };
+        return;
+    }
+
     // Only run if dev mode is enabled
     if (!window.DEV_MODE) return;
 
@@ -67,13 +75,31 @@
         const urlObj = new URL(url);
         let path = urlObj.pathname;
 
-        // Remove leading slash and .html extension
-        path = path.replace(/^\//, '').replace(/\.html$/, '');
+        path = path.replace(/^\//, '');
 
-        // Default to index if empty
+        // Trailing slash → directory index (mirrors bin/review's
+        // /projects/extraction/ → projects/extraction/index.html).
+        // Handle this BEFORE the extensionless branch, because
+        // path.split('/').pop() on a trailing-slash path returns ''
+        // and would skip the .html append, producing 'root/foo/.tt'.
+        if (path === '' || path.endsWith('/')) {
+            path = path + 'index.html';
+        }
+
+        // If the final segment has no extension, treat it as the
+        // extensionless form of a .html page (matches bin/review's
+        // server-side resolution). Then strip .html for source-file mapping.
+        // The two-step approach (append .html, then strip .html) ensures
+        // both /blog/foo and /blog/foo.html go through one canonical form
+        // before deriving the source file path.
+        const finalSegment = path.split('/').pop() || '';
+        if (finalSegment !== '' && !finalSegment.includes('.')) {
+            path = path + '.html';
+        }
+        path = path.replace(/\.html$/, '');
+
         if (!path) path = 'index';
 
-        // Map to source file (try .tt first)
         return 'root/' + path + '.tt';
     }
 })();

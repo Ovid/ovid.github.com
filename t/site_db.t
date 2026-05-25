@@ -39,12 +39,46 @@ subtest '_rebuild_rss_feeds writes blog.rss and article.rss from the dbh' => sub
     my $blog_items = $rss->{items};
     is scalar @$blog_items, 1, 'one available blog item (unavailable filtered out)';
     is $blog_items->[0]{title}, 'Test Blog Post', 'blog item title';
-    like $blog_items->[0]{link}, qr{/blog/test-blog-post\.html$}, 'blog item link';
+    like $blog_items->[0]{link}, qr{/blog/test-blog-post$}, 'blog item link is extensionless';
 
     $rss = XML::RSS->new;
     $rss->parsefile('article.rss');
     is scalar @{ $rss->{items} }, 1, 'one article';
     is $rss->{items}[0]{title}, 'Test Article', 'article title';
+
+    chdir $cwd;
+};
+
+subtest '_rebuild_rss_feeds emits extensionless links and non-permalink guids' => sub {
+    my $dbh     = make_test_dbh();
+    my $tempdir = Path::Tiny->tempdir;
+    chdir $tempdir;
+
+    my $site = Ovid::Site->new( dbh => $dbh );
+    $site->_rebuild_rss_feeds;
+
+    for my $rss_file (qw/blog.rss article.rss/) {
+        next unless -e $rss_file;
+        my $body = path($rss_file)->slurp_utf8;
+        my $rss  = XML::RSS->new;
+        $rss->parsefile($rss_file);
+
+        for my $item ( $rss->{items}->@* ) {
+            unlike $item->{link}, qr/\.html(?:[?#]|$)/,
+                "$rss_file item link is extensionless: $item->{link}";
+
+            # Verify the raw XML carries the isPermaLink="false" attribute
+            like $body,
+                qr{<guid\s+isPermaLink="false">},
+                "$rss_file raw guid carries isPermaLink=\"false\"";
+
+            # Verify guid content is the slug path, not a stringified ref
+            unlike $item->{guid}, qr/^HASH\(0x/,
+                "$rss_file guid is not a stringified hash ref";
+            like $item->{guid}, qr{^(?:blog|article)/[^/]+$},
+                "$rss_file guid content is a slug path";
+        }
+    }
 
     chdir $cwd;
 };

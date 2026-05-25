@@ -144,21 +144,19 @@ subtest 'launch-editor restricts targets to files under root/' => sub {
     };
 };
 
-# [C2] The static file handler must not expose arbitrary in-project
-# files. Without restrictions, GET /cpanfile, GET /db/ovid.db,
-# GET /lib/Ovid/Site.pm all return file contents.
-subtest 'static handler blocks sensitive in-project paths' => sub {
+# bin/review is a single-user dev server bound to 127.0.0.1, so
+# arbitrary in-project files (db/, lib/, cpanfile) are intentionally
+# reachable — there is no LAN threat model. The one path-shape that's
+# still rejected is dot-prefixed segments: those block .git/, .env,
+# editor swapfiles, and similar config artifacts the user is very
+# unlikely to mean to fetch.
+subtest 'static handler rejects dot-prefixed path segments' => sub {
     test_psgi $app => sub {
         my $cb = shift;
-        for my $blocked (
-            'cpanfile', 'Makefile', 'db/ovid.db', 'lib/Ovid/Site.pm',
-            '.git/config',
-          )
-        {
-            next unless -e $blocked;
-            my $res = $cb->( GET "/$blocked" );
+        for my $blocked ( '/.git/config', '/.env', '/foo/.swp' ) {
+            my $res = $cb->( GET $blocked );
             isnt $res->code, 200,
-              "GET /$blocked must not return file contents";
+              "GET $blocked must not return file contents";
         }
     };
 };
@@ -175,6 +173,16 @@ subtest 'static handler still serves legitimate site content' => sub {
             $res = $cb->( GET '/static/css/main.css' );
             is $res->code, 200, 'static/css/main.css still served';
         }
+    };
+};
+
+subtest 'GET / serves index.html directly without redirect' => sub {
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/' );
+        is $res->code, 200, 'GET / returns 200 (no redirect)';
+        like $res->content, qr/Curtis.*Poe/i,
+            'GET / returns homepage content';
     };
 };
 
@@ -269,6 +277,95 @@ subtest 'static handler rejects symlinks pointing outside project root' => sub {
     };
 
     unlink "$tmplink";
+};
+
+subtest 'extensionless URLs resolve to .html files' => sub {
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/blog' );
+        is $res->code, 200, 'GET /blog returns 200';
+
+        my $html_res = $cb->( GET '/blog.html' );
+        is $res->content, $html_res->content,
+            'GET /blog and GET /blog.html return identical bodies';
+
+        my ($post) = glob('blog/*.html');
+        if ( $post ) {
+            (my $extless = $post) =~ s{^blog/}{};
+            $extless =~ s/\.html$//;
+            my $r1 = $cb->( GET "/blog/$extless" );
+            my $r2 = $cb->( GET "/blog/$extless.html" );
+            is $r1->code, 200, "GET /blog/$extless returns 200";
+            is $r1->content, $r2->content,
+                "GET /blog/$extless == GET /blog/$extless.html";
+        }
+    };
+};
+
+subtest 'directory URLs resolve to index.html' => sub {
+    test_psgi $app => sub {
+        my $cb = shift;
+
+        # /projects/extraction/ and /projects/extraction must serve
+        # projects/extraction/index.html (no projects/extraction.html exists).
+        # Both trailing-slash and bare forms appear in real links/sitemap.
+        if ( -f 'projects/extraction/index.html' ) {
+            my $direct = $cb->( GET '/projects/extraction/index.html' );
+            is $direct->code, 200, 'direct index.html serves 200';
+
+            my $trailing = $cb->( GET '/projects/extraction/' );
+            is $trailing->code, 200,
+              'GET /projects/extraction/ returns 200 (dir → index.html)';
+            is $trailing->content, $direct->content,
+              'trailing-slash URL serves identical content';
+
+            my $bare = $cb->( GET '/projects/extraction' );
+            is $bare->code, 200,
+              'GET /projects/extraction (no slash) returns 200';
+            is $bare->content, $direct->content,
+              'no-slash URL serves identical content';
+        }
+
+        # /paad/tramp-freighter (linked from root/include/links.tt) —
+        # both forms should serve paad/tramp-freighter/index.html.
+        if ( -f 'paad/tramp-freighter/index.html' ) {
+            my $direct = $cb->( GET '/paad/tramp-freighter/index.html' );
+            is $direct->code, 200, 'paad direct index.html serves 200';
+
+            my $trailing = $cb->( GET '/paad/tramp-freighter/' );
+            is $trailing->code, 200,
+              'GET /paad/tramp-freighter/ returns 200';
+            is $trailing->content, $direct->content,
+              'paad trailing-slash URL serves identical content';
+
+            my $bare = $cb->( GET '/paad/tramp-freighter' );
+            is $bare->code, 200,
+              'GET /paad/tramp-freighter (no slash) returns 200';
+            is $bare->content, $direct->content,
+              'paad no-slash URL serves identical content';
+        }
+    };
+};
+
+subtest 'unknown paths serve the custom 404.html body' => sub {
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/definitely-not-a-real-page' );
+        is $res->code, 404, 'unknown path returns 404';
+        like $res->content, qr/Page Not Found/,
+            'unknown path returns 404.html body, not the plaintext fallback';
+        like $res->content, qr/window\.DEV_MODE/,
+            'after hook still injects dev-tools script into 404 body';
+    };
+
+    test_psgi $app => sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/cpanfile' );
+        is $res->code, 404, 'allowed-by-pattern-but-missing returns 404';
+        unlike $res->content, qr/^404 - Not Found:/,
+            'not the plaintext fallback';
+    };
 };
 
 done_testing;

@@ -43,6 +43,11 @@ sub filter_ignored_files {
     return grep { !$ignored{$_} } @files;
 }
 
+sub _url_maps_to_file ($path) {
+    return 1 if $path eq '' && -e 'index.html';    # / → index.html
+    return -e $path || -e "$path.html";
+}
+
 sub links_are_good ($file) {
     return if $file =~ /\bdemo.html$/;
     return if $file =~ m{^t/fixtures/};    # Skip test fixtures
@@ -66,7 +71,7 @@ sub links_are_good ($file) {
         else {
             my $possible_file = $link;
             $possible_file =~ s/^\///;
-            if ( '/' ne $link && !-e $possible_file ) {
+            if ( '/' ne $link && !_url_maps_to_file($possible_file) ) {
                 push @errors => "Bad link ($link) in $file";
             }
         }
@@ -87,7 +92,7 @@ sub links_are_good ($file) {
         my $pristine = $link->{content};
         my $url      = $pristine;
         if ( $url =~ s{^https?://$domain/}{} ) {
-            unless ( -e $url ) {
+            unless ( _url_maps_to_file($url) ) {
                 push @errors => "Missing link for $property: $pristine";
             }
         }
@@ -112,7 +117,7 @@ sub links_are_good ($file) {
         else {
             my $url = $href;
             $url =~ s{^https?://$domain/}{};
-            unless ( -e $url ) {
+            unless ( _url_maps_to_file($url) ) {
                 push @errors => "Missing canonical file: $href in $file";
             }
         }

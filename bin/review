@@ -13,11 +13,9 @@ use open ':std', ':encoding(UTF-8)';
 set host => '127.0.0.1';
 set port => 7007;
 
-# Where static GETs may resolve to. Anything outside these prefixes
-# (sensitive files like cpanfile, Makefile, db/, lib/, .git/) is
-# rejected by the static handler below.
-my @ALLOWED_TOP_DIRS    = qw(static articles blog tags);
-my $ALLOWED_TOP_EXT_RE  = qr/\.(?:html?|xml|rss|txt|ico|png|jpg|jpeg|gif|svg|webmanifest)$/i;
+# Personal dev server: serve any in-project file the filesystem
+# resolves to, except paths containing dot-prefixed segments (.git,
+# .env, editor swapfiles) and symlinks pointing outside the project.
 my $PROJECT_ROOT        = path('.')->absolute->realpath;
 my $ROOT_TEMPLATES_ROOT = $PROJECT_ROOT->child('root')->realpath;
 
@@ -25,6 +23,13 @@ my $ROOT_TEMPLATES_ROOT = $PROJECT_ROOT->child('root')->realpath;
 # target it precisely instead of running `pkill -f 'perl bin/launch'`
 # (which, with concurrent POSTs, would kill each others' editors).
 my $editor_child_pid;
+
+# Set text/html content-type and return the file's UTF-8 content so that
+# the `after` hook can inject the dev-tools script into the response.
+sub _slurp_html ($path) {
+    content_type 'text/html; charset=UTF-8';
+    return $path->slurp_utf8;
+}
 
 sub _terminate_previous_editor () {
     return unless $editor_child_pid;
@@ -57,7 +62,12 @@ hook after => sub {
 };
 
 get '/' => sub {
-    redirect '/index.html';
+    my $file = path('index.html')->absolute;
+    if ( $file->exists && -f $file ) {
+        return _slurp_html($file);
+    }
+    status 'not_found';
+    return '404 - Not Found: index.html';
 };
 
 post '/api/launch-editor' => sub {
@@ -187,24 +197,38 @@ get '/**' => sub {
         return '403 - Forbidden';
     }
 
-    # Empty splat means GET / which is already redirected; defensive default.
+    # Empty splat means GET / (handled here, no redirect).
     my $path_str = join( '/', @segments ) || 'index.html';
 
-    # Enforce the allowlist: top-level files must have a permitted
-    # extension; nested paths must live under a permitted top-level
-    # directory.
-    my $is_allowed;
-    if ( @segments <= 1 ) {
-        $is_allowed = $path_str =~ $ALLOWED_TOP_EXT_RE;
+    # URL → filesystem resolution. Three shapes:
+    #   - Trailing slash, e.g. /projects/extraction/  → serve
+    #     <path>/index.html
+    #   - Extensionless final segment, e.g. /blog/foo → serve
+    #     <path>/index.html if <path> is a directory; otherwise
+    #     <path>.html (so /blog → blog.html, /projects/extraction →
+    #     projects/extraction/index.html).
+    #   - Anything with an extension is passed through unchanged.
+    my $final_segment = $segments[-1] // '';
+    if ( $final_segment eq '' ) {
+        $path_str .= 'index.html';
     }
-    else {
-        my $top = $segments[0];
-        $is_allowed = grep { $top eq $_ } @ALLOWED_TOP_DIRS;
-    }
+    elsif ( $final_segment !~ /\./ ) {
 
-    unless ($is_allowed) {
-        status 'forbidden';
-        return '403 - Forbidden';
+        # Prefer <path>.html when it exists (so /blog continues to
+        # serve blog.html even though blog/ is also a directory).
+        # Fall back to <path>/index.html when the directory carries
+        # one — that's how /projects/extraction resolves.
+        if ( -f path("$path_str.html") ) {
+            $path_str .= '.html';
+        }
+        elsif ( -f path("$path_str/index.html") ) {
+            $path_str .= '/index.html';
+        }
+        else {
+            # Neither target exists; keep the .html shape so the 404
+            # path below reports a familiar resource name.
+            $path_str .= '.html';
+        }
     }
 
     my $file = path($path_str)->absolute;
@@ -224,8 +248,7 @@ get '/**' => sub {
 
         # For HTML files, read and return content directly to allow hook injection
         if ( $path_str =~ /\.html?$/i ) {
-            content_type 'text/html; charset=UTF-8';
-            return $file->slurp_utf8;
+            return _slurp_html($file);
         }
 
         # For other files, use send_file
@@ -235,6 +258,11 @@ get '/**' => sub {
     }
     else {
         status 'not_found';
+        my $custom = path('404.html');
+        if ( $custom->exists && -f $custom ) {
+            return _slurp_html($custom);
+        }
+        # Falls back to plaintext when 404.html hasn't been built yet (fresh checkout).
         return "404 - Not Found: $path_str";
     }
 };

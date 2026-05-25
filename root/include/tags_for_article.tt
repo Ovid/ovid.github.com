@@ -1,14 +1,14 @@
 [%
     USE Ovid;
     USE tag_plugin = Ovid.Tags;
-    url  = type _ "/" _ slug _ ".html";
-    tags = tag_plugin.tags_for_url(url);
+    tag_key = type _ "/" _ slug;
+    tags    = tag_plugin.tags_for_url(tag_key);
 %]
 [% IF tags.size %]
 <ul class="inline" role="navigation" aria-label="Tag list for this [% type %]">
     <li>Tags:</li>
 [% FOREACH tag IN tags %]
-    <li><a href="/tags/[% tag %].html">[% tag_plugin.name_for_tag(tag) %]</a> </li>
+    <li><a href="/tags/[% tag %]">[% tag_plugin.name_for_tag(tag) %]</a> </li>
 [% END %]
 </ul>
 [% END %]

@@ -63,18 +63,29 @@ package Ovid::Template::File::Collection {
 
     sub _get_file ( $self, $file ) {
         my $orig = $file;
-        if ( $file =~ s/\.html$// ) {
-            $file = "root/$file.tt";
-            if ( !-e $file ) {
-                $file .= "2markdown";
-                if ( !-e $file ) {
-                    croak("Cannot find template file for $orig");
-                }
+
+        # Normalize: strip optional .html suffix so legacy (.html-suffixed)
+        # and extensionless tagmap-key forms both go through one lookup path.
+        $file =~ s/\.html$//;
+
+        # Pass-through only for literal paths under root/ that exist on disk
+        # (e.g. 'root/blog/foo.tt'). Tagmap keys ('blog/foo') and anything
+        # else fall through to tagmap-key resolution. This prevents a key
+        # that happens to collide with an unrelated on-disk file (cpanfile,
+        # db/ovid.db, etc.) from being silently accepted as a template.
+        if ( !( $file =~ m{^root/} && -e $file ) ) {
+            my $template = "root/$file.tt";
+            if ( -e $template ) {
+                $file = $template;
+            }
+            elsif ( -e "${template}2markdown" ) {
+                $file = "${template}2markdown";
+            }
+            else {
+                croak("Cannot find template file for $orig");
             }
         }
-        elsif ( !-e $file ) {
-            croak("Cannot find file: '$file'");
-        }
+
         return Ovid::Template::File->new( filename => $file, references => $orig );
     }
 

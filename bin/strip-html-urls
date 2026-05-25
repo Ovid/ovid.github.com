@@ -1,0 +1,111 @@
+#!/usr/bin/env perl
+
+use v5.40;
+use Path::Tiny;
+use Getopt::Long;
+use File::Find::Rule;
+use IPC::System::Simple qw(capturex);
+
+my $dry_run = 0;
+my $force   = 0;
+GetOptions(
+    'dry-run' => \$dry_run,
+    'force'   => \$force,
+) or die "Usage: $0 [--dry-run] [--force]\n";
+
+# Pre-flight: CWD scope check.
+for my $marker (qw(root lib bin/rebuild)) {
+    unless ( -e $marker ) {
+        die "ERROR: $marker not found in CWD — run from project root (must contain root/, lib/, bin/rebuild)\n";
+    }
+}
+
+say "CWD pre-flight: OK";
+
+# Pre-flight: dirty-tree check (skip with --force).
+unless ($force) {
+    my $status = eval { capturex( 'git', 'status', '--porcelain', 'root/' ) };
+    die "git not available; cannot check working tree state\n" if $@;
+    if ( defined $status && length $status ) {
+        die <<~"END";
+        ERROR: uncommitted changes detected in root/:
+
+        $status
+        Commit, stash, or re-run with --force to override.
+        END
+    }
+}
+
+say "Dirty-tree pre-flight: OK";
+
+# Pre-flight: quote-form survey. The rewriters below only match a narrow
+# set of shapes (Step B: href="..."; Steps D/E: Ovid.link('...')/
+# Ovid.cite('...')). Abort if any source file uses a form the rewriter
+# cannot handle, so the operator can either normalize the source or
+# widen the regex.
+my @bad;
+for my $file ( File::Find::Rule->file
+        ->name( '*.tt', '*.tt2markdown' )
+        ->in('root') ) {
+    my $contents = path($file)->slurp_utf8;
+    if (
+           $contents =~ m{href\s*=\s*'(/[^']*\.html)}
+        || $contents =~ m{href\s{1,}=\s*"(/[^"]*\.html)}
+        || $contents =~ m{href=\s{1,}"(/[^"]*\.html)}
+        || $contents =~ m{(Ovid\.(?:link|cite)\(\s*"/[^"]*\.html)}
+    ) {
+        push @bad, "$file: $1";
+    }
+}
+if (@bad) {
+    die "ERROR: source forms the rewriter cannot handle (quote-form survey):\n"
+      . join( "\n", @bad )
+      . "\nNormalize the source or widen the rewriter regex.\n";
+}
+
+say "Quote-form pre-flight: OK";
+
+my %changed;
+my $total_changes = 0;
+
+for my $file ( File::Find::Rule->file
+        ->name( '*.tt', '*.tt2markdown' )
+        ->in('root') ) {
+    my $contents = path($file)->slurp_utf8;
+
+    # Step A: explicit /index.html → / (homepage form).
+    my $a_count = ( $contents =~ s{href="/index\.html(["#?])}{href="/$1}g );
+
+    # Step B: any root-relative .html href, preserving #anchor / ?query.
+    my $b_count = ( $contents =~ s{href="(/[^"#?]+)\.html(["#?])}{href="$1$2}g );
+
+    # Step C: Markdown links: [text](/path.html...) → [text](/path...)
+    my $c_count = ( $contents =~ s{\]\((/[^)#?]+)\.html([)#?])}{]($1$2}g );
+
+    # Step D: Ovid.link('/path.html', ...) → Ovid.link('/path', ...)
+    my $d_count = ( $contents =~ s{Ovid\.link\(\s*'(/[^'#?]+)\.html(['#?])}{Ovid.link('$1$2}g );
+
+    # Step E: Ovid.cite('/path.html', ...) → Ovid.cite('/path', ...)
+    my $e_count = $contents =~ s{Ovid\.cite\(\s*'(/[^'#?]+)\.html(['#?])}{Ovid.cite('$1$2}g;
+
+    my $n = ( $a_count // 0 ) + ( $b_count // 0 ) + ( $c_count // 0 ) + ( $d_count // 0 ) + ( $e_count // 0 );
+    next unless $n;
+
+    $changed{$file}  = $n;
+    $total_changes  += $n;
+
+    if ($dry_run) {
+        say "DRY-RUN $file: $n change(s)";
+    }
+    else {
+        path($file)->spew_utf8($contents);
+        say "WROTE   $file: $n change(s)";
+    }
+}
+
+say "";
+say sprintf( "Total: %d change(s) across %d file(s)%s",
+    $total_changes, scalar keys %changed,
+    $dry_run ? ' (dry-run, no writes)' : '' );
+
+exit 0;

@@ -13,6 +13,13 @@ This is a personal static website built with Perl and Template Toolkit. Content 
 - SQLite for build-time metadata storage
 - Dancer2 for the live editor server
 
+## Deployment and Threat Model
+
+- **Single-user app.** Only Ovid runs this. There are no other developers and no shared environment.
+- **Local-only dev tooling.** `bin/review` and `bin/launch` (Dancer2 dev server, live editor) are run locally, bound to `127.0.0.1`, and never exposed beyond the developer's machine.
+- **Production is GitHub Pages.** The generated HTML/RSS/sitemap in `articles/`, `blog/`, `tags/`, etc. is pushed to GitHub and served statically. There is no Perl, no Dancer2, no SQLite, and no `bin/review` in production.
+- **Implication for reviews:** Findings against the dev server's attack surface (CSRF, DNS rebinding, broad file exposure under `127.0.0.1:7007`, etc.) are out of scope and should not be flagged as Critical/Important. The dev server intentionally serves any in-project file the filesystem resolves to (except dot-prefixed segments) — this is documented in `bin/review` and matches the threat model. Focus reviews on correctness, build-pipeline integrity, generated-HTML quality, and accessibility, not on hardening the local dev server.
+
 ## Development Commands
 
 ### Environment Setup

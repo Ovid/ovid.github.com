@@ -277,11 +277,16 @@ SQL
             my $new_links = 0;
             foreach my $article ( $articles->@* ) {
                 my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
-                my $url     = "$base_url$directory/$article->{slug}.html";
+                my $url     = "$base_url$directory/$article->{slug}";
 
                 # Every time we changed an article, we kept updating the
                 # publication date of the entire RSS feed. Now we only do this if
                 # we have found at least one new article/blog entry.
+                # Note: pre-existing RSS files on disk may have .html links;
+                # after the switch to extensionless URLs the dedup set keyed
+                # on old .html values won't match, so the first post-change
+                # build will treat all items as new and rewrite both feeds.
+                # One-time cost; subsequent builds dedup correctly.
                 $new_links++ if not $already_added{$url};
 
                 $rss->add_item(
@@ -372,12 +377,12 @@ SQL
                     INCLUDE include/header.tt 
                     title         = '$title'
                     identifier    = '$identifier'
-                    canonical_url = "$name-all.html"
+                    canonical_url = "$name-all"
                 %]
 
                 $articles
 
-                <p><a href="/$name-all.html">All $article_type->{name} in a single page</a></p>
+                <p><a href="/$name-all">All $article_type->{name} in a single page</a></p>
 
                 $pagination
                 [% IF $page_number == 1 -%]
@@ -418,7 +423,7 @@ SQL
                 INCLUDE include/header.tt 
                 title         = '$title'
                 identifier    = '$identifier'
-                canonical_url = "$name-all.html"
+                canonical_url = "$name-all"
             %]
 
             $articles
@@ -441,7 +446,7 @@ SQL
         if ( $current > 1 ) {
             my $prev    = $current - 1;
             my $article = $self->_article_page( $prev, $article_type );
-            $pagination .= qq{    <a href="/$article.html">&laquo;</a>\n};
+            $pagination .= qq{    <a href="/$article">&laquo;</a>\n};
         }
         else {
             $pagination .= qq{    <span class="inactive">&laquo;</span>\n};
@@ -449,12 +454,12 @@ SQL
         for my $page ( 1 .. $total ) {
             my $class   = $page == $current ? 'class="active"' : '';
             my $article = $self->_article_page( $page, $article_type );
-            $pagination .= qq{    <a $class href="/$article.html">$page</a>\n};
+            $pagination .= qq{    <a $class href="/$article">$page</a>\n};
         }
         if ( $current < $total ) {
             my $next    = $current + 1;
             my $article = $self->_article_page( $next, $article_type );
-            $pagination .= qq{    <a href="/$article.html">&raquo;</a>\n};
+            $pagination .= qq{    <a href="/$article">&raquo;</a>\n};
         }
         else {
             $pagination .= qq{    <span class="inactive">&raquo;</span>\n};
@@ -472,7 +477,7 @@ SQL
         my $list = qq{<ul id="articles">\n};
         foreach my $article ( $records->@* ) {
             $list
-              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}.html">$article->{title}</a></li>\n};
+              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
         }
         $list .= "</ul>";
         return $list;
@@ -653,6 +658,22 @@ END
         return 'yearly';    # default for other pages
     }
 
+    # Maps an on-disk .html filename to a public sitemap URL (strips .html,
+    # collapses index.html to /). _tinysearch_url_for_file applies the same
+    # rules without the base-URL prefix and also tolerates leading-slash
+    # input.
+    sub _sitemap_loc ( $self, $base_url, $file ) {
+        return "$base_url/" if $file eq 'index.html';
+        (my $url = $file) =~ s/\.html\z//;
+        return "$base_url/$url";
+    }
+
+    sub _tinysearch_url_for_file ( $self, $file ) {
+        return '/' if $file eq 'index.html';
+        (my $clickable = $file) =~ s/\.html\z//;
+        return $clickable =~ m{^/} ? $clickable : "/$clickable";
+    }
+
     sub _write_sitemap ($self) {
 
         # Find all HTML files
@@ -681,9 +702,10 @@ END
             my $changefreq = $self->_get_change_frequency($path);
             my $lastmod    = $self->_get_git_lastmod($file);
 
+            my $loc = $self->_sitemap_loc( $base_url, $file );
             $xml .= <<~"XML";
                 <url>
-                    <loc>$base_url/$file</loc>
+                    <loc>$loc</loc>
                     <lastmod>$lastmod</lastmod>
                     <changefreq>$changefreq</changefreq>
                     <priority>$priority</priority>
@@ -739,7 +761,7 @@ END
             $title =~ s/[‘’]/'/g;
 
             # uncoverable statement
-            my $url = $file =~ /^\// ? $file : "/$file";
+            my $url = $self->_tinysearch_url_for_file($file);
 
             # uncoverable statement
             push @index => { url => $url, title => $title, body => $text };
