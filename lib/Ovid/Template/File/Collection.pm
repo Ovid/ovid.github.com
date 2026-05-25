@@ -68,9 +68,12 @@ package Ovid::Template::File::Collection {
         # and extensionless tagmap-key forms both go through one lookup path.
         $file =~ s/\.html$//;
 
-        # If the input doesn't already point at an existing file on disk,
-        # try resolving it as a tagmap key → root/<...>.tt source file.
-        if ( !-e $file ) {
+        # Pass-through only for literal paths under root/ that exist on disk
+        # (e.g. 'root/blog/foo.tt'). Tagmap keys ('blog/foo') and anything
+        # else fall through to tagmap-key resolution. This prevents a key
+        # that happens to collide with an unrelated on-disk file (cpanfile,
+        # db/ovid.db, etc.) from being silently accepted as a template.
+        if ( !( $file =~ m{^root/} && -e $file ) ) {
             my $template = "root/$file.tt";
             if ( -e $template ) {
                 $file = $template;

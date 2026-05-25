@@ -143,6 +143,22 @@ subtest '_get_file handles all three input forms' => sub {
       '... and filename should be the path itself';
 };
 
+# _get_file accepts literal paths only when they live under root/. A
+# build-time tagmap key that happens to collide with an unrelated
+# on-disk file (cpanfile, db/ovid.db, etc.) must NOT be silently
+# accepted as a template — it should fall through to tagmap-key
+# resolution and croak if no matching root/<key>.tt(2markdown) exists.
+subtest '_get_file rejects on-disk files outside root/' => sub {
+    for my $bad ( 'cpanfile', 'db/ovid.db' ) {
+        next unless -e $bad;
+        throws_ok {
+            Collection->new( files => [$bad] )
+        }
+        qr/Cannot find template file/,
+          "on-disk path $bad outside root/ must not be accepted as a template";
+    }
+};
+
 done_testing;
 
 __END__
