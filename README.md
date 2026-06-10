@@ -2,6 +2,8 @@
 
 My Personal Web site
 
+[![Ridger's GitHub stats](https://github-readme-stats.vercel.app/api?username=ovid&show_icons=true&theme=tokyonight)](https://github.com/ovid)
+
 # DESCRIPTION
 
 A simple Web site written using Template Toolkit's ttree utility, with
