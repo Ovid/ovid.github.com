@@ -8,7 +8,13 @@ backlog
 cover_db/
 coverage-report/
 .devcontainer
-/paad/
+# paad/ holds build artifacts: deployable game builds alongside private
+# paad: review output (*-reviews/). Default-deny everything, then whitelist
+# the games we actually want deployed. Use /paad/* (not /paad/) so the !
+# re-includes work — git won't descend into a fully-ignored directory.
+/paad/*
+!/paad/tramp-freighter/
+!/paad/zork/
 /docs/
 
 # Perl-specific patterns
@@ -46,3 +52,4 @@ nytprof*
 .worktrees/
 /Extraction/
 /tramp-freighter/
+/loquor/
