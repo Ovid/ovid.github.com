@@ -14,14 +14,14 @@ export function search(query, num_results) {
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg___wbindgen_throw_1506f2235d1bdba0: function(arg0, arg1) {
+        __wbg___wbindgen_throw_344f42d3211c4765: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         },
-        __wbg_new_d90091b82fdf5b91: function() {
+        __wbg_new_32b398fb48b6d94a: function() {
             const ret = new Array();
             return ret;
         },
-        __wbg_set_dca99999bba88a9a: function(arg0, arg1, arg2) {
+        __wbg_set_8a16b38e4805b298: function(arg0, arg1, arg2) {
             arg0[arg1 >>> 0] = arg2;
         },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {

@@ -1,0 +1,547 @@
+[%
+    title            = 'Watching Claude Sonnet Outperform Opus';
+    type             = 'articles';
+    slug             = 'watching-claude-sonnet-outperform-opus';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-07-20';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai programming business}}
+
+# Sonnet Can Outperform Opus
+
+Did you know that Sonnet can produce better code than Opus? I didn't.
+
+> TL;DR: you can develop production quality code with AI, but you need to put
+engineering first. [PAAD](https://github.com/Ovid/paad) will help, but you
+need to understand what is going wrong with AI and why. This is a very long
+article. I could have published it in several parts, but I wanted to have a
+single "go to" document that you could refer to when developing software with
+AI. This is that document.
+
+A few months ago I published [an
+article](/articles/why-i-am-no-longer-reading-the-ais-code) explaining an
+absolutely insane experiment where I tried to create production-quality code
+without ever writing or reviewing the code. By forcing myself to have such an
+extreme contraint, many failed attempts, I
+finally assembled [a set of skills, named PAAD, that allows you to write great
+code.  However, this was for greenfield projects created by a single developer.
+Would it work for legacy code and teams? Once you understand what's going on,
+you'll not be surprised to find that the answer is "yes."
+
+Various companies and individuals have started using it the feedback has been
+uniformly along the lines of "this is amazing!" Having that confidence under my
+belt, I have now been working with many teams of developers, training them on
+AI-assisted programming using PAAD (pronounced "pad"). Even developers who
+didn't want to attend this training later said it was great. Senior devs are
+surprised to discover that they're junior devs when it comes to AI, but now they
+can be senior devs again because PAAD puts engineering best practices
+front-and-center.
+
+But here's the kicker: one team reported that they found that using PAAD allowed
+them to have higher quality code, with less slop, and less rework. I've seen
+this before, so it wasn't a surprise. What *did* surprise me, however, is that
+due to a bug in their IDE, they were temporarily locked out of Anthropic's Opus
+models, so they were using Sonnet plus PAAD.
+
+Nobody would ordinarily believe this. Larger models write better code, yes?
+Well, yes, but if you're a senior engineer, you know that a perfect method or
+class doesn't mean a perfect codebase. And what's perfect now isn't perfect a
+year later when you've been facing tight deadlines attaching all the bells and
+whistles your customers need. This accumulation of technical debt is what kills
+software projects. With PAAD, it's much, much easier to maintain codebases.
+
+In fact, near the end of this post, I'll offer solid evidence of how Fable fails
+spectacularly, despite "successfully" writing some complex code. It fails for
+the same reason that _all_ AI coding tools I've used fails.
+
+The Sonnet discovery is a "boots on the ground" report from one team, not a
+benchmark. But if it's real, how can *you* replicate this?
+
+# The Background You Have to Know
+
+> I _could_ dive into the exact steps needed to get high quality software out of
+AI and call it a day, but that's not fair to you, and it wouldn't sit well with
+me. When I'm teaching teams how to use AI, the initial training lasts a day, in
+a
+room with them, explaining much of this in-depth, lots of interesting
+discussion,[% Ovid.note("I may be training them, but such interesting questions
+come up that I'm learning, too.") %] and then hands-on "pair programming to
+reinforce what we've learned. This is a short article on a Web site, so I have
+to get _most_ of this across in a few thousand words.
+
+## Context Management
+
+In June of 2025, [Drew Breuning](https://www.dbreunig.com/) wrote the now famous
+article, [How Long Contexts
+Fail](https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html).
+As of this writing, that article is over a year old. In AI terms, that should be
+old news, but it's not, and it's still one of the most important issues we hit
+while using AI.
+
+People dump huge PDFs into an AI and then complain about the
+poor quality of results (or worse, don't notice that poor quality). We dump
+entire PowerPoint presentations into ChatGPT and ask it to update one slide and
+it updates five (and gets your one update wrong). You have a long session with
+an LLM and you notice that it starts "drifting" and forgetting important
+information you gave it earlier. What's going on?
+
+You're blowing your context window. Long contexts suffer from poisoning,
+distraction, confusion, and context clash. Without going into detail (which I do
+in the classes), the longer your context window, you hit several problems:
+
+* You generally hit a _quadratic_ slowdown in generation.
+* The _entire_ conversation is sent to the model each time, increasing your costs.
+* Output quality drops significantly.
+
+Worse: many AI systems now "compact" long conversations so they can avoid these
+problems. Compaction means "summarizing" and a summary is lossy. This is one of
+the reasons why Summer Yue, Director of AI Alignment at Meta's Superintelligence
+Labs, [watched
+an agent delete hundreds of her inbox emails without
+asking](https://tech-now.io/en/blogs/openclaw-gone-wrong-why-ai-guardrails-still-fail-in-2026/).
+
+So when you're writing software with AI, you need to pay attention to your
+context window consumption. As a rule of thumb, when working with 1M token
+context windows, I try to keep my context under 30%. I get much higher quality
+work out of this. For models with smaller windows, I hear people saying 40%-50%
+is the max, but there is no hard-and-fast rule. If you have a small context
+window (200K, for example), you sometimes have no choice but to use a
+significant portion of that just to guide its reasoning.
+
+## Steering Files
+
+While giving an LLM too much information can cause it to go awry, giving it too
+little information leads to a different problem: confidently wrong answers. Or
+as some people have derisively—but accurately—termed it, "mainsplaining as a
+service." When you're vibe coding ("prompt and pray"), it's a quick way to
+explore new ideas, but we already know that this doesn't scale.
+Why? Because the AI doesn't know your code base. Or if you're starting from
+scratch, it's focused on solving your immediate problem, not taking a side trip
+to think about the problems with god objects, feature envy, global mutable
+state, and so on. **The LLM is trying to solve the problem you have right now.**
+
+Today, much of the AI-assisted development world has moved to Spec-Driven Development (remember the acronym "SDD"). We'll talk more about this later, but for now, just be aware that it provides much more _guided_ context to the agents building your software.
+
+As part of this guidance, we have _steering files_ to give the agents a starting
+place for understanding your code. They typically describe what your project is,
+what technologies you use, where to find relevant code, and perhaps "best
+practices" for your codebase. For Claude Code, this is is your `CLAUDE.md` file.
+For Kiro, your steering lies in `.kiro/steering/*.md` files. [Spec
+Kit](https://github.com/github/spec-kit) uses
+`.specify/memory/constitutions.md`. Still other tools use a variety of different
+filenames, directories, conventions. The ecosystem is a mess, but that's where
+we are right now.[% Ovid.note("I very much would love to do work to standarize
+this, or at least create a standard metadata file to explain the local AI
+ecosystem, but hey, too many projects and too little time.") %]
+
+Good steering files are fantastic because they tell the agentic coding tool (heck, I'll just call it "ACT" because it's easier to type and we clearly don't have enough acronyms in this space) where to look for code and how to build it. Good steering files also save tokens because, if you've already told the AI where to look, it doesn't have to waste a lot of time searching for your "Foo" layer and understanding how to use it.
+
+But bad steering files ... are a disaster. If you have a bad ticket, you write
+some bad code. If you have a bad spec, you have lots of bad tickets. If you have
+bad steering, every spec you ever create is impacted. When we get to PAAD later,
+one of the first things you should do is locate your steering files and run
+`/pushback` on them. I have devs do this in most of my training classes and
+they're often surprised at the problems they find.
+
+As I've seen with multiple teams, fixing your bad steering files is one of the _best_ things you can do to improve code quality.
+
+## Technical Debt is the Problem
+
+[Speed at the Cost of Quality](https://arxiv.org/html/2511.04427v3) and [AI IDEs or Autonomous Agents? Measuring the Impact of Coding Agents on Software Development](https://arxiv.org/html/2601.13597v2) are just two of the many studies about AI-assisted software development which are all converging on a single, manageable problem that we are failing to manage: accelerated software development leads to accumulated technical debt. As I explain to my students, vibe coding rapidly accumulates unmanageable technical debt while SDD slowly accumulates unmanageable technical debt.
+
+With SDD, you at least have the opportunity to hit the brakes when the deer runs in front of your IDE.[% Ovid.note("OK, I suck at metaphors. Sue me.") %] PAAD gives you the brakes.
+
+# Spec-Driven Development (SDD)
+
+SDD has actually been around since the 1960s and has only recently been brought to the world of AI-assisted development. In short, instead of vibe coding, you have an ACT with steering files and big, thorough spec as the source of truth for your next feature. Though there are many different flavors, most seem to be some variant of:
+
+1. Write a careful spec
+2. Create a task list from it
+3. Build the tasks
+
+Ironically, in the early days of AI-SDD, many people whined and moaned about all of the work involved in creating that careful spec, but that's where the real value is. Vibe coding made us lazy and gave us unrealistic expectations. When we say "English is the new programming language," we're often talking about that lovingly detailed spec.[% Ovid.note('If this were literature, that line would be "foreshadowing."') %] Don't neglect it.
+
+I don't care if you're using [Spec Kit](https://github.com/github/spec-kit), [Kiro](https://kiro.dev/), [Superpowers](https://github.com/obra/superpowers/), or some other SDD approach, the concepts are roughly the same and [PAAD](https://github.com/Ovid/paad) will complement them, not replace them.[% Ovid.note('If you are using Kiro, you can try <a href="https://github.com/Ovid/paad-power">installing PAAD as a Kiro power</a>, but so far, we have found that that it‘s rather flaky.') %]. The skills PAAD provides are what brings the engineering rigor back into AI-assisted development.
+
+You can read about [the insane experiment where I accidentally developed
+PAAD](/articles/why-i-am-no-longer-reading-the-ais-code), or you can just keep
+reading here to understand how to use it with existing code bases.
+
+# PAAD Basics
+
+Before we start, we should cover the core PAAD skills you'll need to understand.
+Note that these skills are now being used by:
+
+* An insurance company in the US
+* A consulting firm in the UK
+* A B2B company in Malta
+* Gaming companies in Eastern Europe
+* A company in Austria who provided the Kiro/Antigravity support for Kiro
+* A consulting firm in France
+* ... and more
+
+The comments from all of them have been overwhelmingly positive. The following
+skills I detail are going to be the primary skills those companies are using.
+
+## Pushback
+
+I had designed the `/pushback` skill to push back on specs. It looks for omissions, errors, ambiguities, security holes, the works. It will uncover problems with specs that you never new existed.
+
+I have never run `/pushback` on a spec without it raising issues I had never
+considered. It's gotten to the point where I spend more time on specs, trying to
+make them _perfect_, hoping to pass pushback. I have failed every time. Other
+people are reporting similar results.
+
+However, people have surprised me. They're running `/pushback` on just about every AI artifact they can generate. They run it on their steering files. They're running it on their designs and task lists. I didn't design `/pushback` for that, but LLMs are generally smart enough to "figure out" a situation and adjust its pushback as needed. In fact, my new favorite prompt, when an AI is asking me which of several options I want to pursue, is:
+
+```
+Launch a subagent to run an adversarial pushback against the
+options you have just presented me.
+```
+
+Very often, that subagent will find aspects the main agent missed, significantly
+improving the guidance of the AI.
+
+`pushback` is your new best friend.
+
+## Alignment
+
+When you generate your task list, you run `/alignment` to validate that your
+task list is 100% aligned with the spec. Nothing more, nothing less. Only once
+have I run alignment and had a spec completely aligned with the tasks.[%
+Ovid.note("Curiously, though I can't prove it, Opus 4.8 seemed to generate
+better aligned tasks than Fable. Hoewver, I haven't run Fable enough to prove
+this.") %]
+
+This is a critical finding. It means that your AI is **never** building exactly
+what you asked for. It might be easy to spot that a requested modal doesn't
+appear. It's harder to notice that logs aren't being written correctly (or at
+all). This gradual drift from requirements compounds over time. If not addressed
+as soon as the tasks are written, it's easy to miss that you're not getting what
+you really asked for.
+
+## Agentic Review
+
+When you have finished a task and are ready to push your pull request, run `/agentic-review` on the branch. This skill launches a bunch of subagents to validate:
+
+* Logic and correctness
+* Error handling
+* Contracts and integration
+* Concurrency and state races
+* Security
+* Spec adherence (if it detects the spec)
+
+When all agents have finished, a final validation agent runs, deduplicating results, and then verifying that all of them are true.
+
+Unlike many AI spec review tools, the agentic review doesn't just look at the
+diff. It also looks at the code that calls the changed code, and the code which
+the changed code calls. This process eats a lot of tokens, but you'll be shocked
+at the depth of its reviews. They're far better than the anemic reviews from
+other tools. Those are often "diff-based" reviews. The agentic review does a
+deep dive, just like you'd want a senior developer to do. (Note: I often find
+the reviews from `/agentic-review` are better than what humans produce, too).
+
+
+# Step 1. Build the Test Suite
+
+Have you ever had to do a large refactor on a codebase without a test suite? It's miserable. You're consolidating all of the _ad hoc_ logging into a single logging class and now you've discovered that your modals are broken, your auth flow rejects passwords it previously accepted, and your fonts are wrong. How the hell are your fonts broken?
+
+For legacy codebases, we often have global mutable state, weirdly coupled classes, obscure side-effects that we've long forgotten about, and myriad other problems.
+
+To build truly maintainable code, we need a safety net.
+
+For many "professional" organizations, they often target 80% code coverage (ignore the hand-waving, please[% Ovid.note("Yes, '80% code coverage' is meaningless. Is that statement, branch, subroutine, or something else? This isn't an article about code coverage.") %]) as their baseline minimum. CI/CD often fails if test coverage falls below that. With AI, we can now target much higher baseline coverage. I strive to never fall below 95%.
+
+For building our your test suite, **your goal is not to fix bugs**. Your goal is simply to lock down current behavior to ensure that you haven't unexpectedly changed things. You need, at minimum:
+
+1. Unit test coverage
+2. Integration tests
+3. A few "critical path" end-to-end tests
+
+## Unit Tests
+
+You write tests for units A, B, C, and D. How you define "unit" is up to you,
+but these are often the easiest tests to write. However, if a unit is hard to
+test, that's often a code smell. Don't worry too much about it. Integration
+tests will often catch them.
+
+Note that this is the layer at which most code coverage tools are targeted. If you mix unit, integration, and end-to-end tests in a jumbled mess and can't run them independently, you'll get a noisy signal.
+
+## Integration Tests
+
+The problem with unit tests is that you test units in isolation, but the code doesn't _run_ in isolation. Those units talk to each other. So integration tests are larger kinds of tests that tend to target specific features of the code base, such as your authorization flow, adding items to a shopping cart, testing reconciliation, and so on.
+
+Integration tests validate that your units can properly communicate with one
+another. They run slower than unit tests, but they'll catch bugs that unit tests
+cannot. For larger integrations, those bugs can often be harder to track down.
+However, I would rather have a hard to understand bug than a hidden bug I never
+see.
+
+## End-to-End Tests
+
+Some user journeys must never fail. Not ever. If your "recommended items" widget fails, it's not the end of the world. If the "new user signup" flow fails, if you double-charge their credit card, if you fail to capture auditing information in your regulatory system: these are all first-class disasters.
+
+So you identify your critical "must never fail" user journeys and write
+end-to-end tests for them. These tests are your greatest safety net and they
+have interesting features.
+
+For legacy codebases, I often find them fragile, failing on seemingly benign code changes. That's OK. It's often a nightmare to track down the bugs that break these flows, but better than you find them in your development environment than on production.
+
+Next, I often find that just a handful of end-to-end tests, when run with code
+coverage tools, can generate idiotically high code coverage results. Seeing  a
+handful or e2e tests with 67% code coverage does _not_ mean that you've tested
+67% of your code.  It means you've _exercised_ 67% of your code. But that's
+still great! You are still laying the foundation to making your codebase more
+resilient, and that's what we need. Further, when you're fixing your
+architecture, these are (or should be) the tests which survive that refactoring.
+
+## The Philosophy of These Tests
+
+You're not trying to fix the bugs; you're trying to nail down current behavior. With legacy codebases, often you encounter so many bugs when building out a test suite (including bugs in the test suite itself), that you'll be overwhelmed if you're trying to fix them all. Instead, learn how your test suite tools work and identify how you're going to track any bugs you uncover. Your goal here is to build that high-coverage test suite, not to fix everything that's wrong.
+
+## Use AI for This!
+
+I had one team explain to me why they couldn't write tests for their software. They did, in fact, have some pretty compelling reasons why it was _hard_, but not why is was _impossible_. So talk to your AI:
+
+```
+I need to build out a test suite for this code base, with
+separate unit, integration, and end-to-end tests. We need to
+follow best practices for [insert target technologies here].
+
+I am concerned that this codebase isn't testable because:
+
+- Reason 1
+- Reason 2
+...
+- Reason X
+
+Help me design a series of specs to build each of these
+individually. Think about the implications of the reasons I
+have given for why I can't build a test suite. Then offer
+options, along with pros and cons, for various solutions.
+
+Do not assume I am correct about anything here. Also, I
+don't know what I don't know, so try to think about issues I
+have not raised here.
+
+When we're done, write out a markdown docoument explaining
+the plan in detail.
+
+We will need a way to mark tests as _intended_ behavior
+or _observed_ behavior.
+```
+
+After your brainstorming session (using Superpowers `/brainstorming` skill can help here), when it finally comes up with a solid plan, run PAAD's `/pushback` skill on the document. That will uncover flaws and omissions that the first plan missed. Once you get used to PAAD, `/pusbhack` will become your bread-and-butter skill. You'll be using it constantly.
+
+Note that the test suite, if built correctly, should fail loudly when you fix bugs. This is great! That's exactly what you want to see.
+
+# Step 2. The Per-Feature Loop
+
+> **Important**: Various skills are marked with "<strong>(maybe retry)</strong>". If you have a large spec, or if the skill returns many findings, these are cases where the AI will almost certainly miss some cases, or things that you fix from its first findings will raise new ones. In that case, rerun the skill. Keep doing this until few, if any, findings are returned. You'll have to play this by ear, because it's hard to give perfect guidance here.
+>
+> For example, if the `/agentic-review` returns 2 critical and 5 serious issues, you almost certainly want to run it again after fixing the initial issues that it found. If it returns no critical, 1 serious, and 3 suggestions, you _might_ feel OK to say "I'll fix this and stop." Because these tools are _designed_ to find issues, sometimes they're overly aggressive in finding things that you might think are not important.
+
+Now that we have our test suite, and only now, we build features.  Create a
+branch and adjust for your flavor of AI-assisted development. We assume this is
+some flavor of SDD.
+
+The following process, when followed carefully, will surprise you with how well it works. I've explained enough already that now I can just walk you through the steps.
+
+1. **Create the spec.**
+2. Run **`/pushback` on the spec** *(maybe retry)*
+3. **Do whatever gets you to a final task list.**
+4. Run **`/pushback` on the task list** *(maybe retry)*
+5. Run **`/alignment` on the task list** *(maybe retry)*
+6. **Execute the tasks**, each in a new session **to preserve your context window**.
+7. Run **`/agentic-review` on the result** *(maybe retry)*.
+
+Here's the key for this section: if "English is the new programming language," pushback is your code review. You review your code, right?
+
+The PAAD README gives a four-step version. That's the short form. This is the
+loop I actually run. It creates marvelously high-value PRs. Except when it
+doesn't. This is AI, after all. Read the code. If you don't, "human in the loop"
+becomes "human in the noose."
+
+Note: large PRs are more likely to have bugs we miss. A clean pass on a messy PR
+is evidence the reviewer ran out of context or simply missed important issues,
+not evidence the PR is fine.
+
+# Step 3. Agentic Architecture
+
+The `/agentic-architecture` skill is what makes all of this work. This is what catches your technical debt and lets you pay it off. It's also the skill that most are not running. To address this, I'm currently working on a project to have this skill run across team codebases once a week and have the report shared with them. If you skip this, PAAD will slow down the accumulation of technical debt, but it will _not_ stop it. This is where your engineering discipline will really shine.
+
+The previously mentioned steps works extremely well, but you're looking at the
+parts, not the whole, and it's easy to miss the big picture. That's where I was
+about five months ago, working on the [Tramp Freighter
+Blues](/paad/tramp-freighter/) game. My commits seemed solid, but Claude Code
+was taking longer and longer to add new features, even those I thought should be
+simple. I started digging into the architecture and discovered that I had a mess
+on my hands. That's when the precursor to the `/agentic-architecture` skill was
+born.
+
+As you can see, [about five months
+ago](https://github.com/Ovid/tramp-freighter/activity?after=Y3Vyc29yOnYyOpK7MjAyNi0wMy0wM1QwOToxMTo1MC4wMDAwMDBazwAAAAdIIT0x),
+I committed many branches that were simply named `ovid/architecture`. I was
+diligently evaluating and working through the architectural flaws using Claude
+Code, just as a team _should_ do if they found themselves in a similar mess. But
+as many of us know, we have deadlines and teams often find management saying,
+"yes, you should fix the flaws, but we have a deadline." There's always a
+deadline.
+
+Now I advise teams to not ask permission to fix those flaws. Get your regular
+work done and slip in fixes as you evolve your codebase. Over time, that test
+suite, and constant architectural fixes, allows you to have a solid,
+maintainable codebase that both AI and humans can work on.
+
+To hammer the point home, here's a summary of [the Tramp Freighter architecture
+report I was working
+through](https://gist.github.com/Ovid/a14fc4290d15a62a825a5fa5bdbf08a7) (after I
+had addressed some of the architecture issues):
+
+| # | Type | Status | Finding |
+|---|------|--------|---------|
+| 1 | Global mutable state | Not observed | Dropped -- module-level caches in wormhole-graph.js and Three.js engine are standard patterns for static data and GPU resources |
+| 2 | God object | Not observed | GameCoordinator's ~183 delegation methods are intentional post-refactor facade |
+| 3 | Tight coupling | Observed | Part of #F-1 (InformationBroker direct state mutation) |
+| 4 | High/unstable dependencies | Not observed | -- |
+| 5 | Circular dependencies | Not observed | S-3 confirms zero circular deps |
+| 6 | Leaky abstractions | Observed | #F-1, #F-2, #F-3, #F-14 |
+| 7 | Over-abstraction | Not observed | -- |
+| 8 | Premature optimization | Not observed | -- |
+| 9 | Shotgun surgery | Observed | #F-11 |
+| 10 | Feature envy / anemic domain model | Not observed | S-4 confirms rich domain logic classes |
+| 11 | Low cohesion | Not observed | S-11, S-13 confirm high cohesion |
+| 12 | Hidden side effects | Not observed | Dropped -- applyEncounterOutcome is deliberate orchestration |
+| 13 | Inconsistent boundaries | Observed | #F-1, #F-10, #F-19 |
+| 14 | Distributed monolith | Not applicable | Single-player browser game |
+| 15 | Chatty service calls | Not applicable | Single-player browser game |
+| 16 | Synchronous-only integration | Not applicable | Single-player browser game |
+| 17 | No clear ownership of data | Observed | #F-8, #F-10 |
+| 18 | Shared database across services | Not applicable | Single-player browser game |
+| 19 | Lack of idempotency | Not observed | -- |
+| 20 | Weak error handling strategy | Observed | #F-7 |
+| 21 | No observability plan | Not assessed | Logging infrastructure exists but is lightly used; appropriate for a single-player game |
+| 22 | Configuration sprawl | Observed | #F-5 |
+| 23 | Dependency injection misuse | Not observed | Capability injection is well-applied |
+| 24 | Inconsistent API contracts | Not observed | S-12 confirms consistent event contracts |
+| 25 | Business logic in UI | Observed | #F-3 |
+| 26 | Poor transactional boundaries | Observed | #F-21 |
+| 27 | Temporal coupling | Observed | #F-13 |
+| 28 | Magic numbers/strings | Observed | #F-4, #F-15, #F-16 |
+| 29 | Utility dumping ground | Not observed | S-15 confirms focused utility files |
+| 30 | Security as an afterthought | Observed | #F-6, #F-18 |
+| 31 | Dead code / unused dependencies | Observed | #F-17 |
+| 32 | Missing test coverage for critical paths | Observed | #F-9 |
+| 33 | Hard-coded credentials or secrets | Not observed | S-8 confirms zero secrets |
+| 34 | Inconsistent error/logging conventions | Observed | #F-12 |
+
+I ran through all of those issues, using the `/fix-architecture` skill to address them in separate PRs. When you don't constantly maintain your architecture, you find that AI will struggle to add new features, or fix old ones. As it turns out, this is the same failure mode that many teams experience: bad architecture makes it hard to maintain the codebase. One rule I constantly reinforce in my training is that things which help AI write better code usually helps humans write better code, and vice versa.
+
+AI is a "yes man." It does what you ask it to do, focusing on what you asked it to do. It ignores the big picture unless you _explicitly_ tell it to look at it. AI doesn't feel the weight of the architectural shortcuts it's taking; it just does what you ask.
+
+# Conclusion
+
+This is a summary of the main points of my training, but by necessity, I left a
+lot out. Yes, you can write production-ready code with AI, but _only_ if you
+bring engineering discipline back into the process. Review what you wrote. Let
+AI review what you wrote. In fact, `/pushback` will **routinely** find issues
+that you never considered. `/pushback` is your new best friend.
+
+When Fortran was introduced in the 50s, IBM knew that developers would object
+because it could not produce assembler that ran as efficiently as hand-written
+assembler. Much of the marketing around Fortran focused on saving _developer
+time_, while noting that the generated assembly code was _almost_ as fast as
+hand-written code. It was decades before compilers routinely wrote assembly as
+that ran faster than human-written assembly. Today, very few humans can write
+assembly code that outperforms a compiler.
+
+This is where we are with AI. With discipline (the "D" in PAAD stands for
+discipline), you can write code that is almost as good as what developers can
+write. In fact, from decades of real-world experience, I can promise you that
+PAAD will let you write code that is better than _many_ developers can write.
+But there are still plenty of cases where you want to write code by hand:
+
+* Highly optimized code
+* Working in a novel domain the AI doesn't know
+* The joy of writing code
+* **Fighting skill atrophy**
+* ... and so on
+
+LLMs do what you ask. They don't look at the big picture. My fervent hope is
+that PAAD will slowly wither away, not from apathy, but from lack of need.
+Agentic harnesses, leveraging the power of LLMs, are starting to get similar
+skills integrated, but it's a jagged frontier.  PAAD brings the pieces together
+in one place. PAAD is your secret weapon: you can leverage AI to write bigger,
+better systems than others who use AI to slop together code.
+
+# Miscellaneous
+
+## Fable Also Fails
+
+**TL;DR**: Fable also fails to see the big picture.
+
+I created [an architecture report](https://gist.github.com/Ovid/7938d58e58558dd553e18b83e7add975)  on experimental software built with Fable. The codebase is small (roughly 10K LOC) and Fable had no significant problems in creating the software in a few hours. To create the original spec and plan, we used Claude Code with Superpowers, PAAD, and Ponytail to ensure that the spec and plan were of the highest quality. In other words, we used spec-driven development with an extremely detailed, high-quality specification.
+
+For the implementation, we deliberately did not use the PAAD methodology. We wanted to assess the quality of the software that Fable can natively build without engineering assistance, assuming high-quality input.
+
+To further ensure it was a fair test, each step of the generated plan was run in a fresh session to minimize the risk of context rot. At no point did we come anywhere close to our context limit (I didn't record exact numbers, but fairly confident we were never over 20% of the million token context window).
+
+After the implementation, we manually verified that the software behaved as
+intended. It mostly did, with a few quirks, but it was suitable. Then we ran
+PAAD's `/agentic-architecture` tool to generate the report. The agentic
+architecture skill spawns multiple subagents, each specializing in a particular
+aspect of architecture, and a final validator to deduplicate and verify the
+findings.
+
+The final verdict is damning. Fable can brute force past architectural challenges, but without clear and explicit guidance, it creates the same technical debt that less powerful models create.
+
+In short, Fable does not produce production-ready code.
+
+Final counts:
+
+* **17 verified strengths** (7 High, 9 Medium, 1 Low)
+* **33 verified flaws** (4 High, 17 Medium, 12 Low)
+
+These were captured from 79 raw findings by 5 specialist agents plus an adversarial verification pass.
+
+For a small, 10K LOC codebase that's built in a few hours this is terrible. Had I continued, the flaws would have mounted and the system would have been harder and harder to maintain for either AI or humans. The PAAD methodology avoids these flaws and builds production-ready code, but at a higher unit cost (tokens+time). This is offset by lower TCO — less rework, and fewer bugs or security holes.
+
+## The /roadmap Skill
+
+I'm still building PAAD tools, including looking at one what tries to bring architecture considerations up front, instead of dealing with them later. That's a hard problem. Plus, I don't have much free time.
+
+However, my
+[`/roadmap`](https://gist.github.com/Ovid/5ef2f1def16e7374d4d5e18aef4e9484)
+skill (that's a much older version) allows a single developer to build out
+large, well-maintained software projects. I've built out some impressive systems
+using it, but it depends on Superpowers, PAAD, and my personal workflow. It's
+also not suitable for teams.
+
+If I had the time, I'd build this into an agentic
+harness that allows people to "vibe" projects from start to finish. I've started
+a prototype to produce code that isn't production ready, but is "good enough"
+that development teams won't run away screaming. It also exposes clear seams for
+auth, auth, logging, monitoring, and many other "production" needs, even if
+they're not required for a POC. I'm pretty sure I'll throw that away, but like
+many projects in this area, I'll have learned a lot for round two (I'm thinking
+about turning it into a [Kiro Power](https://kiro.dev/powers/), but Power's are
+still relatively new).
+
+## "Safe" Vibe Coding
+
+And if you _must_ vibe some code, read PAAD's
+[`/vibe`](https://github.com/Ovid/paad/blob/main/plugins/paad/skills/vibe/SKILL.md)
+skill. It's _just enough_ discipline to prevent you from making a complete mess
+of things. I've had it actually stop and tell me it can't finish a task because
+it identified an architectural flaw in the code and vibing the task was going to
+make it worse!
+
+[%- END %]
