@@ -20,7 +20,10 @@
 Did you know that Sonnet can produce better code than Opus? I didn't.
 
 > TL;DR: you can develop production quality code with AI, but you need to put
-engineering first. [PAAD](https://github.com/Ovid/paad) will help, but you
+engineering first. You need to install the
+[PAAD](https://github.com/Ovid/paad) skills to
+follow the advice in this article. PAAD will help you build much better
+systems, but you
 need to understand what is going wrong with AI and why. This is a very long
 article. I could have published it in several parts, but I wanted to have a
 single "go to" document that you could refer to when developing software with
@@ -30,13 +33,13 @@ A few months ago I published [an
 article](/articles/why-i-am-no-longer-reading-the-ais-code) explaining an
 absolutely insane experiment where I tried to create production-quality code
 without ever writing or reviewing the code. By forcing myself to have such an
-extreme contraint, many failed attempts, I
-finally assembled [a set of skills, named PAAD, that allows you to write great
+extreme constraint, after many failed attempts I
+finally assembled [a set of skills, named PAAD](https://github.com/ovid/paad), that allows you to write great
 code.  However, this was for greenfield projects created by a single developer.
 Would it work for legacy code and teams? Once you understand what's going on,
 you'll not be surprised to find that the answer is "yes."
 
-Various companies and individuals have started using it the feedback has been
+As various companies and individuals have started using it, the feedback has been
 uniformly along the lines of "this is amazing!" Having that confidence under my
 belt, I have now been working with many teams of developers, training them on
 AI-assisted programming using PAAD (pronounced "pad"). Even developers who
@@ -45,11 +48,13 @@ surprised to discover that they're junior devs when it comes to AI, but now they
 can be senior devs again because PAAD puts engineering best practices
 front-and-center.
 
-But here's the kicker: one team reported that they found that using PAAD allowed
-them to have higher quality code, with less slop, and less rework. I've seen
-this before, so it wasn't a surprise. What *did* surprise me, however, is that
-due to a bug in their IDE, they were temporarily locked out of Anthropic's Opus
-models, so they were using Sonnet plus PAAD.
+But here's the kicker that drove the title: one team reported that using PAAD
+allowed them to have higher quality code, with less slop, and less rework.
+I've seen this before, so it wasn't a surprise. What *did* surprise me,
+however, is that due to a bug in their IDE, they were temporarily locked out
+of Anthropic's Opus models, so they were using Sonnet plus PAAD.
+
+In other words: Sonnet with PAAD was outperforming Opus without PAAD.
 
 Nobody would ordinarily believe this. Larger models write better code, yes?
 Well, yes, but if you're a senior engineer, you know that a perfect method or
@@ -58,9 +63,9 @@ year later when you've been facing tight deadlines attaching all the bells and
 whistles your customers need. This accumulation of technical debt is what kills
 software projects. With PAAD, it's much, much easier to maintain codebases.
 
-In fact, near the end of this post, I'll offer solid evidence of how Fable fails
+In fact, near the end of this post, I'll also offer solid evidence of how Fable fails
 spectacularly, despite "successfully" writing some complex code. It fails for
-the same reason that _all_ AI coding tools I've used fails.
+the same reason that _all_ AI coding tools I've used fail.
 
 The Sonnet discovery is a "boots on the ground" report from one team, not a
 benchmark. But if it's real, how can *you* replicate this?
@@ -120,7 +125,7 @@ significant portion of that just to guide its reasoning.
 
 While giving an LLM too much information can cause it to go awry, giving it too
 little information leads to a different problem: confidently wrong answers. Or
-as some people have derisively—but accurately—termed it, "mainsplaining as a
+as some people have derisively—but accurately—termed it, "mansplaining as a
 service." When you're vibe coding ("prompt and pray"), it's a quick way to
 explore new ideas, but we already know that this doesn't scale.
 Why? Because the AI doesn't know your code base. Or if you're starting from
@@ -133,12 +138,12 @@ Today, much of the AI-assisted development world has moved to Spec-Driven Develo
 As part of this guidance, we have _steering files_ to give the agents a starting
 place for understanding your code. They typically describe what your project is,
 what technologies you use, where to find relevant code, and perhaps "best
-practices" for your codebase. For Claude Code, this is is your `CLAUDE.md` file.
+practices" for your codebase. For Claude Code, this is your `CLAUDE.md` file.
 For Kiro, your steering lies in `.kiro/steering/*.md` files. [Spec
 Kit](https://github.com/github/spec-kit) uses
 `.specify/memory/constitutions.md`. Still other tools use a variety of different
 filenames, directories, conventions. The ecosystem is a mess, but that's where
-we are right now.[% Ovid.note("I very much would love to do work to standarize
+we are right now.[% Ovid.note("I very much would love to do work to standardize
 this, or at least create a standard metadata file to explain the local AI
 ecosystem, but hey, too many projects and too little time.") %]
 
@@ -155,7 +160,7 @@ As I've seen with multiple teams, fixing your bad steering files is one of the _
 
 ## Technical Debt is the Problem
 
-[Speed at the Cost of Quality](https://arxiv.org/html/2511.04427v3) and [AI IDEs or Autonomous Agents? Measuring the Impact of Coding Agents on Software Development](https://arxiv.org/html/2601.13597v2) are just two of the many studies about AI-assisted software development which are all converging on a single, manageable problem that we are failing to manage: accelerated software development leads to accumulated technical debt. As I explain to my students, vibe coding rapidly accumulates unmanageable technical debt while SDD slowly accumulates unmanageable technical debt.
+[Speed at the Cost of Quality](https://arxiv.org/html/2511.04427v3) and [AI IDEs or Autonomous Agents? Measuring the Impact of Coding Agents on Software Development](https://arxiv.org/html/2601.13597v2) are just two of the many studies about AI-assisted software development which are all converging on a single, manageable problem that we are failing to manage: accelerated software development leads to accumulated technical debt. As I explain to my students, vibe coding rapidly accumulates technical debt while SDD slowly accumulates technical debt.
 
 With SDD, you at least have the opportunity to hit the brakes when the deer runs in front of your IDE.[% Ovid.note("OK, I suck at metaphors. Sue me.") %] PAAD gives you the brakes.
 
@@ -193,7 +198,9 @@ skills I detail are going to be the primary skills those companies are using.
 
 ## Pushback
 
-I had designed the `/pushback` skill to push back on specs. It looks for omissions, errors, ambiguities, security holes, the works. It will uncover problems with specs that you never new existed.
+I had designed the `/pushback` skill to push back on specs. It looks for
+omissions, errors, ambiguities, security holes, the works. It will uncover
+problems with specs that you never knew existed.
 
 I have never run `/pushback` on a spec without it raising issues I had never
 considered. It's gotten to the point where I spend more time on specs, trying to
@@ -218,7 +225,7 @@ When you generate your task list, you run `/alignment` to validate that your
 task list is 100% aligned with the spec. Nothing more, nothing less. Only once
 have I run alignment and had a spec completely aligned with the tasks.[%
 Ovid.note("Curiously, though I can't prove it, Opus 4.8 seemed to generate
-better aligned tasks than Fable. Hoewver, I haven't run Fable enough to prove
+better aligned tasks than Fable. However, I haven't run Fable enough to prove
 this.") %]
 
 This is a critical finding. It means that your AI is **never** building exactly
@@ -241,20 +248,23 @@ When you have finished a task and are ready to push your pull request, run `/age
 
 When all agents have finished, a final validation agent runs, deduplicating results, and then verifying that all of them are true.
 
-Unlike many AI spec review tools, the agentic review doesn't just look at the
+Unlike many AI code review tools, the agentic review doesn't just look at the
 diff. It also looks at the code that calls the changed code, and the code which
 the changed code calls. This process eats a lot of tokens, but you'll be shocked
 at the depth of its reviews. They're far better than the anemic reviews from
-other tools. Those are often "diff-based" reviews. The agentic review does a
+other tools. Those are often the aforementioned "diff-based" reviews. The agentic review does a
 deep dive, just like you'd want a senior developer to do. (Note: I often find
 the reviews from `/agentic-review` are better than what humans produce, too).
 
 
 # Step 1. Build the Test Suite
 
+With the lengthy preamble aside, let's get to the heart of the matter.
+
 Have you ever had to do a large refactor on a codebase without a test suite? It's miserable. You're consolidating all of the _ad hoc_ logging into a single logging class and now you've discovered that your modals are broken, your auth flow rejects passwords it previously accepted, and your fonts are wrong. How the hell are your fonts broken?
 
-For legacy codebases, we often have global mutable state, weirdly coupled classes, obscure side-effects that we've long forgotten about, and myriad other problems.
+For legacy codebases, we often have global mutable state, weirdly coupled
+classes, or obscure side-effects that we've long forgotten about, and myriad other problems.
 
 To build truly maintainable code, we need a safety net.
 
@@ -270,10 +280,12 @@ For building our your test suite, **your goal is not to fix bugs**. Your goal is
 
 You write tests for units A, B, C, and D. How you define "unit" is up to you,
 but these are often the easiest tests to write. However, if a unit is hard to
-test, that's often a code smell. Don't worry too much about it. Integration
-tests will often catch them.
+test, that's often a code smell. Don't worry too much about it. You can fall
+back to integration tests when you start.
 
-Note that this is the layer at which most code coverage tools are targeted. If you mix unit, integration, and end-to-end tests in a jumbled mess and can't run them independently, you'll get a noisy signal.
+Note that this is the layer at which most code coverage tools are targeted. If
+you mix unit, integration, and end-to-end tests in a jumbled mess and can't
+run them independently, you'll get a noisy signal from code coverage tools.
 
 ## Integration Tests
 
@@ -297,7 +309,7 @@ For legacy codebases, I often find them fragile, failing on seemingly benign cod
 
 Next, I often find that just a handful of end-to-end tests, when run with code
 coverage tools, can generate idiotically high code coverage results. Seeing  a
-handful or e2e tests with 67% code coverage does _not_ mean that you've tested
+handful of e2e tests with 67% code coverage does _not_ mean that you've tested
 67% of your code.  It means you've _exercised_ 67% of your code. But that's
 still great! You are still laying the foundation to making your codebase more
 resilient, and that's what we need. Further, when you're fixing your
@@ -307,9 +319,15 @@ architecture, these are (or should be) the tests which survive that refactoring.
 
 You're not trying to fix the bugs; you're trying to nail down current behavior. With legacy codebases, often you encounter so many bugs when building out a test suite (including bugs in the test suite itself), that you'll be overwhelmed if you're trying to fix them all. Instead, learn how your test suite tools work and identify how you're going to track any bugs you uncover. Your goal here is to build that high-coverage test suite, not to fix everything that's wrong.
 
+> Note: it's easy for the AI to write plenty of tests which don't really test
+the code. For example, `foo is not Null` often isn't a real test. You need to
+tread carefully here.
+
 ## Use AI for This!
 
-I had one team explain to me why they couldn't write tests for their software. They did, in fact, have some pretty compelling reasons why it was _hard_, but not why is was _impossible_. So talk to your AI:
+I had one team explain to me why they couldn't write tests for their software.
+They did, in fact, have some pretty compelling reasons why it was _hard_, but
+not why this was _impossible_. So talk to your AI:
 
 ```
 I need to build out a test suite for this code base, with
@@ -332,14 +350,14 @@ Do not assume I am correct about anything here. Also, I
 don't know what I don't know, so try to think about issues I
 have not raised here.
 
-When we're done, write out a markdown docoument explaining
+When we're done, write out a markdown document explaining
 the plan in detail.
 
 We will need a way to mark tests as _intended_ behavior
 or _observed_ behavior.
 ```
 
-After your brainstorming session (using Superpowers `/brainstorming` skill can help here), when it finally comes up with a solid plan, run PAAD's `/pushback` skill on the document. That will uncover flaws and omissions that the first plan missed. Once you get used to PAAD, `/pusbhack` will become your bread-and-butter skill. You'll be using it constantly.
+After your brainstorming session (using Superpowers `/brainstorming` skill can help here), when it finally comes up with a solid plan, run PAAD's `/pushback` skill on the document. That will uncover flaws and omissions that the first plan missed. Once you get used to PAAD, `/pushback` will become your bread-and-butter skill. You'll be using it constantly.
 
 Note that the test suite, if built correctly, should fail loudly when you fix bugs. This is great! That's exactly what you want to see.
 
@@ -378,7 +396,7 @@ not evidence the PR is fine.
 
 The `/agentic-architecture` skill is what makes all of this work. This is what catches your technical debt and lets you pay it off. It's also the skill that most are not running. To address this, I'm currently working on a project to have this skill run across team codebases once a week and have the report shared with them. If you skip this, PAAD will slow down the accumulation of technical debt, but it will _not_ stop it. This is where your engineering discipline will really shine.
 
-The previously mentioned steps works extremely well, but you're looking at the
+The previously mentioned steps work extremely well, but you're looking at the
 parts, not the whole, and it's easy to miss the big picture. That's where I was
 about five months ago, working on the [Tramp Freighter
 Blues](/paad/tramp-freighter/) game. My commits seemed solid, but Claude Code
@@ -459,7 +477,7 @@ When Fortran was introduced in the 50s, IBM knew that developers would object
 because it could not produce assembler that ran as efficiently as hand-written
 assembler. Much of the marketing around Fortran focused on saving _developer
 time_, while noting that the generated assembly code was _almost_ as fast as
-hand-written code. It was decades before compilers routinely wrote assembly as
+hand-written code. It was decades before compilers routinely wrote assembly
 that ran faster than human-written assembly. Today, very few humans can write
 assembly code that outperforms a compiler.
 
@@ -529,10 +547,10 @@ If I had the time, I'd build this into an agentic
 harness that allows people to "vibe" projects from start to finish. I've started
 a prototype to produce code that isn't production ready, but is "good enough"
 that development teams won't run away screaming. It also exposes clear seams for
-auth, auth, logging, monitoring, and many other "production" needs, even if
+auth, authz, logging, monitoring, and many other "production" needs, even if
 they're not required for a POC. I'm pretty sure I'll throw that away, but like
 many projects in this area, I'll have learned a lot for round two (I'm thinking
-about turning it into a [Kiro Power](https://kiro.dev/powers/), but Power's are
+about turning it into a [Kiro Power](https://kiro.dev/powers/), but Powers are
 still relatively new).
 
 ## "Safe" Vibe Coding
