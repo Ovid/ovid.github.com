@@ -15,6 +15,7 @@ use Test::Most;
 use lib 'lib';
 use Test2::Plugin::UTF8;
 use Less::Boilerplate;
+use Less::Config qw(config);
 use Template;
 
 my $tt = Template->new(
@@ -42,6 +43,27 @@ subtest 'articles do not get the blog CSS class' => sub {
       'header for an article should not include the blog class';
     like $output, qr/class="row title"/,
       'header for an article should still have the row title class';
+};
+
+# Regression test: the Google Analytics ID must render into the gtag markup.
+# The gtag block references Config.google_analytics_id, but `USE Config` used
+# to appear *below* that block, so Config was uninstantiated when the block
+# ran and TT silently rendered an empty id (id="" / gtag('config', '')) into
+# every page whose source predated the config extraction.
+subtest 'Google Analytics id is rendered into the header' => sub {
+    my $ga_id = config()->{google_analytics_id};
+    ok $ga_id, "config supplies a google_analytics_id ($ga_id)";
+
+    my $output = '';
+    $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
+      or die $tt->error;
+
+    like $output, qr/gtag\/js\?id=\Q$ga_id\E"/,
+      'gtag.js script src includes the analytics id';
+    like $output, qr/gtag\('config', '\Q$ga_id\E'\)/,
+      "gtag('config') call includes the analytics id";
+    unlike $output, qr/gtag\/js\?id="/,
+      'gtag.js script src is never left with an empty id';
 };
 
 done_testing;
