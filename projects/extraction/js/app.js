@@ -4,6 +4,7 @@ import {
   NUMERIC_MAP,
   COUNTRY_NAMES,
   computeComposite,
+  formatComposite,
   normalizeWeights,
   filterEntries,
 } from './lib.js';
@@ -13,9 +14,10 @@ const SOURCE_URLS = {
   ilo_labor_share: 'https://ilostat.ilo.org/data/',
   wb_net_interest_margin: 'https://data.worldbank.org/indicator/GFDD.EI.01',
   wb_domestic_credit: 'https://data.worldbank.org/indicator/FS.AST.PRVT.GD.ZS',
-  wb_top10_income: 'https://data.worldbank.org/indicator/SI.DST.10TH.10',
+  wid_top10_income: 'https://wid.world/',
+  wb_gdp_gni_gap: 'https://data.worldbank.org/indicator/NY.GNP.MKTP.CD',
   wb_natural_rents: 'https://data.worldbank.org/indicator/NY.GDP.TOTL.RT.ZS',
-  wb_wgi_corruption: 'https://data.worldbank.org/indicator/CC.EST',
+  wb_wgi_corruption: 'https://databank.worldbank.org/source/worldwide-governance-indicators',
   rsf_press: 'https://rsf.org/en/index',
   tjn_fsi: 'https://fsi.taxjustice.net/',
   tjn_fsi_secrecy: 'https://fsi.taxjustice.net/',
@@ -136,6 +138,21 @@ let mapProjection = null;
 let mapPath = null;
 let mapWidth = 0;
 let mapHeight = 0;
+let mapLand = null;
+let globeMode = false;
+let globeRotation = [0, 0, 0];
+
+function makeProjection() {
+  const proj = globeMode ? d3.geoOrthographic().rotate(globeRotation).clipAngle(90) : d3.geoNaturalEarth1();
+  return proj
+    .fitSize([mapWidth - 20, mapHeight - 20], globeMode ? { type: 'Sphere' } : mapLand)
+    .translate([mapWidth / 2, mapHeight / 2]);
+}
+
+// Re-runs the path generator over sphere, graticule and countries alike
+function redrawPaths() {
+  mapG.selectAll('path').attr('d', mapPath);
+}
 
 function drawMap(world) {
   mapSvg = d3.select('#map-svg');
@@ -144,18 +161,20 @@ function drawMap(world) {
   mapHeight = container.clientHeight;
   mapSvg.attr('viewBox', `0 0 ${mapWidth} ${mapHeight}`);
 
-  mapProjection = d3
-    .geoNaturalEarth1()
-    .fitSize([mapWidth - 20, mapHeight - 20], topojson.feature(world, world.objects.countries))
-    .translate([mapWidth / 2, mapHeight / 2]);
+  mapLand = topojson.feature(world, world.objects.countries);
+  mapProjection = makeProjection();
 
   mapPath = d3.geoPath(mapProjection);
-  const countries = topojson.feature(world, world.objects.countries).features;
+  const countries = mapLand.features;
 
   const tooltip = d3.select('#tooltip');
 
   // Create a group for all country paths (zoom transforms this group)
   mapG = mapSvg.append('g').attr('class', 'countries-group');
+
+  // Globe furniture — hidden in flat mode, drawn before countries so it sits beneath
+  mapG.append('path').datum({ type: 'Sphere' }).attr('class', 'globe-sphere').attr('display', 'none');
+  mapG.append('path').datum(d3.geoGraticule10()).attr('class', 'graticule').attr('display', 'none');
 
   mapG
     .selectAll('.country-path')
@@ -193,15 +212,34 @@ function drawMap(world) {
       selectCountry(a3, d.id);
     });
 
-  // Zoom behavior
+  // Zoom behavior. In globe mode drag rotates instead of panning, so the zoom
+  // behavior gives up mousedown/single-touch and keeps wheel + pinch.
+  // ponytail: a two-finger pinch also starts a one-finger rotate; fix with versor
+  // dragging if touch users complain.
   mapZoom = d3
     .zoom()
     .scaleExtent([1, 8])
+    .filter((event) => !globeMode || event.type === 'wheel' || (event.touches?.length ?? 0) > 1)
     .on('zoom', (event) => {
       mapG.attr('transform', event.transform);
     });
 
-  mapSvg.call(mapZoom);
+  mapSvg.call(mapZoom).call(
+    d3
+      .drag()
+      .filter(() => globeMode)
+      .on('drag', (event) => {
+        // Degrees per pixel: constant angular speed regardless of globe size or zoom
+        const k = 75 / (mapProjection.scale() * d3.zoomTransform(mapSvg.node()).k);
+        const [lon, lat, roll] = mapProjection.rotate();
+        globeRotation = [lon + event.dx * k, Math.max(-90, Math.min(90, lat - event.dy * k)), roll];
+        mapProjection.rotate(globeRotation);
+        redrawPaths();
+      }),
+  );
+
+  d3.select('#globe-toggle').on('click', () => setGlobeMode(!globeMode));
+  redrawPaths();
 
   // Zoom controls
   d3.select('#zoom-in').on('click', () => mapSvg.transition().duration(300).call(mapZoom.scaleBy, 1.5));
@@ -211,16 +249,40 @@ function drawMap(world) {
       .duration(300)
       .call(mapZoom.scaleBy, 1 / 1.5),
   );
-  d3.select('#zoom-reset').on('click', () =>
-    mapSvg.transition().duration(500).call(mapZoom.transform, d3.zoomIdentity),
-  );
+  d3.select('#zoom-reset').on('click', () => {
+    if (globeMode) {
+      globeRotation = [0, 0, 0];
+      mapProjection.rotate(globeRotation);
+      redrawPaths();
+    }
+    mapSvg.transition().duration(500).call(mapZoom.transform, d3.zoomIdentity);
+  });
+}
+
+function setGlobeMode(on) {
+  globeMode = on;
+  mapProjection = makeProjection();
+  mapPath = d3.geoPath(mapProjection);
+  mapG.selectAll('.globe-sphere,.graticule').attr('display', on ? null : 'none');
+  mapSvg.call(mapZoom.transform, d3.zoomIdentity);
+  redrawPaths();
+  d3.select('.map-container').classed('globe', on);
+  d3.select('#globe-toggle')
+    .text(on ? '🗺' : '🌐')
+    .attr('title', on ? 'Switch to flat map' : 'Switch to globe')
+    .attr('aria-pressed', String(on));
+}
+
+function noDataFill() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--no-data-fill').trim();
 }
 
 function countryFill(d) {
   const a3 = getCountryAlpha3FromFeature(d);
   const cd = getCountryData(a3);
-  if (!cd) return getComputedStyle(document.documentElement).getPropertyValue('--no-data-fill').trim();
+  if (!cd) return noDataFill();
   const score = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
+  if (score === null) return noDataFill(); // no valid weighting — not zero extraction
   return extractionColor(score);
 }
 
@@ -286,7 +348,19 @@ function selectCountry(alpha3, numericId) {
     sel.classed('selected', true).raise();
 
     // Center map on selected country
-    if (mapZoom && mapSvg && sel.size() > 0) {
+    if (globeMode && sel.size() > 0) {
+      // Screen bounds are meaningless on a sphere — spin the centroid to face us
+      const [lon, lat] = d3.geoCentroid(sel.datum());
+      const interp = d3.interpolate(mapProjection.rotate(), [-lon, -lat, 0]);
+      mapSvg
+        .transition()
+        .duration(750)
+        .tween('rotate', () => (t) => {
+          globeRotation = interp(t);
+          mapProjection.rotate(globeRotation);
+          redrawPaths();
+        });
+    } else if (mapZoom && mapSvg && sel.size() > 0) {
       const bounds = mapPath.bounds(sel.datum());
       const dx = bounds[1][0] - bounds[0][0];
       const dy = bounds[1][1] - bounds[0][1];
@@ -311,7 +385,7 @@ function selectCountry(alpha3, numericId) {
   const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
   document.getElementById('country-name').textContent = cd.name;
   const scoreEl = document.getElementById('composite-score');
-  scoreEl.textContent = composite;
+  scoreEl.textContent = formatComposite(composite);
 
   document.getElementById('overall-confidence').textContent = `Confidence: ${cd.overall_confidence.replace('_', ' ')}`;
 
@@ -504,6 +578,7 @@ function drawDomainList(domains) {
             : ''
       }
       ${d.related_jurisdictions_note ? `<div class="related-jurisdictions-note">${esc(d.related_jurisdictions_note)}</div>` : ''}
+      ${d.measurement_note ? `<div class="measurement-note">${esc(d.measurement_note)}</div>` : ''}
       ${d.justification_detail ? `<a class="raw-data-toggle" href="#">Show raw data &#9656;</a><div class="raw-data-detail" style="display:none"><div class="domain-justification">${esc(d.justification_detail)}</div>${d.sources?.length ? `<div class="domain-sources">Sources: ${d.sources.map((s) => (SOURCE_URLS[s] ? `<a href="${SOURCE_URLS[s]}" target="_blank" rel="noopener">${esc(s)}</a>` : esc(s))).join(', ')}</div>` : ''}</div>` : ''}
       <div class="domain-meta">
         <span class="confidence-badge">Confidence: ${esc(conf.replace('_', ' '))}</span>
@@ -573,7 +648,7 @@ function setupWeightControls() {
         if (cd) {
           const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
           const scoreEl = document.getElementById('composite-score');
-          scoreEl.textContent = composite;
+          scoreEl.textContent = formatComposite(composite);
         }
       }
     });
@@ -593,7 +668,7 @@ function setupWeightControls() {
       const cd = getCountryData(selectedCountryCode);
       if (cd) {
         const composite = computeComposite(cd.domains, currentWeights, DOMAIN_KEYS);
-        document.getElementById('composite-score').textContent = composite;
+        document.getElementById('composite-score').textContent = formatComposite(composite);
       }
     }
   });

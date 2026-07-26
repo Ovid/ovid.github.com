@@ -387,6 +387,13 @@ export function computeComposite(domains, weights, domainKeys) {
   return wsum > 0 ? Math.round(sum / wsum) : null;
 }
 
+export function formatComposite(composite) {
+  // null means "no valid weighting" (all weights zeroed, or a country whose
+  // only covered domains sit at weight 0). Render no-data, not the string
+  // "null" or a coerced 0 — those read as "no extraction", which is a lie.
+  return composite === null ? '—' : String(composite);
+}
+
 export function normalizeWeights(rawWeights) {
   const total = Object.values(rawWeights).reduce((a, b) => a + b, 0) || 1;
   const normalized = {};
