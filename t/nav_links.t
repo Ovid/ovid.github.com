@@ -21,6 +21,7 @@ my $output = '';
 $tt->process( 'include/links.tt', {}, \$output )
   or die $tt->error;
 
-like $output, qr{<a href="/paad/">}, 'nav links to the PAAD course at /paad/';
+like $output, qr{<a href="/paad/">Learn PAAD</a>},
+  'nav links to the PAAD course at /paad/';
 
 done_testing;
