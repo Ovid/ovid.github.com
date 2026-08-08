@@ -194,6 +194,7 @@
   <li><a href="/videos">Talks</a></li>
   <li><a href="/hireme">Hire Me</a></li>
   <li><a href="/wildagile">WildAgile</a></li>
+  <li><a href="/paad/">PAAD</a></li>
   <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
 </ul>
 <strong>Visit me on ...</strong>
@@ -212,7 +213,7 @@
         
         <a href="/articles/ai-coding-typing-was-never-the-bottleneck" class="prevPost">&laquo; AI Coding: Typing Was Never the Bottleneck</a>
         
-        <a href="/#" class="nextPost"></a>
+        <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="nextPost">Learn How to Write Production-Quality Code with AI &raquo;</a>
     </div>
 
     
@@ -270,10 +271,10 @@
 
 <blockquote>
   <p>TL;DR: you can develop production quality code with AI, but you need to put
-  engineering first. You need to install the <a
-      href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span
-      class="fa fa-external-link fa_custom"></span> skills to follow the advice in
-  this article. PAAD will help you build much better systems, but you
+  engineering first. You need to install the
+  <a href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span class="fa fa-external-link fa_custom"></span> skills to
+  follow the advice in this article. PAAD will help you build much better
+  systems, but you
   need to understand what is going wrong with AI and why. This is a very long
   article. I could have published it in several parts, but I wanted to have a
   single “go to” document that you could refer to when developing software with
@@ -285,7 +286,7 @@ article</a> explaining an
 absolutely insane experiment where I tried to create production-quality code
 without ever writing or reviewing the code. By forcing myself to have such an
 extreme constraint, after many failed attempts I
-finally assembled a set of skills, named PAAD, that allows you to write great
+finally assembled <a href="https://github.com/ovid/paad" target="_blank">a set of skills, named PAAD</a> <span class="fa fa-external-link fa_custom"></span>, that allows you to write great
 code.  However, this was for greenfield projects created by a single developer.
 Would it work for legacy code and teams? Once you understand what’s going on,
 you’ll not be surprised to find that the answer is “yes.”</p>
@@ -299,11 +300,11 @@ surprised to discover that they’re junior devs when it comes to AI, but now th
 can be senior devs again because PAAD puts engineering best practices
 front-and-center.</p>
 
-<p>But here’s the kicker that drove the title: one team reported that using PAAD allowed
-them to have higher quality code, with less slop, and less rework. I’ve seen
-this before, so it wasn’t a surprise. What <em>did</em> surprise me, however, is that
-due to a bug in their IDE, they were temporarily locked out of Anthropic’s Opus
-models, so they were using Sonnet plus PAAD.</p>
+<p>But here’s the kicker that drove the title: one team reported that using PAAD
+allowed them to have higher quality code, with less slop, and less rework.
+I’ve seen this before, so it wasn’t a surprise. What <em>did</em> surprise me,
+however, is that due to a bug in their IDE, they were temporarily locked out
+of Anthropic’s Opus models, so they were using Sonnet plus PAAD.</p>
 
 <p>In other words: Sonnet with PAAD was outperforming Opus without PAAD.</p>
 
@@ -454,9 +455,9 @@ skills I detail are going to be the primary skills those companies are using.</p
 
 <h2><a name="pushback"></a>Pushback</h2>
 
-<p>I had designed the <code>/pushback</code> skill to push back on specs. It
-looks for omissions, errors, ambiguities, security holes, the works. It will
-uncover problems with specs that you never knew existed.</p>
+<p>I had designed the <code>/pushback</code> skill to push back on specs. It looks for
+omissions, errors, ambiguities, security holes, the works. It will uncover
+problems with specs that you never knew existed.</p>
 
 <p>I have never run <code>/pushback</code> on a spec without it raising issues I had never
 considered. It’s gotten to the point where I spend more time on specs, trying to
@@ -512,7 +513,7 @@ the reviews from <code>/agentic-review</code> are better than what humans produc
 
 <h1><a name="step-1-build-the-test-suite"></a>Step 1. Build the Test Suite</h1>
 
-<p>With the lengthy preamble aside, let's get to the heart of the matter.</p>
+<p>With the lengthy preamble aside, let’s get to the heart of the matter.</p>
 
 <p>Have you ever had to do a large refactor on a codebase without a test suite? It’s miserable. You’re consolidating all of the <em>ad hoc</em> logging into a single logging class and now you’ve discovered that your modals are broken, your auth flow rejects passwords it previously accepted, and your fonts are wrong. How the hell are your fonts broken?</p>
 
@@ -536,10 +537,10 @@ classes, or obscure side-effects that we’ve long forgotten about, and myriad o
 <p>You write tests for units A, B, C, and D. How you define “unit” is up to you,
 but these are often the easiest tests to write. However, if a unit is hard to
 test, that’s often a code smell. Don’t worry too much about it. You can fall
-back to integration tests when you start</p>
+back to integration tests when you start.</p>
 
-<p>Note that this is the layer at which most code coverage tools are targeted.
-If you mix unit, integration, and end-to-end tests in a jumbled mess and can’t
+<p>Note that this is the layer at which most code coverage tools are targeted. If
+you mix unit, integration, and end-to-end tests in a jumbled mess and can’t
 run them independently, you’ll get a noisy signal from code coverage tools.</p>
 
 <h2><a name="integration-tests"></a>Integration Tests</h2>
@@ -572,23 +573,19 @@ architecture, these are (or should be) the tests which survive that refactoring.
 
 <h2><a name="the-philosophy-of-these-tests"></a>The Philosophy of These Tests</h2>
 
-<p>You’re not trying to fix the bugs; you’re trying to nail down current
-behavior. With legacy codebases, often you encounter so many bugs when
-building out a test suite (including bugs in the test suite itself), that
-you’ll be overwhelmed if you’re trying to fix them all. Instead, learn how
-your test suite tools work and identify how you’re going to track any bugs you
-uncover. Your goal here is to build that high-coverage test suite, not to fix
-everything that’s wrong.</p>
+<p>You’re not trying to fix the bugs; you’re trying to nail down current behavior. With legacy codebases, often you encounter so many bugs when building out a test suite (including bugs in the test suite itself), that you’ll be overwhelmed if you’re trying to fix them all. Instead, learn how your test suite tools work and identify how you’re going to track any bugs you uncover. Your goal here is to build that high-coverage test suite, not to fix everything that’s wrong.</p>
 
-<blockquote>Note: it's easy for the AI to write plenty of tests which don't really test
-the code. For example, <tt>foo is not Null</tt> often isn't a real test. You need to
-tread carefully here.</blockquote>
+<blockquote>
+  <p>Note: it’s easy for the AI to write plenty of tests which don’t really test
+  the code. For example, <code>foo is not Null</code> often isn’t a real test. You need to
+  tread carefully here.</p>
+</blockquote>
 
 <h2><a name="use-ai-for-this"></a>Use AI for This!</h2>
 
-<p>I had one team explain to me why they couldn’t write tests for their
-software. They did, in fact, have some pretty compelling reasons why it was
-<em>hard</em>, but not why this was <em>impossible</em>. So talk to your AI:</p>
+<p>I had one team explain to me why they couldn’t write tests for their software.
+They did, in fact, have some pretty compelling reasons why it was <em>hard</em>, but
+not why this was <em>impossible</em>. So talk to your AI:</p>
 
 <div class="shadow"><pre class="scrolled"><code>I need to build out a test suite for this code base, with
 separate unit, integration, and end-to-end tests. We need to
@@ -1082,7 +1079,7 @@ make it worse!</p>
         
         <a href="/articles/ai-coding-typing-was-never-the-bottleneck" class="prevPost">&laquo; AI Coding: Typing Was Never the Bottleneck</a>
         
-        <a href="/#" class="nextPost"></a>
+        <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="nextPost">Learn How to Write Production-Quality Code with AI &raquo;</a>
     </div>
 
 <hr>
@@ -1106,11 +1103,11 @@ make it worse!</p>
 
     <li><a href="/tags/business" data-weight="6">Business</a></li>
 
-    <li><a href="/tags/perl" data-weight="5">Perl</a></li>
-
     <li><a href="/tags/corinna" data-weight="4">Corinna</a></li>
 
     <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
 
     <li><a href="/tags/writing" data-weight="4">Writing</a></li>
 
@@ -1321,7 +1318,7 @@ ecosystem, but hey, too many projects and too little time.
           
           <li id="footnote-6">
             Curiously, though I can't prove it, Opus 4.8 seemed to generate
-better aligned tasks than Fable. Hoewver, I haven't run Fable enough to prove
+better aligned tasks than Fable. However, I haven't run Fable enough to prove
 this.
             <a href="#footnote-6-return" aria-label="Return to footnote 6 reference">
               ↩ Return to text
