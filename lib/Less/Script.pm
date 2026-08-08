@@ -6,6 +6,7 @@ use Import::Into;
 use Text::Unidecode;
 use String::Util 'trim';
 use DBI;
+use Term::ReadLine;
 use autodie ':all';
 use base qw(Exporter);
 
@@ -16,6 +17,7 @@ our @EXPORT = qw(
   splat
   slurp
   dbh
+  prompt
   trim
 );
 
@@ -120,6 +122,34 @@ sub make_slug ($name) {
     $name =~ tr/_/-/;
     $name =~ s/--/-/g;
     return $name;
+}
+
+=head2 C<prompt>
+
+    my $answer = prompt("Please enter the title:");
+
+Ask the user a question on the terminal and return their (chomped) answer.
+
+Uses L<Term::ReadLine>, so the usual line-editing keys work: arrow keys,
+C<ctrl-a>/C<ctrl-e> for start/end of line, C<ctrl-w> to kill a word, and
+up/down for history within a single run. Returns the empty string at EOF.
+
+When STDIN is not a terminal (a pipe, a file, a test harness) the line editor
+is skipped and the answer is read from STDIN, because Term::ReadLine::Gnu
+otherwise reads the controlling terminal directly and blocks waiting for a
+human who isn't watching.
+
+=cut
+
+sub prompt ($question) {
+    unless ( -t STDIN ) {
+        print "$question ";
+        my $answer = <STDIN> // '';
+        chomp $answer;
+        return $answer;
+    }
+    state $term = Term::ReadLine->new('ovid');
+    return $term->readline("$question ") // '';
 }
 
 =head2 C<dbh>

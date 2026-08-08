@@ -4,6 +4,7 @@ use Test::Most;
 use lib 'lib';
 use Less::Script;
 use File::Temp qw(tempfile tempdir);
+use IPC::Run   qw(run timeout);
 
 # Test splat function (write file)
 subtest 'splat writes contents to file' => sub {
@@ -54,6 +55,43 @@ subtest 'article_type croaks on invalid type' => sub {
     throws_ok { article_type('nonexistent_type_xyz123') }
     qr/Could not fetch article_type information/,
       'Should croak when article type does not exist';
+};
+
+# Test dbh function (already tested in other files)
+subtest 'prompt reads a line of input' => sub {
+
+    # Run in a subprocess: Term::ReadLine reads a real filehandle, not a mock.
+    my $ask = sub ($input) {
+        my $code = 'print "[", prompt("Question:"), "]"';
+
+        # timeout so a prompt that waits on input fails the suite instead of
+        # blocking it forever
+        run [ $^X, '-Ilib', '-MLess::Script', '-e', $code ], \$input, \my $out, \my $err,
+          timeout(30);
+        return $out;
+    };
+
+    like $ask->("blog\n"), qr/\[blog\]/, 'returns the line entered, chomped';
+    like $ask->("\n"),     qr/\[\]/,     'returns empty string for an empty line';
+    like $ask->(''),       qr/\[\]/,     'returns empty string at EOF';
+};
+
+subtest 'prompt does not read the terminal when stdin is a pipe' => sub {
+
+    # The suite runs from a shell, so a controlling terminal exists even though
+    # each test's stdin is a pipe. Term::ReadLine::Gnu reads /dev/tty directly
+    # in that situation: it ignored the piped answer and sat waiting for the
+    # developer to type one. `script` gives the child a controlling terminal
+    # while its stdin stays a pipe, which is the only way to reproduce it.
+    plan skip_all => 'needs BSD script(1) to allocate a controlling terminal'
+      unless $^O eq 'darwin' && -x '/usr/bin/script';
+
+    my $child = "$^X -Ilib -MLess::Script -e 'print q([), prompt(q(Question:)), q(])'";
+    run [ '/usr/bin/script', '-q', '/dev/null', 'bash', '-c', "echo blog | $child" ],
+      \undef, \my $out, \my $err, timeout(30);
+
+    like $out, qr/\[blog\]/,
+      'reads the piped answer instead of waiting on the terminal';
 };
 
 # Test dbh function (already tested in other files)
