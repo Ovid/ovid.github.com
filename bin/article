@@ -23,8 +23,7 @@ $opt_for{type} //= '';
 
 # Prompt for type if missing or invalid
 until ( 'article' eq $opt_for{type} || 'blog' eq $opt_for{type} ) {
-    say "Please enter the type ('article' or 'blog'):";
-    chomp( my $type = <STDIN> );
+    my $type = prompt("Please enter the type ('article' or 'blog'):");
     if ( 'article' eq $type || 'blog' eq $type ) {
         $opt_for{type} = $type;
     }
@@ -35,21 +34,15 @@ until ( 'article' eq $opt_for{type} || 'blog' eq $opt_for{type} ) {
 
 # Prompt for title if missing
 unless (@ARGV) {
-    say "Please enter the title for this $opt_for{type}:";
-    chomp( my $title_input = <STDIN> );
-    @ARGV = split /\s+/, $title_input;
+    @ARGV = split /\s+/, prompt("Please enter the title for this $opt_for{type}:");
     unless (@ARGV) {
-        say "Title cannot be empty. Please enter a title:";
-        chomp( $title_input = <STDIN> );
-        @ARGV = split /\s+/, $title_input;
+        @ARGV = split /\s+/, prompt("Title cannot be empty. Please enter a title:");
     }
 }
 
 # Prompt for description if missing
 unless ( $opt_for{description} ) {
-    say "Please enter a description for this $opt_for{type} entry:";
-    chomp( my $description = <STDIN> );
-    $opt_for{description} = $description;
+    $opt_for{description} = prompt("Please enter a description for this $opt_for{type} entry:");
 }
 
 my $title    = join( ' ' => @ARGV );

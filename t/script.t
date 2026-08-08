@@ -4,6 +4,7 @@ use Test::Most;
 use lib 'lib';
 use Less::Script;
 use File::Temp qw(tempfile tempdir);
+use IPC::Run   qw(run);
 
 # Test splat function (write file)
 subtest 'splat writes contents to file' => sub {
@@ -54,6 +55,21 @@ subtest 'article_type croaks on invalid type' => sub {
     throws_ok { article_type('nonexistent_type_xyz123') }
     qr/Could not fetch article_type information/,
       'Should croak when article type does not exist';
+};
+
+# Test dbh function (already tested in other files)
+subtest 'prompt reads a line of input' => sub {
+
+    # Run in a subprocess: Term::ReadLine reads a real filehandle, not a mock.
+    my $ask = sub ($input) {
+        my $code = 'print "[", prompt("Question:"), "]"';
+        run [ $^X, '-Ilib', '-MLess::Script', '-e', $code ], \$input, \my $out, \my $err;
+        return $out;
+    };
+
+    like $ask->("blog\n"), qr/\[blog\]/, 'returns the line entered, chomped';
+    like $ask->("\n"),     qr/\[\]/,     'returns empty string for an empty line';
+    like $ask->(''),       qr/\[\]/,     'returns empty string at EOF';
 };
 
 # Test dbh function (already tested in other files)

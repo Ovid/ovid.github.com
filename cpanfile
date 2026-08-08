@@ -58,6 +58,9 @@ requires 'Template::Timer'               => 1.00;
 requires 'Template::Tiny'                => 1.16;
 requires 'Template::Tiny::Strict'        => 1.18;
 requires 'Template::Toolkit'             => 3.102;
+# Loaded dynamically by Term::ReadLine, so bin/recreate-cpanfile can't see it.
+# Without it, prompts fall back to the no-editing stub. Re-add after regenerating.
+requires 'Term::ReadLine::Gnu'           => 1.46;
 requires 'Test::MockModule'              => v0.180.0;
 requires 'Test::Most'                    => 0.38;
 requires 'Text::Markdown'                => 1.000031;
