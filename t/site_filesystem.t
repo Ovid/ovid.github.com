@@ -162,4 +162,25 @@ subtest '_write_sitemap writes sitemap.xml with urlset entries' => sub {
     };
 };
 
+subtest '_reject_git_ignored drops pages that will not be deployed' => sub {
+    _with_site sub {
+        my ( $site, $tempdir ) = @_;
+        system( 'git', 'init', '--quiet', "$tempdir" );
+        $tempdir->child('.gitignore')->spew_utf8("/Extraction/\n");
+        $tempdir->child('Extraction')->mkpath;
+        $tempdir->child('Extraction/index.html')->spew('<html></html>');
+        $tempdir->child('blog')->mkpath;
+        $tempdir->child('blog/bar.html')->spew('<html></html>');
+
+        is_deeply
+          [ $site->_reject_git_ignored(
+                'blog/bar.html', 'Extraction/index.html' ) ],
+          ['blog/bar.html'],
+          'gitignored nested project dropped, deployable page kept';
+
+        is_deeply [ $site->_reject_git_ignored() ], [],
+          'empty input does not invoke git';
+    };
+};
+
 done_testing;

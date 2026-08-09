@@ -290,9 +290,12 @@ subtest '_is_searchable picks content pages and rejects listings/build dirs' => 
     # Content pages: subdirectory content
     ok $site->_is_searchable('articles/foo.html'),       'articles/* is content';
     ok $site->_is_searchable('blog/bar.html'),           'blog/* is content';
-    ok $site->_is_searchable('Extraction/index.html'),   'Extraction/ subpage indexed';
-    ok $site->_is_searchable('tramp-freighter/index.html'), 'tramp-freighter/ subpage indexed';
     ok $site->_is_searchable('projects/extraction/index.html'), 'projects/extraction/ subpage indexed';
+
+    # _is_searchable judges path shape only. Whether a page is actually
+    # deployed is _reject_git_ignored's job (see t/site_filesystem.t) --
+    # asserting Extraction/ and tramp-freighter/ "indexed" here is what put
+    # the 404 link /Extraction/index into the shipped search index.
 
     # Reject: listing/pagination pages
     ok !$site->_is_searchable('articles.html'),     'articles.html (listing) excluded';

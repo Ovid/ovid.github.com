@@ -731,9 +731,8 @@ END
         # needed to run `cargo install --features="bin" tinysearch` for installation
         # and rerun `cargo install wasm-pack` for wasm-pack
         # uncoverable statement
-        my @files =
-          grep { $self->_is_searchable($_) }
-          File::Find::Rule->file->name('*.html')->relative->in('.');
+        my @files = $self->_reject_git_ignored( grep { $self->_is_searchable($_) }
+              File::Find::Rule->file->name('*.html')->relative->in('.') );
 
         # uncoverable statement
         my @index;
@@ -916,6 +915,27 @@ END
         return 0 if $file =~ /^(?:404|editor|escape)\.html\z/;
 
         return 1;
+    }
+
+    # Production is GitHub Pages, which serves only what is committed, so a
+    # .gitignore'd page is a guaranteed 404 there. Several standalone projects
+    # (Extraction/, loquor/, tramp-freighter/) sit in the working tree for
+    # local convenience and are ignored. Ask git instead of keeping a second,
+    # drifting copy of .gitignore inside _is_searchable -- that duplication is
+    # what shipped /Extraction/index as a search result. Tracked files are
+    # never reported by check-ignore, so committed pages always survive, and
+    # new untracked-but-not-ignored posts stay searchable before their commit.
+    sub _reject_git_ignored ( $self, @files ) {
+        return () unless @files;
+        open my $git, '-|', 'git', 'check-ignore', '--', @files
+          or return @files;
+        my %ignored = map { chomp; ( $_ => 1 ) } <$git>;
+
+        # check-ignore exits 1 when nothing matches, the usual case here, and
+        # autodie would turn that into a fatal close.
+        no autodie 'close';
+        close $git;
+        return grep { !$ignored{$_} } @files;
     }
 
     sub _clean_text ( $self, $text ) {
