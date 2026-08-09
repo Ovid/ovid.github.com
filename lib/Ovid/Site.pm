@@ -77,17 +77,23 @@ package Ovid::Site {
         }
         $self->_assert_tt_config;
 
-        # Must run before _preprocess_files. That method wipes tmp/ and
-        # snapshots root/ into it, and _run_ttree renders from tmp/, so a
-        # fragment splatted into root/ any later never reaches the current
-        # build: the first build would die on a missing include and every
-        # build after would render the previous build's feed.
+        # Everything that writes into root/ must run before _preprocess_files.
+        # That method wipes tmp/ and snapshots root/ into it, and _run_ttree
+        # renders from tmp/, so anything splatted into root/ any later never
+        # reaches the current build: ttree renders the copy the snapshot took,
+        # which is whatever the previous build left behind. A missing include
+        # would die outright; a page that merely changed goes silently one
+        # build stale until the next rebuild. t/site_build_order.t asserts it.
+        #
+        # The two below the snapshot write to the repo root, not root/, so they
+        # never pass through tmp/ -- and _write_tagmap consumes the _tagmap
+        # that _preprocess_files populates, so it has to stay here.
         $self->_rebuild_latest_posts;
-        $self->_preprocess_files('root');
         $self->_write_tag_templates;
+        $self->_rebuild_article_pagination;
+        $self->_preprocess_files('root');
         $self->_write_tagmap;
         $self->_rebuild_rss_feeds;
-        $self->_rebuild_article_pagination;
         $self->_run_ttree;
         $self->_write_sitemap;
         $self->_build_tinysearch if $self->release;
