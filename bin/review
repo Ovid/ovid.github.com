@@ -4,14 +4,41 @@ use v5.40;
 use Dancer2;
 use Path::Tiny;
 use Time::HiRes qw(sleep);
+use Getopt::Long qw(GetOptions);
+use Pod::Usage   qw(pod2usage);
 use open ':std', ':encoding(UTF-8)';
+
+use constant DEFAULT_PORT => 7007;
+
+my $port = DEFAULT_PORT;
+
+# Only consume @ARGV when invoked as a program. The test suite loads this
+# file with `do './bin/review'` to get the PSGI app, and in that case @ARGV
+# belongs to the test harness — parsing it would swallow prove's own
+# switches and abort the run.
+unless (caller) {
+    GetOptions(
+        'port|p=i' => \$port,
+        'help|h'   => \my $help,
+    ) or pod2usage( -exitval => 2, -verbose => 0 );
+
+    pod2usage( -exitval => 0, -verbose => 1 ) if $help;
+
+    unless ( $port =~ /^[0-9]+$/ && $port >= 1 && $port <= 65535 ) {
+        pod2usage(
+            -exitval => 2,
+            -verbose => 0,
+            -message => "--port must be between 1 and 65535, not '$port'\n",
+        );
+    }
+}
 
 # Security: bind to localhost only. Dancer2 defaults to 0.0.0.0, which
 # would expose the dev server (including the editor-launch endpoint
 # and the static file handler) on every interface. The startup banner
 # advertises 127.0.0.1; this is what makes that claim true.
 set host => '127.0.0.1';
-set port => 7007;
+set port => $port;
 
 # Personal dev server: serve any in-project file the filesystem
 # resolves to, except paths containing dot-prefixed segments (.git,
@@ -278,7 +305,7 @@ else {
     say "\n" . "=" x 60;
     say "🚀 Development Server Starting";
     say "=" x 60;
-    say "\n📍 URL: http://127.0.0.1:7007/";
+    say "\n📍 URL: http://127.0.0.1:$port/";
     say "\n✨ Features:";
     say "   • Edit button (✏️) appears on every page";
     say "   • Click to launch live editor for current page";
@@ -289,3 +316,158 @@ else {
     # Start the server
     start;
 }
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+bin/review - local preview server for the generated site, with dev tools
+
+=head1 SYNOPSIS
+
+    # Serve the built site on the default port
+    perl bin/review
+
+    # Serve on a different port when 7007 is already taken
+    perl bin/review --port=7008
+    perl bin/review -p 7008
+
+    perl bin/review --help
+
+=head1 DESCRIPTION
+
+Serves the generated HTML in the project directory over HTTP so you can
+browse the site as it will be published, and injects a development toolbar
+that the published files never carry.
+
+Run C<perl bin/rebuild> first: this server reads the build output
+(F<articles/>, F<blog/>, F<index.html>, F<static/>), not the templates under
+F<root/>. It does not rebuild anything, so changes to F<root/> are invisible
+until you rebuild.
+
+Every HTML response gets two script tags injected before C</head>>: one
+setting C<window.DEV_MODE>, one loading F</static/dev-tools.js>. That script
+draws the pencil (✏️) button in the upper left. Clicking it POSTs to
+C</api/launch-editor>, which forks C<bin/launch> for the template behind the
+current page. Generated pages with no single source file — tag indexes,
+paginated listings — have no template to open and will report an error.
+
+The injection happens in the response, so the files on disk stay clean.
+Nothing here runs in production: the published site is static HTML on GitHub
+Pages, with no Perl, no Dancer2, and no dev tools.
+
+=head2 URL resolution
+
+Requests map to files three ways:
+
+=over 4
+
+=item * A trailing slash serves F<< <path>/index.html >>.
+
+=item * A final segment with no dot prefers F<< <path>.html >>, falling back
+to F<< <path>/index.html >> when the directory has one. So C</blog> serves
+F<blog.html>, and C</projects/extraction> serves
+F<projects/extraction/index.html>.
+
+=item * Anything carrying an extension is served as named.
+
+=back
+
+Misses serve F<404.html> when it has been built, and a plain-text 404
+otherwise.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--port>, B<-p> I<PORT>
+
+Port to listen on. Defaults to 7007. Must be between 1 and 65535.
+
+Use this when the default is already taken — including by an earlier copy of
+this server that did not shut down. Note that the port is the only thing you
+can move: the host is always 127.0.0.1 (see L</SECURITY>).
+
+=item B<--help>, B<-h>
+
+Print this synopsis and the option list, then exit.
+
+=back
+
+=head1 SECURITY
+
+This is a single-user development server and is deliberately permissive: it
+serves any file in the project the filesystem resolves to. Two limits are not
+negotiable, and both are enforced rather than assumed:
+
+=over 4
+
+=item * B<Bound to 127.0.0.1.> Dancer2 defaults to 0.0.0.0, which would
+publish the server — including the editor-launch endpoint — on every
+interface, so the host is set explicitly and is not configurable. F<t/dev_server.t>
+asserts the binding is present in this file's source.
+
+=item * B<Editor targets must live under F<root/>.> C</api/launch-editor>
+rejects absolute paths, paths containing C<..>, and any file whose resolved
+realpath falls outside F<root/>, so the editor cannot be pointed at F<db/>,
+F<lib/>, or anything else outside the templates.
+
+=back
+
+Path segments beginning with a dot (F<.git>, F<.env>, editor swapfiles) are
+refused before any filesystem access, and served files are re-checked after
+realpath resolution so a symlink cannot escape the project root.
+
+Do not expose this server beyond your own machine.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item B<_slurp_html($path)>
+
+Sets the response content type to C<text/html; charset=UTF-8> and returns the
+file's decoded UTF-8 content. HTML is returned as a string rather than via
+C<send_file> so the C<after> hook can inject the dev-tools scripts —
+C<send_file> produces a delayed response the hook skips.
+
+=item B<_terminate_previous_editor()>
+
+Sends C<TERM> to the editor process this server last spawned, if any, and
+reaps it. Tracking the child PID lets concurrent C</api/launch-editor>
+requests replace only their own editor, instead of C<pkill>-ing each other's.
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 4
+
+=item C<TESTING>
+
+Set by the test suite. Suppresses the fork that would launch an editor.
+
+=item C<OVID_REVIEW_TEST_LAUNCH_CMD>
+
+Honored only when C<TESTING> is set. Redirects the editor C<exec> to the
+named command so a test can exercise the fork path without starting a real
+editor.
+
+=item C<PLACK_TEST_EXTERNALSERVER_URI>
+
+When set, the editor fork is skipped.
+
+=back
+
+=head1 SEE ALSO
+
+L<bin/rebuild> builds the site this server displays. L<bin/launch> is the live
+editor this server spawns.
+
+=head1 AUTHOR
+
+Curtis "Ovid" Poe
+
+=cut

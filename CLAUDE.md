@@ -90,6 +90,12 @@ make clean
 perl bin/review
 # Opens at http://127.0.0.1:7007/
 
+# Use a different port when 7007 is taken
+perl bin/review --port=7008
+
+# Full option list
+perl bin/review --help
+
 # Or serve without dev tools (basic HTTP server)
 http_this
 # Opens at http://127.0.0.1:7007/
