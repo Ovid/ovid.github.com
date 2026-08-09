@@ -93,7 +93,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -134,39 +136,55 @@
 
 </head>
 <body>
-[% INCLUDE "include/dark-mode.tt" %]
+  <a class="skip-link" href="#article">Skip to content</a>
 
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— programming, agile &amp; other lies</i></a>
+        <div class="masthead-tools">
+[% INCLUDE include/search.tt %]
+[% INCLUDE "include/dark-mode.tt" %]
         </div>
-    </div>
-    <div class="row title[% IF type == 'blog' %] blog[% END %]">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1>[% title || "No Title Found" %]</h1>
-        [% IF date %]<time>[% date %]</time>[% END %]
-        [% IF type == 'articles' or type == 'blog' %]
-        <p><span id="time"></span> minute read</p>
-        [% END %]
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-[% INCLUDE include/links.tt %]
       </div>
-      <div class="ten columns verticalLine article">
-[% IF type == 'articles' or type == 'blog' %]
-    [% INCLUDE include/pager.tt %]
-    [% INCLUDE include/tags_for_article.tt type=type slug=slug %]
-        <hr>
-    [% INCLUDE include/hiring.tt %]
-[% END %]
+[% INCLUDE include/links.tt %]
+    </div>
+  </header>
+
+  <div class="wrap">
+[%- IF date;
+      dparts = date.split('-');
+      dyear  = dparts.0;
+      dmonth = dparts.1;
+      dday   = dparts.2;
+    END;
+    # `pager` is already instantiated in <head> for articles and blog posts.
+    IF type && slug && ( type == 'articles' || type == 'blog' );
+      standfirst = pager.this_post(type, slug).description;
+    END;
+-%]
+    <div class="opener[% IF type == 'blog' %] opener--blog[% END %]">
+      <div class="dateblock[% IF date %] is-filled[% END %]">
+[%- IF date %]
+        <span class="dateblock-year">[% dyear %]</span>
+        <span class="dateblock-day"><time datetime="[% date %]">[% dmonth %].[% dday %]</time></span>
+[%- END %]
+        <span class="dateblock-meta">
+[%- IF type == 'articles' %]Articles[% ELSIF type == 'blog' %]Blog[% END %]
+[%- IF type == 'articles' or type == 'blog' %]<br><span id="time"></span> min read[% END %]
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>[% title || "No Title Found" %]</h1>
+[%- IF standfirst %]
+        <p class="standfirst">[% standfirst | html %]</p>
+[%- END %]
+      </div>
+    </div>
+
+    <div class="page-body">
+      <aside class="marginalia[% IF type == 'articles' or type == 'blog' %] is-filled[% END %]">
+[% IF type == 'articles' or type == 'blog' %][% INCLUDE include/tags_for_article.tt type=type slug=slug %][% END %]
+      </aside>
+      <div class="prose">
+[% IF type == 'articles' or type == 'blog' %][% INCLUDE include/hiring.tt %][% END %]

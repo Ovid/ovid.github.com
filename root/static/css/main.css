@@ -1,497 +1,1051 @@
-.new {
-    color: red;
-    font-weight: bold;
+/*
+ * Editorial theme.
+ *
+ * Colour tokens live in dark-mode.css so light and dark are one swap.
+ * Type roles:
+ *   Newsreader     -- prose and display. The voice of the site.
+ *   Archivo        -- navigation, metadata, labels. Anything that is a signpost.
+ *   JetBrains Mono -- code.
+ *
+ * Layout is a two-column grid: a narrow left margin carrying the date and
+ * tags, and the article itself. There is no sidebar; navigation is a single
+ * horizontal band under the masthead, so nav labels never wrap.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/*
+ * skeleton.css sets `html { font-size: 62.5% }` so that its own rem values
+ * read as tens of pixels. This stylesheet is authored against a normal 16px
+ * root, so restore it -- and restate the heading and control sizes Skeleton
+ * scaled for the old base, or they render 1.6x too large.
+ */
+html { font-size: 100%; }
+
+h1 { font-size: 2.6rem; line-height: 1.15; letter-spacing: -.02em; }
+h2 { font-size: 1.85rem; line-height: 1.25; letter-spacing: -.02em; }
+h3 { font-size: 1.35rem; line-height: 1.3;  letter-spacing: -.01em; }
+h4 { font-size: 1.1rem;  line-height: 1.4;  letter-spacing: 0; }
+h5 { font-size: 1rem;    line-height: 1.4;  letter-spacing: 0; }
+h6 { font-size: .9rem;   line-height: 1.4;  letter-spacing: 0; }
+
+.button, button,
+input[type="submit"], input[type="reset"], input[type="button"] {
+    height: auto;
+    line-height: normal;
+    letter-spacing: normal;
 }
 
+body {
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1.72;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
 
-div.title {
+.wrap {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 0 2.5rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accessibility helpers
+ * ------------------------------------------------------------------ */
+
+.visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "Archivo", sans-serif;
+    font-size: .8rem;
+    padding: .6rem 1rem;
+    text-decoration: none;
+}
+.skip-link:focus {
+    left: 0;
+    color: var(--paper);
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Masthead
+ * ------------------------------------------------------------------ */
+
+.masthead {
+    padding: 2.2rem 0 0;
+}
+
+.masthead-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.wordmark {
+    font-family: "Newsreader", serif;
+    font-weight: 300;
+    font-size: 1.6rem;
+    letter-spacing: -.015em;
+    line-height: 1.2;
+    color: var(--ink);
+    text-decoration: none;
+}
+.wordmark:hover { color: var(--ink); }
+.wordmark i {
+    font-style: italic;
+    color: var(--accent);
+}
+
+.masthead-tools {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding-bottom: .35rem;
+}
+
+/* Search -- markup is injected by include/search.tt once WebAssembly loads. */
+#search { position: relative; }
+
+#search input {
+    font-family: "Archivo", sans-serif;
+    font-size: .78rem;
+    letter-spacing: .04em;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    border-radius: 0;
+    padding: .3rem 0;
+    width: 10rem;
+    height: auto;
+    margin: 0;
+    box-shadow: none;
+}
+#search input:focus {
+    border-bottom-color: var(--accent);
+    outline: none;
+}
+
+#results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#results:not(:empty) {
+    position: absolute;
+    top: calc(100% + .4rem);
+    right: 0;
+    z-index: 30;
+    min-width: 20rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: .4rem 0;
+    box-shadow: 0 6px 24px rgba(0,0,0,.08);
+}
+#results li { margin: 0; }
+#results a {
+    display: block;
+    font-family: "Archivo", sans-serif;
+    font-size: .82rem;
+    line-height: 1.4;
+    padding: .5rem .9rem;
+    text-decoration: none;
+    color: var(--ink);
+}
+#results a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+#theme-toggle {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--muted);
+    width: auto;
+    height: auto;
+    padding: .25rem;
+    margin: 0;
+}
+#theme-toggle:hover { color: var(--accent); }
+
+/* ------------------------------------------------------------------ *
+ * Navigation
+ *
+ * A single ruled band. On narrow screens the <details> collapses it to a
+ * "Menu" disclosure -- native HTML, so it needs no JavaScript.
+ * ------------------------------------------------------------------ */
+
+.site-nav {
+    margin: 1.8rem 0 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+}
+
+.nav-toggle {
+    font-family: "Archivo", sans-serif;
+    font-weight: 500;
+    font-size: .7rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+    padding: .95rem 0;
+    list-style: none;
+}
+.nav-toggle::-webkit-details-marker { display: none; }
+.nav-toggle::after {
+    content: " +";
+    color: var(--accent);
+}
+.nav-disclosure[open] > .nav-toggle::after { content: " −"; }
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+.nav-links li {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+.nav-links li + li::before {
+    content: "";
+    width: 1px;
+    height: .85rem;
+    background: var(--rule);
+}
+.nav-links a {
+    font-family: "Archivo", sans-serif;
+    font-weight: 500;
+    font-size: .7rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    padding: .95rem 1.35rem;
+    display: block;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+}
+.nav-links a:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+.nav-links a[aria-current] { color: var(--ink); }
+.nav-links a[aria-current]::after {
+    content: "";
+    display: block;
+    height: 2px;
+    background: var(--accent);
+    margin-top: .5rem;
+}
+.nav-links .nav-feed {
+    padding-left: 0;
+    padding-right: .7rem;
+    margin-left: -1.1rem;
+    font-size: .58rem;
+    color: var(--faint);
+    letter-spacing: .1em;
+}
+.nav-links .nav-feed:hover { background: none; }
+
+@media (min-width: 60em) {
+    /* Force the list open on wide screens. Two mechanisms because browsers
+       differ: older builds hide the children, newer ones hide
+       ::details-content. */
+    .nav-toggle { display: none; }
+    .nav-disclosure > .nav-links { display: flex; }
+    .nav-disclosure::details-content {
+        content-visibility: visible;
+        block-size: auto;
+    }
+}
+
+@media (max-width: 59.99em) {
+    .nav-links {
+        flex-direction: column;
+        padding-bottom: .8rem;
+    }
+    .nav-links li + li::before { display: none; }
+    .nav-links a { padding: .5rem 0; }
+    .nav-links a[aria-current]::after { display: none; }
+    .nav-links a[aria-current] { color: var(--accent); }
+    .nav-links .nav-feed { margin-left: .6rem; display: inline; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Article opener -- oversized title with the date hanging in the margin
+ * ------------------------------------------------------------------ */
+
+.opener {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 2.5rem;
+    padding: 5rem 0 0;
+}
+
+.dateblock {
+    font-family: "Archivo", sans-serif;
     text-align: right;
+    padding-top: 1.1rem;
+    padding-right: 2.5rem;
+    margin-right: -2.5rem;
+}
+/* The rule is the margin's spine. Pages with no date (indexes, hire me)
+   keep the column for alignment but draw nothing. */
+.dateblock.is-filled { border-right: 1px solid var(--rule); }
+.dateblock-year {
+    display: block;
+    font-size: .72rem;
+    letter-spacing: .18em;
+    color: var(--muted);
+}
+.dateblock-day {
+    display: block;
+    font-size: 2.1rem;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    color: var(--accent);
+}
+.dateblock-day time { color: inherit; font-style: normal; }
+.dateblock-meta {
+    display: block;
+    margin-top: 1rem;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 2;
 }
 
-div.title h1 {
-    border-bottom: hidden;
+.opener h1 {
+    font-family: "Newsreader", serif;
+    font-weight: 300;
+    font-size: 4.1rem;
+    line-height: 1.02;
+    letter-spacing: -.035em;
+    margin: 0 0 1.5rem;
+    max-width: 16ch;
+    border-bottom: none;
+    color: var(--ink);
 }
 
-h1 {
-    border-bottom: 1px solid #A0A0A0;
+/* The personal blog speaks in a different voice from the technical articles.
+   Skeleton did this by switching the title to a serif; now that everything is
+   a serif, the distinction moves to italic. */
+.opener--blog h1 { font-style: italic; }
+
+.standfirst {
+    font-size: 1.32rem;
+    line-height: 1.55;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    max-width: 38rem;
+    margin: 0;
 }
 
-div.verticalLine {
-    border-left:   solid #A0A0A0;
-    padding-left:  3rem;
+/* ------------------------------------------------------------------ *
+ * Body grid
+ * ------------------------------------------------------------------ */
+
+.page-body {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 2.5rem;
+    padding: 3.5rem 0 5rem;
+    align-items: start;
 }
+
+.marginalia {
+    font-family: "Archivo", sans-serif;
+    font-size: .7rem;
+    line-height: 1.8;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 2.5rem;
+    margin-right: -2.5rem;
+    position: sticky;
+    top: 2rem;
+}
+.marginalia.is-filled { border-right: 1px solid var(--rule); }
+
+.prose {
+    max-width: 34rem;
+    min-width: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Prose
+ * ------------------------------------------------------------------ */
+
+.prose p {
+    margin: 0 0 1.5rem;
+    text-indent: 0;
+}
+
+/* Some posts repeat their title as a top-level heading in the body. The
+   opener already carries the title, so a body h1 is really a section head --
+   set it as one instead of letting it compete. */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    font-family: "Newsreader", serif;
+    letter-spacing: -.02em;
+    color: var(--accent);
+    border-bottom: none;
+}
+.prose h1,
+.prose h2 {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.85rem;
+    line-height: 1.2;
+    margin: 3.4rem 0 1.1rem;
+}
+.prose > h1:first-child,
+#article > h1:first-child { margin-top: 0; }
+.prose h3 {
+    font-weight: 500;
+    font-size: 1.35rem;
+    line-height: 1.3;
+    margin: 2.6rem 0 .8rem;
+}
+.prose h4, .prose h5, .prose h6 {
+    font-family: "Archivo", sans-serif;
+    font-weight: 600;
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 2.2rem 0 .7rem;
+}
+
+h1 { border-bottom: none; }
+
+a {
+    color: var(--accent);
+}
+.prose a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+.prose a:hover { color: var(--accent); }
+
+.prose ol, .prose ul {
+    padding-left: 1.4rem;
+    margin: 0 0 1.5rem;
+}
+.prose ol li, .prose ul li {
+    margin: 0 0 .35rem;
+    padding: 0;
+    list-style-position: outside;
+}
+.prose ul { list-style: disc outside; }
+
+.prose em { font-style: italic; }
+.prose strong { font-weight: 600; }
+
+time {
+    color: var(--muted);
+    font-style: italic;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 3rem 0;
+}
+
+.new {
+    color: #B3261E;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ *
+ * Figures and images
+ * ------------------------------------------------------------------ */
 
 img {
     max-width: 100%;
     height: auto;
-    opacity: 1;
-    margin-right: 25;
-    -webkit-box-shadow: 3px 3px 5px 0px #ccc;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
-    -moz-box-shadow:    3px 3px 5px 0px #ccc;  /* Firefox 3.5 - 3.6 */
-    box-shadow:         3px 3px 5px 0px #ccc;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+    box-shadow: none;
 }
 
-img.alignCenter {
-    display:      block;
-    margin-left:  auto;
-    margin-right: auto;
+figure {
+    margin: 2.8rem 0;
 }
-
-img.topRight {
-    position: absolute;
-    top:      0px;
-    right:    0px;
-}
-
-/* hide top book images on mobile */
-@media (max-width:629px) {
-  div.books {
-    display: none;
-  }
-}
-
-img.book {
-  width: 200px;
-  height: 275px;
-}
-
-img.scaled {
-    width: 100%;
-}
-
-#article p {
-   text-indent: 1.2em;
-   margin-bottom: 0.5em;
-}
-
-#article p:not(ol + p, ul + p) {
-  margin-top: 1em;
-}
-
-#article ol, #article ul {
-   padding-left: 20px;
-   margin-top: 0.1em;
-   margin-bottom: 0.5em;
-}
-
-#article ol, #article ul {
-  padding-left: 20px;
-  margin-top: 0.2em;
-  margin-bottom: 0.5em;
-}
-
-#article ol li, #article ul li {
-  margin: 0;
-  padding: 2px;
-  list-style-position: inside;
-}
-
-.header ul li {
-    margin:5px;
-    padding:5px;
-    width: 200px;
-    height:300px;
-    float: right; 
-    list-style:none;
-}
-
-dl {
-    border: 1px dotted #ccc;
-    padding: 0.5em;
-}
-dl:after {
-  content: "";
-  display: table;
-  clear:   both;
-}
-
-dt::after {
-    content: ":";
-}
-dt {
-    float: left;
-    width: 25%;
-    text-align: right;
-    padding: .15em;
-    clear: left;
-    font-weight: bold;
-}
-dd {
-    float: left;
-    width: 65%;
-    padding: .25em 0;
-}
-
-div.footnotes {
-    font-size: 12px;
-    font-style: italic; 
-}
-
-/* Start quote style */
-blockquote {
-    font-style: italic; 
-    margin-top: 10px;
-    margin-bottom: 15px;
-    margin-left: 20px;
-    margin-right: 20px;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-bottom 15px;
-    padding-top 15px;
-    -webkit-box-shadow: 3px 3px 5px 0px #ccc;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
-    -moz-box-shadow:    3px 3px 5px 0px #ccc;  /* Firefox 3.5 - 3.6 */
-    box-shadow:         3px 3px 5px 0px #ccc;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
-} 
-
-blockquote div.attribution {
-    text-align: right;
-    font-weight: bold;
-    font-style: italic; 
-    margin-top: 10px;
-    margin-bottom: 15px;
-    margin-left: 20px;
-    margin-right: 20px;
-    padding-left: 15px;
-}
-
-/* End quote style */
+/* Figures align to the text column. They used to bleed left into the margin
+   rail, which read as misalignment rather than intent. */
+figure.image img { width: 100%; display: block; }
 
 figcaption {
-    text-align: center;
-    font-style: italic; 
+    font-family: "Archivo", sans-serif;
+    font-size: .7rem;
+    letter-spacing: .04em;
+    line-height: 1.6;
+    color: var(--muted);
+    text-align: left;
+    font-style: normal;
+    margin-top: .7rem;
 }
 
-div.footnotes p {
-    margin: 5px;
-}
-
-figure.captioned {
-    float: right;
-    width: 30%;
-    text-align: center;
-    font-style: italic;
-    font-size: smaller;
-    text-indent: 0;
-    margin: 0.5em;
-    padding: 0.5em;
-}
-
+figure.captioned,
 figure.captioned-left {
-    float: left;
-    width: 30%;
+    width: 32%;
     text-align: center;
-    font-style: italic;
     font-size: smaller;
     text-indent: 0;
-    margin: 0.5em;
-    padding: 0.5em;
-}
-
-pre.poem {
-  font-family: 'Raleway', sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-/* Start TOC style */
-
-.table-of-contents {
-    padding: 1em 2em;
-    margin: 0 0 0.5em 0.5em;
-}
-.table-of-contents ul {
+    margin: .4rem 0 1.2rem;
     padding: 0;
 }
-.table-of-contents li {
-    margin: 0 0 0.25em 0;
-    list-style: none
+figure.captioned { float: right; margin-left: 1.6rem; }
+figure.captioned-left { float: left; margin-right: 1.6rem; }
+figure.captioned figcaption,
+figure.captioned-left figcaption { text-align: center; }
+
+img.alignCenter {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
-.table-of-contents a {
-    text-decoration: none;
+img.topRight {
+    position: absolute;
+    top: 0;
+    right: 0;
 }
-.table-of-contents a:hover,
-.table-of-contents a:active {
-    text-decoration: none;
-}
+img.scaled { width: 100%; }
 
-/* Keep the icon somewhat darker to improve contrast */
-.fa_custom {
-    text-indent: 0; /* The article.p text indent must be removed */
-    color: #8a8a8a;
-    font-size: 12px;
-    margin-left: 1px; /* Adjust this value to control spacing */
-    vertical-align: middle; /* Align the icon with the text */
-}
-
-/* indentation to {{TOC}} */
-.indent-1 { text-indent: 0%; }
-.indent-2 { text-indent: 4%; }
-.indent-3 { text-indent: 8%; }
-.indent-4 { text-indent: 12%; }
-.indent-5 { text-indent: 16%; }
-.indent-6 { text-indent: 20%; }
-
-/* End TOC style */
-
-/* Start pagination style */
-
-.pagination {
-    display:       inline-block;
-    border:        thin silver solid;
-    border-radius: 5px;
-    padding:       2px 2px;
-}
-
-.pagination a {
-    color:           black;
-    float:           left;
-    padding:         8px 16px;
-    text-decoration: none;
-}
-
-.pagination a.active {
-    background-color: silver;
-    color:            white;
-    border-radius:    5px;
-}
-
-.pagination .inactive {
-    color:           black;
-    float:           left;
-    padding:         8px 16px;
-    text-decoration: none;
-    color:           silver;
-}
-
-.pagination a:hover:not(.active) {
-    background-color: #444;
-    border-radius:    5px;
-}
-
-.scrolled {
-  overflow-x: auto;
-  white-space: pre;
-  word-wrap: normal;
-  max-width: 100%;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-/* Ensure code blocks don't overflow their containers */
-pre.scrolled code {
-  display: block;
-}
-
-/* Styles for our "scroll to top" button */
-
-#scrollToTopButton {
-  position: fixed;
-  bottom: 10px;
-  float: right;
-  right: 18.5%;
-  left: 77.25%;
-  max-width: 30px;
-  width: 100%;
-  font-size: 12px;
-  border-color: rgba(85, 85, 85, 0.2);
-  background-color: #8a8a8a;
-  padding: .5px;
-  border-radius: 4px;
-    color: white;
-}
-
-/*On Hover Color Change*/
-#scrollToTopButton:hover {
-  background-color: #444;
-}
-
-a {
-    color: #067a9e;
-}
-
-a.arrow {
-   text-decoration: none;
-}
-
-time {
-  color: #8a8a8a;
-  font-style: italic;
-}
-
-.video-responsive{
-    overflow:hidden;
-    padding-bottom:56.25%;
-    position:relative;
-    height:0;
-}
-.video-responsive iframe{
-    left:0;
-    top:0;
-    height:100%;
-    width:100%;
-    position:absolute;
-}
-
-/* prev/next buttons */
-
-div.prevNext {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-}
-
-
-/* padding below youtube videos */
-.video-responsive {
+.shadow {
+    box-shadow: 0 2px 16px rgba(0,0,0,.10);
     margin-bottom: 20px;
 }
 
-ul {
-  list-style: disc inside
+/* ------------------------------------------------------------------ *
+ * Quotes
+ * ------------------------------------------------------------------ */
+
+blockquote {
+    margin: 2.8rem 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: none;
+    font-size: 1.5rem;
+    line-height: 1.45;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--accent);
+    max-width: 30rem;
+}
+blockquote p { margin: 0 0 .6rem; text-indent: 0; }
+blockquote p:last-child { margin-bottom: 0; }
+
+blockquote div.attribution {
+    font-family: "Archivo", sans-serif;
+    font-size: .72rem;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    margin: .9rem 0 0;
+    padding: 0;
+}
+blockquote div.attribution::before { content: "— "; }
+
+pre.poem {
+    font-family: "Newsreader", serif;
+    font-weight: 300;
+    font-style: italic;
+    background: none;
+    border: 0;
+    padding: 0;
 }
 
-/* https://css-tricks.com/almanac/properties/b/box-shadow/ */
-.shadow {
-  -webkit-box-shadow: 3px 3px 5px 1px #ccc;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
-  -moz-box-shadow:    3px 3px 5px 1px #ccc;  /* Firefox 3.5 - 3.6 */
-  box-shadow:         3px 3px 5px 1px #ccc;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
-  margin-bottom:  20px; 
+/* ------------------------------------------------------------------ *
+ * Code
+ * ------------------------------------------------------------------ */
+
+code, kbd, samp {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: .82em;
+    background: var(--code-bg);
+    border: 0;
+    border-radius: 2px;
+    padding: .12em .35em;
 }
 
-/*
- * https://dev.to/alvaromontoro/create-a-tag-cloud-with-html-and-css-1e90
- */
+pre {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: .78rem;
+    line-height: 1.65;
+    background: var(--code-bg);
+    border: 0;
+    border-left: 2px solid var(--accent);
+    border-radius: 0;
+    padding: 1.2rem 1.4rem;
+    margin: 2.4rem 0;
+    /* Long lines scroll rather than widen the column -- one measure for
+       everything, so prose, figures and code share a left and right edge. */
+    overflow-x: auto;
+}
+pre > code {
+    background: none;
+    padding: 0;
+    font-size: 1em;
+    white-space: pre;
+}
+
+.scrolled {
+    overflow-x: auto;
+    white-space: pre;
+    word-wrap: normal;
+    max-width: none;
+}
+pre.scrolled code { display: block; }
+
+/* Prism sets a white text-shadow that only works on a white background. */
+code[class*="language-"],
+pre[class*="language-"] {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    text-shadow: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Definition lists
+ * ------------------------------------------------------------------ */
+
+dl {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 1rem 0;
+    margin: 2rem 0;
+}
+dl::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+dt {
+    float: left;
+    width: 28%;
+    clear: left;
+    text-align: right;
+    padding: .15em 0;
+    font-family: "Archivo", sans-serif;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+dt::after { content: ""; }
+dd {
+    float: left;
+    width: 72%;
+    margin: 0;
+    padding: .1em 0 .5em 1.5rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Table of contents (emitted by {{TOC}})
+ * ------------------------------------------------------------------ */
+
+/* The {{TOC}} builder emits an <hr> directly after the nav, so this block
+   carries a top rule only -- a bottom border would double it up. */
+.table-of-contents {
+    font-family: "Archivo", sans-serif;
+    font-size: .8rem;
+    line-height: 1.6;
+    border-top: 1px solid var(--ink);
+    padding: 1.2rem 0 .4rem;
+    margin: 0;
+}
+.table-of-contents::before {
+    content: "Contents";
+    display: block;
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .8rem;
+}
+.table-of-contents ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.table-of-contents li {
+    margin: 0 0 .4rem;
+    list-style: none;
+    text-indent: 0;
+}
+.table-of-contents a {
+    text-decoration: none;
+    color: var(--muted);
+}
+.table-of-contents a:hover { color: var(--accent); }
+
+.indent-1 { padding-left: 0; }
+.indent-2 { padding-left: 1rem; }
+.indent-3 { padding-left: 2rem; }
+.indent-4 { padding-left: 3rem; }
+.indent-5 { padding-left: 4rem; }
+.indent-6 { padding-left: 5rem; }
+.table-of-contents .indent-1,
+.table-of-contents .indent-2,
+.table-of-contents .indent-3,
+.table-of-contents .indent-4,
+.table-of-contents .indent-5,
+.table-of-contents .indent-6 { text-indent: 0; }
+
+/* ------------------------------------------------------------------ *
+ * Footnotes
+ * ------------------------------------------------------------------ */
+
+div.footnotes,
+aside.footnotes {
+    font-size: .88rem;
+    font-style: normal;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+}
+div.footnotes p { margin: .4rem 0; text-indent: 0; }
+
+.fa_custom {
+    text-indent: 0;
+    color: var(--muted);
+    font-size: 11px;
+    margin-left: 1px;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------------------------------ *
+ * Tags -- both the per-article list and the site-wide cloud
+ * ------------------------------------------------------------------ */
+
+ul.inline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .1rem;
+}
+ul.inline > li { margin: 0; text-align: right; }
+ul.inline > li:first-child {
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .5rem;
+}
+ul.inline a {
+    color: var(--muted);
+    text-decoration: none;
+}
+ul.inline a:hover { color: var(--accent); }
+
 ul.cloud {
-  list-style: none;
-  padding-left: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  line-height: 2.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 2.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    line-height: 1.9;
 }
-
+ul.cloud li {
+    display: inline-block;
+    margin: 0 .4rem .3rem 0;
+}
+ul.cloud a {
+    --size: 4;
+    font-family: "Archivo", sans-serif;
+    font-size: calc(var(--size) * 0.055rem + 0.66rem);
+    color: var(--muted);
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+ul.cloud a:hover { color: var(--accent); }
 ul.cloud a[data-weight="1"] { --size: 1; }
 ul.cloud a[data-weight="2"] { --size: 2; }
 ul.cloud a[data-weight="3"] { --size: 3; }
 ul.cloud a[data-weight="4"] { --size: 4; }
 ul.cloud a[data-weight="5"] { --size: 5; }
 ul.cloud a[data-weight="6"] { --size: 6; }
-ul.cloud a[data-weight="7"] { --size: 7; }
-ul.cloud a[data-weight="8"] { --size: 8; }
-ul.cloud a[data-weight="9"] { --size: 9; }
-ul.cloud li:nth-child(2n+1) a { --color: #181; }
-ul.cloud li:nth-child(3n+1) a { --color: #33a; }
+ul.cloud a[data-weight="7"] { --size: 7; color: var(--ink); }
+ul.cloud a[data-weight="8"] { --size: 8; color: var(--ink); }
+ul.cloud a[data-weight="9"] { --size: 9; color: var(--ink); }
 
-ul.cloud a {
-  --size: 4;
-  font-size: calc(var(--size) * 0.25rem + 0.5rem);
-  color: var(--color);
-  display: block;
-  padding: 0.125rem 0.25rem;
-  text-decoration: none;
-  position: relative;
+/* ------------------------------------------------------------------ *
+ * Pagination and prev/next
+ * ------------------------------------------------------------------ */
+
+div.prevNext {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    margin: 0 0 2.5rem;
+}
+div.prevNext a {
+    font-size: 1.05rem;
+    line-height: 1.3;
+    font-weight: 300;
+    color: var(--ink);
+    text-decoration: none;
+}
+div.prevNext a:hover { color: var(--accent); }
+div.prevNext .nextPost { text-align: right; }
+
+.pagination {
+    display: inline-flex;
+    flex-wrap: wrap;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    font-family: "Archivo", sans-serif;
+    font-size: .78rem;
+}
+.pagination a,
+.pagination .inactive {
+    float: none;
+    padding: .4rem .7rem;
+    text-decoration: none;
+    color: var(--muted);
+}
+.pagination .inactive { color: var(--faint); }
+.pagination a:hover:not(.active) {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 0;
+}
+.pagination a.active {
+    background: none;
+    color: var(--ink);
+    border-radius: 0;
+    font-weight: 600;
+    box-shadow: inset 0 -2px 0 var(--accent);
 }
 
-ul.inline {
-  list-style-type: none;
-  margin: 30px;
-  display: flex;
-  flex-direction: row;
-  padding: 5px; /* this */
-}
+/* ------------------------------------------------------------------ *
+ * Video embeds
+ * ------------------------------------------------------------------ */
 
-ul.inline > li {
-  text-align: center;
-  margin: 5px;  /* and that, will result in a 10px gap */
+.video-responsive {
+    overflow: hidden;
+    padding-bottom: 56.25%;
+    position: relative;
+    height: 0;
+    margin-bottom: 20px;
 }
-
-/* for mobile */
-@media (max-width: 750px) {
-  .three.columns,
-  .two.columns {
+.video-responsive iframe {
+    left: 0;
+    top: 0;
+    height: 100%;
     width: 100%;
-    margin-left: 0;
-  }
-  
-  .nine.columns,
-  .ten.columns {
-    width: 100%;
-    margin-left: 0;
-  }
-  
-  .verticalLine {
-    border-left: none;
-    padding-left: 0;
-  }
+    position: absolute;
 }
 
-/* More fixes from Claude */
-/* Left column base styling */
-.three.columns {
-  position: relative;  /* Changed from sticky to maintain original behavior */
-  overflow-x: hidden;
+/* ------------------------------------------------------------------ *
+ * Footer
+ * ------------------------------------------------------------------ */
+
+.site-footer {
+    border-top: 1px solid var(--ink);
+    padding: 3.5rem 0 3rem;
+    margin-top: 2rem;
 }
 
-/* Search box containment */
-#search {
-  width: 100%;
-  margin-bottom: 1.5rem;
+.shelf {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.shelf img {
+    height: 130px;
+    width: auto;
+    box-shadow: 0 2px 16px rgba(0,0,0,.10);
+}
+.shelf-note {
+    max-width: 28rem;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    font-weight: 300;
+    color: var(--muted);
+    margin: 0;
+}
+.shelf-note b {
+    display: block;
+    font-family: "Archivo", sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: .7rem;
 }
 
-#search input {
-  width: 90%;  /* Slightly less than 100% to prevent overlap */
-  box-sizing: border-box;
-  margin: 0.5rem 0;
+.colophon {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-family: "Archivo", sans-serif;
+    font-size: .7rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+}
+.colophon-links a {
+    color: var(--muted);
+    text-decoration: none;
+    margin-left: 1.5rem;
+}
+.colophon-links a:first-child { margin-left: 0; }
+.colophon-links a:hover { color: var(--accent); }
+
+/* ------------------------------------------------------------------ *
+ * Back to top
+ * ------------------------------------------------------------------ */
+
+a.arrow {
+    text-decoration: none;
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 40;
+}
+#scrollToTopButton {
+    width: 2.1rem;
+    height: 2.1rem;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    font-size: .8rem;
+    line-height: 1;
+    color: var(--muted);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    cursor: pointer;
+}
+#scrollToTopButton:hover {
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
-/* Navigation links */
-.three.columns ul {
-  margin-bottom: 1rem;
-  padding-left: 0;
+/* ------------------------------------------------------------------ *
+ * Responsive
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 56em) {
+    .opener,
+    .page-body {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .dateblock,
+    .marginalia {
+        text-align: left;
+        border-right: 0;
+        padding-right: 0;
+        margin-right: 0;
+        position: static;
+    }
+    .dateblock {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        padding-top: 0;
+    }
+    .dateblock-day { font-size: 1.4rem; }
+    .dateblock-meta { margin-top: 0; }
+    .marginalia {
+        border-top: 1px solid var(--rule);
+        padding-top: 1.2rem;
+    }
+    ul.inline {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: .75rem;
+    }
+    ul.inline > li { text-align: left; }
+    ul.inline > li:first-child { margin-bottom: 0; }
+    .prose { max-width: none; }
+    .opener { padding-top: 3rem; }
+    .opener h1 { font-size: 2.9rem; max-width: none; }
 }
 
-.three.columns li {
-  list-style: none;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-  white-space: normal;  /* Allows proper wrapping */
+@media (max-width: 40em) {
+    body { font-size: 18px; }
+    .wrap { padding: 0 1.3rem; }
+    .opener h1 { font-size: 2.2rem; }
+    .standfirst { font-size: 1.1rem; }
+    .masthead-row { align-items: flex-start; }
+    .wordmark { font-size: 1.25rem; }
+    #search input { width: 7.5rem; }
+    div.prevNext { grid-template-columns: 1fr; gap: 1rem; }
+    div.prevNext .nextPost { text-align: left; }
+    figure.captioned,
+    figure.captioned-left {
+        float: none;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    dt, dd { float: none; width: 100%; text-align: left; padding-left: 0; }
 }
 
-/* Tag cloud refinements - maintaining your existing weight-based styling */
-ul.cloud {
-  padding: 0;
-  margin: 0.5rem 0;
-}
-
-ul.cloud li {
-  display: inline-block;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.2;
-}
-
-ul.cloud li a {
-  white-space: nowrap;  /* Keeps tags on one line */
-  display: inline-block;
-  padding: 0.1rem 0.3rem;
-}
-
-/* Maintain vertical line separation */
-.verticalLine {
-  border-left: 1px solid #E1E1E1;
-  padding-left: 1.5rem;
-}
-
-@media (max-width: 750px) {
-  .verticalLine {
-    border-left: none;
-    padding-left: 0;
-  }
-  
-  .three.columns,
-  .nine.columns {
-    width: 100%;
-    margin-left: 0;
-  }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+    }
 }

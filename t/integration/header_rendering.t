@@ -9,7 +9,13 @@
 # blog class was missing from every blog post's header with no error.
 #
 # This test renders root/include/header.tt with type='blog' and asserts
-# the blog class is applied.
+# the blog marker class is applied.
+#
+# The marker moved with the editorial redesign: the old title row
+# (class="row title blog") became the article opener, so the hook is now
+# `opener--blog` on the opener itself. The guarantee under test is unchanged
+# -- blog posts must carry a marker distinguishing them from technical
+# articles, and it must not go missing silently.
 
 use Test::Most;
 use lib 'lib';
@@ -30,8 +36,8 @@ subtest 'blog posts get the blog CSS class on the title row' => sub {
     $tt->process( 'include/header.tt', { type => 'blog', title => 'x' }, \$output )
       or die $tt->error;
 
-    like $output, qr/class="row title blog"/,
-      'header for a blog post should include the blog class';
+    like $output, qr/class="opener opener--blog"/,
+      'header for a blog post should include the blog marker class';
 };
 
 subtest 'articles do not get the blog CSS class' => sub {
@@ -39,10 +45,10 @@ subtest 'articles do not get the blog CSS class' => sub {
     $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
       or die $tt->error;
 
-    unlike $output, qr/class="row title blog"/,
-      'header for an article should not include the blog class';
-    like $output, qr/class="row title"/,
-      'header for an article should still have the row title class';
+    unlike $output, qr/opener--blog/,
+      'header for an article should not include the blog marker class';
+    like $output, qr/class="opener"/,
+      'header for an article should still have the opener class';
 };
 
 # Regression test: the Google Analytics ID must render into the gtag markup.
