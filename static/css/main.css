@@ -249,7 +249,13 @@ body {
     display: flex;
     align-items: center;
     margin: 0;
+    transition: background .15s;
 }
+/* The hover tint lives on the <li>, not the <a>. .nav-feed is a sibling anchor
+   tucked back under the main link's right padding, so a background on the
+   anchor stopped short of it and clipped the last letter of "RSS". Scoped with
+   :has() so hovering the feed tag alone does not light up the whole item. */
+.nav-links li:has(> a:not(.nav-feed):hover) { background: var(--accent-soft); }
 .nav-links li + li::before {
     content: "";
     width: 1px;
@@ -269,17 +275,19 @@ body {
     white-space: nowrap;
     transition: color .15s, background .15s;
 }
-.nav-links a:hover {
-    color: var(--accent);
-    background: var(--accent-soft);
-}
+.nav-links a:hover { color: var(--accent); }
 .nav-links a[aria-current] { color: var(--ink); }
+/* The negative bottom margin cancels the rule's own height and gap, so the
+   current item's anchor stays exactly as tall as its siblings. Without it the
+   taller box gets centred by `align-items: center` above and the label rides
+   up out of line. The rule still draws below the text, inside the padding. */
 .nav-links a[aria-current]::after {
     content: "";
     display: block;
     height: 2px;
     background: var(--accent);
     margin-top: .5rem;
+    margin-bottom: calc(-.5rem - 2px);
 }
 .nav-links .nav-feed {
     padding-left: 0;
@@ -289,7 +297,6 @@ body {
     color: var(--faint);
     letter-spacing: .1em;
 }
-.nav-links .nav-feed:hover { background: none; }
 
 @media (min-width: 60em) {
     /* Force the list open on wide screens. Two mechanisms because browsers
