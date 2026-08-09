@@ -76,6 +76,13 @@ package Ovid::Site {
             return $self->_build_single_file;
         }
         $self->_assert_tt_config;
+
+        # Must run before _preprocess_files. That method wipes tmp/ and
+        # snapshots root/ into it, and _run_ttree renders from tmp/, so a
+        # fragment splatted into root/ any later never reaches the current
+        # build: the first build would die on a missing include and every
+        # build after would render the previous build's feed.
+        $self->_rebuild_latest_posts;
         $self->_preprocess_files('root');
         $self->_write_tag_templates;
         $self->_write_tagmap;
@@ -476,11 +483,93 @@ SQL
     sub _get_article_list ( $self, $records, $article_type ) {
         my $list = qq{<ul id="articles">\n};
         foreach my $article ( $records->@* ) {
-            $list
-              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
+            $list .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
         }
         $list .= "</ul>";
         return $list;
+    }
+
+    use constant LATEST_POST_COUNT => 10;
+
+    my @MONTH = qw(
+      January February March April May June
+      July August September October November December
+    );
+
+    # The homepage feed. Split in two so the HTML is testable without a
+    # database: _latest_posts_html is pure, _rebuild_latest_posts is the thin
+    # shell that queries and writes. See the coverage note on
+    # _rebuild_article_pagination for what happens when that split is skipped.
+    sub _rebuild_latest_posts ($self) {
+        my $records = $self->dbh->selectall_arrayref( <<'SQL', { Slice => {} }, LATEST_POST_COUNT );
+    SELECT a.title, a.slug, a.description, a.created,
+           at.type, at.directory
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE a.available = 1
+     ORDER BY a.created DESC, a.sort_order DESC
+     LIMIT ?
+SQL
+
+        # ORDER BY created is the row insert order, matching _rebuild_rss_feeds
+        # and the pagination pages. The date we *display* is a different thing
+        # entirely -- see _article_date.
+        $_->{date} = $self->_article_date($_) foreach $records->@*;
+        splat( 'root/include/latest.tt', $self->_latest_posts_html($records) );
+    }
+
+    # An article page shows the `date` from its template preamble
+    # (root/include/header.tt), but articles.created is whenever bin/article
+    # inserted the row -- it never writes created from date. The two drift, and
+    # 16 of the 122 available posts disagree, so a feed built from created
+    # would print one date next to a page printing another. Read the preamble
+    # and fall back to created only when there is no source file to read.
+    sub _article_date ( $self, $record ) {
+        my $source = $self->_resolve_source("$record->{directory}/$record->{slug}.html");
+        if ($source) {
+            my $date = Ovid::Template::File->new( filename => $source )->date;
+            return $date if $date;
+        }
+        return substr( $record->{created}, 0, 10 );
+    }
+
+    sub _latest_posts_html ( $self, $records ) {
+        my $html = qq{<ul class="latest">\n};
+        foreach my $post ( $records->@* ) {
+            my $title = $self->_escape_html( $post->{title} );
+
+            # Titles are short and hand-written, but descriptions run to 1000
+            # characters of prose and at least one of them contains an "&".
+            my $description = $self->_escape_html( $post->{description} );
+            my $label       = ucfirst $post->{type};
+            my $human       = $self->_human_date( $post->{date} );
+            $html .= <<~"HTML";
+                <li>
+                  <a href="/$post->{directory}/$post->{slug}">$title</a>
+                  <p>$description</p>
+                  <p class="meta">$label &middot; <time datetime="$post->{date}">$human</time></p>
+                </li>
+            HTML
+        }
+        return "$html</ul>\n";
+    }
+
+    sub _escape_html ( $self, $text ) {
+        $text //= '';
+        $text =~ s/&/&amp;/g;
+        $text =~ s/</&lt;/g;
+        $text =~ s/>/&gt;/g;
+        return $text;
+    }
+
+    # '2026-08-08' => '8 August 2026'. Anything that isn't an ISO date passes
+    # through untouched: a bare $MONTH[$month - 1] on a malformed date wraps
+    # round the end of the array and silently reports December.
+    sub _human_date ( $self, $date ) {
+        my ( $year, $month, $day ) = ( $date // '' ) =~ /\A(\d{4})-(\d{2})-(\d{2})\z/
+          or return $date;
+        return $date unless $month >= 1 && $month <= 12;
+        return sprintf '%d %s %d', $day, $MONTH[ $month - 1 ], $year;
     }
 
     sub _assert_tt_config ($self) {
@@ -664,15 +753,17 @@ END
     # input.
     sub _sitemap_loc ( $self, $base_url, $file ) {
         return "$base_url/" if $file eq 'index.html';
-        (my $url = $file) =~ s/\.html\z//;
+        ( my $url = $file ) =~ s/\.html\z//;
         return "$base_url/$url";
     }
 
     sub _tinysearch_url_for_file ( $self, $file ) {
         return '/' if $file eq 'index.html';
-        (my $clickable = $file) =~ s/\.html\z//;
+        ( my $clickable = $file ) =~ s/\.html\z//;
         return $clickable =~ m{^/} ? $clickable : "/$clickable";
     }
+
+    my %SITEMAP_SKIP = map { ( "$_.html" => 1 ) } qw(404 editor escape hireme);
 
     sub _write_sitemap ($self) {
 
@@ -697,6 +788,12 @@ END
 
             # Skip subdirectories unless articles or blog
             next if $path->parent ne '.' && $path->parent !~ /^(articles|blog)$/;
+
+            # Top-level pages with nothing to index: the 404 handler, the
+            # local editor, the escape-room game, and the /hireme redirect
+            # stub. Without this the sitemap advertised 404.html at priority
+            # 0.7, and would have done the same for the stub.
+            next if $path->parent eq '.' && $SITEMAP_SKIP{ $path->basename };
 
             my $priority   = $self->_get_sitemap_priority($path);
             my $changefreq = $self->_get_change_frequency($path);
@@ -804,10 +901,10 @@ END
     }
 
     sub _extract_article_text ( $self, $html ) {
-        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        my $parser   = HTML::TokeParser::Simple->new( string => $html );
         my $text     = '';
         my $depth    = 0;
-        my $suppress = 0;    # >0 while inside <script>/<style>
+        my $suppress = 0;                                                  # >0 while inside <script>/<style>
         while ( my $token = $parser->get_token ) {
             if ( $token->is_start_tag('article') ) {
                 $depth++;
@@ -815,12 +912,12 @@ END
             elsif ( $token->is_end_tag('article') ) {
                 $depth-- if $depth > 0;
             }
-            elsif ( $token->is_start_tag('script')
+            elsif ($token->is_start_tag('script')
                 || $token->is_start_tag('style') )
             {
                 $suppress++;
             }
-            elsif ( $token->is_end_tag('script')
+            elsif ($token->is_end_tag('script')
                 || $token->is_end_tag('style') )
             {
                 $suppress-- if $suppress > 0;
@@ -838,11 +935,11 @@ END
     # <style> bodies so legacy templates' inline JS/CSS doesn't pollute
     # the search index.
     sub _extract_article_div_text ( $self, $html ) {
-        my $parser = HTML::TokeParser::Simple->new( string => $html );
-        my $text     = '';
+        my $parser    = HTML::TokeParser::Simple->new( string => $html );
+        my $text      = '';
         my $div_depth = 0;
         my $article_at_depth;    # undef = not in; else depth we entered at
-        my $suppress  = 0;       # >0 while inside <script>/<style>
+        my $suppress = 0;        # >0 while inside <script>/<style>
 
         while ( my $token = $parser->get_token ) {
             if ( $token->is_start_tag('div') ) {
@@ -855,19 +952,19 @@ END
                 }
             }
             elsif ( $token->is_end_tag('div') ) {
-                if (   defined $article_at_depth
+                if ( defined $article_at_depth
                     && $div_depth == $article_at_depth )
                 {
                     $article_at_depth = undef;
                 }
                 $div_depth-- if $div_depth > 0;
             }
-            elsif ( $token->is_start_tag('script')
+            elsif ($token->is_start_tag('script')
                 || $token->is_start_tag('style') )
             {
                 $suppress++;
             }
-            elsif ( $token->is_end_tag('script')
+            elsif ($token->is_end_tag('script')
                 || $token->is_end_tag('style') )
             {
                 $suppress-- if $suppress > 0;
@@ -911,8 +1008,9 @@ END
         # Top-level listing and pagination pages
         return 0 if $file =~ /^(?:articles|blog)(?:_\d+|-all)?\.html\z/;
 
-        # Top-level error/admin/game pages with no useful prose
-        return 0 if $file =~ /^(?:404|editor|escape)\.html\z/;
+        # Top-level error/admin/game pages with no useful prose, plus the
+        # /hireme redirect stub, whose only content is "this page has moved".
+        return 0 if $file =~ /^(?:404|editor|escape|hireme)\.html\z/;
 
         return 1;
     }
@@ -982,33 +1080,42 @@ The build pipeline executes the following steps in order:
 
 =over 4
 
-=item 1. B<Preprocessing> - Scans C<root/> for C<.tt> and C<.tt2markdown>
+=item 1. B<Homepage feed> - Writes the ten most recent posts to
+C<root/include/latest.tt> for the homepage to C<INCLUDE>. This runs first
+because step 2 wipes C<tmp/> and snapshots C<root/> into it, and step 7
+renders from C<tmp/>: a fragment written to C<root/> any later would not
+reach the current build at all.
+
+=item 2. B<Preprocessing> - Scans C<root/> for C<.tt> and C<.tt2markdown>
 files, rewrites code blocks and macros via L<Ovid::Template::File>, and
 copies processed files to C<tmp/>.
 
-=item 2. B<Tag template generation> - Creates tag index pages in C<root/tags/>
+=item 3. B<Tag template generation> - Creates tag index pages in C<root/tags/>
 based on the collected tag map and the configured tag names from
 L<Less::Config>.
 
-=item 3. B<Tag map output> - Writes the accumulated tag map as JSON for
+=item 4. B<Tag map output> - Writes the accumulated tag map as JSON for
 client-side tag navigation.
 
-=item 4. B<RSS feed generation> - Builds C<article.rss> and C<blog.rss> feeds
+=item 5. B<RSS feed generation> - Builds C<article.rss> and C<blog.rss> feeds
 from article metadata in the SQLite database using L<XML::RSS>.
 
-=item 5. B<Article pagination> - Creates paginated index pages
+=item 6. B<Article pagination> - Creates paginated index pages
 (C<articles.html>, C<articles_2.html>, etc.) and an "all articles" page for
-both articles and blog posts.
+both articles and blog posts. Note that this writes to C<root/> after step 2
+has already run, so its output reaches the I<next> build, not this one.
 
-=item 6. B<Template Toolkit processing> - Runs C<ttree> (via
+=item 7. B<Template Toolkit processing> - Runs C<ttree> (via
 L<Template::App::ttree>) on the C<tmp/> directory to produce final HTML
 output.
 
-=item 7. B<Sitemap generation> - Crawls the generated HTML files and writes
+=item 8. B<Sitemap generation> - Crawls the generated HTML files and writes
 C<sitemap.xml> with priorities, change frequencies, and last-modified dates
-derived from git history.
+derived from git history. Pages with nothing to index (the 404 handler, the
+local editor, the escape-room game, the C</hireme> redirect stub) are
+skipped.
 
-=item 8. B<Search engine> (release builds only) - Generates a WebAssembly
+=item 9. B<Search engine> (release builds only) - Generates a WebAssembly
 search index using C<tinysearch> from the rendered HTML content.
 
 =back

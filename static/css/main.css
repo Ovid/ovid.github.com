@@ -486,6 +486,36 @@ a {
 .prose em { font-style: italic; }
 .prose strong { font-weight: 600; }
 
+/* The homepage feed, generated into root/include/latest.tt by
+   Ovid::Site::_latest_posts_html. Overrides .prose ul above: these are
+   entries, not bullet points. */
+.prose ul.latest {
+    list-style: none;
+    padding-left: 0;
+}
+.prose ul.latest li {
+    margin: 0 0 1.8rem;
+    padding: 0 0 1.8rem;
+    border-bottom: 1px solid var(--rule);
+}
+.prose ul.latest li:last-child { border-bottom: 0; }
+.prose ul.latest li > a {
+    display: block;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    font-weight: 600;
+    margin-bottom: .4rem;
+}
+.prose ul.latest p { margin: 0 0 .35rem; }
+.prose ul.latest .meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.prose ul.latest .meta time { font-style: normal; }
+
 time {
     color: var(--muted);
     font-style: italic;

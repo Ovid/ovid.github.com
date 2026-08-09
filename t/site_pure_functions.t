@@ -279,7 +279,7 @@ subtest '_html_to_text returns empty body when neither container present' => sub
 subtest '_is_searchable picks content pages and rejects listings/build dirs' => sub {
     # Content pages: top-level pages
     ok $site->_is_searchable('index.html'),         'index.html is content';
-    ok $site->_is_searchable('hireme.html'),        'hireme.html is content';
+    ok $site->_is_searchable('about.html'),         'about.html is content';
     ok $site->_is_searchable('projects.html'),      'projects.html is content';
     ok $site->_is_searchable('publicspeaking.html'),'publicspeaking.html is content';
     ok $site->_is_searchable('starmap.html'),       'starmap.html is content';
@@ -311,6 +311,7 @@ subtest '_is_searchable picks content pages and rejects listings/build dirs' => 
     ok !$site->_is_searchable('404.html'),          '404 page excluded';
     ok !$site->_is_searchable('editor.html'),       'editor (dev tool) excluded';
     ok !$site->_is_searchable('escape.html'),       'escape (JS game with no prose) excluded';
+    ok !$site->_is_searchable('hireme.html'),       'hireme redirect stub excluded';
 
     # Reject: build / dev / generated / template subtrees
     ok !$site->_is_searchable('tmp/anything.html'),        'tmp/ excluded';
