@@ -163,6 +163,29 @@ END
     like $third, qr/30 Sep 2025/, 'and it is the corrected date';
 };
 
+subtest '_rebuild_rss_feeds rewrites when a description is corrected' => sub {
+    my $dbh     = make_test_dbh();
+    my $tempdir = Path::Tiny->tempdir;
+    chdir $tempdir;
+
+    my $site = Ovid::Site->new( dbh => $dbh );
+    $site->_rebuild_rss_feeds;
+    my $first = path('article.rss')->slurp_utf8;
+
+    $dbh->do(q{UPDATE articles SET description = 'This is why it matters' WHERE slug = 'test-article'});
+    $site->_rebuild_rss_feeds;
+    my $second = path('article.rss')->slurp_utf8;
+
+    # And still no restamping once the correction has landed.
+    $site->_rebuild_rss_feeds;
+    my $third = path('article.rss')->slurp_utf8;
+    chdir $cwd;
+
+    isnt $second, $first, 'a corrected description reaches the feed';
+    like $second, qr/This is why it matters/, 'and it is the corrected text';
+    is $third, $second, 'the build after the correction is a no-op again';
+};
+
 subtest '_article_type_lookup returns the row for a known type' => sub {
     my $dbh  = make_test_dbh();
     my $site = Ovid::Site->new( dbh => $dbh );

@@ -242,16 +242,18 @@ package Ovid::Site {
             # What the feed on disk already says, keyed by item link. This
             # used to be a bare set of links, which meant an item whose date
             # changed never reached the file -- and the dates were wrong, see
-            # _article_date. Comparing the dates too lets a correction land
-            # while still not rewriting the feed on every build just because
-            # the channel pubDate is stamped with now().
-            my %pubdate_for;
+            # _article_date. Comparing the whole item lets a correction to the
+            # date, the title or the description land, while still not
+            # rewriting the feed on every build just because the channel
+            # pubDate is stamped with now().
+            my %item_for;
             if ( -e $rss_file ) {
                 my $dom = Mojo::DOM->new->xml(1)->parse( slurp($rss_file) );
                 ITEM: foreach my $item ( $dom->find('item')->each ) {
-                    my $link    = $item->at('link')    or next ITEM;
-                    my $pubdate = $item->at('pubDate') or next ITEM;
-                    $pubdate_for{ $link->text } = $pubdate->text;
+                    my $link = $item->at('link') or next ITEM;
+                    $item_for{ $link->text }
+                      = _rss_item_signature( map { my $node = $item->at($_); $node ? $node->text : '' }
+                          qw(pubDate title description) );
                 }
             }
             my $directory = $type->{directory};
@@ -299,10 +301,13 @@ SQL
                 my $pubdate = $self->_rfc822( $self->_article_date($article) );
 
                 # Rewriting the feed restamps the channel pubDate with now(),
-                # so only do it when an item is actually new or its date has
-                # been corrected. Edits to a title or description still don't
-                # trigger a rewrite, which is the long-standing behaviour.
-                $changed++ if ( $pubdate_for{$url} // '' ) ne $pubdate;
+                # so only do it when an item is actually new or something a
+                # reader can see -- date, title, description -- has changed.
+                $changed++
+                  if ( $item_for{$url} // '' ) ne _rss_item_signature(
+                    $pubdate,
+                    $article->{title}, $article->{description}
+                  );
 
                 $rss->add_item(
                     title       => $article->{title},
@@ -315,6 +320,13 @@ SQL
             }
             splat( $rss_file, $rss->as_string ) if $changed;
         }
+    }
+
+    # The reader-visible part of a feed item, for comparing what's on disk
+    # against what the database now says. Field order must match at both
+    # call sites, which is why this is a function and not two inline joins.
+    sub _rss_item_signature ( $pubdate, $title, $description ) {
+        return join "\0", map { $_ // '' } $pubdate, $title, $description;
     }
 
     sub _article_type_lookup ( $self, $type ) {
