@@ -92,6 +92,27 @@ END
       '... but should not have a language attribute';
 };
 
+subtest 'Headings holding a TT directive get no anchor' => sub {
+    my $code = <<'END';
+[% WRAPPER include/wrapper blogdown=1 %]
+{{TOC}}
+<h1>[% title || "No Title Found" %]</h1>
+<h2>A real heading</h2>
+[% END %]
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+
+    unlike $rewritten, qr/a name="-title-no-title-found-"/,
+      'A heading whose text is a TT directive should not be slugified into an anchor';
+    unlike $rewritten, qr/href="#-title-no-title-found-"/,
+      '... nor should it get a table-of-contents entry';
+    like $rewritten, qr/<h1>\[% title/,
+      '... but the heading itself must survive untouched';
+    like $rewritten, qr/<h2><a name="a-real-heading"><\/a>A real heading<\/h2>/,
+      'Headings with literal text should still be anchored';
+};
+
 # Test error handling for unclosed code blocks (cover line 133)
 subtest 'Error handling for unclosed code blocks' => sub {
     my $unclosed_code = <<'END';

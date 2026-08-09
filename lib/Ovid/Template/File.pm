@@ -214,7 +214,15 @@ package Ovid::Template::File {
                 $tag =~ /^h([1-6])$/i or croak("Bad 'h' tag in $file: $tag");
                 my $level = $1;
                 my $title = $p->peek(1);
-                my $slug  = make_slug($title);
+
+                # A heading whose text is a Template Toolkit directive has no
+                # text to slug yet -- we would be sluggifying the source of
+                # `[% title %]`, stamping the same meaningless anchor onto
+                # every page that uses the include. Emit the heading, skip the
+                # anchor and the TOC entry.
+                next if ( $title // '' ) =~ /\[%/;
+
+                my $slug = make_slug($title);
                 if ( $seen->{$file}{$slug}++ ) {
 
                     # we've already seen it, so let's prepend the number on the

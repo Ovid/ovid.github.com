@@ -158,10 +158,6 @@
       dmonth = dparts.1;
       dday   = dparts.2;
     END;
-    # `pager` is already instantiated in <head> for articles and blog posts.
-    IF type && slug && ( type == 'articles' || type == 'blog' );
-      standfirst = pager.this_post(type, slug).description;
-    END;
 -%]
     <div class="opener[% IF type == 'blog' %] opener--blog[% END %]">
       <div class="dateblock[% IF date %] is-filled[% END %]">
@@ -176,9 +172,6 @@
       </div>
       <div class="opener-title">
         <h1>[% title || "No Title Found" %]</h1>
-[%- IF standfirst %]
-        <p class="standfirst">[% standfirst | html %]</p>
-[%- END %]
       </div>
     </div>
 
