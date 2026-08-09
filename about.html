@@ -13,14 +13,20 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
 
@@ -210,21 +216,6 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#paad">PAAD</a></li>
-    <li class="indent-1"><a href="#proof-by-building">Proof by building</a></li>
-    <li class="indent-1"><a href="#the-belief">The belief</a></li>
-    <li class="indent-1"><a href="#before-ai">Before AI</a></li>
-    <li class="indent-1"><a href="#what-i-get-hired-for">What I get hired for</a></li>
-    <li class="indent-1"><a href="#wildagile">WildAgile</a></li>
-    <li class="indent-1"><a href="#a-few-things-i-have-been-hired-for">A few things I have been hired for</a></li>
-    <li class="indent-1"><a href="#elsewhere">Elsewhere</a></li>
-    <li class="indent-1"><a href="#get-in-touch">Get in touch</a></li>
-    </ul>
-</nav>
-<hr></p>
-
 <p>In 1863, Samuel Butler looked at the machines of his day and saw something
 evolving faster than we were. His conclusion, in <a href="https://en.wikisource.org/wiki/Darwin_among_the_Machines" target="_blank"><em>Darwin among the
 Machines</em></a> <span class="fa fa-external-link fa_custom"></span>: <em>“war to

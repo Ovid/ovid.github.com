@@ -37,14 +37,20 @@
     })();
   </script>
   [% USE Ovid; USE Config -%]
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=[% Config.google_analytics_id %]"></script>
+  <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === '[% Config.domain %]' || location.hostname.endsWith('.[% Config.domain %]')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=[% Config.google_analytics_id %]';
+      document.head.appendChild(gaTag);
 
-    gtag('config', '[% Config.google_analytics_id %]');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '[% Config.google_analytics_id %]');
+    }
   </script>
   [% IF type == 'articles' OR type == 'blog' %][% USE pager = Pager(type => type) %][% END %]
 
