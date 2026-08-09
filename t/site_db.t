@@ -9,12 +9,12 @@ use DBI;
 use Ovid::Site;
 
 subtest 'Ovid::Site accepts an injected dbh attribute' => sub {
-    my $dbh = DBI->connect('dbi:SQLite::memory:', '', '', { RaiseError => 1 });
+    my $dbh  = DBI->connect( 'dbi:SQLite::memory:', '', '', { RaiseError => 1 } );
     my $site = Ovid::Site->new( dbh => $dbh );
     is $site->dbh, $dbh, 'dbh accessor returns the injected handle';
 };
 
-use Cwd qw(getcwd);
+use Cwd        qw(getcwd);
 use Path::Tiny qw(path);
 use XML::RSS;
 use TestHelper::Site qw(make_test_dbh);
@@ -37,14 +37,14 @@ subtest '_rebuild_rss_feeds writes blog.rss and article.rss from the dbh' => sub
     $rss->parsefile('blog.rss');
     is $rss->channel('title'), 'Personal blog posts', 'blog channel title';
     my $blog_items = $rss->{items};
-    is scalar @$blog_items, 1, 'one available blog item (unavailable filtered out)';
+    is scalar @$blog_items,     1,                'one available blog item (unavailable filtered out)';
     is $blog_items->[0]{title}, 'Test Blog Post', 'blog item title';
     like $blog_items->[0]{link}, qr{/blog/test-blog-post$}, 'blog item link is extensionless';
 
     $rss = XML::RSS->new;
     $rss->parsefile('article.rss');
-    is scalar @{ $rss->{items} }, 1, 'one article';
-    is $rss->{items}[0]{title}, 'Test Article', 'article title';
+    is scalar @{ $rss->{items} }, 1,              'one article';
+    is $rss->{items}[0]{title},   'Test Article', 'article title';
 
     chdir $cwd;
 };
@@ -65,22 +65,102 @@ subtest '_rebuild_rss_feeds emits extensionless links and non-permalink guids' =
 
         for my $item ( $rss->{items}->@* ) {
             unlike $item->{link}, qr/\.html(?:[?#]|$)/,
-                "$rss_file item link is extensionless: $item->{link}";
+              "$rss_file item link is extensionless: $item->{link}";
 
             # Verify the raw XML carries the isPermaLink="false" attribute
             like $body,
-                qr{<guid\s+isPermaLink="false">},
-                "$rss_file raw guid carries isPermaLink=\"false\"";
+              qr{<guid\s+isPermaLink="false">},
+              "$rss_file raw guid carries isPermaLink=\"false\"";
 
             # Verify guid content is the slug path, not a stringified ref
             unlike $item->{guid}, qr/^HASH\(0x/,
-                "$rss_file guid is not a stringified hash ref";
+              "$rss_file guid is not a stringified hash ref";
             like $item->{guid}, qr{^(?:blog|article)/[^/]+$},
-                "$rss_file guid content is a slug path";
+              "$rss_file guid content is a slug path";
         }
     }
 
     chdir $cwd;
+};
+
+subtest '_rebuild_rss_feeds dates items from the preamble, not created' => sub {
+    my $dbh     = make_test_dbh();
+    my $tempdir = Path::Tiny->tempdir;
+
+    # The fixture's created falls back to CURRENT_TIMESTAMP. Pin it to
+    # something recognisable so a leak into pubDate is unmistakable.
+    $dbh->do(q{UPDATE articles SET created = '2025-11-21 19:56:25' WHERE slug = 'test-article'});
+
+    $tempdir->child('root/articles')->mkpath;
+    $tempdir->child('root/articles/test-article.tt2markdown')->spew_utf8(<<'END');
+[%
+    title = 'Test Article';
+    type  = 'articles';
+    slug  = 'test-article';
+    date  = '2025-08-26';
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+body
+[% END %]
+END
+
+    chdir $tempdir;
+    Ovid::Site->new( dbh => $dbh )->_rebuild_rss_feeds;
+    my $body = path('article.rss')->slurp_utf8;
+    my $rss  = XML::RSS->new;
+    $rss->parsefile('article.rss');
+    chdir $cwd;
+
+    is $rss->{items}[0]{pubDate}, 'Tue, 26 Aug 2025 00:00:00 +0000',
+      'pubDate comes from the template preamble';
+    unlike $body, qr/21 Nov 2025/,
+      'the created timestamp never reaches the feed';
+
+    # No source file for the blog post, so it falls back to created.
+    like $body, qr{<pubDate>}, 'items still carry a pubDate';
+};
+
+subtest '_rebuild_rss_feeds rewrites when a date changes, not on every build' => sub {
+    my $dbh     = make_test_dbh();
+    my $tempdir = Path::Tiny->tempdir;
+    $tempdir->child('root/articles')->mkpath;
+    my $source = $tempdir->child('root/articles/test-article.tt2markdown');
+
+    # sprintf is no good here: the body is full of TT's [% ... %].
+    my $template = <<'END';
+[%
+    title = 'Test Article';
+    type  = 'articles';
+    slug  = 'test-article';
+    date  = 'THE_DATE';
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+body
+[% END %]
+END
+    my $with_date = sub ($date) {
+        ( my $copy = $template ) =~ s/THE_DATE/$date/;
+        return $copy;
+    };
+    $source->spew_utf8( $with_date->('2025-08-26') );
+
+    chdir $tempdir;
+    my $site = Ovid::Site->new( dbh => $dbh );
+    $site->_rebuild_rss_feeds;
+    my $first = path('article.rss')->slurp_utf8;
+
+    # Nothing changed, so the channel pubDate must not be restamped. That
+    # restamping is why the rewrite is gated at all.
+    $site->_rebuild_rss_feeds;
+    is path('article.rss')->slurp_utf8, $first, 'a no-op build leaves the feed alone';
+
+    $source->spew_utf8( $with_date->('2025-09-30') );
+    $site->_rebuild_rss_feeds;
+    my $third = path('article.rss')->slurp_utf8;
+    chdir $cwd;
+
+    isnt $third, $first, 'a corrected date does reach the feed';
+    like $third, qr/30 Sep 2025/, 'and it is the corrected date';
 };
 
 subtest '_article_type_lookup returns the row for a known type' => sub {
@@ -89,7 +169,7 @@ subtest '_article_type_lookup returns the row for a known type' => sub {
 
     my $row = $site->_article_type_lookup('blog');
     is_deeply [ sort keys %$row ], [ 'directory', 'name', 'type' ],
-        'returns hashref with directory, name, type keys';
+      'returns hashref with directory, name, type keys';
     is $row->{type}, 'blog', 'type matches input';
 };
 
@@ -98,8 +178,8 @@ subtest '_article_type_lookup croaks for an unknown type' => sub {
     my $site = Ovid::Site->new( dbh => $dbh );
 
     throws_ok { $site->_article_type_lookup('nonexistent') }
-        qr/Could not fetch article_type information for 'nonexistent'/,
-        'croak message includes the bad type';
+    qr/Could not fetch article_type information for 'nonexistent'/,
+      'croak message includes the bad type';
 };
 
 done_testing;

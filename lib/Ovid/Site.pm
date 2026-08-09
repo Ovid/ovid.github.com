@@ -238,10 +238,21 @@ package Ovid::Site {
 
         foreach my $type ( $types->@* ) {
             my $rss_file = "$type->{type}.rss";
-            my %already_added;
+
+            # What the feed on disk already says, keyed by item link. This
+            # used to be a bare set of links, which meant an item whose date
+            # changed never reached the file -- and the dates were wrong, see
+            # _article_date. Comparing the dates too lets a correction land
+            # while still not rewriting the feed on every build just because
+            # the channel pubDate is stamped with now().
+            my %pubdate_for;
             if ( -e $rss_file ) {
-                my $dom = Mojo::DOM->new( slurp($rss_file) );
-                %already_added = map { $_->text => 1 } $dom->find('link')->each;
+                my $dom = Mojo::DOM->new->xml(1)->parse( slurp($rss_file) );
+                ITEM: foreach my $item ( $dom->find('item')->each ) {
+                    my $link    = $item->at('link')    or next ITEM;
+                    my $pubdate = $item->at('pubDate') or next ITEM;
+                    $pubdate_for{ $link->text } = $pubdate->text;
+                }
             }
             my $directory = $type->{directory};
             my $now       = DateTime->now;
@@ -281,20 +292,17 @@ package Ovid::Site {
 ORDER BY sort_order DESC
 SQL
 
-            my $new_links = 0;
+            my $changed = 0;
             foreach my $article ( $articles->@* ) {
-                my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
+                $article->{directory} = $directory;
                 my $url     = "$base_url$directory/$article->{slug}";
+                my $pubdate = $self->_rfc822( $self->_article_date($article) );
 
-                # Every time we changed an article, we kept updating the
-                # publication date of the entire RSS feed. Now we only do this if
-                # we have found at least one new article/blog entry.
-                # Note: pre-existing RSS files on disk may have .html links;
-                # after the switch to extensionless URLs the dedup set keyed
-                # on old .html values won't match, so the first post-change
-                # build will treat all items as new and rewrite both feeds.
-                # One-time cost; subsequent builds dedup correctly.
-                $new_links++ if not $already_added{$url};
+                # Rewriting the feed restamps the channel pubDate with now(),
+                # so only do it when an item is actually new or its date has
+                # been corrected. Edits to a title or description still don't
+                # trigger a rewrite, which is the long-standing behaviour.
+                $changed++ if ( $pubdate_for{$url} // '' ) ne $pubdate;
 
                 $rss->add_item(
                     title       => $article->{title},
@@ -302,10 +310,10 @@ SQL
                     description => $article->{description},
                     creator     => 'Curtis "Ovid" Poe',
                     guid        => "$type->{type}/$article->{slug}",
-                    pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
+                    pubDate     => $pubdate,
                 );
             }
-            splat( $rss_file, $rss->as_string ) if $new_links;
+            splat( $rss_file, $rss->as_string ) if $changed;
         }
     }
 
@@ -518,19 +526,32 @@ SQL
         splat( 'root/include/latest.tt', $self->_latest_posts_html($records) );
     }
 
+    # When a post was published, as a bare YYYY-MM-DD.
+    #
     # An article page shows the `date` from its template preamble
     # (root/include/header.tt), but articles.created is whenever bin/article
     # inserted the row -- it never writes created from date. The two drift, and
-    # 16 of the 122 available posts disagree, so a feed built from created
-    # would print one date next to a page printing another. Read the preamble
-    # and fall back to created only when there is no source file to read.
+    # 16 of the 122 available posts disagree, so anything built from created
+    # prints one date next to a page printing another. Both the homepage feed
+    # and the RSS feeds go through here so they agree with the page and with
+    # each other.
+    #
+    # Nothing validates the preamble, so a date that isn't one is ignored
+    # rather than passed downstream to _human_date or _rfc822.
     sub _article_date ( $self, $record ) {
         my $source = $self->_resolve_source("$record->{directory}/$record->{slug}.html");
         if ($source) {
             my $date = Ovid::Template::File->new( filename => $source )->date;
-            return $date if $date;
+            return $date if $date && $date =~ /\A\d{4}-\d{2}-\d{2}\z/;
         }
         return substr( $record->{created}, 0, 10 );
+    }
+
+    # RSS 2.0 wants RFC822. _article_date has no time of day, so items land at
+    # midnight UTC -- the time it replaces was never the publication time
+    # anyway, just whenever bin/article happened to run.
+    sub _rfc822 ( $self, $date ) {
+        return DateTime::Format::SQLite->parse_datetime("$date 00:00:00")->strftime('%a, %d %b %Y %H:%M:%S %z');
     }
 
     sub _latest_posts_html ( $self, $records ) {
