@@ -180,4 +180,10 @@
 [% IF type == 'articles' or type == 'blog' %][% INCLUDE include/tags_for_article.tt type=type slug=slug %][% END %]
       </aside>
       <div class="prose">
-[% IF type == 'articles' or type == 'blog' %][% INCLUDE include/hiring.tt %][% END %]
+[% IF type == 'articles' or type == 'blog' %]
+[%- # Same prev/next strip as the footer, so readers can move between posts
+    # without scrolling to the bottom first. -%]
+[% INCLUDE include/pager.tt %]
+<hr>
+[% INCLUDE include/hiring.tt %]
+[% END %]

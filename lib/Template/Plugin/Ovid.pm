@@ -55,7 +55,7 @@ sub add_note ( $self, $note ) {
         <strong id="$id">Footnotes</strong>
         <p id="note-description-$number" class="sr-only">Note number $number</p>
 	    <div>$note</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times"></i> </button>
     </div>
 HTML
 

@@ -1,7 +1,16 @@
     [% USE pager = Pager(type => type) %]
+[%- # The first and last post have no previous / next sibling. Emit nothing
+    # rather than an empty <a>, which is a link with no accessible name.
+    # .nextPost is pinned to the second grid column so it stays right-aligned
+    # even when there is no .prevPost beside it.
+    prev = pager.prev_post(type, slug);
+    next = pager.next_post(type, slug);
+-%]
     <div class="prevNext">
-        [% prev = pager.prev_post(type, slug) %]
-        <a href="/[% IF prev; type _ '/' _ prev.slug;  ELSE; '#'; END %]" class="prevPost">[% IF prev %]&laquo; [% prev.title | html %][% END %]</a>
-        [% next = pager.next_post(type, slug) %]
-        <a href="/[% IF next; type _ '/' _ next.slug; ELSE; '#'; END %]" class="nextPost">[% IF next %][% next.title | html %] &raquo;[% END %]</a>
+[%- IF prev %]
+        <a href="/[% type %]/[% prev.slug %]" class="prevPost">&laquo; [% prev.title | html %]</a>
+[%- END %]
+[%- IF next %]
+        <a href="/[% type %]/[% next.slug %]" class="nextPost">[% next.title | html %] &raquo;</a>
+[%- END %]
     </div>
