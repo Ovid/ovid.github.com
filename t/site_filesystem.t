@@ -183,4 +183,17 @@ subtest '_reject_git_ignored drops pages that will not be deployed' => sub {
     };
 };
 
+subtest 'no source copy shadows the generated search engine' => sub {
+
+    # _build_tinysearch writes the freshly built index to static/js/search,
+    # but bin/rebuild copies root/static/* over static/*. A copy living under
+    # root/ therefore silently reverts every rebuilt index on the next plain
+    # rebuild -- a stale 2023 copy did exactly that, restoring search results
+    # that pointed at pages which no longer deploy.
+    my $shadow = path(__FILE__)->parent->parent->child('root/static/js/search');
+    my @found = $shadow->exists ? $shadow->children : ();
+    ok !@found, 'root/static/js/search holds no build artefacts'
+      or diag "these would clobber the built index: @found";
+};
+
 done_testing;

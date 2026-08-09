@@ -723,18 +723,43 @@ dd {
 }
 .table-of-contents a:hover { color: var(--accent); }
 
-.indent-1 { padding-left: 0; }
-.indent-2 { padding-left: 1rem; }
-.indent-3 { padding-left: 2rem; }
-.indent-4 { padding-left: 3rem; }
-.indent-5 { padding-left: 4rem; }
-.indent-6 { padding-left: 5rem; }
-.table-of-contents .indent-1,
+/* Depth is shown two ways: top-level entries take the prose serif so they read
+   as the article's spine, and everything below them sits behind a hairline
+   rail. Scoped to .table-of-contents so they outrank `.prose ol li, .prose ul
+   li { padding: 0 }` above -- the TOC sits inside .prose, and that reset was
+   flattening every level to flush-left. .indent-N is emitted only by the
+   {{TOC}} builder in Ovid::Template::File. */
+.table-of-contents .indent-1 {
+    padding-left: 0;
+    margin-top: .7rem;
+}
+.table-of-contents .indent-1:first-child { margin-top: 0; }
+.table-of-contents .indent-1 > a {
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    font-size: .98rem;
+    color: var(--ink);
+}
+
+/* The rail is drawn per <li>, so the .4rem gap between items becomes
+   padding rather than margin -- otherwise it renders as a dashed column.
+   {{TOC}} emits a flat <ul>, so a level-2 rail breaks where levels 3+ nest
+   inside it rather than running behind them. Rare enough to live with; a
+   continuous tree would need nested lists from Ovid::Template::File. */
 .table-of-contents .indent-2,
 .table-of-contents .indent-3,
 .table-of-contents .indent-4,
 .table-of-contents .indent-5,
-.table-of-contents .indent-6 { text-indent: 0; }
+.table-of-contents .indent-6 {
+    border-left: 1px solid var(--rule);
+    padding-left: .85rem;
+    padding-bottom: .4rem;
+    margin-bottom: 0;
+}
+.table-of-contents .indent-2 { margin-left: .15rem; }
+.table-of-contents .indent-3 { margin-left: 1.15rem; }
+.table-of-contents .indent-4 { margin-left: 2.15rem; }
+.table-of-contents .indent-5 { margin-left: 3.15rem; }
+.table-of-contents .indent-6 { margin-left: 4.15rem; }
 
 /* ------------------------------------------------------------------ *
  * Footnotes
