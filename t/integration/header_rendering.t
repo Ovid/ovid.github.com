@@ -121,4 +121,57 @@ subtest 'header provides a main landmark the skip link can reach' => sub {
       '... and an element with that id exists in the header itself';
 };
 
+# Regression test: the meta description must say something the title does not.
+#
+# <meta name="description"> was hardcoded to the title on every page, which is
+# close to having no description: a search engine that finds the description
+# restating the title discards it and synthesises a snippet instead. Articles
+# already had a real description in the database -- og:description was reading
+# it -- but the meta tag never used it.
+#
+# og:description had a separate bug. It was guarded by `IF type && slug`, and
+# tag pages set both, but `pager` is only instantiated for articles and blog
+# posts. So this_post was called on an undefined pager and every tag page got
+# an *empty* og:description.
+#
+# Both now read one computed value, so they cannot drift apart again.
+sub description_tags ($vars) {
+    my $output = '';
+    $tt->process( 'include/header.tt', $vars, \$output ) or die $tt->error;
+    my ($meta) = $output =~ /<meta name="description" content="([^"]*)"/;
+    my ($og)   = $output =~ /<meta property="og:description" content="([^"]*)"/;
+    return ( $meta, $og );
+}
+
+subtest 'an explicit description is preferred over the title' => sub {
+    my ( $meta, $og ) = description_tags(
+        {   title       => 'Tags: Perl',
+            description => 'Every article and blog post tagged Perl.',
+            type        => 'tags',
+            slug        => 'perl',
+        }
+    );
+
+    is $meta, 'Every article and blog post tagged Perl.',
+      'an explicit description should win over the title';
+    isnt $meta, 'Tags: Perl', '... so the description does not restate the title';
+    is $og, $meta, 'og:description should carry the same text as the meta description';
+};
+
+subtest 'a tag page without a description still gets one' => sub {
+    my ( $meta, $og ) = description_tags(
+        { title => 'Tags: Perl', type => 'tags', slug => 'perl' } );
+
+    is $meta, 'Tags: Perl', 'the title is the last resort, not an empty string';
+    ok length $og, 'og:description must never be left empty on a tag page';
+    is $og, $meta, '... and must match the meta description';
+};
+
+subtest 'the title remains the final fallback' => sub {
+    my ( $meta, $og ) = description_tags( { title => 'Some Page' } );
+
+    is $meta, 'Some Page', 'a page with nothing else falls back to its title';
+    is $og,   'Some Page', '... for og:description too';
+};
+
 done_testing;

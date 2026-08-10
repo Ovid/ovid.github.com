@@ -34,6 +34,22 @@ package Ovid::Site {
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
 
+    # What the two listing pages collect, for their meta description. Without
+    # this they fall back to restating their own title.
+    #
+    # Keyed on article_types.type, which is singular ('article'), not the
+    # plural directory name -- key these 'articles' and the lookup misses,
+    # and the fallback quietly hides the mistake.
+    #
+    # Keep the text free of apostrophes: it is interpolated into a
+    # single-quoted Template Toolkit assignment.
+    my %INDEX_DESCRIPTION = (
+        article =>
+          'Technical writing by Curtis “Ovid” Poe on software engineering, object-oriented design, testing, databases, Perl, and AI-assisted development.',
+        blog =>
+          'Essays by Curtis “Ovid” Poe on science, mathematics, politics, writing, and life as an American abroad.',
+    );
+
     has _files => (
         traits => ['Array'],
         is     => 'rw',
@@ -211,13 +227,18 @@ package Ovid::Site {
         # so long as there's a tagmap entry for a tag and an article or blog for
         # that tag, we'll always have a template for it.
         TAG: foreach my $tag ( keys config()->{tagmap}->%* ) {
-            my $name     = config()->{tagmap}{$tag};
-            my $file     = "root/tags/$tag.tt2markdown";
+            my $name = config()->{tagmap}{$tag};
+            my $file = "root/tags/$tag.tt2markdown";
+
+            # The description says what the tag collects. Without one these
+            # pages fell back to the title -- "Tags: Perl" -- which tells a
+            # search engine nothing it did not already have from the <title>.
             my $template = <<~"END";
             [%
-                title = 'Tags: $name';
-                type  = 'tags';
-                slug  = '$tag';
+                title       = 'Tags: $name';
+                description = 'Every article and blog post by Curtis “Ovid” Poe tagged $name.';
+                type        = 'tags';
+                slug        = '$tag';
                 WRAPPER include/wrapper.tt blogdown=1;
                     INCLUDE include/tags.tt tag="$tag";
                 END;
@@ -377,6 +398,13 @@ SQL
                 # uncoverable statement
                 my $title = "$article_type->{name} by Ovid";
 
+                # What each index actually collects. Without this the listing
+                # pages fell back to restating their own title, which gives a
+                # search engine nothing to work with.
+                # uncoverable statement
+                my $description = $INDEX_DESCRIPTION{ $article_type->{type} }
+                  // "$article_type->{name} by Curtis “Ovid” Poe.";
+
                 # uncoverable statement
                 if ( $pager->total_pages > 1 ) {
 
@@ -407,8 +435,9 @@ SQL
                 # uncoverable statement
                 my $template = <<~"END";
                 [%
-                    INCLUDE include/header.tt 
+                    INCLUDE include/header.tt
                     title         = '$title'
+                    description   = '$description'
                     identifier    = '$identifier'
                     canonical_url = "$name-all"
                 %]
@@ -451,10 +480,15 @@ SQL
             my $articles = $self->_get_article_list( $all_records, $article_type );
 
             # uncoverable statement
+            # uncoverable statement
+            my $description = $INDEX_DESCRIPTION{ $article_type->{type} }
+              // "$article_type->{name} by Curtis “Ovid” Poe.";
+
             my $template = <<~"END";
             [%
-                INCLUDE include/header.tt 
+                INCLUDE include/header.tt
                 title         = '$title'
+                description   = '$description'
                 identifier    = '$identifier'
                 canonical_url = "$name-all"
             %]

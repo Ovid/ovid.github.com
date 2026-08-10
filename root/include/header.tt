@@ -53,6 +53,27 @@
     }
   </script>
   [% IF type == 'articles' OR type == 'blog' %][% USE pager = Pager(type => type) %][% END %]
+[%- # One description, shared by <meta name="description"> and og:description.
+    # Prefer a `description` set in the page's own preamble, then the
+    # description stored alongside the article, and only then the title.
+    #
+    # The title had been the default for every page, which is close to no
+    # description at all: a search engine that finds the description merely
+    # restating the title discards it and synthesises a snippet instead.
+    # Articles already had a real one -- og:description was reading it -- but
+    # <meta name="description"> never used it.
+    #
+    # `pager` only exists for articles and blog posts. Tag pages set both type
+    # and slug, so the old `IF type && slug` guard called this_post on an
+    # undefined pager and produced an *empty* og:description on every one of
+    # them.
+    IF description;
+        page_description = description;
+    ELSIF pager AND slug;
+        page_description = pager.this_post(type, slug).description;
+    END;
+    page_description = page_description || title;
+-%]
 
   <!-- Facebook -->
 
@@ -75,7 +96,7 @@
   <meta property="og:url" content="[% Config.url %]">
   [% END %]
   <meta property="og:title" content="[% title |html %]">
-  <meta property="og:description" content="[% IF type && slug %][% pager.this_post(type, slug).description |html %][% ELSE %][% title |html %][% END %]">
+  <meta property="og:description" content="[% page_description | html %]">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -90,7 +111,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>[% title | html %]</title>
-  <meta name="description" content="[% title | html %]">
+  <meta name="description" content="[% page_description | html %]">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="[% Config.url %]article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="[% Config.url %]blog.rss">

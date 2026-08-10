@@ -112,9 +112,14 @@ subtest '_write_tag_templates writes a stub for each configured tag' => sub {
             my $f = $tempdir->child("root/tags/$tag.tt2markdown");
             ok -e $f, "$tag tag template exists";
             my $content = $f->slurp;
-            like $content, qr/title = 'Tags: /, "title key present in $tag";
+            like $content, qr/title\s+=\s+'Tags: /, "title key present in $tag";
             like $content, qr{INCLUDE include/tags\.tt}, "INCLUDE present in $tag";
             like $content, qr/slug\s+=\s+'$tag'/, "slug key matches tag in $tag";
+
+            # Without this the page falls back to its own title, "Tags: Perl",
+            # which tells a search engine nothing the <title> did not.
+            like $content, qr/description\s+=\s+'[^']+'/,
+              "description key present in $tag";
         }
     };
 };
