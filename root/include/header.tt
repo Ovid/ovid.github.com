@@ -142,7 +142,10 @@
 
 </head>
 <body>
-  <a class="skip-link" href="#article">Skip to content</a>
+[%# Targets the <main> landmark, not the <article> inside it: 39 pages --
+    the paginated indexes and the 18 legacy articles -- have no #article,
+    so this link was a dead anchor on every one of them. -%]
+  <a class="skip-link" href="#content">Skip to content</a>
 
   <header class="masthead">
     <div class="wrap">
@@ -185,7 +188,12 @@
       <aside class="marginalia[% IF type == 'articles' or type == 'blog' %] is-filled[% END %]">
 [% IF type == 'articles' or type == 'blog' %][% INCLUDE include/tags_for_article.tt type=type slug=slug %][% END %]
       </aside>
-      <div class="prose">
+[%# The main landmark, so assistive tech can jump past the masthead and nav
+    to the content. It wraps .prose rather than the <article> inside it
+    because 18 legacy pages include this header directly and never get that
+    <article> at all -- putting the landmark here is the one spot that covers
+    every page carrying the skip link. -%]
+      <main class="prose" id="content">
 [% IF type == 'articles' or type == 'blog' %]
 [%- # Same prev/next strip as the footer, so readers can move between posts
     # without scrolling to the bottom first. -%]

@@ -92,4 +92,33 @@ subtest 'Google Analytics id is rendered into the header' => sub {
       'localhost gate is never left with an empty domain';
 };
 
+# Regression test: every page needs a <main> landmark, and the skip link needs
+# a target that actually exists.
+#
+# <header>, <nav> and <footer> were all present but <main> was on none of the
+# 150 generated pages, so assistive tech navigating by region had no way to
+# reach the content (WCAG 2.1 §1.3.1). The skip link pointed at #article, which
+# is emitted by include/wrapper.tt -- but the paginated indexes and 18 legacy
+# articles include this header directly and never get that wrapper, leaving the
+# link a dead anchor on 39 pages.
+#
+# Both are fixed by putting the landmark on .prose, which header.tt opens for
+# every page, and pointing the skip link at it. The guarantee under test: the
+# skip link's target must be an id this header actually emits.
+subtest 'header provides a main landmark the skip link can reach' => sub {
+    my $output = '';
+    $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
+      or die $tt->error;
+
+    like $output, qr/<main\b[^>]*\bid="content"/,
+      'header should open a <main> landmark';
+    like $output, qr/<main\b[^>]*\bclass="prose"/,
+      '... carrying the prose class the stylesheet targets';
+
+    my ($target) = $output =~ /class="skip-link" href="#([^"]+)"/;
+    ok $target, "skip link has a fragment target (#$target)";
+    like $output, qr/\bid="\Q$target\E"/,
+      '... and an element with that id exists in the header itself';
+};
+
 done_testing;
