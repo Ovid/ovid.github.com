@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Time to Invest in Space?</title>
-  <meta name="description" content="Time to Invest in Space?">
+  <meta name="description" content="The nature of the nascent space industry is changing rapidly. The next decade is going to see tremendous changes.'">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Time to Invest in Space?</h1>
-        <time>2022-03-08</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/programming-in-1987-versus-today" class="prevPost">&laquo; Programming in 1987 Versus Today</a>
-        
-        <a href="/blog/gustatorial-adumbration-and-the-sheep-of-the-universe" class="nextPost">Gustatorial Adumbration and the Sheep of the Universe &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2022</span>
+        <span class="dateblock-day"><time datetime="2022-03-08">03.08</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Time to Invest in Space?</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -228,9 +221,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/programming-in-1987-versus-today" class="prevPost">&laquo; Programming in 1987 Versus Today</a>
+        <a href="/blog/gustatorial-adumbration-and-the-sheep-of-the-universe" class="nextPost">Gustatorial Adumbration and the Sheep of the Universe &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -252,11 +254,11 @@
 </nav>
 <hr></p>
 
-<h1><a name="a-brief-history-of-private-spaceflight"></a>A Brief History of Private Spaceflight</h1>
+<h2><a name="a-brief-history-of-private-spaceflight"></a>A Brief History of Private Spaceflight</h2>
 
 <p>At the end of the 20th century, spaceflight was considered a “national”
 endeavor, limited to a few countries such as the United States, Russia,
-France, China, Japan, and so on. Companies like Boeing, Honeywell, Roscomos,
+France, China, Japan, and so on. Companies like Boeing, Honeywell, Roscosmos,
 Arianespace, and others provided space offerings that were attached to
 national programs, not private programs.</p>
 
@@ -326,7 +328,7 @@ followed by bankruptcy.</p>
 <p>Now, everything is changing, but what’s going to change? To understand that,
 we have to know a bit about the evolution of markets.</p>
 
-<h1><a name="the-four-phases-of-market-evolution"></a>The Four Phases of Market Evolution</h1>
+<h2><a name="the-four-phases-of-market-evolution"></a>The Four Phases of Market Evolution</h2>
 
 <p><strong>Note</strong>: much of the following is derived from the work of <a href="https://blog.gardeviance.org/" target="_blank">Simon
 Wardley</a> <span class="fa fa-external-link fa_custom"></span>, but I’ve adjusted some of the
@@ -422,7 +424,7 @@ spacewalk</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 <p>That doesn’t mean spaceflight is suddenly safe, but it’s far safer than it
 ever has been.</p>
 
-<h1><a name="spaceflight-is-entering-the-stability-phase"></a>Spaceflight is Entering the Stability Phase</h1>
+<h2><a name="spaceflight-is-entering-the-stability-phase"></a>Spaceflight is Entering the Stability Phase</h2>
 
 <p>Long viewed as a novelty, spaceflight is entering the stability phase. It’s
 not there yet, but it’s on the verge and SpaceX is leading the way. While the
@@ -451,7 +453,7 @@ Palihapitiya over <a href="https://markets.businessinsider.com/news/stocks/chama
 defects</a> <span class="fa fa-external-link fa_custom"></span>
 is not going to help matters.</p>
 
-<p>Roscomos, the state-owned Russian space company has long struggled financially
+<p>Roscosmos, the state-owned Russian space company has long struggled financially
 and <a href="https://arstechnica.com/science/2021/10/putin-slashes-russias-space-budget-and-says-he-expects-better-results/" target="_blank">recently announced steep budget
 cuts</a> <span class="fa fa-external-link fa_custom"></span>
 are not going to help. <a href="https://rusbankrot.ru/en/bankruptcy-and-liquidation/private-russian-space-company-dauria-may-go-bankrupt/" target="_blank">Private Russian spaceflight company Dauria is fighting
@@ -505,14 +507,14 @@ wide varieties of rockets with different payload sizes and price points, but
 there’s still an enormous amount of risk and it will be a couple of decades
 before we can approach the commodity stage.</p>
 
-<h1><a name="starship-changes-everything"></a>Starship Changes Everything</h1>
+<h2><a name="starship-changes-everything"></a>Starship Changes Everything</h2>
 
 <p>A few years ago, a friend in Nottingham told me she wanted to spend the
 weekend in Ireland, so she bought a plane ticket. When she changed her mind,
 she threw away the ticket. It was only £20. No longer the domain of the
 wealthy, air travel is for everyone and this is (eventually) coming to space.</p>
 
-<h2><a name="costs"></a>Costs</h2>
+<h3><a name="costs"></a>Costs</h3>
 
 <p>For the space shuttle, <a href="https://www.nature.com/articles/472038d" target="_blank">the average cost per launch for the last decade was
 around one billion dollars</a> <span class="fa fa-external-link fa_custom"></span>. For
@@ -544,7 +546,7 @@ each</a> <span class="fa fa-external-link fa_custom"></span>,
 but an optimistic mass production rate could drop that price to $5 million
 per Starship. This is <em>insane</em>.</p>
 
-<h2><a name="disruption"></a>Disruption</h2>
+<h3><a name="disruption"></a>Disruption</h3>
 
 <p>The lower costs, however, have a knock-on effect for the entire industry.  The
 media tends to think of the cost of the launch, but the insanely high launch
@@ -655,7 +657,7 @@ $100,000</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 <p>Starship changes everything.</p>
 
-<h1><a name="what-the-future-holds"></a>What the Future Holds</h1>
+<h2><a name="what-the-future-holds"></a>What the Future Holds</h2>
 
 <p>Just as the internet has proven to be a hugely disruptive force for industry
 and society, so will the new space industry. But like the internet, we don’t
@@ -665,7 +667,7 @@ know what that impact will be.</p>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/-Oox2w5sMcA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-<h2><a name="new-industries"></a>New Industries</h2>
+<h3><a name="new-industries"></a>New Industries</h3>
 
 <p>As we improve our rocket technologies, many of the new industries are already
 on the horizon. Space tourism on rockets and even the ISS have already
@@ -686,7 +688,7 @@ debris and provide <em>on site</em> inspection and maintenance of satellites.
 (<a href="https://www.scientificamerican.com/article/space-junk-removal-is-not-going-smoothly/" target="_blank">Dealing with the ever-increasing threat of space junk is a serious
 problem</a> <span class="fa fa-external-link fa_custom"></span>).</p>
 
-<h2><a name="mining-in-space"></a>Mining in Space</h2>
+<h3><a name="mining-in-space"></a>Mining in Space</h3>
 
 <p>Of course, no story would be complete without discussing mining. If you are at
 all interested in space, you’ve long heard that the world’s first
@@ -718,7 +720,7 @@ start at the correct spot, jump to 50:13):</p>
 <p>But what else might we mine? We are facing a near-term global lithium
 shortage, so that would be awesome. But where do we find it? Lithium dissolves
 easily in water and is found in salt flat brines like those of Chile, or
-<em>pegamites</em>, a type of rock that forms in water-rich magmas. It’s estimated
+<em>pegmatites</em>, a type of rock that forms in water-rich magmas. It’s estimated
 that the moon may have the same relative amount of lithium as Earth, but
 without water, it wouldn’t be concentrated enough to efficiently mine. Mars?
 Maybe, but we’re not sure.  Ceres has been speculated as a source of minable
@@ -727,7 +729,7 @@ lithium, but we can’t send our mining robots on a hunch. We need to go
 Starship is fully operational.</p>
 
 <p>The same goes for Rhodium and the other platinum-group metals. Without a
-low-cost ability to to prospect space, we can’t send out mining equipment,
+low-cost ability to prospect space, we can’t send out mining equipment,
 much less miners.</p>
 
 <p>But let’s say we find a near-Earth asteroid with the metals we want. The cost,
@@ -760,7 +762,7 @@ prospectors, finding a location near silicon and platinum deposits would give
 us the ability to mine the materials to make solar panels to power our lunar
 outposts. But we won’t know until we start prospecting.</p>
 
-<h2><a name="disruptive-uses"></a>Disruptive Uses?</h2>
+<h3><a name="disruptive-uses"></a>Disruptive Uses?</h3>
 
 <p>We’ve already discussed <a href="https://www.starlink.com/" target="_blank">Starlink</a> <span class="fa fa-external-link fa_custom"></span>, a
 mega-constellation of satellites to bring high-speed, low-latency internet
@@ -806,7 +808,7 @@ predict them in advance, and they will have enormous impacts on markets.</p>
   take weeks.</p>
 </blockquote>
 
-<h1><a name="investing"></a>Investing</h1>
+<h2><a name="investing"></a>Investing</h2>
 
 <p>Like OTRAG, early space mining companies died because they were too soon.
 Early investors in this “novelty” stage of the market lost a lot of money. Now
@@ -835,14 +837,14 @@ Internet Bubble.</p>
 Master’s Programs in Space Studies and offers a wide variety of professional
 courses in different aspects of the space industry.</p>
 
-<h1><a name="be-patient"></a>Be Patient</h1>
+<h2><a name="be-patient"></a>Be Patient</h2>
 
 <p>We’re at the NewSpace equivalent of the internet in the mid-90s. It’s booming
 tremendously, but due to the extremely high costs and high risks, it’s being
 approached in a healthier manner than the internet boom. However, we won’t see
 internet speeds of advancement. For much of the internet, it was a matter of
 building ISPs and connecting people and letting the industry blossom. For
-NewSpace, the entire industry needs to be boostrapped, including the core
+NewSpace, the entire industry needs to be bootstrapped, including the core
 infrastructure.</p>
 
 <p>It’s not going to impact us directly today–no one is buying a cheap flight to
@@ -883,15 +885,19 @@ daughter will. So will your children. So will many of you who read this.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -916,11 +922,8 @@ daughter will. So will your children. So will many of you who read this.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/programming-in-1987-versus-today" class="prevPost">&laquo; Programming in 1987 Versus Today</a>
-        
         <a href="/blog/gustatorial-adumbration-and-the-sheep-of-the-universe" class="nextPost">Gustatorial Adumbration and the Sheep of the Universe &raquo;</a>
     </div>
 
@@ -928,12 +931,42 @@ daughter will. So will your children. So will many of you who read this.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/time-to-invest-in-space.html";
+            this.page.identifier = "blog/time-to-invest-in-space";
+            this.page.title      = "Time to Invest in Space?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -971,36 +1004,23 @@ daughter will. So will your children. So will many of you who read this.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/time-to-invest-in-space.html";
-            this.page.identifier = "blog/time-to-invest-in-space";
-            this.page.title      = "Time to Invest in Space?";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -1021,7 +1041,7 @@ daughter will. So will your children. So will many of you who read this.</p>
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Sorry, I couldn't resist that.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1035,7 +1055,7 @@ daughter will. So will your children. So will many of you who read this.</p>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>Admittedly, though his success is undeniable, Musk's
 time estimates have been rather optimistic.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1051,7 +1071,7 @@ time estimates have been rather optimistic.</div>
 are actually measured in "cost per block hour" and that includes many things
 such as fuel, wages, food, maintenance, insurance, advertising, rental
 charges, and so on. I couldn’t even begin to calculate that for Starship.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

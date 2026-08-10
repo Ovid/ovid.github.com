@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Prompt Engineering Is Not Dead</title>
-  <meta name="description" content="Prompt Engineering Is Not Dead">
+  <meta name="description" content="Many prompt engineering tricks are becoming a thing of the past, but there are still some areas where they shine.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -77,37 +85,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Prompt Engineering Is Not Dead</h1>
-        <time>2024-12-02</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -182,41 +166,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/using-vector-databases-with-perl" class="prevPost">&laquo; Using Vector Databases with Perl</a>
-        
-        <a href="/articles/a-review-of-openais-new-chatgpt-o1" class="nextPost">A Review of OpenAI's new ChatGPT o1 &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2024</span>
+        <span class="dateblock-day"><time datetime="2024-12-02">12.02</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Prompt Engineering Is Not Dead</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -226,9 +219,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/using-vector-databases-with-perl" class="prevPost">&laquo; Using Vector Databases with Perl</a>
+        <a href="/articles/a-review-of-openais-new-chatgpt-o1" class="nextPost">A Review of OpenAI's new ChatGPT o1 &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -242,7 +244,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>If you search for the phrase, <a href="https://duckduckgo.com/?t=h_&amp;q=prompt+engineering+is+dead&amp;ia=web" target="_blank">prompt engineering is
 dead</a> <span class="fa fa-external-link fa_custom"></span>, you’ll
@@ -273,7 +275,7 @@ understanding complex information.</p>
 <p>But reality shows thoughtful prompting remains crucial for unlocking AI’s full
 potential and I hit one example of this today.</p>
 
-<h1><a name="the-perl-parsing-challenge"></a>The Perl Parsing Challenge</h1>
+<h2><a name="the-perl-parsing-challenge"></a>The Perl Parsing Challenge</h2>
 
 <p>Over on perlmonks.org, a site that sadly reminds us of the age of Perl, <a href="https://perlmonks.com/?node_id=11162904" target="_blank">someone
 asked about an interesting problem involving
@@ -402,7 +404,7 @@ and to instead make a more generic parser. It did:</p>
 <p>So I sat back, read through the code the various models produced and thought
 about this. That’s when I had an “ah ha!” moment.</p>
 
-<h1><a name="the-power-of-domain-knowledge-in-prompting"></a>The Power of Domain Knowledge in Prompting</h1>
+<h2><a name="the-power-of-domain-knowledge-in-prompting"></a>The Power of Domain Knowledge in Prompting</h2>
 
 <p>Each of the models was using a character parser. This is an old parsing
 strategy, very common in C, when you read one character, looked at the <em>next</em>
@@ -451,7 +453,7 @@ including the token definitions:</p>
 
 <p>But I’m still pretty happy with the outcome.</p>
 
-<h1><a name="looking-forward"></a>Looking Forward</h1>
+<h2><a name="looking-forward"></a>Looking Forward</h2>
 
 <p>So far, we’ve found that using AI is more beneficial for those who are less
 skilled. However, those who are less skilled probably would not have solved
@@ -496,15 +498,19 @@ to be crucial for getting the full potential out of AI.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -529,11 +535,8 @@ to be crucial for getting the full potential out of AI.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/using-vector-databases-with-perl" class="prevPost">&laquo; Using Vector Databases with Perl</a>
-        
         <a href="/articles/a-review-of-openais-new-chatgpt-o1" class="nextPost">A Review of OpenAI's new ChatGPT o1 &raquo;</a>
     </div>
 
@@ -541,12 +544,42 @@ to be crucial for getting the full potential out of AI.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/prompt-engineering-is-not-dead.html";
+            this.page.identifier = "articles/prompt-engineering-is-not-dead";
+            this.page.title      = "Prompt Engineering Is Not Dead";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -584,36 +617,23 @@ to be crucial for getting the full potential out of AI.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/prompt-engineering-is-not-dead.html";
-            this.page.identifier = "articles/prompt-engineering-is-not-dead";
-            this.page.title      = "Prompt Engineering Is Not Dead";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -633,9 +653,9 @@ to be crucial for getting the full potential out of AI.</p>
             <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>Biostratigraphic paleonotology involves studying
+	    <div>Biostratigraphic paleontology involves studying
 fossils to date rock layers. I didn't know, either.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -652,7 +672,7 @@ fossils to date rock layers. I didn't know, either.</div>
         <ol>
           
           <li id="footnote-1">
-            Biostratigraphic paleonotology involves studying
+            Biostratigraphic paleontology involves studying
 fossils to date rock layers. I didn't know, either.
             <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
               ↩ Return to text

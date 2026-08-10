@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Watching Claude Sonnet Outperform Opus</title>
-  <meta name="description" content="Watching Claude Sonnet Outperform Opus">
+  <meta name="description" content="We are finally getting to the point where we can write excellent software with AI, but only if you put engineering first. This article explains how.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -77,37 +85,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Watching Claude Sonnet Outperform Opus</h1>
-        <time>2026-07-20</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -182,41 +166,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/ai-coding-typing-was-never-the-bottleneck" class="prevPost">&laquo; AI Coding: Typing Was Never the Bottleneck</a>
-        
-        <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="nextPost">Learn How to Write Production-Quality Code with AI &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2026</span>
+        <span class="dateblock-day"><time datetime="2026-07-20">07.20</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Watching Claude Sonnet Outperform Opus</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -230,9 +223,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/ai-coding-typing-was-never-the-bottleneck" class="prevPost">&laquo; AI Coding: Typing Was Never the Bottleneck</a>
+        <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="nextPost">Learn How to Write Production-Quality Code with AI &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -265,7 +267,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="sonnet-can-outperform-opus"></a>Sonnet Can Outperform Opus</h1>
+<h2><a name="sonnet-can-outperform-opus"></a>Sonnet Can Outperform Opus</h2>
 
 <p>Did you know that Sonnet can produce better code than Opus? I didn’t.</p>
 
@@ -322,7 +324,7 @@ the same reason that <em>all</em> AI coding tools I’ve used fail.</p>
 <p>The Sonnet discovery is a “boots on the ground” report from one team, not a
 benchmark. But if it’s real, how can <em>you</em> replicate this?</p>
 
-<h1><a name="the-background-you-have-to-know"></a>The Background You Have to Know</h1>
+<h2><a name="the-background-you-have-to-know"></a>The Background You Have to Know</h2>
 
 <blockquote>
   <p>I <em>could</em> dive into the exact steps needed to get high quality software out of
@@ -335,7 +337,7 @@ benchmark. But if it’s real, how can <em>you</em> replicate this?</p>
   to get <em>most</em> of this across in a few thousand words.</p>
 </blockquote>
 
-<h2><a name="context-management"></a>Context Management</h2>
+<h3><a name="context-management"></a>Context Management</h3>
 
 <p>In June of 2025, <a href="https://www.dbreunig.com/" target="_blank">Drew Breuning</a> <span class="fa fa-external-link fa_custom"></span> wrote the now famous
 article, <a href="https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html" target="_blank">How Long Contexts
@@ -376,7 +378,7 @@ is the max, but there is no hard-and-fast rule. If you have a small context
 window (200K, for example), you sometimes have no choice but to use a
 significant portion of that just to guide its reasoning.</p>
 
-<h2><a name="steering-files"></a>Steering Files</h2>
+<h3><a name="steering-files"></a>Steering Files</h3>
 
 <p>While giving an LLM too much information can cause it to go awry, giving it too
 little information leads to a different problem: confidently wrong answers. Or
@@ -411,13 +413,13 @@ they’re often surprised at the problems they find.</p>
 
 <p>As I’ve seen with multiple teams, fixing your bad steering files is one of the <em>best</em> things you can do to improve code quality.</p>
 
-<h2><a name="technical-debt-is-the-problem"></a>Technical Debt is the Problem</h2>
+<h3><a name="technical-debt-is-the-problem"></a>Technical Debt is the Problem</h3>
 
 <p><a href="https://arxiv.org/html/2511.04427v3" target="_blank">Speed at the Cost of Quality</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://arxiv.org/html/2601.13597v2" target="_blank">AI IDEs or Autonomous Agents? Measuring the Impact of Coding Agents on Software Development</a> <span class="fa fa-external-link fa_custom"></span> are just two of the many studies about AI-assisted software development which are all converging on a single, manageable problem that we are failing to manage: accelerated software development leads to accumulated technical debt. As I explain to my students, vibe coding rapidly accumulates technical debt while SDD slowly accumulates technical debt.</p>
 
 <p>With SDD, you at least have the opportunity to hit the brakes when the deer runs in front of your IDE.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> PAAD gives you the brakes.</p>
 
-<h1><a name="spec-driven-development-sdd"></a>Spec-Driven Development (SDD)</h1>
+<h2><a name="spec-driven-development-sdd"></a>Spec-Driven Development (SDD)</h2>
 
 <p>SDD has actually been around since the 1960s and has only recently been brought to the world of AI-assisted development. In short, instead of vibe coding, you have an ACT with steering files and big, thorough spec as the source of truth for your next feature. Though there are many different flavors, most seem to be some variant of:</p>
 
@@ -435,7 +437,7 @@ they’re often surprised at the problems they find.</p>
 PAAD</a>, or you can just keep
 reading here to understand how to use it with existing code bases.</p>
 
-<h1><a name="paad-basics"></a>PAAD Basics</h1>
+<h2><a name="paad-basics"></a>PAAD Basics</h2>
 
 <p>Before we start, we should cover the core PAAD skills you’ll need to understand.
 Note that these skills are now being used by:</p>
@@ -453,7 +455,7 @@ Note that these skills are now being used by:</p>
 <p>The comments from all of them have been overwhelmingly positive. The following
 skills I detail are going to be the primary skills those companies are using.</p>
 
-<h2><a name="pushback"></a>Pushback</h2>
+<h3><a name="pushback"></a>Pushback</h3>
 
 <p>I had designed the <code>/pushback</code> skill to push back on specs. It looks for
 omissions, errors, ambiguities, security holes, the works. It will uncover
@@ -475,7 +477,7 @@ improving the guidance of the AI.</p>
 
 <p><code>pushback</code> is your new best friend.</p>
 
-<h2><a name="alignment"></a>Alignment</h2>
+<h3><a name="alignment"></a>Alignment</h3>
 
 <p>When you generate your task list, you run <code>/alignment</code> to validate that your
 task list is 100% aligned with the spec. Nothing more, nothing less. Only once
@@ -488,7 +490,7 @@ all). This gradual drift from requirements compounds over time. If not addressed
 as soon as the tasks are written, it’s easy to miss that you’re not getting what
 you really asked for.</p>
 
-<h2><a name="agentic-review"></a>Agentic Review</h2>
+<h3><a name="agentic-review"></a>Agentic Review</h3>
 
 <p>When you have finished a task and are ready to push your pull request, run <code>/agentic-review</code> on the branch. This skill launches a bunch of subagents to validate:</p>
 
@@ -511,7 +513,7 @@ other tools. Those are often the aforementioned “diff-based” reviews. The ag
 deep dive, just like you’d want a senior developer to do. (Note: I often find
 the reviews from <code>/agentic-review</code> are better than what humans produce, too).</p>
 
-<h1><a name="step-1-build-the-test-suite"></a>Step 1. Build the Test Suite</h1>
+<h2><a name="step-1-build-the-test-suite"></a>Step 1. Build the Test Suite</h2>
 
 <p>With the lengthy preamble aside, let’s get to the heart of the matter.</p>
 
@@ -532,7 +534,7 @@ classes, or obscure side-effects that we’ve long forgotten about, and myriad o
 <li>A few “critical path” end-to-end tests</li>
 </ol>
 
-<h2><a name="unit-tests"></a>Unit Tests</h2>
+<h3><a name="unit-tests"></a>Unit Tests</h3>
 
 <p>You write tests for units A, B, C, and D. How you define “unit” is up to you,
 but these are often the easiest tests to write. However, if a unit is hard to
@@ -543,7 +545,7 @@ back to integration tests when you start.</p>
 you mix unit, integration, and end-to-end tests in a jumbled mess and can’t
 run them independently, you’ll get a noisy signal from code coverage tools.</p>
 
-<h2><a name="integration-tests"></a>Integration Tests</h2>
+<h3><a name="integration-tests"></a>Integration Tests</h3>
 
 <p>The problem with unit tests is that you test units in isolation, but the code doesn’t <em>run</em> in isolation. Those units talk to each other. So integration tests are larger kinds of tests that tend to target specific features of the code base, such as your authorization flow, adding items to a shopping cart, testing reconciliation, and so on.</p>
 
@@ -553,7 +555,7 @@ cannot. For larger integrations, those bugs can often be harder to track down.
 However, I would rather have a hard to understand bug than a hidden bug I never
 see.</p>
 
-<h2><a name="end-to-end-tests"></a>End-to-End Tests</h2>
+<h3><a name="end-to-end-tests"></a>End-to-End Tests</h3>
 
 <p>Some user journeys must never fail. Not ever. If your “recommended items” widget fails, it’s not the end of the world. If the “new user signup” flow fails, if you double-charge their credit card, if you fail to capture auditing information in your regulatory system: these are all first-class disasters.</p>
 
@@ -564,14 +566,14 @@ have interesting features.</p>
 <p>For legacy codebases, I often find them fragile, failing on seemingly benign code changes. That’s OK. It’s often a nightmare to track down the bugs that break these flows, but better than you find them in your development environment than on production.</p>
 
 <p>Next, I often find that just a handful of end-to-end tests, when run with code
-coverage tools, can generate idiotically high code coverage results. Seeing  a
+coverage tools, can generate idiotically high code coverage results. Seeing a
 handful of e2e tests with 67% code coverage does <em>not</em> mean that you’ve tested
 67% of your code.  It means you’ve <em>exercised</em> 67% of your code. But that’s
 still great! You are still laying the foundation to making your codebase more
 resilient, and that’s what we need. Further, when you’re fixing your
 architecture, these are (or should be) the tests which survive that refactoring.</p>
 
-<h2><a name="the-philosophy-of-these-tests"></a>The Philosophy of These Tests</h2>
+<h3><a name="the-philosophy-of-these-tests"></a>The Philosophy of These Tests</h3>
 
 <p>You’re not trying to fix the bugs; you’re trying to nail down current behavior. With legacy codebases, often you encounter so many bugs when building out a test suite (including bugs in the test suite itself), that you’ll be overwhelmed if you’re trying to fix them all. Instead, learn how your test suite tools work and identify how you’re going to track any bugs you uncover. Your goal here is to build that high-coverage test suite, not to fix everything that’s wrong.</p>
 
@@ -581,7 +583,7 @@ architecture, these are (or should be) the tests which survive that refactoring.
   tread carefully here.</p>
 </blockquote>
 
-<h2><a name="use-ai-for-this"></a>Use AI for This!</h2>
+<h3><a name="use-ai-for-this"></a>Use AI for This!</h3>
 
 <p>I had one team explain to me why they couldn’t write tests for their software.
 They did, in fact, have some pretty compelling reasons why it was <em>hard</em>, but
@@ -618,7 +620,7 @@ or _observed_ behavior.
 
 <p>Note that the test suite, if built correctly, should fail loudly when you fix bugs. This is great! That’s exactly what you want to see.</p>
 
-<h1><a name="step-2-the-per-feature-loop"></a>Step 2. The Per-Feature Loop</h1>
+<h2><a name="step-2-the-per-feature-loop"></a>Step 2. The Per-Feature Loop</h2>
 
 <blockquote>
   <p><strong>Important</strong>: Various skills are marked with "<strong>(maybe retry)</strong>“. If you have a large spec, or if the skill returns many findings, these are cases where the AI will almost certainly miss some cases, or things that you fix from its first findings will raise new ones. In that case, rerun the skill. Keep doing this until few, if any, findings are returned. You’ll have to play this by ear, because it’s hard to give perfect guidance here.</p>
@@ -653,7 +655,7 @@ becomes “human in the noose.”</p>
 is evidence the reviewer ran out of context or simply missed important issues,
 not evidence the PR is fine.</p>
 
-<h1><a name="step-3-agentic-architecture"></a>Step 3. Agentic Architecture</h1>
+<h2><a name="step-3-agentic-architecture"></a>Step 3. Agentic Architecture</h2>
 
 <p>The <code>/agentic-architecture</code> skill is what makes all of this work. This is what catches your technical debt and lets you pay it off. It’s also the skill that most are not running. To address this, I’m currently working on a project to have this skill run across team codebases once a week and have the report shared with them. If you skip this, PAAD will slow down the accumulation of technical debt, but it will <em>not</em> stop it. This is where your engineering discipline will really shine.</p>
 
@@ -910,7 +912,7 @@ had addressed some of the architecture issues):</p>
 
 <p>AI is a “yes man.” It does what you ask it to do, focusing on what you asked it to do. It ignores the big picture unless you <em>explicitly</em> tell it to look at it. AI doesn’t feel the weight of the architectural shortcuts it’s taking; it just does what you ask.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>This is a summary of the main points of my training, but by necessity, I left a
 lot out. Yes, you can write production-ready code with AI, but <em>only</em> if you
@@ -947,9 +949,9 @@ skills integrated, but it’s a jagged frontier.  PAAD brings the pieces togethe
 in one place. PAAD is your secret weapon: you can leverage AI to write bigger,
 better systems than others who use AI to slop together code.</p>
 
-<h1><a name="miscellaneous"></a>Miscellaneous</h1>
+<h2><a name="miscellaneous"></a>Miscellaneous</h2>
 
-<h2><a name="fable-also-fails"></a>Fable Also Fails</h2>
+<h3><a name="fable-also-fails"></a>Fable Also Fails</h3>
 
 <p><strong>TL;DR</strong>: Fable also fails to see the big picture.</p>
 
@@ -981,7 +983,7 @@ findings.</p>
 
 <p>For a small, 10K LOC codebase that’s built in a few hours this is terrible. Had I continued, the flaws would have mounted and the system would have been harder and harder to maintain for either AI or humans. The PAAD methodology avoids these flaws and builds production-ready code, but at a higher unit cost (tokens+time). This is offset by lower TCO — less rework, and fewer bugs or security holes.</p>
 
-<h2><a name="the-roadmap-skill"></a>The /roadmap Skill</h2>
+<h3><a name="the-roadmap-skill"></a>The /roadmap Skill</h3>
 
 <p>I’m still building PAAD tools, including looking at one what tries to bring architecture considerations up front, instead of dealing with them later. That’s a hard problem. Plus, I don’t have much free time.</p>
 
@@ -1002,7 +1004,7 @@ many projects in this area, I’ll have learned a lot for round two (I’m think
 about turning it into a <a href="https://kiro.dev/powers/" target="_blank">Kiro Power</a> <span class="fa fa-external-link fa_custom"></span>, but Powers are
 still relatively new).</p>
 
-<h2><a name="safe-vibe-coding"></a>“Safe” Vibe Coding</h2>
+<h3><a name="safe-vibe-coding"></a>“Safe” Vibe Coding</h3>
 
 <p>And if you <em>must</em> vibe some code, read PAAD’s
 <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/vibe/SKILL.md" target="_blank"><code>/vibe</code></a> <span class="fa fa-external-link fa_custom"></span>
@@ -1041,15 +1043,19 @@ make it worse!</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -1074,11 +1080,8 @@ make it worse!</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/ai-coding-typing-was-never-the-bottleneck" class="prevPost">&laquo; AI Coding: Typing Was Never the Bottleneck</a>
-        
         <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="nextPost">Learn How to Write Production-Quality Code with AI &raquo;</a>
     </div>
 
@@ -1086,12 +1089,42 @@ make it worse!</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/watching-claude-sonnet-outperform-opus.html";
+            this.page.identifier = "articles/watching-claude-sonnet-outperform-opus";
+            this.page.title      = "Watching Claude Sonnet Outperform Opus";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -1129,36 +1162,23 @@ make it worse!</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/watching-claude-sonnet-outperform-opus.html";
-            this.page.identifier = "articles/watching-claude-sonnet-outperform-opus";
-            this.page.title      = "Watching Claude Sonnet Outperform Opus";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -1180,7 +1200,7 @@ make it worse!</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>I may be training them, but such interesting questions
 come up that I'm learning, too.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1195,7 +1215,7 @@ come up that I'm learning, too.</div>
 	    <div>I very much would love to do work to standardize
 this, or at least create a standard metadata file to explain the local AI
 ecosystem, but hey, too many projects and too little time.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1208,7 +1228,7 @@ ecosystem, but hey, too many projects and too little time.</div>
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>OK, I suck at metaphors. Sue me.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1221,7 +1241,7 @@ ecosystem, but hey, too many projects and too little time.</div>
         <strong id="note-4">Footnotes</strong>
         <p id="note-description-4" class="sr-only">Note number 4</p>
 	    <div>If this were literature, that line would be "foreshadowing."</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1233,8 +1253,8 @@ ecosystem, but hey, too many projects and too little time.</div>
             <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
         <strong id="note-5">Footnotes</strong>
         <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>If you are using Kiro, you can try <a href="https://github.com/Ovid/paad-power">installing PAAD as a Kiro power</a>, but so far, we have found that that it‘s rather flaky.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+	    <div>If you are using Kiro, you can try <a href="https://github.com/Ovid/paad-power">installing PAAD as a Kiro power</a>, but so far, we have found that it‘s rather flaky.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1249,7 +1269,7 @@ ecosystem, but hey, too many projects and too little time.</div>
 	    <div>Curiously, though I can't prove it, Opus 4.8 seemed to generate
 better aligned tasks than Fable. However, I haven't run Fable enough to prove
 this.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1262,7 +1282,7 @@ this.</div>
         <strong id="note-7">Footnotes</strong>
         <p id="note-description-7" class="sr-only">Note number 7</p>
 	    <div>Yes, '80% code coverage' is meaningless. Is that statement, branch, subroutine, or something else? This isn't an article about code coverage.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1310,7 +1330,7 @@ ecosystem, but hey, too many projects and too little time.
           </li>
           
           <li id="footnote-5">
-            If you are using Kiro, you can try <a href="https://github.com/Ovid/paad-power">installing PAAD as a Kiro power</a>, but so far, we have found that that it‘s rather flaky.
+            If you are using Kiro, you can try <a href="https://github.com/Ovid/paad-power">installing PAAD as a Kiro power</a>, but so far, we have found that it‘s rather flaky.
             <a href="#footnote-5-return" aria-label="Return to footnote 5 reference">
               ↩ Return to text
             </a>

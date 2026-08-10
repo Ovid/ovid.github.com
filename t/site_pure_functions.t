@@ -279,7 +279,7 @@ subtest '_html_to_text returns empty body when neither container present' => sub
 subtest '_is_searchable picks content pages and rejects listings/build dirs' => sub {
     # Content pages: top-level pages
     ok $site->_is_searchable('index.html'),         'index.html is content';
-    ok $site->_is_searchable('hireme.html'),        'hireme.html is content';
+    ok $site->_is_searchable('about.html'),         'about.html is content';
     ok $site->_is_searchable('projects.html'),      'projects.html is content';
     ok $site->_is_searchable('publicspeaking.html'),'publicspeaking.html is content';
     ok $site->_is_searchable('starmap.html'),       'starmap.html is content';
@@ -290,9 +290,12 @@ subtest '_is_searchable picks content pages and rejects listings/build dirs' => 
     # Content pages: subdirectory content
     ok $site->_is_searchable('articles/foo.html'),       'articles/* is content';
     ok $site->_is_searchable('blog/bar.html'),           'blog/* is content';
-    ok $site->_is_searchable('Extraction/index.html'),   'Extraction/ subpage indexed';
-    ok $site->_is_searchable('tramp-freighter/index.html'), 'tramp-freighter/ subpage indexed';
     ok $site->_is_searchable('projects/extraction/index.html'), 'projects/extraction/ subpage indexed';
+
+    # _is_searchable judges path shape only. Whether a page is actually
+    # deployed is _reject_git_ignored's job (see t/site_filesystem.t) --
+    # asserting Extraction/ and tramp-freighter/ "indexed" here is what put
+    # the 404 link /Extraction/index into the shipped search index.
 
     # Reject: listing/pagination pages
     ok !$site->_is_searchable('articles.html'),     'articles.html (listing) excluded';
@@ -308,6 +311,7 @@ subtest '_is_searchable picks content pages and rejects listings/build dirs' => 
     ok !$site->_is_searchable('404.html'),          '404 page excluded';
     ok !$site->_is_searchable('editor.html'),       'editor (dev tool) excluded';
     ok !$site->_is_searchable('escape.html'),       'escape (JS game with no prose) excluded';
+    ok !$site->_is_searchable('hireme.html'),       'hireme redirect stub excluded';
 
     # Reject: build / dev / generated / template subtrees
     ok !$site->_is_searchable('tmp/anything.html'),        'tmp/ excluded';

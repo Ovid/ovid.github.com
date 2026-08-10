@@ -34,6 +34,22 @@ package Ovid::Site {
     use Mojo::JSON qw(encode_json);
     use XML::RSS;
 
+    # What the two listing pages collect, for their meta description. Without
+    # this they fall back to restating their own title.
+    #
+    # Keyed on article_types.type, which is singular ('article'), not the
+    # plural directory name -- key these 'articles' and the lookup misses,
+    # and the fallback quietly hides the mistake.
+    #
+    # Keep the text free of apostrophes: it is interpolated into a
+    # single-quoted Template Toolkit assignment.
+    my %INDEX_DESCRIPTION = (
+        article =>
+          'Technical writing by Curtis “Ovid” Poe on software engineering, object-oriented design, testing, databases, Perl, and AI-assisted development.',
+        blog =>
+          'Essays by Curtis “Ovid” Poe on science, mathematics, politics, writing, and life as an American abroad.',
+    );
+
     has _files => (
         traits => ['Array'],
         is     => 'rw',
@@ -76,11 +92,24 @@ package Ovid::Site {
             return $self->_build_single_file;
         }
         $self->_assert_tt_config;
-        $self->_preprocess_files('root');
+
+        # Everything that writes into root/ must run before _preprocess_files.
+        # That method wipes tmp/ and snapshots root/ into it, and _run_ttree
+        # renders from tmp/, so anything splatted into root/ any later never
+        # reaches the current build: ttree renders the copy the snapshot took,
+        # which is whatever the previous build left behind. A missing include
+        # would die outright; a page that merely changed goes silently one
+        # build stale until the next rebuild. t/site_build_order.t asserts it.
+        #
+        # The two below the snapshot write to the repo root, not root/, so they
+        # never pass through tmp/ -- and _write_tagmap consumes the _tagmap
+        # that _preprocess_files populates, so it has to stay here.
+        $self->_rebuild_latest_posts;
         $self->_write_tag_templates;
+        $self->_rebuild_article_pagination;
+        $self->_preprocess_files('root');
         $self->_write_tagmap;
         $self->_rebuild_rss_feeds;
-        $self->_rebuild_article_pagination;
         $self->_run_ttree;
         $self->_write_sitemap;
         $self->_build_tinysearch if $self->release;
@@ -198,13 +227,18 @@ package Ovid::Site {
         # so long as there's a tagmap entry for a tag and an article or blog for
         # that tag, we'll always have a template for it.
         TAG: foreach my $tag ( keys config()->{tagmap}->%* ) {
-            my $name     = config()->{tagmap}{$tag};
-            my $file     = "root/tags/$tag.tt2markdown";
+            my $name = config()->{tagmap}{$tag};
+            my $file = "root/tags/$tag.tt2markdown";
+
+            # The description says what the tag collects. Without one these
+            # pages fell back to the title -- "Tags: Perl" -- which tells a
+            # search engine nothing it did not already have from the <title>.
             my $template = <<~"END";
             [%
-                title = 'Tags: $name';
-                type  = 'tags';
-                slug  = '$tag';
+                title       = 'Tags: $name';
+                description = 'Every article and blog post by Curtis “Ovid” Poe tagged $name.';
+                type        = 'tags';
+                slug        = '$tag';
                 WRAPPER include/wrapper.tt blogdown=1;
                     INCLUDE include/tags.tt tag="$tag";
                 END;
@@ -231,10 +265,23 @@ package Ovid::Site {
 
         foreach my $type ( $types->@* ) {
             my $rss_file = "$type->{type}.rss";
-            my %already_added;
+
+            # What the feed on disk already says, keyed by item link. This
+            # used to be a bare set of links, which meant an item whose date
+            # changed never reached the file -- and the dates were wrong, see
+            # _article_date. Comparing the whole item lets a correction to the
+            # date, the title or the description land, while still not
+            # rewriting the feed on every build just because the channel
+            # pubDate is stamped with now().
+            my %item_for;
             if ( -e $rss_file ) {
-                my $dom = Mojo::DOM->new( slurp($rss_file) );
-                %already_added = map { $_->text => 1 } $dom->find('link')->each;
+                my $dom = Mojo::DOM->new->xml(1)->parse( slurp($rss_file) );
+                ITEM: foreach my $item ( $dom->find('item')->each ) {
+                    my $link = $item->at('link') or next ITEM;
+                    $item_for{ $link->text }
+                      = _rss_item_signature( map { my $node = $item->at($_); $node ? $node->text : '' }
+                          qw(pubDate title description) );
+                }
             }
             my $directory = $type->{directory};
             my $now       = DateTime->now;
@@ -274,20 +321,20 @@ package Ovid::Site {
 ORDER BY sort_order DESC
 SQL
 
-            my $new_links = 0;
+            my $changed = 0;
             foreach my $article ( $articles->@* ) {
-                my $created = DateTime::Format::SQLite->parse_datetime( $article->{created} );
+                $article->{directory} = $directory;
                 my $url     = "$base_url$directory/$article->{slug}";
+                my $pubdate = $self->_rfc822( $self->_article_date($article) );
 
-                # Every time we changed an article, we kept updating the
-                # publication date of the entire RSS feed. Now we only do this if
-                # we have found at least one new article/blog entry.
-                # Note: pre-existing RSS files on disk may have .html links;
-                # after the switch to extensionless URLs the dedup set keyed
-                # on old .html values won't match, so the first post-change
-                # build will treat all items as new and rewrite both feeds.
-                # One-time cost; subsequent builds dedup correctly.
-                $new_links++ if not $already_added{$url};
+                # Rewriting the feed restamps the channel pubDate with now(),
+                # so only do it when an item is actually new or something a
+                # reader can see -- date, title, description -- has changed.
+                $changed++
+                  if ( $item_for{$url} // '' ) ne _rss_item_signature(
+                    $pubdate,
+                    $article->{title}, $article->{description}
+                  );
 
                 $rss->add_item(
                     title       => $article->{title},
@@ -295,11 +342,18 @@ SQL
                     description => $article->{description},
                     creator     => 'Curtis "Ovid" Poe',
                     guid        => "$type->{type}/$article->{slug}",
-                    pubDate     => $created->strftime("%a, %d %b %Y %H:%M:%S %z"),
+                    pubDate     => $pubdate,
                 );
             }
-            splat( $rss_file, $rss->as_string ) if $new_links;
+            splat( $rss_file, $rss->as_string ) if $changed;
         }
+    }
+
+    # The reader-visible part of a feed item, for comparing what's on disk
+    # against what the database now says. Field order must match at both
+    # call sites, which is why this is a function and not two inline joins.
+    sub _rss_item_signature ( $pubdate, $title, $description ) {
+        return join "\0", map { $_ // '' } $pubdate, $title, $description;
     }
 
     sub _article_type_lookup ( $self, $type ) {
@@ -344,6 +398,13 @@ SQL
                 # uncoverable statement
                 my $title = "$article_type->{name} by Ovid";
 
+                # What each index actually collects. Without this the listing
+                # pages fell back to restating their own title, which gives a
+                # search engine nothing to work with.
+                # uncoverable statement
+                my $description = $INDEX_DESCRIPTION{ $article_type->{type} }
+                  // "$article_type->{name} by Curtis “Ovid” Poe.";
+
                 # uncoverable statement
                 if ( $pager->total_pages > 1 ) {
 
@@ -374,8 +435,9 @@ SQL
                 # uncoverable statement
                 my $template = <<~"END";
                 [%
-                    INCLUDE include/header.tt 
+                    INCLUDE include/header.tt
                     title         = '$title'
+                    description   = '$description'
                     identifier    = '$identifier'
                     canonical_url = "$name-all"
                 %]
@@ -418,10 +480,15 @@ SQL
             my $articles = $self->_get_article_list( $all_records, $article_type );
 
             # uncoverable statement
+            # uncoverable statement
+            my $description = $INDEX_DESCRIPTION{ $article_type->{type} }
+              // "$article_type->{name} by Curtis “Ovid” Poe.";
+
             my $template = <<~"END";
             [%
-                INCLUDE include/header.tt 
+                INCLUDE include/header.tt
                 title         = '$title'
+                description   = '$description'
                 identifier    = '$identifier'
                 canonical_url = "$name-all"
             %]
@@ -476,11 +543,106 @@ SQL
     sub _get_article_list ( $self, $records, $article_type ) {
         my $list = qq{<ul id="articles">\n};
         foreach my $article ( $records->@* ) {
-            $list
-              .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
+            $list .= qq{    <li><a href="/$article_type->{directory}/$article->{slug}">$article->{title}</a></li>\n};
         }
         $list .= "</ul>";
         return $list;
+    }
+
+    use constant LATEST_POST_COUNT => 10;
+
+    my @MONTH = qw(
+      January February March April May June
+      July August September October November December
+    );
+
+    # The homepage feed. Split in two so the HTML is testable without a
+    # database: _latest_posts_html is pure, _rebuild_latest_posts is the thin
+    # shell that queries and writes. See the coverage note on
+    # _rebuild_article_pagination for what happens when that split is skipped.
+    sub _rebuild_latest_posts ($self) {
+        my $records = $self->dbh->selectall_arrayref( <<'SQL', { Slice => {} }, LATEST_POST_COUNT );
+    SELECT a.title, a.slug, a.description, a.created,
+           at.type, at.directory
+      FROM articles a
+      JOIN article_types at ON at.article_type_id = a.article_type_id
+     WHERE a.available = 1
+     ORDER BY a.created DESC, a.sort_order DESC
+     LIMIT ?
+SQL
+
+        # ORDER BY created is the row insert order, matching _rebuild_rss_feeds
+        # and the pagination pages. The date we *display* is a different thing
+        # entirely -- see _article_date.
+        $_->{date} = $self->_article_date($_) foreach $records->@*;
+        splat( 'root/include/latest.tt', $self->_latest_posts_html($records) );
+    }
+
+    # When a post was published, as a bare YYYY-MM-DD.
+    #
+    # An article page shows the `date` from its template preamble
+    # (root/include/header.tt), but articles.created is whenever bin/article
+    # inserted the row -- it never writes created from date. The two drift, and
+    # 16 of the 122 available posts disagree, so anything built from created
+    # prints one date next to a page printing another. Both the homepage feed
+    # and the RSS feeds go through here so they agree with the page and with
+    # each other.
+    #
+    # Nothing validates the preamble, so a date that isn't one is ignored
+    # rather than passed downstream to _human_date or _rfc822.
+    sub _article_date ( $self, $record ) {
+        my $source = $self->_resolve_source("$record->{directory}/$record->{slug}.html");
+        if ($source) {
+            my $date = Ovid::Template::File->new( filename => $source )->date;
+            return $date if $date && $date =~ /\A\d{4}-\d{2}-\d{2}\z/;
+        }
+        return substr( $record->{created}, 0, 10 );
+    }
+
+    # RSS 2.0 wants RFC822. _article_date has no time of day, so items land at
+    # midnight UTC -- the time it replaces was never the publication time
+    # anyway, just whenever bin/article happened to run.
+    sub _rfc822 ( $self, $date ) {
+        return DateTime::Format::SQLite->parse_datetime("$date 00:00:00")->strftime('%a, %d %b %Y %H:%M:%S %z');
+    }
+
+    sub _latest_posts_html ( $self, $records ) {
+        my $html = qq{<ul class="latest">\n};
+        foreach my $post ( $records->@* ) {
+            my $title = $self->_escape_html( $post->{title} );
+
+            # Titles are short and hand-written, but descriptions run to 1000
+            # characters of prose and at least one of them contains an "&".
+            my $description = $self->_escape_html( $post->{description} );
+            my $label       = ucfirst $post->{type};
+            my $human       = $self->_human_date( $post->{date} );
+            $html .= <<~"HTML";
+                <li>
+                  <a href="/$post->{directory}/$post->{slug}">$title</a>
+                  <p>$description</p>
+                  <p class="meta">$label &middot; <time datetime="$post->{date}">$human</time></p>
+                </li>
+            HTML
+        }
+        return "$html</ul>\n";
+    }
+
+    sub _escape_html ( $self, $text ) {
+        $text //= '';
+        $text =~ s/&/&amp;/g;
+        $text =~ s/</&lt;/g;
+        $text =~ s/>/&gt;/g;
+        return $text;
+    }
+
+    # '2026-08-08' => '8 August 2026'. Anything that isn't an ISO date passes
+    # through untouched: a bare $MONTH[$month - 1] on a malformed date wraps
+    # round the end of the array and silently reports December.
+    sub _human_date ( $self, $date ) {
+        my ( $year, $month, $day ) = ( $date // '' ) =~ /\A(\d{4})-(\d{2})-(\d{2})\z/
+          or return $date;
+        return $date unless $month >= 1 && $month <= 12;
+        return sprintf '%d %s %d', $day, $MONTH[ $month - 1 ], $year;
     }
 
     sub _assert_tt_config ($self) {
@@ -664,15 +826,17 @@ END
     # input.
     sub _sitemap_loc ( $self, $base_url, $file ) {
         return "$base_url/" if $file eq 'index.html';
-        (my $url = $file) =~ s/\.html\z//;
+        ( my $url = $file ) =~ s/\.html\z//;
         return "$base_url/$url";
     }
 
     sub _tinysearch_url_for_file ( $self, $file ) {
         return '/' if $file eq 'index.html';
-        (my $clickable = $file) =~ s/\.html\z//;
+        ( my $clickable = $file ) =~ s/\.html\z//;
         return $clickable =~ m{^/} ? $clickable : "/$clickable";
     }
+
+    my %SITEMAP_SKIP = map { ( "$_.html" => 1 ) } qw(404 editor escape hireme);
 
     sub _write_sitemap ($self) {
 
@@ -697,6 +861,12 @@ END
 
             # Skip subdirectories unless articles or blog
             next if $path->parent ne '.' && $path->parent !~ /^(articles|blog)$/;
+
+            # Top-level pages with nothing to index: the 404 handler, the
+            # local editor, the escape-room game, and the /hireme redirect
+            # stub. Without this the sitemap advertised 404.html at priority
+            # 0.7, and would have done the same for the stub.
+            next if $path->parent eq '.' && $SITEMAP_SKIP{ $path->basename };
 
             my $priority   = $self->_get_sitemap_priority($path);
             my $changefreq = $self->_get_change_frequency($path);
@@ -731,9 +901,8 @@ END
         # needed to run `cargo install --features="bin" tinysearch` for installation
         # and rerun `cargo install wasm-pack` for wasm-pack
         # uncoverable statement
-        my @files =
-          grep { $self->_is_searchable($_) }
-          File::Find::Rule->file->name('*.html')->relative->in('.');
+        my @files = $self->_reject_git_ignored( grep { $self->_is_searchable($_) }
+              File::Find::Rule->file->name('*.html')->relative->in('.') );
 
         # uncoverable statement
         my @index;
@@ -805,10 +974,10 @@ END
     }
 
     sub _extract_article_text ( $self, $html ) {
-        my $parser = HTML::TokeParser::Simple->new( string => $html );
+        my $parser   = HTML::TokeParser::Simple->new( string => $html );
         my $text     = '';
         my $depth    = 0;
-        my $suppress = 0;    # >0 while inside <script>/<style>
+        my $suppress = 0;                                                  # >0 while inside <script>/<style>
         while ( my $token = $parser->get_token ) {
             if ( $token->is_start_tag('article') ) {
                 $depth++;
@@ -816,12 +985,12 @@ END
             elsif ( $token->is_end_tag('article') ) {
                 $depth-- if $depth > 0;
             }
-            elsif ( $token->is_start_tag('script')
+            elsif ($token->is_start_tag('script')
                 || $token->is_start_tag('style') )
             {
                 $suppress++;
             }
-            elsif ( $token->is_end_tag('script')
+            elsif ($token->is_end_tag('script')
                 || $token->is_end_tag('style') )
             {
                 $suppress-- if $suppress > 0;
@@ -839,11 +1008,11 @@ END
     # <style> bodies so legacy templates' inline JS/CSS doesn't pollute
     # the search index.
     sub _extract_article_div_text ( $self, $html ) {
-        my $parser = HTML::TokeParser::Simple->new( string => $html );
-        my $text     = '';
+        my $parser    = HTML::TokeParser::Simple->new( string => $html );
+        my $text      = '';
         my $div_depth = 0;
         my $article_at_depth;    # undef = not in; else depth we entered at
-        my $suppress  = 0;       # >0 while inside <script>/<style>
+        my $suppress = 0;        # >0 while inside <script>/<style>
 
         while ( my $token = $parser->get_token ) {
             if ( $token->is_start_tag('div') ) {
@@ -856,19 +1025,19 @@ END
                 }
             }
             elsif ( $token->is_end_tag('div') ) {
-                if (   defined $article_at_depth
+                if ( defined $article_at_depth
                     && $div_depth == $article_at_depth )
                 {
                     $article_at_depth = undef;
                 }
                 $div_depth-- if $div_depth > 0;
             }
-            elsif ( $token->is_start_tag('script')
+            elsif ($token->is_start_tag('script')
                 || $token->is_start_tag('style') )
             {
                 $suppress++;
             }
-            elsif ( $token->is_end_tag('script')
+            elsif ($token->is_end_tag('script')
                 || $token->is_end_tag('style') )
             {
                 $suppress-- if $suppress > 0;
@@ -912,10 +1081,32 @@ END
         # Top-level listing and pagination pages
         return 0 if $file =~ /^(?:articles|blog)(?:_\d+|-all)?\.html\z/;
 
-        # Top-level error/admin/game pages with no useful prose
-        return 0 if $file =~ /^(?:404|editor|escape)\.html\z/;
+        # Top-level error/admin/game pages with no useful prose, plus the
+        # /hireme redirect stub, whose only content is "this page has moved".
+        return 0 if $file =~ /^(?:404|editor|escape|hireme)\.html\z/;
 
         return 1;
+    }
+
+    # Production is GitHub Pages, which serves only what is committed, so a
+    # .gitignore'd page is a guaranteed 404 there. Several standalone projects
+    # (Extraction/, loquor/, tramp-freighter/) sit in the working tree for
+    # local convenience and are ignored. Ask git instead of keeping a second,
+    # drifting copy of .gitignore inside _is_searchable -- that duplication is
+    # what shipped /Extraction/index as a search result. Tracked files are
+    # never reported by check-ignore, so committed pages always survive, and
+    # new untracked-but-not-ignored posts stay searchable before their commit.
+    sub _reject_git_ignored ( $self, @files ) {
+        return () unless @files;
+        open my $git, '-|', 'git', 'check-ignore', '--', @files
+          or return @files;
+        my %ignored = map { chomp; ( $_ => 1 ) } <$git>;
+
+        # check-ignore exits 1 when nothing matches, the usual case here, and
+        # autodie would turn that into a fatal close.
+        no autodie 'close';
+        close $git;
+        return grep { !$ignored{$_} } @files;
     }
 
     sub _clean_text ( $self, $text ) {
@@ -962,33 +1153,42 @@ The build pipeline executes the following steps in order:
 
 =over 4
 
-=item 1. B<Preprocessing> - Scans C<root/> for C<.tt> and C<.tt2markdown>
+=item 1. B<Homepage feed> - Writes the ten most recent posts to
+C<root/include/latest.tt> for the homepage to C<INCLUDE>. This runs first
+because step 2 wipes C<tmp/> and snapshots C<root/> into it, and step 7
+renders from C<tmp/>: a fragment written to C<root/> any later would not
+reach the current build at all.
+
+=item 2. B<Preprocessing> - Scans C<root/> for C<.tt> and C<.tt2markdown>
 files, rewrites code blocks and macros via L<Ovid::Template::File>, and
 copies processed files to C<tmp/>.
 
-=item 2. B<Tag template generation> - Creates tag index pages in C<root/tags/>
+=item 3. B<Tag template generation> - Creates tag index pages in C<root/tags/>
 based on the collected tag map and the configured tag names from
 L<Less::Config>.
 
-=item 3. B<Tag map output> - Writes the accumulated tag map as JSON for
+=item 4. B<Tag map output> - Writes the accumulated tag map as JSON for
 client-side tag navigation.
 
-=item 4. B<RSS feed generation> - Builds C<article.rss> and C<blog.rss> feeds
+=item 5. B<RSS feed generation> - Builds C<article.rss> and C<blog.rss> feeds
 from article metadata in the SQLite database using L<XML::RSS>.
 
-=item 5. B<Article pagination> - Creates paginated index pages
+=item 6. B<Article pagination> - Creates paginated index pages
 (C<articles.html>, C<articles_2.html>, etc.) and an "all articles" page for
-both articles and blog posts.
+both articles and blog posts. Note that this writes to C<root/> after step 2
+has already run, so its output reaches the I<next> build, not this one.
 
-=item 6. B<Template Toolkit processing> - Runs C<ttree> (via
+=item 7. B<Template Toolkit processing> - Runs C<ttree> (via
 L<Template::App::ttree>) on the C<tmp/> directory to produce final HTML
 output.
 
-=item 7. B<Sitemap generation> - Crawls the generated HTML files and writes
+=item 8. B<Sitemap generation> - Crawls the generated HTML files and writes
 C<sitemap.xml> with priorities, change frequencies, and last-modified dates
-derived from git history.
+derived from git history. Pages with nothing to index (the 404 handler, the
+local editor, the escape-room game, the C</hireme> redirect stub) are
+skipped.
 
-=item 8. B<Search engine> (release builds only) - Generates a WebAssembly
+=item 9. B<Search engine> (release builds only) - Generates a WebAssembly
 search index using C<tinysearch> from the rendered HTML content.
 
 =back

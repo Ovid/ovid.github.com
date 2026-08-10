@@ -1,150 +1,150 @@
+/*
+ * Theme tokens for the whole site.
+ *
+ * Every colour used by main.css lives here so that light and dark are a
+ * single swap. The `--bg-color` / `--text-color` style names are the
+ * original vocabulary, kept as aliases. No site stylesheet consumes them any
+ * more; `editor.tt` uses the same names but defines its own.
+ */
+
 :root {
-    --bg-color: #fff;
-    --text-color: #222;
-    --link-color: #1EAEDB;
-    --link-hover-color: #0FA0CE;
-    --border-color: #A0A0A0;
-    --code-bg: #f4f4f4;
-    --quote-bg: #F0F0F0;
-    --button-color: #555;
-    --button-border: #bbb;
-    --shadow-color: #ccc;
+    /* Editorial palette -- light */
+    --paper:       #FFFFFF;
+    --panel:       #FAFBFA;
+    --ink:         #101211;
+    --muted:       #6A716E;
+    --faint:       #9AA19D;
+    --rule:        #E4E7E5;
+    --accent:      #14594A;  /* forest */
+    --accent-soft: #EAF2EF;
+    --code-bg:     #F6F8F7;
+
+    /* Legacy aliases */
+    --bg-color:         var(--paper);
+    --text-color:       var(--ink);
+    --link-color:       var(--accent);
+    --link-hover-color: var(--ink);
+    --border-color:     var(--rule);
+    --quote-bg:         var(--accent-soft);
+    --button-color:     var(--muted);
+    --button-border:    var(--rule);
+    --shadow-color:     var(--rule);
 }
 
 [data-theme="dark"] {
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --link-color: #4db6ac;
-    --link-hover-color: #80cbc4;
-    --border-color: #444;
-    --code-bg: #1e1e1e;
-    --quote-bg: #1e1e1e;
-    --button-color: #e0e0e0;
-    --button-border: #444;
-    --shadow-color: #000;
+    --paper:       #0F1211;
+    --panel:       #161A18;
+    --ink:         #E8EBE9;
+    --muted:       #98A09C;
+    --faint:       #6E7772;
+    --rule:        #2A302D;
+    --accent:      #5FBFA6;
+    --accent-soft: #16241F;
+    --code-bg:     #161A18;
+
+    --link-hover-color: #A8DCCE;
+    --shadow-color:     #000;
 }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
+    background-color: var(--paper);
+    color: var(--ink);
 }
 
-a {
-    color: var(--link-color);
-}
-a:hover {
-    color: var(--link-hover-color);
-}
-
-h1, h2, h3, h4, h5, h6 {
-    color: var(--text-color);
-}
-
-h1 {
-    border-bottom-color: var(--border-color);
+/* Prism hardcodes a light #f5f2f0 background on pre[class*="language-"], and
+   it copies the language- class onto the <pre> at runtime, so that rule
+   (0,1,1) outranks main.css's plain `pre` background (0,0,1) and loads after
+   it. Reclaim the background for both themes at (0,2,1); --code-bg is already
+   theme-scoped above, so this one rule serves light and dark. */
+:root code[class*="language-"],
+:root pre[class*="language-"] {
+    background: var(--code-bg);
 }
 
-img {
-    -webkit-box-shadow: 3px 3px 5px 0px var(--shadow-color);
-    -moz-box-shadow:    3px 3px 5px 0px var(--shadow-color);
-    box-shadow:         3px 3px 5px 0px var(--shadow-color);
-}
+/* Prism's stock light palette is tuned for decoration, not contrast: against
+   --code-bg its comment, punctuation, string, entity, function and variable
+   colours all land between 2.1:1 and 4.2:1. Restate them at AA or better,
+   mirroring the dark palette below so the two themes read the same. The
+   :root:not(...) prefix is what outranks prism.css, which loads after us. */
+:root:not([data-theme="dark"]) .token.comment,
+:root:not([data-theme="dark"]) .token.prolog,
+:root:not([data-theme="dark"]) .token.doctype,
+:root:not([data-theme="dark"]) .token.cdata,
+:root:not([data-theme="dark"]) .token.punctuation { color: var(--muted); }
+:root:not([data-theme="dark"]) .token.keyword,
+:root:not([data-theme="dark"]) .token.selector,
+:root:not([data-theme="dark"]) .token.important,
+:root:not([data-theme="dark"]) .token.atrule { color: var(--accent); }
+:root:not([data-theme="dark"]) .token.string,
+:root:not([data-theme="dark"]) .token.char,
+:root:not([data-theme="dark"]) .token.attr-value,
+:root:not([data-theme="dark"]) .token.builtin,
+:root:not([data-theme="dark"]) .token.inserted,
+:root:not([data-theme="dark"]) .token.regex,
+:root:not([data-theme="dark"]) .token.variable,
+:root:not([data-theme="dark"]) .token.entity,
+:root:not([data-theme="dark"]) .token.url { color: #7A5216; }
+:root:not([data-theme="dark"]) .token.number,
+:root:not([data-theme="dark"]) .token.boolean,
+:root:not([data-theme="dark"]) .token.constant,
+:root:not([data-theme="dark"]) .token.symbol,
+:root:not([data-theme="dark"]) .token.deleted { color: #6B3FA0; }
+:root:not([data-theme="dark"]) .token.function,
+:root:not([data-theme="dark"]) .token.class-name { color: #1F5C8B; }
+:root:not([data-theme="dark"]) .token.operator { color: var(--ink); }
 
-/* Skeleton overrides */
-.button, button, input[type="submit"], input[type="reset"], input[type="button"] {
-    color: var(--button-color);
-    border-color: var(--button-border);
+/* Prism's default theme assumes a light background and paints a white text
+   shadow behind every token, which turns to mud in dark mode. */
+[data-theme="dark"] code[class*="language-"],
+[data-theme="dark"] pre[class*="language-"] {
+    color: var(--ink);
+    text-shadow: none;
 }
-
-/* Main.css overrides */
-div.verticalLine {
-    border-left-color: var(--border-color);
-}
-
-dl {
-    border-color: var(--border-color);
-}
-
-/* Code blocks */
-pre, code {
-    background-color: var(--code-bg);
-}
-
-/* Toggle Button */
-#theme-toggle {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
+[data-theme="dark"] .token.comment,
+[data-theme="dark"] .token.prolog,
+[data-theme="dark"] .token.doctype,
+[data-theme="dark"] .token.cdata { color: var(--muted); }
+[data-theme="dark"] .token.punctuation { color: var(--muted); }
+[data-theme="dark"] .token.keyword,
+[data-theme="dark"] .token.selector,
+[data-theme="dark"] .token.important,
+[data-theme="dark"] .token.atrule { color: #7FD1BB; }
+[data-theme="dark"] .token.string,
+[data-theme="dark"] .token.char,
+[data-theme="dark"] .token.attr-value,
+[data-theme="dark"] .token.builtin,
+[data-theme="dark"] .token.inserted { color: #D2A25C; }
+[data-theme="dark"] .token.number,
+[data-theme="dark"] .token.boolean,
+[data-theme="dark"] .token.constant,
+[data-theme="dark"] .token.symbol { color: #C58FD8; }
+[data-theme="dark"] .token.function,
+[data-theme="dark"] .token.class-name { color: #7FB4E0; }
+[data-theme="dark"] .token.operator,
+[data-theme="dark"] .token.entity,
+[data-theme="dark"] .token.url {
+    color: var(--ink);
     background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: var(--text-color);
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-#theme-toggle:hover {
-    background-color: rgba(128,128,128,0.2);
-}
-
-/* Pagination overrides */
-[data-theme="dark"] .pagination {
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .pagination a {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .pagination a.active {
-    background-color: var(--link-color);
-    color: var(--bg-color);
-}
-
-[data-theme="dark"] .pagination .inactive {
-    color: #666;
-}
-
-[data-theme="dark"] .pagination a:hover:not(.active) {
-    background-color: var(--button-border);
-    color: var(--text-color);
-}
-
-/* Collapsible overrides */
+/* Collapsible sections hardcode light greys. */
 [data-theme="dark"] .collapsible-section {
-    background-color: var(--bg-color);
-    border-color: var(--border-color);
+    background-color: var(--paper);
+    border-color: var(--rule);
 }
-
 [data-theme="dark"] .collapsible-trigger {
-    background-color: var(--quote-bg);
-    color: var(--text-color);
+    background-color: var(--panel);
+    color: var(--ink);
 }
-
-[data-theme="dark"] .collapsible-short {
-    color: var(--text-color);
+[data-theme="dark"] .collapsible-trigger:hover,
+[data-theme="dark"] .collapsible-trigger[aria-expanded="true"] {
+    background-color: var(--accent-soft);
 }
-
-[data-theme="dark"] .collapsible-icon {
-    color: var(--text-color);
-}
-
+[data-theme="dark"] .collapsible-short,
+[data-theme="dark"] .collapsible-icon,
 [data-theme="dark"] .collapsible-content {
-    border-top-color: var(--border-color);
-    color: var(--text-color);
+    color: var(--ink);
 }
-
-/* Search box overrides */
-[data-theme="dark"] #search input {
-    background-color: var(--code-bg);
-    color: var(--text-color);
-    border-color: var(--border-color);
+[data-theme="dark"] .collapsible-content {
+    border-top-color: var(--rule);
 }

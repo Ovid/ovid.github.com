@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Building an iPhone App with ChatGPT</title>
-  <meta name="description" content="Building an iPhone App with ChatGPT">
+  <meta name="description" content="I'm still regularly amazed at how many developers dismiss Copilot and ChatGPT as 'stochastic parrots.' These parrots are much smarter than they think.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Building an iPhone App with ChatGPT</h1>
-        <time>2024-01-17</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/dont-start-with-microservices" class="prevPost">&laquo; Don't Start with Microservices</a>
-        
-        <a href="/articles/will-you-lose-your-job-to-ai" class="nextPost">Will You Lose Your Job to AI? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2024</span>
+        <span class="dateblock-day"><time datetime="2024-01-17">01.17</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Building an iPhone App with ChatGPT</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -232,9 +225,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/dont-start-with-microservices" class="prevPost">&laquo; Don't Start with Microservices</a>
+        <a href="/articles/will-you-lose-your-job-to-ai" class="nextPost">Will You Lose Your Job to AI? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -260,7 +262,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="preface"></a>Preface</h1>
+<h2><a name="preface"></a>Preface</h2>
 
 <p>I’ve been asked to speak at the <a href="https://www.perl-workshop.de/" target="_blank">2024 German Perl/Raku Workshop in
 Frankfurt</a> <span class="fa fa-external-link fa_custom"></span> and the theme of this year’s workshop
@@ -274,7 +276,7 @@ background. The ensuing rabbit hole was a nightmare, but worth it. <span aria-la
 people building full applications with it that I thought it was time to give it
 a try, but I wanted an app I could use, not some toy for a demo.</p>
 
-<h1><a name="my-shopping-app"></a>My Shopping App</h1>
+<h2><a name="my-shopping-app"></a>My Shopping App</h2>
 
 <p>When I go shopping, I use the Notes application on my iPhone. I’ve long hated
 it. I add items that I want to buy to a list. My list is long and when I search
@@ -305,7 +307,7 @@ when Objective-C was king and memory management was still manual. I took one
 look at the code and my wife had to stop me from jabbing a fork in my eye.
 I’ve never looked back. Until now.</p>
 
-<h1><a name="why-not-copilot"></a>Why Not Copilot?</h1>
+<h2><a name="why-not-copilot"></a>Why Not Copilot?</h2>
 
 <p>You might be wondering why I didn’t just use Copilot? First, <a href="https://github.com/intitni/CopilotForXcode?tab=readme-ov-file#installation-and-setup" target="_blank">Copilot
 integration with XCode is incredibly
@@ -320,7 +322,7 @@ autocomplete for methods. Where do I put those methods in an XCode application?
 I had no clue. ChatGPT, however, is autocomplete for <em>ideas</em>. It’s “top down”
 instead of “bottom up” and that’s exactly what I needed.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
-<h1><a name="my-first-prompt"></a>My First Prompt</h1>
+<h2><a name="my-first-prompt"></a>My First Prompt</h2>
 
 <p>Since I’ve been doing a deep dive into this area, I had a pretty good idea of
 what to expect. The clearer and more structured your prompt is to ChatGPT, the
@@ -405,9 +407,9 @@ immediately hit my first bug:</p>
 in more detail, prompting it for bug fixes, and gradually watching an iPhone app
 come to life before my eyes.</p>
 
-<h1><a name="challenges"></a>Challenges</h1>
+<h2><a name="challenges"></a>Challenges</h2>
 
-<h2><a name="no-editor-integration"></a>No Editor Integration</h2>
+<h3><a name="no-editor-integration"></a>No Editor Integration</h3>
 
 <p>The single biggest problem currently is that ChatGPT has no direct integration
 with your editor. You need to constantly copy-n-paste the code. For a
@@ -417,7 +419,7 @@ developer, you might struggle. However, you can always ask ChatGPT for more
 information on how to handle this. But that brings us to the problem of context
 length.</p>
 
-<h2><a name="context-length"></a>Context Length</h2>
+<h3><a name="context-length"></a>Context Length</h3>
 
 <p>Early versions of ChatGPT had a “context length” of about 2,000 tokens. The
 context length is how much of the conversation the language model remembers.
@@ -474,7 +476,7 @@ adventures</a> <span class="fa fa-external-link fa_custom"></span>,
 but the 4K context length means ChatGPT will often “forget” previous parts of
 the story. ChatGPT 4-turbo will be a real game changer (heh) here.</p>
 
-<h2><a name="xcode-is-buggy"></a>XCode is Buggy</h2>
+<h3><a name="xcode-is-buggy"></a>XCode is Buggy</h3>
 
 <p>Curiously, one of the biggest challenges wasn’t ChatGPT, it was XCode. I had
 just updated to the latest version<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> and on several occasions, I found myself staring at what looked
@@ -486,9 +488,9 @@ and it told me the variable it had renamed wasn’t in scope! I restarted XCode
 and everything worked just fine after that. I had to restart XCode a few times
 during this process, which slowed things down a bit.</p>
 
-<h2><a name="mansplaining-as-a-service"></a>Mansplaining as a Service</h2>
+<h3><a name="mansplaining-as-a-service"></a>Mansplaining as a Service</h3>
 
-<p>One thing thing that annoyed me about the app was that I would type in the name
+<p>One thing that annoyed me about the app was that I would type in the name
 of an item I wanted to buy and the item would be added, but it would
 also be left in the text field. I wanted that field to be cleared every
 time I hit “return.” The code looked like this:</p>
@@ -537,9 +539,9 @@ the latest version of the Swift programming language and was offering
 deprecated versions of various code snippets. I finally gave up correcting
 ChatGPT and made the corrections manually.</p>
 
-<h1><a name="criticisms"></a>Criticisms</h1>
+<h2><a name="criticisms"></a>Criticisms</h2>
 
-<h2><a name="you-dont-need-chatgpt"></a>You Don’t Need ChatGPT</h2>
+<h3><a name="you-dont-need-chatgpt"></a>You Don’t Need ChatGPT</h3>
 
 <p><figure class="captioned">
     <div class="image-container">
@@ -567,7 +569,7 @@ to the full article) instead of the entire text?</p>
 possibilities that weren’t open to me before without months of learning a new
 platform and programming language.</p>
 
-<h2><a name="hallucinations"></a>Hallucinations</h2>
+<h3><a name="hallucinations"></a>Hallucinations</h3>
 
 <p>I’m also constantly reminded about hallucinations, as if I wasn’t already aware
 of them.</p>
@@ -596,7 +598,7 @@ verify you haven’t broken anything.</p>
 happens when you write code? You write it, you run your tests, you find the
 bugs, you fix them. It’s the same thing with language models, just much faster!</p>
 
-<h2><a name="bad-code"></a>“Bad” Code</h2>
+<h3><a name="bad-code"></a>“Bad” Code</h3>
 
 <p>This one is subtle and junior devs will easily miss it.</p>
 
@@ -646,7 +648,7 @@ programmer’s standpoint, this is bad. From a business standpoint?  So what? �
 works; ship it,” will be the refrain. Bad code confuses humans more
 than language models.</p>
 
-<h1><a name="the-near-future"></a>The Near Future</h1>
+<h2><a name="the-near-future"></a>The Near Future</h2>
 
 <p>Programmers will be keep their jobs for the time being (unless you work at
 StackOverflow), but Copilot and ChatGPT allow us to write code faster. When
@@ -663,7 +665,7 @@ challenges</a>, but combined with
 language models, I can see development teams reaching heretofore unknown levels
 of productivity.</p>
 
-<h1><a name="the-far-future"></a>The Far Future</h1>
+<h2><a name="the-far-future"></a>The Far Future</h2>
 
 <p>Eventually ChatGPT is going to have native desktop integration. Given that it
 already has <a href="https://platform.openai.com/docs/models/whisper" target="_blank">a speech recognition
@@ -729,7 +731,7 @@ single language model which can handle this for us. “Hey, ChatGPT! Send an ema
 to mom, wishing her a happy birthday.” And ChatGPT will do that, probably
 matching your conversational style.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>The programming profession, as we practice is today, is dying. We may not see it
 yet, but it is. And for all the cries of “programming language X is dying,” the
@@ -799,15 +801,19 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -832,11 +838,8 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/dont-start-with-microservices" class="prevPost">&laquo; Don't Start with Microservices</a>
-        
         <a href="/articles/will-you-lose-your-job-to-ai" class="nextPost">Will You Lose Your Job to AI? &raquo;</a>
     </div>
 
@@ -844,12 +847,42 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/building-an-iphone-app-with-chatgpt.html";
+            this.page.identifier = "articles/building-an-iphone-app-with-chatgpt";
+            this.page.title      = "Building an iPhone App with ChatGPT";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -887,36 +920,23 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/building-an-iphone-app-with-chatgpt.html";
-            this.page.identifier = "articles/building-an-iphone-app-with-chatgpt";
-            this.page.title      = "Building an iPhone App with ChatGPT";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -940,7 +960,7 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 anti-democratic, white supremacist accelerationists who support AI as one of
 many ways to tear down our current institutions. No links, because you can go
 down that rabbit hole yourself, if you're so inclined.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -956,7 +976,7 @@ down that rabbit hole yourself, if you're so inclined.</div>
 at the present time, it's worth noting that Copilot usually has excellent editor
 integration and can “see” your entire project. This gives it a bird's-eye view
 of what you're doing, something that ChatGPT can't yet do.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -969,7 +989,7 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>ChatGPT forgot this and gave me toggles on the right.  I decided to stick with them.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -982,7 +1002,7 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         <strong id="note-4">Footnotes</strong>
         <p id="note-description-4" class="sr-only">Note number 4</p>
 	    <div>I later changed those to "A to Z" and "Popular."</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -996,7 +1016,7 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         <p id="note-description-5" class="sr-only">Note number 5</p>
 	    <div>The leading space before many
 tokens allows ChatGPT to recreate the actual text.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1010,7 +1030,7 @@ tokens allows ChatGPT to recreate the actual text.</div>
         <p id="note-description-6" class="sr-only">Note number 6</p>
 	    <div>Version 15.2, as of this
 writing.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1024,7 +1044,7 @@ writing.</div>
         <p id="note-description-7" class="sr-only">Note number 7</p>
 	    <div>I say
 'finish' because the collapse is starting now.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1043,7 +1063,7 @@ protestors.<br/><br/>Depending on the source, the economic damage to the
 protestors wasn't fully corrected until sometimes between 1820 and 1850. That's
 a long time to suffer, but the business owners were getting richer the entire
 time.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1057,7 +1077,7 @@ time.</div>
         <p id="note-description-9" class="sr-only">Note number 9</p>
 	    <div>I was tempted to finish that with, 'such
 as social skills,' but I didn't. See what a nice guy I am?</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

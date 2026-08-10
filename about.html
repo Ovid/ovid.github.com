@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
+  <script>
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/about">
+  
+  <meta property="og:title" content="Ovid Among the Machines">
+  <meta property="og:description" content="Curtis “Ovid” Poe helps companies use AI to build software they can still maintain in three years. Named for Samuel Butler, on machines that outpace us.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/about">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Ovid Among the Machines</title>
+  <meta name="description" content="Curtis “Ovid” Poe helps companies use AI to build software they can still maintain in three years. Named for Samuel Butler, on machines that outpace us.">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/dialog.css">
+  <link rel="stylesheet" href="/static/css/image.css">
+  <link rel="stylesheet" href="/static/css/collapsible.css">
+  <link rel="stylesheet" href="/static/css/dark-mode.css">
+  <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+    }
+  </script>
+
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+        </div>
+      </div>
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about" aria-current="page">About</a></li>
+    </ul>
+  </details>
+</nav>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock">
+        <span class="dateblock-meta">
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Ovid Among the Machines</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <aside class="marginalia">
+
+      </aside>
+      <main class="prose" id="content">
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
+
+
+<article id="article">
+<p>In 1863, Samuel Butler looked at the machines of his day and saw something
+evolving faster than we were. His conclusion, in <a href="https://en.wikisource.org/wiki/Darwin_among_the_Machines" target="_blank"><em>Darwin among the
+Machines</em></a> <span class="fa fa-external-link fa_custom"></span>: <em>“war to
+the death should be instantly proclaimed against them. Every machine of every
+sort should be destroyed by the well-wisher of his species.”</em></p>
+
+<p>I disagree with the conclusion. I don’t disagree with the observation.</p>
+
+<p>I help companies use AI to build software they can still maintain in three
+years.</p>
+
+<p>Most teams I work with have the same problem, and it isn’t speed. The assistant
+does what you ask, every time, and the sum of all those reasonable answers is a
+codebase carrying debt nobody chose to accept. Skip the review and you’re still
+responsible — “human in the loop” becomes “human in the noose.”</p>
+
+<p>So I work the other way round: <strong>engineering-driven AI, not AI-driven
+engineering.</strong> You see what the AI is about to do while you can still change it,
+and you make the decisions. That is the difference between living among the
+machines and being run by them.</p>
+
+<h2><a name="paad"></a>PAAD</h2>
+
+<p>For the past year and a half I have been working out how to do that in
+practice, and writing it down as I went. The result is
+<a href="https://github.com/Ovid/paad" target="_blank">PAAD</a> <span class="fa fa-external-link fa_custom"></span>, a set of AI skills that encode the
+disciplines that survived contact with real projects: pushback on your specs,
+alignment checks on your tasks, architecture reviews, and the ongoing habits
+that stop a codebase decaying under you.</p>
+
+<p>It is free, MIT-licensed, and there is no signup and nothing for sale. It is
+also early. I would rather you judge it by reading it than by taking my word
+for it.</p>
+
+<h2><a name="proof-by-building"></a>Proof by building</h2>
+
+<p>I don’t think you should trust anyone’s advice about AI-assisted development
+who isn’t shipping something with it.</p>
+
+<p><a href="/projects">Tramp Freighter Blues</a> is a browser-based space trading game —
+roughly 100K lines of code (30K code and 70K tests). It was the proving
+ground, and the four failures I kept hitting while building it are the
+disciplines that became <a href="/paad/">PAAD</a>.</p>
+
+<p><a href="/projects">Ananta</a> came out of the same work: an answer to RAG’s lossiness,
+where the AI reads your documents directly and writes code to search and
+cross-reference them instead of guessing from retrieved fragments.</p>
+
+<p><a href="/projects">The Extraction Index</a> is the odd one out — an interactive world map
+scoring how much value countries extract from their own populations through
+entirely legal channels.</p>
+
+<p>All three, and what each one taught me, are on the <a href="/projects">projects
+page</a>.</p>
+
+<h2><a name="the-belief"></a>The belief</h2>
+
+<p>Think about how we already build software with humans. We write tests, do code
+reviews, run CI/CD, have QA, run user acceptance testing, and still need ITSM
+to clean up the mess when bugs make it through. We don’t trust any single step.
+We apply defense in depth.</p>
+
+<p>Why would we treat AI any differently?</p>
+
+<h2><a name="before-ai"></a>Before AI</h2>
+
+<p>I have been building software for decades. I designed
+<a href="https://github.com/Ovid/Cor" target="_blank">Corinna</a> <span class="fa fa-external-link fa_custom"></span>, the object system that became Perl’s
+<code>class</code> syntax in 5.38. I wrote <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><em>Beginning
+Perl</em></a> <span class="fa fa-external-link fa_custom"></span> and
+co-wrote <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><em>Perl
+Hacks</em></a> <span class="fa fa-external-link fa_custom"></span>
+with Damian Conway and chromatic. I have keynoted conferences and corporate
+events across Europe and the US.</p>
+
+<h2><a name="what-i-get-hired-for"></a>What I get hired for</h2>
+
+<p><strong>Teams adopting AI coding agents.</strong> Putting review gates at the points where
+AI work actually goes wrong, rather than everywhere or nowhere.</p>
+
+<p><strong>Codebases that got fast and then got scary.</strong> Architecture review, debt
+triage, and a plan you can actually execute.</p>
+
+<p><strong>Legacy systems nobody wants to touch.</strong> I like rebuilding legacy systems the
+same way my friend James loves rebuilding old cars. See <a href="/articles/the-tyranny-of-budgets">The Tyranny of
+Budgets</a> for how that usually goes.</p>
+
+<p><strong>Agile that isn’t working.</strong> Usually it isn’t agile that failed.</p>
+
+<p>I work in many areas, but if it’s Perl-related and your company uses Perl
+heavily, there’s a good chance your employees already know me by reputation.</p>
+
+<h2><a name="wildagile"></a>WildAgile</h2>
+
+<p><a href="/wildagile">WildAgile</a> is my attempt to return agile to its agile roots. I
+sent it to <a href="https://en.wikipedia.org/wiki/Alistair_Cockburn" target="_blank">Alistair
+Cockburn</a> <span class="fa fa-external-link fa_custom"></span>, one of the founders
+of the modern agile movement, and he replied (quoting with permission):</p>
+
+<blockquote>
+  <p>I think you should continue with what you’re doing, and get more companies to
+  go along, that will be really great for the world.</p>
+</blockquote>
+
+<h2><a name="a-few-things-i-have-been-hired-for"></a>A few things I have been hired for</h2>
+
+<ul>
+<li>Building software development teams.</li>
+<li><a href="/publicspeaking">Corporate event keynotes</a>.</li>
+<li>Seminars to help companies transition to agile (<a href="https://www.youtube.com/watch?v=kKOqOMqp7wQ" target="_blank">sneak
+preview</a> <span class="fa fa-external-link fa_custom"></span>).</li>
+<li><a href="/articles/a-simple-way-to-fix-legacy-code">Rescuing legacy codebases</a>.</li>
+<li><a href="/articles/zen-of-test-suites">Rebuilding or fixing test suites</a>.</li>
+<li>In-house <a href="https://en.wikipedia.org/wiki/A/B_testing" target="_blank">A/B testing</a> <span class="fa fa-external-link fa_custom"></span>
+(proprietary).</li>
+<li><a href="https://en.wikipedia.org/wiki/Extract,_transform,_load" target="_blank">Pharmaceutical ETL
+systems</a> <span class="fa fa-external-link fa_custom"></span>
+(proprietary).</li>
+<li><a href="https://en.wikipedia.org/wiki/Real-time_bidding" target="_blank">Real-time bidding</a> <span class="fa fa-external-link fa_custom"></span>
+(proprietary).</li>
+</ul>
+
+<h2><a name="elsewhere"></a>Elsewhere</h2>
+
+<ul>
+<li><a href="https://www.linkedin.com/in/curtispoe/" target="_blank">LinkedIn</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://github.com/Ovid/" target="_blank">GitHub</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://metacpan.org/author/OVID" target="_blank">CPAN</a> <span class="fa fa-external-link fa_custom"></span></li>
+<li><a href="https://allaroundtheworld.fr" target="_blank">All Around The World</a> <span class="fa fa-external-link fa_custom"></span></li>
+</ul>
+
+<h2><a name="get-in-touch"></a>Get in touch</h2>
+
+<p>My <a href="/articles">articles</a> are the fastest way to work out whether I’m a fit for
+what you need. If I look like one, <a href="mailto:curtis.poe@gmail.com">email
+me</a> and let’s discuss it.</p>
+
+</article>
+
+
+
+
+
+
+
+
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read <a href="/about">more about me</a>
+          to learn more about my background.</p>
+
+        <div id="disqus_thread"></div>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
+
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/ai" data-weight="6">AI</a></li>
+
+    <li><a href="/tags/business" data-weight="6">Business</a></li>
+
+    <li><a href="/tags/corinna" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
+
+    <li><a href="/tags/writing" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/politics" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/databases" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/math" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/personal" data-weight="2">Personal</a></li>
+
+    <li><a href="/tags/science" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/space" data-weight="2">Space</a></li>
+
+    <li><a href="/tags/expat" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/family" data-weight="1">Family</a></li>
+
+</ul>
+
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
+    
+    <script src="/static/js/collapsible.js"></script>
+	
+</body>
+</html>
+
+

@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Easy Git Workflow</title>
-  <meta name="description" content="Easy Git Workflow">
+  <meta name="description" content="This is the dead-easy git workflow used by All Around the World. Github repo included.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Easy Git Workflow</h1>
-        <time>2020-04-13</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/making-complex-software-simple" class="prevPost">&laquo; Making Complex Software Simple</a>
-        
-        <a href="/articles/using-immutable-datetime-objects-with-dbixclass" class="nextPost">Why Do We Want Immutable Objects? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2020</span>
+        <span class="dateblock-day"><time datetime="2020-04-13">04.13</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Easy Git Workflow</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -230,9 +223,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/making-complex-software-simple" class="prevPost">&laquo; Making Complex Software Simple</a>
+        <a href="/articles/using-immutable-datetime-objects-with-dbixclass" class="nextPost">Why Do We Want Immutable Objects? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -283,7 +285,7 @@ make our team collaboration much easier.  <a
 href="mailto:info@allaroundtheworld.fr">Email us</a> to discuss how we can
 build a remote software team for you. A team that delivers, not debates.</p>
 
-<h1><a name="quickstart"></a>Quickstart</h1>
+<h2><a name="quickstart"></a>Quickstart</h2>
 
 <p>Using our git workflow couldn’t be simpler:</p>
 
@@ -298,7 +300,7 @@ build a remote software team for you. A team that delivers, not debates.</p>
 <p>And that’s it. Three simple commands to remember and git <em>gets out of your
 way</em>.</p>
 
-<h1><a name="the-overview"></a>The Overview</h1>
+<h2><a name="the-overview"></a>The Overview</h2>
 
 <p>The <code>git</code> command is extremely complicated.  Invariably in a team environment
 someone gets something “wrong” with git and the local git guru comes by and
@@ -336,7 +338,7 @@ management system</a>, our workflow is designed to be the <em>core</em>
 of what you do day in and day out. The bits you need to customize are up to
 you. We’re not dogmatic.</p>
 
-<h2><a name="git-flow"></a>git-flow</h2>
+<h3><a name="git-flow"></a>git-flow</h3>
 
 <p>As an aside, one popular workflow is
 <a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank">git-flow</a> <span class="fa fa-external-link fa_custom"></span>.  Yet
@@ -348,7 +350,7 @@ We found the convoluted history and strict requirements that things be “just
 so” to not be a good fit for our workflow. It might be the perfect fit for
 yours.</p>
 
-<h1><a name="our-git-workflow"></a>Our git Workflow</h1>
+<h2><a name="our-git-workflow"></a>Our git Workflow</h2>
 
 <p>The <a href="https://github.com/Ovid/git-workflow" target="_blank">git workflow tools</a> <span class="fa fa-external-link fa_custom"></span> are open source
 and they contain a simplified subset of the git tools used by <a href="https://allaroundtheworld.fr/" target="_blank">All Around the
@@ -369,7 +371,7 @@ it dead easy for teams using git (and in our case, github) to work together.</p>
 <p>Note: only the <code>bin/git-hub</code> command assumes you’re using github. The other
 commands work fine without it.</p>
 
-<h1><a name="assumptions"></a>Assumptions</h1>
+<h2><a name="assumptions"></a>Assumptions</h2>
 
 <p>The <code>master</code> branch is never worked on directly. Instead, new branches are
 created (usually for an individual github ticket), we hack, we regularly pull
@@ -384,7 +386,7 @@ bin/git-refresh
 bin/git-done
 </code></pre>
 
-<h2><a name="checking-out-a-branch"></a>Checking Out a Branch</h2>
+<h3><a name="checking-out-a-branch"></a>Checking Out a Branch</h3>
 
 <p>We assume that branches are <em>usually</em> per ticket. You can manually create a
 branch, but we tend not to. Instead, if you are going to work on github issue
@@ -405,7 +407,7 @@ following command:</p>
 
 <p>We just like the convenience of always having standard naming conventions.</p>
 
-<h3><a name="caveats"></a>Caveats</h3>
+<h4><a name="caveats"></a>Caveats</h4>
 
 <ol>
 <li>The new branch that is created is based on the branch you’re on, so you
@@ -432,7 +434,7 @@ and the code will exit.</li>
 <a href="https://metacpan.org/pod/App::cpanminus" target="_blank">cpanminus</a> <span class="fa fa-external-link fa_custom"></span>, or you can use the
 <code>cpan</code> command line tool that is standard with Perl.</p>
 
-<h2><a name="refreshing-your-branch"></a>Refreshing Your Branch</h2>
+<h3><a name="refreshing-your-branch"></a>Refreshing Your Branch</h3>
 
 <p>While working on your branch, you want to regularly pull in the latest <code>master</code>
 to keep your code up-to-date. Working on a change for a week with a fast-moving
@@ -472,7 +474,7 @@ changes will remain stashed. Run <code>git stash</code> to see those changes and
 stash pop</code> to return them to your codebase when you’ve finished resolving the
 merge conflicts.</p>
 
-<h2><a name="merging-into-master"></a>Merging into master</h2>
+<h3><a name="merging-into-master"></a>Merging into master</h3>
 
 <p>So you’ve finished your work and are ready to merge your branch back into
 master. Here’s one way to do that very cleanly and safely:</p>
@@ -526,7 +528,7 @@ rebase your branch on top of it, and push that change to your origin.</p>
 delete your local and remote copies of the branch, to help you be nice and not
 leave branches cluttering up the repository.</p>
 
-<h1><a name="determining-your-primary-branch"></a>Determining Your Primary Branch</h1>
+<h2><a name="determining-your-primary-branch"></a>Determining Your Primary Branch</h2>
 
 <p>Internally the code attempts to detect the name of your primary branch using
 this:</p>
@@ -545,7 +547,7 @@ You scan set your target branch with:
 Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
 </code></pre></div>
 
-<h1><a name="merge-conflicts"></a>Merge Conflicts</h1>
+<h2><a name="merge-conflicts"></a>Merge Conflicts</h2>
 
 <p>With all of this rebasing, you’re sometimes going to hit the dreaded ...</p>
 
@@ -567,7 +569,7 @@ in my <code>.bash_aliases</code> file:</p>
 <p>Then, when I get a conflict, I just type <code>damnit</code> and am automatically editing
 the files which caused the conflict. It saves me a huge amount of time.</p>
 
-<h1><a name="update"></a>Update</h1>
+<h2><a name="update"></a>Update</h2>
 
 <p>We have renamed <code>git-merge-with-master</code> to <code>git-done</code>. The former still works.</p>
 
@@ -604,15 +606,19 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -637,11 +643,8 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/making-complex-software-simple" class="prevPost">&laquo; Making Complex Software Simple</a>
-        
         <a href="/articles/using-immutable-datetime-objects-with-dbixclass" class="nextPost">Why Do We Want Immutable Objects? &raquo;</a>
     </div>
 
@@ -649,12 +652,42 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/easy-git-workflow.html";
+            this.page.identifier = "articles/easy-git-workflow";
+            this.page.title      = "Easy Git Workflow";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -692,36 +725,23 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/easy-git-workflow.html";
-            this.page.identifier = "articles/easy-git-workflow";
-            this.page.title      = "Easy Git Workflow";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     

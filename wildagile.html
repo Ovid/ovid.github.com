@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -36,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/wildagile">
   
   <meta property="og:title" content="WildAgile">
-  <meta property="og:description" content="WildAgile">
+  <meta property="og:description" content="WildAgile is Curtis “Ovid” Poe on returning agile to its agile roots, endorsed by Alistair Cockburn, a founder of the modern agile movement.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>WildAgile</title>
-  <meta name="description" content="WildAgile">
+  <meta name="description" content="WildAgile is Curtis “Ovid” Poe on returning agile to its agile roots, endorsed by Alistair Cockburn, a founder of the modern agile movement.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -76,35 +84,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>WildAgile</h1>
-        
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -179,31 +165,54 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile" aria-current="page">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock">
+        <span class="dateblock-meta">
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>WildAgile</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <aside class="marginalia">
+
+      </aside>
+      <main class="prose" id="content">
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -229,7 +238,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="preface"></a>Preface</h1>
+<h2><a name="preface"></a>Preface</h2>
 
 <p>Some of you may be familiar with <a href="https://en.wikipedia.org/wiki/Alistair_Cockburn" target="_blank">Alistair
 Cockburn</a> <span class="fa fa-external-link fa_custom"></span>, one of the founders of the modern agile movement. I recently had
@@ -242,7 +251,7 @@ companies to go along, that will be really great for the world.</blockquote>
 <p>WildAgile is an attempt to return agile to its agile roots. So let’s get
 started.</p>
 
-<h1><a name="the-problem"></a>The Problem</h1>
+<h2><a name="the-problem"></a>The Problem</h2>
 
 <p>I’ve worked with a variety of successful companies, many of which are Agile
 in nature, but when discussion of Agile arises, the conversation often goes
@@ -281,7 +290,7 @@ title="Creative Commons Attribute 2.5 Generic License"
 href="http://creativecommons.org/licenses/by/2.5/" target="_blank">license
 description</a> for details.</p>
 
-<h2><a name="background"></a>Background</h2>
+<h3><a name="background"></a>Background</h3>
 
 <p>When teams transition into an Agile environment, the changes can be
 intimidating. XP practitioners regularly complain about pair programming (and
@@ -295,7 +304,7 @@ get things done in a structured manner. “Just Enough Process” is an appropri
 tagline for management. “Shut Up And Write Some Code” is an appropriate tagline
 for developers.</p>
 
-<h2><a name="what-is-wildagile"></a>What is WildAgile?</h2>
+<h3><a name="what-is-wildagile"></a>What is WildAgile?</h3>
 
 <p>WildAgile is appropriate for small teams where the entire code base can be
 roughly understood by a single programmer. That doesn’t mean that someone
@@ -317,7 +326,7 @@ means that you may adopt WildAgile before your team transitions to a more
 formal method (it’s particularly well-suited as a transition to Scrum), but
 many teams find that WildAgile is all they need.</p>
 
-<h2><a name="benefits-of-wildagile"></a>Benefits of WildAgile</h2>
+<h3><a name="benefits-of-wildagile"></a>Benefits of WildAgile</h3>
 
 <ul>
     <li>High morale: developers can focus on getting stuff done.</li>
@@ -335,7 +344,7 @@ software. I also do not recommend WildAgile for highly complex projects in
 which the majority of developers cannot understand how various components fit
 together.</p>
 
-<h2><a name="the-workflow"></a>The Workflow</h2>
+<h3><a name="the-workflow"></a>The Workflow</h3>
 
 <p>Just to make it clear what I’m focusing on, here’s the development
 workflow for one company I’ve worked with:</p>
@@ -363,7 +372,7 @@ src="static/images/start_finish-209x300.png" width="209" height="300"/></p>
 to understand the Platonic Ideal of Agile and constantly strive towards
 it.</p>
 
-<h2><a name="assumptions-made-in-creating-wildagile"></a>Assumptions Made in Creating WildAgile</h2>
+<h3><a name="assumptions-made-in-creating-wildagile"></a>Assumptions Made in Creating WildAgile</h3>
 
 <p><strong></strong>Drawing on work from Alistair Cockburn’s <a title="Crystal
 Clear PDF"
@@ -407,11 +416,11 @@ introduce challenges that require extra attention to team communication.</p>
 <a href="/articles/managing-a-remote-team">Managing a Remote
 Team</a> article.</p>
 
-<h1><a name="the-details"></a>The Details</h1>
+<h2><a name="the-details"></a>The Details</h2>
 
 <p>Yeah, yeah. That’s enough blathering. What’s it all about?</p>
 
-<h2><a name="wildagile-roles"></a>WildAgile Roles</h2>
+<h3><a name="wildagile-roles"></a>WildAgile Roles</h3>
 
 <p>There are only three roles defined in WildAgile.</p>
 
@@ -458,7 +467,7 @@ existing) to understand customer needs and desires.</p>
 connotation and in our experience it is often used in a condescending manner.
 Customers are people too.</p>
 
-<h2><a name="wildagile-process"></a>WildAgile Process</h2>
+<h3><a name="wildagile-process"></a>WildAgile Process</h3>
 
 <p>Every day, a 15-minute time-boxed <strong>stand up</strong> is held. It’s
 recommended to be at the end of the day to ensure that what you did is fresh in
@@ -544,7 +553,7 @@ sprint or iteration).</p>
 and in established teams, you generally only have Veterans, thus reducing the
 distinction between the two.</p>
 
-<h2><a name="wildagile-remote-teams"></a>WildAgile Remote Teams</h2>
+<h3><a name="wildagile-remote-teams"></a>WildAgile Remote Teams</h3>
 
 <p>Many companies are discovering the competitive advantage of having remote
 workers:</p>
@@ -573,7 +582,7 @@ you’re doing, and how you are doing it. This helps to catch problems early on
 and minimizes the need for developers to distract other developers while they’re
 working.</p>
 
-<h1><a name="discussion"></a>Discussion</h1>
+<h2><a name="discussion"></a>Discussion</h2>
 
 <p>The idea behind WildAgile is not to formalize a new methodology, but to put
 a name on a practice that is already moderately well-known but followed in an
@@ -619,7 +628,7 @@ Typically backlog items are merely added to a ticketing system, such as Jira,
 RT, Redmine or Trac. This does not scale well unless the PO is competent at
 managing the tickets and creating appropriate Priority tasks.</p>
 
-<h2><a name="extending-wildagile"></a>Extending WildAgile</h2>
+<h3><a name="extending-wildagile"></a>Extending WildAgile</h3>
 
 <p>Do you like retrospectives? Do them. Do you need milestones? Great! Do you
 like pair programming? That’s fine.  WildAgile is designed to describe the
@@ -631,7 +640,7 @@ works for you.”</p>
 <p>You are <em>encouraged,</em> nay, <em>required</em> to customize WildAgile
 to meet the needs of your team.</p>
 
-<h2><a name="wildagile-compliant"></a>WildAgile-Compliant</h2>
+<h3><a name="wildagile-compliant"></a>WildAgile-Compliant</h3>
 
 <p>Many teams are already WildAgile-compliant without even
 knowing it. If you follow Scrum, you’re probably WildAgile-compliant. If you
@@ -642,7 +651,7 @@ WildAgile-certifications (though if you pay me enough money, I’m happy to
 give a one-hour presentation and print up WildAgile-certifications for
 you).</p>
 
-<h1><a name="glossary"></a>Glossary</h1>
+<h2><a name="glossary"></a>Glossary</h2>
 
 <dl>
     <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></dd>
@@ -663,7 +672,7 @@ you).</p>
 <p>There is very little terminology and most of this fits what you already
 know.</p>
 
-<h1><a name="summary"></a>Summary</h1>
+<h2><a name="summary"></a>Summary</h2>
 
 <p>Shut up and write some code.</p>
 
@@ -688,12 +697,42 @@ of managing risk is being aware of it.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/wildagile.html";
+            this.page.identifier = "wildagile";
+            this.page.title      = "WildAgile";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -731,36 +770,23 @@ of managing risk is being aware of it.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/wildagile.html";
-            this.page.identifier = "wildagile";
-            this.page.title      = "WildAgile";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/collapsible.js"></script>
 	
@@ -780,10 +806,10 @@ of managing risk is being aware of it.</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>For added fun, note that there is only
 one exit point in that workflow. If something proves unworkable <em>at the
-specification step</em> or beyond, you have no official recources to abandon
+specification step</em> or beyond, you have no official recourse to abandon
 that task. Needless to say, some developers at that company suffered from
 very poor morale.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -796,7 +822,7 @@ very poor morale.</div>
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -809,7 +835,7 @@ very poor morale.</div>
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
 	    <div>Also represents the projects stakeholders, a.k.a. 'the business'.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -828,7 +854,7 @@ very poor morale.</div>
           <li id="footnote-1">
             For added fun, note that there is only
 one exit point in that workflow. If something proves unworkable <em>at the
-specification step</em> or beyond, you have no official recources to abandon
+specification step</em> or beyond, you have no official recourse to abandon
 that task. Needless to say, some developers at that company suffered from
 very poor morale.
             <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">

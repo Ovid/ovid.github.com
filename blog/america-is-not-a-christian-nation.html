@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>America is Not a Christian Nation</title>
-  <meta name="description" content="America is Not a Christian Nation">
+  <meta name="description" content="Understanding the history of the Treaty of Tripoli shows that America's Founding Fathers didn't Intend for the US to be a Christian Nation.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -77,37 +85,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>America is Not a Christian Nation</h1>
-        <time>2025-11-21</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -182,41 +166,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/torturing-an-llm" class="prevPost">&laquo; Torturing an LLM</a>
-        
-        <a href="/#" class="nextPost"></a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2025</span>
+        <span class="dateblock-day"><time datetime="2025-11-21">11.21</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>America is Not a Christian Nation</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -226,13 +219,21 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/torturing-an-llm" class="prevPost">&laquo; Torturing an LLM</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
-<h1><a name="a-brief-history-of-an-inconvenient-treaty"></a>A Brief History of an Inconvenient Treaty</h1>
+<h2><a name="a-brief-history-of-an-inconvenient-treaty"></a>A Brief History of an Inconvenient Treaty</h2>
 
 <p>Every few months, usually on social media, sometimes in earnest emails, I’m treated to an solemn declaration that the United States was founded as a <em>Christian</em> nation. And, inevitably, when I politely mention the <a href="https://en.wikipedia.org/wiki/Treaty_of_Tripoli" target="_blank">Treaty of Tripoli</a> <span class="fa fa-external-link fa_custom"></span>, ratified unanimously by the U.S. Senate in 1797, signed by President John Adams, and containing the following inconvenient sentence in Article 11:</p>
 
@@ -328,7 +329,7 @@ In case of any dispute arising from a notation of any of the articles of this tr
     </div>
 </div>
 
-<h2><a name="the-senators-who-didnt-notice-the-clause"></a>The Senators Who “Didn’t Notice” the Clause</h2>
+<h3><a name="the-senators-who-didnt-notice-the-clause"></a>The Senators Who “Didn’t Notice” the Clause</h3>
 
 <p>The Treaty of Tripoli was ratified by the Senate of the 5th Congress:</p>
 
@@ -358,27 +359,27 @@ In case of any dispute arising from a notation of any of the articles of this tr
 
 <p>Go ahead. I’ll wait.</p>
 
-<h2><a name="but-the-arabic-version-didnt-have-that-clause"></a>“But the Arabic Version Didn’t Have That Clause!”</h2>
+<h3><a name="but-the-arabic-version-didnt-have-that-clause"></a>“But the Arabic Version Didn’t Have That Clause!”</h3>
 
 <p>This argument is usually delivered with a Perry Mason-esque flourish.</p>
 
 <p>Yes, the surviving Arabic text doesn’t contain Article 11, but there are three
 big problems with this argument.</p>
 
-<h3><a name="problem-1"></a>Problem 1</h3>
+<h4><a name="problem-1"></a>Problem 1</h4>
 
 <p>Diplomatic treaties with other countries often didn’t match, word for word, 
 across languages</p>
 
 <p>Multiple versions circulated; sometimes the American draft was longer. Sometimes the Arabic version was abridged. This was normal. The Department of Foreign Affairs (<a href="https://en.wikipedia.org/wiki/United_States_Department_of_State" target="_blank">a former name of the State Department</a> <span class="fa fa-external-link fa_custom"></span>), couldn’t easily email PDFs of treaties abroad. No one flew out for negotiations for amendments. Instead, ships spent weeks sailing back and forth and late 18th century US administrative procedures weren’t exactly, um, world class.</p>
 
-<h3><a name="problem-2"></a>Problem 2</h3>
+<h4><a name="problem-2"></a>Problem 2</h4>
 
 <p>The U.S. Senate ratified the <em>English</em> version.</p>
 
 <p>The one with Article 11. The one everyone in America read. The one printed in newspapers.</p>
 
-<h3><a name="problem-3"></a>Problem 3</h3>
+<h4><a name="problem-3"></a>Problem 3</h4>
 
 <p>People argue that the Arabic document we have is incomplete and ends abruptly.</p>
 
@@ -386,7 +387,7 @@ across languages</p>
 
 <p>The Senate didn’t ratify the Arabic manuscript. They ratified the English text. They likely didn’t even know what was in the Arabic version. The attempt to wave Article 11 away by invoking missing Arabic lines is like claiming your mortgage isn’t binding because the Bank of America copy had coffee spilled on it.</p>
 
-<h2><a name="so-why-did-article-11-exist"></a>So Why Did Article 11 Exist?</h2>
+<h3><a name="so-why-did-article-11-exist"></a>So Why Did Article 11 Exist?</h3>
 
 <p>Because the United States was negotiating with a Muslim state, and the diplomatic custom of the time was to assure such states that America had no religious quarrel with Islam.</p>
 
@@ -406,11 +407,11 @@ across languages</p>
 <li>and he wanted to emphasize a simple fact: <strong>The U.S. didn’t fight holy wars.</strong></li>
 </ul>
 
-<p>Europe might still have been winding down its centuries-long interfaith hobby of slaughtering one another, but the new American republic prided itself on separating church from state. Hence, no religous tests allowed by the US Constitution and a pretty damned explicit First Amendment<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
+<p>Europe might still have been winding down its centuries-long interfaith hobby of slaughtering one another, but the new American republic prided itself on separating church from state. Hence, no religious tests allowed by the US Constitution and a pretty damned explicit First Amendment<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
 
 <p>Barlow knew that. The Senate knew that. John Adams—no atheist—knew that. And nobody objected.</p>
 
-<h2><a name="but-surely-the-public-didnt-know-about-this-line"></a>“But surely the public didn’t know about this line!”</h2>
+<h3><a name="but-surely-the-public-didnt-know-about-this-line"></a>“But surely the public didn’t know about this line!”</h3>
 
 <p>But surely they did.</p>
 
@@ -430,7 +431,7 @@ across languages</p>
     </div>
 </figure></p>
 
-<p>If Federalists or Democratic-Republicans could have scored even a single political point by screaming, “The Adams administration just declared we’re not a Christian nation!” they would have pounced like  cats on a laser pointer.</p>
+<p>If Federalists or Democratic-Republicans could have scored even a single political point by screaming, “The Adams administration just declared we’re not a Christian nation!” they would have pounced like cats on a laser pointer.</p>
 
 <p>Instead? Crickets.</p>
 
@@ -438,7 +439,7 @@ across languages</p>
 
 <p>The idea that the United States was founded as a Christian nation, in the modern political sense, is a much later invention.</p>
 
-<h2><a name="so-why-the-desperation-to-explain-it-away-today"></a>So Why the Desperation to Explain It Away Today?</h2>
+<h3><a name="so-why-the-desperation-to-explain-it-away-today"></a>So Why the Desperation to Explain It Away Today?</h3>
 
 <p>Because Article 11 is inconvenient.</p>
 
@@ -458,7 +459,7 @@ across languages</p>
 
 <p>But the historical record is what it is.</p>
 
-<h1><a name="the-bottom-line"></a>The Bottom Line</h1>
+<h2><a name="the-bottom-line"></a>The Bottom Line</h2>
 
 <p>In 1797, the U.S. government had no established religion, did not understand itself as Christian in any legal or institutional sense, and said so plainly to foreign powers when appropriate. This was because, if you’ll pardon me for being blisteringly obvious, many people fled <em>to</em> the new world to escape having a government dictate their faith.</p>
 
@@ -502,15 +503,19 @@ across languages</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -535,24 +540,50 @@ across languages</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/torturing-an-llm" class="prevPost">&laquo; Torturing an LLM</a>
-        
-        <a href="/#" class="nextPost"></a>
     </div>
 
 <hr>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/america-is-not-a-christian-nation.html";
+            this.page.identifier = "blog/america-is-not-a-christian-nation";
+            this.page.title      = "America is Not a Christian Nation";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -590,36 +621,23 @@ across languages</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/america-is-not-a-christian-nation.html";
-            this.page.identifier = "blog/america-is-not-a-christian-nation";
-            this.page.title      = "America is Not a Christian Nation";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -640,7 +658,7 @@ across languages</p>
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div><strong>Congress shall make no law respecting an establishment of religion</strong>, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

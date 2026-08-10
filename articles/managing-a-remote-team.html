@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -46,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Building Remote Teams</title>
-  <meta name="description" content="Building Remote Teams">
+  <meta name="description" content="More and more companies are discovering that hiring remote workers gives them access to more workers an is better for the environment. This is a guide about how to manage your new remote teams.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -55,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -66,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -74,37 +84,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Building Remote Teams</h1>
-        <time>2019-07-17</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -179,41 +165,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/project-management-in-three-numbers" class="prevPost">&laquo; Project Management in Three Numbers</a>
-        
-        <a href="/articles/moving-from-oracle-to-postgresql" class="nextPost">Moving from Oracle to PostgreSQL &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2019</span>
+        <span class="dateblock-day"><time datetime="2019-07-17">07.17</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Building Remote Teams</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -223,11 +218,21 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/project-management-in-three-numbers" class="prevPost">&laquo; Project Management in Three Numbers</a>
+        <a href="/articles/moving-from-oracle-to-postgresql" class="nextPost">Moving from Oracle to PostgreSQL &raquo;</a>
+    </div>
+
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
-
+<article id="article">
 
 <nav role="navigation" class="table-of-contents">
     <ul>
@@ -309,11 +314,11 @@ know how to manage one.</p>
 <p>And I get it. Managing a remote team requires a subtly different skillset
 than managing a local team, especially for managing communication. However,
 once you learn how to build and manage a remote team, <strong>you have your
-pick of of some of the best talent on the planet</strong>. Think about having
+pick of some of the best talent on the planet</strong>. Think about having
 a team of top experts at your fingertips to build real value for your company.
 This is the real strength of remote teams and this is how you manage them.</p>
 
-<h1><a name="building-a-remote-team"></a>Building a Remote Team</h1>
+<h2><a name="building-a-remote-team"></a>Building a Remote Team</h2>
 
 <p>You can have the greatest management skills on the planet, but if you have
 an awful team, you're going to struggle.</p>
@@ -336,11 +341,11 @@ apply to local teams. Our consulting firm, <a href="https://allaroundtheworld.fr
 complete hiring process that focuses on both hard (technical) and soft
 (interpersonal) skills.</p>
 
-<h2><a name="hiring"></a>Hiring</h2>
+<h3><a name="hiring"></a>Hiring</h3>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/remote-work.jpg" width="600" alt="A smiling woman, sitting on a bed with her computer, flashin a peace sign.">
+        <img src="/static/images/remote-work.jpg" width="600" alt="A smiling woman, sitting on a bed with her computer, flashing a peace sign.">
     <figcaption>Appropriate Working Conditions  <a href="https://www.pexels.com/photo/woman-in-brown-knit-top-1977047/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
     </div>
 </figure>
@@ -354,7 +359,7 @@ complete hiring process that focuses on both hard (technical) and soft
   <li>Structured interview</li>
 </ol>
 
-<h3><a name="the-cv"></a>The CV</h3>
+<h4><a name="the-cv"></a>The CV</h4>
 
 <p>Many would-be employees get upset that HR departments often use software to
 filter based on keywords and phrases, but after years of hiring, sometimes in
@@ -378,7 +383,7 @@ project.</p>
 <p>And because CVs are almost useless, that's pretty much all I have to
 say.</p>
 
-<h3><a name="the-technical-test"></a>The Technical Test</h3>
+<h4><a name="the-technical-test"></a>The Technical Test</h4>
 
 <figure class="captioned-left">
     <div class="image-container">
@@ -427,11 +432,11 @@ of where they can read more information about those areas on which they were
 weak. I've been amazed at how many developers we turn down who thank us for
 that code review. Many of them have never had one before!</p>
  
-<h3><a name="the-structured-interview"></a>The Structured Interview</h3>
+<h4><a name="the-structured-interview"></a>The Structured Interview</h4>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/outdoors-interview.jpg" width="600" alt="A smiling man, sitting sitting in the forest in front of a camera.">
+        <img src="/static/images/outdoors-interview.jpg" width="600" alt="A smiling man, sitting in the forest in front of a camera.">
     <figcaption>Not how we conduct interviews.  <a href="https://www.pexels.com/photo/photo-of-a-man-sitting-in-front-of-a-camera-2531552/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
     </div>
 </figure>
@@ -450,7 +455,7 @@ coin.</blockquote>
 <p>You may as well just chuck half your CVs in the bin and say "I don't hire
 unlucky people."</p>
 
-<p>The alternative is the structured interview. <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.218.9107&rep=rep1&type=pdf" target="_blank">Here's a choice quote from a meta-analsis of 200 articles and books spanning
+<p>The alternative is the structured interview. <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.218.9107&rep=rep1&type=pdf" target="_blank">Here's a choice quote from a meta-analysis of 200 articles and books spanning
 80 years</a> <span class="fa fa-external-link fa_custom"></span>:</p>
 
 <blockquote>In the 80-year history of published research on employment
@@ -513,7 +518,7 @@ worth taking more time up front to avoid getting a "dud" employee. Third,
 candidates sometimes find it stressful to have you drilling into each question
 in such extreme detail, so be aware of that.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
 
-<h3><a name="people-skills"></a>People Skills</h3>
+<h4><a name="people-skills"></a>People Skills</h4>
 
 <p>Please note that throughout the entire hiring process, you're looking for
 people with good people skills. A destructive personality wrecks teams. I
@@ -521,7 +526,7 @@ don't care how good they are, if they're a jerk, they ruin things for
 everyone. They need to communicate easily, be friendly, challenge without
 arguing, and generally be pleasant to be around. <a href="https://www.freecodecamp.org/news/we-fired-our-top-talent-best-decision-we-ever-made-4c0a99728fde/" target="_blank">Don't hire toxic employees.</a> <span class="fa fa-external-link fa_custom"></span></p>
 
-<h1><a name="managing-a-remote-team"></a>Managing a Remote Team</h1>
+<h2><a name="managing-a-remote-team"></a>Managing a Remote Team</h2>
 
 <figure class="captioned-left">
     <div class="image-container">
@@ -554,7 +559,7 @@ DevOps engineer doesn't mean those people will have time for a new team. They
 have other things to do and they may not prioritize you as much as the friends
 they work with and know.</p>
 
-<h2><a name="supporting-the-team"></a>Supporting the Team</h2>
+<h3><a name="supporting-the-team"></a>Supporting the Team</h3>
 
 <p>The absolute number one obstacle (and objection) to remote teams is
 communication.  Sometimes that quick email someone dashed off misses key
@@ -572,7 +577,7 @@ often more effective than local teams because sometimes local teams make
 assumptions about how things are, when our team can't afford to do
 that.</p>
 
-<h3><a name="communication-channels"></a>Communication Channels</h3>
+<h4><a name="communication-channels"></a>Communication Channels</h4>
 
 <p>One of the beautiful things about remote work is that you skip the office
 chatter, the constant interruptions, the need to beg IT services to let you
@@ -589,7 +594,7 @@ members may have). It's great to ask a quick question on Slack about which
 hashing algorithm you should use, but nothing beats a quick Google Hangout
 session for quickly discussing complicated topics.</p>
 
-<h3><a name="listening"></a>Listening</h3>
+<h4><a name="listening"></a>Listening</h4>
 
 <figure class="captioned">
     <div class="image-container">
@@ -616,7 +621,7 @@ remote teams cannot be like this. Especially when you have your daily "stand
 up" (scare quote explained later), you must be focused and <em>care</em>
 what your team is doing.</p>
 
-<h3><a name="politics"></a>Politics</h3>
+<h4><a name="politics"></a>Politics</h4>
 
 <p>One issue I've seen about remote teams is that they have a particular
 sensitivity to office politics. This may seem counter-intuitive because your
@@ -681,7 +686,7 @@ complain. You support. You build bridges to others and you shield your team
 from the mess. They will learn to trust you, they'll reserve their complaints
 for critical issues, and they'll have fewer distractions from their work.</p>
 
-<h3><a name="answer-questions-before-theyre-asked"></a>Answer Questions Before They're Asked</h3>
+<h4><a name="answer-questions-before-theyre-asked"></a>Answer Questions Before They're Asked</h4>
 
 <figure class="captioned-left">
     <div class="image-container">
@@ -728,7 +733,7 @@ address their questions immediately.</p>
 <p>Remember: one of the greatest obstacles facing remote teams is the
 communication flow.</p>
 
-<h2><a name="daily-stand-ups"></a>Daily "Stand Ups"</h2>
+<h3><a name="daily-stand-ups"></a>Daily "Stand Ups"</h3>
 
 <p>The daily stand-up is our biggest change from traditional management
 techniques, particularly agile ones.</p>
@@ -758,7 +763,7 @@ fully sharing the information because not everyone hears about it.</p>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/tightrope.jpg" width="600" alt="A man walking across a canyon on a tighrope.">
+        <img src="/static/images/tightrope.jpg" width="600" alt="A man walking across a canyon on a tightrope.">
     <figcaption>Working on code you don't understand. <a href="https://unsplash.com/photos/sQIsk1ceA8s" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
     </div>
 </figure>
@@ -799,13 +804,13 @@ sign that agile has become dogma to them rather than a set of guidelines.
 You're looking for candidates who are willing to communicate well.  That means
 both being able to explain themselves clearly and to listen attentively.</p>
 
-<h1><a name="building-the-product"></a>Building the Product</h1>
+<h2><a name="building-the-product"></a>Building the Product</h2>
 
 <p>Just taking a work specification and working through the bullet points is a
 common recipe for disaster for remote teams. Instead, you have to build value;
 the software just comes with the territory.</p>
 
-<h2><a name="understanding-the-company"></a>Understanding the Company</h2>
+<h3><a name="understanding-the-company"></a>Understanding the Company</h3>
 
 <p>When we're brought in to a company to help with an issue and have hired our
 team, we work hard to understand the business of the company and the problem
@@ -820,7 +825,7 @@ substantially different architecture than Oracle 12c.</p>
 <p>Once we have that information and can share it with the team, the hard work
 begins.</p>
 
-<h2><a name="the-architecture"></a>The Architecture</h2>
+<h3><a name="the-architecture"></a>The Architecture</h3>
 
 <p><a href="/articles/avoid-common-software-project-mistakes">As
 I've written before</a>, the later in a project that a bug is found, the
@@ -854,7 +859,7 @@ can do to reduce bugs and control costs.</p>
 <p>Note that unlike code reviews, architecture reviews happen <em>before</em>
 implementation.</p>
 
-<h2><a name="code-reviews"></a>Code Reviews</h2>
+<h3><a name="code-reviews"></a>Code Reviews</h3>
 
 <p>After the architecture is approved, the implementation begins. How the work
 is organized depends on your management style, though I confess that I'm a fan
@@ -884,7 +889,7 @@ the software, or a change of requirements occurs, there are seldom systemic
 issues. This reduces the up-front cost of development and tremendously reduces
 maintenance costs.</p>
 
-<h1><a name="our-values"></a>Our Values</h1>
+<h2><a name="our-values"></a>Our Values</h2>
 
 <a href="https://allaroundtheworld.fr/" target="blank">
     <figure class="captioned-left" style="background-color: black; color: white;">
@@ -907,6 +912,8 @@ supporting.</p>
 these guidelines will give you a superb team that can do things with software
 you never had the chance to do before.</p>
 
+
+</article>
 
 
 
@@ -936,15 +943,19 @@ you never had the chance to do before.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -969,11 +980,8 @@ you never had the chance to do before.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/project-management-in-three-numbers" class="prevPost">&laquo; Project Management in Three Numbers</a>
-        
         <a href="/articles/moving-from-oracle-to-postgresql" class="nextPost">Moving from Oracle to PostgreSQL &raquo;</a>
     </div>
 
@@ -981,12 +989,42 @@ you never had the chance to do before.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/managing-a-remote-team.html";
+            this.page.identifier = "articles/managing-a-remote-team";
+            this.page.title      = "Building Remote Teams";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -1024,36 +1062,23 @@ you never had the chance to do before.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/managing-a-remote-team.html";
-            this.page.identifier = "articles/managing-a-remote-team";
-            this.page.title      = "Building Remote Teams";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/collapsible.js"></script>
 	
@@ -1073,7 +1098,7 @@ you never had the chance to do before.</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>And because the
 manager had worked with me before at the BBC and knew what I could do</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1088,7 +1113,7 @@ manager had worked with me before at the BBC and knew what I could do</div>
 	    <div>To be
 fair, though the company agreed on my rate, they stated from the outset they
 wanted me in Brighton regularly.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1103,7 +1128,7 @@ wanted me in Brighton regularly.</div>
 	    <div>In fact, I know of one incident candidate who lied and claimed he
 was a famous, but secretive programmer, not realizing that the hiring manager
 actually knew the programmer in question.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1118,7 +1143,7 @@ actually knew the programmer in question.</div>
 	    <div>Sadly, this is very rare because <a
 href="/articles/how-databases-can-hurt-your-startup">most developers
 don&lsquo;t understand databases</a>.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1136,7 +1161,7 @@ test, I've only had one person submit a modperl solution who passed the test,
 but it's not because I'm docking them for using modperl. There's something
 about developers stuck in the modperl world that means they badly miss the
 other things I'm looking for.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1153,7 +1178,7 @@ noting that our '1 to 5' scoring might vary per question. Weighting a
 particular question heavily might be important if it dominates the client
 environment, but don't stress about that too much. An even weighting scale
 across all questions is usually fine.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1169,7 +1194,7 @@ across all questions is usually fine.</div>
 much harder for candidates to lie their way through a properly conducted
 structured interview because each topic is covered so thoroughly that
 that they're hard to &quot;BS&quot; your way through them.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1187,7 +1212,7 @@ colleagues, she&lsquo;s direct and businesslike. But when she meets them for
 the first time, she often has to deal with their confusion because she&lsquo;s
 a very attractive woman. Sometimes the result is funny and sometimes
 it&lsquo;s not.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1201,7 +1226,7 @@ it&lsquo;s not.</div>
         <p id="note-description-9" class="sr-only">Note number 9</p>
 	    <div>Though to be honest, sometimes this is the only approach,
 especially if you&lsquo;re remote yourself.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1219,7 +1244,7 @@ often suggests a meeting room. For many organizations, they don't want you
 booking a meeting room for an hour a day every day, or you may simply find it
 hard to find a meeting room. Thus, the 15 minute stand-up nicely sidesteps a
 bureaucratic problem. That's one of the beauties of agile.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1341,4 +1366,5 @@ bureaucratic problem. That's one of the beauties of agile.
     
 </body>
 </html>
+
 

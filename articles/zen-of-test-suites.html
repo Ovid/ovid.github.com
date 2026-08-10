@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -47,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>The Zen of Test Suites</title>
-  <meta name="description" content="The Zen of Test Suites">
+  <meta name="description" content="An overview of some basic test suite tips that are nonetheless overlooked.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -56,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -67,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -75,37 +84,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>The Zen of Test Suites</h1>
-        <time>2018-09-16</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -180,41 +165,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/how-databases-can-hurt-your-startup" class="prevPost">&laquo; How the database can hurt your startup</a>
-        
-        <a href="/articles/death-by-database" class="nextPost">Death by Database &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2018</span>
+        <span class="dateblock-day"><time datetime="2018-09-16">09.16</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>The Zen of Test Suites</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -224,11 +218,21 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/how-databases-can-hurt-your-startup" class="prevPost">&laquo; How the database can hurt your startup</a>
+        <a href="/articles/death-by-database" class="nextPost">Death by Database &raquo;</a>
+    </div>
+
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
-
+<article id="article">
 
 <nav role="navigation" class="table-of-contents">
     <ul>
@@ -266,7 +270,7 @@ with recommendations on best practices.  Much of what I describe below
 is generic and applies to test suites written in any programming
 language, despite many examples being written in Perl.</p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>I often speak with developers who take a new job and they describe
 a Web site built out of a bunch of separate scripts scattered randomly
@@ -331,7 +335,7 @@ trying to figure out where to put their new tests.</p>
 <p>Unfortunately, this disorganization is only the start of the
 problem.</p>
 
-<h1><a name="common-test-suite-problems"></a>Common Test Suite Problems</h1>
+<h2><a name="common-test-suite-problems"></a>Common Test Suite Problems</h2>
 
 <p>I've worked with many companies with large test suites and they
 tend to share some common problems. I list them in below in the order
@@ -368,7 +372,7 @@ will offer recommendations for resolving each problem, but it's
 important to understand that these are <em>recommendations</em>. They
 may not apply to your situation.</p>
 
-<h2><a name="tests-often-emit-warnings"></a>Tests often emit warnings</h2>
+<h3><a name="tests-often-emit-warnings"></a>Tests often emit warnings</h3>
 
 <p>This seems rather innocuous. Sure, code emits warnings and we're
 used to that.  Unfortunately, we sometimes forget that warnings are
@@ -400,7 +404,7 @@ serious issue. Also, some tests will capture STDERR, effectively
 hiding warnings. Making warnings fatal while running tests can help to
 overcome this problem.</p>
 
-<h2><a name="tests-often-fail"></a>Tests often fail</h2>
+<h3><a name="tests-often-fail"></a>Tests often fail</h3>
 
 <p>For one client, their hour-long test suite had many failing tests.
 When I first started working on it, I had a developer walk me through
@@ -420,7 +424,7 @@ them. They kick off the test suite, run and grab some coffee and later
 glance over results to see if they look reasonable (that's assuming
 they run all of the tests, something which often stops happening at
 this point). What's worse, continuous integration tools are often
-built to accomodate this. From the Jenkin's <a
+built to accommodate this. From the Jenkin's <a
 href="https://wiki.jenkins-ci.org/display/JENKINS/xUnit+Plugin"
 rel="nofollow">xUnit Plugin page</a>:</p>
 
@@ -452,8 +456,8 @@ next developer a clue what's going on.</p>
 tests fail which do not impact the correctness of the application
 (such as documentation or "coding style" tests), they should be
 separated from your regular tests in some manner and your systems
-should recognize that it's OK for them to fail.</p> <h2><a name="there-is-little-evidence-of-organization"></a>There is
-little evidence of organization</h2>
+should recognize that it's OK for them to fail.</p> <h3><a name="there-is-little-evidence-of-organization"></a>There is
+little evidence of organization</h3>
 
 <p>As mentioned previously, a common lament amongst developers is the
 difficulty of finding tests for the code they're working on. Consider
@@ -548,9 +552,9 @@ structured differently:</p>
 predictable, discoverable structure. The test suite should be much
 easier to work with.</p>
 
-<h2><a name="much-of-the-testing-code-is-duplicated"></a>Much of the testing code is duplicated</h2>
+<h3><a name="much-of-the-testing-code-is-duplicated"></a>Much of the testing code is duplicated</h3>
 
-<p>We're aghast that that people routinely cut-n-paste their
+<p>We're aghast that people routinely cut-n-paste their
 application code, but we don't even notice when people do this in
 their test code. More than once I've worked on a test suite with a
 significant logic change and I've had to find this duplicated code and
@@ -670,7 +674,7 @@ designs.</p>
 <p><strong>Recommendation</strong>: Keep your test code as clean as
 your application code.</p>
 
-<h2><a name="testing-fixtures-are-not-used-or-poorly-used"></a>Testing fixtures are not used (or poorly used)</h2>
+<h3><a name="testing-fixtures-are-not-used-or-poorly-used"></a>Testing fixtures are not used (or poorly used)</h3>
 
 <p>One difference between your application code and the test suite is
 in an application, we often have no idea what the data will be and we
@@ -786,7 +790,7 @@ are welcome in this area.</p>
 <p><strong>Recommendation</strong>: Fine-grained, well-documented
 fixtures which are easy to create and easy to clean up.</p>
 
-<h2><a name="code-coverage-is-poorly-understood"></a>Code coverage is poorly understood</h2>
+<h3><a name="code-coverage-is-poorly-understood"></a>Code coverage is poorly understood</h3>
 
 <p>Consider the following code:</p>
 <pre><code>float recip(float number) {
@@ -876,7 +880,7 @@ determine which ones are poorly tested.</p>
 <p><strong>Recommendation</strong>: Run coverage over public-facing
 code and on different subsystems to find poor coverage.</p>
 
-<h2><a name="they-take-far-too-long-to-run"></a>They take far too long to run</h2>
+<h3><a name="they-take-far-too-long-to-run"></a>They take far too long to run</h3>
 
 <p>The problem with long-running test suites is well known, but it's
 worth covering this again here. These are problems that others have
@@ -927,7 +931,7 @@ when, in fact, someone else broke the code.</p>
 once a day (I'm careful about testing and often ran mine twice a day).
 By cutting test suite run time by over an hour, we reclaimed a
 <em>full day</em> of developer productivity every day! Even if it
-takes a developer a month to increase perfomance by that amount it
+takes a developer a month to increase performance by that amount it
 pays for itself many times over very quickly.  Why would you not do
 this?  As a business owner, wouldn't you want your developers to save
 time on their test suite so they can create features faster for
@@ -975,9 +979,9 @@ are:</p>
 may find that your test suite is "fast enough", but if you wish to go
 further, there are several steps you can take.</p>
 
-<h1><a name="recommendations"></a>Recommendations</h1>
+<h2><a name="recommendations"></a>Recommendations</h2>
 
-<h2><a name="aggressively-search-for-and-remove-duplicated-tests"></a>Aggressively search for and remove duplicated tests.</h2>
+<h3><a name="aggressively-search-for-and-remove-duplicated-tests"></a>Aggressively search for and remove duplicated tests.</h3>
 
 <p>For poorly organized test suites, developers sometimes make the
 mistake of putting tests for something in a new <code>*.t</code> file
@@ -985,7 +989,7 @@ or add them to a different <code>*.t</code> file, even if related
 tests already exist. This strategy can be time-consuming and often
 does not result in quick wins.</p>
 
-<h2><a name="use-code-coverage-aggressively"></a>Use code coverage aggressively</h2>
+<h3><a name="use-code-coverage-aggressively"></a>Use code coverage aggressively</h3>
 
 <p>For one test suite, I found that we were using a pure Perl
 implementation of JSON. As the test suite used JSON extensively,
@@ -993,14 +997,14 @@ switching to <a href="http://search.cpan.org/dist/JSON-XS/XS.pm"
 rel="nofollow">JSON::XS</a> gave us a nice performance boost. We may
 not have noticed that if we hadn't been profiling our code.</p>
 
-<h2><a name="look-for-code-with-global-effects"></a>Look for code with "global" effects</h2>
+<h3><a name="look-for-code-with-global-effects"></a>Look for code with "global" effects</h3>
 
 <p>On one test suite, I ensured that <code>Universal::isa</code> and
 <code>Universal::can</code> cannot be loaded. It was a quick fix and
 sped up the test suite by 2% (several small accumulations of
 improvements can add up quickly).</p>
 
-<h2><a name="inline-hot-functions"></a>Inline "hot" functions.</h2>
+<h3><a name="inline-hot-functions"></a>Inline "hot" functions.</h3>
 
 <p>Consider the following code which runs in about 3.2 seconds on my
 computer:</p>
@@ -1051,7 +1055,7 @@ sub factorial {
 faster than the iterative function and 80% faster than the recursive function.</p>
 
 
-<h2><a name="recompile-your-perl"></a>Recompile your Perl</h2>
+<h3><a name="recompile-your-perl"></a>Recompile your Perl</h3>
 
 <p>You may wish to recompile your Perl to gain a performance
 improvement. Many Linux distributions ship with a threaded Perl by
@@ -1063,7 +1067,7 @@ forking model for the threaded code may make the recompile worth it.
 Naturally, you'll need to heavily benchmark your code (preferably
 under production-like loads) to understand the trade-offs here.</p>
 
-<h2><a name="preload-modules"></a>Preload modules</h2>
+<h3><a name="preload-modules"></a>Preload modules</h3>
 
 <p>If your codebase makes heavy use of modules that are slow to load,
 such as <code>Moose</code>, <code>Catalyst</code>,
@@ -1078,7 +1082,7 @@ minutes to about a minute</a>.  Unfortunately, <code>forkprove</code>
 doesn't allow schedules, a key component often needed for larger test
 suites. I'll explain that in the next section.</p>
 
-<h2><a name="parallel-tests"></a>Parallel tests</h2>
+<h3><a name="parallel-tests"></a>Parallel tests</h3>
 
 <p>Running tests in parallel is tricky. Some tests simply
 <em>can't</em> be run with other tests. Usually these are tests which
@@ -1130,7 +1134,7 @@ might still cause the code to be loaded multiple times.</p>
 href="http://blogs.perl.org/users/ovid/2013/12/merry-christmas-parallel-testing-with-testclassmoose-has-arrived.html"
 rel="nofollow">12 minute test suite to 30 seconds</a>.</p>
 
-<h2><a name="distributed-tests"></a>Distributed tests</h2>
+<h3><a name="distributed-tests"></a>Distributed tests</h3>
 
 <p>Though I haven't used this module, Alex Vandiver has written <a
 href="http://search.cpan.org/dist/TAP-Harness-Remote/lib/TAP/Harness/Remote.pm"
@@ -1144,7 +1148,7 @@ rel="nofollow">TAP::Stream</a>, a module that allows you to take
 streams (the text, actually) of TAP from multiple sources and combine
 them into a single TAP document.</p>
 
-<h2><a name="develcoverxcovered"></a>Devel::CoverX::Covered</h2>
+<h3><a name="develcoverxcovered"></a>Devel::CoverX::Covered</h3>
 
 <p>There is yet another interesting strategy: only run tests that
 exercise the code that you're changing. Johan Lindström wrote <a
@@ -1173,7 +1177,7 @@ Pick a goal and work to achieving that goal (it's easy to keep
 optimizing for too long and start getting diminishing marginal
 returns).</p>
 
-<h1><a name="testclassmoose"></a>Test::Class::Moose</h1>
+<h2><a name="testclassmoose"></a>Test::Class::Moose</h2>
 
 <p>If you start creating a large Web site, do you start writing a
 bunch of individual scripts, each designed to handle one URL and each
@@ -1232,6 +1236,8 @@ updating, but between those and reading the
 <code>Test::Class::Moose</code> documentation, you should be able to
 get up to speed fairly quickly.</p>
 
+</article>
+
 
 
           <p><strong>Please leave a comment below!</strong></p>
@@ -1260,15 +1266,19 @@ get up to speed fairly quickly.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -1293,11 +1303,8 @@ get up to speed fairly quickly.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/how-databases-can-hurt-your-startup" class="prevPost">&laquo; How the database can hurt your startup</a>
-        
         <a href="/articles/death-by-database" class="nextPost">Death by Database &raquo;</a>
     </div>
 
@@ -1305,12 +1312,42 @@ get up to speed fairly quickly.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/zen-of-test-suites.html";
+            this.page.identifier = "articles/zen-of-test-suites";
+            this.page.title      = "The Zen of Test Suites";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -1348,39 +1385,27 @@ get up to speed fairly quickly.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/zen-of-test-suites.html";
-            this.page.identifier = "articles/zen-of-test-suites";
-            this.page.title      = "The Zen of Test Suites";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/collapsible.js"></script>
 	
 </body>
 </html>
+
 

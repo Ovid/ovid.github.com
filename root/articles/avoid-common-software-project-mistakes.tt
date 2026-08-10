@@ -5,7 +5,7 @@
     date             = '2019-04-11';
     include_comments = 1;
 %]
-[% INCLUDE include/header.tt %]
+[% WRAPPER include/wrapper.tt blogdown=0 -%]
 
 {{TAGS programming databases}}
 
@@ -66,7 +66,7 @@ href="https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html#sql-mode-important"
 target="_blank">recommended modes</a> and have a competent DBA who understands
 database design and performance. Otherwise, if there's not strong requirement
 for choice of database, use PostgreSQL. I've heard DBAs complain that it takes
-more work to administer, but that's because motorcyles require more
+more work to administer, but that's because motorcycles require more
 maintenance than bicycles, but they'll get you there faster.</p>
 
 <h2>Database Migrations</h2>
@@ -101,7 +101,7 @@ not.</p>
 
 <p>That, at least, can allow devs to back out changes (but tricky if your DDL
 isn't transaction-safe), but it's amazing when you get to migration 215 and
-you have 30 developers, five of them need to make a datababase change an
+you have 30 developers, five of them need to make a database change an
 they're arguing over who gets number 216. Yes, I've seen this happen more than
 once.</p>
 
@@ -182,7 +182,7 @@ off.</p>
 <p>One of my favorite interactions with a developer was in the Paris office of
 a client with legitimate "big data" needs. But their NoSQL solution (which I'm
 not going to name) was awful. It was slow, painful to query, but offered
-"eventual constistency." There was a different NoSQL solution that seemed like
+"eventual consistency." There was a different NoSQL solution that seemed like
 a better fit, including a much better query syntax. However, if you learn one
 thing as a consultant, let it be this: never assume your client is stupid. If
 you're wrong, your client gets angry. If you're right, your client gets
@@ -291,4 +291,4 @@ start a new project.</p>
 them in the comments below! Or better yet, tell me how many your project has
 made!</p>
 
-[% INCLUDE include/footer.tt %]
+[% END %]

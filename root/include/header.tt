@@ -37,16 +37,43 @@
     })();
   </script>
   [% USE Ovid; USE Config -%]
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=[% Config.google_analytics_id %]"></script>
+  <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === '[% Config.domain %]' || location.hostname.endsWith('.[% Config.domain %]')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=[% Config.google_analytics_id %]';
+      document.head.appendChild(gaTag);
 
-    gtag('config', '[% Config.google_analytics_id %]');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '[% Config.google_analytics_id %]');
+    }
   </script>
   [% IF type == 'articles' OR type == 'blog' %][% USE pager = Pager(type => type) %][% END %]
+[%- # One description, shared by <meta name="description"> and og:description.
+    # Prefer a `description` set in the page's own preamble, then the
+    # description stored alongside the article, and only then the title.
+    #
+    # The title had been the default for every page, which is close to no
+    # description at all: a search engine that finds the description merely
+    # restating the title discards it and synthesises a snippet instead.
+    # Articles already had a real one -- og:description was reading it -- but
+    # <meta name="description"> never used it.
+    #
+    # `pager` only exists for articles and blog posts. Tag pages set both type
+    # and slug, so the old `IF type && slug` guard called this_post on an
+    # undefined pager and produced an *empty* og:description on every one of
+    # them.
+    IF description;
+        page_description = description;
+    ELSIF pager AND slug;
+        page_description = pager.this_post(type, slug).description;
+    END;
+    page_description = page_description || title;
+-%]
 
   <!-- Facebook -->
 
@@ -69,7 +96,7 @@
   <meta property="og:url" content="[% Config.url %]">
   [% END %]
   <meta property="og:title" content="[% title |html %]">
-  <meta property="og:description" content="[% IF type && slug %][% pager.this_post(type, slug).description |html %][% ELSE %][% title |html %][% END %]">
+  <meta property="og:description" content="[% page_description | html %]">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -84,7 +111,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>[% title | html %]</title>
-  <meta name="description" content="[% title | html %]">
+  <meta name="description" content="[% page_description | html %]">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="[% Config.url %]article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="[% Config.url %]blog.rss">
@@ -93,7 +120,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -104,6 +133,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
   [% IF syntax_highlight -%]
   <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
   [% END -%]
@@ -134,39 +164,65 @@
 
 </head>
 <body>
-[% INCLUDE "include/dark-mode.tt" %]
+[%# Targets the <main> landmark, not the <article> inside it: 39 pages --
+    the paginated indexes and the 18 legacy articles -- have no #article,
+    so this link was a dead anchor on every one of them. -%]
+  <a class="skip-link" href="#content">Skip to content</a>
 
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
+[% INCLUDE include/search.tt %]
+[% INCLUDE "include/dark-mode.tt" %]
         </div>
-    </div>
-    <div class="row title[% IF type == 'blog' %] blog[% END %]">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1>[% title || "No Title Found" %]</h1>
-        [% IF date %]<time>[% date %]</time>[% END %]
-        [% IF type == 'articles' or type == 'blog' %]
-        <p><span id="time"></span> minute read</p>
-        [% END %]
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-[% INCLUDE include/links.tt %]
       </div>
-      <div class="ten columns verticalLine article">
+[% INCLUDE include/links.tt %]
+    </div>
+  </header>
+
+  <div class="wrap">
+[%- IF date;
+      dparts = date.split('-');
+      dyear  = dparts.0;
+      dmonth = dparts.1;
+      dday   = dparts.2;
+    END;
+-%]
+    <div class="opener[% IF type == 'blog' %] opener--blog[% END %]">
+      <div class="dateblock[% IF date %] is-filled[% END %]">
+[%- IF date %]
+        <span class="dateblock-year">[% dyear %]</span>
+        <span class="dateblock-day"><time datetime="[% date %]">[% dmonth %].[% dday %]</time></span>
+[%- END %]
+        <span class="dateblock-meta">
+[%- IF type == 'articles' %]Articles[% ELSIF type == 'blog' %]Blog[% END %]
+[%- IF type == 'articles' or type == 'blog' %]<br><span id="time"></span> min read[% END %]
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>[% title || "No Title Found" %]</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <aside class="marginalia[% IF type == 'articles' or type == 'blog' %] is-filled[% END %]">
+[% IF type == 'articles' or type == 'blog' %][% INCLUDE include/tags_for_article.tt type=type slug=slug %][% END %]
+      </aside>
+[%# The main landmark, so assistive tech can jump past the masthead and nav
+    to the content. It wraps .prose rather than the <article> inside it
+    because 18 legacy pages include this header directly and never get that
+    <article> at all -- putting the landmark here is the one spot that covers
+    every page carrying the skip link. -%]
+      <main class="prose" id="content">
 [% IF type == 'articles' or type == 'blog' %]
-    [% INCLUDE include/pager.tt %]
-    [% INCLUDE include/tags_for_article.tt type=type slug=slug %]
-        <hr>
-    [% INCLUDE include/hiring.tt %]
+[%- # Same prev/next strip as the footer, so readers can move between posts
+    # without scrolling to the bottom first. -%]
+[% INCLUDE include/pager.tt %]
+<hr>
 [% END %]
+[%- # Site-wide, so it sits outside the articles/blog gate above. Quoted
+    # because an unquoted template name containing a hyphen parses as
+    # subtraction, and TT dies with "unexpected token (-)". -%]
+[% INCLUDE "include/global-message.tt" %]

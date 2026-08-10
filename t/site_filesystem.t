@@ -112,9 +112,14 @@ subtest '_write_tag_templates writes a stub for each configured tag' => sub {
             my $f = $tempdir->child("root/tags/$tag.tt2markdown");
             ok -e $f, "$tag tag template exists";
             my $content = $f->slurp;
-            like $content, qr/title = 'Tags: /, "title key present in $tag";
+            like $content, qr/title\s+=\s+'Tags: /, "title key present in $tag";
             like $content, qr{INCLUDE include/tags\.tt}, "INCLUDE present in $tag";
             like $content, qr/slug\s+=\s+'$tag'/, "slug key matches tag in $tag";
+
+            # Without this the page falls back to its own title, "Tags: Perl",
+            # which tells a search engine nothing the <title> did not.
+            like $content, qr/description\s+=\s+'[^']+'/,
+              "description key present in $tag";
         }
     };
 };
@@ -160,6 +165,40 @@ subtest '_write_sitemap writes sitemap.xml with urlset entries' => sub {
         like $xml, qr{<changefreq>monthly</changefreq>}, 'changefreq assigned for index';
         like $xml, qr{</urlset>}, 'urlset close';
     };
+};
+
+subtest '_reject_git_ignored drops pages that will not be deployed' => sub {
+    _with_site sub {
+        my ( $site, $tempdir ) = @_;
+        system( 'git', 'init', '--quiet', "$tempdir" );
+        $tempdir->child('.gitignore')->spew_utf8("/Extraction/\n");
+        $tempdir->child('Extraction')->mkpath;
+        $tempdir->child('Extraction/index.html')->spew('<html></html>');
+        $tempdir->child('blog')->mkpath;
+        $tempdir->child('blog/bar.html')->spew('<html></html>');
+
+        is_deeply
+          [ $site->_reject_git_ignored(
+                'blog/bar.html', 'Extraction/index.html' ) ],
+          ['blog/bar.html'],
+          'gitignored nested project dropped, deployable page kept';
+
+        is_deeply [ $site->_reject_git_ignored() ], [],
+          'empty input does not invoke git';
+    };
+};
+
+subtest 'no source copy shadows the generated search engine' => sub {
+
+    # _build_tinysearch writes the freshly built index to static/js/search,
+    # but bin/rebuild copies root/static/* over static/*. A copy living under
+    # root/ therefore silently reverts every rebuilt index on the next plain
+    # rebuild -- a stale 2023 copy did exactly that, restoring search results
+    # that pointed at pages which no longer deploy.
+    my $shadow = path(__FILE__)->parent->parent->child('root/static/js/search');
+    my @found = $shadow->exists ? $shadow->children : ();
+    ok !@found, 'root/static/js/search holds no build artefacts'
+      or diag "these would clobber the built index: @found";
 };
 
 done_testing;

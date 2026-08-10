@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Migrating from Oracle to PostgreSQL</title>
-  <meta name="description" content="Migrating from Oracle to PostgreSQL">
+  <meta name="description" content="Moving from Oracle to PostgreSQL can save you a lot of money and pain. Here are the steps you need to take.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -77,37 +85,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Migrating from Oracle to PostgreSQL</h1>
-        <time>2019-07-20</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -182,41 +166,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/managing-a-remote-team" class="prevPost">&laquo; Managing a Remote Team</a>
-        
-        <a href="/articles/project-500" class="nextPost">Case Study: 500 TPS &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2019</span>
+        <span class="dateblock-day"><time datetime="2019-07-20">07.20</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Migrating from Oracle to PostgreSQL</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -228,9 +221,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/managing-a-remote-team" class="prevPost">&laquo; Managing a Remote Team</a>
+        <a href="/articles/project-500" class="nextPost">Case Study: 500 TPS &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -262,7 +264,7 @@
     </div>
 </figure></p>
 
-<h1><a name="why-leave-oracle"></a>Why Leave Oracle?</h1>
+<h2><a name="why-leave-oracle"></a>Why Leave Oracle?</h2>
 
 <blockquote><p>Oracle is the fast, beastly sports car that will quickly outpace that Honda
 Accord you’re driving ... so long as the sports car has an expert driver,
@@ -298,7 +300,7 @@ that while Oracle could run on Linux, it needed to be Red Hat Advanced Server.</
 
 <p>Words were said. They were not nice words.</p>
 
-<h2><a name="time-has-not-been-kind-to-oracle"></a>Time Has Not Been Kind to Oracle</h2>
+<h3><a name="time-has-not-been-kind-to-oracle"></a>Time Has Not Been Kind to Oracle</h3>
 
 <p>In the early 2000s, switching from Oracle to PostgreSQL was a gamble.  Today
 we’ve had several clients making the switch or in the process of it, but what
@@ -311,7 +313,7 @@ technical reasons, too. Oracle DDL is not transaction safe.  <span aria-label="O
 treating empty strings as <code>NULL</code>, causing all sorts of subtle bugs. And Oracle
 was built in an ASCII world, not a Unicode one, and it shows, painfully.</p>
 
-<h2><a name="added-benefits-of-postgresql"></a>Added Benefits of PostgreSQL</h2>
+<h3><a name="added-benefits-of-postgresql"></a>Added Benefits of PostgreSQL</h3>
 
 <p>First, PostgreSQL is generally chosen as the migration target due to its
 strong compatibility with Oracle and its excellent data handling. Fortunately,
@@ -334,7 +336,7 @@ open extension library, its geospatial tooling and JSON support are arguably
 much stronger than Oracle’s. If you need those tools, you save a ton of money
 <em>and</em> get a better product.</p>
 
-<h1><a name="starting-the-process"></a>Starting the Process</h1>
+<h2><a name="starting-the-process"></a>Starting the Process</h2>
 
 <p>As with any project of this scope, you need to start out with a solid plan and
 that plan starts with a problem statement clearly outlining:</p>
@@ -370,7 +372,7 @@ find many internal cases where they’re unnecessarily spending on Oracle
 licenses. The Enterprise applications are often difficult to extricate from,
 while individual applications still eat up enormous costs for no valid reason.</p>
 
-<h2><a name="success-criteria"></a>Success Criteria</h2>
+<h3><a name="success-criteria"></a>Success Criteria</h3>
 
 <p>However, it’s points 4 and 5 above (success criteria and SWOT analysis) that
 we find many clients don’t address. For example, the success criteria needs
@@ -393,7 +395,7 @@ oversee the process is helpful because they are focused on successful delivery
 and are less likely to be pulled away on internal “distractions” that arise
 throughout the migration process.</p>
 
-<h2><a name="swot-analysis"></a>SWOT Analysis</h2>
+<h3><a name="swot-analysis"></a>SWOT Analysis</h3>
 
 <p>A <a href="https://www.investopedia.com/terms/s/swot.asp" target="_blank">SWOT
 analysis</a> <span class="fa fa-external-link fa_custom"></span> is simply a listing of Strengths, Weaknesses, Opportunities
@@ -404,10 +406,10 @@ transactions, while threats might involve a need for write-heavy multi-master
 replication.</p>
 
 <p>The above weaknesses or threats can be addressed, but you need to understand
-them and plan for them up front, with a signicant focus on mitigating
+them and plan for them up front, with a significant focus on mitigating
 weaknesses and threats.</p>
 
-<h1><a name="developing-a-migration-plan"></a>Developing a Migration Plan</h1>
+<h2><a name="developing-a-migration-plan"></a>Developing a Migration Plan</h2>
 
 <p>The migration plan that you develop will need to be fine-tuned for how your
 company operates, so a “one-size fits all” plan is not possible to develop.
@@ -424,7 +426,7 @@ steps:</p>
 <li>Rollback</li>
 </ol>
 
-<h2><a name="1-audit"></a>1. Audit</h2>
+<h3><a name="1-audit"></a>1. Audit</h3>
 
 <p>The audit stage starts with identifying every area in your organization where
 Oracle is used, identifying all licenses and expirations (you may need to
@@ -444,7 +446,7 @@ only migrating what needs to be migrated. Do you have historical data that
 doesn’t need migration? Do you have tables or stored procedures which are no
 longer used? You may find it simpler to skip those.</p>
 
-<h2><a name="2-planning"></a>2. Planning</h2>
+<h3><a name="2-planning"></a>2. Planning</h3>
 
 <p>With the primary audit finished, it’s time to develop a detailed plan on
 migrating to PostgreSQL. We know of one company in Portland, Oregon, which
@@ -461,7 +463,7 @@ commercial tools which can migrate an Oracle schema to a PostgreSQL schema.
 Care will still need to be taken, however, especially if you have Unicode
 data.</p>
 
-<h2><a name="3-migration"></a>3. Migration</h2>
+<h3><a name="3-migration"></a>3. Migration</h3>
 
 <p>The actual migration at the database level will take some time, but it in the
 software level that you’ll particularly experience grief. Having a robust test
@@ -499,7 +501,7 @@ much of the pain go away, but not all (and it may prove to be a crutch you
 shouldn’t rely on). Again, comprehensive automated testing backed by a QA
 department is helpful here.</p>
 
-<h2><a name="4-testing"></a>4. Testing</h2>
+<h3><a name="4-testing"></a>4. Testing</h3>
 
 <p>While it’s improved dramatically over the past decade or two, testing is the
 bane of many IT companies. Developers tend to test that their software does
@@ -530,7 +532,7 @@ migration. A solid testing plan allows you to ensure that regressions don’t
 occur in the PostgreSQL implementation as it undergoes further development.
 Spending this time and money up front will save you time and money later.</p>
 
-<h2><a name="5-adjusting"></a>5. Adjusting</h2>
+<h3><a name="5-adjusting"></a>5. Adjusting</h3>
 
 <p>The migration and testing aspects of your transition will likely need to be
 repeated more than once. There’s not much to say about the “adjustment” phase
@@ -548,7 +550,7 @@ an acceptable trade off? Are all success criteria <em>really</em> that important
 Remember: your primary goal is to facilitate the Oracle to PostgreSQL
 migration.  You can take full advantage of PostgreSQL’s power later.</p>
 
-<h2><a name="6-deployment"></a>6. Deployment</h2>
+<h3><a name="6-deployment"></a>6. Deployment</h3>
 
 <p>Congratulations! Your migration and testing have worked. You’ve successfully
 met your success criteria. You’ve made adjustments here and there, but you’re
@@ -575,7 +577,7 @@ new system, being ready to switch it back in a hurry, if needed.</p>
 <p>And if you do this on a Friday, you deserve the pain you’re going to
 inevitably going to face.</p>
 
-<h2><a name="7-rollback"></a>7. Rollback</h2>
+<h3><a name="7-rollback"></a>7. Rollback</h3>
 
 <p>If you’ve followed the steps above and gotten to the point of rollout, you’re
 probably in a good place but you still need to plan for rollback. Will you
@@ -603,7 +605,7 @@ unlikely to face this decision, but prepare for it.</p>
 success, not prepare for failure. By expecting success but planning for
 failure, you’ll put yourself in a great position.</p>
 
-<h1><a name="success"></a>Success!</h1>
+<h2><a name="success"></a>Success!</h2>
 
 <p>Congratulations! You’ve successfully replaced Oracle with PostgreSQL. You’ve
 saved yourself a lot of money, you have a database that’s easier to manage,
@@ -639,15 +641,19 @@ and you get to take advantage of many of the powerful features of PostgreSQL.</p
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -672,11 +678,8 @@ and you get to take advantage of many of the powerful features of PostgreSQL.</p
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/managing-a-remote-team" class="prevPost">&laquo; Managing a Remote Team</a>
-        
         <a href="/articles/project-500" class="nextPost">Case Study: 500 TPS &raquo;</a>
     </div>
 
@@ -684,12 +687,42 @@ and you get to take advantage of many of the powerful features of PostgreSQL.</p
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/moving-from-oracle-to-postgresql.html";
+            this.page.identifier = "articles/moving-from-oracle-to-postgresql";
+            this.page.title      = "Migrating from Oracle to PostgreSQL";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -727,36 +760,23 @@ and you get to take advantage of many of the powerful features of PostgreSQL.</p
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/moving-from-oracle-to-postgresql.html";
-            this.page.identifier = "articles/moving-from-oracle-to-postgresql";
-            this.page.title      = "Migrating from Oracle to PostgreSQL";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -782,7 +802,7 @@ of the database cannot be rolled back, thus potentially leaving your database
 in a corrupted state if a transaction fails.  Oracle Database version 11g
 Release 2 has a workaround via the cumbersome 'Edition-Based Redefinition' to
 work around this limitation.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

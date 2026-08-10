@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Feature Switch Best Practices</title>
-  <meta name="description" content="Feature Switch Best Practices">
+  <meta name="description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let's discuss best practices.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Feature Switch Best Practices</h1>
-        <time>2022-11-23</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/current-corinna-status" class="prevPost">&laquo; Current Corinna Status</a>
-        
-        <a href="/articles/converting-object-oriented-code-to-corinna" class="nextPost">Converting Object-Oriented Code to Corinna &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2022</span>
+        <span class="dateblock-day"><time datetime="2022-11-23">11.23</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Feature Switch Best Practices</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -230,9 +223,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/current-corinna-status" class="prevPost">&laquo; Current Corinna Status</a>
+        <a href="/articles/converting-object-oriented-code-to-corinna" class="nextPost">Converting Object-Oriented Code to Corinna &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -256,7 +258,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>One of the best things to come out of the modern DevOps movement is the
 aggressive push for “feature switches” (also known as “feature flags” or
@@ -284,7 +286,7 @@ you just need to get up and running and comfortable with feature switches. Once
 you do, you can better understand the additional tooling support needed for your
 use case.</p>
 
-<h1><a name="programming-a-new-feature"></a>Programming A New Feature</h1>
+<h2><a name="programming-a-new-feature"></a>Programming A New Feature</h2>
 
 <p>For the developer, using feature switches is straight-forward. Imagine that you
 always show a list of categories for products you sell, but you’re fetching it
@@ -335,7 +337,7 @@ ways before crossing a one-way street. So you roll out your new code with your
 feature turned <em>off</em> and after you verify everything is good, you turn on your
 feature. How?</p>
 
-<h1><a name="use-control-panels"></a>Use Control Panels</h1>
+<h2><a name="use-control-panels"></a>Use Control Panels</h2>
 
 <p>Typically, a good system for feature switches should have a
 web-based control panel that lists each feature and shows, amongst other things:</p>
@@ -364,7 +366,7 @@ even want to include what team the feature belongs to, or what departments are
 responsible for it. Because so many companies are structured differently, it’s
 hard to give clear guidance without knowing the specifics.</p>
 
-<h1><a name="dont-use-control-panels"></a>Don’t Use Control Panels</h1>
+<h2><a name="dont-use-control-panels"></a>Don’t Use Control Panels</h2>
 
 <p>Yes, feature switches are usually used via control panels and they make it easy
 to turn features on and off, but there are caveats. It sometimes happens that
@@ -375,7 +377,7 @@ command-line tools to turn features on or off can also be useful. <strong>Do not
 on control panels alone</strong>. Nothing’s worse than having everything web-based and
 losing web access.</p>
 
-<h1><a name="permanent-features"></a>Permanent Features</h1>
+<h2><a name="permanent-features"></a>Permanent Features</h2>
 
 <p>One thing often overlooked for features switches is that some of them should be
 permanent. Imagine that your site goes viral and you’re hitting unprecedented
@@ -385,7 +387,7 @@ struggling under a heavy load, being able to toggle off optional features such
 as autocomplete or “related searches” that aren’t critical can help you manage
 that load. Your site experience degrades gracefully instead of simply crashing.</p>
 
-<h1><a name="sampled-switches"></a>“Sampled” Switches</h1>
+<h2><a name="sampled-switches"></a>“Sampled” Switches</h2>
 
 <p>Before turning on a switch, it’s often useful to turn it on only for a subset of
 requests. For example, you might only want 10% of users to experience it. If a
@@ -401,7 +403,7 @@ are short-lived. As feature switches are primarily a site reliability tool, the
 limited sample run is just there to avoid disaster and you should go 100% as
 soon as is feasible.</p>
 
-<h1><a name="naming-conventions"></a>Naming Conventions</h1>
+<h2><a name="naming-conventions"></a>Naming Conventions</h2>
 
 <p>For one of our clients, they have no naming convention for their features, but
 they use features heavily. We wrote code to scan our <code>CODEOWNERS</code> file to dump a
@@ -422,9 +424,9 @@ useless. Instead, having a “Ticket URL” field on your form when you create a
 feature allows others to click through and understand the intent of that
 feature.</p>
 
-<h1><a name="operations"></a>Operations</h1>
+<h2><a name="operations"></a>Operations</h2>
 
-<h2><a name="errors"></a>Errors</h2>
+<h3><a name="errors"></a>Errors</h3>
 
 <p>If you dump out rich error data to error logs, include a list of running
 features, sorted by last start time. Frequently, new errors show up due to
@@ -433,14 +435,14 @@ if first time buyers sometimes can’t place orders and you see the
 <code>ADV-FIRST_TIME_BUYER</code> feature was just switched on. This makes life much
 easier.</p>
 
-<h2><a name="communications"></a>Communications</h2>
+<h3><a name="communications"></a>Communications</h3>
 
 <p>Let other teams know when you’re about to start a new features, especially your
 site reliability engineers (or equivalent). Give them a heads-up about the
 intent of the feature and what to look for if their are issues. Such
 communication can allow tracking down issues faster.</p>
 
-<h2><a name="simplicity"></a>Simplicity</h2>
+<h3><a name="simplicity"></a>Simplicity</h3>
 
 <p>Feature switches are a site reliability tool. Keep them simple. You don’t want
 your site to break because someone made the feature switch tool too complicated.
@@ -468,7 +470,7 @@ By allowing these multiple values, you’re complicating code that’s a site
 reliability tool. KISS: Keep it simple, stupid. Feature switches are there to
 make life easier. Don’t overthink them.</p>
 
-<h2><a name="clean-features-regularly"></a>Clean Features Regularly</h2>
+<h3><a name="clean-features-regularly"></a>Clean Features Regularly</h3>
 
 <p>Aside from “permanent” features that you want to always be able to switch off,
 it’s important to regularly clean features. Otherwise, you get into messes like
@@ -493,7 +495,7 @@ where features work well on their own, but there could be some unknown
 interaction between conflicting features that won’t be noticed unless you have
 the right combination of features toggled on or off. This is miserable to debug.</p>
 
-<h2><a name="dont-check-features-at-compiletime"></a>Don’t Check Features at Compile=Time</h2>
+<h3><a name="dont-check-features-at-compiletime"></a>Don’t Check Features at Compile=Time</h3>
 
 <p>This one is a subtle trap. Feature switches are designed to allow you to quickly
 turn a feature on or off while the system is still running. However, if your
@@ -524,7 +526,7 @@ once. Toggling the feature switch later will likely not affect the code while
 toggled, you may find that different parts of your codebase do not agree on
 whether or not a feature is running. This is not a good place to be.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>Feature switches are an incredibly powerful site reliability tool which can
 often eliminate the need to redeploy your software if something goes wrong. This
@@ -573,15 +575,19 @@ custom-tailored to client needs.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -606,11 +612,8 @@ custom-tailored to client needs.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/current-corinna-status" class="prevPost">&laquo; Current Corinna Status</a>
-        
         <a href="/articles/converting-object-oriented-code-to-corinna" class="nextPost">Converting Object-Oriented Code to Corinna &raquo;</a>
     </div>
 
@@ -618,12 +621,42 @@ custom-tailored to client needs.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/feature-switch-best-practices.html";
+            this.page.identifier = "articles/feature-switch-best-practices";
+            this.page.title      = "Feature Switch Best Practices";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -661,36 +694,23 @@ custom-tailored to client needs.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/feature-switch-best-practices.html";
-            this.page.identifier = "articles/feature-switch-best-practices";
-            this.page.title      = "Feature Switch Best Practices";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -713,7 +733,7 @@ custom-tailored to client needs.</p>
 	    <div>In practice, I've often seen the 'why' field is left blank,
 leaving me to wonder if it's safe to re-enable the feature. Make the field
 <tt>NOT NULL</tt>.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

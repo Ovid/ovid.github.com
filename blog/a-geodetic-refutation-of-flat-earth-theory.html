@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>A Geodetic Refutation of Flat-Earth Theory</title>
-  <meta name="description" content="A Geodetic Refutation of Flat-Earth Theory">
+  <meta name="description" content="A Formal Refutation of &quot;Flat Earth&quot; Claims through the Lens of Negative-Curvature Geodesy">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
       <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -83,37 +91,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>A Geodetic Refutation of Flat-Earth Theory</h1>
-        <time>2025-08-02</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -188,41 +172,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/rip-mst" class="prevPost">&laquo; RIP MST</a>
-        
-        <a href="/blog/is-math-discovered-or-invented" class="nextPost">Is Math Discovered or Invented? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2025</span>
+        <span class="dateblock-day"><time datetime="2025-08-02">08.02</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>A Geodetic Refutation of Flat-Earth Theory</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -238,9 +231,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/rip-mst" class="prevPost">&laquo; RIP MST</a>
+        <a href="/blog/is-math-discovered-or-invented" class="nextPost">Is Math Discovered or Invented? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -257,13 +259,13 @@
 </nav>
 <hr></p>
 
-<h1><a name="a-formal-refutation-of-flat-earth-claims-through-the-lens-of-negative-curvature-geodesy"></a>A Formal Refutation of “Flat-Earth” Claims through the Lens of Negative-Curvature Geodesy</h1>
+<h2><a name="a-formal-refutation-of-flat-earth-claims-through-the-lens-of-negative-curvature-geodesy"></a>A Formal Refutation of “Flat-Earth” Claims through the Lens of Negative-Curvature Geodesy</h2>
 
 <p><em>An evidence-based position paper for readers who have encountered planar-world arguments and wish to evaluate a more rigorously constructed alternative.</em></p>
 
 <hr />
 
-<h2><a name="1-foundational-framework-from-euclid-to-lobachevsky"></a>1. Foundational Framework: From Euclid to Lobachevsky</h2>
+<h3><a name="1-foundational-framework-from-euclid-to-lobachevsky"></a>1. Foundational Framework: From Euclid to Lobachevsky</h3>
 
 <p><figure class="captioned">
     <div class="image-container">
@@ -282,7 +284,7 @@
 
 <hr />
 
-<h2><a name="2-predictive-power-what-a-negatively-curved-earth-explains-better-than-a-plane"></a>2. Predictive Power: What a Negatively Curved Earth Explains Better than a Plane</h2>
+<h3><a name="2-predictive-power-what-a-negatively-curved-earth-explains-better-than-a-plane"></a>2. Predictive Power: What a Negatively Curved Earth Explains Better than a Plane</h3>
 
 <table>
 <col />
@@ -321,7 +323,7 @@
 
 <hr />
 
-<h2><a name="3-empirical-measurements-four-independent-lines-of-evidence"></a>3. Empirical Measurements: Four Independent Lines of Evidence</h2>
+<h3><a name="3-empirical-measurements-four-independent-lines-of-evidence"></a>3. Empirical Measurements: Four Independent Lines of Evidence</h3>
 
 <ol>
 <li>Dual-Station Laser Divergence Test
@@ -345,13 +347,13 @@
 
 <hr />
 
-<h2><a name="4-mathematical-consistency-with-gravitation"></a>4. Mathematical Consistency with Gravitation</h2>
+<h3><a name="4-mathematical-consistency-with-gravitation"></a>4. Mathematical Consistency with Gravitation</h3>
 
 <p>Within General Relativity, matter curves spacetime. A globally negative spatial section neither violates Einstein’s field equations nor conflicts with local isotropy; it simply alters the sign of the spatial curvature constant $k$ in the Friedmann equation. Locally, the equivalence principle and Newtonian limit remain intact, so ballistic and orbital mechanics are unchanged at engineering precision.</p>
 
 <hr />
 
-<h2><a name="5-rebutting-common-objections"></a>5. Rebutting Common Objections</h2>
+<h3><a name="5-rebutting-common-objections"></a>5. Rebutting Common Objections</h3>
 
 <ol>
 <li>“Photographs from orbit show a convex limb.”
@@ -370,7 +372,7 @@
 
 <hr />
 
-<h2><a name="6-conclusion"></a>6. Conclusion</h2>
+<h3><a name="6-conclusion"></a>6. Conclusion</h3>
 
 <p>Flat-Earth hypotheses collapse when confronted with quantitative measurements. However, dismissing them by defaulting to a perfect sphere overlooks a parsimonious alternative consistent with non-Euclidean geometry, satellite telemetry, and relativistic physics: a terrestrial surface of negative Gaussian curvature. While this model challenges entrenched assumptions, its predictive coherence warrants serious consideration—precisely the scientific rigour that flat-Earth discourse claims to champion yet fails to fulfil.</p>
 
@@ -408,15 +410,19 @@
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -441,11 +447,8 @@
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/rip-mst" class="prevPost">&laquo; RIP MST</a>
-        
         <a href="/blog/is-math-discovered-or-invented" class="nextPost">Is Math Discovered or Invented? &raquo;</a>
     </div>
 
@@ -453,12 +456,42 @@
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/a-geodetic-refutation-of-flat-earth-theory.html";
+            this.page.identifier = "blog/a-geodetic-refutation-of-flat-earth-theory";
+            this.page.title      = "A Geodetic Refutation of Flat-Earth Theory";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -496,36 +529,23 @@
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/a-geodetic-refutation-of-flat-earth-theory.html";
-            this.page.identifier = "blog/a-geodetic-refutation-of-flat-earth-theory";
-            this.page.title      = "A Geodetic Refutation of Flat-Earth Theory";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     

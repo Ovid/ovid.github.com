@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Microservices Pros and Cons</title>
-  <meta name="description" content="Microservices Pros and Cons">
+  <meta name="description" content="Advocates and adversaries of microservices pitch their points of view. Let's look at both.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Microservices Pros and Cons</h1>
-        <time>2023-12-20</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/what-to-know-before-debating-type-systems" class="prevPost">&laquo; What to Know Before Debating Type Systems </a>
-        
-        <a href="/articles/dont-start-with-microservices" class="nextPost">Don't Start with Microservices &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2023</span>
+        <span class="dateblock-day"><time datetime="2023-12-20">12.20</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Microservices Pros and Cons</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -230,9 +223,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/what-to-know-before-debating-type-systems" class="prevPost">&laquo; What to Know Before Debating Type Systems </a>
+        <a href="/articles/dont-start-with-microservices" class="nextPost">Don't Start with Microservices &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -263,7 +265,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="i-wrecked-the-interview"></a>I Wrecked the Interview</h1>
+<h2><a name="i-wrecked-the-interview"></a>I Wrecked the Interview</h2>
 
 <p>The interview was going well. Questions were asked and answered and we were all
 smiling. But the interviewers kept talking about their company’s transformation
@@ -276,7 +278,7 @@ on what microservices were. I got the contract.</p>
 
 <p>This was not the first time this happened to me.</p>
 
-<h1><a name="defining-microservices"></a>Defining Microservices</h1>
+<h2><a name="defining-microservices"></a>Defining Microservices</h2>
 
 <p>Microservices seems to be the “buzzword du jour” (after AI). When I mention
 microservices online, almost invariably I have people chime in that “the
@@ -308,7 +310,7 @@ shared via data stores.</p>
 <p>OK, so that’s far too brief and entire books can be written on the topic, but
 this is a blog post. Are they a good idea or not?</p>
 
-<h1><a name="should-you-choose-microservices"></a>Should You Choose Microservices?</h1>
+<h2><a name="should-you-choose-microservices"></a>Should You Choose Microservices?</h2>
 
 <p>Enter Shahina Abadi, the brand-new CTO of Mechanical Tendencies,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> an online
 machine parts supplier. She’s been brought in because their legacy platform is
@@ -325,12 +327,12 @@ vendors, and employees? Are the various approaches complementary or not? Can
 they be done in isolation, prioritizing greater benefits first? We’ll just look
 at microservices.</p>
 
-<h2><a name="benefits-of-microservices"></a>Benefits of Microservices</h2>
+<h3><a name="benefits-of-microservices"></a>Benefits of Microservices</h3>
 
 <p>Advocates of microservices tout their benefits, but often downplay the
 drawbacks. Let’s talk about the benefits first.</p>
 
-<h3><a name="scalability"></a>Scalability</h3>
+<h4><a name="scalability"></a>Scalability</h4>
 
 <p>One of the most cited benefits is scalability. If you’re running a
 monolith and one part of your code is bogging down the system, scaling that
@@ -340,7 +342,7 @@ service is slow, you can often just scale up that service. Move it to a beefier
 server or move its data store to a beefier server. There’s no need to spend the
 money on faster hardware for everything.</p>
 
-<h3><a name="learning-the-code-base"></a>Learning the Code Base</h3>
+<h4><a name="learning-the-code-base"></a>Learning the Code Base</h4>
 
 <p>For one project I was on, with a monolithic code base of tens of millions of
 lines of code, I found that the authentication system we were building was
@@ -358,7 +360,7 @@ code base, but that’s not possible.</p>
 contracts provided by the services you interact with. All of a sudden, a huge,
 intractable problem becomes manageable.</p>
 
-<h3><a name="gradual-migration"></a>Gradual Migration</h3>
+<h4><a name="gradual-migration"></a>Gradual Migration</h4>
 
 <p>In the year 2000, Joel Spolsky wrote a famous blog post entitled, <a href="https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/" target="_blank">Things You
 Should Never Do, Part
@@ -378,7 +380,7 @@ you can take small steps forward. One approach, the unfortunately-named
 pattern</a> <span class="fa fa-external-link fa_custom"></span>
 is great when you’re first dipping your toe in the microservice waters.</p>
 
-<h3><a name="its-all-data"></a>It’s All Data</h3>
+<h4><a name="its-all-data"></a>It’s All Data</h4>
 
 <p>When Alan Kay talks about OO programming, he thinks we got things wrong about
 objects. For him the key benefits are <a href="/articles/alan-kay-and-oo-programming">messaging, isolation, and extreme
@@ -396,7 +398,7 @@ of bugs go away. You don’t need to worry as much about mutating an incoming
 data structure because you know the sender won’t be affected. Because we’re
 only sending data back and forth, you can minimize action at a distance.</p>
 
-<h3><a name="asynchronous-code"></a>Asynchronous Code</h3>
+<h4><a name="asynchronous-code"></a>Asynchronous Code</h4>
 
 <p>In legacy monolith systems, calls to other parts of the code tend to be
 blocking. It’s not always a big deal because with everything running in the
@@ -408,7 +410,7 @@ fire off requests to several services at once, requesting a response or a
 change, and aggregate the results when they complete. Asynchronous requests,
 when possible, can do a fantastic job of taking a load off a server.</p>
 
-<h3><a name="new-business-products"></a>New Business Products</h3>
+<h4><a name="new-business-products"></a>New Business Products</h4>
 
 <p>When you can start isolating different business concerns into microservices,
 those services might become stand-alone products you can expose to customers.
@@ -420,7 +422,7 @@ By being able to request JSON, they said it took them 15 minutes to have a
 brand new, much more useful search engine on mobile. Well-designed services
 give <em>flexibility</em>.</p>
 
-<h3><a name="partial-failures"></a>Partial Failures</h3>
+<h4><a name="partial-failures"></a>Partial Failures</h4>
 
 <p>In a monolith, an unexpected exception can often result in the dreaded <code>500 -
 Internal Server Error</code> being sent to a browser. With microservices, you often
@@ -428,7 +430,7 @@ see a degradation in services instead of a complete failure. Maybe your
 recommendation system doesn’t show a list of related products for a while. The
 software itself still runs!</p>
 
-<h3><a name="the-darkest-secret"></a>The Darkest Secret</h3>
+<h4><a name="the-darkest-secret"></a>The Darkest Secret</h4>
 
 <p>It’s one that not everyone is happy with, but sometimes your beloved
 programming language isn’t the best choice for a given task. Maybe you need
@@ -442,13 +444,13 @@ A solid microservice system with services isolated behind well-defined APIs
 gives us possibilities to transform the system in ways we never
 thought possible. It’s a huge benefit that should not be overlooked.</p>
 
-<h2><a name="drawbacks-of-microservices"></a>Drawbacks of Microservices</h2>
+<h3><a name="drawbacks-of-microservices"></a>Drawbacks of Microservices</h3>
 
 <p>Given the benefits of microservices, you might think it insane to not switch to
 them. But there’s a cost to everything and those costs need to be taken into
 account.</p>
 
-<h3><a name="infrastructure"></a>Infrastructure</h3>
+<h4><a name="infrastructure"></a>Infrastructure</h4>
 
 <p>So you’ve decided that the first microservice you want to create is for
 authentication. You’ve already got feature switches in place so your
@@ -473,7 +475,7 @@ dispatch to your new service and you have to deal with the complexity <em>that</
 introduces. There are many yaks you’ll need to shave before you can solve this
 problem.</p>
 
-<h3><a name="monitoring-and-debugging"></a>Monitoring and Debugging</h3>
+<h4><a name="monitoring-and-debugging"></a>Monitoring and Debugging</h4>
 
 <p>Oops. Something failed. Hard. Everything is humming along nicely, but nobody
 can buy your products. Maybe they get a confirmation of purchase.
@@ -498,7 +500,7 @@ while you might not know what caused it, you can check what was deployed and
 you’ll often see a much smaller set of code deployed, making many bugs easier to
 track down.</p>
 
-<h3><a name="communication-overhead"></a>Communication Overhead</h3>
+<h4><a name="communication-overhead"></a>Communication Overhead</h4>
 
 <p>This one’s a huge issue. Now, instead of me passing a user object and a
 purchase request into a method, I have to send a message with the relevant
@@ -511,7 +513,7 @@ previously. This is a trade-off that is often acceptable, but it needs to be
 known up front and dealt with. You might need to buy new hardware to deal with
 this.</p>
 
-<h3><a name="data-consistency"></a>Data Consistency</h3>
+<h4><a name="data-consistency"></a>Data Consistency</h4>
 
 <p>Many developers might be nodding along at many of these points, until they come
 to the hill they’re willing to die on. The following has been my hill and it’s
@@ -558,7 +560,7 @@ information, such as for a product search.</p>
 where eventual consistency is not acceptable, so you’ll have to feel your own
 way here.</p>
 
-<h3><a name="other-drawbacks"></a>Other Drawbacks</h3>
+<h4><a name="other-drawbacks"></a>Other Drawbacks</h4>
 
 <p>Microservices create issues with testing complexity, deployments, dependency
 management, security management, permanent operational overheard, and the
@@ -566,7 +568,7 @@ initial development effort. They’re not a step to take lightly, though if my
 past experience is anything to go on, many companies look at the benefits,
 ignore the costs, and don’t have a clear plan of attack.</p>
 
-<h1><a name="complexity"></a>Complexity</h1>
+<h2><a name="complexity"></a>Complexity</h2>
 
 <p>For the drawbacks of microservices, once you read through them, many of them go
 away or are diminished after the first microservices are successfully launched.
@@ -584,7 +586,7 @@ grows, too. CGI, which would have been unthinkably complex to me in the 80s, is
 unthinkably simplistic in dealing with modern requirements. We have greater
 needs and with that comes greater complexity. So let’s take a diversion.</p>
 
-<h2><a name="the-bbc-atlas-project"></a>The BBC “Atlas” Project</h2>
+<h3><a name="the-bbc-atlas-project"></a>The BBC “Atlas” Project</h3>
 
 <p>I worked for the BBC for several years. Were it not for the fact that my wife
 and I had decided we didn’t want to raise our child in London, I might still be
@@ -638,7 +640,7 @@ complex. It’s that it’s a trade-off. In exchange for architectural complexit
 you have software that’s easier to maintain and services that are easier to 
 scale.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>All systems become more complex over time. Whether or not the benefits of
 microservices override the drawbacks of their added complexity is not something
@@ -691,15 +693,19 @@ a great video about how Netflix handles them.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -724,11 +730,8 @@ a great video about how Netflix handles them.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/what-to-know-before-debating-type-systems" class="prevPost">&laquo; What to Know Before Debating Type Systems </a>
-        
         <a href="/articles/dont-start-with-microservices" class="nextPost">Don't Start with Microservices &raquo;</a>
     </div>
 
@@ -736,12 +739,42 @@ a great video about how Netflix handles them.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/microservices-pros-and-cons.html";
+            this.page.identifier = "articles/microservices-pros-and-cons";
+            this.page.title      = "Microservices Pros and Cons";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -779,36 +812,23 @@ a great video about how Netflix handles them.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/microservices-pros-and-cons.html";
-            this.page.identifier = "articles/microservices-pros-and-cons";
-            this.page.title      = "Microservices Pros and Cons";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -830,7 +850,7 @@ a great video about how Netflix handles them.</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>Not the musical group. It's the name of a company I tried to
 start years ago in the US.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -842,10 +862,10 @@ start years ago in the US.</div>
             <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>Actually, the BBC messsed up. The backend devs were
+	    <div>Actually, the BBC messed up. The backend devs were
 required to provide JAR files for deployment. Several teams realized you don't
 need Java to create JAR files, so they skipped the hated Java mandate.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -857,9 +877,9 @@ need Java to create JAR files, so they skipped the hated Java mandate.</div>
             <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
         <strong id="note-3">Footnotes</strong>
         <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>Sadly, language like Erlang and Elixer,
+	    <div>Sadly, language like Erlang and Elixir,
 which natively offer many of the benefits, struggle to gain traction.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -884,7 +904,7 @@ start years ago in the US.
           </li>
           
           <li id="footnote-2">
-            Actually, the BBC messsed up. The backend devs were
+            Actually, the BBC messed up. The backend devs were
 required to provide JAR files for deployment. Several teams realized you don't
 need Java to create JAR files, so they skipped the hated Java mandate.
             <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
@@ -893,7 +913,7 @@ need Java to create JAR files, so they skipped the hated Java mandate.
           </li>
           
           <li id="footnote-3">
-            Sadly, language like Erlang and Elixer,
+            Sadly, language like Erlang and Elixir,
 which natively offer many of the benefits, struggle to gain traction.
             <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
               ↩ Return to text

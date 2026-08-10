@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -48,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>A Eulogy for My Father</title>
-  <meta name="description" content="A Eulogy for My Father">
+  <meta name="description" content="My father passed away recently. His life was a whirlwind of travel from country to country under mysterious circumstances.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -57,7 +62,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -68,6 +75,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -76,37 +84,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>A Eulogy for My Father</h1>
-        <time>2019-08-01</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -181,41 +165,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/#" class="prevPost"></a>
-        
-        <a href="/blog/missing-siblings" class="nextPost">Missing Siblings? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2019</span>
+        <span class="dateblock-day"><time datetime="2019-08-01">08.01</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>A Eulogy for My Father</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -227,9 +220,17 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/missing-siblings" class="nextPost">Missing Siblings? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -271,7 +272,7 @@ because it’s very hard to piece them together. All of Jim’s known surviving
 children, and his fourth wife, Valerie, have contributed to this
 recollection.</p>
 
-<h1><a name="early-life"></a>Early Life</h1>
+<h2><a name="early-life"></a>Early Life</h2>
 
 <p>This writing is an attempt to process my grief for a man I did not know,
 but who I always wanted to have as part of my life. And I have, to my
@@ -419,7 +420,7 @@ until we were adopted and sent presents at Christmas time.</blockquote>
 <p>Now, if you think the story was muddled before, it gets even weirder from here
 on out.</p>
 
-<h1><a name="the-soviet-years"></a>The Soviet Years</h1>
+<h2><a name="the-soviet-years"></a>The Soviet Years</h2>
 
 <p>So Jim was with Eliza and our brother Greg was born early in 1969, but from
 1970 to 1974, Jim was living in Moscow and met and married someone named
@@ -508,7 +509,7 @@ and it would be obvious that US intelligence was <em>again</em> trying to find
 out if Jim was a traitor. Jim swears he wasn’t a spy and his being there
 wasn’t political. It was just a job.</p>
 
-<h1><a name="valerie"></a>Valerie</h1>
+<h2><a name="valerie"></a>Valerie</h2>
 
 <p>Lewis’ mom, Valerie, is an amazing woman and I’m happy to have met her.
 She was kind enough to share more details of Jim’s life.</p>
@@ -591,7 +592,7 @@ know but unfortunately it was very much part of him.</blockquote>
 older than myself. Remarkably, Jim stayed with Brenda from 1981 until she
 passed away in 2006 from cancer.</p>
 
-<h1><a name="brenda"></a>Brenda</h1>
+<h2><a name="brenda"></a>Brenda</h2>
 
 <p>This is to honor Jim’s life, but doing so without saying a bit about Brenda
 would be to dishonor Jim’s memory, as she was the final love of his life. They
@@ -657,7 +658,7 @@ emotionally, from Brenda’s death.</p>
 <p>Brenda was indeed a lovely woman. And for all of Jim’s brusqueness, it was
 offset by her grace.</p>
 
-<h1><a name="the-children"></a>The Children</h1>
+<h2><a name="the-children"></a>The Children</h2>
 
 <p><figure class="captioned">
     <div class="image-container">
@@ -816,7 +817,7 @@ found peace.</p>
     </div>
 </figure></p>
 
-<h1><a name="credits"></a>Credits</h1>
+<h2><a name="credits"></a>Credits</h2>
 
 <p>I would like to thank my sisters, Gayle Poe and Lynne Moore, my brothers
 Greg Baddely and Lewis Poe, Lewis’s mom Valerie Poe, and my cousin Naomi
@@ -825,7 +826,7 @@ proofreading and suggestions. There are many stories left out, some by request
 and others because they would cast living people in a bad light. Any errors
 and omissions, of course, are mine.</p>
 
-<h1><a name="update-1"></a>Update 1</h1>
+<h2><a name="update-1"></a>Update 1</h2>
 
 <p>Amongst other things, it appears that Jim lied about his birthdate. We the
 date as April 22nd, 1939. He was actually born April 22nd, 1941. There had
@@ -844,7 +845,7 @@ stamped “deceased,” for which we apparently need a death certificate.</p>
 
 <hr/>
 
-<h1><a name="update-2"></a>Update 2</h1>
+<h2><a name="update-2"></a>Update 2</h2>
 
 <p>We’ve resolved the situation with Jim’s death certificate (the US Consulate
 in Germany was very efficient in helping us), and Jim’s ashes are now buried
@@ -881,15 +882,19 @@ more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -914,11 +919,7 @@ more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
-        <a href="/#" class="prevPost"></a>
-        
+        <div class="prevNext">
         <a href="/blog/missing-siblings" class="nextPost">Missing Siblings? &raquo;</a>
     </div>
 
@@ -926,12 +927,42 @@ more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/my-father.html";
+            this.page.identifier = "blog/my-father";
+            this.page.title      = "A Eulogy for My Father";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -969,36 +1000,23 @@ more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/my-father.html";
-            this.page.identifier = "blog/my-father";
-            this.page.title      = "A Eulogy for My Father";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/collapsible.js"></script>
 	
@@ -1020,7 +1038,7 @@ more siblings in Russia.</a>. Not, I should say, a surprise.</p>
 have one document showing he lied to the National Guard and listed his birth
 year as 1938. The document shows he was Honorably Discharged when he was only
 17 years old.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1034,7 +1052,7 @@ year as 1938. The document shows he was Honorably Discharged when he was only
         <p id="note-description-2" class="sr-only">Note number 2</p>
 	    <div>I now think I know who she is and where she lives.
 She was married to Jim for most of his Soviet years.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1049,7 +1067,7 @@ She was married to Jim for most of his Soviet years.</div>
 	    <div>And we now know of
 another sister we have not been able to track down, and possibly one or two
 others in the former Soviet Union.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1064,7 +1082,7 @@ others in the former Soviet Union.</div>
 	    <div>As I understand it, Eliza left
 for Scotland and she had another daughter, Sharon, with whom I’m friends with
 on Facebook, but I don’t actually know her.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1079,7 +1097,7 @@ on Facebook, but I don’t actually know her.</div>
 	    <div>I originally wrote “Jim allegedly drank
 Best under the table”, but realized after how bad that sounds, on many
 levels.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1095,7 +1113,7 @@ levels.</div>
 in 2001 and he was having beer for breakfast. And before lunch. And during
 lunch. And after lunch. And Brenda chastising him for it. And him opening
 another beer while she was doing so. And so on.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1112,7 +1130,7 @@ another beer while she was doing so. And so on.</div>
 href="https://www.washingtonpost.com/archive/politics/1985/09/15/soviets-expel-25-britons/ce27b3f0-3d9a-4e29-809d-6d918e7fc34f/">Dennis
 Blewitt was expelled from the Soviet Union</a> in retaliation for the British
 expelling numerous Soviets from Britain for espionage.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1127,7 +1145,7 @@ expelling numerous Soviets from Britain for espionage.</div>
 	    <div>I have now heard that this story was exaggerated, but given
 that it was relayed to me firsthand, it’s hard for me to know what is
 true and what is not.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1145,7 +1163,7 @@ process was over. However, she misunderstood. It was so hard to
 divorce in Germany that Jim gave up and that’s what the letter was saying.
 Valerie later almost remarried, which would have made her an accidental
 bigamist.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -1159,7 +1177,7 @@ bigamist.</div>
         <p id="note-description-10" class="sr-only">Note number 10</p>
 	    <div>I do not remember this kind soul&lsquo;s name.  I
 wish I could so I could thank him.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

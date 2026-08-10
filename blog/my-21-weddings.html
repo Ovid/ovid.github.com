@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>My 21 Weddings</title>
-  <meta name="description" content="My 21 Weddings">
+  <meta name="description" content="I have participated in 21 weddings. Twice as the groom, 19 times as the minister. It's been a wild ride.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>My 21 Weddings</h1>
-        <time>2022-11-21</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/how-i-landed-the-worst-best-job" class="prevPost">&laquo; How I Landed the Worst Best Job</a>
-        
-        <a href="/blog/is-spacex-stumbling" class="nextPost">Is SpaceX Stumbling? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2022</span>
+        <span class="dateblock-day"><time datetime="2022-11-21">11.21</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>My 21 Weddings</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -228,9 +221,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/how-i-landed-the-worst-best-job" class="prevPost">&laquo; How I Landed the Worst Best Job</a>
+        <a href="/blog/is-spacex-stumbling" class="nextPost">Is SpaceX Stumbling? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -244,7 +246,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="my-first-weddings"></a>My First Weddings</h1>
+<h2><a name="my-first-weddings"></a>My First Weddings</h2>
 
 <p><em>Note: Much of what follows is from memory, but the ‘seventeen weddings'
 described near the end are from local copies of old blog posts I had written on
@@ -283,10 +285,10 @@ to perform their wedding at a lake. Apparently he was retired, senile, and had
 no recollection that he was to perform their wedding.</p>
 
 <p>I, however, was neither old nor senile (I’ll not swear to either today), but I
-<em>am</em> an ordained minister. Despite being an atheist, I was ordained by <a href="https://www.ulc.org/" target="_blank">The
-Universal Church</a> <span class="fa fa-external-link fa_custom"></span> in September of 1990. Back then, you had
-to do it the hard way by sending them a postcard with your details. Today, you
-can do this online.</p>
+<em>am</em> an ordained minister. Despite being a nonbeliever, I was ordained by <a href="https://www.ulc.org/" target="_blank">The
+Universal Life Church</a> <span class="fa fa-external-link fa_custom"></span> in September of 1990. Back then,
+you had to do it the hard way by sending them a postcard with your details.
+Today, you can do this online.</p>
 
 <p>Because I was an ordained minister, Alice and Bob explained the problem and
 asked if I could officiate at their wedding. I told them I would call them back
@@ -310,18 +312,14 @@ looks were all that came of that.</p>
 
 <p>The wedding at the lake went off without a hitch and I got a good laugh when I
 pointed out that the witnesses were named “Tom and Jerry.” I also discovered, as
-a minister officiating at a wedding, it’s easier to pick up women then
-you would think. The date went poorly and my friends later told me that had they
-known who I met, they would have warned me not to. (Amongst other things, on our
-second date, not only did I find out that she was hopped up on little pink
-pills her former boyfriend had brought her from Mexico, she asked me to convert
-to Judaism because she had recently converted and couldn’t date outside of her
-faith. She was also an atheist. I declined a third date).</p>
+a minister officiating at a wedding, it’s easier to pick up women than you would
+think. The date went poorly and my friends later told me that had they known who
+I met, they would have warned me not to ask her out.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>That couple also went their separate ways, so my first two weddings, one as
 groom and one as minister, ended in divorce.</p>
 
-<h1><a name="why-i-stopped-officiating-weddings"></a>Why I Stopped Officiating Weddings</h1>
+<h2><a name="why-i-stopped-officiating-weddings"></a>Why I Stopped Officiating Weddings</h2>
 
 <p>The third wedding made me swear off officiating at weddings ever again. It was a
 favor for a friend of a friend. A couple couldn’t afford much, so they wanted a
@@ -348,7 +346,7 @@ Klan hoods.</p>
 
 <p>As I walked inside, I immediately assumed a “minister” persona, wanting to put
 the people at ease. Charlie introduced me to sexy vampires, unshaved cowboys,
-and one under-age Pocahantas<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> who wore an ill-fitting
+and one under-age Pocahontas<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> who wore an ill-fitting
 costume and no bra. She was flashing everyone but no seemed bothered. I bit my
 tongue as I smiled. The phrase “feeling like a nun in a brothel” never felt
 more appropriate.</p>
@@ -424,7 +422,7 @@ friend, but I can never quite forgive that nightmare.</p>
 <p>A couple of years later, I learned that the smoking angel was being charitable.
 The marriage ended very badly.</p>
 
-<h1><a name="why-i-started-officiating-weddings-again"></a>Why I Started Officiating Weddings Again</h1>
+<h2><a name="why-i-started-officiating-weddings-again"></a>Why I Started Officiating Weddings Again</h2>
 
 <p>But that’s only four weddings. Given that I had sworn off weddings, it’s
 probably a surprise that I officiated at seventeen more. Over the course of two
@@ -481,7 +479,7 @@ cold and was getting a bit rummy at the end. I stared at some of the forms and
 once had trouble figuring out what my name was over the shouting of protestors.</p>
 
 <p>There were loud cheers for the first wedding, trickling down to a handful near
-the end of the day. I married seven couples that day and it was awkard at times.
+the end of the day. I married seven couples that day and it was awkward at times.
 I would ask their names and carefully write them down on their copy of the vows
 I had hastily written the night before. I had already learned my lesson about
 forgetting names. It was also mortifying to ask, “For purposes of filling out
@@ -536,7 +534,7 @@ was Portland and the bartender didn’t bat an eyelash. The wedding party arrive
 were having a great time, and as soon as I felt I could escape, I made my
 excuses and left. I never did call that phone number.</p>
 
-<h1><a name="the-bbc"></a>The BBC</h1>
+<h2><a name="the-bbc"></a>The BBC</h2>
 
 <p>So those were my twenty-one weddings, only one of which survived. A little over
 one month later, the Oregon Supreme Court <a href="https://www.cbc.ca/news/world/oregon-annuls-3-000-same-sex-marriage-licences-1.552071" target="_blank">annulled the almost 3,000 same-sex
@@ -597,15 +595,19 @@ failed marriages.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -630,11 +632,8 @@ failed marriages.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/how-i-landed-the-worst-best-job" class="prevPost">&laquo; How I Landed the Worst Best Job</a>
-        
         <a href="/blog/is-spacex-stumbling" class="nextPost">Is SpaceX Stumbling? &raquo;</a>
     </div>
 
@@ -642,12 +641,42 @@ failed marriages.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/my-21-weddings.html";
+            this.page.identifier = "blog/my-21-weddings";
+            this.page.title      = "My 21 Weddings";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -685,36 +714,23 @@ failed marriages.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/my-21-weddings.html";
-            this.page.identifier = "blog/my-21-weddings";
-            this.page.title      = "My 21 Weddings";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -736,7 +752,7 @@ failed marriages.</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>I've attended a few other weddings, but only as a
 guest.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
@@ -748,16 +764,33 @@ guest.</div>
             <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
         <strong id="note-2">Footnotes</strong>
         <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>Given that the actual Pocahantas
-was probably 10-to-12 years old when she met John Smith, the girl at the party
-was probably <em>too old</em> to play the part.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+	    <div>Amongst other
+things, on our second date, not only did I find out that she was hopped up on
+little pink pills her former boyfriend had brought her from Mexico, she asked me
+to convert to Judaism because she had recently converted and couldn't date
+outside of her faith. She was also an atheist. I declined a third date.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
         var dialogOverlay = document.querySelector('.dialog-overlay');
         var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+        <strong id="note-3">Footnotes</strong>
+        <p id="note-description-3" class="sr-only">Note number 3</p>
+	    <div>Given that the actual Pocahontas
+was probably 10-to-12 years old when she met John Smith, the girl at the party
+was probably <em>too old</em> to play the part.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog3 = new Dialog(document.querySelector('#dialog-3'), dialogOverlay);
+        myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
     
@@ -776,10 +809,21 @@ guest.
           </li>
           
           <li id="footnote-2">
-            Given that the actual Pocahantas
+            Amongst other
+things, on our second date, not only did I find out that she was hopped up on
+little pink pills her former boyfriend had brought her from Mexico, she asked me
+to convert to Judaism because she had recently converted and couldn't date
+outside of her faith. She was also an atheist. I declined a third date.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-3">
+            Given that the actual Pocahontas
 was probably 10-to-12 years old when she met John Smith, the girl at the party
 was probably <em>too old</em> to play the part.
-            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+            <a href="#footnote-3-return" aria-label="Return to footnote 3 reference">
               ↩ Return to text
             </a>
           </li>

@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Common Problems in Object-Oriented Code</title>
-  <meta name="description" content="Common Problems in Object-Oriented Code">
+  <meta name="description" content="At https://allaroundtheworld.fr/, we are often fixing common issues in object-oriented code. This is a practical guide for resolving them.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Common Problems in Object-Oriented Code</h1>
-        <time>2022-04-25</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/articles/why-is-object-oriented-programming-bad" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
-        
-        <a href="/articles/introducing-moosexextended-for-perl" class="nextPost">Introducing MooseX::Extended for Perl &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2022</span>
+        <span class="dateblock-day"><time datetime="2022-04-25">04.25</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Common Problems in Object-Oriented Code</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this articles">
     <li>Tags:</li>
@@ -234,9 +227,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/why-is-object-oriented-programming-bad" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
+        <a href="/articles/introducing-moosexextended-for-perl" class="nextPost">Introducing MooseX::Extended for Perl &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -273,7 +275,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="preface"></a>Preface</h1>
+<h2><a name="preface"></a>Preface</h2>
 
 <p>After spending almost three years as the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna
 object system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, I’m delighted
@@ -297,7 +299,7 @@ codebases we’ve worked on in other OO languages.</p>
 documentation of that module if you decide to use it. There are often caveats, 
 such as with the “strict constructor” modules we mention later.</p>
 
-<h1><a name="whats-an-object"></a>What’s an Object?</h1>
+<h2><a name="whats-an-object"></a>What’s an Object?</h2>
 
 <p>First and foremost, we must keep in mind what an object is. <a href="/articles/why-is-object-oriented-programming-bad">This is covered
 more in other
@@ -310,7 +312,7 @@ opinion, they even hinder people’s understanding of objects because they keep
 you focused on the wrong thing. Objects are experts on a particular problem
 space, that’s all.</p>
 
-<h1><a name="recommendations"></a>Recommendations</h1>
+<h2><a name="recommendations"></a>Recommendations</h2>
 
 <p>We could talk about <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
 <a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP</a> <span class="fa fa-external-link fa_custom"></span>, the
@@ -328,7 +330,7 @@ to decide how (or if) they apply to your codebase.</p>
   in this article.</p>
 </blockquote>
 
-<h2><a name="immutable-objects"></a>Immutable Objects</h2>
+<h3><a name="immutable-objects"></a>Immutable Objects</h3>
 
 <p>I’ve written before why <a href="/articles/using-immutable-datetime-objects-with-dbixclass">immutable objects are
 good</a>, so I
@@ -338,7 +340,7 @@ most languages, objects are passed by reference, not value. The more widely
 used an instance of your object is, if it’s mutable, the more likely that code
 “A” will change the state in a way that code “B” didn’t expect.</p>
 
-<h3><a name="recommendation"></a>Recommendation</h3>
+<h4><a name="recommendation"></a>Recommendation</h4>
 
 <p>Even if you’re not convinced, try writing and using immutable objects. Like
 anything new, it can take some getting used to, but there’s a payoff there. Just
@@ -373,7 +375,7 @@ presenting a copy, different consumers calling that method will always have the
 same results, but if the returned reference itself is shared, you could have
 issues. That being said, this is an issue with all code, not just OOP.</p>
 
-<h2><a name="small-interfaces-and-encapsulation"></a>Small Interfaces and Encapsulation</h2>
+<h3><a name="small-interfaces-and-encapsulation"></a>Small Interfaces and Encapsulation</h3>
 
 <p>The interface that your class presents is your “contract” with everyone who uses
 your class. You should design that interface with care, but you shouldn’t expose
@@ -472,7 +474,7 @@ client codebases and that’s one of the first things we try to fix, if we have
 time. As a class author, you need to know you can safely change the internals of
 your object.</p>
 
-<h3><a name="recommendation-2"></a>Recommendation</h3>
+<h4><a name="recommendation-2"></a>Recommendation</h4>
 
 <p>Keep your classes as small as you can and stop making accessors public by
 default. For now, this means prefixing methods with an underscore to make them
@@ -503,7 +505,7 @@ pile in a ballroom in code reviews).</p>
   code.</p>
 </blockquote>
 
-<h2><a name="type-library"></a>Type Library</h2>
+<h3><a name="type-library"></a>Type Library</h3>
 
 <p>As systems grow, it’s very easy to have this problem:</p>
 
@@ -543,7 +545,7 @@ create a type library as a centralized place to put your types and share them
 across your codebase as needed. If there’s too much code, focus on critical
 paths first.</p>
 
-<h3><a name="recommendation-3"></a>Recommendation</h3>
+<h4><a name="recommendation-3"></a>Recommendation</h4>
 
 <p>Creating a type library for the first time can be daunting. Here’s a simple one,
 based on the excellent <a href="https://metacpan.org/pod/Type::Tiny" target="_blank">Type::Tiny</a> <span class="fa fa-external-link fa_custom"></span> by Toby
@@ -604,7 +606,7 @@ has 'order_items' =&gt; (
 extensive</a> <span class="fa fa-external-link fa_custom"></span>.
 Go there for more information.</p>
 
-<h2><a name="subclassing"></a>Subclassing</h2>
+<h3><a name="subclassing"></a>Subclassing</h3>
 
 <p>A subclass of a class is intended to be a more specialized version of that
 class. A <code>Car isa Vehicle</code>, or a <code>Human isa Mammal</code>. However, it’s easy to get
@@ -659,7 +661,7 @@ frequently using method modifiers in roles, you might want to think about
 inheritance to ensure that you have complete control over the sequencing of
 commands.</p>
 
-<h3><a name="recommendation-4"></a>Recommendation</h3>
+<h4><a name="recommendation-4"></a>Recommendation</h4>
 
 <p>We should prefer composition or roles over inheritance. Composition is good when
 you clearly have an object to delegate to. Roles are good when you have some
@@ -669,7 +671,7 @@ or XML).</p>
 <p>There’s much more we could say about roles, but a full tutorial is beyond the
 scope of this article.</p>
 
-<h2><a name="performance"></a>Performance</h2>
+<h3><a name="performance"></a>Performance</h3>
 
 <p>Don’t stress about performance, really. It’s not the code. It’s the database.
 It’s always the database.  Unless it’s the network. Or it’s disk I/O. Or, or, or
@@ -749,7 +751,7 @@ an idea, but that would kill <em>developer</em> performance when it comes to
 maintaining that code. If you must do that, document it carefully, perhaps
 including a snippet of the code that this replaces.</p>
 
-<h3><a name="recommendation-5"></a>Recommendation</h3>
+<h4><a name="recommendation-5"></a>Recommendation</h4>
 
 <p>Design the system well and don’t worry about performance while building it.
 Doing so runs the risk of optimizing code that doesn’t need to be optimized and
@@ -763,12 +765,12 @@ to profile your code:</p>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/SDWoCQf53Ck" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-<h1><a name="problems"></a>Problems</h1>
+<h2><a name="problems"></a>Problems</h2>
 
 <p>The above were general recommendations for OO code, but now let’s talk about
 common problems we encounter with our clients.</p>
 
-<h2><a name="too-many-responsibilities"></a>Too Many Responsibilities</h2>
+<h3><a name="too-many-responsibilities"></a>Too Many Responsibilities</h3>
 
 <p>For our <a href="/articles/project-500">Project 500</a> contract, our client was
 providing online credit card services for a major, well-publicized event.
@@ -813,14 +815,14 @@ now had a flexible in-memory cache for other objects. Further, because the cache
 internals were encapsulated, if we want to switch the cache out for Redis or 
 something else, it becomes trivial.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
 
-<h3><a name="recommendation-6"></a>Recommendation</h3>
+<h4><a name="recommendation-6"></a>Recommendation</h4>
 
 <p>Don’t have your objects try to do too much. The “single-responsibility”
 principle generally means there should only be a single reason to change a
 class. In the real-world, this is easy to miss, but it will save you much grief
 if you get this right.</p>
 
-<h2><a name="use-methods-for-attribute-data"></a>Use Methods for Attribute Data</h2>
+<h3><a name="use-methods-for-attribute-data"></a>Use Methods for Attribute Data</h3>
 
 <p>In old-school OOP code for Perl, you might see something like this:</p>
 
@@ -891,7 +893,7 @@ if it’s used elsewhere in the class? We <em>could</em> just overwrite the <cod
 enough, but if we need to convert an attribute to a method—as we did with <code>name</code>
 we can’t easily do that now.</p>
 
-<h3><a name="recommendation-7"></a>Recommendation</h3>
+<h4><a name="recommendation-7"></a>Recommendation</h4>
 
 <p>This is one of the advantages of Moose and Moo. You automatically get method
 accessors for data attributes, so users of those OO systems will rarely notice
@@ -916,7 +918,7 @@ of this article, so we would recommend following the current style of your
 codebase. If it doesn’t exist, define it and stick to it (predictable interfaces
 are fantastic!).</p>
 
-<h2><a name="confusing-subroutines-and-methods"></a>Confusing Subroutines and Methods</h2>
+<h3><a name="confusing-subroutines-and-methods"></a>Confusing Subroutines and Methods</h3>
 
 <p>Your Moose/Moo classes should generally resemble the following:</p>
 
@@ -958,7 +960,7 @@ and because Perl doesn’t have a distinction because subroutines and methods
 namespace and the <code>can('clone')</code> method returned true. We tried to call a
 subroutine as a method, even though it wasn’t.</p>
 
-<h3><a name="recommendation-8"></a>Recommendation</h3>
+<h4><a name="recommendation-8"></a>Recommendation</h4>
 
 <p>Using <a href="https://metacpan.org/pod/namespace::autoclean" target="_blank">namespace::autoclean</a> <span class="fa fa-external-link fa_custom"></span> or
 <a href="https://metacpan.org/pod/namespace::clean" target="_blank">namespace::clean</a> <span class="fa fa-external-link fa_custom"></span> will remove the
@@ -970,7 +972,7 @@ work better for you.</p>
 lexical importing mechanism which should make this less of a problem in the
 future if it’s adopted.</p>
 
-<h2><a name="inconsistent-return-types"></a>Inconsistent Return Types</h2>
+<h3><a name="inconsistent-return-types"></a>Inconsistent Return Types</h3>
 
 <p>This isn’t just an OOP problem, but it’s a common issue we see in code in 
 dynamic languages, so it’s worth mentioning here. If you’re going to return an 
@@ -1005,7 +1007,7 @@ similar trap with attributes:</p>
 );
 </code></pre></div>
 
-<h3><a name="recommendation-9"></a>Recommendation</h3>
+<h4><a name="recommendation-9"></a>Recommendation</h4>
 
 <p>There are several ways to handle this, including defining coerced types, but
 one of the simplest and safest:</p>
@@ -1027,7 +1029,7 @@ That’s great safety because while you want the types you return to be
 predictable, it’s also good to allow the types you pass in to be predictable. 
 There are definitely exceptions to this, but they should be used with care.</p>
 
-<h2><a name="ignored-constructor-arguments"></a>Ignored Constructor Arguments</h2>
+<h3><a name="ignored-constructor-arguments"></a>Ignored Constructor Arguments</h3>
 
 <p>Going back to our <code>results</code> example:</p>
 
@@ -1047,7 +1049,7 @@ has 'results' =&gt; (
 default, Moose and Moo simply discard unknown arguments to the constructor. If
 you misspell a constructor argument, this can be a frustrating source of errors.</p>
 
-<h3><a name="recommendation-10"></a>Recommendation</h3>
+<h4><a name="recommendation-10"></a>Recommendation</h4>
 
 <p>Fortunately, the fix for this is simple, too:
 <a href="https://metacpan.org/pod/MooseX::StrictConstructor" target="_blank">MooseX::StrictConstructor</a> <span class="fa fa-external-link fa_custom"></span>. <br />
@@ -1071,14 +1073,14 @@ has 'results' =&gt; (
 arguments to the constructor yourself, but the type library we outlined above
 can be used.</p>
 
-<h1><a name="leftovers"></a>Leftovers</h1>
+<h2><a name="leftovers"></a>Leftovers</h2>
 
 <p>There’s a huge amount more we can say, including useful design patters,
 being cautious with method modifiers in roles, when to use abstract classes
 instead of roles, but we’re starting to get into the long tail of code smells in
 object-oriented code bases, so perhaps those are good for another article.</p>
 
-<h1><a name="dr-frankenstein"></a>Dr. Frankenstein</h1>
+<h2><a name="dr-frankenstein"></a>Dr. Frankenstein</h2>
 
 <p>If you’ve gotten this far, congrats! One thing very helpful with OO code is to
 develop a set of guidelines on how you’ll build OO code and stick to it. We’re
@@ -1249,7 +1251,7 @@ done_testing;
 the basics of how you can build an OO system to fit your company’s needs, rather 
 than allowing everyone to just “do their own thing.”</p>
 
-<h1><a name="hire-us"></a>Hire Us</h1>
+<h2><a name="hire-us"></a>Hire Us</h2>
 
 <p>We do code reviews, development, testing, and design, focused on reliability and
 scalability. Even if you’re just exploring possibilities, feel free to <a href="mailto:info@allaroundtheworld.fr?subject=Consulting">contact
@@ -1286,15 +1288,19 @@ can do to make your software better.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -1319,11 +1325,8 @@ can do to make your software better.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/articles/why-is-object-oriented-programming-bad" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
-        
         <a href="/articles/introducing-moosexextended-for-perl" class="nextPost">Introducing MooseX::Extended for Perl &raquo;</a>
     </div>
 
@@ -1331,12 +1334,42 @@ can do to make your software better.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/common-problems-in-object-oriented-code.html";
+            this.page.identifier = "articles/common-problems-in-object-oriented-code";
+            this.page.title      = "Common Problems in Object-Oriented Code";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -1374,36 +1407,23 @@ can do to make your software better.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/articles/common-problems-in-object-oriented-code.html";
-            this.page.identifier = "articles/common-problems-in-object-oriented-code";
-            this.page.title      = "Common Problems in Object-Oriented Code";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -1425,7 +1445,7 @@ can do to make your software better.</p>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>I should have used <a 
 href="https://metacpan.org/pod/CHI">CHI</a>.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>

@@ -3,25 +3,80 @@
 .dialog-overlay {
     z-index: 2;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
+    inset: 0;
+    background-color: rgba(16, 18, 17, .55);
+    backdrop-filter: blur(2px);
 }
 
 .dialog {
     z-index: 3;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    padding: 20px;
-    text-align: left;
-    width: 90%;
-    max-width: 400px;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
+    width: min(92vw, 34rem);
+    padding: 2.25rem 2.5rem 2.5rem;
+    background-color: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .22);
+    text-align: left;
+}
+
+/* "Footnote" -- a signpost, so Archivo, matching the nav and metadata. */
+.dialog > strong {
+    display: block;
+    font-family: "Archivo", sans-serif;
+    font-weight: 500;
+    font-size: .65rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 1.1rem;
+}
+
+/* The note itself. Body line-height (1.72) is set for a full measure and
+   reads as loose in a 34rem panel, so tighten it. */
+.dialog > div {
+    font-size: 1.02rem;
+    line-height: 1.55;
+}
+
+.dialog > div > :last-child { margin-bottom: 0; }
+
+/*
+ * Skeleton styles every bare <button> as a 30px-padded, bordered pill. This
+ * is a bare icon in a corner, so unset all of it.
+ */
+.close-dialog {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--faint);
+    font-size: .82rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s, background .15s;
+}
+
+.close-dialog:hover {
+    color: var(--ink);
+    background: var(--accent-soft);
+}
+
+.close-dialog:focus-visible {
+    color: var(--ink);
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .dialog-overlay[aria-hidden="true"],

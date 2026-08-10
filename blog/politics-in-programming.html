@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Politics in Programming</title>
-  <meta name="description" content="Politics in Programming">
+  <meta name="description" content="Designing the Corinna OO system for Perl has been as much a political exercise as a technical one. This has been a good thing.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>Politics in Programming</h1>
-        <time>2021-08-21</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/resigning-from-the-perl-foundation" class="prevPost">&laquo; Resigning From The Perl Foundation</a>
-        
-        <a href="/blog/jeff-bezos-1000-problems" class="nextPost">What's Wrong with Blue Origin? &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2021</span>
+        <span class="dateblock-day"><time datetime="2021-08-21">08.21</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Politics in Programming</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -228,9 +221,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/resigning-from-the-perl-foundation" class="prevPost">&laquo; Resigning From The Perl Foundation</a>
+        <a href="/blog/jeff-bezos-1000-problems" class="nextPost">What's Wrong with Blue Origin? &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -252,7 +254,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="corinnas-first-missteps"></a>Corinna’s First (mis)Steps</h1>
+<h2><a name="corinnas-first-missteps"></a>Corinna’s First (mis)Steps</h2>
 
 <p>Note: Corinna is the name of Ovid’s love interest in <a href="https://www.gutenberg.org/files/47676/47676-h/47676-h.htm" target="_blank">the
 Amores</a> <span class="fa fa-external-link fa_custom"></span>.</p>
@@ -325,14 +327,14 @@ look at one mistake I made in that specification:</p>
 
 <p>So you couldn’t call <code>$self-&gt;cache</code> or <code>$self-&gt;max_size</code> outside of the class.</p>
 
-<h2><a name="good-oo-design"></a>Good OO Design</h2>
+<h3><a name="good-oo-design"></a>Good OO Design</h3>
 
 <p>So I said encapsulation is “generally accepted as good OO practice.”</p>
 
 <p>Yes, that’s true. And if you’re very familiar with OO design best practices,
 you might even agree. Java developers learned a long time ago not to make
 their object attributes public, but Perl, frankly, didn’t really have simple
-ways of enforcing encapsulation. In fact, in the early days of OO prorgamming
+ways of enforcing encapsulation. In fact, in the early days of OO programming
 in Perl, you’d often see an object constructed like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package SomeClass;
@@ -389,7 +391,7 @@ data, but these have never caught on. They are awkward to write and, most
 importantly, you can’t just call <code>Dumper($object)</code> to see its internal state
 while debugging. That alone may have killed them.</p>
 
-<h2><a name="my-mistake"></a>My Mistake</h2>
+<h3><a name="my-mistake"></a>My Mistake</h3>
 
 <p>So if encapsulation is good, and violating encapsulation is bad, why were
 people upset with my proposal?</p>
@@ -435,7 +437,7 @@ top. Which leads me to the entire point of this blog entry:</p>
 meant that no one would use my OO system, it didn’t matter. I had to change
 something.</p>
 
-<h2><a name="politics"></a>Politics</h2>
+<h3><a name="politics"></a>Politics</h3>
 
 <p>It was pointed out to me that since I had been working in isolation, I hadn’t
 had the chance to hear, much less incorporate, the views of others. It was
@@ -519,7 +521,7 @@ this.</p>
 
 <p>But what about class data?</p>
 
-<h1><a name="class-data-and-methods"></a>Class Data and Methods</h1>
+<h2><a name="class-data-and-methods"></a>Class Data and Methods</h2>
 
 <p>Should we include class data and methods in Corinna? I discovered that for
 many people, the answer was obvious, but their obvious answers disagreed with
@@ -535,7 +537,7 @@ other people’s obvious answers. What makes it worse is that this isn’t just 
 <p>This isn’t easy. We got past one and two with difficulty, but number three has
 been a bit of a trainwreck. And I’m the conductor.</p>
 
-<h2><a name="inclusion"></a>Inclusion</h2>
+<h3><a name="inclusion"></a>Inclusion</h3>
 
 <p>I think it was pretty much universally agreed that we had to have class
 methods. These wouldn’t have <code>$self</code> injected into them, nor would they have
@@ -601,14 +603,14 @@ pointed out that it’s literally impossible to avoid:</p>
 In fact, even if we omitted class methods, we’d still have class data. So
 let’s work with what we have.</p>
 
-<h2><a name="semantics"></a>Semantics</h2>
+<h3><a name="semantics"></a>Semantics</h3>
 
 <p><a href="https://github.com/Ovid/Cor/wiki/Class-Data-and-Methods" target="_blank">We have a lot of the semantics described
 here</a> <span class="fa fa-external-link fa_custom"></span>, but it could
 use some more work. However, the general idea of behavior isn’t controversial
 enough that I want to spend too much time here.</p>
 
-<h2><a name="syntax"></a>Syntax</h2>
+<h3><a name="syntax"></a>Syntax</h3>
 
 <p>Now we have a problem. In Moo/se, we <code>BUILD</code>, <code>DEMOLISH</code>, and <code>has</code>, which
 have been renamed to <code>ADJUST</code>, <code>DESTRUCT</code>, and <code>slot</code> in Corinna in part
@@ -773,7 +775,7 @@ Corinna was arguing for <code>my</code>. Here’s Damian, using <code>state</cod
 classes, but let’s not go there yet. Let’s talk about <code>state</code> and why this is
 important.</p>
 
-<h2><a name="state-variables"></a>State Variables</h2>
+<h3><a name="state-variables"></a>State Variables</h3>
 
 <p><a href="https://perldoc.perl.org/functions/state" target="_blank"><code>perldoc -f state</code></a> <span class="fa fa-external-link fa_custom"></span> says:</p>
 
@@ -884,11 +886,11 @@ might surprise some because I don’t think it’s clearly documented.</p>
 I need to ensure that Corinna doesn’t hobble future Perl, either. That’s much
 harder because we can’t predict the future.</p>
 
-<h1><a name="the-future"></a>The Future</h1>
+<h2><a name="the-future"></a>The Future</h2>
 
 <p>There are two things we would love to see in the future for Perl. One is inner
 classes and the second is anonymous classes. “Anonymous classes” already feels
-“Perlish” because  we have anonymous subroutines and most Perl developers are
+“Perlish” because we have anonymous subroutines and most Perl developers are
 familiar with the concept of closures. But let’s discuss inner classes first
 since many people are not familiar with them. <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/nested.html" target="_blank">Let’s look at some examples
 from the Java
@@ -987,7 +989,7 @@ appropriate. Or after we get there, we might discover that they’re not
 appropriate and we’ve backed ourselves into a corner because we decided to
 reuse a handy thing in the language.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>There are no good answers here, but I had to make a call. And I decided to err
 on the side of established conventions in popular languages, and potential
@@ -1004,7 +1006,7 @@ up. That’s fine. I welcome those arguments and I might change my mind, but the
 arguments have raged since February with no sign of consensus. I had to make a
 call. I might not have made the right call, but it needed to be done.</p>
 
-<h1><a name="update"></a>Update</h1>
+<h2><a name="update"></a>Update</h2>
 
 <p>I’ve been getting some feedback on this. I’ve now been going back through
 tickets, emails, and IRC logs and I see that there some agreement on <code>class
@@ -1051,15 +1053,19 @@ inner class: <code>class class InnerClass {...}</code>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -1084,11 +1090,8 @@ inner class: <code>class class InnerClass {...}</code>.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/resigning-from-the-perl-foundation" class="prevPost">&laquo; Resigning From The Perl Foundation</a>
-        
         <a href="/blog/jeff-bezos-1000-problems" class="nextPost">What's Wrong with Blue Origin? &raquo;</a>
     </div>
 
@@ -1096,12 +1099,42 @@ inner class: <code>class class InnerClass {...}</code>.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/politics-in-programming.html";
+            this.page.identifier = "blog/politics-in-programming";
+            this.page.title      = "Politics in Programming";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -1139,36 +1172,23 @@ inner class: <code>class class InnerClass {...}</code>.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/politics-in-programming.html";
-            this.page.identifier = "blog/politics-in-programming";
-            this.page.title      = "Politics in Programming";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     

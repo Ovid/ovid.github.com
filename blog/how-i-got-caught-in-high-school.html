@@ -13,17 +13,22 @@
       }
     })();
   </script>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB"></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
 
-    gtag('config', 'G-BVDP76N9NB');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
   </script>
   
-
   <!-- Facebook -->
 
   <meta property="fb:app_id" content="329861788447703">
@@ -38,7 +43,7 @@
   <meta property="og:url" content="https://curtispoe.org/blog/how-i-got-caught-in-high-school">
   
   <meta property="og:title" content="How I Got Caught in High School">
-  <meta property="og:description" content="Teenages are stupid. I was no exception. I once got caught breaking into my high school.">
+  <meta property="og:description" content="Teenagers are stupid. I was no exception. I once got caught breaking into my high school.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -50,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>How I Got Caught in High School</title>
-  <meta name="description" content="How I Got Caught in High School">
+  <meta name="description" content="Teenagers are stupid. I was no exception. I once got caught breaking into my high school.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -59,7 +64,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="/static/css/normalize.css">
@@ -70,6 +77,7 @@
   <link rel="stylesheet" href="/static/css/collapsible.css">
   <link rel="stylesheet" href="/static/css/dark-mode.css">
   <script src="/static/js/dark-mode.js" defer></script>
+  <script src="/static/js/code-scroll.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
     
 
@@ -79,37 +87,13 @@
 
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
-    <i class="fa fa-moon-o" aria-hidden="true"></i>
-</button>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-
-  <!-- Primary Page Layout -->
-  <div class="container">
-    <div class="row books">
-        <div class="twelve columns header">
-            <ul>
-              <li><a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the 'Perl Hacks' book" class="book"></a></li>
-              <li><a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the 'Beginning Perl' book" class="book"></a></li>
-              <li><img class="book" src="/static/images/profile.png" alt="An image of Curtis Poe, holding some electronic equipment in front of his face."></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row title blog">
-        <!-- Back to top button -->
-        <span aria-hidden="true"><a href="#top" class="arrow"><button id="scrollToTopButton">↑</button></a></span>
-        <h1><a name="-title-no-title-found-"></a>How I Got Caught in High School</h1>
-        <time>2021-12-23</time>
-        
-        <p><span id="time"></span> minute read</p>
-        
-        <hr>
-        <div class="twelve columns header">
-        </div>
-    </div>
-    <div class="row">
-      <div class="two columns">
-
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— AI, programming, and prose</i></a>
+        <div class="masthead-tools">
   <span id="wasm_search"></span>
   <!-- Note the usage of `type=module` here as this is an ES6 module -->
   <script type="module">
@@ -184,41 +168,50 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><strong>Search</strong><input type="text" id="demo" onkeyup="doSearch()"><ul id="results"></ul><div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
     }
   </script>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/articles">Articles</a> <a href="/article.rss"><img border="0" alt="Subscribe to Articles by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/blog">Blog</a> <a href="/blog.rss"><img border="0" alt="Subscribe to Blogs by Ovid" src="/static/images/rss.png" width="12" height="12"/></a></li>
-  <li><a href="/projects">Projects</a></li>
-  <li><a href="/videos">Talks</a></li>
-  <li><a href="/hireme">Hire Me</a></li>
-  <li><a href="/wildagile">WildAgile</a></li>
-  <li><a href="/paad/">Learn PAAD</a></li>
-  <li><a href="/paad/tramp-freighter"><strong>Click me!</strong></a></li>
-</ul>
-<strong>Visit me on ...</strong>
-<ul>
-  <li><a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a></li>
-  <li><a href="https://github.com/Ovid/">GitHub</a></li>
-  <li><a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a></li>
-  <li><a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a></li>
-</ul>
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
 
+        </div>
       </div>
-      <div class="ten columns verticalLine article">
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure">
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
 
-        
-    <div class="prevNext">
-        
-        <a href="/blog/jeff-bezos-1000-problems" class="prevPost">&laquo; What's Wrong with Blue Origin?</a>
-        
-        <a href="/blog/programming-in-1987-versus-today" class="nextPost">Programming in 1987 Versus Today &raquo;</a>
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener opener--blog">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2021</span>
+        <span class="dateblock-day"><time datetime="2021-12-23">12.23</time></span>
+        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>How I Got Caught in High School</h1>
+      </div>
     </div>
 
-    
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
 
 <ul class="inline" role="navigation" aria-label="Tag list for this blog">
     <li>Tags:</li>
@@ -230,9 +223,18 @@
 </ul>
 
 
-        <hr>
-    <!-- nada -->
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/blog/jeff-bezos-1000-problems" class="prevPost">&laquo; What's Wrong with Blue Origin?</a>
+        <a href="/blog/programming-in-1987-versus-today" class="nextPost">Programming in 1987 Versus Today &raquo;</a>
+    </div>
 
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
 
 
 <article id="article">
@@ -251,7 +253,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="why-am-i-writing-this"></a>Why am I Writing This?</h1>
+<h2><a name="why-am-i-writing-this"></a>Why am I Writing This?</h2>
 
 <p>This is here because when I reread the <a href="/blog/my-father">eulogy for my
 father</a>, I realize that no one knew much about his life.
@@ -263,7 +265,7 @@ father’s life, so I don’t want my family to go through the same thing.</p>
 <p>It might prove to be mistake. I had a rough life growing up and some stories I
 might share do not reflect well on me.</p>
 
-<h1><a name="1984"></a>1984</h1>
+<h2><a name="1984"></a>1984</h2>
 
 <p><em>This is the story of how I got caught breaking and entering in my high school
 in Texas. Names of guilty parties have been changed because most of them are
@@ -301,7 +303,7 @@ otherwise, I simply <em>didn’t</em> break the rules.</p>
     </div>
 </figure></p>
 
-<h2><a name="cheating-on-tests"></a>Cheating on Tests</h2>
+<h3><a name="cheating-on-tests"></a>Cheating on Tests</h3>
 
 <p>My first high school, <a href="https://www.keystoneschool.org/" target="_blank">Keystone</a> <span class="fa fa-external-link fa_custom"></span>, was a
 private high school for the academically gifted. My grandmother, who had been
@@ -358,7 +360,7 @@ destroy my GPA like that?”</p>
 <p>Her eyes widened and she stopped. And then she apologized. Of course, it was
 stupid that I would do such a thing. I never heard another word about it.</p>
 
-<h2><a name="cheating-on-homework"></a>Cheating on Homework</h2>
+<h3><a name="cheating-on-homework"></a>Cheating on Homework</h3>
 
 <p>Of course, then, as now, I loved computers. One of our assignments was doing
 <a href="https://www.youtube.com/watch?v=i7FCn671mH4" target="_blank">ten key by touch</a> <span class="fa fa-external-link fa_custom"></span>. To say that
@@ -414,7 +416,7 @@ and agreed to help, but with a caveat. For (identifying) reasons I won’t
 discuss, he was much more at risk if he got caught, so Bob and I agreed to
 keep him out of it.</p>
 
-<h2><a name="the-break-in"></a>The Break-In</h2>
+<h3><a name="the-break-in"></a>The Break-In</h3>
 
 <p>That night, Charlie picked me up at my house and we went and got Bob. Charlie
 was driving a pickup truck with a ladder in the back and as we got to the
@@ -453,7 +455,7 @@ look. We knew then that we were screwed.</p>
 
 <p>“No, I won’t tell anyone.”</p>
 
-<h2><a name="interlude-the-tax-office"></a>Interlude: The Tax Office</h2>
+<h3><a name="interlude-the-tax-office"></a>Interlude: The Tax Office</h3>
 
 <p>Let’s take a little diversion. At this time, I had heard plenty of rumors that
 our school had been doing dodgy things to get more tax income. Schools in the
@@ -479,7 +481,7 @@ coincidence. There were a couple of weird coincidences that day and the reason
 we got off so lightly may have been because the school had other matters to
 worry about in what had to be a complete day of hell for the school.</p>
 
-<h2><a name="getting-caught"></a>Getting Caught</h2>
+<h3><a name="getting-caught"></a>Getting Caught</h3>
 
 <p>The next day at school, everyone was talking about the break-in and it was
 scary. Bob, Charlie, and I gathered around and I reiterated my position. There
@@ -560,7 +562,7 @@ until I got mad and yelled, “I didn’t do anything!”</p>
 
 <p>“Oh, yeah.”</p>
 
-<h1><a name="aftermath"></a>Aftermath</h1>
+<h2><a name="aftermath"></a>Aftermath</h2>
 
 <p>Charlie was never implicated. Bob and I received in-school suspension, were
 barred from the class trip, and I apologized to Mrs. Bode, explaining that we
@@ -585,7 +587,7 @@ Bob and I only had a few more day’s worth of work to do.</p>
 <p>I’m pretty sure that Mrs. Bode knew that we had cheated, again. But she never
 said a word.</p>
 
-<h1><a name="tax-office"></a>Tax Office?</h1>
+<h2><a name="tax-office"></a>Tax Office?</h2>
 
 <p>So that’s the end of the story, but you might be wondering what the hell was
 going on with the tax office break in.</p>
@@ -632,15 +634,19 @@ responsible.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay">
-    <img id="overlayImage" src="" alt="Full-size image">
-</div>
+<div id="overlay" class="overlay"></div>
 <script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
     function showOverlay(img) {
         const overlay = document.getElementById('overlay');
-        const overlayImage = document.getElementById('overlayImage');
+        const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
         overlay.style.display = 'block';
     }
 
@@ -665,11 +671,8 @@ responsible.</p>
 
 
 <hr>
-    
-    <div class="prevNext">
-        
+        <div class="prevNext">
         <a href="/blog/jeff-bezos-1000-problems" class="prevPost">&laquo; What's Wrong with Blue Origin?</a>
-        
         <a href="/blog/programming-in-1987-versus-today" class="nextPost">Programming in 1987 Versus Today &raquo;</a>
     </div>
 
@@ -677,12 +680,42 @@ responsible.</p>
 
           <p>If you'd like top-notch consulting or training, <a
           href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
-          how I can help you. Read my <a href="/hireme">hire me</a> page
+          how I can help you. Read <a href="/about">more about me</a>
           to learn more about my background.</p>
-        </div>
-    </div>
-    <div class="row">
-      <div class="twelve columns">
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/blog/how-i-got-caught-in-high-school.html";
+            this.page.identifier = "blog/how-i-got-caught-in-high-school";
+            this.page.title      = "How I Got Caught in High School";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
 
 
 <strong>Tags</strong>
@@ -720,36 +753,23 @@ responsible.</p>
 
 </ul>
 
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
       </div>
     </div>
-    <div class="row">
-      <div class="twelve columns">
-        <hr>
-        <p>Copyright &copy; 2018-2026 by Curtis “Ovid” Poe.</p>
-      </div>
-    </div>
-    <div id="disqus_thread"></div>
-    <div class="row">
-      <div class="twelve columns">
-      
-        <script>
-        var disqus_config = function () {
-            this.page.url        = "https://curtispoe.org/blog/how-i-got-caught-in-high-school.html";
-            this.page.identifier = "blog/how-i-got-caught-in-high-school";
-            this.page.title      = "How I Got Caught in High School";
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      
-        </div>
-    </div>
-    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
     
     <script src="/static/js/prism.js"></script>
     
@@ -770,7 +790,7 @@ responsible.</p>
         <strong id="note-1">Footnotes</strong>
         <p id="note-description-1" class="sr-only">Note number 1</p>
 	    <div>What do you call a teenager who doesn't masturbate? A liar.</div>
-        <button type="button" aria-label="Close Navigation" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
     </div>
 
     <script>
