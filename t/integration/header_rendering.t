@@ -56,20 +56,40 @@ subtest 'articles do not get the blog CSS class' => sub {
 # to appear *below* that block, so Config was uninstantiated when the block
 # ran and TT silently rendered an empty id (id="" / gtag('config', '')) into
 # every page whose source predated the config extraction.
+#
+# The markup moved when analytics was gated to skip localhost: the static
+# <script src="...?id=X"> became a script element built in JS, so the id is now
+# delimited by single quotes rather than the double quotes of an HTML
+# attribute. The guarantee under test is unchanged -- the id must interpolate
+# and must never be left empty.
+#
+# The gate itself is covered here for the same reason. It compares
+# location.hostname against Config.domain, so an empty domain would leave an
+# unsatisfiable comparison that silently disables analytics *in production* --
+# the same silent-failure mode as an empty id, just in the other direction.
 subtest 'Google Analytics id is rendered into the header' => sub {
-    my $ga_id = config()->{google_analytics_id};
-    ok $ga_id, "config supplies a google_analytics_id ($ga_id)";
+    my $ga_id  = config()->{google_analytics_id};
+    my $domain = config()->{domain};
+    ok $ga_id,  "config supplies a google_analytics_id ($ga_id)";
+    ok $domain, "config supplies a domain ($domain)";
 
     my $output = '';
     $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
       or die $tt->error;
 
-    like $output, qr/gtag\/js\?id=\Q$ga_id\E"/,
+    like $output, qr/gtag\/js\?id=\Q$ga_id\E'/,
       'gtag.js script src includes the analytics id';
     like $output, qr/gtag\('config', '\Q$ga_id\E'\)/,
       "gtag('config') call includes the analytics id";
-    unlike $output, qr/gtag\/js\?id="/,
+    unlike $output, qr/gtag\/js\?id='/,
       'gtag.js script src is never left with an empty id';
+    unlike $output, qr/gtag\('config', ''\)/,
+      "gtag('config') call is never left with an empty id";
+
+    like $output, qr/location\.hostname === '\Q$domain\E'/,
+      'localhost gate compares against the configured domain';
+    unlike $output, qr/location\.hostname === ''/,
+      'localhost gate is never left with an empty domain';
 };
 
 done_testing;
