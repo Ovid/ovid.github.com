@@ -30,8 +30,8 @@ my $expected = <<'END';
 </nav>
 <hr>
 
-<h1><a name="this-is-a-header"></a>This is a header</h1>
-<h2><a name="this-is-a-level-two-header"></a>This is a level two header</h2>
+<h2><a name="this-is-a-header"></a>This is a header</h2>
+<h3><a name="this-is-a-level-two-header"></a>This is a level two header</h3>
 
 [% WRAPPER include/code.tt language='perl' -%]
 my $x = shift;
@@ -111,6 +111,93 @@ END
       '... but the heading itself must survive untouched';
     like $rewritten, qr/<h2><a name="a-real-heading"><\/a>A real heading<\/h2>/,
       'Headings with literal text should still be anchored';
+};
+
+subtest 'Body headings are demoted beneath the page title' => sub {
+
+    # include/header.tt gives every wrapped page an <h1> of its own, so a body
+    # heading at h1 is a section head competing with the page title.
+    my $code = <<'END';
+[% WRAPPER include/wrapper blogdown=1 %]
+{{TOC}}
+# Top
+
+## Middle
+
+### Bottom
+[% END %]
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+
+    like $rewritten, qr{<h2><a name="top"></a>Top</h2>},
+      'A body h1 should be demoted to h2';
+    like $rewritten, qr{<h3><a name="middle"></a>Middle</h3>},
+      '... and everything below it should shift by the same amount';
+    like $rewritten, qr{<h4><a name="bottom"></a>Bottom</h4>},
+      '... however deep it goes';
+    unlike $rewritten, qr{</?h1}, '... leaving no body h1 at all';
+
+    like $rewritten, qr{<li class="indent-1"><a href="#top">},
+      'The table of contents should indent by the authored level, not the emitted one';
+    like $rewritten, qr{<li class="indent-2"><a href="#middle">},
+      '... so existing tables of contents are untouched by the demotion';
+};
+
+subtest 'Files already starting below h1 are left alone' => sub {
+
+    # Downward only: a file whose shallowest heading is h2 is already correct,
+    # and promoting it would enlarge headings on a page that had no problem.
+    my $code = <<'END';
+[% WRAPPER include/wrapper blogdown=1 %]
+## Middle
+
+### Bottom
+[% END %]
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+
+    like $rewritten,   qr{<h2><a name="middle"></a>Middle</h2>}, 'An h2 should stay an h2';
+    like $rewritten,   qr{<h3><a name="bottom"></a>Bottom</h3>}, '... and an h3 an h3';
+    unlike $rewritten, qr{</?h1}, '... with nothing promoted into the gap';
+};
+
+subtest 'Demotion preserves heading attributes' => sub {
+    my $code = <<'END';
+[% WRAPPER include/wrapper blogdown=1 %]
+<h1 class="fancy" id="top">Top</h1>
+[% END %]
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+
+    like $rewritten, qr{<h2 class="fancy" id="top">},
+      'Attributes on a demoted heading should survive';
+    like $rewritten, qr{</h2>}, '... and the closing tag should match the new level';
+};
+
+subtest 'Standalone pages keep their own h1' => sub {
+
+    # editor.tt writes its own <html> and <head>; nothing supplies an h1 for
+    # it, so its h1 is the page title rather than a section head.
+    my $code = <<'END';
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Editing</title></head>
+<body>
+<h1>Editing: [% filename %]</h1>
+<h1>Upload Image</h1>
+</body>
+</html>
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+
+    like $rewritten, qr{<h1>Editing: \[% filename %\]</h1>},
+      'A page not wrapped by include/header.tt should keep its h1';
+    like $rewritten, qr{<h1><a name="upload-image"></a>Upload Image</h1>},
+      '... including headings with literal text';
 };
 
 # Test error handling for unclosed code blocks (cover line 133)

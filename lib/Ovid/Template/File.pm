@@ -201,15 +201,20 @@ package Ovid::Template::File {
             }
             $contents = $rewritten;
         }
-        my $p = HTML::TokeParser::Simple->new( string => $contents );
+        my $demote = _demotes_body_headings($contents);
+        my $p      = HTML::TokeParser::Simple->new( string => $contents );
 
         my $seen = {};
 
         my $rewritten = '';
         my @links;
+
+        # The level of the open heading we are demoting, so its closing tag
+        # can be shifted to match. Headings do not nest, so one scalar is
+        # enough.
+        my $demoted_from;
         while ( my $token = $p->get_token ) {
             if ( $token->is_start_tag(qr/^h[1-6]$/i) ) {
-                $rewritten .= $token->as_is;
                 my $tag = $token->get_tag;
                 $tag =~ /^h([1-6])$/i or croak("Bad 'h' tag in $file: $tag");
                 my $level = $1;
@@ -218,9 +223,21 @@ package Ovid::Template::File {
                 # A heading whose text is a Template Toolkit directive has no
                 # text to slug yet -- we would be sluggifying the source of
                 # `[% title %]`, stamping the same meaningless anchor onto
-                # every page that uses the include. Emit the heading, skip the
-                # anchor and the TOC entry.
-                next if ( $title // '' ) =~ /\[%/;
+                # every page that uses the include. It is also the wrapper's
+                # page title rather than body content, so it keeps its level.
+                # Emit the heading, skip the anchor and the TOC entry.
+                if ( _is_template_directive($title) ) {
+                    $rewritten .= $token->as_is;
+                    next;
+                }
+
+                if ( $demote && $level < 6 ) {
+                    $rewritten .= _shift_heading( $token->as_is, $level, $level + 1 );
+                    $demoted_from = $level;
+                }
+                else {
+                    $rewritten .= $token->as_is;
+                }
 
                 my $slug = make_slug($title);
                 if ( $seen->{$file}{$slug}++ ) {
@@ -230,7 +247,14 @@ package Ovid::Template::File {
                     $slug = "$slug-$seen->{$file}{$slug}";
                 }
                 $rewritten .= qq{<a name="$slug"></a>};
+
+                # Indented by the level the author wrote, not the level we
+                # emit, so demoting a page leaves its table of contents alone.
                 push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
+            }
+            elsif ( defined $demoted_from && $token->is_end_tag(qr/^h[1-6]$/i) ) {
+                $rewritten .= _shift_heading( $token->as_is, $demoted_from, $demoted_from + 1 );
+                undef $demoted_from;
             }
             else {
                 $rewritten .= $token->as_is;
@@ -260,6 +284,44 @@ TOC
         }
 
         return ( $rewritten, \@tags );
+    }
+
+    sub _is_template_directive ($title) {
+        return ( $title // '' ) =~ /\[%/;
+    }
+
+    # Rewrites only the tag name, so attributes survive the shift.
+    sub _shift_heading ( $tag_text, $from, $to ) {
+        $tag_text =~ s{\A(</?)h\Q$from\E\b}{$1h$to}i;
+        return $tag_text;
+    }
+
+    # Every page built on include/header.tt already carries an <h1>: the title
+    # in the opener. A body heading at h1 is therefore a second top-level
+    # heading competing with it -- 78 pages had ended up with as many as ten
+    # apiece, so a screen-reader user pulling up the heading list got a flat
+    # row of peers instead of a title and its sections (WCAG 2.1 §1.3.1).
+    #
+    # Demoting by one puts the shallowest body heading at h2, beneath the
+    # page title, with the levels below it shifting to match. The shift only
+    # ever goes down: a file whose headings already start at h2 or deeper is
+    # left as written rather than being promoted into the gap. Since the
+    # target is h2 and nothing is promoted, "normalise to the shallowest
+    # heading" reduces to "shift by one if there is a body h1".
+    #
+    # Pages that write their own <html> and <head> -- editor.tt is the only
+    # one -- get no title from the wrapper, so their h1 is the page title and
+    # is left alone.
+    sub _demotes_body_headings ($contents) {
+        return 0
+          unless $contents =~ m{(?:WRAPPER|INCLUDE)\s+["']?include/(?:wrapper|header)};
+        my $p = HTML::TokeParser::Simple->new( string => $contents );
+        while ( my $token = $p->get_token ) {
+            next unless $token->is_start_tag(qr/^h1$/i);
+            next if _is_template_directive( $p->peek(1) );
+            return 1;
+        }
+        return 0;
     }
 
     sub _set_attrs_from_template ($self) {

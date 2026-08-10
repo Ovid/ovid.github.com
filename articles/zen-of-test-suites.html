@@ -268,7 +268,7 @@ with recommendations on best practices.  Much of what I describe below
 is generic and applies to test suites written in any programming
 language, despite many examples being written in Perl.</p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>I often speak with developers who take a new job and they describe
 a Web site built out of a bunch of separate scripts scattered randomly
@@ -333,7 +333,7 @@ trying to figure out where to put their new tests.</p>
 <p>Unfortunately, this disorganization is only the start of the
 problem.</p>
 
-<h1><a name="common-test-suite-problems"></a>Common Test Suite Problems</h1>
+<h2><a name="common-test-suite-problems"></a>Common Test Suite Problems</h2>
 
 <p>I've worked with many companies with large test suites and they
 tend to share some common problems. I list them in below in the order
@@ -370,7 +370,7 @@ will offer recommendations for resolving each problem, but it's
 important to understand that these are <em>recommendations</em>. They
 may not apply to your situation.</p>
 
-<h2><a name="tests-often-emit-warnings"></a>Tests often emit warnings</h2>
+<h3><a name="tests-often-emit-warnings"></a>Tests often emit warnings</h3>
 
 <p>This seems rather innocuous. Sure, code emits warnings and we're
 used to that.  Unfortunately, we sometimes forget that warnings are
@@ -402,7 +402,7 @@ serious issue. Also, some tests will capture STDERR, effectively
 hiding warnings. Making warnings fatal while running tests can help to
 overcome this problem.</p>
 
-<h2><a name="tests-often-fail"></a>Tests often fail</h2>
+<h3><a name="tests-often-fail"></a>Tests often fail</h3>
 
 <p>For one client, their hour-long test suite had many failing tests.
 When I first started working on it, I had a developer walk me through
@@ -454,8 +454,8 @@ next developer a clue what's going on.</p>
 tests fail which do not impact the correctness of the application
 (such as documentation or "coding style" tests), they should be
 separated from your regular tests in some manner and your systems
-should recognize that it's OK for them to fail.</p> <h2><a name="there-is-little-evidence-of-organization"></a>There is
-little evidence of organization</h2>
+should recognize that it's OK for them to fail.</p> <h3><a name="there-is-little-evidence-of-organization"></a>There is
+little evidence of organization</h3>
 
 <p>As mentioned previously, a common lament amongst developers is the
 difficulty of finding tests for the code they're working on. Consider
@@ -550,7 +550,7 @@ structured differently:</p>
 predictable, discoverable structure. The test suite should be much
 easier to work with.</p>
 
-<h2><a name="much-of-the-testing-code-is-duplicated"></a>Much of the testing code is duplicated</h2>
+<h3><a name="much-of-the-testing-code-is-duplicated"></a>Much of the testing code is duplicated</h3>
 
 <p>We're aghast that people routinely cut-n-paste their
 application code, but we don't even notice when people do this in
@@ -672,7 +672,7 @@ designs.</p>
 <p><strong>Recommendation</strong>: Keep your test code as clean as
 your application code.</p>
 
-<h2><a name="testing-fixtures-are-not-used-or-poorly-used"></a>Testing fixtures are not used (or poorly used)</h2>
+<h3><a name="testing-fixtures-are-not-used-or-poorly-used"></a>Testing fixtures are not used (or poorly used)</h3>
 
 <p>One difference between your application code and the test suite is
 in an application, we often have no idea what the data will be and we
@@ -788,7 +788,7 @@ are welcome in this area.</p>
 <p><strong>Recommendation</strong>: Fine-grained, well-documented
 fixtures which are easy to create and easy to clean up.</p>
 
-<h2><a name="code-coverage-is-poorly-understood"></a>Code coverage is poorly understood</h2>
+<h3><a name="code-coverage-is-poorly-understood"></a>Code coverage is poorly understood</h3>
 
 <p>Consider the following code:</p>
 <pre><code>float recip(float number) {
@@ -878,7 +878,7 @@ determine which ones are poorly tested.</p>
 <p><strong>Recommendation</strong>: Run coverage over public-facing
 code and on different subsystems to find poor coverage.</p>
 
-<h2><a name="they-take-far-too-long-to-run"></a>They take far too long to run</h2>
+<h3><a name="they-take-far-too-long-to-run"></a>They take far too long to run</h3>
 
 <p>The problem with long-running test suites is well known, but it's
 worth covering this again here. These are problems that others have
@@ -977,9 +977,9 @@ are:</p>
 may find that your test suite is "fast enough", but if you wish to go
 further, there are several steps you can take.</p>
 
-<h1><a name="recommendations"></a>Recommendations</h1>
+<h2><a name="recommendations"></a>Recommendations</h2>
 
-<h2><a name="aggressively-search-for-and-remove-duplicated-tests"></a>Aggressively search for and remove duplicated tests.</h2>
+<h3><a name="aggressively-search-for-and-remove-duplicated-tests"></a>Aggressively search for and remove duplicated tests.</h3>
 
 <p>For poorly organized test suites, developers sometimes make the
 mistake of putting tests for something in a new <code>*.t</code> file
@@ -987,7 +987,7 @@ or add them to a different <code>*.t</code> file, even if related
 tests already exist. This strategy can be time-consuming and often
 does not result in quick wins.</p>
 
-<h2><a name="use-code-coverage-aggressively"></a>Use code coverage aggressively</h2>
+<h3><a name="use-code-coverage-aggressively"></a>Use code coverage aggressively</h3>
 
 <p>For one test suite, I found that we were using a pure Perl
 implementation of JSON. As the test suite used JSON extensively,
@@ -995,14 +995,14 @@ switching to <a href="http://search.cpan.org/dist/JSON-XS/XS.pm"
 rel="nofollow">JSON::XS</a> gave us a nice performance boost. We may
 not have noticed that if we hadn't been profiling our code.</p>
 
-<h2><a name="look-for-code-with-global-effects"></a>Look for code with "global" effects</h2>
+<h3><a name="look-for-code-with-global-effects"></a>Look for code with "global" effects</h3>
 
 <p>On one test suite, I ensured that <code>Universal::isa</code> and
 <code>Universal::can</code> cannot be loaded. It was a quick fix and
 sped up the test suite by 2% (several small accumulations of
 improvements can add up quickly).</p>
 
-<h2><a name="inline-hot-functions"></a>Inline "hot" functions.</h2>
+<h3><a name="inline-hot-functions"></a>Inline "hot" functions.</h3>
 
 <p>Consider the following code which runs in about 3.2 seconds on my
 computer:</p>
@@ -1053,7 +1053,7 @@ sub factorial {
 faster than the iterative function and 80% faster than the recursive function.</p>
 
 
-<h2><a name="recompile-your-perl"></a>Recompile your Perl</h2>
+<h3><a name="recompile-your-perl"></a>Recompile your Perl</h3>
 
 <p>You may wish to recompile your Perl to gain a performance
 improvement. Many Linux distributions ship with a threaded Perl by
@@ -1065,7 +1065,7 @@ forking model for the threaded code may make the recompile worth it.
 Naturally, you'll need to heavily benchmark your code (preferably
 under production-like loads) to understand the trade-offs here.</p>
 
-<h2><a name="preload-modules"></a>Preload modules</h2>
+<h3><a name="preload-modules"></a>Preload modules</h3>
 
 <p>If your codebase makes heavy use of modules that are slow to load,
 such as <code>Moose</code>, <code>Catalyst</code>,
@@ -1080,7 +1080,7 @@ minutes to about a minute</a>.  Unfortunately, <code>forkprove</code>
 doesn't allow schedules, a key component often needed for larger test
 suites. I'll explain that in the next section.</p>
 
-<h2><a name="parallel-tests"></a>Parallel tests</h2>
+<h3><a name="parallel-tests"></a>Parallel tests</h3>
 
 <p>Running tests in parallel is tricky. Some tests simply
 <em>can't</em> be run with other tests. Usually these are tests which
@@ -1132,7 +1132,7 @@ might still cause the code to be loaded multiple times.</p>
 href="http://blogs.perl.org/users/ovid/2013/12/merry-christmas-parallel-testing-with-testclassmoose-has-arrived.html"
 rel="nofollow">12 minute test suite to 30 seconds</a>.</p>
 
-<h2><a name="distributed-tests"></a>Distributed tests</h2>
+<h3><a name="distributed-tests"></a>Distributed tests</h3>
 
 <p>Though I haven't used this module, Alex Vandiver has written <a
 href="http://search.cpan.org/dist/TAP-Harness-Remote/lib/TAP/Harness/Remote.pm"
@@ -1146,7 +1146,7 @@ rel="nofollow">TAP::Stream</a>, a module that allows you to take
 streams (the text, actually) of TAP from multiple sources and combine
 them into a single TAP document.</p>
 
-<h2><a name="develcoverxcovered"></a>Devel::CoverX::Covered</h2>
+<h3><a name="develcoverxcovered"></a>Devel::CoverX::Covered</h3>
 
 <p>There is yet another interesting strategy: only run tests that
 exercise the code that you're changing. Johan Lindström wrote <a
@@ -1175,7 +1175,7 @@ Pick a goal and work to achieving that goal (it's easy to keep
 optimizing for too long and start getting diminishing marginal
 returns).</p>
 
-<h1><a name="testclassmoose"></a>Test::Class::Moose</h1>
+<h2><a name="testclassmoose"></a>Test::Class::Moose</h2>
 
 <p>If you start creating a large Web site, do you start writing a
 bunch of individual scripts, each designed to handle one URL and each

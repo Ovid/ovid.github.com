@@ -258,7 +258,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>One of the best things to come out of the modern DevOps movement is the
 aggressive push for “feature switches” (also known as “feature flags” or
@@ -286,7 +286,7 @@ you just need to get up and running and comfortable with feature switches. Once
 you do, you can better understand the additional tooling support needed for your
 use case.</p>
 
-<h1><a name="programming-a-new-feature"></a>Programming A New Feature</h1>
+<h2><a name="programming-a-new-feature"></a>Programming A New Feature</h2>
 
 <p>For the developer, using feature switches is straight-forward. Imagine that you
 always show a list of categories for products you sell, but you’re fetching it
@@ -337,7 +337,7 @@ ways before crossing a one-way street. So you roll out your new code with your
 feature turned <em>off</em> and after you verify everything is good, you turn on your
 feature. How?</p>
 
-<h1><a name="use-control-panels"></a>Use Control Panels</h1>
+<h2><a name="use-control-panels"></a>Use Control Panels</h2>
 
 <p>Typically, a good system for feature switches should have a
 web-based control panel that lists each feature and shows, amongst other things:</p>
@@ -366,7 +366,7 @@ even want to include what team the feature belongs to, or what departments are
 responsible for it. Because so many companies are structured differently, it’s
 hard to give clear guidance without knowing the specifics.</p>
 
-<h1><a name="dont-use-control-panels"></a>Don’t Use Control Panels</h1>
+<h2><a name="dont-use-control-panels"></a>Don’t Use Control Panels</h2>
 
 <p>Yes, feature switches are usually used via control panels and they make it easy
 to turn features on and off, but there are caveats. It sometimes happens that
@@ -377,7 +377,7 @@ command-line tools to turn features on or off can also be useful. <strong>Do not
 on control panels alone</strong>. Nothing’s worse than having everything web-based and
 losing web access.</p>
 
-<h1><a name="permanent-features"></a>Permanent Features</h1>
+<h2><a name="permanent-features"></a>Permanent Features</h2>
 
 <p>One thing often overlooked for features switches is that some of them should be
 permanent. Imagine that your site goes viral and you’re hitting unprecedented
@@ -387,7 +387,7 @@ struggling under a heavy load, being able to toggle off optional features such
 as autocomplete or “related searches” that aren’t critical can help you manage
 that load. Your site experience degrades gracefully instead of simply crashing.</p>
 
-<h1><a name="sampled-switches"></a>“Sampled” Switches</h1>
+<h2><a name="sampled-switches"></a>“Sampled” Switches</h2>
 
 <p>Before turning on a switch, it’s often useful to turn it on only for a subset of
 requests. For example, you might only want 10% of users to experience it. If a
@@ -403,7 +403,7 @@ are short-lived. As feature switches are primarily a site reliability tool, the
 limited sample run is just there to avoid disaster and you should go 100% as
 soon as is feasible.</p>
 
-<h1><a name="naming-conventions"></a>Naming Conventions</h1>
+<h2><a name="naming-conventions"></a>Naming Conventions</h2>
 
 <p>For one of our clients, they have no naming convention for their features, but
 they use features heavily. We wrote code to scan our <code>CODEOWNERS</code> file to dump a
@@ -424,9 +424,9 @@ useless. Instead, having a “Ticket URL” field on your form when you create a
 feature allows others to click through and understand the intent of that
 feature.</p>
 
-<h1><a name="operations"></a>Operations</h1>
+<h2><a name="operations"></a>Operations</h2>
 
-<h2><a name="errors"></a>Errors</h2>
+<h3><a name="errors"></a>Errors</h3>
 
 <p>If you dump out rich error data to error logs, include a list of running
 features, sorted by last start time. Frequently, new errors show up due to
@@ -435,14 +435,14 @@ if first time buyers sometimes can’t place orders and you see the
 <code>ADV-FIRST_TIME_BUYER</code> feature was just switched on. This makes life much
 easier.</p>
 
-<h2><a name="communications"></a>Communications</h2>
+<h3><a name="communications"></a>Communications</h3>
 
 <p>Let other teams know when you’re about to start a new features, especially your
 site reliability engineers (or equivalent). Give them a heads-up about the
 intent of the feature and what to look for if their are issues. Such
 communication can allow tracking down issues faster.</p>
 
-<h2><a name="simplicity"></a>Simplicity</h2>
+<h3><a name="simplicity"></a>Simplicity</h3>
 
 <p>Feature switches are a site reliability tool. Keep them simple. You don’t want
 your site to break because someone made the feature switch tool too complicated.
@@ -470,7 +470,7 @@ By allowing these multiple values, you’re complicating code that’s a site
 reliability tool. KISS: Keep it simple, stupid. Feature switches are there to
 make life easier. Don’t overthink them.</p>
 
-<h2><a name="clean-features-regularly"></a>Clean Features Regularly</h2>
+<h3><a name="clean-features-regularly"></a>Clean Features Regularly</h3>
 
 <p>Aside from “permanent” features that you want to always be able to switch off,
 it’s important to regularly clean features. Otherwise, you get into messes like
@@ -495,7 +495,7 @@ where features work well on their own, but there could be some unknown
 interaction between conflicting features that won’t be noticed unless you have
 the right combination of features toggled on or off. This is miserable to debug.</p>
 
-<h2><a name="dont-check-features-at-compiletime"></a>Don’t Check Features at Compile=Time</h2>
+<h3><a name="dont-check-features-at-compiletime"></a>Don’t Check Features at Compile=Time</h3>
 
 <p>This one is a subtle trap. Feature switches are designed to allow you to quickly
 turn a feature on or off while the system is still running. However, if your
@@ -526,7 +526,7 @@ once. Toggling the feature switch later will likely not affect the code while
 toggled, you may find that different parts of your codebase do not agree on
 whether or not a feature is running. This is not a good place to be.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>Feature switches are an incredibly powerful site reliability tool which can
 often eliminate the need to redeploy your software if something goes wrong. This

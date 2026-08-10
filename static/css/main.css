@@ -440,8 +440,11 @@ body {
     line-height: 1.2;
     margin: 3.4rem 0 1.1rem;
 }
-.prose > h1:first-child,
-#article > h1:first-child { margin-top: 0; }
+/* Whichever heading opens the prose sits flush with the opener. Body headings
+   are demoted one level beneath the page title, so the first one is usually an
+   h2 rather than the h1 this once assumed. */
+.prose > :is(h1, h2, h3, h4, h5, h6):first-child,
+#article > :is(h1, h2, h3, h4, h5, h6):first-child { margin-top: 0; }
 .prose h3 {
     font-weight: 500;
     font-size: 1.35rem;

@@ -262,7 +262,7 @@
 </nav>
 <hr></p>
 
-<h1><a name="introduction"></a>Introduction</h1>
+<h2><a name="introduction"></a>Introduction</h2>
 
 <p>So this AI “stuff” is all well and good, but people need to see code examples.
 So let’s create an AI chatbot in Perl, using the OpenAI API, and for added fun,
@@ -279,9 +279,9 @@ implementation details. Not only is it easier to use, but if you later want to
 switch to Claude, Gemini, or a local model, the consuming code doesn’t even need
 to know.</p>
 
-<h1><a name="setting-up"></a>Setting Up</h1>
+<h2><a name="setting-up"></a>Setting Up</h2>
 
-<h2><a name="the-api-key"></a>The API Key</h2>
+<h3><a name="the-api-key"></a>The API Key</h3>
 
 <p>To use this module, you’ll need an API key from OpenAI.  Visit <a href="https://platform.openai.com/" target="_blank">OpenAI’s
 platform website</a> <span class="fa fa-external-link fa_custom"></span>. You’ll need to sign up or log
@@ -312,7 +312,7 @@ whichever “rc” or “profile” file is appropriate for your system:</p>
 <div class="shadow"><pre class="scrolled"><code>export OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 </code></pre></div>
 
-<h2><a name="billing"></a>Billing</h2>
+<h3><a name="billing"></a>Billing</h3>
 
 <p>You’ll need to set up billing, too. Just go to your profile page and select
 “Billing” on the left hand column.</p>
@@ -337,7 +337,7 @@ keep it in mind.</p>
 <p><strong>Note</strong>: there’s a lot more which can be said about different models and
 different use cases for OpenAI, but we’ll skip that for today.</p>
 
-<h2><a name="perl"></a>Perl</h2>
+<h3><a name="perl"></a>Perl</h3>
 
 <p>We’re going to be using Perl version 5.40.0, released June of 2024. This gives
 us the latest version of Corinna. If you’re reading this, you probably know how
@@ -363,7 +363,7 @@ variable is properly set. If it’s not, the <code>OpenAPI::Client::OpenAI</code
 still install (it will skip its tests), but when you run our chat example, it
 will fail.</p>
 
-<h1><a name="project-requirements"></a>Project Requirements</h1>
+<h2><a name="project-requirements"></a>Project Requirements</h2>
 
 <p><a href="https://metacpan.org/dist/OpenAPI-Client-OpenAI/source/examples" target="_blank">While we do have some example
 code</a> <span class="fa fa-external-link fa_custom"></span> in the
@@ -378,19 +378,19 @@ temperature, but all have sensible defaults.</li>
 exceed our context size.</li>
 </ol>
 
-<h2><a name="definitions"></a>Definitions</h2>
+<h3><a name="definitions"></a>Definitions</h3>
 
 <p>If you’ve not worked with language models before, here are some rough
 definitions. Note that if you change the model, you’ll need to research what
 context size it allows. OpenAI is not always clear on the context size.</p>
 
-<h3><a name="model"></a>Model</h3>
+<h4><a name="model"></a>Model</h4>
 
 <p>The model in the context of an LLM refers to the underlying machine learning
 architecture and algorithms that generate text. It is trained on a vast amount
 of data to understand and produce human-like language.</p>
 
-<h3><a name="system-message"></a>System Message</h3>
+<h4><a name="system-message"></a>System Message</h4>
 
 <p>The system message is an initial prompt or instruction provided to the language
 model, which sets the context or guidelines for how it should respond. It’s like
@@ -400,21 +400,21 @@ giving the model a set of rules or a scenario to follow in the conversation.</p>
 laying out a complex scenario to control what the user can and cannot access.
 We’ll give a more extensive example later.</p>
 
-<h3><a name="context-size"></a>Context Size</h3>
+<h4><a name="context-size"></a>Context Size</h4>
 
 <p>The context size, often measured in tokens, indicates the maximum amount of text
 (both input and output) that the model can consider at one time. It defines how
 much of the conversation history or prompt the model can use to generate a
 response.</p>
 
-<h3><a name="temperature"></a>Temperature</h3>
+<h4><a name="temperature"></a>Temperature</h4>
 
 <p>Temperature is a parameter that controls the randomness of the model’s
 responses. A lower temperature (closer to 0) makes the output more deterministic
 and focused, while a higher temperature (closer to 1) makes it more diverse and
 creative.</p>
 
-<h1><a name="the-code"></a>The Code</h1>
+<h2><a name="the-code"></a>The Code</h2>
 
 <p>Yeah, yeah, yeah. Enough of that. Let’s see the code. If you prefer, <a href="https://gist.github.com/Ovid/c64c05e112e3d190eb100243d44f1a3b" target="_blank">here’s a
 gist of it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
@@ -666,7 +666,7 @@ be serialized/deserialized this way, with Corinna merely be the next in the long
 line for this. Fortunately, <code>Data::Printer</code> lets us call a <code>_data_printer</code>
 method for this.</p>
 
-<h1><a name="creating-an-npc-for-a-game"></a>Creating an NPC for a Game</h1>
+<h2><a name="creating-an-npc-for-a-game"></a>Creating an NPC for a Game</h2>
 
 <p>OK, so you can chat. Why would you want to do this? Well, remember that system
 message? Here’s a new one.</p>
@@ -762,7 +762,7 @@ it’s <em>not</em> easy to remove from a fine-tuned model.</p>
 window and generate more hallucinations. A fine-tuned model doesn’t have this
 limitation.</p>
 
-<h1><a name="conclusion"></a>Conclusion</h1>
+<h2><a name="conclusion"></a>Conclusion</h2>
 
 <p>I hope this small guide gave you some insight about how to start using AI at
 your company, or for your personal projects. I’ve been using it for clients

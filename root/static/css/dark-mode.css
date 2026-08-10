@@ -51,6 +51,48 @@ body {
     color: var(--ink);
 }
 
+/* Prism hardcodes a light #f5f2f0 background on pre[class*="language-"], and
+   it copies the language- class onto the <pre> at runtime, so that rule
+   (0,1,1) outranks main.css's plain `pre` background (0,0,1) and loads after
+   it. Reclaim the background for both themes at (0,2,1); --code-bg is already
+   theme-scoped above, so this one rule serves light and dark. */
+:root code[class*="language-"],
+:root pre[class*="language-"] {
+    background: var(--code-bg);
+}
+
+/* Prism's stock light palette is tuned for decoration, not contrast: against
+   --code-bg its comment, punctuation, string, entity, function and variable
+   colours all land between 2.1:1 and 4.2:1. Restate them at AA or better,
+   mirroring the dark palette below so the two themes read the same. The
+   :root:not(...) prefix is what outranks prism.css, which loads after us. */
+:root:not([data-theme="dark"]) .token.comment,
+:root:not([data-theme="dark"]) .token.prolog,
+:root:not([data-theme="dark"]) .token.doctype,
+:root:not([data-theme="dark"]) .token.cdata,
+:root:not([data-theme="dark"]) .token.punctuation { color: var(--muted); }
+:root:not([data-theme="dark"]) .token.keyword,
+:root:not([data-theme="dark"]) .token.selector,
+:root:not([data-theme="dark"]) .token.important,
+:root:not([data-theme="dark"]) .token.atrule { color: var(--accent); }
+:root:not([data-theme="dark"]) .token.string,
+:root:not([data-theme="dark"]) .token.char,
+:root:not([data-theme="dark"]) .token.attr-value,
+:root:not([data-theme="dark"]) .token.builtin,
+:root:not([data-theme="dark"]) .token.inserted,
+:root:not([data-theme="dark"]) .token.regex,
+:root:not([data-theme="dark"]) .token.variable,
+:root:not([data-theme="dark"]) .token.entity,
+:root:not([data-theme="dark"]) .token.url { color: #7A5216; }
+:root:not([data-theme="dark"]) .token.number,
+:root:not([data-theme="dark"]) .token.boolean,
+:root:not([data-theme="dark"]) .token.constant,
+:root:not([data-theme="dark"]) .token.symbol,
+:root:not([data-theme="dark"]) .token.deleted { color: #6B3FA0; }
+:root:not([data-theme="dark"]) .token.function,
+:root:not([data-theme="dark"]) .token.class-name { color: #1F5C8B; }
+:root:not([data-theme="dark"]) .token.operator { color: var(--ink); }
+
 /* Prism's default theme assumes a light background and paints a white text
    shadow behind every token, which turns to mud in dark mode. */
 [data-theme="dark"] code[class*="language-"],
@@ -61,7 +103,7 @@ body {
 [data-theme="dark"] .token.comment,
 [data-theme="dark"] .token.prolog,
 [data-theme="dark"] .token.doctype,
-[data-theme="dark"] .token.cdata { color: var(--faint); }
+[data-theme="dark"] .token.cdata { color: var(--muted); }
 [data-theme="dark"] .token.punctuation { color: var(--muted); }
 [data-theme="dark"] .token.keyword,
 [data-theme="dark"] .token.selector,
