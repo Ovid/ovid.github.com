@@ -124,18 +124,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
+[%# The ?v= token is a hash of every CSS/JS file under root/static, computed
+    by Ovid::Site::_asset_version and handed to ttree as --define asset_v.
+    GitHub Pages serves everything with max-age=600 and gives us no way to
+    override it, so without this a freshly fetched page can still pull a
+    stylesheet cached from before the release -- new markup, old CSS. The
+    token only moves when the assets themselves change, so a content-only
+    rebuild leaves every reader's cached copy valid. -%]
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css">
-  <link rel="stylesheet" href="/static/css/skeleton.css">
-  <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/dialog.css">
-  <link rel="stylesheet" href="/static/css/image.css">
-  <link rel="stylesheet" href="/static/css/collapsible.css">
-  <link rel="stylesheet" href="/static/css/dark-mode.css">
-  <script src="/static/js/dark-mode.js" defer></script>
-  <script src="/static/js/code-scroll.js" defer></script>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/main.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/image.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=[% asset_v %]">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=[% asset_v %]">
+  <script src="/static/js/dark-mode.js?v=[% asset_v %]" defer></script>
+  <script src="/static/js/code-scroll.js?v=[% asset_v %]" defer></script>
   [% IF syntax_highlight -%]
-  <link rel="stylesheet" type="text/css" href="/static/css/prism.css"/> 
+  <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=[% asset_v %]"/>
   [% END -%]
   [% IF mathjax -%]
   <script type="text/x-mathjax-config">
@@ -153,13 +160,13 @@
   <link rel="stylesheet" type="text/css" href="/css/starmap.css"/> 
 
   <!-- I can almost get rid of this now, thanks to refactoring -->
-  <script type="text/javascript" src="/static/js/prototype.js"></script>
+  <script type="text/javascript" src="/static/js/prototype.js?v=[% asset_v %]"></script>
 
   <!-- this is the starmap renderer -->
-  <script type="text/javascript" src="/static/js/starmap.js"></script>
+  <script type="text/javascript" src="/static/js/starmap.js?v=[% asset_v %]"></script>
 
   <!-- this is the data for the current starmap -->
-  <script type="text/javascript" src="/static/js/sol.js"></script>
+  <script type="text/javascript" src="/static/js/sol.js?v=[% asset_v %]"></script>
   [% END %]
 
 </head>

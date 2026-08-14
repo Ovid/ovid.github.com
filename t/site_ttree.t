@@ -175,4 +175,75 @@ subtest '_get_git_lastmod uses the source template date for a generated HTML' =>
         "lastmod for 404.html comes from root/404.tt ($expected)";
 };
 
+subtest '_asset_version tracks CSS/JS content under root/static' => sub {
+    _in_tempdir sub ($tempdir) {
+        $tempdir->child('root/static/css')->mkpath;
+        $tempdir->child('root/static/images')->mkpath;
+        my $css = $tempdir->child('root/static/css/main.css');
+        $css->spew('body { color: red; }');
+
+        my $site = Ovid::Site->new;
+        my $before = $site->_asset_version;
+        like $before, qr/^[0-9a-f]{8}$/, "returns an 8-char hex token ($before)";
+
+        # An image is not linked with a ?v= token, so it must not churn the
+        # one the stylesheets share -- otherwise every image upload would
+        # needlessly invalidate every reader's cached CSS.
+        $tempdir->child('root/static/images/photo.png')->spew('not-an-asset');
+        is $site->_asset_version, $before,
+            'a non-CSS/JS file leaves the token alone';
+
+        $css->spew('body { color: blue; }');
+        isnt $site->_asset_version, $before,
+            'editing a stylesheet changes the token';
+    };
+};
+
+subtest '_asset_version changes when an asset is renamed' => sub {
+    _in_tempdir sub ($tempdir) {
+        $tempdir->child('root/static/js')->mkpath;
+        my $js = $tempdir->child('root/static/js/old-name.js');
+        $js->spew('console.log(1);');
+
+        my $site = Ovid::Site->new;
+        my $before = $site->_asset_version;
+
+        # Same bytes, new path. Hashing content alone would miss this and
+        # serve the renamed file from a stale cache entry.
+        $js->move( $tempdir->child('root/static/js/new-name.js')->stringify );
+        isnt $site->_asset_version, $before,
+            'renaming an asset changes the token';
+    };
+};
+
+subtest 'ttree exposes asset_v to templates' => sub {
+    _in_tempdir sub ($tempdir) {
+        $tempdir->child('root/static/css')->mkpath;
+        $tempdir->child('root/static/css/main.css')->spew('body { color: red; }');
+
+        $tempdir->child('tmp')->mkpath;
+        $tempdir->child('tmp/assets.tt')
+            ->spew('<link href="/static/css/main.css?v=[% asset_v %]">');
+
+        local $ENV{TTREERC}
+            = path('t/fixtures/ttree/.ttreerc')->absolute($cwd)->stringify;
+
+        my $site     = Ovid::Site->new;
+        my $expected = $site->_asset_version;
+        capture { $site->_run_ttree };
+
+        is $tempdir->child('assets.html')->slurp_utf8,
+            qq{<link href="/static/css/main.css?v=$expected">},
+            "asset_v reaches the rendered page ($expected)";
+    };
+};
+
+subtest '_asset_version survives a missing root/static' => sub {
+    _in_tempdir sub ($tempdir) {
+        my $site = Ovid::Site->new;
+        like $site->_asset_version, qr/^[0-9a-f]{8}$/,
+            'no assets on disk still yields a usable token';
+    };
+};
+
 done_testing;

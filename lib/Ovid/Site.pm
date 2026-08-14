@@ -18,6 +18,7 @@ package Ovid::Site {
     use Cwd 'abs_path';
     use DateTime::Format::SQLite;
     use DateTime;
+    use Digest::MD5    ();
     use File::Basename qw(dirname basename);
     use File::Which    qw(which);
     use File::Copy;
@@ -669,12 +670,37 @@ It should have a structure like this:
 END
     }
 
+    # Cache-busting token appended to the CSS/JS URLs in include/header.tt and
+    # include/footer.tt. GitHub Pages pins every response to max-age=600 and
+    # gives us no way to override it, so a freshly fetched page can still pull
+    # a stylesheet cached from before the release -- new markup, old CSS.
+    #
+    # Hashing the asset sources rather than stamping a build timestamp means
+    # the token only moves when the assets do, so a content-only rebuild
+    # leaves every reader's cached CSS and JS valid.
+    sub _asset_version ($self) {
+        my $md5    = Digest::MD5->new;
+        my @assets = sort File::Find::Rule->file->name( '*.css', '*.js' )->in('root/static');
+        foreach my $asset (@assets) {
+
+            # The path goes into the digest alongside the bytes so that
+            # renaming a file moves the token too. Content alone would leave a
+            # pure rename invisible.
+            $md5->add($asset);
+            open my $fh, '<:raw', $asset;
+            $md5->addfile($fh);
+            close $fh;
+        }
+        return substr $md5->hexdigest, 0, 8;
+    }
+
     sub _execute_ttree ( $self, @args ) {
         my @ttree_args = (
             '--src=tmp',
             '--dest=.',
             '--binmode'  => 'utf8',
             '--encoding' => 'utf8',
+            '--define'   => 'asset_v=' . $self->_asset_version,
             @args
         );
 

@@ -127,9 +127,9 @@
   <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
 
     [% IF syntax_highlight %]
-    <script src="/static/js/prism.js"></script>
+    <script src="/static/js/prism.js?v=[% asset_v %]"></script>
     [% END %]
-    <script src="/static/js/collapsible.js"></script>
+    <script src="/static/js/collapsible.js?v=[% asset_v %]"></script>
 	[% IF Ovid.has_footnotes %]
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -140,7 +140,7 @@
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     [% footnotes = Ovid.get_footnotes %]
-    <script type="text/javascript" src="/static/js/Dialog.js"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=[% asset_v %]"></script>
 	  [% FOR footnote IN footnotes %]
         [% footnote.body %]
     <script>

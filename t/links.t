@@ -44,6 +44,13 @@ sub filter_ignored_files {
 }
 
 sub _url_maps_to_file ($path) {
+
+    # A browser resolves /static/css/main.css?v=9778a3a7 to the file
+    # static/css/main.css -- the query string and fragment name a cache entry,
+    # not a path. Strip them before touching the filesystem, or every
+    # cache-busted asset URL reads as a dead link.
+    $path =~ s/[?#].*\z//s;
+
     return 1 if $path eq '' && -e 'index.html';    # / → index.html
     return -e $path || -e "$path.html";
 }
