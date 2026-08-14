@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/main.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/image.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=9778a3a7">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=9778a3a7">
-  <script src="/static/js/dark-mode.js?v=9778a3a7" defer></script>
-  <script src="/static/js/code-scroll.js?v=9778a3a7" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=9778a3a7"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/main.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/image.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=e215d084">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=e215d084">
+  <script src="/static/js/dark-mode.js?v=e215d084" defer></script>
+  <script src="/static/js/code-scroll.js?v=e215d084" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=e215d084"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -177,7 +177,7 @@
         </div>
       </div>
 <nav class="site-nav" aria-label="Main">
-  <details class="nav-disclosure">
+  <details class="nav-disclosure" open>
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
@@ -191,6 +191,23 @@
     </ul>
   </details>
 </nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>
 
     </div>
   </header>
@@ -702,9 +719,9 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
   <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
 
     
-    <script src="/static/js/prism.js?v=9778a3a7"></script>
+    <script src="/static/js/prism.js?v=e215d084"></script>
     
-    <script src="/static/js/collapsible.js?v=9778a3a7"></script>
+    <script src="/static/js/collapsible.js?v=e215d084"></script>
 	
 </body>
 </html>

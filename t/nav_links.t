@@ -24,4 +24,13 @@ $tt->process( 'include/links.tt', {}, \$output )
 like $output, qr{<a href="/paad/">Learn PAAD</a>},
   'nav links to the PAAD course at /paad/';
 
+# The desktop CSS hides the "Menu" summary, so the markup -- not CSS -- has to
+# guarantee the list is open: Firefox <= 140 (current ESR) gives a closed
+# <details>'s children no frames, and no author rule can reach inside. Drop the
+# attribute and every such browser gets an empty nav band at desktop widths.
+like $output, qr{<details class="nav-disclosure" open>},
+  'nav disclosure ships open so the links show without ::details-content';
+like $output, qr{nav\.open = e\.matches},
+  'inline script collapses the nav again below the desktop breakpoint';
+
 done_testing;

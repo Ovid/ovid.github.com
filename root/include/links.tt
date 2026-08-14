@@ -23,7 +23,7 @@
     ];
 -%]
 <nav class="site-nav" aria-label="Main">
-  <details class="nav-disclosure">
+  <details class="nav-disclosure" open>
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
 [%- FOREACH item IN nav_items %]
@@ -33,3 +33,20 @@
     </ul>
   </details>
 </nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>

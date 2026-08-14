@@ -299,15 +299,10 @@ body {
 }
 
 @media (min-width: 60em) {
-    /* Force the list open on wide screens. Two mechanisms because browsers
-       differ: older builds hide the children, newer ones hide
-       ::details-content. */
+    /* The list is held open by the `open` attribute in links.tt and the script
+       beside it, not by CSS -- no CSS can reach inside a closed <details> in
+       Firefox. Hiding the summary here is only safe because of that. */
     .nav-toggle { display: none; }
-    .nav-disclosure > .nav-links { display: flex; }
-    .nav-disclosure::details-content {
-        content-visibility: visible;
-        block-size: auto;
-    }
 }
 
 @media (max-width: 59.99em) {
