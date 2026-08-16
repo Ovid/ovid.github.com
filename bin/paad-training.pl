@@ -33,6 +33,21 @@ GTAG
 $html =~ s{(<head[^>]*>)}{$1\n$gtag}
   or die "Could not find <head> tag in $source to inject analytics\n";
 
+# The course is authored standalone, so it has no way back to the site. Add a
+# link above the PAAD wordmark in the sidebar, plus the style it needs.
+my $home_link
+  = qq{<a class="brand-home" href="/">\x{2190} Curtis \x{201C}Ovid\x{201D} Poe</a>\n    };
+$html =~ s{(?=<div class="brand-mark">)}{$home_link}
+  or die "Could not find sidebar brand mark in $source to inject the home link\n";
+
+my $home_style = <<'CSS';
+.brand-home{display:inline-block; margin-bottom:12px; font-size:12.5px; color:var(--text-dim);
+  text-decoration:none; letter-spacing:.02em}
+.brand-home:hover{color:var(--accent); text-decoration:underline}
+CSS
+$html =~ s{(?=\.brand-mark\{)}{$home_style}
+  or die "Could not find .brand-mark rule in $source to inject the home link style\n";
+
 mkpath('paad');
 splat( $dest, $html );
 say "Done. PAAD training course deployed to $dest";
