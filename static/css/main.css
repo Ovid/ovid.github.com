@@ -95,7 +95,11 @@ body {
     padding: 2.2rem 0 0;
 }
 
+/* Positioned so it, not #search, is the containing block for the results
+   dropdown: this row spans the page gutters at every width, while #search is a
+   narrow box whose position moves. See #results:not(:empty). */
 .masthead-row {
+    position: relative;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -126,7 +130,6 @@ body {
 }
 
 /* Search -- markup is injected by include/search.tt once WebAssembly loads. */
-#search { position: relative; }
 
 #search input {
     font-family: "Archivo", sans-serif;
@@ -157,6 +160,12 @@ body {
  * Results dropdown. Same panel treatment as the footnote dialog -- hairline
  * border, accent rule along the top, soft shadow -- so the two floating
  * surfaces on the site look related.
+ *
+ * `right: 0` is the right page gutter, because .masthead-row is the containing
+ * block. Anchoring to #search instead put the panel's right edge on a narrow
+ * input, and .masthead-row wraps on content: below roughly 1000px the tools
+ * drop to their own line at the *left* gutter, and a 21rem panel hanging left
+ * of a 7.5rem input ran off the screen with no way to scroll to it.
  */
 #results:not(:empty) {
     position: absolute;
@@ -164,7 +173,7 @@ body {
     right: 0;
     z-index: 30;
     width: 21rem;
-    max-width: 82vw;
+    max-width: 100%;
     background: var(--paper);
     border: 1px solid var(--rule);
     border-top: 2px solid var(--accent);
@@ -299,15 +308,10 @@ body {
 }
 
 @media (min-width: 60em) {
-    /* Force the list open on wide screens. Two mechanisms because browsers
-       differ: older builds hide the children, newer ones hide
-       ::details-content. */
+    /* The list is held open by the `open` attribute in links.tt and the script
+       beside it, not by CSS -- no CSS can reach inside a closed <details> in
+       Firefox. Hiding the summary here is only safe because of that. */
     .nav-toggle { display: none; }
-    .nav-disclosure > .nav-links { display: flex; }
-    .nav-disclosure::details-content {
-        content-visibility: visible;
-        block-size: auto;
-    }
 }
 
 @media (max-width: 59.99em) {
