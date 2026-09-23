@@ -1,0 +1,259 @@
+[%
+    title            = 'Instant Test Suites With Test Roadmap!';
+    type             = 'articles';
+    slug             = 'paads-test-roadmap-instant-test-suites';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-09-22';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai business programming}}
+
+# The Problem
+
+Amongst my many hats, I train developers in [writing production-quality code
+with AI](/paad/). It's easier than you think, but requires that them remember
+the decades of engineering experience that helped us build better software. I
+teach "Engineering-led AI" instead of "AI-led Engineering." The latter isn't
+returning ROI. The former does.[% Ovid.note('The trade-off is that it costs more
+tokens to develop the software, but that’s a unit cost. The long-term benefit of
+delivering higher-value software is long-term operational cost. The latter
+dwarfs the former, but people keep focusing on the wrong metric. Douglas
+Hubbard’s amazing book, <a
+href="https://www.lesswrong.com/posts/ybYBCK9D7MZCcdArB/how-to-measure-anything">How
+to Measure Anything</a>, can explain this.') %]
+
+To be fair, "production quality" just means software that functions and is good
+enough that developers can work with it. Good developers can still write better
+code than AI‚ but in years of consulting, it's often hard to find evidence of
+that. Massive technical debt, tight deadlines, weak or non-existent test suites,
+and poorly documented legacy systems have led me to find many codebases that
+look an awful lot like the "AI slop" that people complain about today. But
+there's a secret: "AI slop" is really just "technical debt"[% Ovid.note("The
+original meaning of “technical debt” was more specific, but today people use the
+term to mean “stuff in the codebase that makes it harder to work with.”") %]
+and we know how manage that, right? So I teach teams to manage it, but at
+AI-speed.
+
+# AI Versus the Big Ball of Mud
+
+When leadership first saw the training, they asked for some changes, including
+opening with a new section detailing success stories. At the time, while I had
+successfully used my [PAAD](https://github.com/Ovid/paad) tools with legacy code
+bases, most of those were already in pretty good shape. Or were smaller
+projects. I sometimes work with teams who have inherited older, legacy systems,
+that are a mess. Little to no documentation. Ditto for tests. Large systems
+where "architecture" is not a word one would use.
+
+Sometimes these systems are referred to as a "big ball of mud," but that
+overused term that we glibly toss about in abstract discussions about the best
+way to deal with them. Yet these are critical, "must not fail" systems and we
+have developers whose job, every day, is answering the question, "more features,
+or more refactoring?"
+
+We know the answer already: more features. I won't give the reasons. You already
+know them.
+
+Actually, no. If you're a developer in the trenches, there's a good chance you
+_don't_ know the reasons. So let's take a tiny diversion into business basics.
+
+## Why Are Consultants Hired?
+
+I've found a stark difference between being an employee and being a consultant.
+I still remember being the former and like many developers, getting irritated
+that consultants get hired to fix things that developers have been complaining
+about for ages. As one Oracle consultant explained to our team over 20 years
+ago, "management hears you complain all the time and they learn to ignore
+it.  But if _I_ say it needs to be fixed and it gets ignored, they have to
+justify my day rate."
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/tbilisi-talk.jpeg"
+   alt      = "Your author, a stereotypical middle-aged white male, standing on a stage in front of a slide describing AI as “magic”"
+   caption  = "Your author, giving an AI talk in Tbilisi."
+%]
+
+You've already been allocated to do work. Your line manager doesn't have the
+time or budget necessary to stop the work and fix the mess. Typically, it takes
+a director with the authority to allocate funds from their limited budget, so if
+they're going to do that, they have to believe it's serious enough to warrant,
+and often the situation is critical at that point.
+
+But the team still has to deliver. Promises have been made to customers. Real
+bugs are hurting you now. Competitors are still developing features. Legally
+mandated deadlines are looming. So I would get called in.
+
+But can you use AI? Can it really help you get out of a complex legacy mess?
+
+The answer, it turns out, is a resounding "YES!" And it was easy, but with
+results that shocked even me.
+
+## The Teams Rejected My Suggestions
+
+The first few times I trained developers in writing production-quality code with
+AI, I received high marks on the evaluations. Currently, across many teams
+answering ten questions, I'm rated at 4.79 stars out of 5. For the question,
+"would you recommend this training to a colleague?" I have 4.97 out of 5. But
+getting high evaluations doesn't mean getting great results. You have to
+follow-up with the teams because AI is a new skill and even **senior software
+developers start as junior AI developers**.
+
+So I follow-up with the teams and I discover they haven't built out the test
+suite I asked for. The test suite I _explained_ how to build. My conclusion: for
+some teams, I had failed as a trainer.
+
+The basic process works like this. First, you have to clean up your agent files.
+Your `.kiro/steering`, `CLAUDE.md`, `AGENTS.md`, or whatever your agentic
+harness uses. The AI reads those every session and if they have errors or
+omissions, every session will generate code while assuming those errors to be
+facts, or missing critical information that wasn't included.
+
+Next, they build the test suite. Some teams have all sorts of reasons they can't
+build test suites. "Tell it to the AI," I'd say. You'd be amazed at how many
+times AI can offer solid suggestions to overcome those objections. It's heard it
+all before.
+
+Then, you have AI, so build the test suite! I even gave them a prompt they could
+use to plan their approach.
+
+I was an idiot.
+
+## Testing is HARD
+
+Testing requires different skills than writing the production code. When I teach
+testing, I ask developers how the define a regression test. A unit test. TDD.
+They never give the same answers. The testing world is a mess, so I take a
+pragmatic approach.
+
+First lesson: unit tests lie. I once spent over a week writing unit tests for a
+large, years-old tangled mess of code that no one understood. Then we found out
+it was it was dead code, disabled by a feature switch years ago. Test coverage
+over unit tests won't tell you that.
+
+Integration tests are also important. Just because X and Y work perfectly in
+isolation, that doesn't mean they can talk to each other.
+
+And the larger the system, the more complex the paths are that data can flow. So
+e2e (end-to-end) tests covering critical paths that **must not fail** are
+important. Very often, all unit and integration tests pass, but e2e tests fail!
+You wind up surfacing a bug that's often hard to track down, but I'd rather
+have a hard bug to solve than to not know about the bug.
+
+And then you find test suites that are testing mocks instead of code. You find
+"test theater" where the test reads `assert result is not None`. Or weird edge
+cases where an encoded null byte in a URL truncates the request (long but true
+story, on an particular version of IE 6 we had to support).
+
+I don't teach "AI-led Engineering." I teach "Engineering-led AI." But I'm asking
+developers to replicate my 25 years of automated testing experience with AI and
+that's simply wasn't happening.
+
+So I fixed it.
+
+# The Test Roadmap Skill
+
+I created PAAD's
+[`/test-roadmap`](https://github.com/Ovid/paad/tree/main/plugins/paad/skills/test-roadmap)
+skill to be as easy to use as possible. It works like this:
+
+1. Run `/test-roadmap` **in a new session**
+2. Answer some questions
+3. Wait
+4. Review results and adjust where needed
+5. `GOTO 1` until done
+
+It couldn't get any simpler than that. But I couldn't tell people it worked
+without testing it. So I grabbed a copy of the [Dancer web application
+framework](https://perldancer.org/), deleted all git history and tests, and ran
+the roadmap. I was doing this on a public repo, but quickly made it private.
+Why? The test roadmap skill was finding a number of bugs, including zero-day
+exploits. I quietly contacted the team and didn't [publish my
+findings](https://www.linkedin.com/feed/update/urn:li:activity:7506067339457724416/)
+until those were fixed.
+
+Then I tried the repo with other open source repositories and got the similar
+results. Two teams responded to me, others did not, despite these being active
+repositories.
+
+I now have my evidence. The new skill was working better than expected, and
+usually generated test suites with around 80% to 90% test coverage. Time for the
+next phase.
+
+# Business Critical Code
+
+My first test here was with a team writing a small, but complex integration that
+was needed for a new launch. They finished the entire test suite in a day, it
+copied their existing testing style after validating that it was good, and found
+a critical bug they hadn't known about. They were happy.
+
+The next one was daunting. There's a team I've been working with directly,
+because the team was handed a codebase built by contractors. It's
+roughly 1/3<sup>rd</sup> of a million lines of code, limited tests, and
+significant challenges. An initial review of the codebase revealed that the best
+code was the code that the current team was writing. That's a great place to
+start.
+
+With a relatively large codebase, `/test-roadmap` has been much slower, but a
+dedicated "shift-left" QA person took on the challenge. The roadmap skill was
+dead simple to use. The review, unfortunately, is hard. I use PAAD's
+`/agentic-review`, with multiple rounds of `/pushback` and the occassional
+`/rethink` for hard problems. I also wrote a custom `/pr-review-comments` skill
+(not part of PAAD) to write the review.
+
+I often have to dive directly into the code to find out what's actually going
+on. My final reviews invariably have the caveat that I don't know the tech stack
+or codebase well, and that I used AI assistance.  Nonetheless, the process,
+while hard work, has been going smoothly.  We have roughly two thirds of the
+test suite done, test coverage has climbed significantly, and the team is happy
+and feeling more confident in changes.  We've also found significant issues the
+team never knew about.
+
+# The Beautiful Surprise
+
+In the real world, when I would get called in to rescue legacy code, what
+usually happens is that I would identify critical "must not fail" paths, write
+e2e tests, but not have the time to write all of the integration and unit tests
+that the codebase needs. The e2e tests would often surface bugs, but they'd be
+devilishly hard to track down.
+
+When their system supported it, new features would be gated behind feature
+switches and simply turned off if new bugs appeared that didn't get caught by
+the limited tests.
+
+What the `/test-roadmap` does is allow the _entire_ test suite to be built out,
+in a fraction of the time that a traditional test suite takes. For large
+codebases, months of work become weeks. For small codebases, you get a new test
+suite in a day or two. And to my surprise, it's finding even more bugs than I
+did! Why? AI doesn't get tired. And the roadmap doesn't take shortcuts.
+
+Mocks are discouraged. Code is copied into a git worktree and the expected
+errors are injected to avoid "test theater." And mutation testing catches even
+more errors. The production code itself should not be touched, with bugs
+enshrined in tests, and a `test-roadmap-findings.md` document grows with the
+test suite. Fixing the bugs then becomes trivial.
+
+# Conclusion
+
+There's much more work to be done on it, but so far, the `/test-roadmap` has
+exceeded my expectations and made teams very happy. High-quality test suites can
+now be built in a fraction of the time they used to take.
+
+The next step is to run `/agentic-architecture` (with `/fix-architecture` as a
+follow-up) and enjoy cleaning up years of technical debt that you previously had
+neither the time or safety net to tackle.
+
+# Sources
+
+* [Ovid/paad on GitHub](https://github.com/Ovid/paad)
+* [GHSA-6xw8-v24c-m783: Dancer2::Handler::File path traversal](https://github.com/PerlDancer/Dancer2/security/advisories/GHSA-6xw8-v24c-m783)
+* [GHSA-v527-r4px-7vx7: on_hook_exception access control bypass](https://github.com/PerlDancer/Dancer2/security/advisories/GHSA-v527-r4px-7vx7)
+* [Dancer2 Changes file](https://github.com/PerlDancer/Dancer2/blob/main/Changes)
+* [Ovid/dancer2-test-suite-generator-test](https://github.com/Ovid/dancer2-test-suite-generator-test)
+
+[%- END %]
