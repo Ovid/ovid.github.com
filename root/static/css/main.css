@@ -668,6 +668,21 @@ pre {
        everything, so prose, figures and code share a left and right edge. */
     overflow-x: auto;
 }
+/* Exception to the one measure: on the two-column layout the grid column is
+   wider than .prose, so a long code block grows rightward into that spare
+   room (~66 -> ~88 chars) before it scrolls. Short blocks keep the prose
+   width, and the left edge never moves. 10.5rem is the marginalia column plus
+   the gap in .page-body. .shadow is the wrapper Text::Markdown::Blog puts
+   round most samples; it must grow too or the shadow stops short. */
+@media (width > 56em) {
+    .page-body { container-type: inline-size; }
+    .prose .shadow,
+    .prose pre {
+        width: max-content;
+        min-width: 100%;
+        max-width: calc(100cqw - 10.5rem);
+    }
+}
 pre > code {
     background: none;
     padding: 0;
