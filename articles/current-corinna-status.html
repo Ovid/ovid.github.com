@@ -299,7 +299,7 @@ example I could get working.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Cache::LRU {
     use Hash::Ordered;
 
-    # Delete arguments to constructor or else they'll cause a fatal
+    # Delete arguments to constructor or else they&#39;ll cause a fatal
     # error when new() is called. When :param is added, this will
     # no longer be needed.
     field $max_size; ADJUST { $max_size = delete($_[0]-&gt;{max_size}) // 20 }
@@ -347,35 +347,35 @@ example I could get working.</p>
 <p>And here are the tests for it:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $cache = Cache::LRU-&gt;new;
-is $cache-&gt;max_size,     20, 'Value of $max_size set by ADJUST';
-is $cache-&gt;num_elements, 0,  '... and our cache starts out empty';
+is $cache-&gt;max_size,     20, &#39;Value of $max_size set by ADJUST&#39;;
+is $cache-&gt;num_elements, 0,  &#39;... and our cache starts out empty&#39;;
 
-ok !defined $cache-&gt;get('foo'),
-  'We should not be able to fetch values we have not defined';
-ok !$cache-&gt;exists('foo'),   '... and our exists() method should confirm this';
-ok $cache-&gt;set( foo =&gt; 42 ), 'We should be able to set cache values';
-ok $cache-&gt;exists('foo'),
-  '... and our exists() method should show the new key exists';
-is $cache-&gt;get('foo'),   42, '... and get the value back';
-is $cache-&gt;num_elements, 1,  '... and we should have one element in our cache';
+ok !defined $cache-&gt;get(&#39;foo&#39;),
+  &#39;We should not be able to fetch values we have not defined&#39;;
+ok !$cache-&gt;exists(&#39;foo&#39;),   &#39;... and our exists() method should confirm this&#39;;
+ok $cache-&gt;set( foo =&gt; 42 ), &#39;We should be able to set cache values&#39;;
+ok $cache-&gt;exists(&#39;foo&#39;),
+  &#39;... and our exists() method should show the new key exists&#39;;
+is $cache-&gt;get(&#39;foo&#39;),   42, &#39;... and get the value back&#39;;
+is $cache-&gt;num_elements, 1,  &#39;... and we should have one element in our cache&#39;;
 
 $cache = Cache::LRU-&gt;new( max_size =&gt; 2 );
 is $cache-&gt;max_size, 2,
-  'We should be able to set the max_size with a constructor argument';
-ok !defined $cache-&gt;get('foo'),
-  'We should not be able to fetch values we have not defined';
-ok $cache-&gt;set( foo =&gt; 42 ), 'We should be able to set cache values';
-is $cache-&gt;get('foo'), 42, '... and get the value back';
-ok $cache-&gt;set( bar =&gt; 'asdf' ), 'We can set a different key';
-is $cache-&gt;get('bar'), 'asdf', '... and get back a different value';
-is $cache-&gt;get('foo'), 42,     '... and get the value back';
+  &#39;We should be able to set the max_size with a constructor argument&#39;;
+ok !defined $cache-&gt;get(&#39;foo&#39;),
+  &#39;We should not be able to fetch values we have not defined&#39;;
+ok $cache-&gt;set( foo =&gt; 42 ), &#39;We should be able to set cache values&#39;;
+is $cache-&gt;get(&#39;foo&#39;), 42, &#39;... and get the value back&#39;;
+ok $cache-&gt;set( bar =&gt; &#39;asdf&#39; ), &#39;We can set a different key&#39;;
+is $cache-&gt;get(&#39;bar&#39;), &#39;asdf&#39;, &#39;... and get back a different value&#39;;
+is $cache-&gt;get(&#39;foo&#39;), 42,     &#39;... and get the value back&#39;;
 is $cache-&gt;num_elements, $cache-&gt;max_size,
-  '... and we see that our cache is now full';
-ok $cache-&gt;set( new_element =&gt; 3 ), 'We can set a new item in our cache';
+  &#39;... and we see that our cache is now full&#39;;
+ok $cache-&gt;set( new_element =&gt; 3 ), &#39;We can set a new item in our cache&#39;;
 is $cache-&gt;num_elements, $cache-&gt;max_size,
-  '... and we see that our cache is still full';
-ok !$cache-&gt;exists('foo'),
-  '... and older elements in our cache should be ejected';
+  &#39;... and we see that our cache is still full&#39;;
+ok !$cache-&gt;exists(&#39;foo&#39;),
+  &#39;... and older elements in our cache should be ejected&#39;;
 </code></pre></div>
 
 <p>The tests revealed an “off by one” error in my original code (caches would 

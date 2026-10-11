@@ -7,6 +7,8 @@ use File::Find::Rule;
 use Less::Script;
 use Less::Config 'config';
 use IPC::Run qw(run);
+use File::Basename qw(dirname);
+use File::Spec::Functions qw(catfile);
 
 my $domain = config()->{domain};
 
@@ -70,17 +72,16 @@ sub links_are_good ($file) {
           && !m{https?://(?!$domain)}    # and external links
           && $_ ne ""                    # some are deliberately empty
     } $extor->links;
-    LINK: foreach my $link (@links) {
-        if ( !$link =~ /^\// ) {
-            diag "Relative link ($link) found in $file";
-            next LINK;
-        }
-        else {
-            my $possible_file = $link;
-            $possible_file =~ s/^\///;
-            if ( '/' ne $link && !_url_maps_to_file($possible_file) ) {
-                push @errors => "Bad link ($link) in $file";
-            }
+    foreach my $link (@links) {
+
+        # Root-relative links resolve from the repo root; relative ones from
+        # the page's own directory, as a browser would.
+        my $possible_file =
+          $link =~ m{^/}
+          ? substr( $link, 1 )
+          : catfile( dirname($file), $link );
+        if ( '/' ne $link && !_url_maps_to_file($possible_file) ) {
+            push @errors => "Bad link ($link) in $file";
         }
     }
 

@@ -380,7 +380,7 @@ money from your wallet to your bank account and conceptually that’s the same
 thing. It uses an “Exchange” system we’ve built and it looks like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $exchange = $self-&gt;new_exchange(
-    Preamble( 'deposit' =&gt; { amount =&gt; $amount } ),
+    Preamble( &#39;deposit&#39; =&gt; { amount =&gt; $amount } ),
     Steps(
         Wallet(      $self =&gt; remove_credits =&gt; $amount ),
         BankAccount( $self =&gt; add_credits    =&gt; $amount ),
@@ -452,7 +452,7 @@ gestating a new clone. If you die, you respawn into your latest close. What
 does clone gestation look like? It used to look like this mess:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub gestate ( $self, $character ) {
-    croak( … ) unless $character-&gt;area-&gt;slug eq 'clonevat';
+    croak( … ) unless $character-&gt;area-&gt;slug eq &#39;clonevat&#39;;
     my $price = $self-&gt;price_per_character($character);
     if ( $character-&gt;wallet &lt; $price ) {
         $character-&gt;add_message( … );
@@ -480,7 +480,7 @@ does clone gestation look like? It used to look like this mess:</p>
 <p>And that was a bucket of bugs. And hard to follow. Now it looks like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">Steps(
-  Location( $self =&gt; is_in_area =&gt; 'clonevat' ),
+  Location( $self =&gt; is_in_area =&gt; &#39;clonevat&#39; ),
   Wallet(   $self =&gt; pay        =&gt; $price ),
   Clone(    $self =&gt; gestate    =&gt; $area ),
 ),
@@ -515,7 +515,7 @@ the code, you almost never have to pay attention to this. It’s all automatic.<
 
 <p>Each exchange step looks very similar:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">    Location( $self =&gt; is_in_area =&gt; 'clonevat' )
+<div class="shadow"><pre class="scrolled"><code class="language-perl">    Location( $self =&gt; is_in_area =&gt; &#39;clonevat&#39; )
 </code></pre></div>
 
 <p>In exchange parlance, that’s:</p>
@@ -566,22 +566,22 @@ exception?</p>
 stringified version of the exchange. In this case, it’s for refueling a
 spaceship:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">character('ovid')-&gt;new_exchange(
-    slug            =&gt; 'refuel-current-ship',
-    success_message =&gt; 'Your ship is now being refueled.',
-    failure_message =&gt; 'Unable to refuel ship.',
+<div class="shadow"><pre class="scrolled"><code class="language-perl">character(&#39;ovid&#39;)-&gt;new_exchange(
+    slug            =&gt; &#39;refuel-current-ship&#39;,
+    success_message =&gt; &#39;Your ship is now being refueled.&#39;,
+    failure_message =&gt; &#39;Unable to refuel ship.&#39;,
     Steps(
-        Area( character('ovid'), is_in, docks ),
-        Ship( ship('ovid', 'bootlegger'), is_docked_on, tau-station ),
-        Ship( ship('ovid', 'bootlegger'), needs_refueling ),
-        Character( character('ovid'), not_onboard_ship, 
-          ship('ovid', 'bootlegger') 
+        Area( character(&#39;ovid&#39;), is_in, docks ),
+        Ship( ship(&#39;ovid&#39;, &#39;bootlegger&#39;), is_docked_on, tau-station ),
+        Ship( ship(&#39;ovid&#39;, &#39;bootlegger&#39;), needs_refueling ),
+        Character( character(&#39;ovid&#39;), not_onboard_ship, 
+          ship(&#39;ovid&#39;, &#39;bootlegger&#39;) 
         ),
-        Money( character('ovid'), pay, -15.00 ),
-        Character( character('ovid'), refuel_ship, ship('ovid', 'bootlegger') ),
-        Character( character('ovid'), set_cooldown, 
-          {ship =&gt; ship('ovid', 'bootlegger'),
-          cooldown_type =&gt; 'ship_refuel',period =&gt; 1000} ),
+        Money( character(&#39;ovid&#39;), pay, -15.00 ),
+        Character( character(&#39;ovid&#39;), refuel_ship, ship(&#39;ovid&#39;, &#39;bootlegger&#39;) ),
+        Character( character(&#39;ovid&#39;), set_cooldown, 
+          {ship =&gt; ship(&#39;ovid&#39;, &#39;bootlegger&#39;),
+          cooldown_type =&gt; &#39;ship_refuel&#39;,period =&gt; 1000} ),
     )
 );
 </code></pre></div>
@@ -590,7 +590,7 @@ spaceship:</p>
 character has been asked to pay <em>negative</em> credits. This stringified exchange
 shows this very clearly here:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">        Money( character('ovid'), pay, -15.00 ),
+<div class="shadow"><pre class="scrolled"><code class="language-perl">        Money( character(&#39;ovid&#39;), pay, -15.00 ),
 </code></pre></div>
 
 <p>So it’s dead simple to recreate conditions that cause failures in incredibly

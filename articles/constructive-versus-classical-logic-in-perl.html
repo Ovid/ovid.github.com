@@ -486,7 +486,7 @@ developers receiving a chunk of data from the ORM and discovering that
 
 <p>The first way would be to change <code>undef</code> to use 3VL:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature 'unknown';
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature &#39;unknown&#39;;
 
 my @numbers = ( 1, 2, undef,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
@@ -500,7 +500,7 @@ the current 2VL (two-value logic: true or false).</p>
 <p>However, we might find it useful (and easier) to have distinct <code>unknown</code> and
 <code>undef</code> behavior:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature 'unknown';
+<div class="shadow"><pre class="scrolled"><code class="language-perl">use feature &#39;unknown&#39;;
 
 my @numbers = ( 1, 2, unknown,5, undef,6 );
 my @result = grep { $_ &lt; 5 } @numbers;
@@ -516,7 +516,7 @@ tightly controlled scope.</p>
 <p>But what do we do with the case of using unknown values as a filehandle or the
 keys to a hash or the index of an array?</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">$colors[unknown] = 'octarine';
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$colors[unknown] = &#39;octarine&#39;;
 </code></pre></div>
 
 <p>Currently, for the <code>Unknown::Values</code> module, we have the “standard” version
@@ -555,7 +555,7 @@ realized this could make sense if I can use the operator overloading of
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Unknown::Values::Instance::Object {
     use Moose;
-    extend 'Unknown::Values::Instance';
+    extend &#39;Unknown::Values::Instance&#39;;
     sub AUTOLOAD { return $_[0] }
 }
 </code></pre></div>
@@ -655,7 +655,7 @@ changes</a> <span class="fa fa-external-link fa_custom"></span>. In particular, 
 attempt to stringify an <code>unknown</code> value or object is fatal. That is a huge win
 because it protects us from this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">$hash{$unknown_color}  = 'octarine';
+<div class="shadow"><pre class="scrolled"><code class="language-perl">$hash{$unknown_color}  = &#39;octarine&#39;;
 $array[$unknown_index] = 42;
 </code></pre></div>
 

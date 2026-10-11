@@ -26,9 +26,13 @@ my $fake_config = sub {
     };
 };
 
+# Immutable Moose classes make Test::MockModule warn; no modifiers here to miss.
+Ovid::Site->meta->make_mutable;
 my $site_mock = Test::MockModule->new('Ovid::Site');
 $site_mock->mock( 'config', $fake_config );
 
+# Immutable Moose classes make Test::MockModule warn; no modifiers here to miss.
+Ovid::Template::File->meta->make_mutable;
 my $file_mock = Test::MockModule->new('Ovid::Template::File');
 $file_mock->mock( 'config', $fake_config );
 

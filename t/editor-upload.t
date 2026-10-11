@@ -18,6 +18,8 @@ $temp_dir->child('static/images')->mkpath;
 $temp_dir->child('root/404.tt')->spew("Not Found");
 
 # Mock Ovid::Site to avoid full rebuild
+# Immutable Moose classes make Test::MockModule warn; no modifiers here to miss.
+Ovid::Site->meta->make_mutable;
 my $site_mock = Test::MockModule->new('Ovid::Site');
 $site_mock->mock( 'build', sub { return; } );
 

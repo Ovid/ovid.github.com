@@ -367,7 +367,7 @@ don’t insist that everything be immutable. Your colleagues will hate you.</p>
 mutable. However, you can declare those as immutable, too.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class {
-    use Const::Fast 'const';
+    use Const::Fast &#39;const&#39;;
 
     # set up data here
 
@@ -435,13 +435,13 @@ future), here’s a basic LRU (least recently used) cache:</p>
     use Hash::Ordered;
     use namespace::autoclean;
 
-    has '_cache' =&gt; (
-        is       =&gt; 'ro',
+    has &#39;_cache&#39; =&gt; (
+        is       =&gt; &#39;ro&#39;,
         init_arg =&gt; undef,
         default  =&gt; sub { Hash::Ordered-&gt;new },
     );
 
-    has 'max_size' =&gt; ( is =&gt; 'ro', default =&gt; 20 );
+    has &#39;max_size&#39; =&gt; ( is =&gt; &#39;ro&#39;, default =&gt; 20 );
 
     sub set {
         ...
@@ -527,7 +527,7 @@ pile in a ballroom in code reviews).</p>
 <p>As systems grow, it’s very easy to have this problem:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub get_part_by_id ($self, $id) {
-    return $self-&gt;_inventory_schema-&gt;resultset('Part')-&gt;find($id);
+    return $self-&gt;_inventory_schema-&gt;resultset(&#39;Part&#39;)-&gt;find($id);
 }
 </code></pre></div>
 
@@ -539,7 +539,7 @@ you have to rewrite that:</p>
     unless ( $id =~ qr/^[0-9a-f]{8}(?:-[0-9a-f]{4}){2}-[0-9a-f]{12}$/is ) {
         croak(&quot;ID ($id) does not look like a UUID.&quot;);
     }
-    return $self-&gt;_inventory_schema-&gt;resultset('Part')-&gt;find($id);
+    return $self-&gt;_inventory_schema-&gt;resultset(&#39;Part&#39;)-&gt;find($id);
 }
 </code></pre></div>
 
@@ -549,10 +549,10 @@ frequently, you don’t want to write that again.</p>
 
 <p>If you’ve used Moose, you know how easy it is to use type constraints:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">has 'order_items' =&gt; (
-    is     =&gt; 'ro',
-    isa    =&gt; 'ArrayRef[HashRef]',
-    writer =&gt; '_set_order_items',
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has &#39;order_items&#39; =&gt; (
+    is     =&gt; &#39;ro&#39;,
+    isa    =&gt; &#39;ArrayRef[HashRef]&#39;,
+    writer =&gt; &#39;_set_order_items&#39;,
 );
 </code></pre></div>
 
@@ -588,8 +588,8 @@ BEGIN {
       Types::UUID
     );
     push @EXPORT_OK =&gt; (
-        'compile',
-        'compile_named',
+        &#39;compile&#39;,
+        &#39;compile_named&#39;,
     );
 }
 
@@ -603,7 +603,7 @@ BEGIN {
 sub get_part_by_id ($self, $id) {
     state $check = compile(UUID);
     ($id) = $check-&gt;($id);
-    return $self-&gt;_inventory_schema-&gt;resultset('Part')-&gt;find($id);
+    return $self-&gt;_inventory_schema-&gt;resultset(&#39;Part&#39;)-&gt;find($id);
 }
 </code></pre></div>
 
@@ -612,10 +612,10 @@ compile-time failures (and to get a much richer set of allowed types):</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use My::Personal::Types qw(ArrayRef HashRef);
 
-has 'order_items' =&gt; (
-    is     =&gt; 'ro',
+has &#39;order_items&#39; =&gt; (
+    is     =&gt; &#39;ro&#39;,
     isa    =&gt; ArrayRef [HashRef],
-    writer =&gt; '_set_order_items',
+    writer =&gt; &#39;_set_order_items&#39;,
 );
 </code></pre></div>
 
@@ -718,7 +718,7 @@ software or the software developer? Here’s a little benchmark for you:</p>
 
 use strict;
 use warnings;
-use Benchmark 'cmpthese';
+use Benchmark &#39;cmpthese&#39;;
 
 sub use_a_loop {
     my @numbers;
@@ -746,8 +746,8 @@ sub direct_assignment {
 cmpthese(
     1_000_000,
     {
-        'use_a_loop'        =&gt; \&amp;use_a_loop,
-        'direct_assignment' =&gt; \&amp;direct_assignment,
+        &#39;use_a_loop&#39;        =&gt; \&amp;use_a_loop,
+        &#39;direct_assignment&#39; =&gt; \&amp;direct_assignment,
     }
 );
 </code></pre></div>
@@ -847,7 +847,7 @@ if you get this right.</p>
 
 use strict;
 use warnings;
-use Carp 'croak';
+use Carp &#39;croak&#39;;
 
 sub new {
     my ( $class, $name, $title ) = @_;
@@ -879,7 +879,7 @@ wrong, so the object should handle this responsibility.</p>
 
 use strict;
 use warnings;
-use Carp 'croak';
+use Carp &#39;croak&#39;;
 
 sub new {
     my ( $class, $name, $title ) = @_;
@@ -961,7 +961,7 @@ of simply returning the object from the cache. It looked sort of like this:</p>
       $arg_for{identifier}
     );
     if ($object) {
-        return $object-&gt;can('clone')
+        return $object-&gt;can(&#39;clone&#39;)
             ? $object-&gt;clone 
             : $object;
     }
@@ -1018,8 +1018,8 @@ You don’t have to remember to check the return value type (unless returning
 nothing is an actual error).  This is easy to fix in methods, but be wary of a
 similar trap with attributes:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">has 'results' =&gt; (
-    is  =&gt; 'ro',
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has &#39;results&#39; =&gt; (
+    is  =&gt; &#39;ro&#39;,
     isa =&gt; Maybe[ ArrayRef ],
 );
 </code></pre></div>
@@ -1029,8 +1029,8 @@ similar trap with attributes:</p>
 <p>There are several ways to handle this, including defining coerced types, but
 one of the simplest and safest:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">has 'results' =&gt; (
-    is      =&gt; 'ro',
+<div class="shadow"><pre class="scrolled"><code class="language-perl">has &#39;results&#39; =&gt; (
+    is      =&gt; &#39;ro&#39;,
     isa     =&gt; ArrayRef,
     default =&gt; sub { [] },
 );
@@ -1053,8 +1053,8 @@ There are definitely exceptions to this, but they should be used with care.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class;
 use Moose;
 
-has 'results' =&gt; (
-    is      =&gt; 'ro',
+has &#39;results&#39; =&gt; (
+    is      =&gt; &#39;ro&#39;,
     isa     =&gt; ArrayRef,
     default =&gt; sub { [] },
 );
@@ -1077,8 +1077,8 @@ for Moo):</p>
 use Moose;
 use MooseX::StrictConstructor;
 
-has 'results' =&gt; (
-    is      =&gt; 'ro',
+has &#39;results&#39; =&gt; (
+    is      =&gt; &#39;ro&#39;,
     isa     =&gt; ArrayRef,
     default =&gt; sub { [] },
 );
@@ -1147,9 +1147,9 @@ use Import::Into;
 use Carp qw/carp croak confess/;
 
 Moose::Exporter-&gt;setup_import_methods(
-    with_meta =&gt; [ 'field', 'param' ],
+    with_meta =&gt; [ &#39;field&#39;, &#39;param&#39; ],
     as_is     =&gt; [ \&amp;carp, \&amp;croak, \&amp;confess ],
-    also      =&gt; ['Moose'],
+    also      =&gt; [&#39;Moose&#39;],
 );
 
 sub init_meta {
@@ -1158,22 +1158,22 @@ sub init_meta {
     my $for_class = $params{for_class};
     Moose-&gt;init_meta(@args);
     MooseX::StrictConstructor-&gt;import( { into =&gt; $for_class } );
-    warnings-&gt;unimport('experimental::signatures');
+    warnings-&gt;unimport(&#39;experimental::signatures&#39;);
     feature-&gt;import(qw/signatures :5.22/);
     namespace::autoclean-&gt;import::into($for_class);
 
     # If we never use multiple inheritance, this should not be needed.
-    mro::set_mro( scalar caller(), 'c3' );
+    mro::set_mro( scalar caller(), &#39;c3&#39; );
 }
 
 sub field {
     my ( $meta, $name, %opts ) = @_;
 
     # default to read-only
-    $opts{is} //= 'ro';
+    $opts{is} //= &#39;ro&#39;;
 
     # &quot;has [@attributes]&quot; versus &quot;has $attribute&quot;
-    foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
+    foreach my $attr ( &#39;ARRAY&#39; eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
 
         # forbid setting `field` in the constructor
@@ -1186,17 +1186,17 @@ sub param {
     my ( $meta, $name, %opts ) = @_;
 
     # default to read-only
-    $opts{is}       //= 'ro';
+    $opts{is}       //= &#39;ro&#39;;
 
-    # it's required unless they tell us otherwise
+    # it&#39;s required unless they tell us otherwise
     $opts{required} //= 1;
 
     # &quot;has [@attributes]&quot; versus &quot;has $attribute&quot;
-    foreach my $attr ( 'ARRAY' eq ref $name ? @$name : $name ) {
+    foreach my $attr ( &#39;ARRAY&#39; eq ref $name ? @$name : $name ) {
         my %options = %opts;    # copy each time to avoid overwriting
 
         if ( exists $options{init_arg} &amp;&amp; !defined $options{init_arg} ) {
-            croak(&quot;You may not set init_arg to undef for 'param'&quot;);
+            croak(&quot;You may not set init_arg to undef for &#39;param&#39;&quot;);
         }
         $meta-&gt;add_attribute( $attr, %options );
     }
@@ -1210,7 +1210,7 @@ to use this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">#!/usr/bin/env perl
 
-use lib 'lib';
+use lib &#39;lib&#39;;
 use Test::Most;
 
 package My::Names {
@@ -1224,9 +1224,9 @@ package My::Names {
       ArrayRef
     );
 
-    use List::Util 'sum'; # removed my namespace::autoclean
+    use List::Util &#39;sum&#39;; # removed my namespace::autoclean
 
-    param _name   =&gt; ( isa =&gt; NonEmptyStr, init_arg =&gt; 'name' );
+    param _name   =&gt; ( isa =&gt; NonEmptyStr, init_arg =&gt; &#39;name&#39; );
     param title   =&gt; ( isa =&gt; Str,         required =&gt; 0 );
     field created =&gt; ( isa =&gt; PositiveInt, default  =&gt; sub { time } );
 
@@ -1246,20 +1246,20 @@ package My::Names {
     __PACKAGE__-&gt;meta-&gt;make_immutable;
 }
 
-my $person = My::Names-&gt;new( name =&gt; 'Ovid', );
-is $person-&gt;name, 'Ovid', 'name should be correct';
-ok !defined $person-&gt;title, '... and no title';
-cmp_ok $person-&gt;created, '&gt;', 0, '... and a sane default for created';
-ok !$person-&gt;can('sum'), 'subroutines have been removed from the namespace';
-is $person-&gt;add( [qw/1 3 5 6/] ), 15, 'Our add() method should work';
-throws_ok { My::Names-&gt;new( name =&gt; 'Ovid', created =&gt; 1 ) }
-'Moose::Exception',
-  'Attributes not defined as `param` are illegal in the constructor';
+my $person = My::Names-&gt;new( name =&gt; &#39;Ovid&#39;, );
+is $person-&gt;name, &#39;Ovid&#39;, &#39;name should be correct&#39;;
+ok !defined $person-&gt;title, &#39;... and no title&#39;;
+cmp_ok $person-&gt;created, &#39;&gt;&#39;, 0, &#39;... and a sane default for created&#39;;
+ok !$person-&gt;can(&#39;sum&#39;), &#39;subroutines have been removed from the namespace&#39;;
+is $person-&gt;add( [qw/1 3 5 6/] ), 15, &#39;Our add() method should work&#39;;
+throws_ok { My::Names-&gt;new( name =&gt; &#39;Ovid&#39;, created =&gt; 1 ) }
+&#39;Moose::Exception&#39;,
+  &#39;Attributes not defined as `param` are illegal in the constructor&#39;;
 
-my $doctor = My::Names-&gt;new( name =&gt; 'Smith', title =&gt; 'Dr.' );
-is $doctor-&gt;name,        'Dr. Smith', 'Titles should show up correctly';
-cmp_ok $doctor-&gt;created, '&gt;=',        $person-&gt;created,
-  '... and their created date should be correct';
+my $doctor = My::Names-&gt;new( name =&gt; &#39;Smith&#39;, title =&gt; &#39;Dr.&#39; );
+is $doctor-&gt;name,        &#39;Dr. Smith&#39;, &#39;Titles should show up correctly&#39;;
+cmp_ok $doctor-&gt;created, &#39;&gt;=&#39;,        $person-&gt;created,
+  &#39;... and their created date should be correct&#39;;
 
 done_testing;
 </code></pre></div>
