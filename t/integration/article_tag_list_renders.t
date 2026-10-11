@@ -22,11 +22,11 @@ subtest 'rendered article page contains a non-empty tag list' => sub {
     my $in_tag_nav = 0;
     my $tag_links  = 0;
     while ( my $token = $parser->get_token ) {
-        if ( $token->is_start_tag('ul') ) {
-            my $aria = $token->get_attr('aria-label') // '';
-            $in_tag_nav = 1 if $aria =~ /Tag list/;
+        if ( $token->is_start_tag('nav') ) {
+            my $class = $token->get_attr('class') // '';
+            $in_tag_nav = 1 if $class =~ /\btag-list\b/;
         }
-        elsif ( $token->is_end_tag('ul') ) {
+        elsif ( $token->is_end_tag('nav') ) {
             $in_tag_nav = 0;
         }
         elsif ( $in_tag_nav && $token->is_start_tag('a') ) {
