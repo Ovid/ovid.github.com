@@ -211,7 +211,8 @@ subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub
       'T018: Dialog has role="dialog" ARIA attribute';
     like $footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
       'T018: Dialog has aria-labelledby attribute';
-    like $footnotes->[0]{body}, qr{aria-describedby="note-body-1"[^>]*>.*<div id="note-body-1">First JS footnote</div>}s,
+    like $footnotes->[0]{body},
+      qr{aria-describedby="note-body-1"[^>]*>.*<div id="note-body-1">First JS footnote</div>}s,
       'T018: Dialog is described by the note body, not a stand-in';
     like $footnotes->[0]{body}, qr/role="dialog" aria-modal="true"/,
       'T018: Dialog is modal';
@@ -295,5 +296,14 @@ SKIP: {
 # NOTE: The branch where no cached description exists (requiring AI call) is not tested
 # to avoid external API dependencies. This branch is covered by integration tests.
 # See: specs/001-test-coverage-improvement/coverage-exceptions.md
+
+# Importing human_date from Ovid::Site::Utils while also defining the
+# human_date method printed "Subroutine human_date redefined" on every build.
+subtest 'modules load without warnings' => sub {
+    for my $module (qw(Template::Plugin::Ovid Ovid::Site::Utils Ovid::Site)) {
+        my $err = `$^X -Ilib -we "use $module" 2>&1`;
+        is $err, '', "$module compiles silently";
+    }
+};
 
 done_testing;

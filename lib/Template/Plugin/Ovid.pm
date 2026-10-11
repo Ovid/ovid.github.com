@@ -8,7 +8,6 @@ use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
   get_image_description
   set_image_description
-  human_date
 );
 use Template::Plugin::Blogdown;
 use base 'Template::Plugin';
