@@ -10,6 +10,8 @@
     ELSIF identifier;
         section = identifier;
     END;
+    # aria-current="page" only on the page itself; a post, a paginated page or
+    # an -all page is inside the section, which is aria-current="true".
 
     nav_items = [
         { href => '/',           label => 'Home',       id => 'index'      },
@@ -27,7 +29,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
 [%- FOREACH item IN nav_items %]
-      <li><a href="[% item.href %]"[% IF section == item.id %] aria-current="page"[% END %]>[% item.label %]</a>
+      <li><a href="[% item.href %]"[% IF section == item.id %] aria-current="[% identifier == item.id ? 'page' : 'true' %]"[% END %]>[% item.label %]</a>
 [%- IF item.feed %]<a class="nav-feed" href="[% item.feed %]" aria-label="[% item.label %] RSS feed">RSS</a>[% END %]</li>
 [%- END %]
     </ul>
