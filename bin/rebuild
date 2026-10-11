@@ -19,7 +19,10 @@ my $site = Ovid::Site->new(
     release    => $options{release},
     maybe file => $options{file},
 );
-$site->build;    # dies (exit 255) on a ttree/template error
+
+# A bare die exits with $! or $? when set, which can collide with the
+# exit 1 reserved for test failures, so force 255.
+eval { $site->build; 1 } or do { warn $@; exit 255 };
 
 exit 0 if $options{notest};
 
