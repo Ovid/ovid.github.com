@@ -242,6 +242,11 @@ like $youtube_html, qr{<iframe.*src="https://www\.youtube\.com/embed/dQw4w9WgXcQ
   'youtube() should generate proper iframe embed code';
 like $youtube_html, qr{class="video-responsive"},
   'youtube() should wrap in responsive container';
+like $youtube_html, qr{<iframe[^>]* title="YouTube video"},
+  'youtube() should give the iframe a default accessible name';
+like $ovid->youtube( 'dQw4w9WgXcQ', q{Fish & "Chips"} ),
+  qr{<iframe[^>]* title="Fish &amp; &quot;Chips&quot;"},
+  'youtube() should use an HTML-escaped title when one is passed';
 
 # Test youtube() with invalid ID (contains slash)
 throws_ok { $ovid->youtube('invalid/id') } qr/does not appear to be valid/,

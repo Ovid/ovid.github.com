@@ -3,6 +3,7 @@ package Template::Plugin::Ovid;
 use Less::Boilerplate;
 use Less::Script ();    # import nothing
 use Path::Tiny 'path';
+use HTML::Entities 'encode_entities';
 use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
   get_image_description
@@ -125,13 +126,16 @@ sub note ( $self, @args ) { $self->add_note(@args) }
 
 # NOTE: Called from Template Toolkit templates (publicspeaking.tt, videos.tt2markdown, multiple articles)
 # Embeds YouTube videos in responsive containers. Static analysis cannot detect template usage.
-sub youtube ( $self, $youtube_id ) {
+#
+# $title is the iframe's accessible name (WCAG 4.1.2); pass the talk title.
+sub youtube ( $self, $youtube_id, $title = 'YouTube video' ) {
     if ( $youtube_id =~ m{/} ) {
         croak("Youtube id '$youtube_id' id does not appear to be valid");
     }
+    $title = encode_entities( $title, q{<>&"} );
     return <<"HTML";
 <div class="video-responsive">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	<iframe width="560" height="315" title="$title" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 HTML
 }
