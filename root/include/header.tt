@@ -214,9 +214,11 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia[% IF type == 'articles' or type == 'blog' %] is-filled[% END %]">
+[%# A <div>, not an <aside>: it is empty on most pages, and the tag list it
+    holds on posts is already its own <nav> landmark. -%]
+      <div class="marginalia[% IF type == 'articles' or type == 'blog' %] is-filled[% END %]">
 [% IF type == 'articles' or type == 'blog' %][% INCLUDE include/tags_for_article.tt type=type slug=slug %][% END %]
-      </aside>
+      </div>
 [%# The main landmark, so assistive tech can jump past the masthead and nav
     to the content. It wraps .prose rather than the <article> inside it
     because 18 legacy pages include this header directly and never get that
