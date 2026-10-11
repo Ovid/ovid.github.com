@@ -96,16 +96,15 @@ sub collapse ( $self, $short_description, $full_content ) {
     my $processed_content = $blogdown->filter($full_content);
 
     # Build HTML structure with ARIA attributes (T016, T017, T018)
-    # Progressive enhancement: content visible by default (no-JS), hidden by JavaScript
+    # Progressive enhancement: content visible by default (no-JS), hidden by
+    # JavaScript. Without JS nothing toggles, so the trigger is not a button
+    # yet: collapsible.js adds role, tabindex and aria-expanded. Its name is
+    # the visible short description.
     my $html = <<"HTML";
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="$trigger_id"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="$content_id"
-         aria-label="Expand: $short_description">
+         aria-controls="$content_id">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">$short_description</span>
     </div>

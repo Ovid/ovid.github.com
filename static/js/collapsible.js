@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Attach event listeners to each trigger individually
     triggers.forEach(function(trigger) {
+        // Only now is it a working toggle; the server leaves these off so
+        // no-JS readers are not told about a button that does nothing.
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('tabindex', '0');
+        trigger.setAttribute('aria-expanded', 'false');
+
         // Click event listener
         trigger.addEventListener('click', function(event) {
             event.preventDefault();
