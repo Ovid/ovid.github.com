@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/main.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/image.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=ea6bcadb">
-  <script src="/static/js/dark-mode.js?v=ea6bcadb" defer></script>
-  <script src="/static/js/code-scroll.js?v=ea6bcadb" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=ea6bcadb"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/main.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/image.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=4fc8cd5c">
+  <script src="/static/js/dark-mode.js?v=4fc8cd5c" defer></script>
+  <script src="/static/js/code-scroll.js?v=4fc8cd5c" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=4fc8cd5c"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -307,7 +307,7 @@ never quite reaches his eyes.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/bed.jpg" width="600" alt="A slightly messy bed">
+        <a href="/static/images/bed.jpg" class="enlarge"><img src="/static/images/bed.jpg" width="600" alt="A slightly messy bed"><span class="visually-hidden"> (enlarge image)</span></a>
     <figcaption>Make that bed! <a href="https://unsplash.com/photos/OZiflZqq0N0" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
     </div>
 </figure></p>
@@ -362,7 +362,7 @@ did the same thing and discovered it was not a recipe for success.</p>
 
 <p><figure class="captioned-left">
     <div class="image-container">
-        <img src="/static/images/clocks.jpg" width="600" alt="A pile of clocks">
+        <a href="/static/images/clocks.jpg" class="enlarge"><img src="/static/images/clocks.jpg" width="600" alt="A pile of clocks"><span class="visually-hidden"> (enlarge image)</span></a>
     <figcaption>Photo by Jon Tyson on Unsplash <a href="https://unsplash.com/photos/FlHdnPO6dlw" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
     </div>
 </figure></p>
@@ -480,7 +480,7 @@ the face-to-face time with colleagues makes all the difference in the world.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/reading-window.jpg" width="600" alt="A man sitting in a window and reading.">
+        <a href="/static/images/reading-window.jpg" class="enlarge"><img src="/static/images/reading-window.jpg" width="600" alt="A man sitting in a window and reading."><span class="visually-hidden"> (enlarge image)</span></a>
     <figcaption>Take your breaks away from the computer <a href="https://unsplash.com/photos/JO8U_9lq9PY" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
     </div>
 </figure></p>
@@ -544,8 +544,12 @@ in this article will make that easier.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -556,25 +560,26 @@ in this article will make that easier.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -681,9 +686,9 @@ in this article will make that easier.</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=ea6bcadb"></script>
+    <script src="/static/js/prism.js?v=4fc8cd5c"></script>
     
-    <script src="/static/js/collapsible.js?v=ea6bcadb"></script>
+    <script src="/static/js/collapsible.js?v=4fc8cd5c"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -694,7 +699,7 @@ in this article will make that easier.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=ea6bcadb"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=4fc8cd5c"></script>
 	  
             <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>

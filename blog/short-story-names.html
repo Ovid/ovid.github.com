@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/main.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/image.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=ea6bcadb">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=ea6bcadb">
-  <script src="/static/js/dark-mode.js?v=ea6bcadb" defer></script>
-  <script src="/static/js/code-scroll.js?v=ea6bcadb" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=ea6bcadb"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/main.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/image.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=4fc8cd5c">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=4fc8cd5c">
+  <script src="/static/js/dark-mode.js?v=4fc8cd5c" defer></script>
+  <script src="/static/js/code-scroll.js?v=4fc8cd5c" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=4fc8cd5c"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -793,8 +793,12 @@ words, “Thank you.”</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -805,25 +809,26 @@ words, “Thank you.”</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -930,9 +935,9 @@ words, “Thank you.”</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=ea6bcadb"></script>
+    <script src="/static/js/prism.js?v=4fc8cd5c"></script>
     
-    <script src="/static/js/collapsible.js?v=ea6bcadb"></script>
+    <script src="/static/js/collapsible.js?v=4fc8cd5c"></script>
 	
 </body>
 </html>
