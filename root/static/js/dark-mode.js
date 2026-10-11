@@ -13,13 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
     sync();
 
     toggle.addEventListener('click', function() {
-        if (html.getAttribute('data-theme') === 'dark') {
-            html.removeAttribute('data-theme');
-            localStorage.setItem('theme', 'light');
-        } else {
-            html.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-        }
+        const theme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        if (theme === 'dark') html.setAttribute('data-theme', 'dark');
+        else html.removeAttribute('data-theme');
         sync();
+        // Throws when site data is blocked; the switch still works for this page.
+        try { localStorage.setItem('theme', theme); } catch (e) {}
     });
 });

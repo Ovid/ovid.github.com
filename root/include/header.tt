@@ -29,7 +29,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
