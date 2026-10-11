@@ -35,4 +35,16 @@ foreach my $file (@files) {
     };
 }
 
+# WCAG 2.4.2: a page title must tell pages apart. About once shared Home's
+# title, so both read as "Ovid Among the Machines" in tabs and history.
+subtest 'Page titles are unique' => sub {
+    my %seen;
+    foreach my $file ( sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->maxdepth(1)->in('root'), @files ) {
+        my $title = eval { Ovid::Template::File->new( filename => $file )->title } or next;
+        push $seen{$title}->@*, $file;
+    }
+    my @dupes = map {"'$_': @{ $seen{$_} }"} grep { $seen{$_}->@* > 1 } sort keys %seen;
+    ok !@dupes, 'no two pages share a title' or diag join "\n", @dupes;
+};
+
 done_testing;
