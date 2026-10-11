@@ -25,4 +25,17 @@ subtest 'shadow DOM roots style their own visually-hidden text' => sub {
     ok $checked, 'at least one shadow-DOM template was checked';
 };
 
+subtest 'search results survive a mouse click in Safari' => sub {
+
+    # Safari does not focus a link on mousedown, so the search input blurs
+    # with relatedTarget === null and the focusout handler empties the list
+    # before the click lands. Cancelling mousedown on the list keeps focus
+    # in the input until the click navigates.
+    my $code = path('root/include/search.tt')->slurp_utf8;
+    like $code, qr/focusout/, 'search panel closes when focus leaves it';
+    like $code,
+      qr/getElementById\("results"\)\s*\.addEventListener\(\s*"mousedown",\s*\(?e\)?\s*=>\s*e\.preventDefault\(\)/,
+      '... and the results list cancels mousedown so clicks still navigate';
+};
+
 done_testing;
