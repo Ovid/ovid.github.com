@@ -248,9 +248,9 @@ package Ovid::Template::File {
                 }
                 $rewritten .= qq{<a name="$slug"></a>};
 
-                # Indented by the level the author wrote, not the level we
+                # Nested by the level the author wrote, not the level we
                 # emit, so demoting a page leaves its table of contents alone.
-                push @links => qq{    <li class="indent-$level"><a href="#$slug">$title</a></li>};
+                push @links => [ $level, qq{<a href="#$slug">$title</a>} ];
             }
             elsif ( defined $demoted_from && $token->is_end_tag(qr/^h[1-6]$/i) ) {
                 $rewritten .= _shift_heading( $token->as_is, $demoted_from, $demoted_from + 1 );
@@ -260,18 +260,21 @@ package Ovid::Template::File {
                 $rewritten .= $token->as_is;
             }
         }
-        my $links = join "\n" => @links;
-        my $toc   = <<"TOC";
-<nav role="navigation" class="table-of-contents">
-    <ul>
-$links
-    </ul>
-</nav>
+        my $links = _toc_list(@links);
+
+        # Text::Markdown only knows HTML4 block tags, so a bare <nav> would be
+        # wrapped in a <p>. The <div>, after a blank line, keeps it a block.
+        my $toc = <<"TOC";
+
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+$links</nav>
+</div>
 <hr>
 TOC
 
         # rewrite the table of contents
-        $rewritten =~ s/^s*\{\{TOC\}\}\s*$/$toc/m;
+        $rewritten =~ s/^[ \t]*\{\{TOC\}\}\s*$/$toc/m;
 
         # remove the tags
         my @tags;
@@ -291,6 +294,31 @@ TOC
     }
 
     # Rewrites only the tag name, so attributes survive the shift.
+    # Builds nested <ul>s from [ $level, $link ] pairs. @open holds the level
+    # of each open list. An entry shallower than the current list but deeper
+    # than its parent (h1, h3, h2) joins the current list instead of closing
+    # it, so skipped levels never leave a list unbalanced.
+    sub _toc_list (@entries) {
+        my $html = '';
+        my @open;
+        for my $entry (@entries) {
+            my ( $level, $link ) = $entry->@*;
+            if ( !@open || $level > $open[-1] ) {
+                $html .= ( @open ? "\n" : '' ) . "<ul>\n<li>$link";
+                push @open => $level;
+                next;
+            }
+            while ( @open > 1 && $open[-2] >= $level ) {
+                pop @open;
+                $html .= "</li>\n</ul>\n";
+            }
+            $open[-1] = $level if $level < $open[-1];
+            $html .= "</li>\n<li>$link";
+        }
+        $html .= "</li>\n</ul>\n" x @open;
+        return $html;
+    }
+
     sub _shift_heading ( $tag_text, $from, $to ) {
         $tag_text =~ s{\A(</?)h\Q$from\E\b}{$1h$to}i;
         return $tag_text;
