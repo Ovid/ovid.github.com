@@ -42,7 +42,7 @@ subtest 'blog posts get the blog CSS class on the title row' => sub {
 
 subtest 'articles do not get the blog CSS class' => sub {
     my $output = '';
-    $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
+    $tt->process( 'include/header.tt', { type => 'articles', title => 'x' }, \$output )
       or die $tt->error;
 
     unlike $output, qr/opener--blog/,
@@ -74,7 +74,7 @@ subtest 'Google Analytics id is rendered into the header' => sub {
     ok $domain, "config supplies a domain ($domain)";
 
     my $output = '';
-    $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
+    $tt->process( 'include/header.tt', { type => 'articles', title => 'x' }, \$output )
       or die $tt->error;
 
     like $output, qr/gtag\/js\?id=\Q$ga_id\E'/,
@@ -107,7 +107,7 @@ subtest 'Google Analytics id is rendered into the header' => sub {
 # skip link's target must be an id this header actually emits.
 subtest 'header provides a main landmark the skip link can reach' => sub {
     my $output = '';
-    $tt->process( 'include/header.tt', { type => 'article', title => 'x' }, \$output )
+    $tt->process( 'include/header.tt', { type => 'articles', title => 'x' }, \$output )
       or die $tt->error;
 
     like $output, qr/<main\b[^>]*\bid="content"/,
