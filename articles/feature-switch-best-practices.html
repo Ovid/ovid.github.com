@@ -43,7 +43,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/feature-switch-best-practices">
   
   <meta property="og:title" content="Feature Switch Best Practices">
-  <meta property="og:description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let's discuss best practices.">
+  <meta property="og:description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let&#39;s discuss best practices.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -55,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Feature Switch Best Practices</title>
-  <meta name="description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let's discuss best practices.">
+  <meta name="description" content="One of the best things to come out of the DevOps movement is the promotion of feature switches. Let&#39;s discuss best practices.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -314,7 +314,7 @@ functionality out blindly, so you use a feature switch. Here’s some pseudo-cod
 in Perl.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
-if ( feature_on('cached_categories') ) {
+if ( feature_on(&#39;cached_categories&#39;) ) {
     $categories = $cache-&gt;category_names;
 }
 else {
@@ -341,7 +341,7 @@ What if your cache isn’t loaded? What if your brand-new caching system
 isn’t as reliable as you thought and you actually need the following?</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
-if ( feature_on('cached_categories') ) {
+if ( feature_on(&#39;cached_categories&#39;) ) {
     $categories = $cache-&gt;category_names || $app-&gt;category_names;
 }
 else {
@@ -467,13 +467,13 @@ This is one of the reasons I prefer features to be “booleans” (in other word
 “on or off”). Some recommend feature tools that allow you to do this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $categories;
-if ( 'enhanced' eq feature_on('SOME_FEATURE') ) {
+if ( &#39;enhanced&#39; eq feature_on(&#39;SOME_FEATURE&#39;) ) {
     $categories = $app-&gt;categories_enhanced;
 }
-elsif ( 'expanded' eq feature_on('SOME_FEATURE') ) {
+elsif ( &#39;expanded&#39; eq feature_on(&#39;SOME_FEATURE&#39;) ) {
     $categories = $app-&gt;categories_expanded;
 }
-elsif ( feature_on('SOME_FEATURE') ) {
+elsif ( feature_on(&#39;SOME_FEATURE&#39;) ) {
     warn &quot;Unknown feature category for SOME_FEATURE&quot;;
 }
 $categories //= $app-&gt;category_names;
@@ -493,14 +493,14 @@ make life easier. Don’t overthink them.</p>
 it’s important to regularly clean features. Otherwise, you get into messes like
 this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">if (feature_on('FEATURE_1')) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if (feature_on(&#39;FEATURE_1&#39;)) {
     # do something
-    if (feature_on('FEATURE_2')) {
+    if (feature_on(&#39;FEATURE_2&#39;)) {
         # do something else
     }
-    elsif (feature_on('FEATURE_3') {
+    elsif (feature_on(&#39;FEATURE_3&#39;) {
         # do yet another thing
-        if (feature_on('FEATURE_4')) {
+        if (feature_on(&#39;FEATURE_4&#39;)) {
             ...
         }
     }
@@ -522,7 +522,7 @@ find that you can’t turn your feature on or off! Here’s an example in Perl:<
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Package;
 
 sub import ($class) {
-    if ( feature_on('MY_COOL_FEATURE') ) {
+    if ( feature_on(&#39;MY_COOL_FEATURE&#39;) ) {
         ...
     }
 }

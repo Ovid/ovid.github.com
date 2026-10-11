@@ -41,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/converting-object-oriented-code-to-corinna">
   
   <meta property="og:title" content="Converting Object-Oriented Code to Corinna">
-  <meta property="og:description" content="I was recently humbled when I converted some code to Corinna and Corinna's constraints showed the design flaws in my code.">
+  <meta property="og:description" content="I was recently humbled when I converted some code to Corinna and Corinna&#39;s constraints showed the design flaws in my code.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -53,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Converting Object-Oriented Code to Corinna</title>
-  <meta name="description" content="I was recently humbled when I converted some code to Corinna and Corinna's constraints showed the design flaws in my code.">
+  <meta name="description" content="I was recently humbled when I converted some code to Corinna and Corinna&#39;s constraints showed the design flaws in my code.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -531,8 +531,8 @@ say 2 + $var;               # Int + Ref
 
 <div class="shadow"><pre class="scrolled"><code>4
 4
-Argument &quot;2 weeks&quot; isn't numeric in addition (+) at two.pl line 8.
-Argument &quot;2 pears&quot; isn't numeric in addition (+) at two.pl line 8.
+Argument &quot;2 weeks&quot; isn&#39;t numeric in addition (+) at two.pl line 8.
+Argument &quot;2 pears&quot; isn&#39;t numeric in addition (+) at two.pl line 8.
 4
 5
 5201037554
@@ -590,7 +590,7 @@ my $int = Int-&gt;new( int =&gt; 2 );
 say $int-&gt;add(3);    # 5
 say $int-&gt;add(&quot;4&quot;);  # 6
 
-# runtime error because we can't coerce
+# runtime error because we can&#39;t coerce
 say $int-&gt;add(&quot;4 apples&quot;);
 
 # problematic because arrays flatten to lists and
@@ -661,7 +661,7 @@ now:</p>
 <p>This is cleaner and easier to maintain. In fact, I could delete this class, but
 those predicate methods are much easier to use.</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $token isa 'HTC::Token::Tag::Start' ) { ... }
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( $token isa &#39;HTC::Token::Tag::Start&#39; ) { ... }
 # versus
 if ( $token-&gt;is_start_tag ) { ... }
 </code></pre></div>
@@ -675,9 +675,9 @@ reality, sometimes it’s cumbersome. If you want to replace the class <code>new
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $parser = HTC-&gt;new( file =&gt; $file );
 while ( my $token = $parser-&gt;next ) {
     if (   $token-&gt;is_start_tag
-        &amp;&amp; $token-&gt;attr('class') eq 'newz'
+        &amp;&amp; $token-&gt;attr(&#39;class&#39;) eq &#39;newz&#39;
     ) {
-        $token = $token-&gt;set_attrs( class =&gt; 'news' );
+        $token = $token-&gt;set_attrs( class =&gt; &#39;news&#39; );
     }
     print $token-&gt;to_string;
 }
@@ -724,7 +724,7 @@ actual error message any way they like.</p>
 <p>So here’s my exception base class:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class HTML::TokeParser::Corinna::Exception {
-  use overload '&quot;&quot;' =&gt; 'to_string', fallback =&gt; 1;
+  use overload &#39;&quot;&quot;&#39; =&gt; &#39;to_string&#39;, fallback =&gt; 1;
   use Devel::StackTrace;
 
   field $message :param = undef;
@@ -758,7 +758,7 @@ to decide what to do next.</p>
   field $class  :param;
 
   method error ()  {
-    &quot;No such method '$method' for class '$class'&quot;
+    &quot;No such method &#39;$method&#39; for class &#39;$class&#39;&quot;
   }
   method method () {$method}
   method class ()  {$class}
@@ -771,9 +771,9 @@ to decide what to do next.</p>
   our $AUTOLOAD;
   my ( $class, $method )
     = ( $AUTOLOAD =~ /^(.*)::(.*)$/ );
-  return if $method eq 'DESTROY';
+  return if $method eq &#39;DESTROY&#39;;
   throw(
-    'MethodNotFound',
+    &#39;MethodNotFound&#39;,
     method =&gt; $method,
     class  =&gt; $class,
   );

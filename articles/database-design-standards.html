@@ -41,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/database-design-standards">
   
   <meta property="og:title" content="Database Design Standards">
-  <meta property="og:description" content="When I get called in to fix a client's software, I find that most large codebases have common errors. Here are some of them and how to avoid them.">
+  <meta property="og:description" content="When I get called in to fix a client&#39;s software, I find that most large codebases have common errors. Here are some of them and how to avoid them.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -53,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Database Design Standards</title>
-  <meta name="description" content="When I get called in to fix a client's software, I find that most large codebases have common errors. Here are some of them and how to avoid them.">
+  <meta name="description" content="When I get called in to fix a client&#39;s software, I find that most large codebases have common errors. Here are some of them and how to avoid them.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -355,7 +355,7 @@ LEFT JOIN route
                     OR ( route.distance IS NOT NULL
                          AND
                          now() &gt;= thread.datesent
-                         + ( route.distance * interval '30 seconds' )
+                         + ( route.distance * interval &#39;30 seconds&#39; )
         ))))
 ORDER BY datesent ASC, thread.parent_id ASC
 </code></pre></div>
@@ -393,7 +393,7 @@ LEFT JOIN route
                     OR ( route.distance IS NOT NULL
                          AND
                          now() &gt;= thread.datesent
-                         + ( route.distance * interval '30 seconds' )
+                         + ( route.distance * interval &#39;30 seconds&#39; )
         ))))
 ORDER BY datesent ASC, thread.parent_id ASC
 </code></pre></div>
@@ -405,7 +405,7 @@ ORDER BY datesent ASC, thread.parent_id ASC
 <p>As much as possible, name columns very descriptively. For example, a
 <code>temperature</code> column doesn’t make sense for this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, &#39;too cold&#39;
   FROM areas
  WHERE temperature &lt; 32;  
 </code></pre></div>
@@ -413,7 +413,7 @@ ORDER BY datesent ASC, thread.parent_id ASC
 <p>I live in France and for anyone here, 32 would be “too hot”. Instead, name that
 column <code>fahrenheit</code>.</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, 'too cold'
+<div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT name, &#39;too cold&#39;
   FROM areas
  WHERE fahrenheit &lt; 32;  
 </code></pre></div>
@@ -622,7 +622,7 @@ work out the answer before reading it below.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-sql">SELECT s.supplier_id, p.part_id
   FROM suppliers s, parts p
  WHERE p.city &lt;&gt; s.city
-    OR p.city &lt;&gt; 'Paris';
+    OR p.city &lt;&gt; &#39;Paris&#39;;
 </code></pre></div>
 
 <p>We get no rows because we can’t compare a <code>NULL</code> city (<code>p.city</code>) and thus

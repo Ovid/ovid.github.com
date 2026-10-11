@@ -41,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/blog/moose-has-a-problem">
   
   <meta property="og:title" content="Moose &quot;has&quot; a Problem">
-  <meta property="og:description" content="For Perl developers, I explain some of the problems with Moo's &quot;has&quot; function.">
+  <meta property="og:description" content="For Perl developers, I explain some of the problems with Moo&#39;s &quot;has&quot; function.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -53,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Moose &quot;has&quot; a Problem</title>
-  <meta name="description" content="For Perl developers, I explain some of the problems with Moo's &quot;has&quot; function.">
+  <meta name="description" content="For Perl developers, I explain some of the problems with Moo&#39;s &quot;has&quot; function.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -280,8 +280,8 @@ for this discussion), the <code>has</code> function lets you declare an attribut
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Point2D {
     use Moose;
     has [qw/x y/] =&gt; (
-        is       =&gt; 'ro',
-        isa      =&gt; 'Num',
+        is       =&gt; &#39;ro&#39;,
+        isa      =&gt; &#39;Num&#39;,
         required =&gt; 1,
     );
 }
@@ -301,11 +301,11 @@ love/hate relationship about when learning OO concepts.</p>
 <p>That’s a lot to pack into one function, and it leads to confusion like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
-    is       =&gt; 'ro',            # read-only
-    isa      =&gt; 'Int',           # declare it an integer
-    writer   =&gt; 'set_attr',      # but it's read-only?
-    required =&gt; 1,               # 'attr' must be provided
-    builder  =&gt; '_build_attr',   # called if not passed in the constructor
+    is       =&gt; &#39;ro&#39;,            # read-only
+    isa      =&gt; &#39;Int&#39;,           # declare it an integer
+    writer   =&gt; &#39;set_attr&#39;,      # but it&#39;s read-only?
+    required =&gt; 1,               # &#39;attr&#39; must be provided
+    builder  =&gt; &#39;_build_attr&#39;,   # called if not passed in the constructor
 );
 </code></pre></div>
 
@@ -383,10 +383,10 @@ make OO that feels “perlish”, but we need to keep growing and learn from our
 mistakes. Returning to this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">has attr =&gt; (
-    is       =&gt; 'ro',
-    isa      =&gt; 'Int',
-    writer   =&gt; 'set_attr',
-    builder  =&gt; '_build_attr',
+    is       =&gt; &#39;ro&#39;,
+    isa      =&gt; &#39;Int&#39;,
+    writer   =&gt; &#39;set_attr&#39;,
+    builder  =&gt; &#39;_build_attr&#39;,
     required =&gt; 1,
 );
 </code></pre></div>
@@ -408,7 +408,7 @@ my $auth = Authenticate-&gt;new({user =&gt; $user, pass =&gt; $pass});
 <div class="shadow"><pre class="scrolled"><code class="language-perl">around BUILDARGS =&gt; sub ($orig, $class, @args) {
     my %arg_for
       = @args &gt; 1              ? @args
-      : 'HASH' eq ref $args[0] ? $args[0]-&gt;%*
+      : &#39;HASH&#39; eq ref $args[0] ? $args[0]-&gt;%*
       :                          ( token =&gt; $args[0] );
     return $class-&gt;$orig(%arg_for);
 };
@@ -438,17 +438,17 @@ like you can pass it in the constructor:</p>
 
 package SomeClass {
     use Moose;
-    has 'username' =&gt; (
-        is       =&gt; 'ro',
-        isa      =&gt; 'Str',
+    has &#39;username&#39; =&gt; (
+        is       =&gt; &#39;ro&#39;,
+        isa      =&gt; &#39;Str&#39;,
         required =&gt; 1,
         init_arg =&gt; undef,
-        default  =&gt; 'Bob',
+        default  =&gt; &#39;Bob&#39;,
     );
 }
 
 # this prints &quot;Bob&quot;
-print SomeClass-&gt;new( username =&gt; 'foo' )-&gt;username;
+print SomeClass-&gt;new( username =&gt; &#39;foo&#39; )-&gt;username;
 </code></pre></div>
 
 <p>Of course, <code>Cor</code> could try to trap every possible illegal (or confusing)

@@ -1,0 +1,49 @@
+[%
+    title            = 'Be Skeptical of AI Studies';
+    type             = 'articles';
+    slug             = 'be-skeptical-of-ai-studies';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-10-11';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS ai programming business}}
+
+[Ars Techinica is reporting](https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/) on [a recent study](https://fion.ac/jellyfish.pdf ) (pdf) that found that AI-assisted coding isn't improving output due to the reviewing bottleneck. But can we trust that study? If you're making decisions for your business, knowing if you can trust studies is critical.
+
+I agree with the conclusion of the study, but I don't agree that it's useful. It's leaving out important information that we need to know if we can take its findings seriously. It's not that it's wrong, but it can reinforce bias since there's no way to trust its findings.
+
+The most critical issue is no discrimination in AI engineering methodology. A recent Gartner study found that disciplined AI engineering led to using an order of magnitude fewer tokens than vibe code, despite more tokens being spent up front (I can't share because it's part of their paid reports). This is largely driven by better code, less rework, and less _ad hoc_ prompting  to address issues we missed the first time in the prompt.
+
+Second, we don't tend to have good metadata exposed from agentic harnesses: what harness, what version, what models, what versions of those models, and so on.
+
+And what's being worked on? Programming language, greenfield vs. legacy code, domain complexity, novelty, etc. That would change this a lot. Frankly, there are problems that I don't want AI anywhere near, but I don't know if those problems are in this dataset.
+
+[% INCLUDE include/image.tt
+   src      = "/static/images/ai-coding-methodologies.png"
+   alt      = "Four AI coding methodoloies, vibe, RPI, SDD, loop, are shoved into a single bucket named 'AI Coding'."
+   caption  = "Not all AI coding methodologies are the same"
+%]
+
+Next, this study doesn't compare vibe, RPI, SDD, loop engineering, or anything else. It's all lumped into one bucket. It can't cover whether steering files accurately describe the product, tech, and structure (bad steering files lead to worse code and higher token consumption).
+
+Finally, the data is from Jellyfish's proprietary dataset covering January 2021 to March 2026. So the overwhelming signal is going to come before:
+
+* Newer AI development techniques were introduced
+* More powerful models were available
+
+Instead, what I would keep my eye on is the 
+[SlopCodeBench](https://www.scbench.ai/) and similar benchmarks. SlopCodeBench 
+is the start, but I'm sure we'll have better benchmarks in the future. This 
+covers the actual bottlenecks, but only for models. It doesn't cover the 
+harnesses or methodologies, so we still have a ways to go before we start seeing 
+serious studies.
+
+If you want production-quality code from AI, use [PAAD](https://github.com/Ovid/paad). You can thank me by starring the repository!
+
+[%- END %]

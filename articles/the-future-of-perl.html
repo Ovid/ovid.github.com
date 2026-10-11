@@ -307,7 +307,7 @@ backwards-compatibility.</p>
     has [qw/x y/] =&gt; ( default =&gt; sub { 0 } );
 
     sub clear ($self) {
-        $self-&gt;@{ 'x', 'y' } = ( 0, 0 );
+        $self-&gt;@{ &#39;x&#39;, &#39;y&#39; } = ( 0, 0 );
     }
 }
 </code></pre></div>
@@ -319,7 +319,7 @@ was also largely a response to improve upon
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Point {
     use Moxie;
 
-    extends 'Moxie::Object';
+    extends &#39;Moxie::Object&#39;;
 
     has x =&gt; ( default =&gt; sub { 0 } );
     has y =&gt; ( default =&gt; sub { 0 } );
@@ -328,7 +328,7 @@ was also largely a response to improve upon
     sub y : ro;
 
     sub clear ($self) {
-        $self-&gt;@{ 'x', 'y' } = (0, 0);
+        $self-&gt;@{ &#39;x&#39;, &#39;y&#39; } = (0, 0);
     }
 }
 </code></pre></div>
@@ -371,15 +371,15 @@ use <a href="https://metacpan.org/pod/Moose" target="_blank">Moose</a> <span cla
 <p>So we’re doing fine, but whither Perl? Or to abuse Shakespeare:</p>
 
 <div class="shadow"><pre class="scrolled"><code>To Perl or not to Perl, that is the question:
-Whether 'tis nobler in the code to suffer
+Whether &#39;tis nobler in the code to suffer
 The slings and arrows of outrageous criticism,
 Or to add commits against a sea of troubles,
 And by rebasing, end them? To die(), to sleep(),
 No more; and by a sleep() to say we end
 The heartache and the thousand natural shocks
-That Perl is heir to. 'Tis a consummation
+That Perl is heir to. &#39;Tis a consummation
 Devoutly to be wished. To die(), to sleep();
-To sleep–perchance to dream–ay, there's the 'no strict.'
+To sleep–perchance to dream–ay, there&#39;s the &#39;no strict.&#39;
 </code></pre></div>
 
 <p>Sue me. I like poetry. Why do you think my nickname is “Ovid”?</p>
@@ -633,8 +633,8 @@ workable compromise has emerged in Perl. This is largely based on
 Moose, for example, I can define an attribute like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">has expires_at =&gt; (
-    is  =&gt; 'rw',
-    isa =&gt; InstanceOf ['DateTime' ],
+    is  =&gt; &#39;rw&#39;,
+    isa =&gt; InstanceOf [&#39;DateTime&#39; ],
 );
 </code></pre></div>
 

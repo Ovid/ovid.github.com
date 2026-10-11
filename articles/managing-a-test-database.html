@@ -43,7 +43,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/managing-a-test-database">
   
   <meta property="og:title" content="Managing a Test Database">
-  <meta property="og:description" content="It's easy to get test databases wrong. Here's a nasty hack I did for a software test to make it easier to get the test database right.">
+  <meta property="og:description" content="It&#39;s easy to get test databases wrong. Here&#39;s a nasty hack I did for a software test to make it easier to get the test database right.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -55,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Managing a Test Database</title>
-  <meta name="description" content="It's easy to get test databases wrong. Here's a nasty hack I did for a software test to make it easier to get the test database right.">
+  <meta name="description" content="It&#39;s easy to get test databases wrong. Here&#39;s a nasty hack I did for a software test to make it easier to get the test database right.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -306,9 +306,9 @@ ready to begin.  Then I looked at the test they had for the controller:</p>
 use warnings;
 use Test::More;
 
-use Catalyst::Test 'Client';
+use Catalyst::Test &#39;Client&#39;;
 
-ok( request('/some_path')-&gt;is_success, 'Request should succeed' );
+ok( request(&#39;/some_path&#39;)-&gt;is_success, &#39;Request should succeed&#39; );
 done_testing();
 </code></pre></div>
 
@@ -323,11 +323,11 @@ code for this was trivial:</p>
 
 use File::Temp qw(tempfile);
 use DBI;
-use parent 'Exporter';
+use parent &#39;Exporter&#39;;
 use Client::Policy;
 
 BEGIN {
-    if ( exists $INC{'Client/Model/ClientDB.pm'} ) {
+    if ( exists $INC{&#39;Client/Model/ClientDB.pm&#39;} ) {
         croak(&quot;You must load Test::DB before Client::Model::ClientDB&quot;);
     }
 }
@@ -341,7 +341,7 @@ my $user         = $connect_info-&gt;{user};
 my $password     = $connect_info-&gt;{password};
 
 # $$ is the process id (PID)
-my $db_name = sprintf 'test_db_%d_%d', time, $$;
+my $db_name = sprintf &#39;test_db_%d_%d&#39;, time, $$;
 my ( $fh, $filename ) = tempfile();
 
 my $dbh = DBI-&gt;connect(
@@ -380,12 +380,12 @@ And it meant I could do this in my test:</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use strict;
 use warnings;
 use Test::More;
-use lib 't/lib';
+use lib &#39;t/lib&#39;;
 use Test::DB;
 
-use Catalyst::Test 'Client';
+use Catalyst::Test &#39;Client&#39;;
 
-ok( request('/some_path')-&gt;is_success, 'Request should succeed' );
+ok( request(&#39;/some_path&#39;)-&gt;is_success, &#39;Request should succeed&#39; );
 
 # anything I do here is against a temporary test database
 # and will be discarded when the test finishes
@@ -419,14 +419,14 @@ my $password     = $connect_info-&gt;{password};
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Client::Model::ClientDB;
 
 use strict;
-use base 'Catalyst::Model::DBIC::Schema';
+use base &#39;Catalyst::Model::DBIC::Schema&#39;;
 
 __PACKAGE__-&gt;config(
-    schema_class =&gt; 'Client::Schema::ClientDB',
+    schema_class =&gt; &#39;Client::Schema::ClientDB&#39;,
     connect_info =&gt; {
-        dsn      =&gt; 'dbi:mysql:test_db',
-        user     =&gt; 'root',
-        password =&gt; 'rootpass',
+        dsn      =&gt; &#39;dbi:mysql:test_db&#39;,
+        user     =&gt; &#39;root&#39;,
+        password =&gt; &#39;rootpass&#39;,
     }
 );
 </code></pre></div>
@@ -524,13 +524,13 @@ overhead of transactions beyond what your code already has. Plus, you can
 avoid issues like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">sub test_basic_combat_attack_behavior ($test,$) {
-    my $ovid    = $test-&gt;load_fixture('character.ovid');
-    my $winston = $test-&gt;load_fixture('character.winston');
-    my $station = $test-&gt;load_fixture('station.tau-station');
+    my $ovid    = $test-&gt;load_fixture(&#39;character.ovid&#39;);
+    my $winston = $test-&gt;load_fixture(&#39;character.winston&#39;);
+    my $station = $test-&gt;load_fixture(&#39;station.tau-station&#39;);
 
     $test-&gt; move_to($station-&gt;port, $ovid, $winston);
     ok !$ovid-&gt;attack($winston),
-      'We should not be able to attack someone on the home station.';
+      &#39;We should not be able to attack someone on the home station.&#39;;
     ...
 }
 </code></pre></div>

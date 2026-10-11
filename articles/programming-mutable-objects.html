@@ -41,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/programming-mutable-objects">
   
   <meta property="og:title" content="Programming Mutable Objects">
-  <meta property="og:description" content="I've often noted that many objections to object-oriented programming go away if the objects are immutable. But sometimes, you want them to be mutable.">
+  <meta property="og:description" content="I&#39;ve often noted that many objections to object-oriented programming go away if the objects are immutable. But sometimes, you want them to be mutable.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -53,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Programming Mutable Objects</title>
-  <meta name="description" content="I've often noted that many objections to object-oriented programming go away if the objects are immutable. But sometimes, you want them to be mutable.">
+  <meta name="description" content="I&#39;ve often noted that many objections to object-oriented programming go away if the objects are immutable. But sometimes, you want them to be mutable.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -370,7 +370,7 @@ field $password :param :writer;
 method _data_printer () {
     return {
         username =&gt; $username,
-        password =&gt; '&lt;redacted&gt;';
+        password =&gt; &#39;&lt;redacted&gt;&#39;;
     };
 }
 </code></pre></div>
@@ -382,7 +382,7 @@ password.</p>
 
 <p>And then someone does this:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">my $old_password = $user_account-&gt;set_password('Ha!');
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $old_password = $user_account-&gt;set_password(&#39;Ha!&#39;);
 save($old_password);
 $user_account-&gt;set_password($old_password);
 </code></pre></div>
@@ -544,18 +544,18 @@ the special <code>is =&gt; 'rwp'</code> syntax stolen from
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Cache::LRU;
 
 use MooseX::Extended
-    types    =&gt; 'PositiveOrZeroInt',
-    includes =&gt; 'method';
+    types    =&gt; &#39;PositiveOrZeroInt&#39;,
+    includes =&gt; &#39;method&#39;;
 
 use Hash::Ordered;
 
 param max_size =&gt; (
-    is      =&gt; 'rwp',
+    is      =&gt; &#39;rwp&#39;,
     isa     =&gt; PositiveOrZeroInt,
     default =&gt; sub {20},
 );
 field _cache =&gt; (
-    is      =&gt; 'rwp',
+    is      =&gt; &#39;rwp&#39;,
     default =&gt; sub { Hash::Ordered-&gt;new },
 );
 

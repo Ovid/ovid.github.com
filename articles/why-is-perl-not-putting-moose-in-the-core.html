@@ -43,7 +43,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/why-is-perl-not-putting-moose-in-the-core">
   
   <meta property="og:title" content="Why is Perl not putting Moose in the core?">
-  <meta property="og:description" content="People keep asking why the Perl language doesn't just drag the Moose module into the core for object-oriented programming. Buckle up, this will be a long trip ...">
+  <meta property="og:description" content="People keep asking why the Perl language doesn&#39;t just drag the Moose module into the core for object-oriented programming. Buckle up, this will be a long trip ...">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -55,7 +55,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>Why is Perl not putting Moose in the core?</title>
-  <meta name="description" content="People keep asking why the Perl language doesn't just drag the Moose module into the core for object-oriented programming. Buckle up, this will be a long trip ...">
+  <meta name="description" content="People keep asking why the Perl language doesn&#39;t just drag the Moose module into the core for object-oriented programming. Buckle up, this will be a long trip ...">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -340,7 +340,7 @@ keep their salary private:</p>
 
 use strict;
 use warnings;
-our @ISA = 'Person';
+our @ISA = &#39;Person&#39;;
 
 sub new {
     my ( $class, $name, $salary ) = @_;
@@ -425,14 +425,14 @@ integer.</p>
 many programming languages, multiplying the string “foo” by a number is a
 fatal error, often at compile time. However, Perl allows this:</p>
 
-<div class="shadow"><pre class="scrolled"><code>$ perl -E 'say &quot;Foo&quot; * 3'
+<div class="shadow"><pre class="scrolled"><code>$ perl -E &#39;say &quot;Foo&quot; * 3&#39;
 0
 </code></pre></div>
 
 <p>Of course, you should almost always enable warnings, in which case you’ll see
 a warning like this:</p>
 
-<div class="shadow"><pre class="scrolled"><code>Argument &quot;Foo&quot; isn't numeric in multiplication (*) at -e line 1.
+<div class="shadow"><pre class="scrolled"><code>Argument &quot;Foo&quot; isn&#39;t numeric in multiplication (*) at -e line 1.
 </code></pre></div>
 
 <p>Or if you prefer, you can make these kinds of errors fatal:</p>
@@ -509,8 +509,8 @@ that together yourself.</p>
 use Moose;
 
 has name =&gt; (
-    is       =&gt; 'rw',    # it's read-write
-    isa      =&gt; 'Str',   # it must be a string
+    is       =&gt; &#39;rw&#39;,    # it&#39;s read-write
+    isa      =&gt; &#39;Str&#39;,   # it must be a string
     required =&gt; 1,       # it must be passed to the constructor
 );
 
@@ -525,8 +525,8 @@ have to do that with every method you wrote.</p>
 
 <p>You have to change construction a bit, too. Either of the following works:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">my $person  = Person-&gt;new( name =&gt; 'Bob' );
-my $person2 = Person-&gt;new({ name =&gt; 'Bob2' });
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $person  = Person-&gt;new( name =&gt; &#39;Bob&#39; );
+my $person2 = Person-&gt;new({ name =&gt; &#39;Bob2&#39; });
 </code></pre></div>
 
 <p>Why two different ways? Who knows? Live with it.</p>
@@ -535,12 +535,12 @@ my $person2 = Person-&gt;new({ name =&gt; 'Bob2' });
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Person::Employee;
 use Moose;
-BEGIN { extends 'Person' }
+BEGIN { extends &#39;Person&#39; }
 
 has _salary =&gt; (
-    is       =&gt; 'ro',       # read-only
-    isa      =&gt; 'Num',      # must be a number
-    init_arg =&gt; 'salary',   # pass 'salary' to the constructor
+    is       =&gt; &#39;ro&#39;,       # read-only
+    isa      =&gt; &#39;Num&#39;,      # must be a number
+    init_arg =&gt; &#39;salary&#39;,   # pass &#39;salary&#39; to the constructor
     required =&gt; 1,          # you must pass it to the constructor
 );
 
@@ -550,7 +550,7 @@ __PACKAGE__-&gt;meta-&gt;make_immutable;
 <p>And to create an instance:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $employee = Person::Employee-&gt;new(
-    name   =&gt; 'Bob',
+    name   =&gt; &#39;Bob&#39;,
     salary =&gt; 50000,
 );
 </code></pre></div>
@@ -570,8 +570,8 @@ catch ($error) {
 
 <p>And that prints something like:</p>
 
-<div class="shadow"><pre class="scrolled"><code>Naughty, naughty: Attribute (name) does not pass the type constraint because: Validation failed for 'Str' with value DateTime=HASH(0x7ffb518206d8) at accessor Person::name (defined at moose.pl line 11) line 10
-        Person::name('Person::Employee=HASH(0x7ffb318d47b8)', 'DateTime=HASH(0x7ffb518206d8)') called at moose.pl line 42
+<div class="shadow"><pre class="scrolled"><code>Naughty, naughty: Attribute (name) does not pass the type constraint because: Validation failed for &#39;Str&#39; with value DateTime=HASH(0x7ffb518206d8) at accessor Person::name (defined at moose.pl line 11) line 10
+        Person::name(&#39;Person::Employee=HASH(0x7ffb318d47b8)&#39;, &#39;DateTime=HASH(0x7ffb518206d8)&#39;) called at moose.pl line 42
 </code></pre></div>
 
 <p>Oh, but it actually <em>doesn’t</em> fully protect that set of values:</p>

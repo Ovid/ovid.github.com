@@ -415,12 +415,12 @@ component called
 This allows you to do things like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Event;
-use base 'DBIx::Class::Core';
+use base &#39;DBIx::Class::Core&#39;;
 
 __PACKAGE__-&gt;load_components(qw/InflateColumn::DateTime/);
 __PACKAGE__-&gt;add_columns(
-  starts_when =&gt; { data_type =&gt; 'datetime' }
-  create_date =&gt; { data_type =&gt; 'date' }
+  starts_when =&gt; { data_type =&gt; &#39;datetime&#39; }
+  create_date =&gt; { data_type =&gt; &#39;date&#39; }
 );
 </code></pre></div>
 
@@ -435,7 +435,7 @@ by writing your own <code>DBIx::Class</code> component to use immutable <code>Da
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Schema::Component::ImmutableDateTime;
 
 use DateTimeX::Immutable;
-use parent 'DBIx::Class::InflateColumn::DateTime';
+use parent &#39;DBIx::Class::InflateColumn::DateTime&#39;;
 
 sub _post_inflate_datetime {
     my ( $self, @args ) = @_;

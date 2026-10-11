@@ -346,15 +346,15 @@ convert base 10 numbers to Babylonian:</p>
 use strict;
 use warnings;
 use utf8;
-binmode STDOUT, ':utf8_strict';
+binmode STDOUT, &#39;:utf8_strict&#39;;
 
 foreach my $num (@ARGV) {
     my $orig = $num;
     if ( $num &lt; 1 || $num != int($num) ) {
-        die &quot;'$num' is not a positive integer&quot;;
+        die &quot;&#39;$num&#39; is not a positive integer&quot;;
     }
     my $base    = 60;
-    my $space   = '𒑱';
+    my $space   = &#39;𒑱&#39;;
     my %numbers = qw(
       0 ␣
       1 𒐕 2 𒐖 3 𒐗 4 𒐘 5 𒐙 6 𒐚 7 𒐛 8 𒐜 9 𒐝 10 𒌋␣
@@ -372,7 +372,7 @@ foreach my $num (@ARGV) {
     } while ( $num &gt;= $base );
     unshift @result =&gt; $num if $num;
     my $babylonian = join $space =&gt; map { $numbers{$_} } @result;
-    print &quot;$orig is '$babylonian'\n&quot;;
+    print &quot;$orig is &#39;$babylonian&#39;\n&quot;;
 }
 
 __END__

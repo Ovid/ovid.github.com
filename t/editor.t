@@ -34,6 +34,8 @@ $ENV{LIVE_EDITOR_FILE} = $source_file->absolute->stringify;
 use Ovid::App::LiveEditor;
 
 # Mock Ovid::Site to avoid full rebuild in tests
+# Immutable Moose classes make Test::MockModule warn; no modifiers here to miss.
+Ovid::Site->meta->make_mutable;
 my $site_mock = Test::MockModule->new('Ovid::Site');
 my $build_called = 0;
 $site_mock->mock('build', sub {

@@ -304,9 +304,9 @@ use Types::Standard qw(Num);
 use feature qw( signatures postderef postderef_qq );
 no warnings qw( experimental::signatures experimental::postderef );
 use namespace::autoclean;
-use mro 'c3';
+use mro &#39;c3&#39;;
 
-has [ 'x', 'y' ] =&gt; ( is =&gt; 'ro', isa =&gt; Num );
+has [ &#39;x&#39;, &#39;y&#39; ] =&gt; ( is =&gt; &#39;ro&#39;, isa =&gt; Num );
 
 __PACKAGE__-&gt;meta-&gt;make_immutable;
 
@@ -322,7 +322,7 @@ back and add it later as the class grows.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Point;
 use MooseX::Extended types =&gt; [qw/Num/];
 
-param [ 'x', 'y' ] =&gt; ( isa =&gt; Num );
+param [ &#39;x&#39;, &#39;y&#39; ] =&gt; ( isa =&gt; Num );
 </code></pre></div>
 
 <p>That’s right, you don’t have to declare it immutable or end it with a true 
@@ -333,24 +333,24 @@ value. <code>MooseX::Extended</code> handles that for you (though you can disabl
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Point::Mutable::Moose;
 use v5.20.0;
 use Moose;
-extends 'My::Point::Moose';
+extends &#39;My::Point::Moose&#39;;
 use MooseX::StrictConstructor;
 use feature qw( signatures postderef postderef_qq );
 no warnings qw( experimental::signatures experimental::postderef );
 use namespace::autoclean;
-use mro 'c3';
+use mro &#39;c3&#39;;
 
-has '+x' =&gt; (
-    is      =&gt; 'ro',
-    writer  =&gt; 'set_x',
-    clearer =&gt; 'clear_x',
+has &#39;+x&#39; =&gt; (
+    is      =&gt; &#39;ro&#39;,
+    writer  =&gt; &#39;set_x&#39;,
+    clearer =&gt; &#39;clear_x&#39;,
     default =&gt; 0,
 );
 
-has '+y' =&gt; (
-    is      =&gt; 'ro',
-    writer  =&gt; 'set_y',
-    clearer =&gt; 'clear_y',
+has &#39;+y&#39; =&gt; (
+    is      =&gt; &#39;ro&#39;,
+    writer  =&gt; &#39;set_y&#39;,
+    clearer =&gt; &#39;clear_y&#39;,
     default =&gt; 0,
 );
 
@@ -368,9 +368,9 @@ __PACKAGE__-&gt;meta-&gt;make_immutable;
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Point::Mutable;
 use MooseX::Extended;
-extends 'My::Point';
+extends &#39;My::Point&#39;;
 
-param [ '+x', '+y' ] =&gt; ( writer =&gt; 1, clearer =&gt; 1, default =&gt; 0 );
+param [ &#39;+x&#39;, &#39;+y&#39; ] =&gt; ( writer =&gt; 1, clearer =&gt; 1, default =&gt; 0 );
 
 sub invert ($self) {
     my ( $x, $y ) = ( $self-&gt;x, $self-&gt;y );
@@ -467,9 +467,9 @@ sub _build_name ($self) {
 <p>These can also be used when you pass an array reference to the function:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Point {
-    use MooseX::Extended types =&gt; ['Int'];
+    use MooseX::Extended types =&gt; [&#39;Int&#39;];
 
-    param [ 'x', 'y' ] =&gt; (
+    param [ &#39;x&#39;, &#39;y&#39; ] =&gt; (
         isa     =&gt; Int,
         clearer =&gt; 1,     # clear_x and clear_y available
         default =&gt; 0,
@@ -481,7 +481,7 @@ sub _build_name ($self) {
 However, you can still use full names:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">field authz_delegate =&gt; (
-    builder =&gt; '_build_my_darned_authz_delegate',
+    builder =&gt; &#39;_build_my_darned_authz_delegate&#39;,
 );
 </code></pre></div>
 
@@ -511,15 +511,15 @@ param payload =&gt; (
 );
 
 param start_date =&gt; (
-    isa   =&gt; InstanceOf ['DateTime'],
+    isa   =&gt; InstanceOf [&#39;DateTime&#39;],
     clone =&gt; sub ( $self, $name, $value ) {
         return $value-&gt;clone;
     },
 );
 
 param end_date =&gt; (
-    isa    =&gt; InstanceOf ['DateTime'],
-    clone  =&gt; '_clone_end_date',
+    isa    =&gt; InstanceOf [&#39;DateTime&#39;],
+    clone  =&gt; &#39;_clone_end_date&#39;,
 );
 
 sub _clone_end_date ( $self, $name, $value ) {
@@ -538,7 +538,7 @@ sub BUILD ( $self, @ ) {
 <p>Not everyone likes <code>MooseX::StrictConstructor</code>. It’s useful to prevent this 
 error:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">my $name = My::Name-&gt;new( naem =&gt; 'Ovid' );
+<div class="shadow"><pre class="scrolled"><code class="language-perl">my $name = My::Name-&gt;new( naem =&gt; &#39;Ovid&#39; );
 </code></pre></div>
 
 <p>In bog-standard Moose, the misspelled attribute will be discarded, leading to 

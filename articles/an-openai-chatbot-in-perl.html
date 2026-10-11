@@ -447,7 +447,7 @@ use Carp qw( croak );
 use utf8::all;
 
 # these parameters are optional
-field $model        :param = 'gpt-3.5-turbo-0125';
+field $model        :param = &#39;gpt-3.5-turbo-0125&#39;;
 field $temperature  :param = .1;
 field $context_size :param = 16384; # roughly
 
@@ -465,15 +465,15 @@ method _get_messages ($message) {
   my @messages = map { $_-&gt;{messages}-&gt;@* } $history-&gt;@*;
   if ($system_message) {
     # we always add the system message to the front so that the LLM can
-    # understand how it's supposed to behave.
-    unshift @messages, { role =&gt; 'system', content =&gt; $system_message };
+    # understand how it&#39;s supposed to behave.
+    unshift @messages, { role =&gt; &#39;system&#39;, content =&gt; $system_message };
   }
   push @messages, $self-&gt;_format_user_message($message);
   return \@messages;
 }
 
 method _format_user_message ($message) {
-  return { role =&gt; 'user', content =&gt; $message };
+  return { role =&gt; &#39;user&#39;, content =&gt; $message };
 }
 
 method _total_tokens () {
@@ -509,7 +509,7 @@ method prompt ($prompt) {
       my $usage   = $json-&gt;{usage};
 
       # Note that the response will also have rate limiting headers. For
-      # casual usage, you shouldn't hit rate limits, so we've omitted this
+      # casual usage, you shouldn&#39;t hit rate limits, so we&#39;ve omitted this
       # here to keep the example simpler.
       push $history-&gt;@* =&gt; {
         # track the messages *and* the token usage so we can
@@ -560,7 +560,7 @@ part of what we’re trying to encapsulate with this class.</p>
 <div class="shadow"><pre class="scrolled"><code class="language-perl">use OpenAI::Chat;
 use Data::Printer;
 use utf8::all;
-my $chat = OpenAI::Chat-&gt;new( system_message =&gt; 'You are a friendly assistant.' );
+my $chat = OpenAI::Chat-&gt;new( system_message =&gt; &#39;You are a friendly assistant.&#39; );
 
 sub get_user_input {
   print &quot;You: &quot;;

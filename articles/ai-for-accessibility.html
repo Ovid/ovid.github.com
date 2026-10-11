@@ -41,7 +41,7 @@
   <meta property="og:url" content="https://curtispoe.org/articles/ai-for-accessibility">
   
   <meta property="og:title" content="AI for Accessibility">
-  <meta property="og:description" content="Many people don't write alt tags for images, or they write bad ones. However, these are crucial for people using screenreaders to understand the image. AI can make this easier.">
+  <meta property="og:description" content="Many people don&#39;t write alt tags for images, or they write bad ones. However, these are crucial for people using screenreaders to understand the image. AI can make this easier.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -53,7 +53,7 @@
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
   <title>AI for Accessibility</title>
-  <meta name="description" content="Many people don't write alt tags for images, or they write bad ones. However, these are crucial for people using screenreaders to understand the image. AI can make this easier.">
+  <meta name="description" content="Many people don&#39;t write alt tags for images, or they write bad ones. However, these are crucial for people using screenreaders to understand the image. AI can make this easier.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
@@ -318,9 +318,9 @@ good because I want all three of my readers to be able to enjoy this site. So in
 my <a href="https://github.com/Ovid/ovid.github.com/blob/master/t/lint.t" target="_blank">t/lint.t</a> <span class="fa fa-external-link fa_custom"></span> test
 for this site, I have the following snippet of code:</p>
 
-<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( !$image-&gt;get_attr('alt') ) {
+<div class="shadow"><pre class="scrolled"><code class="language-perl">if ( !$image-&gt;get_attr(&#39;alt&#39;) ) {
   push @errors =&gt;
-    &quot;a11y alert! Missing 'alt' attribute in image: $tag&quot;;
+    &quot;a11y alert! Missing &#39;alt&#39; attribute in image: $tag&quot;;
 }
 </code></pre></div>
 
@@ -373,40 +373,40 @@ use Moo;
 use namespace::autoclean;
 
 has system_message =&gt; (
-  is =&gt; 'ro',
+  is =&gt; &#39;ro&#39;,
   default =&gt;
-    'You are an accessibility expert, able to describe images for the visually impaired'
+    &#39;You are an accessibility expert, able to describe images for the visually impaired&#39;
 );
 
-# gpt-4o-mini is smaller and cheaper than gpt4o, but it's still very good.
-# Also, it's multi-modal, so it can handle images and some of the older
+# gpt-4o-mini is smaller and cheaper than gpt4o, but it&#39;s still very good.
+# Also, it&#39;s multi-modal, so it can handle images and some of the older
 # vision models have now been deprecated.
-has model       =&gt; ( is =&gt; 'ro', default =&gt; 'gpt-4o-mini' );
-has temperature =&gt; ( is =&gt; 'ro', default =&gt; .1 );
+has model       =&gt; ( is =&gt; &#39;ro&#39;, default =&gt; &#39;gpt-4o-mini&#39; );
+has temperature =&gt; ( is =&gt; &#39;ro&#39;, default =&gt; .1 );
 has prompt      =&gt; (
-  is      =&gt; 'ro',
-  default =&gt; 'Describe the image in one or two sentences.',
+  is      =&gt; &#39;ro&#39;,
+  default =&gt; &#39;Describe the image in one or two sentences.&#39;,
 );
 has _client =&gt;
-  ( is =&gt; 'ro', default =&gt; sub { OpenAPI::Client::OpenAI-&gt;new } );
+  ( is =&gt; &#39;ro&#39;, default =&gt; sub { OpenAPI::Client::OpenAI-&gt;new } );
 
 sub describe_image ( $self, $filename ) {
-  my $filetype = $filename =~ /\.png$/ ? 'png' : 'jpeg';
+  my $filetype = $filename =~ /\.png$/ ? &#39;png&#39; : &#39;jpeg&#39;;
   my $image    = $self-&gt;_read_image_as_base64($filename);
   my $message  = {
     body =&gt; {
-      model    =&gt; 'gpt-4o-mini',    # $self-&gt;model,
+      model    =&gt; &#39;gpt-4o-mini&#39;,    # $self-&gt;model,
       messages =&gt; [
         {
-          role    =&gt; 'system',
+          role    =&gt; &#39;system&#39;,
           content =&gt; $self-&gt;system_message,
         },
         {
-          role    =&gt; 'user',
+          role    =&gt; &#39;user&#39;,
           content =&gt; [
             {
               text =&gt; $self-&gt;prompt,
-              type =&gt; 'text'
+              type =&gt; &#39;text&#39;
             },
             {
               type      =&gt; &quot;image_url&quot;,
@@ -445,9 +445,9 @@ sub _extract_description ( $self, $response ) {
 sub _read_image_as_base64 ( $self, $file ) {
   my $content = Path::Tiny-&gt;new($file)-&gt;slurp_raw;
 
-  # second argument is the line ending, which we don't
-  # want as a newline because OpenAI doesn't like it
-  return encode_base64( $content, '' );
+  # second argument is the line ending, which we don&#39;t
+  # want as a newline because OpenAI doesn&#39;t like it
+  return encode_base64( $content, &#39;&#39; );
 }
 </code></pre></div>
 
@@ -492,7 +492,7 @@ say $response;
 with your image descriptions!</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">my $chat     = Image::Describe::OpenAI-&gt;new(
-    prompt =&gt; 'Describe the image with a limerick'
+    prompt =&gt; &#39;Describe the image with a limerick&#39;
 );
 </code></pre></div>
 

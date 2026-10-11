@@ -472,16 +472,16 @@ example (not great, but enough to get the point across):</p>
     use Less::Boilerplate;
     use Types::Standard qw(Int ArrayRef);
     has _index =&gt; (
-        is      =&gt; 'rw',
-        isa     =&gt; Int-&gt;where('$_ &gt;= 0'),
-        builder =&gt; '_build__index',
+        is      =&gt; &#39;rw&#39;,
+        isa     =&gt; Int-&gt;where(&#39;$_ &gt;= 0&#39;),
+        builder =&gt; &#39;_build__index&#39;,
     );
 
     # default, but maybe someone wants a different default
     sub _build__index { 0 }
 
     has items =&gt; (
-        is       =&gt; 'ro',
+        is       =&gt; &#39;ro&#39;,
         isa      =&gt; ArrayRef,
         required =&gt; 1,
     );
@@ -526,7 +526,7 @@ ignoring that the above allows <code>$coll-&gt;_index($integer)</code>).</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package My::Collection {
     use Moose;
-    extends 'Collection';
+    extends &#39;Collection&#39;;
 
     sub _build__index { 5 }
 }
@@ -566,7 +566,7 @@ phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
         $index = $self-&gt;_default_index;
         if ( $index &gt; $items-&gt;@* - 1 ) {
-            # don't let subclasses break our code
+            # don&#39;t let subclasses break our code
             croak(...);
         }
     }
