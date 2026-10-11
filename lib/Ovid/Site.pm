@@ -9,6 +9,7 @@ package Ovid::Site {
     use Less::Config qw(config);
     use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
+    use Ovid::Site::Utils qw(human_date);
     use Template::Plugin::Ovid;
     use Template::App::ttree;
     use aliased 'Ovid::Template::File::Collection';
@@ -552,11 +553,6 @@ SQL
 
     use constant LATEST_POST_COUNT => 10;
 
-    my @MONTH = qw(
-      January February March April May June
-      July August September October November December
-    );
-
     # The homepage feed. Split in two so the HTML is testable without a
     # database: _latest_posts_html is pure, _rebuild_latest_posts is the thin
     # shell that queries and writes. See the coverage note on
@@ -616,7 +612,7 @@ SQL
             # characters of prose and at least one of them contains an "&".
             my $description = $self->_escape_html( $post->{description} );
             my $label       = ucfirst $post->{type};
-            my $human       = $self->_human_date( $post->{date} );
+            my $human       = human_date( $post->{date} );
             $html .= <<~"HTML";
                 <li>
                   <a href="/$post->{directory}/$post->{slug}">$title</a>
@@ -634,16 +630,6 @@ SQL
         $text =~ s/</&lt;/g;
         $text =~ s/>/&gt;/g;
         return $text;
-    }
-
-    # '2026-08-08' => '8 August 2026'. Anything that isn't an ISO date passes
-    # through untouched: a bare $MONTH[$month - 1] on a malformed date wraps
-    # round the end of the array and silently reports December.
-    sub _human_date ( $self, $date ) {
-        my ( $year, $month, $day ) = ( $date // '' ) =~ /\A(\d{4})-(\d{2})-(\d{2})\z/
-          or return $date;
-        return $date unless $month >= 1 && $month <= 12;
-        return sprintf '%d %s %d', $day, $MONTH[ $month - 1 ], $year;
     }
 
     sub _assert_tt_config ($self) {

@@ -25,7 +25,8 @@ use Less::Config qw(config);
 use Template;
 
 my $tt = Template->new(
-    {   INCLUDE_PATH => 'root',
+    {
+        INCLUDE_PATH => 'root',
         PLUGIN_BASE  => 'Template::Plugin',
         ABSOLUTE     => 0,
     }
@@ -145,7 +146,8 @@ sub description_tags ($vars) {
 
 subtest 'an explicit description is preferred over the title' => sub {
     my ( $meta, $og ) = description_tags(
-        {   title       => 'Tags: Perl',
+        {
+            title       => 'Tags: Perl',
             description => 'Every article and blog post tagged Perl.',
             type        => 'tags',
             slug        => 'perl',
@@ -155,12 +157,11 @@ subtest 'an explicit description is preferred over the title' => sub {
     is $meta, 'Every article and blog post tagged Perl.',
       'an explicit description should win over the title';
     isnt $meta, 'Tags: Perl', '... so the description does not restate the title';
-    is $og, $meta, 'og:description should carry the same text as the meta description';
+    is $og,     $meta,        'og:description should carry the same text as the meta description';
 };
 
 subtest 'a tag page without a description still gets one' => sub {
-    my ( $meta, $og ) = description_tags(
-        { title => 'Tags: Perl', type => 'tags', slug => 'perl' } );
+    my ( $meta, $og ) = description_tags( { title => 'Tags: Perl', type => 'tags', slug => 'perl' } );
 
     is $meta, 'Tags: Perl', 'the title is the last resort, not an empty string';
     ok length $og, 'og:description must never be left empty on a tag page';
@@ -172,6 +173,20 @@ subtest 'the title remains the final fallback' => sub {
 
     is $meta, 'Some Page', 'a page with nothing else falls back to its title';
     is $og,   'Some Page', '... for og:description too';
+};
+
+# The spoken date and the homepage feed share one formatter, which refuses to
+# guess: a hand-rolled months.$midx turned month 00 into "December".
+subtest 'the screen-reader date is spelled out and never guessed' => sub {
+    my $render = sub ($date) {
+        my $output = '';
+        $tt->process( 'include/header.tt', { type => 'blog', title => 'x', date => $date }, \$output )
+          or die $tt->error;
+        my ($spoken) = $output =~ m{<time class="visually-hidden" datetime="[^"]*">([^<]*)</time>};
+        return $spoken;
+    };
+    is $render->('2019-11-01'), '1 November 2019', 'a valid date is spelled out';
+    is $render->('2019-00-01'), '2019-00-01',      '... and month 00 is not read as December';
 };
 
 done_testing;

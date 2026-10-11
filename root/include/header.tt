@@ -197,10 +197,7 @@
       dday   = dparts.2;
       # "2019 / 11.01" reads as "eleven point zero one", so screen readers
       # get this spelled-out date instead and the visual one is hidden.
-      months = [ 'January', 'February', 'March', 'April', 'May', 'June',
-                 'July', 'August', 'September', 'October', 'November', 'December' ];
-      midx   = dmonth - 1;
-      dlong  = (dday + 0) _ ' ' _ months.$midx _ ' ' _ dyear;
+      dlong  = Ovid.human_date(date);
     END;
 -%]
     <div class="opener[% IF type == 'blog' %] opener--blog[% END %]">

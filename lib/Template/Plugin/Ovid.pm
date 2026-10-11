@@ -8,6 +8,7 @@ use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
   get_image_description
   set_image_description
+  human_date
 );
 use Template::Plugin::Blogdown;
 use base 'Template::Plugin';
@@ -141,6 +142,9 @@ sub youtube ( $self, $youtube_id, $title = 'YouTube video' ) {
 HTML
 }
 
+# NOTE: Called from root/include/header.tt for the screen-reader date.
+sub human_date ( $self, $date ) { Ovid::Site::Utils::human_date($date) }
+
 sub describe_image( $self, $image ) {
 
     # OpenAI costs money, so let's see if we have an image description. If we
@@ -237,6 +241,13 @@ and has a link back to the footnote reference.
     [% IF Ovid.has_footnotes %]
 
 Returns true if any footnotes have been added.
+
+=head2 C<human_date($date)>
+
+    [% Ovid.human_date('2019-11-01') %]    # 1 November 2019
+
+Spells out an ISO date for screen readers. Malformed dates are returned
+unchanged. See L<Ovid::Site::Utils/human_date>.
 
 =head2 C<collapse($short_description, $full_content)>
 
