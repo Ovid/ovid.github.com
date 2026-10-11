@@ -92,6 +92,34 @@ subtest '_run_ttree_single renders one file' => sub {
     };
 };
 
+subtest '_run_ttree dies on runtime template errors, not just file errors' => sub {
+
+    # ttree prints "! <type> error - ..." for every failed template and
+    # carries on. Only "file error" used to stop the build, so a plugin croak
+    # ("undef error") or a THROW shipped a broken page with a green build.
+    for my $case (
+        [ 'THROW'       => q{[% THROW oops 'boom' %]},     qr/oops error - boom/ ],
+        [ 'plugin dies' => q{[% USE Nonexistent::Plug %]}, qr/! .*error/ ],
+      )
+    {
+        my ( $name, $body, $error ) = @$case;
+
+        # ~/.ttreerc sets color=1, which wraps the "!" in ANSI escapes.
+        for my $colour ( 0, 1 ) {
+            _in_tempdir sub ($tempdir) {
+                $tempdir->child('tmp')->mkpath;
+                $tempdir->child('tmp/broken.tt')->spew_utf8($body);
+                my $rc = $tempdir->child('ttreerc');
+                $rc->spew( path('t/fixtures/ttree/.ttreerc')->absolute($cwd)->slurp, "color=$colour\n" );
+                local $ENV{TTREERC} = "$rc";
+
+                my $site = Ovid::Site->new;
+                throws_ok { capture { $site->_run_ttree } } $error, "$name (color=$colour): the build dies";
+            };
+        }
+    }
+};
+
 subtest '_run_ttree_single dies on a missing source file' => sub {
     _in_tempdir sub ($tempdir) {
         my $site = Ovid::Site->new;

@@ -722,7 +722,10 @@ END
             die "ttree failed with error: $error\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
         }
 
-        if ( $stdout =~ /!.*file error/ ) {
+        # ttree reports every failed template as "  ! <type> error - ..." (red
+        # when colour is on) and carries on, so any such line fails the build,
+        # not just file errors.
+        if ( $stdout =~ /^\s*(?:\e\[[\d;]*m)?\s*!\s/m ) {
             say STDERR "Command failed: @ttree_args";
             croak($stdout);
         }
