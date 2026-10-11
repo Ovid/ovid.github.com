@@ -42,7 +42,7 @@
   
   <meta property="og:url" content="https://curtispoe.org/articles/paad-v2-is-released">
   
-  <meta property="og:title" content="PAAD v2 is Released!">
+  <meta property="og:title" content="PAAD v2: Make It Yours, Keep Your Secrets Out of Git">
   <meta property="og:description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -54,7 +54,7 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>PAAD v2 is Released!</title>
+  <title>PAAD v2: Make It Yours, Keep Your Secrets Out of Git</title>
   <meta name="description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
@@ -261,7 +261,7 @@
         </span>
       </div>
       <div class="opener-title">
-        <h1>PAAD v2 is Released!</h1>
+        <h1>PAAD v2: Make It Yours, Keep Your Secrets Out of Git</h1>
       </div>
     </div>
 
@@ -306,11 +306,7 @@
 </ul>
 </li>
 <li><a href="#security-findings-stay-out-of-your-committed-reports">Security findings stay out of your committed reports</a></li>
-<li><a href="#why-200-if-nothing-breaks">Why 2.0.0, if nothing breaks?</a>
-<ul>
-<li><a href="#what-it-does-not-protect-against">What it does not protect against</a></li>
-</ul>
-</li>
+<li><a href="#why-200-if-nothing-breaks">Why 2.0.0, if nothing breaks?</a></li>
 <li><a href="#upgrading">Upgrading</a></li>
 <li><a href="#also-new">Also New</a></li>
 <li><a href="#what-didnt-get-in">What Didn’t Get In?</a></li>
@@ -327,11 +323,11 @@
 AI</a>. PAAD makes it much easier. After weeks of
 testing, <a href="https://github.com/Ovid/paad" target="_blank">PAAD v2.0.0 is now available on GitHub<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
-<p>There are a variety of changes, but the two big changes really matter.</p>
+<p>Two changes matter most:</p>
 
 <ol>
 <li>You can now configure PAAD to match how you work.</li>
-<li>Security-related findings are in a directory with <code>.gitignore</code>.</li>
+<li>Security findings no longer end up in your commits.</li>
 </ol>
 
 <p>No skill was renamed or removed, and no arguments changed.</p>
@@ -413,11 +409,10 @@ I’m a native English speaker, but even I find STE easier to follow.</p>
 PAAD. Instead, you can use the config system to decide this, or other changes,
 for yourself.</p>
 
-<p>Because it’s experimental, read <a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank">CONFIG.md<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> before you rely on it.
-Config works best when it <em>adds</em> something. A line telling a skill to skip or
-reorder its safety steps can work, but then you are running a different skill
-from the one documented. A <code>paad/config/</code> directory in a repo you cloned was
-written by someone else, so read it before you run anything.</p>
+<p>Config is experimental, so read
+<a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank">CONFIG.md<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> before you rely on
+it. And a <code>paad/config/</code> directory in a repo you cloned was written by someone
+else, so read it before you run anything.</p>
 
 <h2><a name="security-findings-stay-out-of-your-committed-reports"></a>Security findings stay out of your committed reports</h2>
 
@@ -428,14 +423,8 @@ be pushing security vulnerabilities to a public repository! Even for
 closed-source repos, there’s a good chance you don’t want this to happen.</p>
 
 <p>In <code>v2.0.0</code>, anything a skill finds that would help an attacker goes to
-<code>paad/security/</code> instead. That directory tells git to ignore it. The rule
-covers any OWASP Top 10:2025 category and anything in a payment,
-tenant-isolation or secret-handling path, and borderline cases count as
-security.</p>
-
-<p>Six skills follow it: <code>agentic-owasp</code>, <code>agentic-review</code>, <code>test-roadmap</code>,
-<code>agentic-architecture</code>, <code>pushback</code> and <code>agentic-dedup</code>. Where a security finding
-would have gone, the committed report keeps only a count:</p>
+<code>paad/security/</code> instead, and that directory tells git to ignore it. Where a
+security finding would have gone, the committed report keeps only a count:</p>
 
 <div class="shadow"><pre class="scrolled"><code>2 security finding(s) written to paad/security/&lt;file&gt;
 </code></pre></div>
@@ -444,37 +433,15 @@ would have gone, the committed report keeps only a count:</p>
 
 <h2><a name="why-200-if-nothing-breaks"></a>Why 2.0.0, if nothing breaks?</h2>
 
-<p>Your PAAD skills keep working, and old reports and backlog entries stay where
-they are. Until you move them, <code>/agentic-owasp</code> and <code>/agentic-review</code> remind you
-on every run.</p>
+<p>Your PAAD skills keep working, and old reports stay where they are. But
+<strong>new</strong> security findings now land somewhere else. Scripts or CI jobs that read
+<code>paad/owasp-reviews/</code> won’t see new reports there, and if your team shares
+findings by committing PAAD reports, the security ones stop arriving. They
+exist only on the machine that ran the skill.</p>
 
-<p>The major version is because <strong>new</strong> security findings now land somewhere else:</p>
-
-<ul>
-<li>Scripts, CI jobs or anything else outside PAAD that reads
-<code>paad/owasp-reviews/</code> won’t see new reports there.</li>
-<li>If your team shares findings by committing PAAD reports, the security ones
-stop arriving. They exist only on the machine that ran the skill, so share
-them some other way.</li>
-<li><code>paad/security/</code> is scratch space, not a record. <code>git clean -x</code> deletes it.</li>
-</ul>
-
-<h3><a name="what-it-does-not-protect-against"></a>What it does not protect against</h3>
-
-<ul>
-<li><code>git add -f</code>, or deleting <code>paad/security/.gitignore</code>, bypasses it.</li>
-<li>Anything you already committed stays in git history.</li>
-<li>Fixing a weakness commits a diff that shows it, and the count lines in
-committed reports show that security findings exist.</li>
-<li>If a skill can’t write to <code>paad/security/</code> and you tell it to use the
-ordinary report instead, the findings go there.</li>
-<li><code>/test-roadmap</code> and <code>/fix-architecture</code> commit the tests that pin a security
-finding. The tests have neutral names, but they still reproduce the weakness.</li>
-</ul>
-
-<p>If <code>paad/security/</code> is in a state the skills can’t trust (wrong <code>.gitignore</code>,
-or git already tracks something there), they stop and ask you instead of
-writing there.</p>
+<p>It’s a guard rail, not a vault: anything you already committed stays in git
+history. The <a href="https://github.com/Ovid/paad#skill-reference" target="_blank">README<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> lists the
+limits.</p>
 
 <h2><a name="upgrading"></a>Upgrading</h2>
 
@@ -488,26 +455,11 @@ directory already ignores itself; your rule is a second guard in case that
 file gets deleted.</li>
 </ol>
 
-<p>The next three steps are recommended, not required. Old findings keep working
-where they are, but they stay committed, and the last step explains how one
-skill makes that worse.</p>
-
-<ol>
-<li><strong>Move old OWASP reports.</strong> If git tracks them, run
-<code>git rm -r --cached paad/owasp-reviews/</code> and commit that <strong>before</strong> moving
-the files into <code>paad/security/</code>. Don’t use <code>git mv</code>: if git tracks anything
-in <code>paad/security/</code>, the skills stop and ask instead of writing there. Fix or rotate whatever they exposed, because
-history still holds them.</li>
-<li><strong>Move old security backlog entries.</strong> <code>/agentic-review</code> copies
-the entries it matches into <code>paad/security/backlog.md</code> and tells you on every
-run how many are left. Move the rest by hand, then <code>/backlog clean</code> removes
-the committed copies.</li>
-<li><strong>Check old architecture reports before running <code>/fix-architecture</code> on
-them.</strong> A report written by 1.x keeps its security flaws inline.
-<code>/fix-architecture</code> treats those as ordinary flaws, so its commit messages
-name the flaw and the report. Re-run <code>/agentic-architecture</code> to get a 2.0.0
-report, or fix those flaws by hand.</li>
-</ol>
+<p>If you already committed OWASP reports or security backlog entries, the
+<a href="https://github.com/Ovid/paad#skill-reference" target="_blank">README<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> explains how to move
+them. Also, don’t run <code>/fix-architecture</code> on an architecture report written by
+1.x: it keeps security flaws inline, so the commit messages would name them.
+Re-run <code>/agentic-architecture</code> first.</p>
 
 <h2><a name="also-new"></a>Also New</h2>
 
@@ -515,7 +467,7 @@ report, or fix those flaws by hand.</li>
 <code>/agentic-review</code> on your PR, you get items marked as critical, important, or
 “suggestions.” The latter are often items that are out-of-scope for the current
 PR, but should still be addressed. For myself (and as reported by others),
-that’s basically a long-list of items that people don’t pay attention to.</p>
+that’s basically a long list of items that people don’t pay attention to.</p>
 
 <p><code>/backlog</code> helps to fix this.</p>
 
@@ -532,8 +484,8 @@ system? Yes, they are! But I don’t know what you use, so you can now write
 
 <h2><a name="what-didnt-get-in"></a>What Didn’t Get In?</h2>
 
-<p>Right now, PAAD still writes to <code>paad/</code> directories. Fixing this is the most
-common request. Fixing this, however, is a <em>hard</em> problem. The Config system
+<p>Right now, PAAD still writes to <code>paad/</code> directories. Changing this is the most
+common request, but it’s a <em>hard</em> problem. The Config system
 could help, but there are so many approaches to making this actually work that
 I’m unsure of the best.</p>
 
@@ -543,13 +495,8 @@ standardized, and we don’t know where it’s going. I have my personal
 preferences, but they shouldn’t be forced on you the way I picked <code>paad/</code> for
 the top-level directory.</p>
 
-<p>My best thought, right now, is to have a single <code>.paadrc</code> file in the top-level
-directory and perhaps have an agent-assisted <em>deterministic</em> script for
-migration. It’s a significant enough change that I don’t want to risk getting it
-wrong. However, since so many people are finding PAAD valuable with a top-level
-<code>paad/</code> directory, I’ve opted to not change this and wait until we have better
-clarity and a clean(er) migration path. I suspect it will involve templating and
-using scripts for migration, but that introduces a new set of headaches.</p>
+<p>It’s a big enough change that I don’t want to get it wrong, so <code>paad/</code> stays
+until there’s a clean migration path.</p>
 
 <h2><a name="other-changes"></a>Other changes</h2>
 
@@ -659,7 +606,7 @@ skills.</li>
         var disqus_config = function () {
             this.page.url        = "https://curtispoe.org/articles/paad-v2-is-released.html";
             this.page.identifier = "articles/paad-v2-is-released";
-            this.page.title      = "PAAD v2 is Released!";
+            this.page.title      = "PAAD v2: Make It Yours, Keep Your Secrets Out of Git";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -689,7 +636,7 @@ skills.</li>
 
 
 <nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
-<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="tags"></a>Tags</h2>
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
 <ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
