@@ -131,8 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .mft-toolbar { display:flex; justify-content:flex-end; margin-top:8px }
       .mft-button { background:#111; color:#fff; border:0; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; font-size:14px; }
       .mft-button:focus { outline:2px solid #4f46e5; outline-offset:2px }
-      .mft-lightbox { position:fixed; inset:0; background:rgba(15,23,42,.6); display:none; align-items:center; justify-content:center; z-index:2147483647; padding:24px }
-      .mft-lightbox.open { display:flex }
+      /* A modal <dialog>: showModal() traps focus, makes the page inert, closes on
+         Escape and returns focus to the opener. Only [open] may set display. */
+      .mft-lightbox { width:100vw; height:100vh; max-width:none; max-height:none; margin:0; border:0; box-sizing:border-box; background:rgba(15,23,42,.6); align-items:center; justify-content:center; padding:24px }
+      .mft-lightbox[open] { display:flex }
       .mft-panel { background:#fff; border-radius:18px; box-shadow:var(--shadow); max-width:min(1400px,96vw); max-height:92vh; overflow:auto; padding:18px }
       .mft-closebar { position:sticky; top:0; display:flex; justify-content:flex-end; background:transparent; }
       .mft-close { border:0; background:#0f172a; color:#fff; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; }
@@ -164,14 +166,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
 
-      <div class="mft-lightbox" id="mft-lightbox" role="dialog" aria-modal="true" aria-label="Large timeline">
+      <dialog class="mft-lightbox" id="mft-lightbox" aria-label="Large timeline">
         <div class="mft-panel">
           <div class="mft-closebar">
             <button type="button" class="mft-close" id="mft-close" aria-label="Close">Close ✕</button>
           </div>
           <div id="mft-timeline-large"></div>
         </div>
-      </div>
+      </dialog>
     </div>
   `;
 
@@ -367,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnClose  = shadow.getElementById("mft-close");
 
   function openLightbox(){
-    lb.classList.add("open");
+    lb.showModal();
     render(largeRoot, {
       width: Math.min(1400, window.innerWidth-120),
       height: Math.min(820, window.innerHeight-160),
@@ -375,13 +377,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     btnClose && btnClose.focus();
   }
-  function closeLightbox(){ lb.classList.remove("open"); }
+  function closeLightbox(){ lb.close(); }
 
   btnOpen.addEventListener("click", openLightbox);
   btnClose.addEventListener("click", closeLightbox);
   lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
-  const onKey = (e) => { if (e.key === "Escape") closeLightbox(); };
-  document.addEventListener("keydown", onKey);
 
   // 6) Responsive sizing
   const ro = new ResizeObserver(() => {
@@ -399,7 +399,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mo = new MutationObserver(() => {
     if (!document.body.contains(mount)) {
       ro.disconnect();
-      document.removeEventListener("keydown", onKey);
       mo.disconnect();
     }
   });
