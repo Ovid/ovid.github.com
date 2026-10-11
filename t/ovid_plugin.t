@@ -36,7 +36,7 @@ sub validate_unique_ids ($html) {
 
 # Extract footnote content from dialog body
 sub extract_dialog_content ( $html, $number ) {
-    if ( $html =~ m{<div id="dialog-$number"[^>]*>.*?<div>(.*?)</div>}s ) {
+    if ( $html =~ m{<div id="dialog-$number"[^>]*>.*?<div id="note-body-$number">(.*?)</div>}s ) {
         return $1;
     }
     return undef;
@@ -122,8 +122,8 @@ subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
       'Dialog body has role="dialog" attribute';
     like $stored_footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
       'Dialog body has aria-labelledby attribute';
-    like $stored_footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
-      'Dialog body has aria-describedby attribute';
+    like $stored_footnotes->[0]{body}, qr/aria-describedby="note-body-1"/,
+      'Dialog is described by the note itself';
 
     # Test: Dialog body contains the footnote content
     like $stored_footnotes->[0]{body}, qr/First note content/,
@@ -211,8 +211,12 @@ subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub
       'T018: Dialog has role="dialog" ARIA attribute';
     like $footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
       'T018: Dialog has aria-labelledby attribute';
-    like $footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
-      'T018: Dialog has aria-describedby attribute';
+    like $footnotes->[0]{body}, qr{aria-describedby="note-body-1"[^>]*>.*<div id="note-body-1">First JS footnote</div>}s,
+      'T018: Dialog is described by the note body, not a stand-in';
+    like $footnotes->[0]{body}, qr/role="dialog" aria-modal="true"/,
+      'T018: Dialog is modal';
+    unlike $footnotes->[0]{body}, qr/Note number/,
+      'T018: The stand-in description is gone';
     like $footnotes->[0]{body}, qr/aria-hidden="true"/,
       'T018: Dialog has aria-hidden="true" by default (prevents overlay flash)';
 

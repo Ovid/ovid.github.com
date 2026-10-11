@@ -57,11 +57,10 @@ sub add_note ( $self, $note ) {
       = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"><sup>[$number]</sup></a></noscript>};
 
     my $body = <<"HTML";
-    <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number" aria-hidden="true">
+    <div id="dialog-$number" class="dialog" role="dialog" aria-modal="true" aria-labelledby="$id" aria-describedby="note-body-$number" aria-hidden="true">
         <strong id="$id">Footnote #$number</strong>
-        <p id="note-description-$number" class="sr-only">Note number $number</p>
-	    <div>$note</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-$number">$note</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 HTML
 

@@ -12,34 +12,60 @@ function Dialog(dialogEl, overlayEl) {
     this.firstFocusableEl = this.focusableEls[0];
     this.lastFocusableEl = this.focusableEls[ this.focusableEls.length - 1 ];
 
+    // Registered once here; open() used to add a fresh pair on every open.
+    var Dialog = this;
+    this.dialogEl.addEventListener('keydown', function(e) {
+        Dialog._handleKeyDown(e);
+    });
+    this.overlayEl.addEventListener('click', function() {
+        if (Dialog.isOpen) Dialog.close();
+    });
+
+    this.inertEls = [];
     this.close(); // Reset
 }
 
 
 Dialog.prototype.open = function() {
 
-    var Dialog = this;
-
     this.dialogEl.removeAttribute('aria-hidden');
     this.overlayEl.removeAttribute('aria-hidden');
+    this.isOpen = true;
 
     this.focusedElBeforeOpen = document.activeElement;
-
-    this.dialogEl.addEventListener('keydown', function(e) {
-        Dialog._handleKeyDown(e);
-    });
-
-    this.overlayEl.addEventListener('click', function() {
-        Dialog.close();
-    });
+    this._setInert(true);
 
     this.firstFocusableEl.focus();
+};
+
+// aria-modal tells screen readers the rest of the page is off limits;
+// inert makes that true for everyone. Walk from the dialog up to <body>
+// and mark every sibling along the way, remembering what we marked.
+Dialog.prototype._setInert = function(on) {
+    if (!on) {
+        this.inertEls.forEach(function(el) { el.inert = false; });
+        this.inertEls = [];
+        return;
+    }
+    var keep = [this.dialogEl, this.overlayEl];
+    for (var el = this.dialogEl; el && el !== document.body; el = el.parentElement) {
+        var siblings = el.parentElement ? el.parentElement.children : [];
+        for (var i = 0; i < siblings.length; i++) {
+            var sib = siblings[i];
+            if (sib !== el && keep.indexOf(sib) === -1 && !sib.inert && sib.tagName !== 'SCRIPT') {
+                sib.inert = true;
+                this.inertEls.push(sib);
+            }
+        }
+    }
 };
 
 Dialog.prototype.close = function() {
 
     this.dialogEl.setAttribute('aria-hidden', true);
     this.overlayEl.setAttribute('aria-hidden', true);
+    this.isOpen = false;
+    this._setInert(false);
 
     if ( this.focusedElBeforeOpen ) {
         this.focusedElBeforeOpen.focus();
