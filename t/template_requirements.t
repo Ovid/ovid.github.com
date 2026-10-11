@@ -5,6 +5,7 @@ use lib 'lib';
 use Ovid::Template::File;
 use Less::Boilerplate;
 use File::Find::Rule;
+use Path::Tiny qw(path);
 use Test2::Plugin::UTF8;
 
 my @files = sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in( 'root/blog', 'root/articles' );
@@ -45,6 +46,19 @@ subtest 'Page titles are unique' => sub {
     }
     my @dupes = map {"'$_': @{ $seen{$_} }"} grep { $seen{$_}->@* > 1 } sort keys %seen;
     ok !@dupes, 'no two pages share a title' or diag join "\n", @dupes;
+};
+
+# WCAG 4.1.2: an iframe's title is its accessible name. Without one each
+# embed fell back to "YouTube video", so pages with several read as a row of
+# identical frames.
+subtest 'Every YouTube embed is named' => sub {
+    foreach my $file ( sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in('root') ) {
+        my $code = path($file)->slurp_utf8;
+        while ( $code =~ /Ovid\.youtube\(\s*(['"][^'"]+['"])\s*\)/g ) {
+            fail "$file: Ovid.youtube($1) needs a title argument";
+        }
+    }
+    pass 'all Ovid.youtube() calls checked';
 };
 
 done_testing;
