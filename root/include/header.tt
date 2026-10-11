@@ -195,17 +195,24 @@
       dyear  = dparts.0;
       dmonth = dparts.1;
       dday   = dparts.2;
+      # "2019 / 11.01" reads as "eleven point zero one", so screen readers
+      # get this spelled-out date instead and the visual one is hidden.
+      months = [ 'January', 'February', 'March', 'April', 'May', 'June',
+                 'July', 'August', 'September', 'October', 'November', 'December' ];
+      midx   = dmonth - 1;
+      dlong  = (dday + 0) _ ' ' _ months.$midx _ ' ' _ dyear;
     END;
 -%]
     <div class="opener[% IF type == 'blog' %] opener--blog[% END %]">
       <div class="dateblock[% IF date %] is-filled[% END %]">
 [%- IF date %]
-        <span class="dateblock-year">[% dyear %]</span>
-        <span class="dateblock-day"><time datetime="[% date %]">[% dmonth %].[% dday %]</time></span>
+        <span class="dateblock-year" aria-hidden="true">[% dyear %]</span>
+        <span class="dateblock-day" aria-hidden="true">[% dmonth %].[% dday %]</span>
+        <time class="visually-hidden" datetime="[% date %]">[% dlong %]</time>
 [%- END %]
         <span class="dateblock-meta">
 [%- IF type == 'articles' %]Articles[% ELSIF type == 'blog' %]Blog[% END %]
-[%- IF type == 'articles' or type == 'blog' %]<br><span id="time"></span> min read[% END %]
+[%- IF type == 'articles' or type == 'blog' %]<br><span id="time"></span>[% END %]
         </span>
       </div>
       <div class="opener-title">

@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/main.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/image.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=2cee4b42">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=2cee4b42">
-  <script src="/static/js/dark-mode.js?v=2cee4b42" defer></script>
-  <script src="/static/js/code-scroll.js?v=2cee4b42" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=2cee4b42"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/main.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/image.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=0c5b5665">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=0c5b5665">
+  <script src="/static/js/dark-mode.js?v=0c5b5665" defer></script>
+  <script src="/static/js/code-scroll.js?v=0c5b5665" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=0c5b5665"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -248,9 +248,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2024</span>
-        <span class="dateblock-day"><time datetime="2024-02-18">02.18</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2024</span>
+        <span class="dateblock-day" aria-hidden="true">02.18</span>
+        <time class="visually-hidden" datetime="2024-02-18">18 February 2024</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -407,7 +408,9 @@ prompt library for your business.</p>
         const wpm   = "articles" === "articles" ? 250 : 350;
         const words = text.trim().split(/\s+/).length;
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -559,9 +562,9 @@ prompt library for your business.</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=2cee4b42"></script>
+    <script src="/static/js/prism.js?v=0c5b5665"></script>
     
-    <script src="/static/js/collapsible.js?v=2cee4b42"></script>
+    <script src="/static/js/collapsible.js?v=0c5b5665"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -572,7 +575,7 @@ prompt library for your business.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=2cee4b42"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=0c5b5665"></script>
 	  
             <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>

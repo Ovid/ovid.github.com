@@ -19,7 +19,9 @@
         const wpm   = "[% type %]" === "articles" ? 250 : 350;
         const words = text.trim().split(/\s+/).length;
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
