@@ -360,7 +360,7 @@ Ovid::Template::File - Preprocessor for individual Template Toolkit source files
     # Access metadata extracted from the template preamble
     say $file->title;    # 'My Post Title'
     say $file->date;     # '2025-11-16'
-    say $file->type;     # 'article' or 'blog'
+    say $file->type;     # 'articles' or 'blog'
     say $file->slug;     # 'my-post'
     say $file->tags;     # ['perl', 'testing']
 
@@ -414,7 +414,8 @@ Returns the publication date string from the template preamble.
 
     my $type = $file->type;
 
-Returns the content type (typically C<'article'> or C<'blog'>).
+Returns the content type: the output directory name, C<'articles'> or C<'blog'>.
+It is not the singular database type (C<'article'>); templates build URLs from it.
 
 =head2 slug
 

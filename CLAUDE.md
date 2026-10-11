@@ -199,7 +199,7 @@ Articles and blog posts use `.tt` or `.tt2markdown` files with this structure:
 ```tt
 [%
     title            = 'Article Title';
-    type             = 'article';  # or 'blog'
+    type             = 'articles';  # or 'blog' -- must equal the output directory; it builds URLs
     slug             = 'url-slug';
     include_comments = 1;
     syntax_highlight = 1;

@@ -305,7 +305,7 @@ Here's a full article using collapsible sections:
 ```tt
 [%
     title            = 'Understanding Recursion';
-    type             = 'article';
+    type             = 'articles';
     slug             = 'understanding-recursion';
     include_comments = 1;
     date             = '2025-11-16';

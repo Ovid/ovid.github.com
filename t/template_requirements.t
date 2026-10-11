@@ -20,7 +20,7 @@ foreach my $file (@files) {
         ok $date,  "... and a date: $date";
         ok $slug,  "... and a slug: $slug";
         ok $type,  "... and a type: $type";
-        like $file, qr{^root/$type}, '... and the type should match the beginning of the path';
+        like $file, qr{^root/\Q$type\E/}, '... and the type should match the beginning of the path';
 
         # Every article must go through include/wrapper.tt, because that is
         # what supplies <article id="article">. 18 legacy articles included

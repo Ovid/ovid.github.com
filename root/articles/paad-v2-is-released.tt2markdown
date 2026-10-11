@@ -1,0 +1,251 @@
+[%
+    title            = 'PAAD v2 is Released!';
+    type             = 'articles';
+    slug             = 'paad-v2-is-released';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-10-11';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TOC}}
+{{TAGS ai programming}}
+
+# Introduction
+
+Yes, you can [write production-quality code with
+AI](/paad/). PAAD makes it much easier. After weeks of
+testing, [PAAD v2.0.0 is now available on GitHub](https://github.com/Ovid/paad).
+
+There are a variety of changes, but the two big changes really matter.
+
+1. You can now configure PAAD to match how you work.
+2. Security-related findings are in a directory with `.gitignore`.
+
+No skill was renamed or removed, and no arguments changed.
+
+# Make PAAD Yours: Per-project Configuration
+
+Until now, PAAD behaved the way I thought it should. If you wanted something
+different, such as an extra review agent, a house style for reports, output in
+another language or a log of what the verifier threw away, you had to fork
+PAAD, or write a wrapper skill around it, or retype the same instructions on
+every run.
+
+This is a constant problem I hit with every skill collection I use, so I decided
+it should no longer be a problem for PAAD.
+
+Now you write it down once:
+
+- `paad/config/paad.md` applies to _every_ PAAD skill.
+- `paad/config/<skill-name>.md` applies to one skill, such as `paad/config/agentic-review.md`.
+
+These files are plain instructions, written the way you would type them after
+the slash command. The skill reads them when it starts.
+
+Many requests to change PAAD no longer need a change to PAAD. They need a file
+in `paad/config/`. For example, I often work with teams for whom English is a
+second (or third!) language, so inside `paad/config/paad.md`:
+
+```
+Use simplified technical english for all output.
+```
+
+That's a huge win because [Simplified Technical
+English](https://www.asd-ste100.org/) (STE) is specifically designed to
+communicate technical information to those with only a basic command of English.
+I'm a native English speaker, but even I find STE easier to follow.
+
+## Before STE
+
+---
+
+> 🤖 AI Review · src/payments/client.py line 142
+>
+>💡 Suggestion
+>
+> Consider revisiting the retry logic here. While wrapping `submit_payment()` in
+> the `@retry` decorator is a nice resilience improvement, it’s worth noting
+> that this call isn’t idempotent, which could potentially lead to duplicate
+> charges in scenarios where the upstream provider processes the request but the
+> response is lost due to a timeout. You may want to either pass an idempotency
+> key (the provider’s API supports this via the `Idempotency-Key` header) or
+> restrict retries to connection errors that occur before it’s sent. Additionally,
+> the backoff strategy could benefit from jitter to avoid thundering-herd issues
+> under load.  Overall, nice work on improving the robustness of this module! 🚀
+
+---
+
+## After STE
+
+---
+
+> AI Review · `src/payments/client.py` line 142
+>
+> Finding 1 — Severity: High
+>
+> Problem: The `@retry` decorator can send the same payment request two times. If the provider accepts the payment request but the response does not arrive before the timeout, the client sends the payment request again. The customer then pays two times.
+>
+> Fix: Do one of these:
+>
+> Add an `Idempotency-Key` header to each payment request. Use the same key for all retries of that request. Retry only when the connection fails before the client sends the payment request.
+>
+> Finding 2 — Severity: Low
+>
+> Problem: The backoff delays do not have a random component. If many clients fail
+> at the same time, they all retry at the same time. This can put too much load on
+> the provider.
+>
+> Fix: Add a random value (jitter) to each backoff delay.
+
+---
+
+The STE version is much clearer for many readers, but this should not be part of
+PAAD. Instead, you can use the config system to decide this, or other changes,
+for yourself.
+
+Because it's experimental, read [CONFIG.md](https://github.com/Ovid/paad/blob/main/CONFIG.md) before you rely on it.
+Config works best when it *adds* something. A line telling a skill to skip or
+reorder its safety steps can work, but then you are running a different skill
+from the one documented. A `paad/config/` directory in a repo you cloned was
+written by someone else, so read it before you run anything.
+
+# Security findings stay out of your committed reports
+
+`/agentic-owasp` exists to find security problems. `/test-roadmap` regularly
+finds them while it writes tests. Until now, those findings went into reports
+that you commit. For open source projects, if you don't notice this, you could
+be pushing security vulnerabilities to a public repository! Even for
+closed-source repos, there's a good chance you don't want this to happen.
+
+In `v2.0.0`, anything a skill finds that would help an attacker goes to
+`paad/security/` instead. That directory tells git to ignore it. The rule
+covers any OWASP Top 10:2025 category and anything in a payment,
+tenant-isolation or secret-handling path, and borderline cases count as
+security.
+
+Six skills follow it: `agentic-owasp`, `agentic-review`, `test-roadmap`,
+`agentic-architecture`, `pushback` and `agentic-dedup`. Where a security finding
+would have gone, the committed report keeps only a count:
+
+```
+2 security finding(s) written to paad/security/<file>
+```
+
+`/agentic-owasp` no longer writes a committed report at all.
+
+# Why 2.0.0, if nothing breaks?
+
+Your PAAD skills keep working, and old reports and backlog entries stay where
+they are. Until you move them, `/agentic-owasp` and `/agentic-review` remind you
+on every run.
+
+The major version is because **new** security findings now land somewhere else:
+
+- Scripts, CI jobs or anything else outside PAAD that reads
+  `paad/owasp-reviews/` won't see new reports there.
+- If your team shares findings by committing PAAD reports, the security ones
+  stop arriving. They exist only on the machine that ran the skill, so share
+  them some other way.
+- `paad/security/` is scratch space, not a record. `git clean -x` deletes it.
+
+## What it does not protect against
+
+- `git add -f`, or deleting `paad/security/.gitignore`, bypasses it.
+- Anything you already committed stays in git history.
+- Fixing a weakness commits a diff that shows it, and the count lines in
+  committed reports show that security findings exist.
+- If a skill can't write to `paad/security/` and you tell it to use the
+  ordinary report instead, the findings go there.
+- `/test-roadmap` and `/fix-architecture` commit the tests that pin a security
+  finding. The tests have neutral names, but they still reproduce the weakness.
+
+If `paad/security/` is in a state the skills can't trust (wrong `.gitignore`,
+or git already tracks something there), they stop and ask you instead of
+writing there.
+
+# Upgrading
+
+1. **Update the plugin.** In Claude Code: `/plugin` → **Installed** → **paad** →
+   **Update now**, or run `claude plugin update paad@paad`. With npx, run
+   `npx skills@latest add Ovid/paad` again.
+2. **Ignore `paad/security/` yourself as well.** Add it to your root
+   `.gitignore`, or to `.git/info/exclude` to keep the rule private. The
+   directory already ignores itself; your rule is a second guard in case that
+   file gets deleted.
+
+The next three steps are recommended, not required. Old findings keep working
+where they are, but they stay committed, and the last step explains how one
+skill makes that worse.
+
+1. **Move old OWASP reports.** If git tracks them, run
+   `git rm -r --cached paad/owasp-reviews/` and commit that **before** moving
+   the files into `paad/security/`. Don't use `git mv`: if git tracks anything
+   in `paad/security/`, the skills stop and ask instead of writing there. Fix or rotate whatever they exposed, because
+   history still holds them.
+2. **Move old security backlog entries.** `/agentic-review` copies
+   the entries it matches into `paad/security/backlog.md` and tells you on every
+   run how many are left. Move the rest by hand, then `/backlog clean` removes
+   the committed copies.
+3. **Check old architecture reports before running `/fix-architecture` on
+   them.** A report written by 1.x keeps its security flaws inline.
+   `/fix-architecture` treats those as ordinary flaws, so its commit messages
+   name the flaw and the report. Re-run `/agentic-architecture` to get a 2.0.0
+   report, or fix those flaws by hand.
+
+# Also New
+
+Many of these skills create "backlog" items. For example, when running
+`/agentic-review` on your PR, you get items marked as critical, important, or
+"suggestions." The latter are often items that are out-of-scope for the current
+PR, but should still be addressed. For myself (and as reported by others),
+that's basically a long-list of items that people don't pay attention to.
+
+`/backlog` helps to fix this.
+
+- **`/backlog [clean|fix]` (experimental)** works through the out-of-scope bug
+  backlog. `clean` drops entries that are already fixed. `fix` fixes the next entry
+  and removes it only after an independent check confirms the bug is gone. It
+  never commits. See `/paad-help backlog`.
+
+But isn't that just a bunch of "tickets" that belong in a ticket tracking
+system? Yes, they are! But I don't know what you use, so you can now write
+`paad/config/backlog.md` to handle this. This is _your_ PAAD, not mine.
+
+# What Didn't Get In?
+
+Right now, PAAD still writes to `paad/` directories. Fixing this is the most
+common request. Fixing this, however, is a *hard* problem. The Config system
+could help, but there are so many approaches to making this actually work that
+I'm unsure of the best.
+
+Some people want `docs/paad/` to be the top-level directory. Others want
+`.agents/paad/` or `.reviews/`. Frankly, AI metadata is a mess, it's not
+standardized, and we don't know where it's going. I have my personal
+preferences, but they shouldn't be forced on you the way I picked `paad/` for
+the top-level directory.
+
+My best thought, right now, is to have a single `.paadrc` file in the top-level
+directory and perhaps have an agent-assisted _deterministic_ script for
+migration. It's a significant enough change that I don't want to risk getting it
+wrong. However, since so many people are finding PAAD valuable with a top-level
+`paad/` directory, I've opted to not change this and wait until we have better
+clarity and a clean(er) migration path. I suspect it will involve templating and
+using scripts for migration, but that introduces a new set of headaches.
+
+# Other changes
+
+- **`/rethink`, `/test-roadmap` and `/handoff` are no longer experimental.**
+  Their arguments and output now get the same semver promise as the other
+  skills.
+- **Report headers record the model and PAAD version** that produced them.
+- **Skills are less likely to stall after announcing themselves.**
+- **`/paad-help` links to the full tutorial** at [curtispoe.org/paad/](/paad/).
+
+Full details are in [CHANGELOG.md](https://github.com/Ovid/paad/blob/main/CHANGELOG.md).
+
+[%- END %]

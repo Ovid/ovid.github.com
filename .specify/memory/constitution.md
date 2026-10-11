@@ -157,7 +157,7 @@ All articles and blog posts MUST be authored using the "blogdown" format:
 ```tt
 [%
     title            = 'Article Title';
-    type             = 'article';  # or 'blog'
+    type             = 'articles';  # or 'blog' -- must equal the output directory; it builds URLs
     slug             = 'url-slug';
     include_comments = 1;
     syntax_highlight = 1;
