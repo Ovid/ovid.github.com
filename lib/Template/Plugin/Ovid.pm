@@ -299,9 +299,12 @@ An HTML string containing:
 
 =item * Interactive collapsible section with unique IDs
 
-=item * ARIA attributes for accessibility (aria-expanded, aria-controls, role="button")
+=item * C<aria-controls> on the trigger, and C<role="region"> with
+C<aria-labelledby> on the content
 
-=item * Keyboard navigation support (Enter/Space keys)
+=item * No C<role="button">, C<tabindex> or C<aria-expanded> in this output:
+without JavaScript nothing toggles, so F<collapsible.js> adds them, along with
+Enter/Space key handling, when it hides the content
 
 =item * Noscript fallback showing both short and full content
 
