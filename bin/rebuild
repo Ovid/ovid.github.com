@@ -19,10 +19,14 @@ my $site = Ovid::Site->new(
     release    => $options{release},
     maybe file => $options{file},
 );
-$site->build;
+$site->build;    # dies (exit 255) on a ttree/template error
 
-system( 'prove', '-l', 't' ) unless $options{notest};
-exit 0;
+exit 0 if $options{notest};
+
+# Propagate test failures; this used to exit 0 whatever prove said.
+# -r so t/integration/ and other subdirectories run too.
+system( 'prove', '-rl', 't' );
+exit( $? == 0 ? 0 : 1 );
 
 __END__
 
@@ -62,3 +66,9 @@ with the search engine.
 Skips running the tests. Not recommended.
 
 =back
+
+=head1 EXIT STATUS
+
+0 when the build succeeds and (unless B<--notest>) every test passes; 1 when
+any test fails; 255 when the build itself dies, such as on a Template Toolkit
+parse error.
