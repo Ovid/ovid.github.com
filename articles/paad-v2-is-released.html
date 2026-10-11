@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
+  <script>
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/paad-v2-is-released">
+  
+  <meta property="og:title" content="PAAD v2 is Released!">
+  <meta property="og:description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/paad-v2-is-released">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>PAAD v2 is Released!</title>
+  <meta name="description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
+  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
+  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— Politics, programming, and prose</i></a>
+        <div class="masthead-tools">
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    function doSearch() {
+      let value = document.getElementById("demo").value;
+      console.log(`Search query: ${value}`);
+
+      const results = search(value, 5);
+
+      console.log(`Results: ${results}`);
+
+      let ul = document.getElementById("results");
+      ul.innerHTML = "";
+
+      for (i = 0; i < results.length; i++) {
+        var li = document.createElement("li");
+
+        let [title, url] = results[i];
+        let elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+
+        ul.appendChild(li);
+      }
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+    }
+  </script>
+
+<button id="theme-toggle" aria-label="Toggle Dark Mode">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+        </div>
+      </div>
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure" open>
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year">2026</span>
+        <span class="dateblock-day"><time datetime="2026-10-11">10.11</time></span>
+        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>PAAD v2 is Released!</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <aside class="marginalia is-filled">
+
+
+<ul class="inline" role="navigation" aria-label="Tag list for this articles">
+    <li>Tags:</li>
+
+    <li><a href="/tags/ai">AI</a> </li>
+
+    <li><a href="/tags/programming">Software</a> </li>
+
+</ul>
+
+
+      </aside>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/be-skeptical-of-ai-studies" class="prevPost">&laquo; Be Skeptical of AI Studies</a>
+    </div>
+
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
+
+
+<article id="article">
+<p><nav role="navigation" class="table-of-contents">
+    <ul>
+    <li class="indent-1"><a href="#introduction">Introduction</a></li>
+    <li class="indent-1"><a href="#make-paad-yours-per-project-configuration">Make PAAD Yours: Per-project Configuration</a></li>
+    <li class="indent-2"><a href="#before-ste">Before STE</a></li>
+    <li class="indent-2"><a href="#after-ste">After STE</a></li>
+    <li class="indent-1"><a href="#security-findings-stay-out-of-your-committed-reports">Security findings stay out of your committed reports</a></li>
+    <li class="indent-1"><a href="#why-200-if-nothing-breaks">Why 2.0.0, if nothing breaks?</a></li>
+    <li class="indent-2"><a href="#what-it-does-not-protect-against">What it does not protect against</a></li>
+    <li class="indent-1"><a href="#upgrading">Upgrading</a></li>
+    <li class="indent-1"><a href="#also-new">Also New</a></li>
+    <li class="indent-1"><a href="#what-didnt-get-in">What Didn’t Get In?</a></li>
+    <li class="indent-1"><a href="#other-changes">Other changes</a></li>
+    </ul>
+</nav>
+<hr></p>
+
+<h2><a name="introduction"></a>Introduction</h2>
+
+<p>Yes, you can <a href="/paad/">write production-quality code with
+AI</a>. PAAD makes it much easier. After weeks of
+testing, <a href="https://github.com/Ovid/paad" target="_blank">PAAD v2.0.0 is now available on GitHub</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+<p>There are are a variety of changes, but the two big changes really matter.</p>
+
+<ol>
+<li>You can now configure PAAD to match how you work.</li>
+<li>Security-related findings are in a directory with <code>.gitignore</code>.</li>
+</ol>
+
+<p>No skill was renamed or removed, and no arguments changed.</p>
+
+<h2><a name="make-paad-yours-per-project-configuration"></a>Make PAAD Yours: Per-project Configuration</h2>
+
+<p>Until now, PAAD behaved the way I thought it should. If you wanted something
+different, such as an extra review agent, a house style for reports, output in
+another language or a log of what the verifier threw away, you had to fork
+PAAD, or write a wrapper skill around it, or retype the same instructions on
+every run.</p>
+
+<p>This is a constant problem I hit with every skill collection I use, so I decided
+it should no longer be a problem for PAAD.</p>
+
+<p>Now you write it down once:</p>
+
+<ul>
+<li><code>paad/config/paad.md</code> applies to <em>every</em> PAAD skill.</li>
+<li><code>paad/config/&lt;skill-name&gt;.md</code> applies to one skill, such as <code>paad/config/agentic-review.md</code>.</li>
+</ul>
+
+<p>These files are plain instructions, written the way you would type them after
+the slash command. The skill reads them when it starts.</p>
+
+<p>Many requests to change PAAD no longer need a change to PAAD. They need a file
+in <code>paad/config/</code>. For example, I often work with teams for whom English is a
+second (or third!) language, so inside <code>paad/config/paad.md</code>:</p>
+
+<div class="shadow"><pre class="scrolled"><code>Use simplified technical english for all output.
+</code></pre></div>
+
+<p>That’s a huge win because <a href="https://www.asd-ste100.org/" target="_blank">Simplified Technical
+English</a> <span class="fa fa-external-link fa_custom"></span> (STE) is specifically designed to
+communicate technical information to those with only a basic command of English.
+I’m a native English speaker, but even I find STE easier to follow.</p>
+
+<h3><a name="before-ste"></a>Before STE</h3>
+
+<hr />
+
+<blockquote>
+  <p>🤖 AI Review · src/payments/client.py line 142</p>
+  
+  <p>💡 Suggestion</p>
+  
+  <p>Consider revisiting the retry logic here. While wrapping <code>submit_payment()</code> in
+  the <code>@retry</code> decorator is a nice resilience improvement, it’s worth noting
+  that this call isn’t idempotent, which could potentially lead to duplicate
+  charges in scenarios where the upstream provider processes the request but the
+  response is lost due to a timeout. You may want to either pass an idempotency
+  key (the provider’s API supports this via the <code>Idempotency-Key</code> header) or
+  restrict retries to connection errors that occur before it’s sent. Additionally,
+  the backoff strategy could benefit from jitter to avoid thundering-herd issues
+  under load.  Overall, nice work on improving the robustness of this module! 🚀</p>
+</blockquote>
+
+<hr />
+
+<h3><a name="after-ste"></a>After STE</h3>
+
+<hr />
+
+<blockquote>
+  <p>AI Review · <code>src/payments/client.py</code> line 142</p>
+  
+  <p>Finding 1 — Severity: High</p>
+  
+  <p>Problem: The <code>@retry</code> decorator can send the same payment request two times. If the provider accepts the payment request but the response does not arrive before the timeout, the client sends the payment request again. The customer then pays two times.</p>
+  
+  <p>Fix: Do one of these:</p>
+  
+  <p>Add an <code>Idempotency-Key</code> header to each payment request. Use the same key for all retries of that request. Retry only when the connection fails before the client sends the payment request.</p>
+  
+  <p>Finding 2 — Severity: Low</p>
+  
+  <p>Problem: The backoff delays do not have a random component. If many clients fail
+  at the same time, they all retry at the same time. This can put too much load on
+  the provider.</p>
+  
+  <p>Fix: Add a random value (jitter) to each backoff delay.</p>
+</blockquote>
+
+<hr />
+
+<p>The STE version is much clearer for many readers, but this should not be part of
+PAAD. Instead, you can use the config system to decide this, or other changes,
+for yourself.</p>
+
+<p>Because it’s experimental, read <a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank">CONFIG.md</a> <span class="fa fa-external-link fa_custom"></span> before you rely on it.
+Config works best when it <em>adds</em> something. A line telling a skill to skip or
+reorder its safety steps can work, but then you are running a different skill
+from the one documented. A <code>paad/config/</code> directory in a repo you cloned was
+written by someone else, so read it before you run anything.</p>
+
+<h2><a name="security-findings-stay-out-of-your-committed-reports"></a>Security findings stay out of your committed reports</h2>
+
+<p><code>/agentic-owasp</code> exists to find security problems. <code>/test-roadmap</code> regularly
+finds them while it writes tests. Until now, those findings went into reports
+that you commit. For open source projects, if you don’t notice this, you could
+be pushing security vulnerabilities to a public repository! Even for
+closed-source repos, there’s a good chance you don’t want this to happen.</p>
+
+<p>In <code>v2.0.0</code>, anything a skill finds that would help an attacker goes to
+<code>paad/security/</code> instead. That directory tells git to ignore it. The rule
+covers any OWASP Top 10:2025 category and anything in a payment,
+tenant-isolation or secret-handling path, and borderline cases count as
+security.</p>
+
+<p>Six skills follow it: <code>agentic-owasp</code>, <code>agentic-review</code>, <code>test-roadmap</code>,
+<code>agentic-architecture</code>, <code>pushback</code> and <code>agentic-dedup</code>. Where a security finding
+would have gone, the committed report keeps only a count:</p>
+
+<div class="shadow"><pre class="scrolled"><code>2 security finding(s) written to paad/security/&lt;file&gt;
+</code></pre></div>
+
+<p><code>/agentic-owasp</code> no longer writes a committed report at all.</p>
+
+<h2><a name="why-200-if-nothing-breaks"></a>Why 2.0.0, if nothing breaks?</h2>
+
+<p>Your PAAD skills keep working, and old reports and backlog entries stay where
+they are. Until you move them, <code>/agentic-owasp</code> and <code>/agentic-review</code> remind you
+on every run.</p>
+
+<p>The major version is because <strong>new</strong> security findings now land somewhere else:</p>
+
+<ul>
+<li>Scripts, CI jobs or anything else outside PAAD that reads
+<code>paad/owasp-reviews/</code> won’t see new reports there.</li>
+<li>If your team shares findings by committing PAAD reports, the security ones
+stop arriving. They exist only on the machine that ran the skill, so share
+them some other way.</li>
+<li><code>paad/security/</code> is scratch space, not a record. <code>git clean -x</code> deletes it.</li>
+</ul>
+
+<h3><a name="what-it-does-not-protect-against"></a>What it does not protect against</h3>
+
+<ul>
+<li><code>git add -f</code>, or deleting <code>paad/security/.gitignore</code>, bypasses it.</li>
+<li>Anything you already committed stays in git history.</li>
+<li>Fixing a weakness commits a diff that shows it, and the count lines in
+committed reports show that security findings exist.</li>
+<li>If a skill can’t write to <code>paad/security/</code> and you tell it to use the
+ordinary report instead, the findings go there.</li>
+<li><code>/test-roadmap</code> and <code>/fix-architecture</code> commit the tests that pin a security
+finding. The tests have neutral names, but they still reproduce the weakness.</li>
+</ul>
+
+<p>If <code>paad/security/</code> is in a state the skills can’t trust (wrong <code>.gitignore</code>,
+or git already tracks something there), they stop and ask you instead of
+writing there.</p>
+
+<h2><a name="upgrading"></a>Upgrading</h2>
+
+<ol>
+<li><strong>Update the plugin.</strong> In Claude Code: <code>/plugin</code> → <strong>Installed</strong> → <strong>paad</strong> →
+<strong>Update now</strong>, or run <code>claude plugin update paad@paad</code>. With npx, run
+<code>npx skills@latest add Ovid/paad</code> again.</li>
+<li><strong>Ignore <code>paad/security/</code> yourself as well.</strong> Add it to your root
+<code>.gitignore</code>, or to <code>.git/info/exclude</code> to keep the rule private. The
+directory already ignores itself; your rule is a second guard in case that
+file gets deleted.</li>
+</ol>
+
+<p>Steps 3–5 are recommended, not required. Old findings keep working where
+they are, but they stay committed, and step 5 explains how one skill makes
+that worse.</p>
+
+<ol>
+<li><strong>Move old OWASP reports.</strong> If git tracks them, run
+<code>git rm -r --cached paad/owasp-reviews/</code> and commit that <strong>before</strong> moving
+the files into <code>paad/security/</code>. Don’t use <code>git mv</code>: if git tracks anything
+in <code>paad/security/</code>, the skills stop and ask instead of writing there. Fix or rotate whatever they exposed, because
+history still holds them.</li>
+<li><strong>Move old security backlog entries.</strong> <code>/agentic-review</code> copies
+the entries it matches into <code>paad/security/backlog.md</code> and tells you on every
+run how many are left. Move the rest by hand, then <code>/backlog clean</code> removes
+the committed copies.</li>
+<li><strong>Check old architecture reports before running <code>/fix-architecture</code> on
+them.</strong> A report written by 1.x keeps its security flaws inline.
+<code>/fix-architecture</code> treats those as ordinary flaws, so its commit messages
+name the flaw and the report. Re-run <code>/agentic-architecture</code> to get a 2.0.0
+report, or fix those flaws by hand.</li>
+</ol>
+
+<h2><a name="also-new"></a>Also New</h2>
+
+<p>Many of these skills create “backlog” items. For example, when running
+<code>/agentic-review</code> on your PR, you get items marked as critical, important, or
+“suggestions.” The latter are often items that are out-of-scope for the current
+PR, but should still be addressed. For myself (and as reported by others),
+that’s basically a long-list of items that people don’t pay attention to.</p>
+
+<p><code>/backlog</code> helps to fix this.</p>
+
+<ul>
+<li><strong><code>/backlog [clean|fix]</code> (experimental)</strong> works through the out-of-scope bug
+backlog. <code>clean</code> drops entries that are already fixed. <code>fix</code> fixes the next entry
+and removes it only after an independent check confirms the bug is gone. It
+never commits. See <code>/paad-help backlog</code>.</li>
+</ul>
+
+<p>But isn’t that just a bunch of “tickets” that belong in a ticket tracking
+system? Yes, they are! But I don’t know what you use, so you can now write
+<code>paad/config/backlog.md</code> to handle this. This is <em>your</em> PAAD, not mine.</p>
+
+<h2><a name="what-didnt-get-in"></a>What Didn’t Get In?</h2>
+
+<p>Right now, PAAD still writes to <code>paad/</code> directories. Fixing this is the most
+common request. Fixing this, however, is a <em>hard</em> problem. The Config system
+could help, but there are so many approaches to making this actually work that
+I’m unsure of the best.</p>
+
+<p>Some people want <code>docs/paad/</code> to be the top-level directory. Others want
+<code>.agents/paad/</code> or <code>.reviews/</code>. Frankly, AI metadata is a mess, it’s not
+standardized, and we don’t know where it’s going. I have my personal
+preferences, but they shouldn’t be forced on you the way I picked <code>paad/</code> for
+the top-level directory.</p>
+
+<p>My best thought, right now, is to have a single <code>.paadrc</code> file in the top-level
+directory and perhaps have an agent-assisted <em>deterministic</em> script for
+migration. It’s a significant enough change that I don’t want to risk getting it 
+wrong. However, since so many people are finding PAAD valuable with a top-level 
+<code>paad/</code> directory, I’ve opted to not change this and wait until we have better 
+clarity and a clean(er) migration path. I suspect it will involve templating and 
+using scripts for migration, but that introduces a new set of headaches. </p>
+
+<h2><a name="other-changes"></a>Other changes</h2>
+
+<ul>
+<li><strong><code>/rethink</code>, <code>/test-roadmap</code> and <code>/handoff</code> are no longer experimental.</strong>
+Their arguments and output now get the same semver promise as the other
+skills.</li>
+<li><strong>Report headers record the model and PAAD version</strong> that produced them.</li>
+<li><strong>Skills are less likely to stall after announcing themselves.</strong></li>
+<li><strong><code>/paad-help</code> links to the full tutorial</strong> at https://curtispoe.org/paad/.</li>
+</ul>
+
+<p>Full details are in <a href="https://github.com/Ovid/paad/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const text  = document.getElementById("article").innerText;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        const words = text.trim().split(/\s+/).length;
+        const time  = Math.ceil(words / wpm);
+        document.getElementById("time").innerText = time;
+    }
+    readingTime();
+</script>
+
+
+
+<!-- map images pop up when you click them -->
+<div id="overlay" class="overlay"></div>
+<script>
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.createElement('img');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        overlay.replaceChildren(overlayImage);
+        overlay.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.image-container img');
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                showOverlay(this);
+            });
+        });
+
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', hideOverlay);
+    });
+</script>
+
+
+
+<hr>
+        <div class="prevNext">
+        <a href="/articles/be-skeptical-of-ai-studies" class="prevPost">&laquo; Be Skeptical of AI Studies</a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read <a href="/about">more about me</a>
+          to learn more about my background.</p>
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/paad-v2-is-released.html";
+            this.page.identifier = "articles/paad-v2-is-released";
+            this.page.title      = "PAAD v2 is Released!";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
+
+
+<strong>Tags</strong>
+<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+
+    <li><a href="/tags/programming" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/business" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/ai" data-weight="6">AI</a></li>
+
+    <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
+
+    <li><a href="/tags/corinna" data-weight="3">Corinna</a></li>
+
+    <li><a href="/tags/writing" data-weight="3">Writing</a></li>
+
+    <li><a href="/tags/databases" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/math" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/personal" data-weight="2">Personal</a></li>
+
+    <li><a href="/tags/politics" data-weight="2">Politics</a></li>
+
+    <li><a href="/tags/science" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/space" data-weight="2">Space</a></li>
+
+    <li><a href="/tags/expat" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/family" data-weight="1">Family</a></li>
+
+</ul>
+
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+
+    
+    <script src="/static/js/prism.js?v=b5c18134"></script>
+    
+    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+	
+</body>
+</html>
+
+
