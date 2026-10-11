@@ -176,6 +176,25 @@ subtest 'static handler still serves legitimate site content' => sub {
     };
 };
 
+# The after hook rewrites the response to inject dev tools. Dancer2 2.2+
+# re-encodes on every content() assignment, so writing back the already
+# encoded bytes double-encoded every non-ASCII character ("·" -> "Â·").
+subtest 'injected HTML responses are not double-encoded' => sub {
+    test_psgi $app => sub {
+        my $cb   = shift;
+        my $file = 'articles/paad-v2-is-released.html';
+        my $raw  = path($file)->slurp_raw;
+        my ($sample) = $raw =~ /(AI Review \xC2\xB7)/
+          or return fail "$file no longer contains the UTF-8 sample";
+
+        my $res = $cb->( GET "/$file" );
+        is $res->code, 200, "$file served";
+        like $res->content, qr/window\.DEV_MODE/, 'dev tools injected';
+        ok index( $res->content, $sample ) >= 0,
+          'non-ASCII bytes are served exactly as on disk';
+    };
+};
+
 subtest 'GET / serves index.html directly without redirect' => sub {
     test_psgi $app => sub {
         my $cb  = shift;
