@@ -87,4 +87,34 @@ JS
     }
 };
 
+subtest 'reading time ignores visually-hidden text' => sub {
+
+    # innerText includes clipped text such as "(opens in new tab)", so a
+    # link-heavy post's estimate grew with every screen-reader cue.
+    SKIP: {
+        my $node = `command -v node 2>/dev/null`;
+        chomp $node;
+        skip 'node not available', 1 unless $node;
+
+        my $footer = path('root/include/footer.tt')->slurp_utf8;
+        my ($js) = $footer =~ /(function readingTime\(\).*?\n    \})/s;
+        ok $js, 'found readingTime() in footer.tt';
+        $js =~ s/\[% type %\]/blog/g;
+
+        # 350 visible words is exactly one minute for a blog post; 50 hidden
+        # cues push it to two if they are counted.
+        my $harness = <<'JS';
+const article = {
+  innerText: Array(350).fill('word').join(' ') + Array(50).fill(' (opens in new tab)').join(''),
+  querySelectorAll: () => Array(50).fill({ textContent: ' (opens in new tab)' }),
+};
+const time = {};
+global.document = { getElementById: id => id === 'article' ? article : time };
+JS
+        my $script = Path::Tiny->tempfile( SUFFIX => '.js' );
+        $script->spew( $harness, $js, "\nreadingTime();\nconsole.log(time.innerText);\n" );
+        is `$node $script 2>&1`, "1 min read\n", 'hidden cues do not lengthen the estimate';
+    }
+};
+
 done_testing;
