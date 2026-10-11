@@ -12,9 +12,9 @@ use Test::MockModule;
 # Test Helper Subroutines for Footnote Testing
 #
 
-# Extract footnote dialog spans from HTML
+# Extract footnote dialog buttons from HTML
 sub extract_footnote_dialogs ($html) {
-    my @dialogs = $html =~ m{<span[^>]*class="[^"]*open-dialog[^"]*"[^>]*>.*?</span>}gs;
+    my @dialogs = $html =~ m{<button[^>]*class="[^"]*open-dialog[^"]*"[^>]*>.*?</button>}gs;
     return @dialogs;
 }
 
@@ -77,8 +77,8 @@ my @hrefs = (
     $ovid->add_note('footnote 2')
 );
 my @expected = (
-    '<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>',
-    '<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>',
+    '<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>',
+    '<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>',
 );
 
 eq_or_diff \@hrefs, \@expected,
@@ -102,10 +102,10 @@ ok ref($footnotes) eq 'ARRAY', 'get_footnotes() should return an array reference
 subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
     my $test_ovid = Template::Plugin::Ovid->new(undef);
 
-    # Test: add_note() returns span with open-dialog class
+    # Test: add_note() returns button with open-dialog class
     my $result1 = $test_ovid->add_note('First note content');
     like $result1, qr/class="[^"]*open-dialog[^"]*"/,
-      'add_note() returns span with open-dialog class';
+      'add_note() returns button with open-dialog class';
     like $result1, qr/id="open-dialog-1"/,
       'add_note() generates correct sequential ID';
 
@@ -187,12 +187,12 @@ subtest 'US3: NoScript section in footer output' => sub {
 subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub {
     my $test_ovid = Template::Plugin::Ovid->new(undef);
 
-    # Test T016: add_note generates span with open-dialog class
+    # Test T016: add_note generates button with open-dialog class
     my $result1 = $test_ovid->add_note('First JS footnote');
-    like $result1, qr/<span[^>]*class="[^"]*open-dialog[^"]*"/,
-      'T016: add_note() generates span with open-dialog class for JavaScript mode';
+    like $result1, qr/<button type="button"[^>]*class="[^"]*open-dialog[^"]*"/,
+      'T016: add_note() generates button with open-dialog class for JavaScript mode';
     like $result1, qr/class="[^"]*js-only[^"]*"/,
-      'T016: Span should have js-only class to hide when JS disabled';
+      'T016: Button should have js-only class to hide when JS disabled';
 
     # Test T017: add_note generates unique dialog IDs
     my $result2 = $test_ovid->add_note('Second JS footnote');

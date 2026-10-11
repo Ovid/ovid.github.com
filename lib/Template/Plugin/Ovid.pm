@@ -40,10 +40,12 @@ sub add_note ( $self, $note ) {
     my $number = $self->{footnote_number}++;
     my $id     = "note-$number";
 
-    # JavaScript-enabled mode: span that triggers dialog
+    # JavaScript-enabled mode: button that triggers dialog. A native button
+    # gets keyboard focus and Enter/Space for free, and Dialog.js returns
+    # focus to it on close.
     # Hidden when JS is disabled via CSS (see static/css/dialog.css)
     my $dialog
-      = qq{<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
+      = qq{<button type="button" class="open-dialog js-only" id="open-dialog-$number" aria-haspopup="dialog" aria-controls="dialog-$number"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote $number</span></button>};
 
     # NoScript mode: anchor link to footnote at end of article (Feature 002)
     # Shows superscript number instead of icon for better UX
