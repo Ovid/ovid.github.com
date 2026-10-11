@@ -71,23 +71,23 @@ subtest '_get_pagination produces nav HTML or empty string' => sub {
         'single page total returns empty string';
 
     my $page1 = $site->_get_pagination( 3, 1, $article_type );
-    like $page1, qr{<nav class="pagination">},               'opens nav';
-    like $page1, qr{<span class="inactive">&laquo;</span>},  'prev is inactive on page 1';
-    like $page1, qr{<a class="active" href="/blog">1</a>},   'page 1 marked active';
-    like $page1, qr{<a  href="/blog_2">2</a>},               'page 2 link present';
-    like $page1, qr{<a  href="/blog_3">3</a>},               'page 3 link present';
-    like $page1, qr{<a href="/blog_2">&raquo;</a>},          'next links to page 2';
+    like $page1, qr{<nav class="pagination" aria-label="Pagination">}, 'opens nav';
+    like $page1, qr{<span class="inactive" aria-hidden="true">&laquo;</span>},'prev is inactive on page 1';
+    like $page1, qr{<a class="active" aria-current="page" href="/blog">1</a>}, 'page 1 marked active';
+    like $page1, qr{<a href="/blog_2">2</a>},               'page 2 link present';
+    like $page1, qr{<a href="/blog_3">3</a>},               'page 3 link present';
+    like $page1, qr{<a href="/blog_2" aria-label="Next page">&raquo;</a>},          'next links to page 2';
     like $page1, qr{</nav>\z},                                'closes nav';
 
     my $page2 = $site->_get_pagination( 3, 2, $article_type );
-    like $page2, qr{<a href="/blog">&laquo;</a>},            'prev links back to page 1';
-    like $page2, qr{<a class="active" href="/blog_2">2</a>}, 'page 2 marked active';
-    like $page2, qr{<a href="/blog_3">&raquo;</a>},          'next links to page 3';
+    like $page2, qr{<a href="/blog" aria-label="Previous page">&laquo;</a>},            'prev links back to page 1';
+    like $page2, qr{<a class="active" aria-current="page" href="/blog_2">2</a>}, 'page 2 marked active';
+    like $page2, qr{<a href="/blog_3" aria-label="Next page">&raquo;</a>},          'next links to page 3';
 
     my $page3 = $site->_get_pagination( 3, 3, $article_type );
-    like $page3, qr{<a href="/blog_2">&laquo;</a>},          'prev links to page 2';
-    like $page3, qr{<a class="active" href="/blog_3">3</a>}, 'page 3 marked active';
-    like $page3, qr{<span class="inactive">&raquo;</span>},  'next is inactive on last page';
+    like $page3, qr{<a href="/blog_2" aria-label="Previous page">&laquo;</a>},          'prev links to page 2';
+    like $page3, qr{<a class="active" aria-current="page" href="/blog_3">3</a>}, 'page 3 marked active';
+    like $page3, qr{<span class="inactive" aria-hidden="true">&raquo;</span>},'next is inactive on last page';
 };
 
 subtest '_get_pagination emits extensionless hrefs' => sub {

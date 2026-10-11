@@ -510,27 +510,27 @@ SQL
 
     sub _get_pagination ( $self, $total, $current, $article_type ) {
         return '' if $total == 1;
-        my $pagination = qq{<nav class="pagination">\n};
+        my $pagination = qq{<nav class="pagination" aria-label="Pagination">\n};
         if ( $current > 1 ) {
             my $prev    = $current - 1;
             my $article = $self->_article_page( $prev, $article_type );
-            $pagination .= qq{    <a href="/$article">&laquo;</a>\n};
+            $pagination .= qq{    <a href="/$article" aria-label="Previous page">&laquo;</a>\n};
         }
         else {
-            $pagination .= qq{    <span class="inactive">&laquo;</span>\n};
+            $pagination .= qq{    <span class="inactive" aria-hidden="true">&laquo;</span>\n};
         }
         for my $page ( 1 .. $total ) {
-            my $class   = $page == $current ? 'class="active"' : '';
-            my $article = $self->_article_page( $page, $article_type );
-            $pagination .= qq{    <a $class href="/$article">$page</a>\n};
+            my $current_attr = $page == $current ? ' class="active" aria-current="page"' : '';
+            my $article      = $self->_article_page( $page, $article_type );
+            $pagination .= qq{    <a$current_attr href="/$article">$page</a>\n};
         }
         if ( $current < $total ) {
             my $next    = $current + 1;
             my $article = $self->_article_page( $next, $article_type );
-            $pagination .= qq{    <a href="/$article">&raquo;</a>\n};
+            $pagination .= qq{    <a href="/$article" aria-label="Next page">&raquo;</a>\n};
         }
         else {
-            $pagination .= qq{    <span class="inactive">&raquo;</span>\n};
+            $pagination .= qq{    <span class="inactive" aria-hidden="true">&raquo;</span>\n};
         }
         $pagination .= "</nav>";
         return $pagination;
