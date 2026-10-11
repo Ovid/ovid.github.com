@@ -142,7 +142,10 @@ human who isn't watching.
 =cut
 
 sub prompt ($question) {
-    unless ( -t STDIN ) {
+
+    # The question is whether *input* is a terminal; is_interactive() checks
+    # STDOUT, so a piped test harness would block on the readline again.
+    unless ( -t STDIN ) {    ## no critic (ProhibitInteractiveTest)
         print "$question ";
         my $answer = <STDIN> // '';
         chomp $answer;

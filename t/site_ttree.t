@@ -181,7 +181,7 @@ subtest '_resolve_source returns .tt when only .tt exists' => sub {
 subtest '_resolve_source returns undef when neither source extension exists' => sub {
     _in_tempdir sub ($tempdir) {
         my $site = Ovid::Site->new;
-        is $site->_resolve_source('articles_2.html'),
+        is scalar $site->_resolve_source('articles_2.html'),
             undef,
             'undef returned when neither .tt2markdown nor .tt is on disk';
     };

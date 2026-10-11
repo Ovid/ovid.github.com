@@ -738,7 +738,7 @@ END
             my $candidate = "root/$stem.$ext";
             return $candidate if -f $candidate;
         }
-        return undef;
+        return;
     }
 
     sub _get_git_lastmod ( $self, $file ) {    # for sitemap
@@ -989,7 +989,7 @@ END
                 return $parser->get_trimmed_text;
             }
         }
-        return undef;
+        return;
     }
 
     sub _extract_article_text ( $self, $html ) {
