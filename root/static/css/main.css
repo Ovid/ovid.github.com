@@ -327,7 +327,14 @@ button:focus-visible {
     .nav-links li + li::before { display: none; }
     .nav-links a { padding: .5rem 0; }
     .nav-links a[aria-current]::after { display: none; }
-    .nav-links a[aria-current] { color: var(--accent); }
+    /* The bar is hidden here, so colour alone would mark the current page
+       (WCAG 1.4.1); the underline is the non-colour cue. */
+    .nav-links a[aria-current] {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: .35em;
+    }
     .nav-links .nav-feed { margin-left: .6rem; display: inline; }
 }
 
