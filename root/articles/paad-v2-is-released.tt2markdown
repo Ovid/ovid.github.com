@@ -21,7 +21,7 @@ Yes, you can [write production-quality code with
 AI](/paad/). PAAD makes it much easier. After weeks of
 testing, [PAAD v2.0.0 is now available on GitHub](https://github.com/Ovid/paad).
 
-There are are a variety of changes, but the two big changes really matter.
+There are a variety of changes, but the two big changes really matter.
 
 1. You can now configure PAAD to match how you work.
 2. Security-related findings are in a directory with `.gitignore`.
@@ -178,20 +178,20 @@ writing there.
    directory already ignores itself; your rule is a second guard in case that
    file gets deleted.
 
-Steps 3–5 are recommended, not required. Old findings keep working where
-they are, but they stay committed, and step 5 explains how one skill makes
-that worse.
+The next three steps are recommended, not required. Old findings keep working
+where they are, but they stay committed, and the last step explains how one
+skill makes that worse.
 
-3. **Move old OWASP reports.** If git tracks them, run
+1. **Move old OWASP reports.** If git tracks them, run
    `git rm -r --cached paad/owasp-reviews/` and commit that **before** moving
    the files into `paad/security/`. Don't use `git mv`: if git tracks anything
    in `paad/security/`, the skills stop and ask instead of writing there. Fix or rotate whatever they exposed, because
    history still holds them.
-4. **Move old security backlog entries.** `/agentic-review` copies
+2. **Move old security backlog entries.** `/agentic-review` copies
    the entries it matches into `paad/security/backlog.md` and tells you on every
    run how many are left. Move the rest by hand, then `/backlog clean` removes
    the committed copies.
-5. **Check old architecture reports before running `/fix-architecture` on
+3. **Check old architecture reports before running `/fix-architecture` on
    them.** A report written by 1.x keeps its security flaws inline.
    `/fix-architecture` treats those as ordinary flaws, so its commit messages
    name the flaw and the report. Re-run `/agentic-architecture` to get a 2.0.0
@@ -231,11 +231,11 @@ the top-level directory.
 
 My best thought, right now, is to have a single `.paadrc` file in the top-level
 directory and perhaps have an agent-assisted _deterministic_ script for
-migration. It's a significant enough change that I don't want to risk getting it 
-wrong. However, since so many people are finding PAAD valuable with a top-level 
-`paad/` directory, I've opted to not change this and wait until we have better 
-clarity and a clean(er) migration path. I suspect it will involve templating and 
-using scripts for migration, but that introduces a new set of headaches. 
+migration. It's a significant enough change that I don't want to risk getting it
+wrong. However, since so many people are finding PAAD valuable with a top-level
+`paad/` directory, I've opted to not change this and wait until we have better
+clarity and a clean(er) migration path. I suspect it will involve templating and
+using scripts for migration, but that introduces a new set of headaches.
 
 # Other changes
 
@@ -244,7 +244,7 @@ using scripts for migration, but that introduces a new set of headaches.
   skills.
 - **Report headers record the model and PAAD version** that produced them.
 - **Skills are less likely to stall after announcing themselves.**
-- **`/paad-help` links to the full tutorial** at https://curtispoe.org/paad/.
+- **`/paad-help` links to the full tutorial** at [curtispoe.org/paad/](/paad/).
 
 Full details are in [CHANGELOG.md](https://github.com/Ovid/paad/blob/main/CHANGELOG.md).
 
