@@ -22,6 +22,15 @@
     border-top: 2px solid var(--accent);
     box-shadow: 0 18px 50px rgba(0, 0, 0, .22);
     text-align: left;
+    /* A long note at high zoom must scroll, not run off the screen with
+       the close button (WCAG 1.4.10). vh first for browsers without dvh. */
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+}
+
+@media (max-width: 40em) {
+    .dialog { padding: 2rem 1.25rem 1.5rem; }
 }
 
 /* "Footnote" -- a signpost, so Archivo, matching the nav and metadata. */
