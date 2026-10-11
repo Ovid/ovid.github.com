@@ -3,6 +3,7 @@ package Template::Plugin::Ovid;
 use Less::Boilerplate;
 use Less::Script ();    # import nothing
 use Path::Tiny 'path';
+use HTML::Entities 'encode_entities';
 use Ovid::Site::AI::Images;
 use Ovid::Site::Utils qw(
   get_image_description
@@ -32,7 +33,10 @@ sub image_type ( $self, $image ) {
 }
 
 sub cite ( $self, $path, $name ) {
-    return sprintf '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>' => $path,
+    return
+      sprintf
+      '<a href="%s" target="_blank">%s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>'
+      => $path,
       $name;
 }
 
@@ -40,10 +44,12 @@ sub add_note ( $self, $note ) {
     my $number = $self->{footnote_number}++;
     my $id     = "note-$number";
 
-    # JavaScript-enabled mode: span that triggers dialog
+    # JavaScript-enabled mode: button that triggers dialog. A native button
+    # gets keyboard focus and Enter/Space for free, and Dialog.js returns
+    # focus to it on close.
     # Hidden when JS is disabled via CSS (see static/css/dialog.css)
     my $dialog
-      = qq{<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-$number"> <i class="fa fa-clipboard fa_custom"></i> </span>};
+      = qq{<button type="button" class="open-dialog js-only" id="open-dialog-$number" aria-haspopup="dialog" aria-controls="dialog-$number"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote $number</span></button>};
 
     # NoScript mode: anchor link to footnote at end of article (Feature 002)
     # Shows superscript number instead of icon for better UX
@@ -51,11 +57,10 @@ sub add_note ( $self, $note ) {
       = qq{<noscript><a href="#footnote-$number" id="footnote-$number-return" aria-label="Footnote $number"><sup>[$number]</sup></a></noscript>};
 
     my $body = <<"HTML";
-    <div id="dialog-$number" class="dialog" role="dialog" aria-labelledby="$id" aria-describedby="note-description-$number" aria-hidden="true">
+    <div id="dialog-$number" class="dialog" role="dialog" aria-modal="true" aria-labelledby="$id" aria-describedby="note-body-$number" aria-hidden="true">
         <strong id="$id">Footnote #$number</strong>
-        <p id="note-description-$number" class="sr-only">Note number $number</p>
-	    <div>$note</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-$number">$note</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-$number"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 HTML
 
@@ -91,16 +96,15 @@ sub collapse ( $self, $short_description, $full_content ) {
     my $processed_content = $blogdown->filter($full_content);
 
     # Build HTML structure with ARIA attributes (T016, T017, T018)
-    # Progressive enhancement: content visible by default (no-JS), hidden by JavaScript
+    # Progressive enhancement: content visible by default (no-JS), hidden by
+    # JavaScript. Without JS nothing toggles, so the trigger is not a button
+    # yet: collapsible.js adds role, tabindex and aria-expanded. Its name is
+    # the visible short description.
     my $html = <<"HTML";
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="$trigger_id"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="$content_id"
-         aria-label="Expand: $short_description">
+         aria-controls="$content_id">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">$short_description</span>
     </div>
@@ -123,16 +127,22 @@ sub note ( $self, @args ) { $self->add_note(@args) }
 
 # NOTE: Called from Template Toolkit templates (publicspeaking.tt, videos.tt2markdown, multiple articles)
 # Embeds YouTube videos in responsive containers. Static analysis cannot detect template usage.
-sub youtube ( $self, $youtube_id ) {
+#
+# $title is the iframe's accessible name (WCAG 4.1.2); pass the talk title.
+sub youtube ( $self, $youtube_id, $title = 'YouTube video' ) {
     if ( $youtube_id =~ m{/} ) {
         croak("Youtube id '$youtube_id' id does not appear to be valid");
     }
+    $title = encode_entities( $title, q{<>&"} );
     return <<"HTML";
 <div class="video-responsive">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	<iframe width="560" height="315" title="$title" src="https://www.youtube.com/embed/$youtube_id" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 HTML
 }
+
+# NOTE: Called from root/include/header.tt for the screen-reader date.
+sub human_date ( $self, $date ) { Ovid::Site::Utils::human_date($date) }
 
 sub describe_image( $self, $image ) {
 
@@ -231,6 +241,13 @@ and has a link back to the footnote reference.
 
 Returns true if any footnotes have been added.
 
+=head2 C<human_date($date)>
+
+    [% Ovid.human_date('2019-11-01') %]    # 1 November 2019
+
+Spells out an ISO date for screen readers. Malformed dates are returned
+unchanged. See L<Ovid::Site::Utils/human_date>.
+
 =head2 C<collapse($short_description, $full_content)>
 
     [% Ovid.collapse("Click to see code example", "~~~perl
@@ -281,9 +298,12 @@ An HTML string containing:
 
 =item * Interactive collapsible section with unique IDs
 
-=item * ARIA attributes for accessibility (aria-expanded, aria-controls, role="button")
+=item * C<aria-controls> on the trigger, and C<role="region"> with
+C<aria-labelledby> on the content
 
-=item * Keyboard navigation support (Enter/Space keys)
+=item * No C<role="button">, C<tabindex> or C<aria-expanded> in this output:
+without JavaScript nothing toggles, so F<collapsible.js> adds them, along with
+Enter/Space key handling, when it hides the content
 
 =item * Noscript fallback showing both short and full content
 

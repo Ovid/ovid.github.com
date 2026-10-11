@@ -16,7 +16,8 @@ use Test2::Plugin::UTF8;
 use Cwd        qw(getcwd);
 use Path::Tiny qw(path);
 use Ovid::Site;
-use TestHelper::Site qw(make_test_dbh);
+use Ovid::Site::Utils qw(human_date);
+use TestHelper::Site  qw(make_test_dbh);
 
 my $cwd = getcwd();
 END { chdir $cwd }
@@ -144,16 +145,16 @@ subtest 'descriptions are escaped, titles too' => sub {
     unlike $html, qr/<script>/, 'no raw script tag survives';
 };
 
-subtest '_human_date formats and refuses to guess' => sub {
-    is $site->_human_date('2026-08-08'), '8 August 2026',    'leading zeroes dropped';
-    is $site->_human_date('2025-12-31'), '31 December 2025', 'December is December';
-    is $site->_human_date('2025-01-01'), '1 January 2025',   'January is January';
+subtest 'human_date formats and refuses to guess' => sub {
+    is human_date('2026-08-08'), '8 August 2026',    'leading zeroes dropped';
+    is human_date('2025-12-31'), '31 December 2025', 'December is December';
+    is human_date('2025-01-01'), '1 January 2025',   'January is January';
 
     # A bare $MONTH[$month - 1] turns each of these into December.
-    is $site->_human_date('2025-00-01'), '2025-00-01', 'month 00 passed through';
-    is $site->_human_date('2025-13-01'), '2025-13-01', 'month 13 passed through';
-    is $site->_human_date('not a date'), 'not a date', 'junk passed through';
-    is $site->_human_date(undef),        undef,        'undef passed through';
+    is human_date('2025-00-01'), '2025-00-01', 'month 00 passed through';
+    is human_date('2025-13-01'), '2025-13-01', 'month 13 passed through';
+    is human_date('not a date'), 'not a date', 'junk passed through';
+    is human_date(undef),        undef,        'undef passed through';
 };
 
 subtest 'the type label is the singular of the article type' => sub {

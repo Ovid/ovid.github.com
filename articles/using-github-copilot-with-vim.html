@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2023</span>
-        <span class="dateblock-day"><time datetime="2023-05-26">05.26</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2023</span>
+        <span class="dateblock-day" aria-hidden="true">05.26</span>
+        <time class="visually-hidden" datetime="2023-05-26">26 May 2023</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,20 +268,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/ai">AI</a> </li>
+        <li><a href="/tags/ai">AI</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/all-around-the-world-celebrating-ten-years" class="prevPost">&laquo; All Around the World: Celebrating Ten Years</a>
@@ -271,7 +314,7 @@ suspicious.</p>
 
 <p>Today’s AI revolution is having similar effects. People are losing their jobs to
 ChatGPT. Companies are turning to Stable Diffusion and other AI systems to
-generate images. And now <a href="https://github.com/features/copilot" target="_blank">Github Copilot</a> <span class="fa fa-external-link fa_custom"></span>
+generate images. And now <a href="https://github.com/features/copilot" target="_blank">Github Copilot<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 is here to write code for us.</p>
 
 <p>I tend to be a late adopter of software. It’s not that I’m a Luddite. I just
@@ -284,7 +327,7 @@ give Copilot a try.</p>
 search engine for instructions.</p>
 
 <p>First, you’ll need neovim or a relatively recent vim and install the <a href="https://github.com/github/copilot.vim" target="_blank">Github
-Copilot vim plugin</a> <span class="fa fa-external-link fa_custom"></span>. I confess that after
+Copilot vim plugin<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I confess that after
 two decades with vim, and having a <em>highly</em> customized vim setup, I was a bit
 nervous about whether or not Copilot was going to play well with my setup. There
 were a few slight bumps in the road.</p>
@@ -304,7 +347,7 @@ added the following to the bottom of my <code>~/.vimrc</code>:</p>
 Perl.</p>
 
 <p>If you have extremely large files, <a href="https://til.codeinthehole.com/posts/how-to-automatically-disable-github-copilot-in-vim-when-editing-large-files/" target="_blank">you may want to disable Copilot in
-those</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+those<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-vim"> autocmd BufReadPre *
      \ let f=getfsize(expand(&quot;&lt;afile&gt;&quot;))
@@ -378,7 +421,7 @@ goodness for Copilot.</p>
 <p>Did I say “humbling” already? Yeah, humbling.</p>
 
 <p>And then what blew me away happened this weekend. I was porting the <a href="https://github.com/openskynetwork/opensky-api" target="_blank">OpenSky
-API</a> <span class="fa fa-external-link fa_custom"></span> from Python to Perl. What I
+API<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> from Python to Perl. What I
 often do when porting code is to take the code and paste it into my editor as a
 comment and follow along while porting. I was using the following Python:</p>
 
@@ -446,7 +489,7 @@ still work. If you <em>need</em> to check if you have results, you can still cal
 <p>To be fair, there are serious concerns about Copilot. It’s trained on code from
 a variety of sources, including code that is copyrighted. <a href="https://www.techtarget.com/searchsoftwarequality/news/252526359/Developers-warned-GitHub-Copilot-code-may-be-licensed" target="_blank">There’s an ongoing
 class action lawsuit as a result of
-this</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+this<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>But rather go into a number of issues with Copilot, I’ll point to the elephant
 in the room: developers are going to lose jobs because of this. This technology
@@ -469,8 +512,8 @@ will improve as a result.</p>
 to being able to describe our software and having it written for us.</p>
 
 <p>Note: <a href="https://github.com/Ovid/opensky-api" target="_blank">the OpenSky code I wrote using Copilot is available on
-github</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://metacpan.org/pod/OpenSky::API" target="_blank">the
-CPAN</a> <span class="fa fa-external-link fa_custom"></span>. I’ve already had one bug report
+github<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and <a href="https://metacpan.org/pod/OpenSky::API" target="_blank">the
+CPAN<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I’ve already had one bug report
 (my bug, not Copilot’s) and I fixed it and released this morning, along with
 more tests.</p>
 
@@ -487,16 +530,22 @@ more tests.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -504,8 +553,12 @@ more tests.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -516,25 +569,26 @@ more tests.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -577,8 +631,8 @@ more tests.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -588,8 +642,9 @@ more tests.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -622,6 +677,7 @@ more tests.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -638,12 +694,12 @@ more tests.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -184,7 +224,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2023</span>
-        <span class="dateblock-day"><time datetime="2023-10-04">10.04</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2023</span>
+        <span class="dateblock-day" aria-hidden="true">10.04</span>
+        <time class="visually-hidden" datetime="2023-10-04">4 October 2023</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,20 +268,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/science">Science</a> </li>
+        <li><a href="/tags/science">Science</a></li>
 
-    <li><a href="/tags/space">Space</a> </li>
+        <li><a href="/tags/space">Space</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/searching-for-alien-life" class="prevPost">&laquo; Searching for Alien Life</a>
@@ -255,22 +298,28 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-2"><a href="#the-tyranny-of-the-rocket-equation">The Tyranny of the Rocket Equation</a></li>
-    <li class="indent-2"><a href="#how-to-get-to-mars">How to Get to Mars</a></li>
-    <li class="indent-2"><a href="#how-to-get-to-mars-extra-credit">How to Get to Mars, Extra Credit</a></li>
-    <li class="indent-2"><a href="#the-physics-of-perseverance">The Physics of Perseverance</a></li>
-    <li class="indent-2"><a href="#rocket-engineering">Rocket Engineering</a></li>
-    <li class="indent-2"><a href="#rocket-fuels">Rocket Fuels</a></li>
-    <li class="indent-2"><a href="#nuclear-thermal-rockets">Nuclear Thermal Rockets</a></li>
-    <li class="indent-2"><a href="#max-q-and-bernoullis-principle">Max q and Bernoulli’s Principle</a></li>
-    <li class="indent-2"><a href="#re-entry-and-hypersonic-flight">Re-entry and Hypersonic Flight</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#introduction">Introduction</a>
+<ul>
+<li><a href="#the-tyranny-of-the-rocket-equation">The Tyranny of the Rocket Equation</a></li>
+<li><a href="#how-to-get-to-mars">How to Get to Mars</a></li>
+<li><a href="#how-to-get-to-mars-extra-credit">How to Get to Mars, Extra Credit</a></li>
+<li><a href="#the-physics-of-perseverance">The Physics of Perseverance</a></li>
+<li><a href="#rocket-engineering">Rocket Engineering</a></li>
+<li><a href="#rocket-fuels">Rocket Fuels</a></li>
+<li><a href="#nuclear-thermal-rockets">Nuclear Thermal Rockets</a></li>
+<li><a href="#max-q-and-bernoullis-principle">Max q and Bernoulli’s Principle</a></li>
+<li><a href="#re-entry-and-hypersonic-flight">Re-entry and Hypersonic Flight</a></li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="introduction"></a>Introduction</h2>
 
@@ -279,7 +328,7 @@ pride. The new space race, known in the industry as “NewSpace”, is driven by
 entrepreneurs, looking to make record profits. Science fiction is replete with
 stories of the horrors of corporate space colonies, charging workers for the
 very air they breathe and denying them basic rights. These seem far-fetched, but
-our <a href="https://explorethearchive.com/company-towns" target="_blank">history shows the dangers</a> <span class="fa fa-external-link fa_custom"></span>.
+our <a href="https://explorethearchive.com/company-towns" target="_blank">history shows the dangers<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Even if well-intentioned, what happens when you’re living in a mining colony
 asteroid owned by Asteroids, Inc. and they go bankrupt?</p>
 
@@ -294,8 +343,8 @@ taking the next steps to get there.</p>
 
 <p>But how does it all work? Why is it so hard? What the hell is “max q”?</p>
 
-<p><a href="https://www.marssociety.ca/" target="_blank">The Mars Society of Canada</a> <span class="fa fa-external-link fa_custom"></span> has published a series
-of blog posts by <a href="https://www.marssociety.ca/author/jinmars/" target="_blank">Jin Sing Sia</a> <span class="fa fa-external-link fa_custom"></span>
+<p><a href="https://www.marssociety.ca/" target="_blank">The Mars Society of Canada<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> has published a series
+of blog posts by <a href="https://www.marssociety.ca/author/jinmars/" target="_blank">Jin Sing Sia<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 about rocket physics. They’re introductory articles, but they’ll get you up
 to speed pretty quickly on the basics. You don’t even need to know advanced
 math.</p>
@@ -308,7 +357,7 @@ necessary.</p>
 
 <h3><a name="the-tyranny-of-the-rocket-equation"></a>The Tyranny of the Rocket Equation</h3>
 
-<p><a href="https://www.marssociety.ca/2021/01/07/rocket-physics-the-rocket-equation/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/01/07/rocket-physics-the-rocket-equation/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>If you follow space news, you may have heard about the tyranny of the rocket
 equation. In short, if you have a small amount of fuel, your thrust won’t last
@@ -318,7 +367,7 @@ add, the harder it is to lift the rocket.</p>
 
 <h3><a name="how-to-get-to-mars"></a>How to Get to Mars</h3>
 
-<p><a href="https://www.marssociety.ca/2021/01/22/rocket-physics-how-to-go-to-mars/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/01/22/rocket-physics-how-to-go-to-mars/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Ever wonder why Mars only has “launch windows” every 26 months? What’s a
 “Hohmann transfer orbit”? Can we get to Mars faster than the projected nine
@@ -326,7 +375,7 @@ months?</p>
 
 <h3><a name="how-to-get-to-mars-extra-credit"></a>How to Get to Mars, Extra Credit</h3>
 
-<p><a href="https://www.marssociety.ca/2021/02/04/rocket-physics-the-hard-way-how-to-go-to-mars-extra-credit/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/02/04/rocket-physics-the-hard-way-how-to-go-to-mars-extra-credit/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Discover the basics of orbital mechanics. They were touched on in the previous
 article, but this one goes a bit more in-depth. You can skip it if you want, but
@@ -337,7 +386,7 @@ learn what “perigee” and “apogee” are!</p>
 
 <h3><a name="the-physics-of-perseverance"></a>The Physics of Perseverance</h3>
 
-<p><a href="https://www.marssociety.ca/2021/02/17/rocket-physics-physics-of-perseverance/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/02/17/rocket-physics-physics-of-perseverance/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>By now, you know the Perseverance rover is cruising around Mars, taking selfies,
 doing amazing science and generally having a blast—up until the point when she
@@ -345,9 +394,9 @@ realizes she doesn’t have a ride home.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/perserverence.gif" width="600" alt="The Perseverance Rover on Mars.">
-    <figcaption>The Perseverance Rover on Mars took a selfie. </figcaption>
+        <a href="/static/images/perserverence.gif" class="enlarge"><img src="/static/images/perserverence.gif" width="600" alt="The Perseverance Rover on Mars."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The Perseverance Rover on Mars took a selfie. </figcaption>
 </figure></p>
 
 <p>The fact that Perseverance was able to land on Mars at all is amazing. The “sky
@@ -356,7 +405,7 @@ explains the approach, atmospheric entry, descent, and landing.</p>
 
 <h3><a name="rocket-engineering"></a>Rocket Engineering</h3>
 
-<p><a href="https://www.marssociety.ca/2021/03/04/rocket-engine-engineering/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/03/04/rocket-engine-engineering/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Did you know that your car’s engine is more mechanically complicated than most
 rocket engines? On the other hand, your car’s engine doesn’t burn hot enough to
@@ -364,7 +413,7 @@ melt the engine. Learn why rocket science ain’t easy.</p>
 
 <h3><a name="rocket-fuels"></a>Rocket Fuels</h3>
 
-<p><a href="https://www.marssociety.ca/2021/03/25/rocket-fuel/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/03/25/rocket-fuel/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Liquid hydrogen is one of the best fuels for rockets, so why don’t more rockets
 use it? What is hydrazine? Why do we use hypergolic fuels when they’re so
@@ -372,7 +421,7 @@ dangerous? Wait, what’s a hypergolic fuel?</p>
 
 <h3><a name="nuclear-thermal-rockets"></a>Nuclear Thermal Rockets</h3>
 
-<p><a href="https://www.marssociety.ca/2021/04/08/nuclear-thermal-rockets/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/04/08/nuclear-thermal-rockets/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Nuclear rocket engines are amazingly powerful. Their exhaust also tends to be
 amazingly radioactive. And if a launch goes poorly, you can’t just use your FTS
@@ -381,7 +430,7 @@ everyone with radioactive waste. So why are we considering them?</p>
 
 <h3><a name="max-q-and-bernoullis-principle"></a>Max q and Bernoulli’s Principle</h3>
 
-<p><a href="https://www.marssociety.ca/2021/05/13/max-q-and-bernoullis-principle/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/05/13/max-q-and-bernoullis-principle/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Max q and Bernoulli’s Principle are two terms you often hear when space nuts
 discuss rockets. Understanding them helps to explain, amongst other things, why
@@ -389,12 +438,12 @@ the opening scene to the otherwise excellent film (and book), “The Martian”,
 so unrealistic.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/ej3ioOneTy8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="The Martian - Official Trailer" src="https://www.youtube.com/embed/ej3ioOneTy8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <h3><a name="re-entry-and-hypersonic-flight"></a>Re-entry and Hypersonic Flight</h3>
 
-<p><a href="https://www.marssociety.ca/2021/06/24/rocket-physics-the-hard-way-re-entry-and-hypersonic-flight/" target="_blank">link</a> <span class="fa fa-external-link fa_custom"></span></p>
+<p><a href="https://www.marssociety.ca/2021/06/24/rocket-physics-the-hard-way-re-entry-and-hypersonic-flight/" target="_blank">link<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>You know space capsules have heat shields to protect them from the heat of
 reentry to our atmosphere, right? It’s not because of friction.</p>
@@ -423,16 +472,22 @@ we will.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -440,8 +495,12 @@ we will.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -452,25 +511,26 @@ we will.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -513,8 +573,8 @@ we will.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -524,8 +584,9 @@ we will.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -558,6 +619,7 @@ we will.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -574,12 +636,12 @@ we will.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

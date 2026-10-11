@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2024</span>
-        <span class="dateblock-day"><time datetime="2024-01-17">01.17</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2024</span>
+        <span class="dateblock-day" aria-hidden="true">01.17</span>
+        <time class="visually-hidden" datetime="2024-01-17">17 January 2024</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,22 +268,24 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/ai">AI</a> </li>
+        <li><a href="/tags/ai">AI</a></li>
 
-    <li><a href="/tags/business">Business</a> </li>
+        <li><a href="/tags/business">Business</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/dont-start-with-microservices" class="prevPost">&laquo; Don&#39;t Start with Microservices</a>
@@ -257,37 +300,46 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#preface">Preface</a></li>
-    <li class="indent-1"><a href="#my-shopping-app">My Shopping App</a></li>
-    <li class="indent-1"><a href="#why-not-copilot">Why Not Copilot?</a></li>
-    <li class="indent-1"><a href="#my-first-prompt">My First Prompt</a></li>
-    <li class="indent-1"><a href="#challenges">Challenges</a></li>
-    <li class="indent-2"><a href="#no-editor-integration">No Editor Integration</a></li>
-    <li class="indent-2"><a href="#context-length">Context Length</a></li>
-    <li class="indent-2"><a href="#xcode-is-buggy">XCode is Buggy</a></li>
-    <li class="indent-2"><a href="#mansplaining-as-a-service">Mansplaining as a Service</a></li>
-    <li class="indent-1"><a href="#criticisms">Criticisms</a></li>
-    <li class="indent-2"><a href="#you-dont-need-chatgpt">You Don’t Need ChatGPT</a></li>
-    <li class="indent-2"><a href="#hallucinations">Hallucinations</a></li>
-    <li class="indent-2"><a href="#bad-code">“Bad” Code</a></li>
-    <li class="indent-1"><a href="#the-near-future">The Near Future</a></li>
-    <li class="indent-1"><a href="#the-far-future">The Far Future</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#my-shopping-app">My Shopping App</a></li>
+<li><a href="#why-not-copilot">Why Not Copilot?</a></li>
+<li><a href="#my-first-prompt">My First Prompt</a></li>
+<li><a href="#challenges">Challenges</a>
+<ul>
+<li><a href="#no-editor-integration">No Editor Integration</a></li>
+<li><a href="#context-length">Context Length</a></li>
+<li><a href="#xcode-is-buggy">XCode is Buggy</a></li>
+<li><a href="#mansplaining-as-a-service">Mansplaining as a Service</a></li>
+</ul>
+</li>
+<li><a href="#criticisms">Criticisms</a>
+<ul>
+<li><a href="#you-dont-need-chatgpt">You Don’t Need ChatGPT</a></li>
+<li><a href="#hallucinations">Hallucinations</a></li>
+<li><a href="#bad-code">“Bad” Code</a></li>
+</ul>
+</li>
+<li><a href="#the-near-future">The Near Future</a></li>
+<li><a href="#the-far-future">The Far Future</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="preface"></a>Preface</h2>
 
 <p>I’ve been asked to speak at the <a href="https://www.perl-workshop.de/" target="_blank">2024 German Perl/Raku Workshop in
-Frankfurt</a> <span class="fa fa-external-link fa_custom"></span> and the theme of this year’s workshop
+Frankfurt<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and the theme of this year’s workshop
 is Generational AI. I’ve been using <a href="/articles/using-github-copilot-with-vim">Copilot for
 Vim</a> and doing work with Python
-and the <a href="https://ai.meta.com/llama/" target="_blank">Llama-2</a> <span class="fa fa-external-link fa_custom"></span> large language model, so I figured
+and the <a href="https://ai.meta.com/llama/" target="_blank">Llama-2<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> large language model, so I figured
 I’d have no problem contributing, but first I had better brush up on my AI
-background. The ensuing rabbit hole was a nightmare, but worth it. <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+background. The ensuing rabbit hole was a nightmare, but worth it. <button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>I’ve been working with ChatGPT 4 long enough and seen enough articles about
 people building full applications with it that I thought it was time to give it
@@ -312,9 +364,9 @@ this means I can make these apps even faster.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/chatgpt-shopping.png" width="600" alt="XCode project of my Shopping App">
-    <figcaption>XCode project of my Shopping App </figcaption>
+        <a href="/static/images/chatgpt-shopping.png" class="enlarge"><img src="/static/images/chatgpt-shopping.png" width="600" alt="XCode project of my Shopping App"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>XCode project of my Shopping App </figcaption>
 </figure></p>
 
 <p>It’s worth noting that while I’ve done Android development with Kotlin, I know
@@ -328,7 +380,7 @@ I’ve never looked back. Until now.</p>
 
 <p>You might be wondering why I didn’t just use Copilot? First, <a href="https://github.com/intitni/CopilotForXcode?tab=readme-ov-file#installation-and-setup" target="_blank">Copilot
 integration with XCode is incredibly
-painful</a> <span class="fa fa-external-link fa_custom"></span>
+painful<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and after a long time fighting with it, XCode finally had Copilot, but I
 couldn’t get it to make any suggestions, so I just gave up. It wasn’t the point
 of what I was trying to do.</p>
@@ -337,7 +389,7 @@ of what I was trying to do.</p>
 moment—the problems with hallucinations, you can think of Copilot as
 autocomplete for methods. Where do I put those methods in an XCode application?
 I had no clue. ChatGPT, however, is autocomplete for <em>ideas</em>. It’s “top down”
-instead of “bottom up” and that’s exactly what I needed.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+instead of “bottom up” and that’s exactly what I needed.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <h2><a name="my-first-prompt"></a>My First Prompt</h2>
 
@@ -352,9 +404,9 @@ requirements for the application that the customer (me) would need.</p>
   
   <ol>
   <li>The app should allow me to enter and delete food items to buy.</li>
-  <li>Each entry should have a checkbox to the left. Unchecked items should appear at the top, checked items at the bottom.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></li>
+  <li>Each entry should have a checkbox to the left. Unchecked items should appear at the top, checked items at the bottom.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></li>
   <li>At the top of the screen should be a large title which says “Shopping.”</li>
-  <li>At the bottom of the screen should be two buttons. One says “Alpha” and the other says “Frequency.”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript></li>
+  <li>At the bottom of the screen should be two buttons. One says “Alpha” and the other says “Frequency.”<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript></li>
   <li>If I click on the button which says “Alpha”, all items should be sorted first by unchecked and the checked status. A secondary, alphabetical sort for each checked and unchecked section.</li>
   <li>If I click on the button which says “Frequency,” all items should be sorted first by unchecked and the checked status. A secondary, sort for the frequency with which I first entered or unchecked each item.</li>
   <li>The application needs storage to save the number of times I’ve entered or unchecked each item.</li>
@@ -369,7 +421,7 @@ requirements for the application that the customer (me) would need.</p>
 version below,
 but rather than overwhelm the reader, <a href="https://docs.google.com/document/d/1gDMIBPKL2eb4ublOI0cgNeF2AqciNtF64mYpAqiUUOE/edit?usp=sharing" target="_blank">I’ve included the full transcript in this
 Google
-document</a> <span class="fa fa-external-link fa_custom"></span>.
+document<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 I’ve turned on commenting on that document, so feel free to add your own.</p>
 
 <blockquote>
@@ -441,7 +493,7 @@ length.</p>
 <p>Early versions of ChatGPT had a “context length” of about 2,000 tokens. The
 context length is how much of the conversation the language model remembers.
 These aren’t just words, they’re tokens. Consider the sentence “I ain’t done
-here.” Four words, but five tokens:<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript></p>
+here.” Four words, but five tokens:<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript></p>
 
 <ol>
 <li>“I”</li>
@@ -473,7 +525,7 @@ conversation.</p>
 <p>For ChatGPT 4, we’re just over 4,000 tokens in context length. That’s about
 3,000 words, or roughly the length of a standard book chapter. For long,
 extended work building an application, we need to resort to <a href="https://blog.gdeltproject.org/googles-bard-vs-openais-chatgpt-summarizing-an-abc-evening-news-broadcast/" target="_blank">prompt
-chaining</a> <span class="fa fa-external-link fa_custom"></span>
+chaining<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 (which can be very problematic because you still lose context) or embedding
 relevant snippets of code from previous parts of the conversation to help
 ChatGPT “remember” what it was doing. This requires more attention on the part
@@ -489,14 +541,14 @@ applications and have ChatGPT follow along.</p>
 code. Even a 128K context length isn’t going to follow that.</p>
 
 <p>As an aside, <a href="https://www.makeuseof.com/how-to-use-chatgpt-as-an-interactive-rpg/" target="_blank">people are having fun using ChatGPT to create text
-adventures</a> <span class="fa fa-external-link fa_custom"></span>,
+adventures<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 but the 4K context length means ChatGPT will often “forget” previous parts of
 the story. ChatGPT 4-turbo will be a real game changer (heh) here.</p>
 
 <h3><a name="xcode-is-buggy"></a>XCode is Buggy</h3>
 
 <p>Curiously, one of the biggest challenges wasn’t ChatGPT, it was XCode. I had
-just updated to the latest version<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> and on several occasions, I found myself staring at what looked
+just updated to the latest version<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> and on several occasions, I found myself staring at what looked
 like perfectly valid code, but XCode was throwing an error about variables not
 being in scope, even though they appeared to be.  ChatGPT assured me my code was
 correct, so I’d back out changes and redo them, trying to be sure I hadn’t
@@ -543,7 +595,7 @@ what I wanted.</p>
 <p>It was not doing what I wanted. I explained this to ChatGPT several times and it
 repeated the same incorrect information several times. While <a href="https://techcrunch.com/2023/10/17/stack-overflow-cuts-28-of-its-staff/" target="_blank">StackOverflow is
 slowing being killed by
-AI</a> <span class="fa fa-external-link fa_custom"></span>, it
+AI<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, it
 gave me the answer that ChatGPT could not. I needed to add this:</p>
 
 <div class="shadow"><pre class="scrolled"><code>.onSubmit {
@@ -562,9 +614,9 @@ ChatGPT and made the corrections manually.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/finger-moon.png" width="600" alt="A finger pointing at the moon. The fingernail is dirty.">
-    <figcaption>Image by <a target="_blank" href="https://openai.com/dall-e-3">DALL-E</a> </figcaption>
+        <a href="/static/images/finger-moon.png" class="enlarge"><img src="/static/images/finger-moon.png" width="600" alt="A finger pointing at the moon. The fingernail is dirty."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Image by <a target="_blank" href="https://openai.com/dall-e-3">DALL-E<span class="visually-hidden"> (opens in new tab)</span></a> </figcaption>
 </figure></p>
 
 <p>When I’ve shared bits of this story before, I’ve had people tell me I can just
@@ -574,11 +626,11 @@ pen and paper. I have my phone in my pocket and I want an app that
 does exactly what I want and that’s what I now have.</p>
 
 <p>What if I want to write an application that grabs <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">The Astronomy Picture of the
-Day</a> <span class="fa fa-external-link fa_custom"></span> from NASA and sets that as my
+Day<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> from NASA and sets that as my
 phone’s background?</p>
 
 <p>What if I want to write an application that grabs the headlines from
-<a href="https://spacenews.com/" target="_blank">SpaceNews</a> <span class="fa fa-external-link fa_custom"></span>, presents them to me in a list, and let’s me
+<a href="https://spacenews.com/" target="_blank">SpaceNews<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, presents them to me in a list, and let’s me
 click through, but presents a short summary of each article instead (with a link
 to the full article) instead of the entire text?</p>
 
@@ -686,7 +738,7 @@ of productivity.</p>
 
 <p>Eventually ChatGPT is going to have native desktop integration. Given that it
 already has <a href="https://platform.openai.com/docs/models/whisper" target="_blank">a speech recognition
-model</a> <span class="fa fa-external-link fa_custom"></span>, you’ll be able to speak
+model<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, you’ll be able to speak
 to it. You can ask it to build an application and because it will have full
 integration, it will be writing and running the code for you, seeing the errors
 for itself and trying to automatically fix them. Because it will have full
@@ -694,16 +746,16 @@ access to the code, it can “look” for where the errors are coming from and
 figure out for itself how to fix them, without you needing to remind it.</p>
 
 <p>I expect it will be a few years before this is “production ready,” but with
-this, the programmer’s ivory tower will finish its collapse.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript>. Our jobs will be going
+this, the programmer’s ivory tower will finish its collapse.<button type="button" class="open-dialog js-only" id="open-dialog-7" aria-haspopup="dialog" aria-controls="dialog-7"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 7</span></button><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript>. Our jobs will be going
 away. The open question is whether we, like the Luddites, will find ourselves
-without work and losing our homes,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> or whether this will open the way for more complex work the AIs can’t
+without work and losing our homes,<button type="button" class="open-dialog js-only" id="open-dialog-8" aria-haspopup="dialog" aria-controls="dialog-8"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 8</span></button><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> or whether this will open the way for more complex work the AIs can’t
 do (yet).</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/preferences-pane.png" width="600" alt="Just a few of the preferences available for iTerm 2">
-    <figcaption>Just a few of the preferences available for iTerm 2 </figcaption>
+        <a href="/static/images/preferences-pane.png" class="enlarge"><img src="/static/images/preferences-pane.png" width="600" alt="Just a few of the preferences available for iTerm 2"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Just a few of the preferences available for iTerm 2 </figcaption>
 </figure></p>
 
 <p>As a bonus, you will get exactly the applications <em>you</em> want. No more
@@ -717,7 +769,7 @@ you to change the novel writing app we created.”</p>
 <p>For all those who disagree, Dr. Matt Welsh would like to have a word.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/JhCl-GeT4jw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Large Language Models and The End of Programming - CS50 Tech Talk with Dr. Matt Welsh" src="https://www.youtube.com/embed/JhCl-GeT4jw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>What will the code look like? In the early days of programming, we were setting
@@ -725,7 +777,7 @@ switches and pushing buttons on huge machines. Later, we were writing Fortran on
 punch cards. Today, we have easy languages like Python and hard languages like
 Rust, but consider even very difficult languages such as APL. The following is
 <a href="https://aplwiki.com/wiki/John_Scholes%27_Conway%27s_Game_of_Life" target="_blank">Conway’s Game of Life written in
-APL</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+APL<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <div class="shadow"><pre class="scrolled"><code>life ← {⊃1 ⍵ ∨.∧ 3 4 = +/ +⌿ ¯1 0 1 ∘.⊖ ¯1 0 1 ⌽¨ ⊂⍵}
 </code></pre></div>
@@ -763,7 +815,7 @@ was tutoring college students in the C programming language. I met many
 brilliant people who simply couldn’t <em>think</em> about programming the way
 programmers do. Despite their intelligence, they couldn’t understand how to
 structure programs, but lacking this skill, they had other skills that
-programmers often don’t.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript></p>
+programmers often don’t.<button type="button" class="open-dialog js-only" id="open-dialog-9" aria-haspopup="dialog" aria-controls="dialog-9"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 9</span></button><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript></p>
 
 <p>This might spill over to prompt engineering. Note how detailed my original
 prompt was.  If you go back to that prompt, note the last item on the list about
@@ -776,9 +828,9 @@ address it.</p>
 <p>“Prompt engineering” might be renamed “programming” in the future.
 However, as language models increase in power, I expect that even this strength
 might go away. If language models can ever incorporate <a href="https://thedecisionlab.com/reference-guide/philosophy/system-1-and-system-2-thinking" target="_blank">system 2
-thinking</a> <span class="fa fa-external-link fa_custom"></span>,
+thinking<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 all bets are off. That might also be what leads us to <a href="https://en.wikipedia.org/wiki/Artificial_general_intelligence" target="_blank">artificial general
-intelligence</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+intelligence<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>The AI boom today is like the internet boom in the 90s. There will be “bust”
 periods as many AI companies offer products with no value. There will be
@@ -786,7 +838,7 @@ detractors who call AI “just a fad.” And AI will continue regardless. I’m 
 excited and concerned by the future.</p>
 
 <p><a href="https://github.com/Ovid/chatgpt-shopping" target="_blank">You can check out the github project for my code
-here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+here<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 </article>
 
@@ -801,16 +853,22 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -818,8 +876,12 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -830,25 +892,26 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -891,8 +954,8 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -902,8 +965,9 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -936,6 +1000,7 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -952,12 +1017,12 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -968,16 +1033,15 @@ here</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>This includes discovering the world of Nick Land, and
+        <div id="note-body-1">This includes discovering the world of Nick Land, and
 anti-democratic, white supremacist accelerationists who support AI as one of
 many ways to tear down our current institutions. No links, because you can go
 down that rabbit hole yourself, if you're so inclined.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -986,14 +1050,13 @@ down that rabbit hole yourself, if you're so inclined.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>However,
+        <div id="note-body-2">However,
 at the present time, it's worth noting that Copilot usually has excellent editor
 integration and can “see” your entire project. This gives it a bird's-eye view
 of what you're doing, something that ChatGPT can't yet do.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1002,11 +1065,10 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>ChatGPT forgot this and gave me toggles on the right.  I decided to stick with them.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-3">ChatGPT forgot this and gave me toggles on the right.  I decided to stick with them.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1015,11 +1077,10 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>I later changed those to "A to Z" and "Popular."</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-4">I later changed those to "A to Z" and "Popular."</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1028,12 +1089,11 @@ of what you're doing, something that ChatGPT can't yet do.</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>The leading space before many
+        <div id="note-body-5">The leading space before many
 tokens allows ChatGPT to recreate the actual text.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1042,12 +1102,11 @@ tokens allows ChatGPT to recreate the actual text.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div>Version 15.2, as of this
+        <div id="note-body-6">Version 15.2, as of this
 writing.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1056,12 +1115,11 @@ writing.</div>
         myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
     </script>
       
-            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7" aria-hidden="true">
+            <div id="dialog-7" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-7" aria-describedby="note-body-7" aria-hidden="true">
         <strong id="note-7">Footnote #7</strong>
-        <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>I say
+        <div id="note-body-7">I say
 'finish' because the collapse is starting now.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1070,17 +1128,16 @@ writing.</div>
         myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
     </script>
       
-            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8" aria-hidden="true">
+            <div id="dialog-8" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-8" aria-describedby="note-body-8" aria-hidden="true">
         <strong id="note-8">Footnote #8</strong>
-        <p id="note-description-8" class="sr-only">Note number 8</p>
-	    <div>The Luddite rebellion ended in
+        <div id="note-body-8">The Luddite rebellion ended in
 1816, in part because “frame-breaking” (destroying the machines) was made a
 capital offense and soldiers were shooting into crowds of
 protestors.<br/><br/>Depending on the source, the economic damage to the
 protestors wasn't fully corrected until sometimes between 1820 and 1850. That's
 a long time to suffer, but the business owners were getting richer the entire
 time.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1089,12 +1146,11 @@ time.</div>
         myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
     </script>
       
-            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9" aria-hidden="true">
+            <div id="dialog-9" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-9" aria-describedby="note-body-9" aria-hidden="true">
         <strong id="note-9">Footnote #9</strong>
-        <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>I was tempted to finish that with, 'such
+        <div id="note-body-9">I was tempted to finish that with, 'such
 as social skills,' but I didn't. See what a nice guy I am?</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

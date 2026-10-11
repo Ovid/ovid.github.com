@@ -9,6 +9,7 @@ package Ovid::Site {
     use Less::Config qw(config);
     use Ovid::Types  qw(ArrayRef NonEmptySimpleStr HashRef);
     use Ovid::Template::File;
+    use Ovid::Site::Utils qw(human_date);
     use Template::Plugin::Ovid;
     use Template::App::ttree;
     use aliased 'Ovid::Template::File::Collection';
@@ -510,27 +511,27 @@ SQL
 
     sub _get_pagination ( $self, $total, $current, $article_type ) {
         return '' if $total == 1;
-        my $pagination = qq{<nav class="pagination">\n};
+        my $pagination = qq{<nav class="pagination" aria-label="Pagination">\n};
         if ( $current > 1 ) {
             my $prev    = $current - 1;
             my $article = $self->_article_page( $prev, $article_type );
-            $pagination .= qq{    <a href="/$article">&laquo;</a>\n};
+            $pagination .= qq{    <a href="/$article" aria-label="Previous page">&laquo;</a>\n};
         }
         else {
-            $pagination .= qq{    <span class="inactive">&laquo;</span>\n};
+            $pagination .= qq{    <span class="inactive" aria-hidden="true">&laquo;</span>\n};
         }
         for my $page ( 1 .. $total ) {
-            my $class   = $page == $current ? 'class="active"' : '';
-            my $article = $self->_article_page( $page, $article_type );
-            $pagination .= qq{    <a $class href="/$article">$page</a>\n};
+            my $current_attr = $page == $current ? ' class="active" aria-current="page"' : '';
+            my $article      = $self->_article_page( $page, $article_type );
+            $pagination .= qq{    <a$current_attr href="/$article">$page</a>\n};
         }
         if ( $current < $total ) {
             my $next    = $current + 1;
             my $article = $self->_article_page( $next, $article_type );
-            $pagination .= qq{    <a href="/$article">&raquo;</a>\n};
+            $pagination .= qq{    <a href="/$article" aria-label="Next page">&raquo;</a>\n};
         }
         else {
-            $pagination .= qq{    <span class="inactive">&raquo;</span>\n};
+            $pagination .= qq{    <span class="inactive" aria-hidden="true">&raquo;</span>\n};
         }
         $pagination .= "</nav>";
         return $pagination;
@@ -551,11 +552,6 @@ SQL
     }
 
     use constant LATEST_POST_COUNT => 10;
-
-    my @MONTH = qw(
-      January February March April May June
-      July August September October November December
-    );
 
     # The homepage feed. Split in two so the HTML is testable without a
     # database: _latest_posts_html is pure, _rebuild_latest_posts is the thin
@@ -616,7 +612,7 @@ SQL
             # characters of prose and at least one of them contains an "&".
             my $description = $self->_escape_html( $post->{description} );
             my $label       = ucfirst $post->{type};
-            my $human       = $self->_human_date( $post->{date} );
+            my $human       = human_date( $post->{date} );
             $html .= <<~"HTML";
                 <li>
                   <a href="/$post->{directory}/$post->{slug}">$title</a>
@@ -634,16 +630,6 @@ SQL
         $text =~ s/</&lt;/g;
         $text =~ s/>/&gt;/g;
         return $text;
-    }
-
-    # '2026-08-08' => '8 August 2026'. Anything that isn't an ISO date passes
-    # through untouched: a bare $MONTH[$month - 1] on a malformed date wraps
-    # round the end of the array and silently reports December.
-    sub _human_date ( $self, $date ) {
-        my ( $year, $month, $day ) = ( $date // '' ) =~ /\A(\d{4})-(\d{2})-(\d{2})\z/
-          or return $date;
-        return $date unless $month >= 1 && $month <= 12;
-        return sprintf '%d %s %d', $day, $MONTH[ $month - 1 ], $year;
     }
 
     sub _assert_tt_config ($self) {
@@ -722,7 +708,10 @@ END
             die "ttree failed with error: $error\nSTDOUT:\n$stdout\nSTDERR:\n$stderr\n";
         }
 
-        if ( $stdout =~ /!.*file error/ ) {
+        # ttree reports every failed template as "  ! <type> error - ..." (red
+        # when colour is on) and carries on, so any such line fails the build,
+        # not just file errors.
+        if ( $stdout =~ /^\s*(?:\e\[[\d;]*m)?\s*!\s/m ) {
             say STDERR "Command failed: @ttree_args";
             croak($stdout);
         }
@@ -749,7 +738,7 @@ END
             my $candidate = "root/$stem.$ext";
             return $candidate if -f $candidate;
         }
-        return undef;
+        return;
     }
 
     sub _get_git_lastmod ( $self, $file ) {    # for sitemap
@@ -975,6 +964,10 @@ END
     sub _html_to_text ( $self, $file ) {
         my $html = slurp($file);    # This handles UTF8 correctly
 
+        # Screen-reader-only text ("(opens in new tab)", "Footnote 3") would
+        # make every page match those words in search.
+        $html =~ s{<span class="visually-hidden">[^<]*</span>}{}g;
+
         my $title = $self->_extract_title($html);
 
         # Modern pages use <article id="article"> via include/wrapper.tt.
@@ -996,7 +989,7 @@ END
                 return $parser->get_trimmed_text;
             }
         }
-        return undef;
+        return;
     }
 
     sub _extract_article_text ( $self, $html ) {

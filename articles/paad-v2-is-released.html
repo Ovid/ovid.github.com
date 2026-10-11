@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -40,7 +42,7 @@
   
   <meta property="og:url" content="https://curtispoe.org/articles/paad-v2-is-released">
   
-  <meta property="og:title" content="PAAD v2 is Released!">
+  <meta property="og:title" content="PAAD v2: Make It Yours, Keep Your Secrets Out of Git">
   <meta property="og:description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -52,7 +54,7 @@
 
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>PAAD v2 is Released!</title>
+  <title>PAAD v2: Make It Yours, Keep Your Secrets Out of Git</title>
   <meta name="description" content="PAAD v2.0.0 is now out. Weeks of personal use, plus feedback from others, has led to a version of PAAD that you can easily customize. Security is also improved.">
   <meta name="author" content="Curtis Poe">
   <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,31 +254,34 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2026</span>
-        <span class="dateblock-day"><time datetime="2026-10-11">10.11</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2026</span>
+        <span class="dateblock-day" aria-hidden="true">10.11</span>
+        <time class="visually-hidden" datetime="2026-10-11">11 October 2026</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
-        <h1>PAAD v2 is Released!</h1>
+        <h1>PAAD v2: Make It Yours, Keep Your Secrets Out of Git</h1>
       </div>
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/ai">AI</a> </li>
+        <li><a href="/tags/ai">AI</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/be-skeptical-of-ai-studies" class="prevPost">&laquo; Be Skeptical of AI Studies</a>
@@ -252,34 +295,39 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#make-paad-yours-per-project-configuration">Make PAAD Yours: Per-project Configuration</a></li>
-    <li class="indent-2"><a href="#before-ste">Before STE</a></li>
-    <li class="indent-2"><a href="#after-ste">After STE</a></li>
-    <li class="indent-1"><a href="#security-findings-stay-out-of-your-committed-reports">Security findings stay out of your committed reports</a></li>
-    <li class="indent-1"><a href="#why-200-if-nothing-breaks">Why 2.0.0, if nothing breaks?</a></li>
-    <li class="indent-2"><a href="#what-it-does-not-protect-against">What it does not protect against</a></li>
-    <li class="indent-1"><a href="#upgrading">Upgrading</a></li>
-    <li class="indent-1"><a href="#also-new">Also New</a></li>
-    <li class="indent-1"><a href="#what-didnt-get-in">What Didn’t Get In?</a></li>
-    <li class="indent-1"><a href="#other-changes">Other changes</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#make-paad-yours-per-project-configuration">Make PAAD Yours: Per-project Configuration</a>
+<ul>
+<li><a href="#before-ste">Before STE</a></li>
+<li><a href="#after-ste">After STE</a></li>
+</ul>
+</li>
+<li><a href="#security-findings-stay-out-of-your-committed-reports">Security findings stay out of your committed reports</a></li>
+<li><a href="#why-200-if-nothing-breaks">Why 2.0.0, if nothing breaks?</a></li>
+<li><a href="#upgrading">Upgrading</a></li>
+<li><a href="#also-new">Also New</a></li>
+<li><a href="#what-didnt-get-in">What Didn’t Get In?</a></li>
+<li><a href="#other-changes">Other changes</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="introduction"></a>Introduction</h2>
 
 <p>Yes, you can <a href="/paad/">write production-quality code with
 AI</a>. PAAD makes it much easier. After weeks of
-testing, <a href="https://github.com/Ovid/paad" target="_blank">PAAD v2.0.0 is now available on GitHub</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+testing, <a href="https://github.com/Ovid/paad" target="_blank">PAAD v2.0.0 is now available on GitHub<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
-<p>There are a variety of changes, but the two big changes really matter.</p>
+<p>Two changes matter most:</p>
 
 <ol>
 <li>You can now configure PAAD to match how you work.</li>
-<li>Security-related findings are in a directory with <code>.gitignore</code>.</li>
+<li>Security findings no longer end up in your commits.</li>
 </ol>
 
 <p>No skill was renamed or removed, and no arguments changed.</p>
@@ -313,13 +361,11 @@ second (or third!) language, so inside <code>paad/config/paad.md</code>:</p>
 </code></pre></div>
 
 <p>That’s a huge win because <a href="https://www.asd-ste100.org/" target="_blank">Simplified Technical
-English</a> <span class="fa fa-external-link fa_custom"></span> (STE) is specifically designed to
+English<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (STE) is specifically designed to
 communicate technical information to those with only a basic command of English.
 I’m a native English speaker, but even I find STE easier to follow.</p>
 
 <h3><a name="before-ste"></a>Before STE</h3>
-
-<hr />
 
 <blockquote>
   <p>🤖 AI Review · src/payments/client.py line 142</p>
@@ -337,11 +383,7 @@ I’m a native English speaker, but even I find STE easier to follow.</p>
   under load.  Overall, nice work on improving the robustness of this module! 🚀</p>
 </blockquote>
 
-<hr />
-
 <h3><a name="after-ste"></a>After STE</h3>
-
-<hr />
 
 <blockquote>
   <p>AI Review · <code>src/payments/client.py</code> line 142</p>
@@ -363,17 +405,14 @@ I’m a native English speaker, but even I find STE easier to follow.</p>
   <p>Fix: Add a random value (jitter) to each backoff delay.</p>
 </blockquote>
 
-<hr />
-
 <p>The STE version is much clearer for many readers, but this should not be part of
 PAAD. Instead, you can use the config system to decide this, or other changes,
 for yourself.</p>
 
-<p>Because it’s experimental, read <a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank">CONFIG.md</a> <span class="fa fa-external-link fa_custom"></span> before you rely on it.
-Config works best when it <em>adds</em> something. A line telling a skill to skip or
-reorder its safety steps can work, but then you are running a different skill
-from the one documented. A <code>paad/config/</code> directory in a repo you cloned was
-written by someone else, so read it before you run anything.</p>
+<p>Config is experimental, so read
+<a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank">CONFIG.md<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> before you rely on
+it. And a <code>paad/config/</code> directory in a repo you cloned was written by someone
+else, so read it before you run anything.</p>
 
 <h2><a name="security-findings-stay-out-of-your-committed-reports"></a>Security findings stay out of your committed reports</h2>
 
@@ -384,14 +423,8 @@ be pushing security vulnerabilities to a public repository! Even for
 closed-source repos, there’s a good chance you don’t want this to happen.</p>
 
 <p>In <code>v2.0.0</code>, anything a skill finds that would help an attacker goes to
-<code>paad/security/</code> instead. That directory tells git to ignore it. The rule
-covers any OWASP Top 10:2025 category and anything in a payment,
-tenant-isolation or secret-handling path, and borderline cases count as
-security.</p>
-
-<p>Six skills follow it: <code>agentic-owasp</code>, <code>agentic-review</code>, <code>test-roadmap</code>,
-<code>agentic-architecture</code>, <code>pushback</code> and <code>agentic-dedup</code>. Where a security finding
-would have gone, the committed report keeps only a count:</p>
+<code>paad/security/</code> instead, and that directory tells git to ignore it. Where a
+security finding would have gone, the committed report keeps only a count:</p>
 
 <div class="shadow"><pre class="scrolled"><code>2 security finding(s) written to paad/security/&lt;file&gt;
 </code></pre></div>
@@ -400,37 +433,15 @@ would have gone, the committed report keeps only a count:</p>
 
 <h2><a name="why-200-if-nothing-breaks"></a>Why 2.0.0, if nothing breaks?</h2>
 
-<p>Your PAAD skills keep working, and old reports and backlog entries stay where
-they are. Until you move them, <code>/agentic-owasp</code> and <code>/agentic-review</code> remind you
-on every run.</p>
+<p>Your PAAD skills keep working, and old reports stay where they are. But
+<strong>new</strong> security findings now land somewhere else. Scripts or CI jobs that read
+<code>paad/owasp-reviews/</code> won’t see new reports there, and if your team shares
+findings by committing PAAD reports, the security ones stop arriving. They
+exist only on the machine that ran the skill.</p>
 
-<p>The major version is because <strong>new</strong> security findings now land somewhere else:</p>
-
-<ul>
-<li>Scripts, CI jobs or anything else outside PAAD that reads
-<code>paad/owasp-reviews/</code> won’t see new reports there.</li>
-<li>If your team shares findings by committing PAAD reports, the security ones
-stop arriving. They exist only on the machine that ran the skill, so share
-them some other way.</li>
-<li><code>paad/security/</code> is scratch space, not a record. <code>git clean -x</code> deletes it.</li>
-</ul>
-
-<h3><a name="what-it-does-not-protect-against"></a>What it does not protect against</h3>
-
-<ul>
-<li><code>git add -f</code>, or deleting <code>paad/security/.gitignore</code>, bypasses it.</li>
-<li>Anything you already committed stays in git history.</li>
-<li>Fixing a weakness commits a diff that shows it, and the count lines in
-committed reports show that security findings exist.</li>
-<li>If a skill can’t write to <code>paad/security/</code> and you tell it to use the
-ordinary report instead, the findings go there.</li>
-<li><code>/test-roadmap</code> and <code>/fix-architecture</code> commit the tests that pin a security
-finding. The tests have neutral names, but they still reproduce the weakness.</li>
-</ul>
-
-<p>If <code>paad/security/</code> is in a state the skills can’t trust (wrong <code>.gitignore</code>,
-or git already tracks something there), they stop and ask you instead of
-writing there.</p>
+<p>It’s a guard rail, not a vault: anything you already committed stays in git
+history. The <a href="https://github.com/Ovid/paad#skill-reference" target="_blank">README<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> lists the
+limits.</p>
 
 <h2><a name="upgrading"></a>Upgrading</h2>
 
@@ -444,26 +455,11 @@ directory already ignores itself; your rule is a second guard in case that
 file gets deleted.</li>
 </ol>
 
-<p>The next three steps are recommended, not required. Old findings keep working
-where they are, but they stay committed, and the last step explains how one
-skill makes that worse.</p>
-
-<ol>
-<li><strong>Move old OWASP reports.</strong> If git tracks them, run
-<code>git rm -r --cached paad/owasp-reviews/</code> and commit that <strong>before</strong> moving
-the files into <code>paad/security/</code>. Don’t use <code>git mv</code>: if git tracks anything
-in <code>paad/security/</code>, the skills stop and ask instead of writing there. Fix or rotate whatever they exposed, because
-history still holds them.</li>
-<li><strong>Move old security backlog entries.</strong> <code>/agentic-review</code> copies
-the entries it matches into <code>paad/security/backlog.md</code> and tells you on every
-run how many are left. Move the rest by hand, then <code>/backlog clean</code> removes
-the committed copies.</li>
-<li><strong>Check old architecture reports before running <code>/fix-architecture</code> on
-them.</strong> A report written by 1.x keeps its security flaws inline.
-<code>/fix-architecture</code> treats those as ordinary flaws, so its commit messages
-name the flaw and the report. Re-run <code>/agentic-architecture</code> to get a 2.0.0
-report, or fix those flaws by hand.</li>
-</ol>
+<p>If you already committed OWASP reports or security backlog entries, the
+<a href="https://github.com/Ovid/paad#skill-reference" target="_blank">README<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> explains how to move
+them. Also, don’t run <code>/fix-architecture</code> on an architecture report written by
+1.x: it keeps security flaws inline, so the commit messages would name them.
+Re-run <code>/agentic-architecture</code> first.</p>
 
 <h2><a name="also-new"></a>Also New</h2>
 
@@ -471,7 +467,7 @@ report, or fix those flaws by hand.</li>
 <code>/agentic-review</code> on your PR, you get items marked as critical, important, or
 “suggestions.” The latter are often items that are out-of-scope for the current
 PR, but should still be addressed. For myself (and as reported by others),
-that’s basically a long-list of items that people don’t pay attention to.</p>
+that’s basically a long list of items that people don’t pay attention to.</p>
 
 <p><code>/backlog</code> helps to fix this.</p>
 
@@ -488,8 +484,8 @@ system? Yes, they are! But I don’t know what you use, so you can now write
 
 <h2><a name="what-didnt-get-in"></a>What Didn’t Get In?</h2>
 
-<p>Right now, PAAD still writes to <code>paad/</code> directories. Fixing this is the most
-common request. Fixing this, however, is a <em>hard</em> problem. The Config system
+<p>Right now, PAAD still writes to <code>paad/</code> directories. Changing this is the most
+common request, but it’s a <em>hard</em> problem. The Config system
 could help, but there are so many approaches to making this actually work that
 I’m unsure of the best.</p>
 
@@ -499,13 +495,8 @@ standardized, and we don’t know where it’s going. I have my personal
 preferences, but they shouldn’t be forced on you the way I picked <code>paad/</code> for
 the top-level directory.</p>
 
-<p>My best thought, right now, is to have a single <code>.paadrc</code> file in the top-level
-directory and perhaps have an agent-assisted <em>deterministic</em> script for
-migration. It’s a significant enough change that I don’t want to risk getting it
-wrong. However, since so many people are finding PAAD valuable with a top-level
-<code>paad/</code> directory, I’ve opted to not change this and wait until we have better
-clarity and a clean(er) migration path. I suspect it will involve templating and
-using scripts for migration, but that introduces a new set of headaches.</p>
+<p>It’s a big enough change that I don’t want to get it wrong, so <code>paad/</code> stays
+until there’s a clean migration path.</p>
 
 <h2><a name="other-changes"></a>Other changes</h2>
 
@@ -518,7 +509,7 @@ skills.</li>
 <li><strong><code>/paad-help</code> links to the full tutorial</strong> at <a href="/paad/">curtispoe.org/paad/</a>.</li>
 </ul>
 
-<p>Full details are in <a href="https://github.com/Ovid/paad/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>Full details are in <a href="https://github.com/Ovid/paad/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 </article>
 
@@ -533,16 +524,22 @@ skills.</li>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -550,8 +547,12 @@ skills.</li>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -562,25 +563,26 @@ skills.</li>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -604,7 +606,7 @@ skills.</li>
         var disqus_config = function () {
             this.page.url        = "https://curtispoe.org/articles/paad-v2-is-released.html";
             this.page.identifier = "articles/paad-v2-is-released";
-            this.page.title      = "PAAD v2 is Released!";
+            this.page.title      = "PAAD v2: Make It Yours, Keep Your Secrets Out of Git";
         };
         (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -622,8 +624,8 @@ skills.</li>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -633,8 +635,9 @@ skills.</li>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -667,6 +670,7 @@ skills.</li>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -683,12 +687,12 @@ skills.</li>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

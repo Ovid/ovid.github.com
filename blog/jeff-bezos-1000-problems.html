@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -184,7 +224,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2021</span>
-        <span class="dateblock-day"><time datetime="2021-10-01">10.01</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2021</span>
+        <span class="dateblock-day" aria-hidden="true">10.01</span>
+        <time class="visually-hidden" datetime="2021-10-01">1 October 2021</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,18 +268,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/space">Space</a> </li>
+        <li><a href="/tags/space">Space</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/politics-in-programming" class="prevPost">&laquo; Politics in Programming</a>
@@ -255,13 +298,13 @@
 <article id="article">
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/new-shepard.jpg" width="600" alt="Blue Origin’s New Shepard rocket launching">
-    <figcaption>An unusual event for Blue Origin <a href="https://en.wikipedia.org/wiki/Blue_Origin#/media/File:Blue_Origin_New_Shepard_Launch_april_2015.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/new-shepard.jpg" class="enlarge"><img src="/static/images/new-shepard.jpg" width="600" alt="Blue Origin’s New Shepard rocket launching"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>An unusual event for Blue Origin <a href="https://en.wikipedia.org/wiki/Blue_Origin#/media/File:Blue_Origin_New_Shepard_Launch_april_2015.jpg" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>With the publication of the <a href="https://www.lioness.co/post/bezos-wants-to-create-a-better-future-in-space-his-company-blue-origin-is-stuck-in-a-toxic-past" target="_blank">open letter to Jeff Bezos from his
-employees</a> <span class="fa fa-external-link fa_custom"></span>,
+employees<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 Jeff Bezos is continuing to have a Terrible, Horrible, No Good, Very Bad Year.
 Despite the hopes of many in the space community to see rich competition
 amongst private space industries (since the government ones are moribund),
@@ -275,7 +318,7 @@ uncharacteristically say nothing.</p>
 
 <p>I often talk about SpaceX and Blue Origin with friends and many are surprised
 to find out that <a href="https://astronomy.com/news/2021/07/blue-origin-takes-flight" target="_blank">Jeff Bezos founded Blue Origin in
-2000</a> <span class="fa fa-external-link fa_custom"></span>, two years
+2000<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, two years
 before Musk created SpaceX. Bezos has been pouring a billion dollars a year
 into Blue Origin while SpaceX came close to bankruptcy several times in its
 early years. Blue Origin follows a traditional, slow process of incremental
@@ -292,10 +335,10 @@ more so, than most of its competitors.</p>
 
 <p>Blue Origin has been rather quiet about their actions, so many things in the
 early years are speculative, but they did manage to get a small rocket named
-Goddard to fly to 85 meters in 2006 <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. And for the next few years, that was kind of
+Goddard to fly to 85 meters in 2006 <button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. And for the next few years, that was kind of
 it. This is probably a contributing factor to <a href="https://www.geekwire.com/2018/veteran-aerospace-engineer-rob-meyerson-leaves-jeff-bezos-blue-origin-space-venture/" target="_blank">Blue Origin president Rob
 Meyerson leaving the company in
-2017</a> <span class="fa fa-external-link fa_custom"></span>.
+2017<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Bob Smith of Honeywell was brought on board and, well, we’ll get back to him.</p>
 
 <p>In 2006, the United Launch Alliance (ULA), was formed as a joint venture
@@ -306,9 +349,9 @@ sidestep competition.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/vulcan-rocket.png" width="600" alt="Cutaway view of the ULA Vulcan rocket.">
-    <figcaption>ULA’s Vulcan Rocket: Some assembly (still) required. <a href="https://en.wikipedia.org/wiki/Vulcan_Centaur#/media/File:ULA_Vulcan.png" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/vulcan-rocket.png" class="enlarge"><img src="/static/images/vulcan-rocket.png" width="600" alt="Cutaway view of the ULA Vulcan rocket."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>ULA’s Vulcan Rocket: Some assembly (still) required. <a href="https://en.wikipedia.org/wiki/Vulcan_Centaur#/media/File:ULA_Vulcan.png" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>Later, in 2014, facing the prospect of the upstart SpaceX starting to cut into
@@ -333,7 +376,7 @@ Origin was struggling to deliver anything and SpaceX was picking up NASA
 contracts (thanks, in large part, to the hard work of Gwynne Shotwell), <a href="https://arstechnica.com/science/2021/03/so-what-really-happened-with-blue-origins-new-glenn-rocket/" target="_blank">Bezos
 decided that the only reasonable thing to do was to start working on the New
 Glenn
-rocket</a> <span class="fa fa-external-link fa_custom"></span>.
+rocket<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 But not a modest version as was earlier planned, but a huge version to rival
 the Saturn V in height. Suddenly, Blue Origin’s engineers were tasked with
 creating one of the biggest rockets of all time. Oh, it had to work perfectly
@@ -346,24 +389,24 @@ something before starting on such an astronomical goal.</p>
 <p>So clearly Rob Meyerson had to leave, but who’s Bob Smith?</p>
 
 <p>Bob Smith was the man that Bezos picked to run Blue Origin. <a href="https://www.crunchbase.com/person/bob-smith-2b93" target="_blank">He has an
-impressive resume</a> <span class="fa fa-external-link fa_custom"></span>,
+impressive resume<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 including a doctorate in aerospace engineering, a business degree from MIT,
 and many years of experience building rockets. He should be perfect.</p>
 
 <p>Instead, it’s overwhelmingly agreed by everyone <em>outside</em> of Blue Origin that
 Smith has been a micromanaging disaster. On Glassdoor, <a href="https://www.glassdoor.com/Reviews/SpaceX-Reviews-E40371.htm" target="_blank">91% of SpaceX
 employees approve of the
-CEO</a> <span class="fa fa-external-link fa_custom"></span>. For Blue
+CEO<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. For Blue
 Origin, <a href="https://www.glassdoor.com/Reviews/Blue-Origin-blue-origin-Reviews-EI_IE782684.0,11_KH12,23.htm" target="_blank">only 22% approve of the
-CEO</a> <span class="fa fa-external-link fa_custom"></span>.
+CEO<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 For most companies burning cash instead of rocket fuel, having a CEO in place
 for four years with little to show except demoralized employees and <a href="https://www.cnbc.com/2021/10/01/jeff-bezos-blue-origin-talent-exodus-ceo-pushed-return-to-office.html" target="_blank">an
 insanely high staff turnover
-rate</a> <span class="fa fa-external-link fa_custom"></span>,
+rate<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 the CEO would be out the door. </p>
 
 <p><a href="https://arstechnica.com/science/2021/07/despite-tuesdays-fight-jeff-bezos-is-running-out-of-time-to-save-blue-origin/" target="_blank">This Ars Technica article sums things up
-nicely</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+nicely<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote>
   <p>As Blue Origin has fallen behind SpaceX in recent years, morale has
@@ -389,15 +432,15 @@ competition here. But where is it? ULA is hanging on with government
 contracts. Roscosmos wants out of the ISS because they’re so strapped for
 cash. <a href="https://www.teslarati.com/spacex-snags-european-arianespace-launch-contract/" target="_blank">The ESA and EU are trying to force EU countries to only buy from
 Arianespace, but the cracks are beginning to
-show</a> <span class="fa fa-external-link fa_custom"></span>.
+show<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Honestly, Blue Origin <em>could</em> have been the one to watch in this space. And
 now we’re watching them, but not for the reasons they wanted.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/blue-moon-lander-deflated.jpg" width="600" alt="Blue Origin's Blue Moon lander, deflated.">
-    <figcaption>Symbolism. </figcaption>
+        <a href="/static/images/blue-moon-lander-deflated.jpg" class="enlarge"><img src="/static/images/blue-moon-lander-deflated.jpg" width="600" alt="Blue Origin's Blue Moon lander, deflated."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Symbolism. </figcaption>
 </figure></p>
 
 <p>Ironically, part of the issue seems to be that Blue Origin employees know that
@@ -409,7 +452,7 @@ Blue Origin has no <em>reason</em> to push hard.</p>
 
 <p>And now, <a href="https://www.theverge.com/2021/9/29/22689729/blue-origin-moon-lunar-lander-price-nasa-hls-foia" target="_blank">Blue Origin’s lawsuit against NASA is destroying their last
 opportunity to
-succeed</a> <span class="fa fa-external-link fa_custom"></span>.
+succeed<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 NASA, uncharacteristically, has slammed Blue Origin. If you’re unfamiliar with
 the lawsuit, NASA solicited bids for their 2024 moon lander. Blue Origin’s bid
 was ridiculously over NASA’s budget and NASA rejected it. So while SpaceX at
@@ -466,16 +509,22 @@ chance to compete.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -483,8 +532,12 @@ chance to compete.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -495,25 +548,26 @@ chance to compete.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -556,8 +610,8 @@ chance to compete.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -567,8 +621,9 @@ chance to compete.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -601,6 +656,7 @@ chance to compete.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -617,12 +673,12 @@ chance to compete.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -633,14 +689,13 @@ chance to compete.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>A previous launch of the
+        <div id="note-body-1">A previous launch of the
 “Charon” used jet engines.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

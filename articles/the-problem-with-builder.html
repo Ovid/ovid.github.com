@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2021</span>
-        <span class="dateblock-day"><time datetime="2021-02-27">02.27</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2021</span>
+        <span class="dateblock-day" aria-hidden="true">02.27</span>
+        <time class="visually-hidden" datetime="2021-02-27">27 February 2021</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,22 +268,24 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/corinna">Corinna</a> </li>
+        <li><a href="/tags/corinna">Corinna</a></li>
 
-    <li><a href="/tags/oop">OOP</a> </li>
+        <li><a href="/tags/oop">OOP</a></li>
 
-    <li><a href="/tags/perl">Perl</a> </li>
+        <li><a href="/tags/perl">Perl</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/managing-a-test-database" class="prevPost">&laquo; Managing a Test Database</a>
@@ -257,19 +300,22 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#history">History</a></li>
-    <li class="indent-1"><a href="#variables-and-types">Variables and Types</a></li>
-    <li class="indent-1"><a href="#classes-are-types">Classes are Types</a></li>
-    <li class="indent-1"><a href="#the-problem-with-builder">The Problem with :builder</a></li>
-    <li class="indent-1"><a href="#builder-guidelines">Builder Guidelines</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#history">History</a></li>
+<li><a href="#variables-and-types">Variables and Types</a></li>
+<li><a href="#classes-are-types">Classes are Types</a></li>
+<li><a href="#the-problem-with-builder">The Problem with :builder</a></li>
+<li><a href="#builder-guidelines">Builder Guidelines</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <p>I’ve been spending a lot of time designing <a href="https://github.com/Ovid/Cor/wiki" target="_blank">a new OO syntax for the Perl
-language</a> <span class="fa fa-external-link fa_custom"></span> called Corinna. This syntax is not
+language<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> called Corinna. This syntax is not
 designed to be another object-oriented module. Instead, it’s designed to be a
 be a core part of the language. It’s received a lot of support (and a few
 detractors), but I have a problem with it.</p>
@@ -305,7 +351,7 @@ go back in time.</p>
 
 <p>In 1967 (my birth year, but I swear it’s a coincidence), the first truly
 class-based OO language was released, <a href="https://en.wikipedia.org/wiki/Simula" target="_blank">Simula
-67</a> <span class="fa fa-external-link fa_custom"></span> and it introduced classes,
+67<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and it introduced classes,
 polymorphism, encapsulation, and inheritance (and coroutines (!), but let’s not
 go there).</p>
 
@@ -314,13 +360,13 @@ the debate over inheritance has raged for decades.</p>
 
 <p><a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank">Alan Kay, the man who invented the term “Object Oriented” in Utah “sometime
 after
-1966”</a> <span class="fa fa-external-link fa_custom"></span>
+1966”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and who’s been doing OO programming before most of us were born, has made it
 clear over the years that inheritance in OO is very problematic. He’s even
 left it out of the implementation of some OO languages he’s created. And then
 I found a Quora question entitled “What does Alan Kay think about inheritance
 in object-oriented programming?” and <a href="https://qr.ae/pNQ2Kd" target="_blank">someone purporting to be Alan Kay
-responded</a> <span class="fa fa-external-link fa_custom"></span> with a deeply thoughtful answer. His first
+responded<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> with a deeply thoughtful answer. His first
 paragraph is fantastic (emphasis mine):</p>
 
 <blockquote>
@@ -375,12 +421,12 @@ v0.1.0. This is a serious limitation, but we’re taking baby steps.</p>
 
 <p>But what about the Python version? Surely they must validate their data,
 right? No. Pythonistas have assured me that <a href="https://www.reddit.com/r/Python/comments/91q2op/trying_to_understand_pythonic_classes/" target="_blank">validating your data is very
-unpythonic</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+unpythonic<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>(I envision spit-takes from tons of Moo/se fans out there right now).</p>
 
 <p><a href="https://docs.python.org/3/library/dataclasses.html" target="_blank">Python 3.7 contains data
-classes</a> <span class="fa fa-external-link fa_custom"></span> and those will
+classes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and those will
 help, but I don’t know how widespread the usage is.</p>
 
 <hr />
@@ -409,7 +455,7 @@ up.</p>
 
 <p>Absolute zero is -273.15 on the Celsius scale, so we can make a reasonable
 argument that the above is not valid. In languages like
-<a href="https://raku.org/" target="_blank">Raku</a> <span class="fa fa-external-link fa_custom"></span>, we easily fix that:</p>
+<a href="https://raku.org/" target="_blank">Raku<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, we easily fix that:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">subset Celsius of Num where  * &gt;= -273.15;
 my Celsius $temp = -1300.15;
@@ -438,7 +484,7 @@ Celsius temperatures. And your <a href="/articles/alan-kay-and-oo-programming">P
 Shopper</a> knows exactly how much
 money it can spend, and even if it knows you have enough money to buy cocaine,
 it’s still going to throw an exception if you request that because it’s an
-illegal operation.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+illegal operation.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <h2><a name="the-problem-with-builder"></a>The Problem with :builder</h2>
 
@@ -555,7 +601,7 @@ internally.</p>
 
 <p>My suggestion is that, if you want to allow this internally, you have to do it
 manually with <a href="https://github.com/Ovid/Cor/wiki/Cookbook#construct--adjust-and-destruct-buildargs-and-build" target="_blank">the <code>ADJUST</code>
-phaser</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+phaser<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">class Collection {
     has $index;
@@ -650,7 +696,7 @@ it. This also prevents littering the namespace with a <code>_build_...</code>  m
 </ul>
 
 <p>Remember the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov Substitution
-Principle</a> <span class="fa fa-external-link fa_custom"></span>: if
+Principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>: if
 you have a subclass and it <em>must</em> be allowed to override some of this data,
 remember that a subclass should be a more specialized version of a parent
 class and must be usable anywhere the parent can be.</p>
@@ -681,16 +727,22 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -698,8 +750,12 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -710,25 +766,26 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -771,8 +828,8 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -782,8 +839,9 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -816,6 +874,7 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -832,12 +891,12 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -848,14 +907,13 @@ the language design shouldn’t <em>encourage</em> bad things.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>My daughter doesn‘t laugh at my jokes,
+        <div id="note-body-1">My daughter doesn‘t laugh at my jokes,
 either.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

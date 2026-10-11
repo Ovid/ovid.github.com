@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2022</span>
-        <span class="dateblock-day"><time datetime="2022-04-25">04.25</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2022</span>
+        <span class="dateblock-day" aria-hidden="true">04.25</span>
+        <time class="visually-hidden" datetime="2022-04-25">25 April 2022</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,24 +268,26 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/corinna">Corinna</a> </li>
+        <li><a href="/tags/corinna">Corinna</a></li>
 
-    <li><a href="/tags/oop">OOP</a> </li>
+        <li><a href="/tags/oop">OOP</a></li>
 
-    <li><a href="/tags/perl">Perl</a> </li>
+        <li><a href="/tags/perl">Perl</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/why-is-object-oriented-programming-bad" class="prevPost">&laquo; Why is Object-Oriented Programming Bad?</a>
@@ -259,45 +302,84 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#preface">Preface</a></li>
-    <li class="indent-1"><a href="#whats-an-object">What’s an Object?</a></li>
-    <li class="indent-1"><a href="#recommendations">Recommendations</a></li>
-    <li class="indent-2"><a href="#immutable-objects">Immutable Objects</a></li>
-    <li class="indent-3"><a href="#recommendation">Recommendation</a></li>
-    <li class="indent-2"><a href="#small-interfaces-and-encapsulation">Small Interfaces and Encapsulation</a></li>
-    <li class="indent-3"><a href="#recommendation-2">Recommendation</a></li>
-    <li class="indent-2"><a href="#type-library">Type Library</a></li>
-    <li class="indent-3"><a href="#recommendation-3">Recommendation</a></li>
-    <li class="indent-2"><a href="#subclassing">Subclassing</a></li>
-    <li class="indent-3"><a href="#recommendation-4">Recommendation</a></li>
-    <li class="indent-2"><a href="#performance">Performance</a></li>
-    <li class="indent-3"><a href="#recommendation-5">Recommendation</a></li>
-    <li class="indent-1"><a href="#problems">Problems</a></li>
-    <li class="indent-2"><a href="#too-many-responsibilities">Too Many Responsibilities</a></li>
-    <li class="indent-3"><a href="#recommendation-6">Recommendation</a></li>
-    <li class="indent-2"><a href="#use-methods-for-attribute-data">Use Methods for Attribute Data</a></li>
-    <li class="indent-3"><a href="#recommendation-7">Recommendation</a></li>
-    <li class="indent-2"><a href="#confusing-subroutines-and-methods">Confusing Subroutines and Methods</a></li>
-    <li class="indent-3"><a href="#recommendation-8">Recommendation</a></li>
-    <li class="indent-2"><a href="#inconsistent-return-types">Inconsistent Return Types</a></li>
-    <li class="indent-3"><a href="#recommendation-9">Recommendation</a></li>
-    <li class="indent-2"><a href="#ignored-constructor-arguments">Ignored Constructor Arguments</a></li>
-    <li class="indent-3"><a href="#recommendation-10">Recommendation</a></li>
-    <li class="indent-1"><a href="#leftovers">Leftovers</a></li>
-    <li class="indent-1"><a href="#dr-frankenstein">Dr. Frankenstein</a></li>
-    <li class="indent-1"><a href="#hire-us">Hire Us</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#whats-an-object">What’s an Object?</a></li>
+<li><a href="#recommendations">Recommendations</a>
+<ul>
+<li><a href="#immutable-objects">Immutable Objects</a>
+<ul>
+<li><a href="#recommendation">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#small-interfaces-and-encapsulation">Small Interfaces and Encapsulation</a>
+<ul>
+<li><a href="#recommendation-2">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#type-library">Type Library</a>
+<ul>
+<li><a href="#recommendation-3">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#subclassing">Subclassing</a>
+<ul>
+<li><a href="#recommendation-4">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#performance">Performance</a>
+<ul>
+<li><a href="#recommendation-5">Recommendation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#problems">Problems</a>
+<ul>
+<li><a href="#too-many-responsibilities">Too Many Responsibilities</a>
+<ul>
+<li><a href="#recommendation-6">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#use-methods-for-attribute-data">Use Methods for Attribute Data</a>
+<ul>
+<li><a href="#recommendation-7">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#confusing-subroutines-and-methods">Confusing Subroutines and Methods</a>
+<ul>
+<li><a href="#recommendation-8">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#inconsistent-return-types">Inconsistent Return Types</a>
+<ul>
+<li><a href="#recommendation-9">Recommendation</a></li>
+</ul>
+</li>
+<li><a href="#ignored-constructor-arguments">Ignored Constructor Arguments</a>
+<ul>
+<li><a href="#recommendation-10">Recommendation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#leftovers">Leftovers</a></li>
+<li><a href="#dr-frankenstein">Dr. Frankenstein</a></li>
+<li><a href="#hire-us">Hire Us</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="preface"></a>Preface</h2>
 
 <p>After spending almost three years as the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna
-object system for the Perl core</a> <span class="fa fa-external-link fa_custom"></span>, I’m delighted
+object system for the Perl core<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, I’m delighted
 that work on including this in the Perl language will start soon.
-Until it’s there, <a href="https://allaroundtheworld.fr/" target="_blank">our company</a> <span class="fa fa-external-link fa_custom"></span> still does a lot
+Until it’s there, <a href="https://allaroundtheworld.fr/" target="_blank">our company<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> still does a lot
 of work with clients, fixing their object-oriented code (OOP) and we’ve seen
 some very common causes of failures. Some say that our recommendations are too
 strict, and for personal projects, they might be. But we work with large-scale
@@ -331,11 +413,11 @@ space, that’s all.</p>
 
 <h2><a name="recommendations"></a>Recommendations</h2>
 
-<p>We could talk about <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
-<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP</a> <span class="fa fa-external-link fa_custom"></span>, the
+<p>We could talk about <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
+<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
 <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov substitution
-principle</a> <span class="fa fa-external-link fa_custom"></span>, the
-<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter</a> <span class="fa fa-external-link fa_custom"></span>, and so on, but
+principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
+<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and so on, but
 while those are important, you can read about those on your own. Instead, we’ll
 cover recommendations and common problems. You’ll need to use your best judgment
 to decide how (or if) they apply to your codebase.</p>
@@ -515,8 +597,8 @@ pile in a ballroom in code reviews).</p>
 <blockquote>
   <p>Note: some Perl developers use “inside-out” objects to enforce
   encapsulation. The CPAN has
-  <a href="https://metacpan.org/pod/Object::InsideOut" target="_blank">Object::InsideOut</a> <span class="fa fa-external-link fa_custom"></span> and
-  <a href="https://metacpan.org/pod/Class::InsideOut" target="_blank">Class::InsideOut</a> <span class="fa fa-external-link fa_custom"></span>, amongst others.
+  <a href="https://metacpan.org/pod/Object::InsideOut" target="_blank">Object::InsideOut<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and
+  <a href="https://metacpan.org/pod/Class::InsideOut" target="_blank">Class::InsideOut<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, amongst others.
   While it’s easy to use instances of these classes, they were cumbersome to write
   and sometimes buggy. As a result, we do not experience them often in client
   code.</p>
@@ -565,7 +647,7 @@ paths first.</p>
 <h4><a name="recommendation-3"></a>Recommendation</h4>
 
 <p>Creating a type library for the first time can be daunting. Here’s a simple one,
-based on the excellent <a href="https://metacpan.org/pod/Type::Tiny" target="_blank">Type::Tiny</a> <span class="fa fa-external-link fa_custom"></span> by Toby
+based on the excellent <a href="https://metacpan.org/pod/Type::Tiny" target="_blank">Type::Tiny<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> by Toby
 Inkster. It will cover most of your basic needs and you can extend it later with
 custom types, if needed.</p>
 
@@ -620,7 +702,7 @@ has &#39;order_items&#39; =&gt; (
 </code></pre></div>
 
 <p>Despite the <code>Type::Tiny</code> name, <a href="https://metacpan.org/dist/Type-Tiny/view/lib/Type/Tiny/Manual.pod" target="_blank">the manual is quite
-extensive</a> <span class="fa fa-external-link fa_custom"></span>.
+extensive<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Go there for more information.</p>
 
 <h3><a name="subclassing"></a>Subclassing</h3>
@@ -643,19 +725,19 @@ but provide alternatives (mixins, interfaces, traits, etc.). As a general rule,
 we recommend you use roles instead of parent classes:</p>
 
 <ul>
-<li><a href="https://metacpan.org/pod/Role::Tiny" target="_blank">Role::Tiny</a> <span class="fa fa-external-link fa_custom"></span> (for any OO code)</li>
-<li><a href="https://metacpan.org/pod/Moose::Role" target="_blank">Moose::Role</a> <span class="fa fa-external-link fa_custom"></span> (for Moose)</li>
-<li><a href="https://metacpan.org/pod/Moo::Role" target="_blank">Moo::Role</a> <span class="fa fa-external-link fa_custom"></span> (for Moo)</li>
+<li><a href="https://metacpan.org/pod/Role::Tiny" target="_blank">Role::Tiny<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (for any OO code)</li>
+<li><a href="https://metacpan.org/pod/Moose::Role" target="_blank">Moose::Role<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (for Moose)</li>
+<li><a href="https://metacpan.org/pod/Moo::Role" target="_blank">Moo::Role<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (for Moo)</li>
 </ul>
 
-<p>There’s also my own <a href="https://metacpan.org/pod/Role::Basic" target="_blank">Role::Basic</a> <span class="fa fa-external-link fa_custom"></span> which
+<p>There’s also my own <a href="https://metacpan.org/pod/Role::Basic" target="_blank">Role::Basic<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> which
 can be used where <code>Role::Tiny</code> is appropriate, but <a href="https://metacpan.org/dist/Role-Basic/view/lib/Role/Basic/Philosophy.pod" target="_blank">the philosophy of that
 module is
-different</a> <span class="fa fa-external-link fa_custom"></span>
+different<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and presents somewhat different features.</p>
 
 <p>Sometimes inheritance is the right thing to do. For example, in the
-<a href="https://metacpan.org/pod/Test::Class::Moose" target="_blank">Test::Class::Moose</a> <span class="fa fa-external-link fa_custom"></span> xUnit
+<a href="https://metacpan.org/pod/Test::Class::Moose" target="_blank">Test::Class::Moose<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> xUnit
 framework, we have “test control methods” which run code before the class is
 instantiated, before each method is run, after each method is run, and after the
 test class has finished running. A <code>test_setup</code> method might look like this:</p>
@@ -708,7 +790,7 @@ It’s always the database.  Unless it’s the network. Or it’s disk I/O. Or, 
 <p>Unless you know, at design time, you’ll have performance critical code (don’t
 write ray-tracing software in Perl, folks!), design a great system and worry
 about performance only when it’s proven to be an actual problem.
-<a href="https://metacpan.org/pod/Devel::NYTProf" target="_blank">Devel::NYTProf</a> <span class="fa fa-external-link fa_custom"></span> is your friend here.
+<a href="https://metacpan.org/pod/Devel::NYTProf" target="_blank">Devel::NYTProf<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> is your friend here.
 Be aware that benchmarking can be an arcane art.</p>
 
 <p>But when we talk about performance, whose performance are we talking about? The
@@ -779,7 +861,7 @@ find out where the real problems are. Here’s a video of Tim Bunce explaining h
 to profile your code:</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/SDWoCQf53Ck" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Tim Bunce - Performance Profiling with Devel::NYTProf, APW2014" src="https://www.youtube.com/embed/SDWoCQf53Ck" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <h2><a name="problems"></a>Problems</h2>
@@ -830,7 +912,7 @@ class.</p>
 restart and it cached the object for me. Not only did it work right this time, I 
 now had a flexible in-memory cache for other objects. Further, because the cache 
 internals were encapsulated, if we want to switch the cache out for Redis or 
-something else, it becomes trivial.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
+something else, it becomes trivial.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>.</p>
 
 <h4><a name="recommendation-6"></a>Recommendation</h4>
 
@@ -979,8 +1061,8 @@ subroutine as a method, even though it wasn’t.</p>
 
 <h4><a name="recommendation-8"></a>Recommendation</h4>
 
-<p>Using <a href="https://metacpan.org/pod/namespace::autoclean" target="_blank">namespace::autoclean</a> <span class="fa fa-external-link fa_custom"></span> or
-<a href="https://metacpan.org/pod/namespace::clean" target="_blank">namespace::clean</a> <span class="fa fa-external-link fa_custom"></span> will remove the
+<p>Using <a href="https://metacpan.org/pod/namespace::autoclean" target="_blank">namespace::autoclean<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> or
+<a href="https://metacpan.org/pod/namespace::clean" target="_blank">namespace::clean<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> will remove the
 imported subroutines from the namespace and make it much harder for code to call
 subroutines as methods. Read the documentation for each to decide which will
 work better for you.</p>
@@ -1069,8 +1151,8 @@ you misspell a constructor argument, this can be a frustrating source of errors.
 <h4><a name="recommendation-10"></a>Recommendation</h4>
 
 <p>Fortunately, the fix for this is simple, too:
-<a href="https://metacpan.org/pod/MooseX::StrictConstructor" target="_blank">MooseX::StrictConstructor</a> <span class="fa fa-external-link fa_custom"></span>. <br />
-(Or <a href="https://metacpan.org/pod/MooX::StrictConstructor" target="_blank">MooX::StrictConstructor</a> <span class="fa fa-external-link fa_custom"></span> 
+<a href="https://metacpan.org/pod/MooseX::StrictConstructor" target="_blank">MooseX::StrictConstructor<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. <br />
+(Or <a href="https://metacpan.org/pod/MooX::StrictConstructor" target="_blank">MooX::StrictConstructor<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> 
 for Moo):</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Some::Class;
@@ -1125,7 +1207,7 @@ present</li>
 <p>For this, you’ve decided that <code>param</code> should replace <code>has</code> if the parameter is
 required in the constructor, and <code>field</code> should replace <code>has</code> if the parameter
 is not allowed in the constructor. Let’s use
-<a href="https://metacpan.org/pod/Moose::Exporter" target="_blank">Moose::Exporter</a> <span class="fa fa-external-link fa_custom"></span> to set this up.</p>
+<a href="https://metacpan.org/pod/Moose::Exporter" target="_blank">Moose::Exporter<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> to set this up.</p>
 
 <p>We won’t explain how all of this works, so you have some homework to do.</p>
 
@@ -1288,16 +1370,22 @@ can do to make your software better.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -1305,8 +1393,12 @@ can do to make your software better.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -1317,25 +1409,26 @@ can do to make your software better.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -1378,8 +1471,8 @@ can do to make your software better.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -1389,8 +1482,9 @@ can do to make your software better.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1423,6 +1517,7 @@ can do to make your software better.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1439,12 +1534,12 @@ can do to make your software better.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1455,14 +1550,13 @@ can do to make your software better.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>I should have used <a 
+        <div id="note-body-1">I should have used <a 
 href="https://metacpan.org/pod/CHI">CHI</a>.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

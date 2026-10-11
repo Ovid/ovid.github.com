@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -182,7 +222,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2022</span>
-        <span class="dateblock-day"><time datetime="2022-06-17">06.17</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2022</span>
+        <span class="dateblock-day" aria-hidden="true">06.17</span>
+        <time class="visually-hidden" datetime="2022-06-17">17 June 2022</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/politics">Politics</a> </li>
+        <li><a href="/tags/politics">Politics</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/short-story-names" class="prevPost">&laquo; Short Story: &quot;Names&quot;</a>
@@ -258,7 +301,7 @@ of views. It was a lovely video of excited dogs at a shelter joyfully picking
 out their own Christmas toys.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/apUfhf_l66Q" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Dogs Pick Out Their Own Christmas Present - Dogs Trust Ireland" src="https://www.youtube.com/embed/apUfhf_l66Q" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>With this temporary internet fame, I decided to expand my circle, to engage with 
@@ -322,10 +365,10 @@ not.</p>
 
 <p>None of the above is surprising to anyone who follows social media: there has 
 been a massive breakdown in social/political discourse over the past decade.
-Social psychologist <a href="https://jonathanhaidt.com/" target="_blank">Jonathan Haidt</a> <span class="fa fa-external-link fa_custom"></span> has spent years 
+Social psychologist <a href="https://jonathanhaidt.com/" target="_blank">Jonathan Haidt<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> has spent years 
 researching this and uncovering the root causes. In his article, <a href="https://www.theatlantic.com/magazine/archive/2022/05/social-media-democracy-trust-babel/629369/" target="_blank">Why the Past 
 10 Years of American Life Have Been Uniquely 
-Stupid</a> <span class="fa fa-external-link fa_custom"></span>,
+Stupid<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 Haidt breaks down the process by which we have grown increasingly polarized.
 This is largely due to “innovations” in social media. Via “sharing” behavior, 
 coupled with “likes,” we’ve created a system whereby those posts providing 
@@ -341,7 +384,7 @@ and it’s fracturing out society. Truly this is a death by a thousand cuts.</p>
 cycle. More and more there’s talk of functioning democracy breaking down in the 
 US and perhaps even the US itself breaking apart. Lest that sound alarmist, 
 allow me to quite from <a href="https://texasgop.org/wp-content/uploads/2022/06/6-Permanent-Platform-Committee-FINAL-REPORT-6-16-2022.pdf" target="_blank">the 2022 Texas Republican Party 
-platform</a> <span class="fa fa-external-link fa_custom"></span> 
+platform<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> 
 (emphasis mine):</p>
 
 <blockquote>
@@ -363,12 +406,12 @@ platform</a> <span class="fa fa-external-link fa_custom"></span>
 
 <p>But it’s not just Republicans! <a href="https://www.newsweek.com/47-west-coast-dems-66-southern-republicans-want-secede-us-1609875" target="_blank">47% of western Democrats have expressed support 
 for breaking away and forming a new 
-country</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+country<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h2><a name="how-do-we-fix-this"></a>How Do We Fix This?</h2>
 
 <p>Enter Jonathan Haidt again. <a href="https://www.ted.com/talks/jonathan_haidt_the_moral_roots_of_liberals_and_conservatives?language=en" target="_blank">In a 2008 Ted 
-Talk</a> <span class="fa fa-external-link fa_custom"></span>, 
+Talk<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, 
 Haidt shares the results of his research regarding the moral roots of liberal 
 and conservative thought. He’s found these roots to be shared across the world.
 The five key roots are:</p>
@@ -387,7 +430,7 @@ and if the authority abuses that trust, it must be taken away. Group loyalty is
 also problematic. “America, right or wrong,” is not a liberal ideal.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/8SOQduoLgRw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="The moral roots of liberals and conservatives - Jonathan Haidt" src="https://www.youtube.com/embed/8SOQduoLgRw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>The conservatives counter, correctly, that while it’s imperfect, authority and 
@@ -416,10 +459,10 @@ result.  We know this is a problem, so how do we fix this?</p>
 <p>Well, it turns out we <em>are</em> actively working on solving this, though different 
 states have significantly different approaches, often for very good reasons. In 
 particular, <a href="https://apps.urban.org/features/school-funding-do-poor-kids-get-fair-share/" target="_blank">much work is being done to target poor school districts with extra 
-money</a> <span class="fa fa-external-link fa_custom"></span>.
+money<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 However, that doesn’t actually solve the issue of poverty itself. Simply 
 <a href="https://www.insightintodiversity.com/povertys-long-lasting-effects-on-students-education-and-success/" target="_blank">growing up poor hurts your education 
-outcomes</a> <span class="fa fa-external-link fa_custom"></span>, 
+outcomes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, 
 starting at kindergarten. Worse, poor children are much more likely to drop out 
 of school, either due to financial or social pressures. We <em>want</em> to fix this, 
 but the fixes themselves are not always clear.</p>
@@ -455,27 +498,27 @@ continue to push forward to make the world a better place, while conservatives
 should be calling them out if their proposals are ill-thought. For example, <a href="https://www.npr.org/2021/06/18/1007022652/oregons-pioneering-drug-decriminalization-experiment-is-now-facing-the-hard-test" target="_blank">the 
 state of Oregon recently decriminalized possession of small amounts of cocaine, 
 heroin, LSD, methamphetamine, and other 
-drugs</a> <span class="fa fa-external-link fa_custom"></span>, 
+drugs<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, 
 but didn’t put the resources in place to provide medical assistance to those in 
 need. Those resources were <em>funded</em>, but the infrastructure didn’t simply didn’t 
 exist, nor were clearly targeted goals outlined. While several countries (most 
 notably, The Netherlands and Portugal) have had very successful 
 decriminalization programs, <a href="https://apnews.com/article/health-oregon-government-and-politics-drug-addiction-05269fb778d33e0355db17bb8539c34c" target="_blank">Oregon is reporting increases in addiction and 
-overdoses</a> <span class="fa fa-external-link fa_custom"></span> 
+overdoses<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> 
 as understaffed hospitals struggle to keep up with the demand. I expect (hope?) 
 they’ll fix this over time, but idealism without pragmatism is a dangerous 
 thing.</p>
 
 <p><a href="https://www.prisonpolicy.org/profiles/US.html" target="_blank">The US has the highest incarceration rate in the 
-world</a> <span class="fa fa-external-link fa_custom"></span>, with almost 1% of the 
+world<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, with almost 1% of the 
 adult population behind bars. As of this writing, there have been <a href="https://massshootingtracker.site/" target="_blank">322 mass 
-shootings in the US</a> <span class="fa fa-external-link fa_custom"></span>, almost two a day, and 
+shootings in the US<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, almost two a day, and 
 the number is on the increase. <a href="https://www.govinfo.gov/content/pkg/CHRG-116hhrg36563/html/CHRG-116hhrg36563.htm" target="_blank">White nationalism is on the 
-rise</a> <span class="fa fa-external-link fa_custom"></span>, 
+rise<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, 
 with <a href="https://www.voanews.com/a/us-big-city-hate-crimes-spiked-by-39-in-2021-report-finds-/6571116.html" target="_blank">a 39% increase in hate crimes large cities in 
-2021</a> <span class="fa fa-external-link fa_custom"></span>.
+2021<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 <a href="https://docs.google.com/document/d/1diMvsMeRphUH7E6D1d_J7R6WbDdgnzFHDHPx9HXzR5o/edit" target="_blank">Teen mental health has declined dramatically across the
-world</a> <span class="fa fa-external-link fa_custom"></span>, 
+world<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, 
 with much of this being tied to social media consumption.</p>
 
 <p>If we can’t do this for ourselves, can we do this for our children? We need to 
@@ -504,16 +547,22 @@ back together unless they break first.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -521,8 +570,12 @@ back together unless they break first.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -533,25 +586,26 @@ back together unless they break first.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -594,8 +648,8 @@ back together unless they break first.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -605,8 +659,9 @@ back together unless they break first.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -639,6 +694,7 @@ back together unless they break first.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -655,12 +711,12 @@ back together unless they break first.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

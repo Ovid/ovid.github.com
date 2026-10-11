@@ -18,6 +18,7 @@
     --accent:      #14594A;  /* forest */
     --accent-soft: #EAF2EF;
     --code-bg:     #F6F8F7;
+    --new:         #B3261E;  /* "New!" badge */
 
     /* Legacy aliases */
     --bg-color:         var(--paper);
@@ -41,6 +42,7 @@
     --accent:      #5FBFA6;
     --accent-soft: #16241F;
     --code-bg:     #161A18;
+    --new:         #F28B82;
 
     --link-hover-color: #A8DCCE;
     --shadow-color:     #000;
@@ -83,12 +85,15 @@ body {
 :root:not([data-theme="dark"]) .token.regex,
 :root:not([data-theme="dark"]) .token.variable,
 :root:not([data-theme="dark"]) .token.entity,
-:root:not([data-theme="dark"]) .token.url { color: #7A5216; }
+:root:not([data-theme="dark"]) .token.url,
+:root:not([data-theme="dark"]) .token.attr-name { color: #7A5216; }
 :root:not([data-theme="dark"]) .token.number,
 :root:not([data-theme="dark"]) .token.boolean,
 :root:not([data-theme="dark"]) .token.constant,
 :root:not([data-theme="dark"]) .token.symbol,
-:root:not([data-theme="dark"]) .token.deleted { color: #6B3FA0; }
+:root:not([data-theme="dark"]) .token.deleted,
+:root:not([data-theme="dark"]) .token.tag,
+:root:not([data-theme="dark"]) .token.property { color: #6B3FA0; }
 :root:not([data-theme="dark"]) .token.function,
 :root:not([data-theme="dark"]) .token.class-name { color: #1F5C8B; }
 :root:not([data-theme="dark"]) .token.operator { color: var(--ink); }
@@ -113,11 +118,15 @@ body {
 [data-theme="dark"] .token.char,
 [data-theme="dark"] .token.attr-value,
 [data-theme="dark"] .token.builtin,
-[data-theme="dark"] .token.inserted { color: #D2A25C; }
+[data-theme="dark"] .token.inserted,
+[data-theme="dark"] .token.attr-name { color: #D2A25C; }
 [data-theme="dark"] .token.number,
 [data-theme="dark"] .token.boolean,
 [data-theme="dark"] .token.constant,
-[data-theme="dark"] .token.symbol { color: #C58FD8; }
+[data-theme="dark"] .token.symbol,
+[data-theme="dark"] .token.tag,
+[data-theme="dark"] .token.property,
+[data-theme="dark"] .token.deleted { color: #C58FD8; }
 [data-theme="dark"] .token.function,
 [data-theme="dark"] .token.class-name { color: #7FB4E0; }
 [data-theme="dark"] .token.operator,
@@ -125,6 +134,13 @@ body {
 [data-theme="dark"] .token.url {
     color: var(--ink);
     background: none;
+}
+
+/* Prism's #b3d4fc selection sits behind light text at 1.27:1 in dark mode. */
+[data-theme="dark"] pre[class*="language-"] ::selection,
+[data-theme="dark"] code[class*="language-"]::selection,
+[data-theme="dark"] code[class*="language-"] ::selection {
+    background: #2E5148;
 }
 
 /* Collapsible sections hardcode light greys. */

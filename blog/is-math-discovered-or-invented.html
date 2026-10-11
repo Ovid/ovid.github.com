@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
       <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
   </script>
@@ -131,28 +133,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -172,11 +211,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -188,7 +228,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -220,9 +260,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2025</span>
-        <span class="dateblock-day"><time datetime="2025-08-26">08.26</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2025</span>
+        <span class="dateblock-day" aria-hidden="true">08.26</span>
+        <time class="visually-hidden" datetime="2025-08-26">26 August 2025</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -231,18 +272,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/math">Math</a> </li>
+        <li><a href="/tags/math">Math</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/a-geodetic-refutation-of-flat-earth-theory" class="prevPost">&laquo; A Geodetic Refutation of Flat-Earth Theory</a>
@@ -257,30 +300,39 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#philosophical-mathematics">Philosophical Mathematics</a></li>
-    <li class="indent-1"><a href="#my-hilarious-job-interview">My Hilarious Job Interview</a></li>
-    <li class="indent-1"><a href="#in-the-beginning">In The Beginning</a></li>
-    <li class="indent-1"><a href="#the-great-philosophies">The Great Philosophies.</a></li>
-    <li class="indent-2"><a href="#logicism">Logicism</a></li>
-    <li class="indent-2"><a href="#formalism">Formalism</a></li>
-    <li class="indent-2"><a href="#intuitionism">Intuitionism</a></li>
-    <li class="indent-1"><a href="#more-philosophical-approaches">More Philosophical Approaches.</a></li>
-    <li class="indent-2"><a href="#set-theoretic-platonism-zfc">Set-theoretic Platonism (ZFC)</a></li>
-    <li class="indent-2"><a href="#structuralism">Structuralism</a></li>
-    <li class="indent-2"><a href="#finitism-and-constructivism">Finitism and Constructivism</a></li>
-    <li class="indent-2"><a href="#mathematical-naturalism">Mathematical Naturalism</a></li>
-    <li class="indent-1"><a href="#why-it-matters">Why It Matters</a></li>
-    <li class="indent-1"><a href="#do-mathematicians-care">Do Mathematicians Care?</a></li>
-    <li class="indent-1"><a href="#closing-thought">Closing Thought</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#philosophical-mathematics">Philosophical Mathematics</a></li>
+<li><a href="#my-hilarious-job-interview">My Hilarious Job Interview</a></li>
+<li><a href="#in-the-beginning">In The Beginning</a></li>
+<li><a href="#the-great-philosophies">The Great Philosophies.</a>
+<ul>
+<li><a href="#logicism">Logicism</a></li>
+<li><a href="#formalism">Formalism</a></li>
+<li><a href="#intuitionism">Intuitionism</a></li>
+</ul>
+</li>
+<li><a href="#more-philosophical-approaches">More Philosophical Approaches.</a>
+<ul>
+<li><a href="#set-theoretic-platonism-zfc">Set-theoretic Platonism (ZFC)</a></li>
+<li><a href="#structuralism">Structuralism</a></li>
+<li><a href="#finitism-and-constructivism">Finitism and Constructivism</a></li>
+<li><a href="#mathematical-naturalism">Mathematical Naturalism</a></li>
+</ul>
+</li>
+<li><a href="#why-it-matters">Why It Matters</a></li>
+<li><a href="#do-mathematicians-care">Do Mathematicians Care?</a></li>
+<li><a href="#closing-thought">Closing Thought</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="philosophical-mathematics"></a>Philosophical Mathematics</h2>
 
-<p>I’m kind of a math nerd in the sense that <a href="/tags/math">I love math</a>,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> but not in the sense that I’m brilliant at it. I took calculus in my junior year of high school, a full year before my classmates,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>. However, like so many of my contemporaries, I have forgotten much of my math. This led to one of my most hilarious job interviews, ever.</p>
+<p>I’m kind of a math nerd in the sense that <a href="/tags/math">I love math</a>,<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> but not in the sense that I’m brilliant at it. I took calculus in my junior year of high school, a full year before my classmates,<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>. However, like so many of my contemporaries, I have forgotten much of my math. This led to one of my most hilarious job interviews, ever.</p>
 
 <h2><a name="my-hilarious-job-interview"></a>My Hilarious Job Interview</h2>
 
@@ -325,9 +377,9 @@ behind every proof lies a question: <em>what is mathematics?</em></p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/plato.png" width="600" alt="Plato">
-    <figcaption></figcaption>
+        <a href="/static/images/plato.png" class="enlarge"><img src="/static/images/plato.png" width="600" alt="Plato"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption></figcaption>
 </figure></p>
 
 <p>Over the last 150 years, mathematicians and philosophers have offered competing
@@ -335,7 +387,7 @@ answers. Some see math as eternal truth, others as symbol manipulation, others
 as mental construction, and still others as a pragmatic tool that survives only
 because it works. Understanding these foundations matters because they shape how
 we build proofs, interpret results, and even design new mathematics. But first,
-we need to understand <a href="https://en.wikipedia.org/wiki/Plato" target="_blank">Plato</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+we need to understand <a href="https://en.wikipedia.org/wiki/Plato" target="_blank">Plato<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>Plato lived roughly 400 BCE and to him, math was something to be discovered, not
 invented. He viewed mathematics as fundamental to understanding reality and
@@ -349,7 +401,7 @@ objects.</p>
 next 2000 years, that’s mostly where math remained. Yes, we made tremendous
 advances and there were philosophical differences from Aristotle’s realism to
 Kant’s <a href="https://en.wikipedia.org/wiki/A_priori_and_a_posteriori" target="_blank">synthetic a
-priori</a> <span class="fa fa-external-link fa_custom"></span>, but these were
+priori<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but these were
 largely philosophical debates, not mathematical. That leads us to one of the
 great leaps of modern math philosophies, Logicism.</p>
 
@@ -397,8 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .mft-toolbar { display:flex; justify-content:flex-end; margin-top:8px }
       .mft-button { background:#111; color:#fff; border:0; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; font-size:14px; }
       .mft-button:focus { outline:2px solid #4f46e5; outline-offset:2px }
-      .mft-lightbox { position:fixed; inset:0; background:rgba(15,23,42,.6); display:none; align-items:center; justify-content:center; z-index:2147483647; padding:24px }
-      .mft-lightbox.open { display:flex }
+      /* A modal <dialog>: showModal() traps focus, makes the page inert, closes on
+         Escape and returns focus to the opener. Only [open] may set display. */
+      .mft-lightbox { width:100vw; height:100vh; max-width:none; max-height:none; margin:0; border:0; box-sizing:border-box; background:rgba(15,23,42,.6); align-items:center; justify-content:center; padding:24px }
+      .mft-lightbox[open] { display:flex }
       .mft-panel { background:#fff; border-radius:18px; box-shadow:var(--shadow); max-width:min(1400px,96vw); max-height:92vh; overflow:auto; padding:18px }
       .mft-closebar { position:sticky; top:0; display:flex; justify-content:flex-end; background:transparent; }
       .mft-close { border:0; background:#0f172a; color:#fff; border-radius:12px; padding:8px 12px; cursor:pointer; font-family:inherit; }
@@ -410,6 +464,8 @@ document.addEventListener("DOMContentLoaded", () => {
       .mft-bubble .desc { color:#364152 }
       .mft-event-point { cursor:pointer; transition:transform .15s ease }
       .mft-event-point:hover { transform:scale(1.12) }
+      /* main.css does not reach inside this shadow root */
+      .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0 }
     </style>
 
     <div class="mft-root" part="mft-root">
@@ -430,14 +486,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
 
-      <div class="mft-lightbox" id="mft-lightbox" role="dialog" aria-modal="true" aria-label="Large timeline">
+      <dialog class="mft-lightbox" id="mft-lightbox" aria-label="Large timeline">
         <div class="mft-panel">
           <div class="mft-closebar">
             <button type="button" class="mft-close" id="mft-close" aria-label="Close">Close ✕</button>
           </div>
           <div id="mft-timeline-large"></div>
         </div>
-      </div>
+      </dialog>
     </div>
   `;
 
@@ -577,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
       div.className = "mft-bubble";
       div.style.borderLeft = `4px solid ${color}`;
       div.innerHTML = `
-        <a href="${d.wiki}" target="_blank" rel="noopener" class="label" title="Open Wikipedia: ${d.label}" onclick="event.stopPropagation()">${d.label}</a>
+        <a href="${d.wiki}" target="_blank" rel="noopener" class="label" title="Open Wikipedia: ${d.label}" onclick="event.stopPropagation()">${d.label}<span class="visually-hidden"> (opens in new tab)</span></a>
         <div class="desc">${d.desc}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.stance}</div>
       `;
@@ -633,7 +689,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnClose  = shadow.getElementById("mft-close");
 
   function openLightbox(){
-    lb.classList.add("open");
+    lb.showModal();
     render(largeRoot, {
       width: Math.min(1400, window.innerWidth-120),
       height: Math.min(820, window.innerHeight-160),
@@ -641,13 +697,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     btnClose && btnClose.focus();
   }
-  function closeLightbox(){ lb.classList.remove("open"); }
+  function closeLightbox(){ lb.close(); }
 
   btnOpen.addEventListener("click", openLightbox);
   btnClose.addEventListener("click", closeLightbox);
   lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
-  const onKey = (e) => { if (e.key === "Escape") closeLightbox(); };
-  document.addEventListener("keydown", onKey);
 
   // 6) Responsive sizing
   const ro = new ResizeObserver(() => {
@@ -665,7 +719,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mo = new MutationObserver(() => {
     if (!document.body.contains(mount)) {
       ro.disconnect();
-      document.removeEventListener("keydown", onKey);
       mo.disconnect();
     }
   });
@@ -677,19 +730,19 @@ document.addEventListener("DOMContentLoaded", () => {
 <h3><a name="logicism"></a>Logicism</h3>
 
 <p>Logicism was a school of thought pioneered by <a href="https://en.wikipedia.org/wiki/Gottlob_Frege" target="_blank">Gottlob
-Frege</a> <span class="fa fa-external-link fa_custom"></span> in the late 19<sup>th</sup>
+Frege<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> in the late 19<sup>th</sup>
 century and argues that mathematics is fundamentally reducible to logic.
 Frege’s groundbreaking work, especially in his Begriffsschrift and The
 Foundations of Arithmetic, tried to show that numbers and arithmetic truths are
 not dependent on human intuition or experience but can be derived entirely from
 logical principles.  Although Frege’s system was famously undermined by
 <a href="https://en.wikipedia.org/wiki/Russell%27s_paradox#History" target="_blank">Bertrand Russell’s
-paradox</a> <span class="fa fa-external-link fa_custom"></span>, his
+paradox<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, his
 project reshaped the philosophy of mathematics.</p>
 
 <p>Both Frege and Russell had hoped to reduce math to pure logic, <a href="https://en.wikipedia.org/wiki/G%C3%B6del%27s_incompleteness_theorems" target="_blank">Gödel’s
 incompleteness
-theorems</a> <span class="fa fa-external-link fa_custom"></span>
+theorems<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 showed that there are always “true” statements about natural numbers which
 cannot be proven. Worse, Gödel’s second theorem proved no consistent set of
 axioms can prove its own consistency.</p>
@@ -697,7 +750,7 @@ axioms can prove its own consistency.</p>
 <h3><a name="formalism"></a>Formalism</h3>
 
 <p>Hilbert’s formalism, developed by German mathematician <a href="https://en.wikipedia.org/wiki/David_Hilbert" target="_blank">David
-Hilbert</a> <span class="fa fa-external-link fa_custom"></span> in the early twentieth
+Hilbert<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> in the early twentieth
 century, was an ambitious attempt to establish mathematics on completely secure
 foundations by treating it as a purely formal system of symbol manipulation.
 Hilbert wanted to show the consistency of all mathematical systems by
@@ -721,8 +774,8 @@ logic.</p>
 <h3><a name="intuitionism"></a>Intuitionism</h3>
 
 <p>Perhaps my favorite mathematical philosophy is
-<a href="https://plato.stanford.edu/entries/intuitionism/" target="_blank">intuitionism</a> <span class="fa fa-external-link fa_custom"></span>, created by
-<a href="https://en.wikipedia.org/wiki/L._E._J._Brouwer" target="_blank">L. E. J. Brouwer</a> <span class="fa fa-external-link fa_custom"></span>,
+<a href="https://plato.stanford.edu/entries/intuitionism/" target="_blank">intuitionism<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, created by
+<a href="https://en.wikipedia.org/wiki/L._E._J._Brouwer" target="_blank">L. E. J. Brouwer<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 intuitionism argues that math is <em>only</em> a construct of the mind. Brouwer’s was
 a rebel philosophy that thumbed its nose at the big mathematical worldviews of
 his time.</p>
@@ -750,7 +803,7 @@ simultaneously making it much more restrictive than classical mathematics
 allowed.</p>
 
 <p>Wait? What the heck is <a href="https://en.wikipedia.org/wiki/Law_of_excluded_middle" target="_blank">the law of the excluded
-middle</a> <span class="fa fa-external-link fa_custom"></span>?</p>
+middle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>?</p>
 
 <p>In classical logic, every proposition is either true or false.  Brouwer rejects
 that until you can actually construct a proof that shows which one it is. Think
@@ -785,12 +838,12 @@ he rejected the concept of actual infinity.</p>
 they’ve ever heard about Brouwer, is that the ideas are useless but since so
 much of math depends on the law of the excluded middle (and proof by
 contradiction, something else intuitionism rejects), that intuitionism isn’t
-practical.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
+practical.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <p>But what about irrational numbers like π (pi)? They have infinitely many digits
 after the decimal point, right? Well, we’ve calculated trillions of them, but
 even <a href="https://www.livescience.com/physics-mathematics/mathematics/pi-day-2024-why-nasa-uses-only-16-of-the-62-trillion-digits-of-pi-we-know" target="_blank">NASA only uses the first 15 digits after the decimal
-point</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+point<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>This fits well with my thoughts on the philosophy of math. It’s not so much that
 we arrive at the <em>correct</em> answer as we arrive at the <em>useful</em> answer. For
@@ -807,7 +860,7 @@ built from sets. It’s powerful but incomplete. Questions like the Continuum
 Hypothesis can’t be resolved within it.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/Gz6qefUi3Ho" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="The Infinity Problem that Broke Mathematics (The Continuum Hypothesis)" src="https://www.youtube.com/embed/Gz6qefUi3Ho" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <h3><a name="structuralism"></a>Structuralism</h3>
@@ -878,20 +931,20 @@ capture what we observe, we invent better ones.</p>
 
 <p>More importantly, ideas such as Brouwer’s intuitionism might have real-world
 applications. Here’s quantum physicist <a href="https://en.wikipedia.org/wiki/Nicolas_Gisin" target="_blank">Nicolas
-Gisin</a> <span class="fa fa-external-link fa_custom"></span> using intuitionism to show
+Gisin<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> using intuitionism to show
 that time might have a direction after all.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/WT0XDSe0GyY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Nicolas Gisin on intuitionism and the direction of time" src="https://www.youtube.com/embed/WT0XDSe0GyY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>Or if you prefer reading, <a href="https://www.lesswrong.com/posts/eNnr4JwEDNux63oXm/mathematical-intuitionism-and-the-flow-of-time" target="_blank">here’s a short article explaining Gisin’s point of
-view</a> <span class="fa fa-external-link fa_custom"></span>.
+view<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Or <a href="https://arxiv.org/pdf/2002.01653" target="_blank">here’s his short and easy-to-read paper on the
-topic</a> <span class="fa fa-external-link fa_custom"></span> (pdf).</p>
+topic<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (pdf).</p>
 
 <p>Unfortunately, the <a href="https://en.wikipedia.org/wiki/Brouwer%E2%80%93Hilbert_controversy" target="_blank">Brouwer-Hilbert
-debate</a> <span class="fa fa-external-link fa_custom"></span> was
+debate<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> was
 won by Hilbert and time was essentially ejected from physics (read the Gisin
 paper).</p>
 
@@ -908,16 +961,22 @@ paper).</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -925,8 +984,12 @@ paper).</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -937,25 +1000,26 @@ paper).</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -998,8 +1062,8 @@ paper).</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -1009,8 +1073,9 @@ paper).</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1043,6 +1108,7 @@ paper).</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1059,12 +1125,12 @@ paper).</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1075,13 +1141,12 @@ paper).</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>As of this writing, one of those pages has an egregious math error that no one has spotted. Proof that no one really reads this blog. I've left the error because I'm curious if anyone will ever spot it.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-1">As of this writing, one of those pages has an egregious math error that no one has spotted. Proof that no one really reads this blog. I've left the error because I'm curious if anyone will ever spot it.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1090,11 +1155,10 @@ paper).</p>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>But for complicated reasons, I was told partway through the year to switch to another class and had to retake calculus in my senior year.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-2">But for complicated reasons, I was told partway through the year to switch to another class and had to retake calculus in my senior year.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1103,11 +1167,10 @@ paper).</p>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>More to the point, they don't care.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-3">More to the point, they don't care.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

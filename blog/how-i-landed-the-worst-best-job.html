@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -182,7 +222,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2022</span>
-        <span class="dateblock-day"><time datetime="2022-10-29">10.29</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2022</span>
+        <span class="dateblock-day" aria-hidden="true">10.29</span>
+        <time class="visually-hidden" datetime="2022-10-29">29 October 2022</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/personal">Personal</a> </li>
+        <li><a href="/tags/personal">Personal</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/redefining-life-as-a-continuum" class="prevPost">&laquo; Redefining Life as a Continuum</a>
@@ -251,17 +294,20 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#the-early-days">The Early Days</a></li>
-    <li class="indent-1"><a href="#barista">Barista</a></li>
-    <li class="indent-1"><a href="#my-first-test">My First Test</a></li>
-    <li class="indent-1"><a href="#how-i-became-a-bill-collector">How I Became a Bill Collector</a></li>
-    <li class="indent-1"><a href="#sexual-harassment">Sexual Harassment</a></li>
-    <li class="indent-1"><a href="#leaving">Leaving</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#the-early-days">The Early Days</a></li>
+<li><a href="#barista">Barista</a></li>
+<li><a href="#my-first-test">My First Test</a></li>
+<li><a href="#how-i-became-a-bill-collector">How I Became a Bill Collector</a></li>
+<li><a href="#sexual-harassment">Sexual Harassment</a></li>
+<li><a href="#leaving">Leaving</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="the-early-days"></a>The Early Days</h2>
 
@@ -274,7 +320,7 @@ memory will be different from mine.</p>
 <p>I am often asked how I got into writing software for a living. This is the story
 of my first real programming job and the strange path that took me there.</p>
 
-<p>In 1982 I was attending <a href="https://www.keystoneschool.org/" target="_blank">Keystone School</a> <span class="fa fa-external-link fa_custom"></span> in
+<p>In 1982 I was attending <a href="https://www.keystoneschool.org/" target="_blank">Keystone School<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> in
 San Antonio, Texas. It was a very dark time in my life and my geometry teacher
 recognized that I was in trouble, so she allowed me to play in the computer room
 that was reserved for older students. I learned BASIC programming and discovered
@@ -295,21 +341,21 @@ pixelated minotaur’s head, dragon’s head, and other AD&amp;D images.</p>
 <p>One would think that after I graduated high school in ‘85 that I would go on to
 college and do something with my life, but one would be wrong. We were dirt
 poor and at the time, to qualify for financial aid for college, I had to first
-apply for a Pell Grant.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> <em>That</em> required that my parents provide several years of past
+apply for a Pell Grant.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> <em>That</em> required that my parents provide several years of past
 tax returns to show what level of financial support they could provide. My
 mother explained to me that my step father did the taxes. He had failed to file
 them for years, so no Pell Grant for me. No financial aid for me. No college for
 me.</p>
 
 <p>The next several years were me bouncing around from odd job to odd job, mostly
-fast food. At one point I had worked at <a href="https://www.wendys.com/" target="_blank">Wendy’s</a> <span class="fa fa-external-link fa_custom"></span>
+fast food. At one point I had worked at <a href="https://www.wendys.com/" target="_blank">Wendy’s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 restaurant in Anchorage, Alaska, Kingsville, Texas, Universal City, Texas,
 Longview, Washington, and Honolulu, Hawaii. I was a pathetic peripatetic,
 wandering from state to state, deeply embarrassed that the “Most Intelligent of
 the Class of ‘85” of Marion High School was an itinerant burger flipper.</p>
 
 <p>Years later, I eventually went to a community college in Portland, Oregon and
-managed to get an Associate of Science degree with a 4.0 GPA<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>, having taken
+managed to get an Associate of Science degree with a 4.0 GPA<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>, having taken
 every economics class they offered with a specialization in international
 relations.</p>
 
@@ -340,7 +386,7 @@ used to write software, we started talking about this frequently.</p>
 
 <p>One day he came in to place an order and said he was quitting his job and he’d
 be happy to recommend me. The software was written in something called
-<a href="https://www.unibasic.com/" target="_blank">UniBasic</a> <span class="fa fa-external-link fa_custom"></span> and he was sure I could handle it. He
+<a href="https://www.unibasic.com/" target="_blank">UniBasic<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and he was sure I could handle it. He
 would stay on for three months to train me.</p>
 
 <p>I got the job and it got my foot in the door, but to my surprise, it was often
@@ -356,7 +402,7 @@ office. He explained that they needed to increase the price of everything by X%,
 varying per category, and have it ready for tomorrow.</p>
 
 <p>This wasn’t just running a bunch of SQL. We were using a <a href="https://www.uniware.com.au/multivalue-database/unidata/" target="_blank">UniData multivalue
-database</a> <span class="fa fa-external-link fa_custom"></span>, prices were
+database<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, prices were
 scattered all over the place, and I wasn’t very good with their query language.
 Worse, our license allowed us to write code to read the data, but not change it.
 Updating this data was done through software running on a terminal and it
@@ -372,7 +418,7 @@ been a rush job.</p>
 risk.  If we changed the data and were caught, we’d have to pay $25,000 (almost
 $50,000 in today’s money) to buy a copy of the software outright.  We were a
 small company and that would have hurt us. We’d also lose all technical support
-from the company that “designed” this software.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> and we’d no longer get free upgrades. Having a few hours heads-up on New
+from the company that “designed” this software.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> and we’d no longer get free upgrades. Having a few hours heads-up on New
 Year’s Eve that I needed to risk destroying the company’s business wasn’t fun,
 but this was how the company worked. So I worked.</p>
 
@@ -429,7 +475,7 @@ money to pay me.</p>
 <p>Oh. That’s interesting. In my prior life, I had also worked in car sales. I knew
 exactly what this was: a negotiation. The manager probably thought he had told
 me “no,” but I heard his objection and <a href="https://www.salestraininganddevelopment.com/isolating-objections.html" target="_blank">I isolated
-it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+it<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>Me: “You don’t think I deserve a raise?”</p>
 
@@ -580,16 +626,22 @@ in the mess.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -597,8 +649,12 @@ in the mess.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -609,25 +665,26 @@ in the mess.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -670,8 +727,8 @@ in the mess.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -681,8 +738,9 @@ in the mess.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -715,6 +773,7 @@ in the mess.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -731,12 +790,12 @@ in the mess.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -747,14 +806,13 @@ in the mess.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>It may still be the same way today.
+        <div id="note-body-1">It may still be the same way today.
 I've no idea.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -763,11 +821,10 @@ I've no idea.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>That means I scored top marks in every class.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-2">That means I scored top marks in every class.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -776,15 +833,14 @@ I've no idea.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>If that sounded
+        <div id="note-body-3">If that sounded
 snarky, it's well-deserved. At one point, a salesperson went through a nasty
 divorce and wanted her login name to be changed back to her maiden name. This
 wasn't possible because her login name was used as a primary key throughout the
 database. Every day she had to stare at her hated ex's name. It was not good.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

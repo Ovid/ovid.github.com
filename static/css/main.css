@@ -38,7 +38,9 @@ input[type="submit"], input[type="reset"], input[type="button"] {
 
 body {
     font-family: "Newsreader", Georgia, "Times New Roman", serif;
-    font-size: 19px;
+    /* rem, not px: every other size on the site is rem, so a px body broke
+       the ratios for anyone whose browser default is not 16px. */
+    font-size: 1.1875rem;
     font-weight: 400;
     line-height: 1.72;
     margin: 0;
@@ -82,7 +84,10 @@ body {
     color: var(--paper);
 }
 
-:focus-visible {
+/* button:focus-visible matches Skeleton's button:focus { outline: 0 }
+   in specificity and loads later, so it wins. */
+:focus-visible,
+button:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -133,7 +138,7 @@ body {
 
 #search input {
     font-family: "Archivo", sans-serif;
-    font-size: .78rem;
+    font-size: .8rem;
     letter-spacing: .04em;
     color: var(--ink);
     background: transparent;
@@ -146,9 +151,15 @@ body {
     margin: 0;
     box-shadow: none;
 }
+/* A 1px border colour change alone is too faint a focus cue (WCAG 2.4.13).
+   The ring is set here because Skeleton's input[type="search"]:focus
+   { outline: 0 } outranks the site-wide :focus-visible rule. */
 #search input:focus {
     border-bottom-color: var(--accent);
-    outline: none;
+}
+#search input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 #results {
@@ -182,12 +193,17 @@ body {
 }
 #results li { margin: 0; }
 #results li + li { border-top: 1px solid var(--rule); }
+#results .no-results {
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    padding: .5rem .9rem;
+    color: var(--muted);
+}
 
 /* These are article titles, so they take the prose voice, not the nav's. */
 #results a {
     display: block;
     font-family: "Newsreader", Georgia, "Times New Roman", serif;
-    font-size: .85rem;
+    font-size: 1rem;
     line-height: 1.3;
     padding: .5rem .9rem;
     text-decoration: none;
@@ -206,7 +222,7 @@ body {
     background: none;
     border: 0;
     cursor: pointer;
-    font-size: 1.05rem;
+    font-size: 1rem;
     line-height: 1;
     color: var(--muted);
     width: auto;
@@ -302,8 +318,8 @@ body {
     padding-left: 0;
     padding-right: .7rem;
     margin-left: -1.1rem;
-    font-size: .58rem;
-    color: var(--faint);
+    font-size: .7rem;
+    color: var(--muted);
     letter-spacing: .1em;
 }
 
@@ -322,7 +338,14 @@ body {
     .nav-links li + li::before { display: none; }
     .nav-links a { padding: .5rem 0; }
     .nav-links a[aria-current]::after { display: none; }
-    .nav-links a[aria-current] { color: var(--accent); }
+    /* The bar is hidden here, so colour alone would mark the current page
+       (WCAG 1.4.1); the underline is the non-colour cue. */
+    .nav-links a[aria-current] {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: .35em;
+    }
     .nav-links .nav-feed { margin-left: .6rem; display: inline; }
 }
 
@@ -349,7 +372,7 @@ body {
 .dateblock.is-filled { border-right: 1px solid var(--rule); }
 .dateblock-year {
     display: block;
-    font-size: .72rem;
+    font-size: .7rem;
     letter-spacing: .18em;
     color: var(--muted);
 }
@@ -360,11 +383,10 @@ body {
     letter-spacing: -.03em;
     color: var(--accent);
 }
-.dateblock-day time { color: inherit; font-style: normal; }
 .dateblock-meta {
     display: block;
     margin-top: 1rem;
-    font-size: .68rem;
+    font-size: .7rem;
     letter-spacing: .12em;
     text-transform: uppercase;
     color: var(--muted);
@@ -451,14 +473,14 @@ body {
 #article > :is(h1, h2, h3, h4, h5, h6):first-child { margin-top: 0; }
 .prose h3 {
     font-weight: 500;
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     line-height: 1.3;
     margin: 2.6rem 0 .8rem;
 }
 .prose h4, .prose h5, .prose h6 {
     font-family: "Archivo", sans-serif;
     font-weight: 600;
-    font-size: .78rem;
+    font-size: .8rem;
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--ink);
@@ -517,7 +539,7 @@ a {
 .prose ul.latest .meta {
     margin: 0;
     color: var(--muted);
-    font-size: .85rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: .06em;
 }
@@ -535,7 +557,7 @@ hr {
 }
 
 .new {
-    color: #B3261E;
+    color: var(--new);
     font-weight: 600;
 }
 
@@ -548,6 +570,9 @@ img {
     height: auto;
     box-shadow: none;
 }
+/* Embeds with fixed width attributes (the Google Maps one is 640px) must
+   not force sideways scrolling on a phone (WCAG 1.4.10). */
+iframe { max-width: 100%; }
 
 figure {
     margin: 2.8rem 0;
@@ -602,25 +627,37 @@ img.scaled { width: 100%; }
  * Quotes
  * ------------------------------------------------------------------ */
 
+/* Quoted material, not a pull quote: body size and upright so long quotes
+   stay readable, set off by an indent and a rule. The rule is --rule, not
+   --accent, so it does not read as a code block or the global message. */
 blockquote {
-    margin: 2.8rem 0;
-    padding: 0;
+    margin: 2rem 0;
+    padding: 0 0 0 1.4rem;
     border: 0;
+    border-left: 3px solid var(--rule);
     box-shadow: none;
     background: none;
-    font-size: 1.5rem;
-    line-height: 1.45;
-    font-weight: 300;
-    font-style: italic;
-    color: var(--accent);
-    max-width: 30rem;
+    font-size: 1em;
+    font-style: normal;
+    color: var(--muted);
 }
-blockquote p { margin: 0 0 .6rem; text-indent: 0; }
+blockquote p { margin: 0 0 1rem; text-indent: 0; }
 blockquote p:last-child { margin-bottom: 0; }
+
+/* include/quote.tt emits <cite> with its own dash. */
+blockquote cite {
+    display: block;
+    font-family: "Archivo", sans-serif;
+    font-size: .7rem;
+    font-style: normal;
+    letter-spacing: .04em;
+    color: var(--muted);
+    margin-top: .9rem;
+}
 
 blockquote div.attribution {
     font-family: "Archivo", sans-serif;
-    font-size: .72rem;
+    font-size: .7rem;
     font-style: normal;
     font-weight: 500;
     letter-spacing: .08em;
@@ -656,7 +693,7 @@ code, kbd, samp {
 
 pre {
     font-family: "JetBrains Mono", Menlo, Consolas, monospace;
-    font-size: .78rem;
+    font-size: .78em;
     line-height: 1.65;
     background: var(--code-bg);
     border: 0;
@@ -728,7 +765,7 @@ dt {
     text-align: right;
     padding: .15em 0;
     font-family: "Archivo", sans-serif;
-    font-size: .72rem;
+    font-size: .7rem;
     font-weight: 600;
     letter-spacing: .06em;
     text-transform: uppercase;
@@ -759,7 +796,7 @@ dd {
 .table-of-contents::before {
     content: "Contents";
     display: block;
-    font-size: .66rem;
+    font-size: .7rem;
     font-weight: 600;
     letter-spacing: .16em;
     text-transform: uppercase;
@@ -783,42 +820,24 @@ dd {
 .table-of-contents a:hover { color: var(--accent); }
 
 /* Depth is shown two ways: top-level entries take the prose serif so they read
-   as the article's spine, and everything below them sits behind a hairline
-   rail. Scoped to .table-of-contents so they outrank `.prose ol li, .prose ul
-   li { padding: 0 }` above -- the TOC sits inside .prose, and that reset was
-   flattening every level to flush-left. .indent-N is emitted only by the
-   {{TOC}} builder in Ovid::Template::File. */
-.table-of-contents .indent-1 {
-    padding-left: 0;
-    margin-top: .7rem;
-}
-.table-of-contents .indent-1:first-child { margin-top: 0; }
-.table-of-contents .indent-1 > a {
+   as the article's spine, and every nested list sits behind a hairline rail.
+   {{TOC}} in Ovid::Template::File nests a <ul> per heading level, so the rail
+   on each nested list runs continuously behind everything below it, and each
+   level steps in by the rail's margin plus padding (1rem). Scoped to
+   .table-of-contents so these outrank `.prose ul` and Skeleton's `ul ul`. */
+.table-of-contents > ul > li { margin-top: .7rem; }
+.table-of-contents > ul > li:first-child { margin-top: 0; }
+.table-of-contents > ul > li > a {
     font-family: "Newsreader", Georgia, "Times New Roman", serif;
-    font-size: .98rem;
+    font-size: 1rem;
     color: var(--ink);
 }
-
-/* The rail is drawn per <li>, so the .4rem gap between items becomes
-   padding rather than margin -- otherwise it renders as a dashed column.
-   {{TOC}} emits a flat <ul>, so a level-2 rail breaks where levels 3+ nest
-   inside it rather than running behind them. Rare enough to live with; a
-   continuous tree would need nested lists from Ovid::Template::File. */
-.table-of-contents .indent-2,
-.table-of-contents .indent-3,
-.table-of-contents .indent-4,
-.table-of-contents .indent-5,
-.table-of-contents .indent-6 {
+.table-of-contents ul ul {
     border-left: 1px solid var(--rule);
+    margin: .4rem 0 0 .15rem;
     padding-left: .85rem;
-    padding-bottom: .4rem;
-    margin-bottom: 0;
+    font-size: inherit;
 }
-.table-of-contents .indent-2 { margin-left: .15rem; }
-.table-of-contents .indent-3 { margin-left: 1.15rem; }
-.table-of-contents .indent-4 { margin-left: 2.15rem; }
-.table-of-contents .indent-5 { margin-left: 3.15rem; }
-.table-of-contents .indent-6 { margin-left: 4.15rem; }
 
 /* ------------------------------------------------------------------ *
  * Global message (include/global-message.tt)
@@ -834,7 +853,7 @@ dd {
     padding: .85rem 1.1rem;
     background: var(--accent-soft);
     border-left: 2px solid var(--accent);
-    font-size: .95rem;
+    font-size: 1rem;
     line-height: 1.55;
     color: var(--ink);
 }
@@ -857,7 +876,7 @@ dd {
 
 div.footnotes,
 aside.footnotes {
-    font-size: .88rem;
+    font-size: 1rem;
     font-style: normal;
     color: var(--muted);
     border-top: 1px solid var(--rule);
@@ -873,6 +892,8 @@ div.footnotes p { margin: .4rem 0; text-indent: 0; }
     margin-left: 1px;
     vertical-align: middle;
 }
+/* Inside the link now, so a space would be underlined; use margin instead. */
+a > .fa-external-link { margin-left: .25em; }
 
 /* ------------------------------------------------------------------ *
  * Tags -- both the per-article list and the site-wide cloud
@@ -885,11 +906,13 @@ ul.inline {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: .1rem;
+    gap: .3rem;    /* keeps the stacked links on a 24px+ pitch (WCAG 2.5.8) */
 }
 ul.inline > li { margin: 0; text-align: right; }
-ul.inline > li:first-child {
-    font-size: .66rem;
+/* The "Tags" label sits outside the list, as the <nav>'s visible name. */
+.tag-list-label {
+    text-align: right;
+    font-size: .7rem;
     font-weight: 600;
     letter-spacing: .16em;
     text-transform: uppercase;
@@ -901,6 +924,16 @@ ul.inline a {
     text-decoration: none;
 }
 ul.inline a:hover { color: var(--accent); }
+
+/* An <h2> for the outline, styled as the plain bold label it replaced. */
+.tag-cloud-heading {
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: inherit;
+    text-transform: none;
+    color: inherit;
+    margin: 0;
+}
 
 ul.cloud {
     list-style: none;
@@ -949,7 +982,7 @@ div.prevNext {
     margin: 0 0 2.5rem;
 }
 div.prevNext a {
-    font-size: 1.05rem;
+    font-size: 1rem;
     line-height: 1.3;
     font-weight: 300;
     color: var(--ink);
@@ -959,6 +992,9 @@ div.prevNext a:hover { color: var(--accent); }
 /* Pinned to column 2 so it stays right-aligned when there is no prev link. */
 div.prevNext .nextPost { text-align: right; grid-column: 2; }
 
+/* Row headers are <th scope="row"> for screen readers; keep them body weight. */
+tbody th { font-weight: inherit; }
+
 .pagination {
     display: inline-flex;
     flex-wrap: wrap;
@@ -966,7 +1002,7 @@ div.prevNext .nextPost { text-align: right; grid-column: 2; }
     border-radius: 0;
     padding: 0;
     font-family: "Archivo", sans-serif;
-    font-size: .78rem;
+    font-size: .8rem;
 }
 .pagination a,
 .pagination .inactive {
@@ -1031,7 +1067,7 @@ div.prevNext .nextPost { text-align: right; grid-column: 2; }
 }
 .shelf-note {
     max-width: 28rem;
-    font-size: 1.02rem;
+    font-size: 1rem;
     line-height: 1.65;
     font-weight: 300;
     color: var(--muted);
@@ -1040,7 +1076,7 @@ div.prevNext .nextPost { text-align: right; grid-column: 2; }
 .shelf-note b {
     display: block;
     font-family: "Archivo", sans-serif;
-    font-size: .68rem;
+    font-size: .7rem;
     font-weight: 600;
     letter-spacing: .16em;
     text-transform: uppercase;
@@ -1065,6 +1101,9 @@ div.prevNext .nextPost { text-align: right; grid-column: 2; }
     color: var(--muted);
     text-decoration: none;
     margin-left: 1.5rem;
+    /* Wrapped rows on phones sat on a ~19px pitch (WCAG 2.5.8). */
+    display: inline-block;
+    padding: .3rem 0;
 }
 .colophon-links a:first-child { margin-left: 0; }
 .colophon-links a:hover { color: var(--accent); }
@@ -1074,27 +1113,24 @@ div.prevNext .nextPost { text-align: right; grid-column: 2; }
  * ------------------------------------------------------------------ */
 
 a.arrow {
-    text-decoration: none;
     position: fixed;
     right: 1.5rem;
     bottom: 1.5rem;
     z-index: 40;
-}
-#scrollToTopButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 2.1rem;
     height: 2.1rem;
-    min-width: 0;
-    padding: 0;
-    margin: 0;
     font-size: .8rem;
     line-height: 1;
+    text-decoration: none;
     color: var(--muted);
     background: var(--paper);
     border: 1px solid var(--rule);
     border-radius: 50%;
-    cursor: pointer;
 }
-#scrollToTopButton:hover {
+a.arrow:hover {
     color: var(--accent);
     border-color: var(--accent);
 }
@@ -1137,14 +1173,21 @@ a.arrow {
         gap: .75rem;
     }
     ul.inline > li { text-align: left; }
-    ul.inline > li:first-child { margin-bottom: 0; }
+    /* Label and tags share one wrapping row, as when the label was an <li>. */
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: .75rem;
+    }
+    .tag-list-label { text-align: left; margin-bottom: 0; }
     .prose { max-width: none; }
     .opener { padding-top: 3rem; }
     .opener h1 { font-size: 2.9rem; max-width: none; }
 }
 
 @media (max-width: 40em) {
-    body { font-size: 18px; }
+    body { font-size: 1.125rem; }
     .wrap { padding: 0 1.3rem; }
     .opener h1 { font-size: 2.2rem; }
     .masthead-row { align-items: flex-start; }

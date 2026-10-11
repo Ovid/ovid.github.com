@@ -12,9 +12,9 @@ use Test::MockModule;
 # Test Helper Subroutines for Footnote Testing
 #
 
-# Extract footnote dialog spans from HTML
+# Extract footnote dialog buttons from HTML
 sub extract_footnote_dialogs ($html) {
-    my @dialogs = $html =~ m{<span[^>]*class="[^"]*open-dialog[^"]*"[^>]*>.*?</span>}gs;
+    my @dialogs = $html =~ m{<button[^>]*class="[^"]*open-dialog[^"]*"[^>]*>.*?</button>}gs;
     return @dialogs;
 }
 
@@ -36,7 +36,7 @@ sub validate_unique_ids ($html) {
 
 # Extract footnote content from dialog body
 sub extract_dialog_content ( $html, $number ) {
-    if ( $html =~ m{<div id="dialog-$number"[^>]*>.*?<div>(.*?)</div>}s ) {
+    if ( $html =~ m{<div id="dialog-$number"[^>]*>.*?<div id="note-body-$number">(.*?)</div>}s ) {
         return $1;
     }
     return undef;
@@ -63,7 +63,7 @@ my $ovid = Template::Plugin::Ovid->new(undef);
 
 # Test cite() - external links
 is $ovid->cite( '/example.html', 'link name' ),
-  '<a href="/example.html" target="_blank">link name</a> <span class="fa fa-external-link fa_custom"></span>',
+  '<a href="/example.html" target="_blank">link name<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>',
   'We should be able to cite an external link with an external link span';
 
 # Test link() - internal links
@@ -77,8 +77,8 @@ my @hrefs = (
     $ovid->add_note('footnote 2')
 );
 my @expected = (
-    '<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>',
-    '<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>',
+    '<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>',
+    '<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>',
 );
 
 eq_or_diff \@hrefs, \@expected,
@@ -102,10 +102,10 @@ ok ref($footnotes) eq 'ARRAY', 'get_footnotes() should return an array reference
 subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
     my $test_ovid = Template::Plugin::Ovid->new(undef);
 
-    # Test: add_note() returns span with open-dialog class
+    # Test: add_note() returns button with open-dialog class
     my $result1 = $test_ovid->add_note('First note content');
     like $result1, qr/class="[^"]*open-dialog[^"]*"/,
-      'add_note() returns span with open-dialog class';
+      'add_note() returns button with open-dialog class';
     like $result1, qr/id="open-dialog-1"/,
       'add_note() generates correct sequential ID';
 
@@ -122,8 +122,8 @@ subtest 'Baseline: Current add_note() JavaScript behavior' => sub {
       'Dialog body has role="dialog" attribute';
     like $stored_footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
       'Dialog body has aria-labelledby attribute';
-    like $stored_footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
-      'Dialog body has aria-describedby attribute';
+    like $stored_footnotes->[0]{body}, qr/aria-describedby="note-body-1"/,
+      'Dialog is described by the note itself';
 
     # Test: Dialog body contains the footnote content
     like $stored_footnotes->[0]{body}, qr/First note content/,
@@ -187,12 +187,12 @@ subtest 'US3: NoScript section in footer output' => sub {
 subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub {
     my $test_ovid = Template::Plugin::Ovid->new(undef);
 
-    # Test T016: add_note generates span with open-dialog class
+    # Test T016: add_note generates button with open-dialog class
     my $result1 = $test_ovid->add_note('First JS footnote');
-    like $result1, qr/<span[^>]*class="[^"]*open-dialog[^"]*"/,
-      'T016: add_note() generates span with open-dialog class for JavaScript mode';
+    like $result1, qr/<button type="button"[^>]*class="[^"]*open-dialog[^"]*"/,
+      'T016: add_note() generates button with open-dialog class for JavaScript mode';
     like $result1, qr/class="[^"]*js-only[^"]*"/,
-      'T016: Span should have js-only class to hide when JS disabled';
+      'T016: Button should have js-only class to hide when JS disabled';
 
     # Test T017: add_note generates unique dialog IDs
     my $result2 = $test_ovid->add_note('Second JS footnote');
@@ -211,8 +211,13 @@ subtest 'US1: JavaScript footnote modal behavior (regression prevention)' => sub
       'T018: Dialog has role="dialog" ARIA attribute';
     like $footnotes->[0]{body}, qr/aria-labelledby="note-1"/,
       'T018: Dialog has aria-labelledby attribute';
-    like $footnotes->[0]{body}, qr/aria-describedby="note-description-1"/,
-      'T018: Dialog has aria-describedby attribute';
+    like $footnotes->[0]{body},
+      qr{aria-describedby="note-body-1"[^>]*>.*<div id="note-body-1">First JS footnote</div>}s,
+      'T018: Dialog is described by the note body, not a stand-in';
+    like $footnotes->[0]{body}, qr/role="dialog" aria-modal="true"/,
+      'T018: Dialog is modal';
+    unlike $footnotes->[0]{body}, qr/Note number/,
+      'T018: The stand-in description is gone';
     like $footnotes->[0]{body}, qr/aria-hidden="true"/,
       'T018: Dialog has aria-hidden="true" by default (prevents overlay flash)';
 
@@ -242,6 +247,11 @@ like $youtube_html, qr{<iframe.*src="https://www\.youtube\.com/embed/dQw4w9WgXcQ
   'youtube() should generate proper iframe embed code';
 like $youtube_html, qr{class="video-responsive"},
   'youtube() should wrap in responsive container';
+like $youtube_html, qr{<iframe[^>]* title="YouTube video"},
+  'youtube() should give the iframe a default accessible name';
+like $ovid->youtube( 'dQw4w9WgXcQ', q{Fish & "Chips"} ),
+  qr{<iframe[^>]* title="Fish &amp; &quot;Chips&quot;"},
+  'youtube() should use an HTML-escaped title when one is passed';
 
 # Test youtube() with invalid ID (contains slash)
 throws_ok { $ovid->youtube('invalid/id') } qr/does not appear to be valid/,
@@ -286,5 +296,14 @@ SKIP: {
 # NOTE: The branch where no cached description exists (requiring AI call) is not tested
 # to avoid external API dependencies. This branch is covered by integration tests.
 # See: specs/001-test-coverage-improvement/coverage-exceptions.md
+
+# Importing human_date from Ovid::Site::Utils while also defining the
+# human_date method printed "Subroutine human_date redefined" on every build.
+subtest 'modules load without warnings' => sub {
+    for my $module (qw(Template::Plugin::Ovid Ovid::Site::Utils Ovid::Site)) {
+        my $err = `$^X -Ilib -we "use $module" 2>&1`;
+        is $err, '', "$module compiles silently";
+    }
+};
 
 done_testing;

@@ -22,12 +22,17 @@ $parser = Ovid::Template::File->new( filename => 'dummy', _code => code_blocks()
 ok !$parser->title, 'Our code_blocks() snippet should not have a title';
 my $expected = <<'END';
 [% WRAPPER include/wrapper blogdown=1 %]
-<nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#this-is-a-header">This is a header</a></li>
-    <li class="indent-2"><a href="#this-is-a-level-two-header">This is a level two header</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#this-is-a-header">This is a header</a>
+<ul>
+<li><a href="#this-is-a-level-two-header">This is a level two header</a></li>
+</ul>
+</li>
+</ul>
 </nav>
+</div>
 <hr>
 
 <h2><a name="this-is-a-header"></a>This is a header</h2>
@@ -138,10 +143,58 @@ END
       '... however deep it goes';
     unlike $rewritten, qr{</?h1}, '... leaving no body h1 at all';
 
-    like $rewritten, qr{<li class="indent-1"><a href="#top">},
-      'The table of contents should indent by the authored level, not the emitted one';
-    like $rewritten, qr{<li class="indent-2"><a href="#middle">},
-      '... so existing tables of contents are untouched by the demotion';
+    like $rewritten,
+      qr{<ul>\n<li><a href="#top">Top</a>\n<ul>\n<li><a href="#middle">Middle</a>\n<ul>\n<li><a href="#bottom">},
+      'The table of contents should nest by the authored level, not the emitted one';
+};
+
+subtest 'Table of contents nests lists by heading level' => sub {
+
+    # Levels 1, 3, 2, 1: the skipped level must not leave a list unclosed,
+    # and the level-2 entry joins the level-3 list rather than opening one.
+    my $code = <<'END';
+[% WRAPPER include/wrapper blogdown=1 %]
+  {{TOC}}
+# One
+
+### Three
+
+## Two
+
+# Four
+[% END %]
+END
+    my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
+    my $rewritten = $parser->rewrite( 'test', {} );
+    my ($toc)     = $rewritten =~ m{(<div>\n<nav.*?</nav>\n</div>)}s;
+
+    ok $toc, 'An indented {{TOC}} marker should still be replaced';
+    eq_or_diff $toc, <<'END' =~ s/\n\z//r, '... with lists nested by heading level';
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#one">One</a>
+<ul>
+<li><a href="#three">Three</a></li>
+<li><a href="#two">Two</a></li>
+</ul>
+</li>
+<li><a href="#four">Four</a></li>
+</ul>
+</nav>
+</div>
+END
+};
+
+subtest 'An indented {{TAGS}} marker is collected and stripped' => sub {
+
+    # The TAGS regexes once read ^s* (a literal "s") where ^[ \t]* was meant,
+    # so indented tags were neither collected nor removed.
+    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => "x" );
+    my ( $rewritten, $tags )
+      = $parser->_preprocess_macros("[% WRAPPER include/wrapper blogdown=1 %]\n  {{TAGS perl oop}}\nBody\n[% END %]\n");
+    eq_or_diff $tags, [qw(oop perl)], 'An indented {{TAGS}} line should be collected';
+    unlike $rewritten, qr/\{\{TAGS/, '... and removed from the output';
 };
 
 subtest 'Files already starting below h1 are left alone' => sub {
@@ -160,7 +213,7 @@ END
 
     like $rewritten,   qr{<h2><a name="middle"></a>Middle</h2>}, 'An h2 should stay an h2';
     like $rewritten,   qr{<h3><a name="bottom"></a>Bottom</h3>}, '... and an h3 an h3';
-    unlike $rewritten, qr{</?h1}, '... with nothing promoted into the gap';
+    unlike $rewritten, qr{</?h1},                                '... with nothing promoted into the gap';
 };
 
 subtest 'Demotion preserves heading attributes' => sub {

@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
       <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
   </script>
@@ -133,28 +135,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -174,11 +213,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -190,7 +230,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -222,9 +262,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2022</span>
-        <span class="dateblock-day"><time datetime="2022-09-13">09.13</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2022</span>
+        <span class="dateblock-day" aria-hidden="true">09.13</span>
+        <time class="visually-hidden" datetime="2022-09-13">13 September 2022</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -233,20 +274,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/science">Science</a> </li>
+        <li><a href="/tags/science">Science</a></li>
 
-    <li><a href="/tags/space">Space</a> </li>
+        <li><a href="/tags/space">Space</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/the-wasp-sanctuary" class="prevPost">&laquo; The Wasp Sanctuary</a>
@@ -261,39 +304,57 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#caveats">Caveats</a></li>
-    <li class="indent-2"><a href="#life-as-we-know-it">Life (as we know it)</a></li>
-    <li class="indent-2"><a href="#aliens">Aliens?</a></li>
-    <li class="indent-2"><a href="#organic-compounds">Organic Compounds</a></li>
-    <li class="indent-1"><a href="#the-drake-equation">The Drake Equation</a></li>
-    <li class="indent-1"><a href="#what-is-life">What Is Life?</a></li>
-    <li class="indent-2"><a href="#life-as-biopresentation">Life as Biopresentation</a></li>
-    <li class="indent-2"><a href="#philosophical-objections-to-biopresentation">Philosophical Objections to Biopresentation</a></li>
-    <li class="indent-2"><a href="#why-is-rethinking-life-important">Why is rethinking life important?</a></li>
-    <li class="indent-1"><a href="#searching-for-life-off-world">Searching for Life Off-World</a></li>
-    <li class="indent-2"><a href="#unlikely-candidates">Unlikely Candidates</a></li>
-    <li class="indent-3"><a href="#triton">Triton</a></li>
-    <li class="indent-3"><a href="#ceres">Ceres</a></li>
-    <li class="indent-3"><a href="#europa">Europa</a></li>
-    <li class="indent-3"><a href="#ganymede">Ganymede</a></li>
-    <li class="indent-2"><a href="#interesting-candidates">Interesting Candidates</a></li>
-    <li class="indent-3"><a href="#enceladus">Enceladus</a></li>
-    <li class="indent-3"><a href="#venus">Venus</a></li>
-    <li class="indent-3"><a href="#mars">Mars</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#caveats">Caveats</a>
+<ul>
+<li><a href="#life-as-we-know-it">Life (as we know it)</a></li>
+<li><a href="#aliens">Aliens?</a></li>
+<li><a href="#organic-compounds">Organic Compounds</a></li>
+</ul>
+</li>
+<li><a href="#the-drake-equation">The Drake Equation</a></li>
+<li><a href="#what-is-life">What Is Life?</a>
+<ul>
+<li><a href="#life-as-biopresentation">Life as Biopresentation</a></li>
+<li><a href="#philosophical-objections-to-biopresentation">Philosophical Objections to Biopresentation</a></li>
+<li><a href="#why-is-rethinking-life-important">Why is rethinking life important?</a></li>
+</ul>
+</li>
+<li><a href="#searching-for-life-off-world">Searching for Life Off-World</a>
+<ul>
+<li><a href="#unlikely-candidates">Unlikely Candidates</a>
+<ul>
+<li><a href="#triton">Triton</a></li>
+<li><a href="#ceres">Ceres</a></li>
+<li><a href="#europa">Europa</a></li>
+<li><a href="#ganymede">Ganymede</a></li>
+</ul>
+</li>
+<li><a href="#interesting-candidates">Interesting Candidates</a>
+<ul>
+<li><a href="#enceladus">Enceladus</a></li>
+<li><a href="#venus">Venus</a></li>
+<li><a href="#mars">Mars</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="introduction"></a>Introduction</h2>
 
 <p>The question of whether or not we’re alone in the universe is a profound one.
 There is something terribly sad at the idea that our star is the only one that
 shines down on life. <a href="https://www.esa.int/Science_Exploration/Space_Science/Herschel/How_many_stars_are_there_in_the_Universe" target="_blank">With a possible lower bound of $10^{22}$ stars in our
-universe</a> <span class="fa fa-external-link fa_custom"></span><span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> and a
+universe<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a><button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> and a
 universe almost 14 billion years old, that’s an average of almost two million
 stars created <em>every day</em>. While estimates of the number of planets vary, we
 think there are probably at least as many “Earth-like” planets as there are
@@ -321,7 +382,7 @@ system</a>.</p>
 oversimplification. Unlike many other writings on this topic, I’m going to try
 to give a broad (but not deep) background into many of the issues involved.
 Sometimes I’ll provide additional caveats that might distract from the text, so
-you can click on the "<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>" symbol for more
+you can click on the "<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>" symbol for more
 context.</p>
 
 <h3><a name="life-as-we-know-it"></a>Life (as we know it)</h3>
@@ -335,9 +396,9 @@ lifeforms might be like.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/aliens-on-mars.png" width="600" alt="An image of aliens in weird spacesuits standing on Mars.">
-    <figcaption>Not gonna happen. <a href="https://stability.ai/blog/stable-diffusion-public-release" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/aliens-on-mars.png" class="enlarge"><img src="/static/images/aliens-on-mars.png" width="600" alt="An image of aliens in weird spacesuits standing on Mars."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Not gonna happen. <a href="https://stability.ai/blog/stable-diffusion-public-release" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>Always remember that if the question is aliens, the answer is “no.” This might
@@ -347,7 +408,7 @@ who use those words are often zealots. I don’t <em>think</em> I’m a zealot, 
 default position of those who understand science is that extraordinary claims
 require extraordinary evidence.  The existence of extraterrestrial life would
 be one of the most extraordinary claims of all time. So far, there’s no
-evidence of aliens. Thus, your default position should be “no aliens.”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
+evidence of aliens. Thus, your default position should be “no aliens.”<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <h3><a name="organic-compounds"></a>Organic Compounds</h3>
 
@@ -364,13 +425,13 @@ this context, does not mean life.</p>
 
 <p>Before we can search for life, we have to define it. But before we get there,
 let’s think about the <a href="https://en.wikipedia.org/wiki/Drake_equation" target="_blank">Drake
-Equation</a> <span class="fa fa-external-link fa_custom"></span>. This was created in the
+Equation<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. This was created in the
 1960s by the late Dr. Frank Drake as a <em>thought experiment</em>. Like “organic
 compounds,” this is also widely misunderstood. I’ve often seen it referred to as
 an equation that helps us understand the prevalence of life in the universe. In
 reality, it’s a tool to help us understand the possible number of currently
 communicating extraterrestrial civilizations that
-<a href="https://en.wikipedia.org/wiki/Search_for_extraterrestrial_intelligence" target="_blank">SETI</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://en.wikipedia.org/wiki/Search_for_extraterrestrial_intelligence" target="_blank">SETI<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 might be able to detect. For the equation, the number $N$ is the number of
 civilizations we might be able to detect. The equation looks like this:</p>
 
@@ -394,21 +455,21 @@ or we could have many advanced extraterrestrial civilizations within our galaxy.
 <p>For our purposes, we’re most interested in $f_l$: how often does life evolve? In
 fact, we’re not even interested in just planets because life could possibly
 evolve on a moon (there are several interesting candidates). Some
-<a href="https://en.wikipedia.org/wiki/Panspermia" target="_blank">panspermia</a> <span class="fa fa-external-link fa_custom"></span> advocates even claim that
+<a href="https://en.wikipedia.org/wiki/Panspermia" target="_blank">panspermia<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> advocates even claim that
 life could have evolved in space, though this isn’t taken seriously by most
 scientists.</p>
 
 <p>To be more specific, we’re asking “what are the odds of life spontaneously
-originating from simple organic compounds?”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript> This is known as
-<a href="https://en.wikipedia.org/wiki/Abiogenesis" target="_blank">abiogenesis</a> <span class="fa fa-external-link fa_custom"></span> and is the subject of
+originating from simple organic compounds?”<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript> This is known as
+<a href="https://en.wikipedia.org/wiki/Abiogenesis" target="_blank">abiogenesis<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and is the subject of
 much research. The current consensus on an answer is, “we have no fucking
 idea.” What’s particularly maddening about this is that we’re not likely to
 have a clue <em>until</em> we detect other life. If we don’t detect life, that
 doesn’t mean it’s not plentiful (absence of evidence is not evidence of
 absence).</p>
 
-<p>But if detect a <a href="https://en.wikipedia.org/wiki/Biosignature" target="_blank">biosignature</a> <span class="fa fa-external-link fa_custom"></span> or
-<a href="https://en.wikipedia.org/wiki/Technosignature" target="_blank">technosignature</a> <span class="fa fa-external-link fa_custom"></span> of life on a
+<p>But if detect a <a href="https://en.wikipedia.org/wiki/Biosignature" target="_blank">biosignature<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> or
+<a href="https://en.wikipedia.org/wiki/Technosignature" target="_blank">technosignature<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> of life on a
 star on the other side of our galaxy, that might only put a lower bound on the
 amount of life out there, not an upper. We’ll need multiple detections of life
 to get a good sense of its ubiquity. Nonetheless, detecting <em>any</em> other life
@@ -422,25 +483,25 @@ outside our solar system suggests that it’s common throughout the universe.</p
 come right out and say what’s on my mind: most definitions of life are a
 steaming pile of shit.</p>
 
-<p><a href="https://www.merriam-webster.com/dictionary/life" target="_blank">One definition of life</a> <span class="fa fa-external-link fa_custom"></span>, as
+<p><a href="https://www.merriam-webster.com/dictionary/life" target="_blank">One definition of life<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, as
 taken from Merriam-Webster, is “an organismic state characterized by capacity
 for metabolism, growth, reaction to stimuli, and reproduction.”</p>
 
-<p>Right off the bat we see a problem. Mules, for example, don’t reproduce.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> Would you say
+<p>Right off the bat we see a problem. Mules, for example, don’t reproduce.<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> Would you say
 they’re not alive? Of course not.</p>
 
 <p>And what about fire? <a href="https://newworlds.colorado.edu/search/life.htm" target="_blank">It reacts to stimuli and
-grows</a> <span class="fa fa-external-link fa_custom"></span>. We could even argue that
+grows<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. We could even argue that
 it metabolizes what it consumes for energy to keep growing, but we don’t think
 of it as “alive.”</p>
 
 <p>There are other properties of life, however.
-<a href="https://en.wikipedia.org/wiki/Homeostasis" target="_blank">Homeostasis</a> <span class="fa fa-external-link fa_custom"></span> is the body’s ability
+<a href="https://en.wikipedia.org/wiki/Homeostasis" target="_blank">Homeostasis<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> is the body’s ability
 to internally regulate itself and keep functioning. Does fire exhibit
 homeostasis? It’s hard to argue that it does. However, warm-blooded and
 cold-blooded animals have completely different approaches to homeostasis and
 <a href="https://www.sciencedirect.com/science/article/abs/pii/S0169534712002947" target="_blank">homeostasis evolved over
-time</a> <span class="fa fa-external-link fa_custom"></span>,
+time<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 so there are different levels of homeostasis. Maybe we can argue that humans
 have a homeostasis level of ten while fire has a homeostasis level of one? A
 piece of flint, however, might have a homeostasis level of zero.</p>
@@ -450,9 +511,9 @@ piece of flint, however, might have a homeostasis level of zero.</p>
 <h3><a name="life-as-biopresentation"></a>Life as Biopresentation</h3>
 
 <p>When I was working on
-<a href="https://en.wikipedia.org/wiki/Extract,_transform,_load" target="_blank">ETL</a> <span class="fa fa-external-link fa_custom"></span> systems to
+<a href="https://en.wikipedia.org/wiki/Extract,_transform,_load" target="_blank">ETL<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> systems to
 reduce the cost of <a href="https://en.wikipedia.org/wiki/Clinical_trial#Phases" target="_blank">Phase III clinical
-trials</a> <span class="fa fa-external-link fa_custom"></span>, I often found
+trials<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, I often found
 myself working with data supplied by many pharmaceutical companies. Company A
 might refer to “Dr. Robert Smith, St. Mary’s Hospital, Arlington, Virginia.”
 Company B might refer to “Dr. Bob Smith, St. May’s Hospital, Arlington,
@@ -467,7 +528,7 @@ researchers crosses a certain threshold, they were <em>probably</em> the same
 researcher.</p>
 
 <p>This same approach should be taken to the definition of life. Instead of life
-being a binary “yes or no,” we should describe its “biopresentation,”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> or “how present are the signs of life in a ‘thing.'”
+being a binary “yes or no,” we should describe its “biopresentation,”<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> or “how present are the signs of life in a ‘thing.'”
 So for a virus:</p>
 
 <table>
@@ -567,10 +628,10 @@ however, would be radically different:</p>
 </tbody>
 </table>
 
-<p>A human might have a biopresentation score of 100.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
+<p>A human might have a biopresentation score of 100.<button type="button" class="open-dialog js-only" id="open-dialog-7" aria-haspopup="dialog" aria-controls="dialog-7"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 7</span></button><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
 
 <p>This would be particularly useful in describing abiogenesis. <a href="https://sciencing.com/abiogenesis-definition-theory-evidence-examples-13719058.html" target="_blank">One hypothesis of
-abiogenesis is</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+abiogenesis is<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <ol>
 <li>Prebiotic atmosphere with ammonia, carbon dioxide and water vapor.</li>
@@ -589,18 +650,18 @@ what life is or isn’t. We simply describe its biopresentation.</p>
 
 <p>This would be useful for biology today, too. Consider the endless arguments
 about whether or not <a href="https://www.google.com/search?q=are+viruses+alive&amp;oq=are+viruses+alive" target="_blank">viruses are
-live</a> <span class="fa fa-external-link fa_custom"></span>.
+live<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 It’s often argued that viruses aren’t alive because they can’t metabolize
 outside of their host. That reduces metabolism to the primary (or sole)
-attribute of life.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> But <a href="https://www.thoughtco.com/anabolism-catabolism-definition-examples-4178390" target="_blank">metabolism is
+attribute of life.<button type="button" class="open-dialog js-only" id="open-dialog-8" aria-haspopup="dialog" aria-controls="dialog-8"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 8</span></button><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> But <a href="https://www.thoughtco.com/anabolism-catabolism-definition-examples-4178390" target="_blank">metabolism is
 the global term for anabolism and
-catabolism</a> <span class="fa fa-external-link fa_custom"></span>.
+catabolism<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Catabolism is just breaking complex stuff into simpler stuff while anabolism
 is using that simpler stuff to do more complex stuff. Fire catabolizes, but
 doesn’t anabolize. Viruses do both. So maybe they’re alive? But some still
 reject that because, again, they can’t do that without a suitable host.</p>
 
-<p>But what’s a host? Obligate parasites such as the protozoan Plasmodium<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript>
+<p>But what’s a host? Obligate parasites such as the protozoan Plasmodium<button type="button" class="open-dialog js-only" id="open-dialog-9" aria-haspopup="dialog" aria-controls="dialog-9"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 9</span></button><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript>
 can’t survive outside of their hosts. Or consider humans. If I drop you
 into the middle of interstellar space without a space suit, you’ll stop
 metabolizing, too. So the context in which we can biopresent is also a
@@ -610,7 +671,7 @@ spectrum. Viruses are starting to look more alive.</p>
 
 <p>Most living beings have some ability to communicate with one another. Maybe
 all do. As it turns out, <a href="https://www.scientificamerican.com/article/do-you-speak-virus-phages-caught-sending-chemical-messages1/" target="_blank">we’ve know for a few years that viruses can do this,
-too</a> <span class="fa fa-external-link fa_custom"></span>.
+too<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 The human communication score might be at a “ten,” while viral communication
 might be a “one,” but fire’s communication is “zero.” The weight of this
 factor is probably pretty high, so fire’s biopresentation would be pretty low,
@@ -625,7 +686,7 @@ implications.</p>
 
 <p>At this point, I can see many biologists howling at the above. In a 2013 Wired
 article entitled <a href="https://www.wired.com/2013/01/living-crystal/" target="_blank">It’s (Almost) Alive! Scientists Create a Near-Living
-Crystal</a> <span class="fa fa-external-link fa_custom"></span>, the lede reads:</p>
+Crystal<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the lede reads:</p>
 
 <blockquote>
   <p>Three billion years after inanimate chemistry first became animate life, a
@@ -635,7 +696,7 @@ Crystal</a> <span class="fa fa-external-link fa_custom"></span>, the lede reads:
 
 <p>The crystals created had metabolism and mobility, but couldn’t reproduce. <a href="https://royalsocietypublishing.org/doi/10.1098/rsta.2013.0372" target="_blank">You
 can read the original study at The Royal Society
-website</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+website<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>For these crystals, one could argue that a), they’re not alive, or b), what
 their relative biopresentation level is. Some people would be uncomfortable
@@ -644,10 +705,10 @@ universe, are we going to argue that life which doesn’t share the same
 biochemical basis as our own isn’t alive?</p>
 
 <p>Or consider <a href="https://en.wikipedia.org/wiki/Self-replicating_machine" target="_blank">self-replicating Von Neumann
-machine</a> <span class="fa fa-external-link fa_custom"></span>. By the
+machine<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. By the
 biopresentation argument, they would likely score very high, but are machines
 “alive”? Or apply biopresentation to <a href="https://www.sciencedirect.com/topics/earth-and-planetary-sciences/gaia-hypothesis" target="_blank">The Gaia
-Hypothesis</a> <span class="fa fa-external-link fa_custom"></span>.
+Hypothesis<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Is our planet alive? That’s definitely a philosophical question, but in light
 of biopresentation, depending on what factors to include, we could make a
 strong argument that it is.</p>
@@ -667,7 +728,7 @@ popular, but it seems persistent. Here’s Fraser Cain, the founder and
 publisher of Universe Today, describing it.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/2brd-3OVgn8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Is There A Shadow Biosphere? Searching For Life On Earth That Isn’t Related To Us" src="https://www.youtube.com/embed/2brd-3OVgn8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>Ultimately, if there is a shadow biosphere on Earth and we can’t detect it,
@@ -676,7 +737,7 @@ this doesn’t bode well for detecting life off Earth.</p>
 <h2><a name="searching-for-life-off-world"></a>Searching for Life Off-World</h2>
 
 <p>We can search for biosignatures in other star systems, but until we can
-visit<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-10"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript>, it’s likely to be controversial.
+visit<button type="button" class="open-dialog js-only" id="open-dialog-10" aria-haspopup="dialog" aria-controls="dialog-10"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 10</span></button><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript>, it’s likely to be controversial.
 Technosignatures are more promising because a receiving a radio transmission
 of a sequence of prime numbers followed by an encoded message is pretty
 conclusive. But in the absence of technosignatures, we need to fall back on
@@ -704,25 +765,25 @@ low-cost targets with biosignatures <em>must</em> be our first priority.</p>
 
 <p><figure class="captioned-left">
     <div class="image-container">
-        <img src="/static/images/triton.gif" width="600" alt="Neptune's moon, Triton">
-    <figcaption>Neptune’s moon, Triton <a href="https://commons.wikimedia.org/wiki/File:Triton_Rotation_Movie.gif" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/triton.gif" class="enlarge"><img src="/static/images/triton.gif" width="600" alt="Neptune's moon, Triton"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Neptune’s moon, Triton <a href="https://commons.wikimedia.org/wiki/File:Triton_Rotation_Movie.gif" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>The moon Triton orbits the <a href="https://en.wikipedia.org/wiki/Ice_giant" target="_blank">ice
-giant</a> <span class="fa fa-external-link fa_custom"></span> Neptune. It’s the largest
+giant<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Neptune. It’s the largest
 Neptunian moon and along with the Jovian moons Io and Europa, along with the
 Saturnian moons Titan and Enceladus, <a href="https://www.technologyreview.com/2021/06/16/1026473/best-worlds-extraterrestrial-life-solar-system-ranked/" target="_blank">is one of the five geologically active
 moons in the solar
-system</a> <span class="fa fa-external-link fa_custom"></span>.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-11"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-11" id="footnote-11-return" aria-label="Footnote 11"><sup>[11]</sup></a></noscript> Triton is
+system<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.<button type="button" class="open-dialog js-only" id="open-dialog-11" aria-haspopup="dialog" aria-controls="dialog-11"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 11</span></button><noscript><a href="#footnote-11" id="footnote-11-return" aria-label="Footnote 11"><sup>[11]</sup></a></noscript> Triton is
 fascinating because it orbits Neptune <em>opposite</em> of Neptune’s orbit (it’s the
 largest moon in the solar system to do so) and it might have an ocean
 underneath its ice covering. <a href="https://www.skyatnightmagazine.com/space-missions/trident-mission-neptune-moon-triton/" target="_blank">This suggests that ocean existed prior to it
 being
-captured</a> <span class="fa fa-external-link fa_custom"></span>,
+captured<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 which might make that ocean older than Earth. However, <a href="https://www.universetoday.com/15312/how-long-does-it-take-to-get-to-saturn/" target="_blank">it takes years to get
 to
-Saturn</a> <span class="fa fa-external-link fa_custom"></span>
+Saturn<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and the amount of fuel necessary (and the complexity of slowing down once you
 reach the planet) limit out ability to look for life. Given that the extreme
 cold suggests that life can’t exist, it’s probably a low priority for us.</p>
@@ -731,28 +792,28 @@ cold suggests that life can’t exist, it’s probably a low priority for us.</p
 
 <p>Ceres, orbiting in our asteroid belt, is the largest dwarf planet. <a href="https://www.technologyreview.com/2020/08/11/1006447/ceres-largest-asteroid-dwarf-planet-underground-ocean-salty-water/" target="_blank">It might
 have an underground saltwater
-ocean</a> <span class="fa fa-external-link fa_custom"></span>.
+ocean<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 <a href="https://www.space.com/40934-dwarf-planet-ceres-more-organic-molecules.html" target="_blank">It might also have abundant organic
-compounds</a> <span class="fa fa-external-link fa_custom"></span>.
+compounds<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 However, many things unrelated to life are “organic compounds,” so this isn’t
 particularly inspiring. If the ocean does exist, we don’t know how it came
 about and the data is still unconfirmed. Ceres is interesting and accessible,
-but as a candidate for life, it seems poor.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-12"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-12" id="footnote-12-return" aria-label="Footnote 12"><sup>[12]</sup></a></noscript></p>
+but as a candidate for life, it seems poor.<button type="button" class="open-dialog js-only" id="open-dialog-12" aria-haspopup="dialog" aria-controls="dialog-12"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 12</span></button><noscript><a href="#footnote-12" id="footnote-12-return" aria-label="Footnote 12"><sup>[12]</sup></a></noscript></p>
 
 <h4><a name="europa"></a>Europa</h4>
 
 <p>Yeah, I’ve seen the <a href="https://www.redbubble.com/i/poster/Dive-Europa-Space-Art-by-lynxcollection/41258071.LVTDI" target="_blank">dive
-Europa</a> <span class="fa fa-external-link fa_custom"></span>
+Europa<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 art. This moon of Jupiter is tiny, but it apparently has more water than all
 of Earth’s ocean’s combined. <a href="https://geology.com/stories/13/life-on-europa/" target="_blank">It almost certainly has an ocean beneath its ice
-crust</a> <span class="fa fa-external-link fa_custom"></span>, but I rate it a poor
+crust<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but I rate it a poor
 candidate in the search for life because its constantly getting blasted by
 radiation from Jupiter and we’ve seen no biosignatures. The ingredients for
 life seem to be there, but I’d rather we focus our attention on worlds which
 are giving us hints something is there.</p>
 
 <p>Of course, <a href="https://en.wikipedia.org/wiki/2010:_Odyssey_Two" target="_blank">2010: Odyssey
-Two</a> <span class="fa fa-external-link fa_custom"></span>, by Arthur C. Clarke
+Two<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, by Arthur C. Clarke
 contained the warning “ALL THESE WORLDS ARE YOURS – EXCEPT EUROPA.
 ATTEMPT NO LANDING THERE.” I’m just the sort of guy who would be tempted to
 visit just because I’m told not to.</p>
@@ -764,7 +825,7 @@ particularly intriguing because it’s large, it has a subsurface ocean, it has
 a magnetic field to ward off Jovian radiation, and appears to have many of
 what we think are likely prerequisites for life. <a href="https://www.forbes.com/sites/startswithabang/2021/07/28/is-ganymede---not-mars-or-europa---the-best-nearby-place-to-look-for-alien-life/?sh=14b0ca1f41d9" target="_blank">This article by
 astrophysicist Ethan Siegel lays out a case for investing Ganymede for
-life</a> <span class="fa fa-external-link fa_custom"></span>.
+life<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 However, I’m unconvinced for the same reasons as Europa: no biosignatures have
 yet been detected.</p>
 
@@ -774,28 +835,28 @@ yet been detected.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/enceladus.jpg" width="600" alt="Saturn's moon, Enceladus">
-    <figcaption>Saturn’s Moon, Enceladus <a href="https://carnegiescience.edu/news/how-enceladus-got-its-stripes" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/enceladus.jpg" class="enlarge"><img src="/static/images/enceladus.jpg" width="600" alt="Saturn's moon, Enceladus"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Saturn’s Moon, Enceladus <a href="https://carnegiescience.edu/news/how-enceladus-got-its-stripes" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>At first glance, Enceladus does not seem like a likely candidate for life as
 it’s a small, icy moon of Saturn. However, it’s geologically active, with
 cryovolcanoes (they spew water), a subsurface ocean, and probably hot vents in
 those oceans. More importantly, <a href="https://www.popsci.com/science/saturn-ocean-moon/" target="_blank">something is pumping out a lot of methane
-from that ocean</a> <span class="fa fa-external-link fa_custom"></span>. <a href="https://news.ucsc.edu/2022/03/methane-biosignatures.html" target="_blank">Methane
+from that ocean<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. <a href="https://news.ucsc.edu/2022/03/methane-biosignatures.html" target="_blank">Methane
 is considered a
-biosignature</a> <span class="fa fa-external-link fa_custom"></span>
+biosignature<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 because it’s usually generated by life (on Earth, of course) and tends to
 degrade quickly, meaning that a large amount of methane suggests that
 something is replenishing it.</p>
 
 <p>The team that analyzed the methane data studied a geological process known as
-<a href="http://jersey.uoregon.edu/~mstrick/AskGeoMan/geoQuerry45.html" target="_blank">serpentinization</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="http://jersey.uoregon.edu/~mstrick/AskGeoMan/geoQuerry45.html" target="_blank">serpentinization<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 which could generate methane, but came to the conclusion that it would be
 impossible to generate as much methane as was seen. <a href="https://en.wikipedia.org/wiki/Life_Investigation_For_Enceladus" target="_blank">A sample return mission
 was proposed for
-Enceladus</a> <span class="fa fa-external-link fa_custom"></span>,
+Enceladus<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 but sadly, NASA did not accept the proposal. Enceladus is a wonderful
 candidate for sample return because ...</p>
 
@@ -815,11 +876,11 @@ pragmatism).</p>
 <p>Venus, despite having a hellish surface, has long been viewed as a candidate
 for extraterrestrial life. In 1967, <a href="https://www.nature.com/articles/2161198a0.epdf?sharing_token=6hkVV0fizhD5pFcPQKejHtRgN0jAjWel9jnR3ZoTv0PLG2fvIiRC7fWvVhqds2yTl5hRhPfBTu4FF5X4-GFsbAAGDhzjlmfV3rlisYV_Kx6FQH-Q-YAWTW-VZ989SAwTR3HmgQe-DXo0eToHXNY5Ca8eZ2c3KIR28YCakz5Ke1uiRjlyqCUfTlP5aiZdZbFSrZcbyjj9Tdmem2Fh63dbkw%3D%3D&amp;tracking_referrer=mashable.com" target="_blank">Carl Sagan argued that life was unlikely
 on the surface of
-Venus</a> <span class="fa fa-external-link fa_custom"></span>.
+Venus<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 However, in the same year, <a href="https://mashable.com/article/venus-life-theory-carl-sagan" target="_blank">he argued that life might exist in the clouds of
-Venus</a> <span class="fa fa-external-link fa_custom"></span>. We’ve also
+Venus<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. We’ve also
 found <a href="https://www.space.com/35294-alien-life-venus-mission-concept.html" target="_blank">dark streaks in the Venusian atmosphere that can’t be easily
-explained</a> <span class="fa fa-external-link fa_custom"></span>.
+explained<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 We have no idea what the dark streaks are. We don’t know their origin or
 composition. We don’t know why they don’t mix with the rest of the atmosphere
 and we don’t know why they absorb ultraviolet light. From the article:</p>
@@ -836,7 +897,7 @@ and we don’t know why they absorb ultraviolet light. From the article:</p>
 <p>Microbial life could easily explain those dark streaks. Further, we now know
 that the unusual Venusian magnetic field is created by an interaction between
 the solar wind and <a href="https://www.jhuapl.edu/NewsStory/210603-Solar-Orbiter-unveils-new-details-Venus-magnetosphere" target="_blank">Venus'
-ionosphere</a> <span class="fa fa-external-link fa_custom"></span>.
+ionosphere<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 Venus' ionosphere starts about 120 kilometers above the ground, so we have a
 magnetic field to help protect potential life against cosmic rays. Without
 such a field, those rays could sterilize the planet.</p>
@@ -852,7 +913,7 @@ phosphine is generally produced by life on Earth, and we struggle to describe
 any geological process on Venus that could produce phosphine, the news created
 a lot of excitement because <a href="https://www.liebertpub.com/doi/10.1089/ast.2018.1954" target="_blank">phosphine is a considered to be an excellent
 candidate for a biosignature in anoxic (low oxygen)
-atmospheres</a> <span class="fa fa-external-link fa_custom"></span>. In
+atmospheres<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. In
 particular:</p>
 
 <blockquote>
@@ -863,39 +924,39 @@ particular:</p>
 
 <p>Phosphine on Venus would be stunning news, but others have come out to say
 <a href="https://www.mpg.de/17209676/0716-aero-no-phosphine-in-venus-clouds-151060-x" target="_blank">there’s no phosphine after
-all</a> <span class="fa fa-external-link fa_custom"></span>,
+all<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 and others have disputed <a href="https://www.nature.com/articles/s41550-020-1174-4" target="_blank">the original
-research</a> <span class="fa fa-external-link fa_custom"></span> led by <a href="https://www.cardiff.ac.uk/people/view/913804-greaves-jane" target="_blank">Professor
+research<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> led by <a href="https://www.cardiff.ac.uk/people/view/913804-greaves-jane" target="_blank">Professor
 of Astronomy Jean
-Greaves</a> <span class="fa fa-external-link fa_custom"></span> and her
+Greaves<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and her
 team at Cardiff University in Wales. <a href="https://www.nature.com/articles/s41550-021-01423-y" target="_blank">She’s had to post follow-up papers to
 explain flaws in some of the objections to her
-work</a> <span class="fa fa-external-link fa_custom"></span>. The overall
+work<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. The overall
 consensus in the popular press seems to be that there no phosphine detected in
 the Venus atmosphere and Greaves and her team simply misinterpreted the data.</p>
 
 <p>If Greaves is right, this could be huge news. If she’s wrong, that’s how
 science works. However, in what should be a major story, but has largely been
-unreported in the press, <a href="https://www.planetary.org/" target="_blank">The Planetary Society</a> <span class="fa fa-external-link fa_custom"></span>
+unreported in the press, <a href="https://www.planetary.org/" target="_blank">The Planetary Society<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 has <a href="https://www.planetary.org/planetary-radio/2022-jane-greaves-more-venus-phosphine" target="_blank">published a recent podcast with Professor
-Greaves</a> <span class="fa fa-external-link fa_custom"></span>
+Greaves<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 where she announces that <a href="https://www.planetary.org/planetary-radio/2022-jane-greaves-more-venus-phosphine" target="_blank">another telescope has apparently confirmed the
 existence of
-phosphine</a> <span class="fa fa-external-link fa_custom"></span>,
+phosphine<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 meaning two telescopes and at least three different instruments confirming its
 existence. This is not proof (and we need more teams than just Greave’s team
 reporting this), but it certainly suggests we need to follow this up.</p>
 
 <p>For more information, check out the <a href="https://en.wikipedia.org/wiki/Life_on_Venus" target="_blank">Life on
-Venus</a> <span class="fa fa-external-link fa_custom"></span> page on Wikipedia.</p>
+Venus<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> page on Wikipedia.</p>
 
 <h4><a name="mars"></a>Mars</h4>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars.">
-    <figcaption>The planet Mars. </figcaption>
+        <a href="/static/images/planet-mars.jpg" class="enlarge"><img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The planet Mars. </figcaption>
 </figure></p>
 
 <p>If I could only choose one place in the solar system to search for
@@ -907,19 +968,19 @@ conducted in the 1970s, but we’ll get back to that.</p>
 large ocean covering its northern hemisphere and a generally warm climate.
 However, due to the lack of a magnetosphere, <a href="https://www.science.org/doi/full/10.1126/science.aai7721" target="_blank">Mars' atmosphere was stripped
 away by the solar
-wind</a> <span class="fa fa-external-link fa_custom"></span>. With that, it
+wind<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. With that, it
 lost the ability to trap heat and it turned into a cold, apparently lifeless
 rock. We don’t know the exact timing, but it may have been about <a href="https://www.deccanherald.com/science-and-environment/indian-scientists-find-how-mars-lost-its-atmosphere-952775.html" target="_blank">1 to 1.5
 billion years ago that Mars lost its
-magnetosphere</a> <span class="fa fa-external-link fa_custom"></span>,
+magnetosphere<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 giving life plenty of time to evolve, given that life was well-established on
 Earth at this time.</p>
 
 <p>However, that’s not all. Methane has possibly been detected on Mars, but <a href="https://www.space.com/exomars-orbiter-no-methane-on-mars" target="_blank">the
 Trace Gas Orbiter did not find any
-methane</a> <span class="fa fa-external-link fa_custom"></span>. However,
+methane<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. However,
 <a href="https://eos.org/editors-vox/the-mystery-of-methane-on-mars-thickens" target="_blank">some recent studies suggest that there <em>may</em> still be methane produced on
-Mars</a> <span class="fa fa-external-link fa_custom"></span> by
+Mars<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> by
 unknown sources. The existence of methane on Mars is still highly
 controversial, but I consider three things:</p>
 
@@ -938,7 +999,7 @@ you might remember my biopresentation discussion above. We might have
 discovered <em>metabolism</em> on Mars, and that happened back in the 1970s.</p>
 
 <p>From <a href="https://phys.org/news/2016-10-year-old-viking-life-mars.html" target="_blank">this phys.org
-article</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+article<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote>
   <p>In 1976, two Viking landers became the first US spacecraft from Earth to
@@ -969,11 +1030,11 @@ formate is heavily present on Mars. Perchlorate, which we know is heavily
 present on Mars, can produce similar results, but it does so even when
 heated to above 160 degrees Celsius, so it’s not consistent with what we’ve
 seen. Hypochlorite might be present on Mars and it breaks down when heated to
-above 160 degrees, but its behavior has not been tested at 50 degrees,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-13"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-13" id="footnote-13-return" aria-label="Footnote 13"><sup>[13]</sup></a></noscript>. It’s currently the best explanation for the observed biopresentation, but
+above 160 degrees, but its behavior has not been tested at 50 degrees,<button type="button" class="open-dialog js-only" id="open-dialog-13" aria-haspopup="dialog" aria-controls="dialog-13"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 13</span></button><noscript><a href="#footnote-13" id="footnote-13-return" aria-label="Footnote 13"><sup>[13]</sup></a></noscript>. It’s currently the best explanation for the observed biopresentation, but
 even if the 50 degree test is carried out, that doesn’t rule out microbes on
 Mars. Of course, I remind you of the answer to the “aliens?” question. <a href="https://phys.org/news/2016-10-year-old-viking-life-mars.html" target="_blank">Read
 the article in full to understand
-more</a> <span class="fa fa-external-link fa_custom"></span>. It’s a
+more<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. It’s a
 complex question and there are no clear answers.</p>
 
 <h2><a name="conclusion"></a>Conclusion</h2>
@@ -986,7 +1047,7 @@ for looking for extraterrestrial life.</p>
 
 <p>However, there are so many other interesting questions here. <a href="https://www.frontiersin.org/articles/10.3389/fmicb.2020.02050/full" target="_blank">Recent research
 bolsters the case for
-panspermia</a> <span class="fa fa-external-link fa_custom"></span>,
+panspermia<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 so if we discover life on Mars, did it originate on Earth? Or, since we know
 Martian meteorites have landed on Earth, are we Martians? I certainly hope
 not. I have nothing against the idea of originating on Mars, but I want to
@@ -1002,9 +1063,9 @@ to one of our most important scientific disciplines.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/get-your-ass-to-mars.jpeg" width="600" alt="Arnold Schwarzenegger, from 'Total Recall', saying 'get your ass to Mars.'">
-    <figcaption>It’s Time. </figcaption>
+        <a href="/static/images/get-your-ass-to-mars.jpeg" class="enlarge"><img src="/static/images/get-your-ass-to-mars.jpeg" width="600" alt="Arnold Schwarzenegger, from 'Total Recall', saying 'get your ass to Mars.'"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>It’s Time. </figcaption>
 </figure></p>
 
 </article>
@@ -1020,16 +1081,22 @@ to one of our most important scientific disciplines.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -1037,8 +1104,12 @@ to one of our most important scientific disciplines.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -1049,25 +1120,26 @@ to one of our most important scientific disciplines.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -1110,8 +1182,8 @@ to one of our most important scientific disciplines.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -1121,8 +1193,9 @@ to one of our most important scientific disciplines.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1155,6 +1228,7 @@ to one of our most important scientific disciplines.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1171,12 +1245,12 @@ to one of our most important scientific disciplines.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1187,13 +1261,12 @@ to one of our most important scientific disciplines.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>That's 10,000,000,000,000,000,000,000 stars!</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-1">That's 10,000,000,000,000,000,000,000 stars!</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1202,11 +1275,10 @@ to one of our most important scientific disciplines.</p>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>Hey, you clicked!</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-2">Hey, you clicked!</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1215,12 +1287,11 @@ to one of our most important scientific disciplines.</p>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>This still might make me look dogmatic and I'd be delighted to
+        <div id="note-body-3">This still might make me look dogmatic and I'd be delighted to
 be proven wrong. I want to believe.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1229,17 +1300,16 @@ be proven wrong. I want to believe.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>The Earth is
+        <div id="note-body-4">The Earth is
 roughly 4.5 billion yeas old. <a
 href="https://www.science.org/content/article/how-ancient-cataclysm-may-have-jump-started-life-earth">Life
 on Earth may have started a mere 60 million years after that</a>, or shortly
 after the Earth calmed down enough for life to form. Some argue that this
 proves it’s easy for life to evolve. The counter-argument is that it’s easy to
 win the lottery if you just pick the right numbers.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1248,14 +1318,13 @@ win the lottery if you just pick the right numbers.</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>There are mules which have been known to reproduce, but this is
+        <div id="note-body-5">There are mules which have been known to reproduce, but this is
 exceedingly rare. Some might have genetic abnormalities which might even
 categorize them as “not mules,” but for the purpose of this argument, if we
 imagine that no mules can reproduce, the argument holds.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1264,12 +1333,11 @@ imagine that no mules can reproduce, the argument holds.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div>As far as I can tell, this is the first use of the word
+        <div id="note-body-6">As far as I can tell, this is the first use of the word
 'biopresentation.'</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1278,12 +1346,11 @@ imagine that no mules can reproduce, the argument holds.</div>
         myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
     </script>
       
-            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7" aria-hidden="true">
+            <div id="dialog-7" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-7" aria-describedby="note-body-7" aria-hidden="true">
         <strong id="note-7">Footnote #7</strong>
-        <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>The number
+        <div id="note-body-7">The number
 100 looks like I fudged the numbers, but it's a coincidence.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1292,13 +1359,12 @@ imagine that no mules can reproduce, the argument holds.</div>
         myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
     </script>
       
-            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8" aria-hidden="true">
+            <div id="dialog-8" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-8" aria-describedby="note-body-8" aria-hidden="true">
         <strong id="note-8">Footnote #8</strong>
-        <p id="note-description-8" class="sr-only">Note number 8</p>
-	    <div>Imagine life on Pluto. Depending on how we
+        <div id="note-body-8">Imagine life on Pluto. Depending on how we
 defined metabolism, life on Pluto might have a metabolism so slow that we
 don't recognize it, thereby discounting life as life.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1307,11 +1373,10 @@ don't recognize it, thereby discounting life as life.</div>
         myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
     </script>
       
-            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9" aria-hidden="true">
+            <div id="dialog-9" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-9" aria-describedby="note-body-9" aria-hidden="true">
         <strong id="note-9">Footnote #9</strong>
-        <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>Some kinds of Plasmodium are responsible for malaria.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-9">Some kinds of Plasmodium are responsible for malaria.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1320,12 +1385,11 @@ don't recognize it, thereby discounting life as life.</div>
         myDialog9.addEventListeners('#open-dialog-9', '#close-dialog-9');
     </script>
       
-            <div id="dialog-10" class="dialog" role="dialog" aria-labelledby="note-10" aria-describedby="note-description-10" aria-hidden="true">
+            <div id="dialog-10" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-10" aria-describedby="note-body-10" aria-hidden="true">
         <strong id="note-10">Footnote #10</strong>
-        <p id="note-description-10" class="sr-only">Note number 10</p>
-	    <div>There's an excellent chance we will never be able to
+        <div id="note-body-10">There's an excellent chance we will never be able to
 visit other star systems. 😢</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1334,14 +1398,13 @@ visit other star systems. 😢</div>
         myDialog10.addEventListeners('#open-dialog-10', '#close-dialog-10');
     </script>
       
-            <div id="dialog-11" class="dialog" role="dialog" aria-labelledby="note-11" aria-describedby="note-description-11" aria-hidden="true">
+            <div id="dialog-11" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-11" aria-describedby="note-body-11" aria-hidden="true">
         <strong id="note-11">Footnote #11</strong>
-        <p id="note-description-11" class="sr-only">Note number 11</p>
-	    <div><a
+        <div id="note-body-11"><a
 href="https://phys.org/news/2019-05-moon-geologically.html">Earth’s moon may
 also be geologically active</a>, but not to a degree we anticipate life
 could be supported. Again, I would love to be wrong.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-11"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-11"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1350,12 +1413,11 @@ could be supported. Again, I would love to be wrong.</div>
         myDialog11.addEventListeners('#open-dialog-11', '#close-dialog-11');
     </script>
       
-            <div id="dialog-12" class="dialog" role="dialog" aria-labelledby="note-12" aria-describedby="note-description-12" aria-hidden="true">
+            <div id="dialog-12" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-12" aria-describedby="note-body-12" aria-hidden="true">
         <strong id="note-12">Footnote #12</strong>
-        <p id="note-description-12" class="sr-only">Note number 12</p>
-	    <div>Mi no
+        <div id="note-body-12">Mi no
 sasa why milowda not go.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-12"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-12"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1364,11 +1426,10 @@ sasa why milowda not go.</div>
         myDialog12.addEventListeners('#open-dialog-12', '#close-dialog-12');
     </script>
       
-            <div id="dialog-13" class="dialog" role="dialog" aria-labelledby="note-13" aria-describedby="note-description-13" aria-hidden="true">
+            <div id="dialog-13" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-13" aria-describedby="note-body-13" aria-hidden="true">
         <strong id="note-13">Footnote #13</strong>
-        <p id="note-description-13" class="sr-only">Note number 13</p>
-	    <div>Why the <em>hell</em> hasn't someone performed this test yet?</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-13"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-13">Why the <em>hell</em> hasn't someone performed this test yet?</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-13"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

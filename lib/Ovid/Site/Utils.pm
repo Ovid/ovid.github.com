@@ -8,6 +8,7 @@ our @EXPORT_OK = qw(
   use_smart_quotes
   get_image_description
   set_image_description
+  human_date
 );
 
 sub use_smart_quotes($text) {
@@ -44,6 +45,21 @@ sub set_image_description ( $image, $description ) {
       ? 'UPDATE images SET description = ? WHERE filename = ?'
       : 'INSERT INTO images (description, filename) VALUES (?, ?)';
     Less::Script::dbh()->do( $sql, {}, $description, $image );
+}
+
+my @MONTH = qw(
+  January February March April May June
+  July August September October November December
+);
+
+# '2026-08-08' => '8 August 2026'. Anything that isn't an ISO date passes
+# through untouched: a bare $MONTH[$month - 1] on a malformed date wraps
+# round the end of the array and silently reports December.
+sub human_date ($date) {
+    my ( $year, $month, $day ) = ( $date // '' ) =~ /\A(\d{4})-(\d{2})-(\d{2})\z/
+      or return $date;
+    return $date unless $month >= 1 && $month <= 12;
+    return sprintf '%d %s %d', $day, $MONTH[ $month - 1 ], $year;
 }
 
 1;
@@ -86,5 +102,12 @@ table in the SQLite database.
 =head2 set_image_description
 
     set_image_description($image, $description);
+
+=head2 human_date
+
+    $spoken = human_date('2026-08-08');    # '8 August 2026'
+
+Spells out an ISO C<YYYY-MM-DD> date. Anything else, including an
+out-of-range month, is returned unchanged rather than guessed at.
 
 =cut

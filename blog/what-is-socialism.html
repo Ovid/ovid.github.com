@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -182,7 +222,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2020</span>
-        <span class="dateblock-day"><time datetime="2020-07-20">07.20</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2020</span>
+        <span class="dateblock-day" aria-hidden="true">07.20</span>
+        <time class="visually-hidden" datetime="2020-07-20">20 July 2020</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/politics">Politics</a> </li>
+        <li><a href="/tags/politics">Politics</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/the-murder-of-george-floyd-and-the-new-civil-rights-movement" class="prevPost">&laquo; The Murder of George Floyd and The New Civil Rights Movement</a>
@@ -251,24 +294,30 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#summary">Summary</a></li>
-    <li class="indent-1"><a href="#history">History</a></li>
-    <li class="indent-1"><a href="#marx">Marx</a></li>
-    <li class="indent-1"><a href="#words-mean-things">Words Mean Things</a></li>
-    <li class="indent-1"><a href="#the-nordic-model">The Nordic Model</a></li>
-    <li class="indent-1"><a href="#types-of-socialism">Types of Socialism</a></li>
-    <li class="indent-2"><a href="#utopian-socialists">Utopian Socialists</a></li>
-    <li class="indent-2"><a href="#ricardian-socialism">Ricardian Socialism</a></li>
-    <li class="indent-2"><a href="#marxist-socialism">Marxist Socialism</a></li>
-    <li class="indent-2"><a href="#democratic-socialism">Democratic Socialism</a></li>
-    <li class="indent-2"><a href="#social-democracy">Social Democracy</a></li>
-    <li class="indent-2"><a href="#social-market-economy">Social Market Economy</a></li>
-    <li class="indent-1"><a href="#possibilities">Possibilities</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#history">History</a></li>
+<li><a href="#marx">Marx</a></li>
+<li><a href="#words-mean-things">Words Mean Things</a></li>
+<li><a href="#the-nordic-model">The Nordic Model</a></li>
+<li><a href="#types-of-socialism">Types of Socialism</a>
+<ul>
+<li><a href="#utopian-socialists">Utopian Socialists</a></li>
+<li><a href="#ricardian-socialism">Ricardian Socialism</a></li>
+<li><a href="#marxist-socialism">Marxist Socialism</a></li>
+<li><a href="#democratic-socialism">Democratic Socialism</a></li>
+<li><a href="#social-democracy">Social Democracy</a></li>
+<li><a href="#social-market-economy">Social Market Economy</a></li>
+</ul>
+</li>
+<li><a href="#possibilities">Possibilities</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <p><em><strong>Disclaimer</strong>: I do not believe in Marxist socialism; I don’t have a problem
 with a social safety net, however.</em></p>
@@ -289,9 +338,9 @@ good enough for the other debate participants.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/la-rochelle.jpg" width="600" alt="An old, medieval looking port overlooking a harbor.">
-    <figcaption>The Old Port of La Rochelle <a href="https://en.wikipedia.org/wiki/La_Rochelle#/media/File:Vieux_Port_De_La_Rochelle_C%C3%B4t%C3%A9_Ville_(223237923).jpeg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/la-rochelle.jpg" class="enlarge"><img src="/static/images/la-rochelle.jpg" width="600" alt="An old, medieval looking port overlooking a harbor."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The Old Port of La Rochelle <a href="https://en.wikipedia.org/wiki/La_Rochelle#/media/File:Vieux_Port_De_La_Rochelle_C%C3%B4t%C3%A9_Ville_(223237923).jpeg" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>Except that this definition, for what it’s worth, is the one that is largely
@@ -306,7 +355,7 @@ property or money, but they strongly object to the abuse of either.</p>
 socialist” Bernie Sanders says “thank God” for capitalism.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/3Kho7JpSz_g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Bernie Sanders On Socialism, Taxes And Criminal CEOs" src="https://www.youtube.com/embed/3Kho7JpSz_g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>So what gives? Do socialists agree that private property is OK or that it
@@ -334,20 +383,20 @@ definition? That takes a bit of explaining.</p>
 <p>You can’t have a meaningful discussion of the meaning of socialism unless you
 understand the origin of the idea. And no, Karl Marx didn’t come up with it.
 His most famous work, <a href="https://en.wikipedia.org/wiki/Das_Kapital" target="_blank">Das
-Kapital</a> <span class="fa fa-external-link fa_custom"></span>, was published in 1867,
+Kapital<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, was published in 1867,
 but it was fifty years earlier, possibly with the publications of work by
-<a href="https://en.wikipedia.org/wiki/Robert_Owen" target="_blank">Robert Owen</a> <span class="fa fa-external-link fa_custom"></span>, that socialism was
+<a href="https://en.wikipedia.org/wiki/Robert_Owen" target="_blank">Robert Owen<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, that socialism was
 gaining traction. However, you can’t even appreciate <em>this</em> without context.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/adam-smith-the-muir-portrait.jpg" width="600" alt="A painting of Adam Smith">
-    <figcaption>Adam Smith <a href="https://en.wikipedia.org/wiki/Adam_Smith#/media/File:Adam_Smith_The_Muir_portrait.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/adam-smith-the-muir-portrait.jpg" class="enlarge"><img src="/static/images/adam-smith-the-muir-portrait.jpg" width="600" alt="A painting of Adam Smith"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Adam Smith <a href="https://en.wikipedia.org/wiki/Adam_Smith#/media/File:Adam_Smith_The_Muir_portrait.jpg" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>In 1776, Adam Smith published <a href="https://en.wikipedia.org/wiki/The_Wealth_of_Nations" target="_blank">The Wealth of
-Nations</a> <span class="fa fa-external-link fa_custom"></span>, a book today
+Nations<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, a book today
 regarded as one of the first books describing modern economics. And honestly,
 it had to be. The foundations of modern economics are land, labor, and
 capital. Historically, land wasn’t freely bought and sold. It was largely held
@@ -356,7 +405,7 @@ you would think of selling your parents. The concept of laborers freely
 seeking the best possible wage also didn’t exist. In the middle ages, most
 people were serfs, tradesmen, clergy, or nobility. Fiefs, lands to which serfs
 were tied, <a href="https://www.britannica.com/topic/feudalism" target="_blank">still existed in the 17th
-century</a> <span class="fa fa-external-link fa_custom"></span>. And utilizing capital to
+century<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. And utilizing capital to
 leverage your wealth to build even more wealth wasn’t really a thing because
 modern economic thought was, well, not thought of. In fact, the innovative
 possibilities of capital combined with profit-seeking labor is very much a
@@ -367,7 +416,7 @@ Mercantilism to industrialized capitalism. With the birth of the industrial
 revolution in the mid-1700s, we started to see a magnificent growth in
 profits. We also saw a magnificent growth in new forms of human misery. In the
 paper entitled <a href="https://www.jstor.org/stable/2566252?origin=JSTOR-pdf" target="_blank">Time and Work in 18th-Century
-London</a> <span class="fa fa-external-link fa_custom"></span>, Hans-Joachim
+London<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, Hans-Joachim
 Voth cites Herman Freudenberger and Gaylord Cummins as arguing that</p>
 
 <blockquote>
@@ -380,17 +429,17 @@ work far more hours than most other developed nations).</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/child-labor.jpg" width="600" alt="A young child working in a textile mill">
-    <figcaption>Child Labor <a href="https://www.historycrunch.com/child-labor-in-the-industrial-revolution.html#/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/child-labor.jpg" class="enlarge"><img src="/static/images/child-labor.jpg" width="600" alt="A young child working in a textile mill"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Child Labor <a href="https://www.historycrunch.com/child-labor-in-the-industrial-revolution.html#/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>And frequently those laborers were children. It appears that <a href="https://www.independent.co.uk/news/uk/home-news/revealed-industrial-revolution-was-powered-by-child-slaves-2041227.html" target="_blank">many children
 were effectively slaves during the industrial
-revolution</a> <span class="fa fa-external-link fa_custom"></span>.
+revolution<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 And by “slaves”, I mean that with all of the horrifying implications. Robert
 Heilbroner, in his famous economic history <a href="https://www.amazon.com/Worldly-Philosophers-Economic-Thinkers-Seventh/dp/068486214X" target="_blank">The Worldly
-Philosophers</a> <span class="fa fa-external-link fa_custom"></span>
+Philosophers<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 wrote:</p>
 
 <blockquote>
@@ -413,7 +462,7 @@ new idea of capitalism?</p>
 <p>One of the most prominent objectors was the aforementioned Robert Owen. A
 highly successful businessman, Owen was aghast at how workers were treated and
 decided to buck collective wisdom and create a more humane business. <a href="http://www.robert-owen.com/" target="_blank">In 1799,
-he purchased New Lanark Mills </a> <span class="fa fa-external-link fa_custom"></span> and </p>
+he purchased New Lanark Mills <span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and </p>
 
 <blockquote>
   <p>Under Robert Owen’s management from 1800 to 1825, the cotton mills and
@@ -432,8 +481,8 @@ visitors, including nobility and business owners, all trying to figure out how
 this mill had become hugely profitable.</p>
 
 <p>Owen, along with <a href="https://en.wikipedia.org/wiki/Henri_de_Saint-Simon" target="_blank">Henri de
-Saint-Simon</a> <span class="fa fa-external-link fa_custom"></span>, <a href="https://en.wikipedia.org/wiki/Charles_Fourier" target="_blank">Charles
-Fourier</a> <span class="fa fa-external-link fa_custom"></span>, and others, formed
+Saint-Simon<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, <a href="https://en.wikipedia.org/wiki/Charles_Fourier" target="_blank">Charles
+Fourier<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and others, formed
 what we today call the “Utopian Socialists.” Generally speaking, they were a
 reaction to the brutality of the industrial revolution and these thinkers
 envisioned better worlds, or utopias, based on decency, kindness, and social
@@ -444,13 +493,13 @@ Lanark, these were imagined worlds, built on dreams, not evidence.</p>
 had little to do with governments controlling the means of production.</p>
 
 <p>In contrast to them were the <a href="https://libcom.org/files/ricardian%20socialists.pdf" target="_blank">Ricardian
-Socialists</a> <span class="fa fa-external-link fa_custom"></span>. They focused
+Socialists<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. They focused
 quite heavily on the <a href="https://en.wikipedia.org/wiki/Labor_theory_of_value" target="_blank">labor theory of
-value</a> <span class="fa fa-external-link fa_custom"></span> which argues that
+value<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> which argues that
 the value of a good or service is the total amount of labor required to
 produce it. Yes, many people think that’s Marxist because Marx was quite fond
 of it, but their beloved Adam Smith championed it! In Chapter V of <a href="https://www.gutenberg.org/files/3300/3300-0.txt" target="_blank">Wealth of
-Nations</a> <span class="fa fa-external-link fa_custom"></span>, he wrote:</p>
+Nations<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, he wrote:</p>
 
 <blockquote>
   <p>The value of any commodity, therefore, to the person who possesses it, and
@@ -461,7 +510,7 @@ Nations</a> <span class="fa fa-external-link fa_custom"></span>, he wrote:</p>
 </blockquote>
 
 <p>The Ricardian’s (so-called because <a href="https://en.wikipedia.org/wiki/David_Ricardo" target="_blank">David
-Ricardo</a> <span class="fa fa-external-link fa_custom"></span> also accepted the labor
+Ricardo<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> also accepted the labor
 theory of value and his arguments heavily influenced them) argued that because
 value is derived from labor, those who labor deserve the rewards. This is
 curious to me because it often implies that managers and owners who supervise
@@ -470,7 +519,7 @@ valuable, but I digress.</p>
 
 <p>To the Ricardians, labor should reap the rewards of commerce, but is instead
 exploited. One of these was <a href="https://en.wikipedia.org/wiki/Thomas_Hodgskin" target="_blank">Thomas
-Hodgskin</a> <span class="fa fa-external-link fa_custom"></span> and the opening
+Hodgskin<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and the opening
 paragraph from Wikipedia sums up many issues quite nicely (emphasis mine):</p>
 
 <blockquote>
@@ -483,13 +532,13 @@ paragraph from Wikipedia sums up many issues quite nicely (emphasis mine):</p>
 
 <p>For Hodgskin, capitalism was built and maintained to serve the privileged
 class. However, he didn’t object to capitalism <em>per se</em>. He objected to what we
-might call <a href="https://en.wikipedia.org/wiki/Crony_capitalism" target="_blank">crony capitalism</a> <span class="fa fa-external-link fa_custom"></span>.
+might call <a href="https://en.wikipedia.org/wiki/Crony_capitalism" target="_blank">crony capitalism<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 He didn’t want a world where one prevailed due to government meddling and
 backdoor deals; he was, in fact, a Libertarian who loved the market system, but
 championed labor. He insisted on the rights of unions to exist and advocate
 for workers (because which Libertarian would object to free association?) and
 he strongly objected to <a href="https://en.wikipedia.org/wiki/Rent-seeking" target="_blank">rent-seeking
-behavior</a> <span class="fa fa-external-link fa_custom"></span>. But he was definitely a
+behavior<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. But he was definitely a
 capitalist, through and through. And a socialist in that he advocated for the
 needs of society, not just the monied class.</p>
 
@@ -497,9 +546,9 @@ needs of society, not just the monied class.</p>
 
 <p><figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/karl-marx.jpg" width="600" alt="A photograph of Karl Marx">
-    <figcaption>Karl Marx <a href="https://en.wikipedia.org/wiki/Karl_Marx#/media/File:Karl_Marx_001.jpg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/karl-marx.jpg" class="enlarge"><img src="/static/images/karl-marx.jpg" width="600" alt="A photograph of Karl Marx"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Karl Marx <a href="https://en.wikipedia.org/wiki/Karl_Marx#/media/File:Karl_Marx_001.jpg" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>It wasn’t until Karl Marx came along and skewered the Utopian and Ricardian
@@ -508,12 +557,12 @@ specific view. This was, in part, because in The Communist Manifesto and
 other writings, Marx and Engels created a more detailed description of, and
 argument for, socialism. They both acknowledged the moral considerations of
 the Utopian and Ricardian socialists but destroyed them for being fantasies.
-<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> And given that the
+<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> And given that the
 Manifesto called for revolution and swayed many people, Marx’s views on
 socialism were indelibly etched in people’s minds.</p>
 
 <p>In particular, in <a href="https://www.marxists.org/archive/marx/works/download/pdf/Manifesto.pdf" target="_blank">The Communist
-Manifesto</a> <span class="fa fa-external-link fa_custom"></span>
+Manifesto<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 Marx wrote of the Utopian socialists:</p>
 
 <blockquote>
@@ -550,7 +599,7 @@ ignoring all modern thought on the subject.</p>
 <h2><a name="words-mean-things"></a>Words Mean Things</h2>
 
 <p>Yes, words mean things and then they mean other things. <a href="https://www.theguardian.com/commentisfree/2010/jan/22/english-language-america-australia" target="_blank">For
-example</a> <span class="fa fa-external-link fa_custom"></span>: </p>
+example<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>: </p>
 
 <blockquote>
   <p>Girl meant any young person – “gay girl” meant girl, not lesbian, and
@@ -558,17 +607,17 @@ example</a> <span class="fa fa-external-link fa_custom"></span>: </p>
 </blockquote>
 
 <p>The word “girl” was originally gender neutral and arrived in the English
-language <a href="https://www.etymonline.com/word/girl" target="_blank">around 1300 CE</a> <span class="fa fa-external-link fa_custom"></span>, but we’re not
+language <a href="https://www.etymonline.com/word/girl" target="_blank">around 1300 CE<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but we’re not
 certain of its origin.</p>
 
 <p>Or consider that the word “meat”, coming from the Old English <em>maet</em>, <a href="http://etymologynow.blogspot.com/2011/09/etymology-of-meat.html" target="_blank">simply meant
-“food”</a> <span class="fa fa-external-link fa_custom"></span> and
+“food”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and
 its current definition of “animal flesh” didn’t arrive until the 1300s. </p>
 
 <p>Words, of course, have no intrinsic meaning. When I hear the word “peer”, I
 think something like “equal in quality”, but if I’m speaking French, the word
 <em>« pire »</em> has the same <em>sound</em> as “peer” but means “worst,” a radically
-different meaning. <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+different meaning. <button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>Words have the meaning we ascribe to them and nothing more. But this causes
 many problems if we don’t understand that another’s definition is different
@@ -581,22 +630,25 @@ don’t realize this, it’s very easy to have a confused argument. So what do
 people think socialism means today?</p>
 
 <p>According to a <a href="https://news.gallup.com/opinion/polling-matters/243362/meaning-socialism-americans-today.aspx" target="_blank">2018 Gallup poll of
-Americans</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+Americans<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <table>
-<tr><td>&nbsp;</td><td>2018</td><td>1949</td></tr>
-<tr><td>&nbsp;</td><td>Sep 4-12</td><td>Sep 3-8</td></tr>
-<tr><td>Equality - equal standing for everybody, all equal in rights, equal in distribution</td><td>23%</td><td>12%</td></tr>
-<tr><td>Government ownership or control, government ownership of utilities, everything controlled by the government, state control of business</td><td>17%</td><td>34%</td></tr>
-<tr><td>Benefits and services - social services free, medicine for all</td><td>10%</td><td>2%</td></tr>
-<tr><td>Modified communism, communism</td><td>6%</td><td>6%</td></tr>
-<tr><td>Talking to people, being social, social media, getting along with people</td><td>6%</td><td>--</td></tr>
-<tr><td>Restriction of freedom - people told what to do</td><td>3%</td><td>1%</td></tr>
-<tr><td>Liberal government - reform government, liberalism in politics</td><td>2%</td><td>1%</td></tr>
-<tr><td>Cooperative plan</td><td>1%</td><td>1%</td></tr>
-<tr><td>Derogatory opinions (non-specific)</td><td>6%</td><td>2%</td></tr>
-<tr><td>Other</td><td>8%</td><td>7%</td></tr>
-<tr><td>No opinion</td><td>23%</td><td>36%</td></tr>
+<thead>
+<tr><td></td><th scope="col">2018<br>Sep 4-12</th><th scope="col">1949<br>Sep 3-8</th></tr>
+</thead>
+<tbody>
+<tr><th scope="row">Equality - equal standing for everybody, all equal in rights, equal in distribution</th><td>23%</td><td>12%</td></tr>
+<tr><th scope="row">Government ownership or control, government ownership of utilities, everything controlled by the government, state control of business</th><td>17%</td><td>34%</td></tr>
+<tr><th scope="row">Benefits and services - social services free, medicine for all</th><td>10%</td><td>2%</td></tr>
+<tr><th scope="row">Modified communism, communism</th><td>6%</td><td>6%</td></tr>
+<tr><th scope="row">Talking to people, being social, social media, getting along with people</th><td>6%</td><td>--</td></tr>
+<tr><th scope="row">Restriction of freedom - people told what to do</th><td>3%</td><td>1%</td></tr>
+<tr><th scope="row">Liberal government - reform government, liberalism in politics</th><td>2%</td><td>1%</td></tr>
+<tr><th scope="row">Cooperative plan</th><td>1%</td><td>1%</td></tr>
+<tr><th scope="row">Derogatory opinions (non-specific)</th><td>6%</td><td>2%</td></tr>
+<tr><th scope="row">Other</th><td>8%</td><td>7%</td></tr>
+<tr><th scope="row">No opinion</th><td>23%</td><td>36%</td></tr>
+</tbody>
 </table>
 
 <p>It’s interesting to note that “government control” has now slipped to second
@@ -604,11 +656,11 @@ place between “equality” and “benefits and services.”</p>
 
 <p>And then we have this lovely New Yorker article discussing <a href="https://www.newyorker.com/news/dispatch/the-many-tangled-american-definitions-of-socialism" target="_blank">how tangled the
 definition of socialism
-is in America today</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+is in America today<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h2><a name="the-nordic-model"></a>The Nordic Model</h2>
 
-<p>Or consider <a href="https://economics.mit.edu/files/5726" target="_blank">the Nordic Model</a> <span class="fa fa-external-link fa_custom"></span>.
+<p>Or consider <a href="https://economics.mit.edu/files/5726" target="_blank">the Nordic Model<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 The social democracies which have adopted the Nordic model have strongly
 embraced globalization, capitalism, <em>and</em> social welfare. While they differ in
 varying degrees, key similarities in all of these countries include:</p>
@@ -623,7 +675,7 @@ varying degrees, key similarities in all of these countries include:</p>
 Nordic model are Finland, Denmark, and Sweden, but many include Norway and
 Iceland in this group. These countries tend to have strong economies and, most
 importantly, <a href="https://worldpopulationreview.com/country-rankings/happiest-countries-in-the-world" target="_blank">five out of the seven happiest countries in the
-world</a> <span class="fa fa-external-link fa_custom"></span>
+world<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 follow the Nordic model. I don’t believe that is a coincidence.</p>
 
 <p>Given the historical definitions of socialism, I think the social democracy of
@@ -721,16 +773,22 @@ much as business.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -738,8 +796,12 @@ much as business.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -750,25 +812,26 @@ much as business.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -811,8 +874,8 @@ much as business.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -822,8 +885,9 @@ much as business.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -856,6 +920,7 @@ much as business.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -872,12 +937,12 @@ much as business.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -888,15 +953,14 @@ much as business.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>They attacked prior socialists for many other reasons, not
+        <div id="note-body-1">They attacked prior socialists for many other reasons, not
 the least of which was that Marx couldn’t understand that persuasive speech
 could bring substantial change. He demanded revolution.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -905,12 +969,11 @@ could bring substantial change. He demanded revolution.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>To my horror, I used to think that the
+        <div id="note-body-2">To my horror, I used to think that the
 French word « pire » mean ’best’, leading to some confusing conversations.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

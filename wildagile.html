@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,15 +69,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -124,28 +126,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -165,11 +204,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -222,9 +262,9 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia">
+      <div class="marginalia">
 
-      </aside>
+      </div>
       <main class="prose" id="content">
 
 <aside class="global-message">
@@ -233,32 +273,44 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#preface">Preface</a></li>
-    <li class="indent-1"><a href="#the-problem">The Problem</a></li>
-    <li class="indent-2"><a href="#background">Background</a></li>
-    <li class="indent-2"><a href="#what-is-wildagile">What is WildAgile?</a></li>
-    <li class="indent-2"><a href="#benefits-of-wildagile">Benefits of WildAgile</a></li>
-    <li class="indent-2"><a href="#the-workflow">The Workflow</a></li>
-    <li class="indent-2"><a href="#assumptions-made-in-creating-wildagile">Assumptions Made in Creating WildAgile</a></li>
-    <li class="indent-1"><a href="#the-details">The Details</a></li>
-    <li class="indent-2"><a href="#wildagile-roles">WildAgile Roles</a></li>
-    <li class="indent-2"><a href="#wildagile-process">WildAgile Process</a></li>
-    <li class="indent-2"><a href="#wildagile-remote-teams">WildAgile Remote Teams</a></li>
-    <li class="indent-1"><a href="#discussion">Discussion</a></li>
-    <li class="indent-2"><a href="#extending-wildagile">Extending WildAgile</a></li>
-    <li class="indent-2"><a href="#wildagile-compliant">WildAgile-Compliant</a></li>
-    <li class="indent-1"><a href="#glossary">Glossary</a></li>
-    <li class="indent-1"><a href="#summary">Summary</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#the-problem">The Problem</a>
+<ul>
+<li><a href="#background">Background</a></li>
+<li><a href="#what-is-wildagile">What is WildAgile?</a></li>
+<li><a href="#benefits-of-wildagile">Benefits of WildAgile</a></li>
+<li><a href="#the-workflow">The Workflow</a></li>
+<li><a href="#assumptions-made-in-creating-wildagile">Assumptions Made in Creating WildAgile</a></li>
+</ul>
+</li>
+<li><a href="#the-details">The Details</a>
+<ul>
+<li><a href="#wildagile-roles">WildAgile Roles</a></li>
+<li><a href="#wildagile-process">WildAgile Process</a></li>
+<li><a href="#wildagile-remote-teams">WildAgile Remote Teams</a></li>
+</ul>
+</li>
+<li><a href="#discussion">Discussion</a>
+<ul>
+<li><a href="#extending-wildagile">Extending WildAgile</a></li>
+<li><a href="#wildagile-compliant">WildAgile-Compliant</a></li>
+</ul>
+</li>
+<li><a href="#glossary">Glossary</a></li>
+<li><a href="#summary">Summary</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="preface"></a>Preface</h2>
 
 <p>Some of you may be familiar with <a href="https://en.wikipedia.org/wiki/Alistair_Cockburn" target="_blank">Alistair
-Cockburn</a> <span class="fa fa-external-link fa_custom"></span>, one of the founders of the modern agile movement. I recently had
+Cockburn<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, one of the founders of the modern agile movement. I recently had
 a brief email discussion with him regarding WildAgile. After reading this
 article, he replied (and I’m quoting with permission):</p>
 
@@ -300,12 +352,12 @@ Process” sections are all you really need to read to understand WildAgile.
 Everything else is just providing the rationale. This documentation of
 WildAgile is released under the <a title="Creative Commons Attribution 2.5
 Generic License" href="http://creativecommons.org/licenses/by/2.5/"
-target="_blank">CC by 2.5 license</a>. This means that you’re free to do
+target="_blank">CC by 2.5 license<span class="visually-hidden"> (opens in new tab)</span></a>. This means that you’re free to do
 anything you want with this documentation, including sell it, so long as you
 credit the original authors (just linking to this page is fine). See the <a
 title="Creative Commons Attribute 2.5 Generic License"
 href="http://creativecommons.org/licenses/by/2.5/" target="_blank">license
-description</a> for details.</p>
+description<span class="visually-hidden"> (opens in new tab)</span></a> for details.</p>
 
 <h3><a name="background"></a>Background</h3>
 
@@ -329,7 +381,7 @@ points to a given library and the developer knows how it’s coded, or exactly
 what it does, but the developer should at least have a <em>sense</em> of what
 it’s for. Because WildAgile is designed to avoid <a title="Code that will be
 unmaintainable if the developer is hit by a bus"
-href="http://c2.com/cgi/wiki?HitByBus" target="_blank">bus-sensitive code</a>,
+href="http://c2.com/cgi/wiki?HitByBus" target="_blank">bus-sensitive code<span class="visually-hidden"> (opens in new tab)</span></a>,
 this might be better for small to medium sized codebases, though I know of a
 huge company, with a codebase exceeding one million lines, which is very
 profitable and follows a process not quite unlike WildAgile, despite having
@@ -377,7 +429,7 @@ workflow for one company I’ve worked with:</p>
 into new tasks, you’re still expected to follow that process for every subtask.
 Developers in this company regularly ignore this workflow and still get things
 done, but management gets frustrated because they can’t see the exact step that
-every task is at.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+every task is at.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>WildAgile strives to implement the following workflow:</p>
 
@@ -394,7 +446,7 @@ it.</p>
 <p><strong></strong>Drawing on work from Alistair Cockburn’s <a title="Crystal
 Clear PDF"
 href="http://users.dcc.uchile.cl/~nbaloian/cc1001-03/ejercicios/crystalclearV5d.pdf"
-target="_blank">Crystal Clear</a> methodology, I assume that the following
+target="_blank">Crystal Clear<span class="visually-hidden"> (opens in new tab)</span></a> methodology, I assume that the following
 three requirements are the most important in developing high-quality
 products.</p>
 
@@ -671,12 +723,12 @@ you).</p>
 <h2><a name="glossary"></a>Glossary</h2>
 
 <dl>
-    <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></dd>
+    <dt>Apprentice</dt><dd>A new developer becoming an expert on part of the system.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></dd>
     <dt>Backlog</dt><dd>Tasks which have not yet been done.</dd>
     <dt>Critical Issue</dt><dd>Something which must be done <em>now</em>.</dd>
     <dt>Just Enough Process</dt><dd>Only enough process to provide structure.</dd>
     <dt>Priority</dt><dd>Tasks which should be taken before other tasks.</dd>
-    <dt>Product Owner (PO)</dt><dd>The proxy for the customer. Maintains backlog and assigns Priorities.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></dd>
+    <dt>Product Owner (PO)</dt><dd>The proxy for the customer. Maintains backlog and assigns Priorities.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></dd>
     <dt>Stand up</dt><dd>An end-of-day “what I did, will do, and blockers” explanation for every developer.</dd>
     <dt>Summary</dt><dd>The PO’s business-focused summary of the project status, given immediately prior to the stand up.</dd>
     <dt>Task</dt><dd>Something a developer can do.</dd>
@@ -741,8 +793,8 @@ of managing risk is being aware of it.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -752,8 +804,9 @@ of managing risk is being aware of it.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -786,6 +839,7 @@ of managing risk is being aware of it.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -802,10 +856,10 @@ of managing risk is being aware of it.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -816,17 +870,16 @@ of managing risk is being aware of it.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>For added fun, note that there is only
+        <div id="note-body-1">For added fun, note that there is only
 one exit point in that workflow. If something proves unworkable <em>at the
 specification step</em> or beyond, you have no official recourse to abandon
 that task. Needless to say, some developers at that company suffered from
 very poor morale.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -835,11 +888,10 @@ very poor morale.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-2">I don't actually use this term in day-to-day work, but it's useful to make it clear who we're talking about.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -848,11 +900,10 @@ very poor morale.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>Also represents the projects stakeholders, a.k.a. 'the business'.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-3">Also represents the projects stakeholders, a.k.a. 'the business'.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

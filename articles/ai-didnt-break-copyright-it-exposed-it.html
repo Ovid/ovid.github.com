@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2026</span>
-        <span class="dateblock-day"><time datetime="2026-08-18">08.18</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2026</span>
+        <span class="dateblock-day" aria-hidden="true">08.18</span>
+        <time class="visually-hidden" datetime="2026-08-18">18 August 2026</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,20 +266,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/ai">AI</a> </li>
+        <li><a href="/tags/ai">AI</a></li>
 
-    <li><a href="/tags/business">Business</a> </li>
+        <li><a href="/tags/business">Business</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/learn-how-to-write-production-quality-code-with-ai" class="prevPost">&laquo; Learn How to Write Production-Quality Code with AI</a>
@@ -266,8 +309,8 @@ of that what you will.</p>
 
 <p>So far, <a href="https://www.nortonrosefulbright.com/en/knowledge/publications/ce8eaa5f/ai-in-litigation-series-an-update-on-ai-copyright-cases-in-2026" target="_blank">the courts have often held that the use of copyrighted works in LLMs is
 fair
-use</a> <span class="fa fa-external-link fa_custom"></span>
-<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. Criticism,
+use<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
+<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>. Criticism,
 review, summarization, teaching, research, are all allowed under fair use and
 that’s the vast majority of what LLMs are being used for. Today, you can
 generally ask an LLM a summary of your favorite book, but not the first chapter.</p>
@@ -279,12 +322,12 @@ legally protected behavior. So the core question as viewed by the courts is less
 <p>And that’s where massive theft occurred. Anthropic torrented massive amounts of
 copyrighted material and, when facing a class action suit, <a href="https://authorsguild.org/news/court-grants-final-approval-anthropic-copyright-settlement/" target="_blank">settled for a
 whopping $1.5 billion rather than risk losing if the case went to
-trial</a> <span class="fa fa-external-link fa_custom"></span>.
+trial<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 However, that was for torrenting the material; the court had already agreed that
 <em>using</em> the material was “fair use.”</p>
 
 <p>But I do know that anyone trying to build an LLM is cursing <a href="https://www.wipo.int/en/web/treaties/ip/berne/index" target="_blank">the 1886 Berne
-Convention</a> <span class="fa fa-external-link fa_custom"></span> because it
+Convention<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> because it
 created a massive headache. Under that, <strong>all creative work is copyrighted
 automatically</strong>. I sneeze into a napkin and outline the result in a blue marker
 <em>et voila</em>, there’s a good chance that’s protected work.</p>
@@ -300,9 +343,9 @@ wins. We can’t digitize and share it. We can’t compensate an author. We can�
 gift it to the public. Should we just throw it away?</p>
 
 <p><a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/327042/National_Library_of_Wales.pdf" target="_blank">In fact, a report from The National Library of
-Wales</a> <span class="fa fa-external-link fa_custom"></span>
+Wales<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 (pdf) has this interesting claim: “In 2011, the British Library estimated that
-as many as 40 per cent of all in-copyright works are orphan works.”<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>.
+as many as 40 per cent of all in-copyright works are orphan works.”<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript>.
 Orphan works are works still under copyright but whose owner can’t be identified
 or located. No one can lawfully get permission to use them. No one can be
 paid for them either. These works are “memory-holed” too.</p>
@@ -322,12 +365,12 @@ Otherwise, we have copyrighted works ...</p>
 <p>That, frankly, is a damned mess. We have a hodge-podge of laws crafted over
 centuries, none of which thought about how to deal with this situation because
 this situation didn’t exist. For many items above, we have no clear way of
-resolving this under current law.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
+resolving this under current law.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <p>So we have this powerful technology which, at present, provides great value, but
 we’re not allowed to use unless the world’s governments get together and
 clean up the legal mess? You and I both know that’s not going to happen any time
-soon.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript></p>
+soon.<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript></p>
 
 <p>Or we can say, “you can only train on material that is unambiguously out of
 copyright (often hard to know), or for which you have compensated the copyright
@@ -346,14 +389,14 @@ should be a law?</p>
 <p>And there’s also a curious copyright angle. If I paint in the style of Keith
 Haring, but I don’t represent the result as his, I’ve done nothing wrong. And
 that includes if I sell that painting, so long as I’m only copying Haring’s
-style.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> But
+style.<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> But
 what happens if I use AI to do this? Still not a problem. What happens if I use
 AI to create millions of “Haring-esque” images and flood the world market,
 potentially crashing the value of Haring’s work? AI isn’t just exposing old,
 unsettled questions. It’s forcing us to ask new ones.</p>
 
 <p>I genuinely don’t know the answers to these questions, but I do know that a
-simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript></p>
+simple yes/no is too tidy of an answer.<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript></p>
 
 </article>
 
@@ -368,16 +411,22 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -385,8 +434,12 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -397,25 +450,26 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -458,8 +512,8 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -469,8 +523,9 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -503,6 +558,7 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -519,12 +575,12 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -535,14 +591,13 @@ simple yes/no is too tidy of an answer.<span aria-label="Open Footnote" class="o
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>This is far from settled and ignores that acquisition, training,
+        <div id="note-body-1">This is far from settled and ignores that acquisition, training,
 storage, generation, and distribution are all separate issues.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -551,12 +606,11 @@ storage, generation, and distribution are all separate issues.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>That report points to a link that archive.org has, but the report it
+        <div id="note-body-2">That report points to a link that archive.org has, but the report it
 wants you to download isn’t available, so full sourcing is difficult.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -565,14 +619,13 @@ wants you to download isn’t available, so full sourcing is difficult.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>And for those of you who work in
+        <div id="note-body-3">And for those of you who work in
 data, you know that even if the law was settled and the information was
 unambiguosly present, there's a whole 'nother can 'o worms in interpreting that
 data.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -581,13 +634,12 @@ data.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>Were I a betting man, I would wager that no one alive today
+        <div id="note-body-4">Were I a betting man, I would wager that no one alive today
 will see this settled on a global scale, though individual governments will
 chart their own course.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -596,11 +648,10 @@ chart their own course.</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>There are caveats to this, but it's broadly true.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <div id="note-body-5">There are caveats to this, but it's broadly true.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -609,13 +660,12 @@ chart their own course.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div>And if you think this
+        <div id="note-body-6">And if you think this
 article has too many footnotes, I promise you that it has too few. This
 situation is <em>complicated</em>.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

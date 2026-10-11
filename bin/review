@@ -3,7 +3,8 @@
 use v5.40;
 use Dancer2;
 use Path::Tiny;
-use Time::HiRes qw(sleep);
+use Encode       ();
+use Time::HiRes  qw(sleep);
 use Getopt::Long qw(GetOptions);
 use Pod::Usage   qw(pod2usage);
 use open ':std', ':encoding(UTF-8)';
@@ -76,7 +77,11 @@ hook after => sub {
       unless $response->content_type
       && $response->content_type =~ m{text/html};
 
+    # By now Dancer2 has encoded the content to bytes, and since 2.2 every
+    # content() assignment encodes again. Decode first, or each non-ASCII
+    # character is served double-encoded ("·" arrives as "Â·").
     my $content = $response->content;
+    $content = Encode::decode( 'UTF-8', $content ) if $response->is_encoded;
 
     # Inject dev mode flag and script reference in <head>
     my $injection = q{
@@ -289,6 +294,7 @@ get '/**' => sub {
         if ( $custom->exists && -f $custom ) {
             return _slurp_html($custom);
         }
+
         # Falls back to plaintext when 404.html hasn't been built yet (fresh checkout).
         return "404 - Not Found: $path_str";
     }

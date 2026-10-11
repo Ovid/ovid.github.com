@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2023</span>
-        <span class="dateblock-day"><time datetime="2023-07-18">07.18</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2023</span>
+        <span class="dateblock-day" aria-hidden="true">07.18</span>
+        <time class="visually-hidden" datetime="2023-07-18">18 July 2023</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/corinna-in-the-perl-core" class="prevPost">&laquo; Corinna in the Perl Core</a>
@@ -254,7 +297,7 @@
 <p>Originally located at <code>http://www.pphsg.org/cdsmith/types.html</code>, this article
 explained some basic concepts of type systems. Unfortunately, that page is gone
 and I had to fetch it from <a href="http://web.archive.org/web/20080822101209/http://www.pphsg.org/cdsmith/types.html" target="_blank">the web archive of that
-page</a> <span class="fa fa-external-link fa_custom"></span>.
+page<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 The note at the bottom states that contents are in the public domain. This was
 published in 2008.</p>
 
@@ -263,7 +306,7 @@ systems, by Chris Smith.</p>
 
 <hr />
 
-<h3><a name="what-to-know-before-debating-type-systems"></a>What To Know Before Debating Type Systems</h3>
+<h2><a name="what-to-know-before-debating-type-systems"></a>What To Know Before Debating Type Systems</h2>
 
 <p>I would be willing to place a bet that most computer programmers have, on
 multiple occasions, expressed an opinion about the desirability of certain
@@ -277,13 +320,13 @@ important parts of the debate. My goal is to build on a shared understanding of
 some of the basic issues, and help people get to the interesting parts more
 quickly.</p>
 
-<h3><a name="classifying-type-systems"></a>Classifying Type Systems</h3>
+<h2><a name="classifying-type-systems"></a>Classifying Type Systems</h2>
 
 <p>Type systems are commonly classified by several words, of which the most common
 are “static,” “dynamic,” “strong,” and “weak.” In this section, I address the
 more common kinds of classification. Some are useful, and some are not.</p>
 
-<h4><a name="strong-and-weak-typing"></a>Strong and Weak Typing</h4>
+<h3><a name="strong-and-weak-typing"></a>Strong and Weak Typing</h3>
 
 <p>Probably the most common way type systems are classified is “strong” or “weak.”
 This is unfortunate, since these words have nearly no meaning at all. It is, to
@@ -303,7 +346,7 @@ at least when used as absolutes:</p>
 depending on the speaker or author, may mean anything on the spectrum from
 “static” to “sound,” both of which are defined below.</p>
 
-<h4><a name="static-and-dynamic-types"></a>Static and Dynamic Types</h4>
+<h3><a name="static-and-dynamic-types"></a>Static and Dynamic Types</h3>
 
 <p>This is very nearly the <em>only</em> common classification of type systems that has
 real meaning. As a matter of fact, its significance is frequently
@@ -331,7 +374,7 @@ The better way to approach the issue is to recognize that:</p>
 
 <p>Observing the second of these four simple facts is a popular pastime in some
 circles. Consider <a href="http://perl.plover.com/yak/typing/notes.html" target="_blank">this set of presentation
-notes</a> <span class="fa fa-external-link fa_custom"></span>, with a rather complicated
+notes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, with a rather complicated
 “the type system found my infinite loop” comment. From a theoretical
 perspective, preventing infinite loops is in a very deep sense the most basic
 possible thing you can do with static types! The simply-typed lambda calculus,
@@ -352,7 +395,7 @@ other. Why? Because of the first of the four facts listed above: many of the
 problems solved by these features overlap, so building in strong versions of
 both provides little benefit, and significant cost.</p>
 
-<h4><a name="other-distinctions"></a>Other Distinctions</h4>
+<h3><a name="other-distinctions"></a>Other Distinctions</h3>
 
 <p>There are many other ways to classify type systems. These are less common, but
 here are some of the more interesting ones:</p>
@@ -360,14 +403,14 @@ here are some of the more interesting ones:</p>
 <ul>
 <li><strong>Sound types.</strong> A sound type system is one that provides some kind of guarantee. It is a well-defined concept relating to static type systems, and has proof techniques and all those bells and whistles. Many modern type systems are sound; but older languages like C often do not have sound type systems by design; their type systems are just designed to give warnings for common errors. The concept of a sound type system can be imperfectly generalized to dynamic type systems as well, but the exact definition there may vary with usage.</li>
 <li><strong>Explicit/Implicit Types.</strong> When these terms are used, they refer to the extent to which a compiler will reason about the static types of parts of a program. All programming languages have some form of reasoning about types. Some have more than others. ML and Haskell have implicit types, in that no (or very few, depending on the language and extensions in use) type declarations are needed. Java and Ada have very explicit types, and one is constantly declaring the types of things. All of the above have (relatively, compared to C and C++, for example) strong static type systems.</li>
-<li><strong>The Lambda Cube.</strong> Various distinctions between static type systems are summarized with an abstraction called the “lambda cube.” Its definition is beyond the scope of this article, but it basically looks at whether the system provides certain features: parametric types, dependent types, or type operators. Look <a href="https://web.archive.org/web/20080226210542/https://citeseer.ist.psu.edu/barendregt92lambda.html" target="_blank">here</a> <span class="fa fa-external-link fa_custom"></span> for more information.</li>
+<li><strong>The Lambda Cube.</strong> Various distinctions between static type systems are summarized with an abstraction called the “lambda cube.” Its definition is beyond the scope of this article, but it basically looks at whether the system provides certain features: parametric types, dependent types, or type operators. Look <a href="https://web.archive.org/web/20080226210542/https://citeseer.ist.psu.edu/barendregt92lambda.html" target="_blank">here<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> for more information.</li>
 <li><strong>Structural/Nominal Types.</strong> This distinction is generally applied to static types with subtyping. Structural typing means a type is assumed whenever it is possible to validly assume it. For example, a record with fields called x, y, and z might be automatically considered a subtype of one with fields x and y. With nominal typing, there would be no such assumed relationship unless it were declared somewhere.</li>
 <li><strong>Duck Typing.</strong> This is a word that’s become popular recently. It refers to the dynamic type analogue of structural typing. It means that rather than checking a tag to see whether a value has the correct general type to be used in some way, the runtime system merely checks that it supports all of the operations performed on it. Those operations may be implemented differently by different types.</li>
 </ul>
 
 <p>This is but a small sample, but this section is too long already.</p>
 
-<h3><a name="fallacies-about-static-and-dynamic-types"></a>Fallacies About Static and Dynamic Types</h3>
+<h2><a name="fallacies-about-static-and-dynamic-types"></a>Fallacies About Static and Dynamic Types</h2>
 
 <p>Many programmers approach the question of whether they prefer static or dynamic
 types by comparing some languages they know that use both techniques. This is a
@@ -387,7 +430,7 @@ are:</p>
 experience: things many people assume about static or dynamic typing that just
 ain’t so.</p>
 
-<h4><a name="fallacy-static-types-imply-type-declarations"></a>Fallacy: Static types imply type declarations</h4>
+<h3><a name="fallacy-static-types-imply-type-declarations"></a>Fallacy: Static types imply type declarations</h3>
 
 <p>The thing most obvious about the type systems of Java, C, C++, Pascal, and many
 other widely-used “industry” languages is not that they are statically typed,
@@ -412,7 +455,7 @@ as not liking explicit types, rather than static types.</p>
 experience, there are few situations in which I’ve wished to see them required.
 Type inference is generally a big win.)</p>
 
-<h4><a name="fallacy-dynamically-typed-languages-are-weakly-typed"></a>Fallacy: Dynamically typed languages are weakly typed</h4>
+<h3><a name="fallacy-dynamically-typed-languages-are-weakly-typed"></a>Fallacy: Dynamically typed languages are weakly typed</h3>
 
 <p>The statement made at the beginning of this thread was that many programmers
 have used dynamically typed languages poorly. In particular, a lot of
@@ -444,7 +487,7 @@ working in dynamically typed languages... I’m not saying that unit testing is 
 bad idea with static types; only that it’s entirely appropriate to scale it
 back a little.)</p>
 
-<h4><a name="fallacy-static-types-imply-upfront-design-or-waterfall-methods"></a>Fallacy: Static types imply upfront design or waterfall methods</h4>
+<h3><a name="fallacy-static-types-imply-upfront-design-or-waterfall-methods"></a>Fallacy: Static types imply upfront design or waterfall methods</h3>
 
 <p>Some statically typed languages are also designed to enforce someone’s idea of
 a good development process. Specifically, they often require or encourage that
@@ -487,7 +530,7 @@ programming (in fact, there certainly are <em>some</em> advantages, anyway), but
 up to someone to explain what they are, rather than just to imply the lack of
 appropriate tools or language organization.</p>
 
-<h4><a name="fallacy-dynamically-typed-languages-provide-no-way-to-find-bugs"></a>Fallacy: Dynamically typed languages provide no way to find bugs</h4>
+<h3><a name="fallacy-dynamically-typed-languages-provide-no-way-to-find-bugs"></a>Fallacy: Dynamically typed languages provide no way to find bugs</h3>
 
 <p>A common argument leveled at dynamically typed languages is that failures will
 occur for the customer, rather than the developer. The problem with this
@@ -506,7 +549,7 @@ some advantages; static type systems can’t check nearly as many properties of
 code as testing can. Ignoring this fact when talking to someone who really
 knows Ruby will basically get you ignored in turn.</p>
 
-<h4><a name="fallacy-static-types-imply-longer-code"></a>Fallacy: Static types imply longer code</h4>
+<h3><a name="fallacy-static-types-imply-longer-code"></a>Fallacy: Static types imply longer code</h3>
 
 <p>This fallacy is closely associated with the one above about type declarations.
 Type declarations are the reason many people associated static types with a lot
@@ -555,7 +598,7 @@ This is a good thing to remember before stating, as if it were obviously true,
 that statically typed languages require more code. It’s not obvious, and I
 doubt if it’s true.</p>
 
-<h3><a name="benefits-of-static-types"></a>Benefits of Static Types</h3>
+<h2><a name="benefits-of-static-types"></a>Benefits of Static Types</h2>
 
 <p>My experience is that the biggest problems in the static/dynamic typing debate
 occur in failing to understand the issues and potential of static types. The
@@ -567,7 +610,7 @@ develops it into its full form.</p>
 to list them in order from <em>least</em> to <em>most</em> significant. (This helps the
 general structure of working up to the important stuff.)</p>
 
-<h4><a name="performance"></a>Performance</h4>
+<h3><a name="performance"></a>Performance</h3>
 
 <p>Performance is the gigantic red herring of all type system debates. The
 knowledge of the compiler in a statically typed language can be used in a
@@ -585,7 +628,7 @@ matters. Languages in use there are rarely dynamically typed, but I’m not
 interested enough in them to care much. If you do, maybe this is your corner of
 the type system debate.)</p>
 
-<h4><a name="documentation"></a>Documentation</h4>
+<h3><a name="documentation"></a>Documentation</h3>
 
 <p>If, indeed, performance is irrelevant, what does one look to next? One answer
 is documentation. Documentation is an important aspect of software, and static
@@ -610,7 +653,7 @@ code itself (i.e., it’s self-documenting), but then verified and presented in 
 convenient format. It’s documentation that doesn’t need to be maintained or
 even written, but is available on demand even without reading the source code.</p>
 
-<h4><a name="tools-and-analysis"></a>Tools and Analysis</h4>
+<h3><a name="tools-and-analysis"></a>Tools and Analysis</h3>
 
 <p>Things get way more interesting than documentation, though. Documentation is
 writing for human beings, who are actually pretty good at understanding code
@@ -632,9 +675,9 @@ a different thing entirely, and it is very hard.</p>
 
 <p>We often want our development tools to understand code. This is a big deal.
 I’ll turn back to Martin Fowler, who <a href="http://www.martinfowler.com/bliki/DynamicTyping.html" target="_blank">points this out as
-well</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+well<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
-<h4><a name="correctness"></a>Correctness</h4>
+<h3><a name="correctness"></a>Correctness</h3>
 
 <p>Ultimately, though, the justification for static typing has to come back to
 writing correct code. Correctness, of course, is just the program doing “what
@@ -684,7 +727,7 @@ don’t need testing; and similarly, to provide a basis from which the effort of
 manual proof can be saved for those truly challenging areas in which it is
 necessary.</p>
 
-<h4><a name="dynamic-typing-returns"></a>Dynamic Typing Returns</h4>
+<h3><a name="dynamic-typing-returns"></a>Dynamic Typing Returns</h3>
 
 <p>Certainly dynamic typing has answers to this. Dynamically typed languages can
 sometimes perform rather well (see Dylan), sometimes have great tools (see
@@ -711,7 +754,7 @@ more likely. If one can’t seem to prove any better upper bound, then perhaps
 the correctness really is 100%. Indeed, there is probably at some correlation
 in that direction.</p>
 
-<h3><a name="what-is-a-type"></a>What is a Type?</h3>
+<h2><a name="what-is-a-type"></a>What is a Type?</h2>
 
 <p>This is as good a point as any to step back and ask the fundamental question:
 what is a type? I’ve already mentioned that I think there are two answers. One
@@ -723,7 +766,7 @@ risk excluding some things as types, and missing their “type” nature because
 never look for it. Indeed, the definition of a type that I will eventually give
 is extremely broad.</p>
 
-<h4><a name="problems-with-common-definitions"></a>Problems with Common Definitions</h4>
+<h3><a name="problems-with-common-definitions"></a>Problems with Common Definitions</h3>
 
 <p>One common saying, quoted often in an attempt to reconcile static and dynamic
 typing, goes something like this: Statically typed languages assign types to
@@ -748,11 +791,11 @@ know is whether our program attempts to perform an impossible operation.</p>
 application stick data from the client into SQL queries without escaping
 special characters first? If this is what we want to know, then these become
 types. <a href="http://blog.moertel.com/articles/2006/10/18/a-type-based-solution-to-the-strings-problem" target="_blank">This article by Tom
-Moertel</a> <span class="fa fa-external-link fa_custom"></span>
+Moertel<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 builds this on top of Haskell’s type system. So far, it looks like a valid
 definition of “type” is as follows: something we want to know.</p>
 
-<h4><a name="a-type-system"></a>A Type System</h4>
+<h3><a name="a-type-system"></a>A Type System</h3>
 
 <p>Clearly that’s not a satisfactory definition of a type. There are plenty of
 things we want to know that types can’t tell us. We want to know whether our
@@ -762,7 +805,7 @@ proof. What makes a type a type, then? The other missing component is that a
 type is part of a type system.</p>
 
 <p>Benjamin Pierce’s book <a href="http://www.amazon.com/dp/0262162091" target="_blank">Types and Programming
-Languages</a> <span class="fa fa-external-link fa_custom"></span> is far and away the best place
+Languages<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> is far and away the best place
 to read up on the nitty gritty details of static type systems, at least if you
 are academically inclined. I’ll quote his definition.</p>
 
@@ -789,17 +832,17 @@ is applied to two integers, the result is an integer. Thus it’s proven the
 absence of program behaviors (such as adding an integer to a string) by working
 up from the basic elements of program syntax.</p>
 
-<h4><a name="examples-of-unusual-type-systems"></a>Examples of Unusual Type Systems</h4>
+<h3><a name="examples-of-unusual-type-systems"></a>Examples of Unusual Type Systems</h3>
 
 <p>That was a pretty boring example, and one that plays right into a trap:
 thinking of “type” as meaning the same thing it does in a dynamic type system.
 Here are some more interesting problems being solved with static types.</p>
 
 <ul>
-<li><a href="http://wiki.di.uminho.pt/twiki/pub/Personal/Xana/WebHome/report.pdf" target="_blank">http://wiki.di.uminho.pt/twiki/pub/Personal/Xana/WebHome/report.pdf</a> <span class="fa fa-external-link fa_custom"></span>. Uses types to ensure that the correct kinds of data are gotten out of a relational database. Via the type system, the compiler ends up understanding how to work with concepts like functional dependencies and normal forms, and can statically prove levels of normalization.</li>
-<li><a href="http://www.cs.bu.edu/~hwxi/academic/papers/pldi98.pdf" target="_blank">http://www.cs.bu.edu/~hwxi/academic/papers/pldi98.pdf</a> <span class="fa fa-external-link fa_custom"></span>. Uses an extension to ML’s type system to prove that arrays are never accessed out of bounds. This is an unusually hard problem to solve without making the languages that solve it unusable, but it’s a popular one to work on.</li>
-<li><a href="http://www.cis.upenn.edu/~stevez/papers/LZ06a.pdf" target="_blank">http://www.cis.upenn.edu/~stevez/papers/LZ06a.pdf</a> <span class="fa fa-external-link fa_custom"></span>. This is great. This example uses Haskell’s type system to let someone define a security policy for a Haskell program, in Haskell, and then proves that the program properly implements that security. If a programmer gets security wrong, the compiler will complain rather than opening up a potential security bug in the system.</li>
-<li><a href="http://www.brics.dk/RS/01/16/BRICS-RS-01-16.pdf" target="_blank">http://www.brics.dk/RS/01/16/BRICS-RS-01-16.pdf</a> <span class="fa fa-external-link fa_custom"></span>. Just in case you thought type systems only solved easy problems, this bit of Haskell gets the type system to prove two central theorems about the simply typed lambda calculus, a branch of computation theory!</li>
+<li><a href="http://wiki.di.uminho.pt/twiki/pub/Personal/Xana/WebHome/report.pdf" target="_blank">http://wiki.di.uminho.pt/twiki/pub/Personal/Xana/WebHome/report.pdf<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Uses types to ensure that the correct kinds of data are gotten out of a relational database. Via the type system, the compiler ends up understanding how to work with concepts like functional dependencies and normal forms, and can statically prove levels of normalization.</li>
+<li><a href="http://www.cs.bu.edu/~hwxi/academic/papers/pldi98.pdf" target="_blank">http://www.cs.bu.edu/~hwxi/academic/papers/pldi98.pdf<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Uses an extension to ML’s type system to prove that arrays are never accessed out of bounds. This is an unusually hard problem to solve without making the languages that solve it unusable, but it’s a popular one to work on.</li>
+<li><a href="http://www.cis.upenn.edu/~stevez/papers/LZ06a.pdf" target="_blank">http://www.cis.upenn.edu/~stevez/papers/LZ06a.pdf<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. This is great. This example uses Haskell’s type system to let someone define a security policy for a Haskell program, in Haskell, and then proves that the program properly implements that security. If a programmer gets security wrong, the compiler will complain rather than opening up a potential security bug in the system.</li>
+<li><a href="http://www.brics.dk/RS/01/16/BRICS-RS-01-16.pdf" target="_blank">http://www.brics.dk/RS/01/16/BRICS-RS-01-16.pdf<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Just in case you thought type systems only solved easy problems, this bit of Haskell gets the type system to prove two central theorems about the simply typed lambda calculus, a branch of computation theory!</li>
 </ul>
 
 <p>The point of these examples is to point out that type systems can solve all
@@ -815,7 +858,7 @@ to insist, as many people do, that the dynamic typing definition of a “type”
 applied to static typing as well. One would miss the chance to solve several
 real-world problems mentioned above.</p>
 
-<h4><a name="the-true-meaning-of-type"></a>The True Meaning of Type</h4>
+<h3><a name="the-true-meaning-of-type"></a>The True Meaning of Type</h3>
 
 <p>So what is a type? The only true definition is this: a type is a label used by
 a type system to prove some property of the program’s behavior. If the type
@@ -853,7 +896,7 @@ possible inputs (in other words, any interesting program), a test suite may
 still accept programs that are not correct - even in just those properties that
 are tested.</p>
 
-<h3><a name="framing-the-interesting-debate"></a>Framing the Interesting Debate</h3>
+<h2><a name="framing-the-interesting-debate"></a>Framing the Interesting Debate</h2>
 
 <p>That last paragraph summarizes the interesting part of the debate between
 static and dynamic typing. The battleground on which this is fought out is
@@ -887,16 +930,22 @@ programming tasks.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -904,8 +953,12 @@ programming tasks.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -916,25 +969,26 @@ programming tasks.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -977,8 +1031,8 @@ programming tasks.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -988,8 +1042,9 @@ programming tasks.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1022,6 +1077,7 @@ programming tasks.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1038,12 +1094,12 @@ programming tasks.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

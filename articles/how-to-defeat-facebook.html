@@ -7,7 +7,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -68,15 +70,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2019</span>
-        <span class="dateblock-day"><time datetime="2019-04-28">04.28</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2019</span>
+        <span class="dateblock-day" aria-hidden="true">04.28</span>
+        <time class="visually-hidden" datetime="2019-04-28">28 April 2019</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/business">Business</a> </li>
+        <li><a href="/tags/business">Business</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/fixing-mvc-in-web-applications" class="prevPost">&laquo; Fixing MVC in Web Applications</a>
@@ -252,43 +295,64 @@
 
 <article id="article">
 
-<nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#disclaimer">Disclaimer</a></li>
-    <li class="indent-1"><a href="#social-networking-is-broken">Social Networking is Broken</a></li>
-    <li class="indent-2"><a href="#the-opportunity">The Opportunity</a></li>
-    <li class="indent-2"><a href="#the-background">The Background</a></li>
-    <li class="indent-1"><a href="#the-problem">The Problem</a></li>
-    <li class="indent-2"><a href="#trust">Trust</a></li>
-    <li class="indent-2"><a href="#horror">Horror</a></li>
-    <li class="indent-2"><a href="#broadcasting">Broadcasting</a></li>
-    <li class="indent-2"><a href="#the-unholy-trifecta-trust-horror-and-broadcasting">The Unholy Trifecta: Trust, Horror, and Broadcasting</a></li>
-    <li class="indent-1"><a href="#the-contenders">The Contenders</a></li>
-    <li class="indent-2"><a href="#friendster">Friendster</a></li>
-    <li class="indent-2"><a href="#myspace">MySpace</a></li>
-    <li class="indent-2"><a href="#orkut">Orkut</a></li>
-    <li class="indent-2"><a href="#hi5">hi5</a></li>
-    <li class="indent-2"><a href="#google-buzz">Google Buzz</a></li>
-    <li class="indent-2"><a href="#yahoo-360deg">Yahoo! 360&deg;</a></li>
-    <li class="indent-2"><a href="#bebo">Bebo</a></li>
-    <li class="indent-2"><a href="#google">Google+</a></li>
-    <li class="indent-1"><a href="#honorable-mentions">Honorable Mentions</a></li>
-    <li class="indent-1"><a href="#creating-a-new-social-network">Creating A New Social Network</a></li>
-    <li class="indent-2"><a href="#excellence">Excellence</a></li>
-    <li class="indent-2"><a href="#trust-horror-and-broadcasting">Trust, Horror, and Broadcasting</a></li>
-    <li class="indent-2"><a href="#the-david-to-facebooks-goliath">The David to Facebook's Goliath</a></li>
-    <li class="indent-3"><a href="#building-trust">Building Trust</a></li>
-    <li class="indent-4"><a href="#open-source">Open Source</a></li>
-    <li class="indent-4"><a href="#open-business">Open Business</a></li>
-    <li class="indent-4"><a href="#no-real-names-policy">No "real names" Policy</a></li>
-    <li class="indent-4"><a href="#community-engagement">Community Engagement</a></li>
-    <li class="indent-3"><a href="#eliminating-horror">Eliminating Horror</a></li>
-    <li class="indent-3"><a href="#controlled-broadcasting">Controlled Broadcasting</a></li>
-    <li class="indent-3"><a href="#ai-categorization-pipeline">AI Categorization Pipeline</a></li>
-    <li class="indent-2"><a href="#profit">Profit?</a></li>
-    <li class="indent-1"><a href="#can-it-happen">Can It Happen?</a></li>
-    </ul>
+
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#disclaimer">Disclaimer</a></li>
+<li><a href="#social-networking-is-broken">Social Networking is Broken</a>
+<ul>
+<li><a href="#the-opportunity">The Opportunity</a></li>
+<li><a href="#the-background">The Background</a></li>
+</ul>
+</li>
+<li><a href="#the-problem">The Problem</a>
+<ul>
+<li><a href="#trust">Trust</a></li>
+<li><a href="#horror">Horror</a></li>
+<li><a href="#broadcasting">Broadcasting</a></li>
+<li><a href="#the-unholy-trifecta-trust-horror-and-broadcasting">The Unholy Trifecta: Trust, Horror, and Broadcasting</a></li>
+</ul>
+</li>
+<li><a href="#the-contenders">The Contenders</a>
+<ul>
+<li><a href="#friendster">Friendster</a></li>
+<li><a href="#myspace">MySpace</a></li>
+<li><a href="#orkut">Orkut</a></li>
+<li><a href="#hi5">hi5</a></li>
+<li><a href="#google-buzz">Google Buzz</a></li>
+<li><a href="#yahoo-360deg">Yahoo! 360&deg;</a></li>
+<li><a href="#bebo">Bebo</a></li>
+<li><a href="#google">Google+</a></li>
+</ul>
+</li>
+<li><a href="#honorable-mentions">Honorable Mentions</a></li>
+<li><a href="#creating-a-new-social-network">Creating A New Social Network</a>
+<ul>
+<li><a href="#excellence">Excellence</a></li>
+<li><a href="#trust-horror-and-broadcasting">Trust, Horror, and Broadcasting</a></li>
+<li><a href="#the-david-to-facebooks-goliath">The David to Facebook's Goliath</a>
+<ul>
+<li><a href="#building-trust">Building Trust</a>
+<ul>
+<li><a href="#open-source">Open Source</a></li>
+<li><a href="#open-business">Open Business</a></li>
+<li><a href="#no-real-names-policy">No "real names" Policy</a></li>
+<li><a href="#community-engagement">Community Engagement</a></li>
+</ul>
+</li>
+<li><a href="#eliminating-horror">Eliminating Horror</a></li>
+<li><a href="#controlled-broadcasting">Controlled Broadcasting</a></li>
+<li><a href="#ai-categorization-pipeline">AI Categorization Pipeline</a></li>
+</ul>
+</li>
+<li><a href="#profit">Profit?</a></li>
+</ul>
+</li>
+<li><a href="#can-it-happen">Can It Happen?</a></li>
+</ul>
 </nav>
+</div>
 <hr>
 
 
@@ -303,10 +367,10 @@ entry.</p>
 <h2><a name="social-networking-is-broken"></a>Social Networking is Broken</h2>
 <figure class="captioned">
     <img class="scaled" src="/static/images/mark-zuckerberg.jpg" alt="Image of Mark Zuckerberg">
-    <figcaption>Via <a target="_blank" href="https://en.wikipedia.org/wiki/Mark_Zuckerberg#/media/File:Mark_Zuckerberg_cropped.jpg">Anthony Quintano</a></figcaption>
+    <figcaption>Via <a target="_blank" href="https://en.wikipedia.org/wiki/Mark_Zuckerberg#/media/File:Mark_Zuckerberg_cropped.jpg">Anthony Quintano<span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
-<p>Chris Hughes, one of the founders of Facebook, <a href="https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html" target="_blank">has called for it to be dismantled</a> <span class="fa fa-external-link fa_custom"></span>. Needless to say this generated a ton
+<p>Chris Hughes, one of the founders of Facebook, <a href="https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html" target="_blank">has called for it to be dismantled<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Needless to say this generated a ton
 of media coverage for one simple reason: social networks are broken. They’re
 driving us apart instead of bringing us together. You hop onto Facebook and
 see old friends from school spewing vile accusations about your favorite
@@ -316,14 +380,14 @@ relationships publicly, bitterly, "break up" online where everyone can read
 their accusations. And that's the mild stuff; the hard stuff is much, much
 worse.</p>
 
-<p>You jump from news stories about <a href="https://www.nytimes.com/2018/10/15/technology/myanmar-facebook-genocide.html" target="_blank">Facebook being used to build support for genocide</a> <span class="fa fa-external-link fa_custom"></span> to <a href="https://www.recode.net/2018/11/6/18068048/christopher-wylie-election-day-cambridge-analytica-whistleblower-facebook" target="_blank">foreign propaganda campaigns to manipulate elections</a> <span class="fa fa-external-link fa_custom"></span> to
-<a href="https://arstechnica.com/tech-policy/2019/03/facebook-no-one-reported-nz-shooting-video-during-17-minute-livestream/" target="_blank">livestreaming a mass murder in New Zealand</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>You jump from news stories about <a href="https://www.nytimes.com/2018/10/15/technology/myanmar-facebook-genocide.html" target="_blank">Facebook being used to build support for genocide<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> to <a href="https://www.recode.net/2018/11/6/18068048/christopher-wylie-election-day-cambridge-analytica-whistleblower-facebook" target="_blank">foreign propaganda campaigns to manipulate elections<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> to
+<a href="https://arstechnica.com/tech-policy/2019/03/facebook-no-one-reported-nz-shooting-video-during-17-minute-livestream/" target="_blank">livestreaming a mass murder in New Zealand<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 
 <p>And it's not stopping, though Facebook is belatedly responding. They take
-down the livestreams of the <a href="https://www.thesun.co.uk/news/2709224/two-afghan-migrants-revealed-as-those-arrested-over-horrific-three-hour-rape-streamed-on-facebook-live-in-sweden/" target="_blank">regular rapes</a> <span class="fa fa-external-link fa_custom"></span>, the <a href="https://medium.com/@fatimaalmahmoud/gang-rape-on-facebook-live-why-did-facebook-not-interrupt-the-broadcast-9cc72275c3aa" target="_blank">gang rapes</a> <span class="fa fa-external-link fa_custom"></span>, the <a href="https://www.huffpost.com/entry/facebook-live-sexual-assault_n_58d431aae4b03787d3567e1d" target="_blank">child rapes</a> <span class="fa fa-external-link fa_custom"></span>, the <a href="https://www.thesun.co.uk/news/3426352/facebook-live-clips-murder-suicide-shootings-report/" target="_blank">murders and suicides</a> <span class="fa fa-external-link fa_custom"></span>, and more. This is somewhat better than in 2016
+down the livestreams of the <a href="https://www.thesun.co.uk/news/2709224/two-afghan-migrants-revealed-as-those-arrested-over-horrific-three-hour-rape-streamed-on-facebook-live-in-sweden/" target="_blank">regular rapes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the <a href="https://medium.com/@fatimaalmahmoud/gang-rape-on-facebook-live-why-did-facebook-not-interrupt-the-broadcast-9cc72275c3aa" target="_blank">gang rapes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the <a href="https://www.huffpost.com/entry/facebook-live-sexual-assault_n_58d431aae4b03787d3567e1d" target="_blank">child rapes<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the <a href="https://www.thesun.co.uk/news/3426352/facebook-live-clips-murder-suicide-shootings-report/" target="_blank">murders and suicides<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and more. This is somewhat better than in 2016
 when <a href="https://money.cnn.com/2016/06/17/technology/facebook-live-shooting-death/index.html" target="_blank">Facebook refused to remove the livestream of a murder because "it
-doesn&rsquo;t violate the company&rsquo;s community standards"</a> <span class="fa fa-external-link fa_custom"></span>. </p>
+doesn&rsquo;t violate the company&rsquo;s community standards"<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. </p>
 
 <p>And before we go any further, just ask yourself one question: how can a
 company get so wrong that they think livestreaming murders isn't violating
@@ -331,27 +395,27 @@ company get so wrong that they think livestreaming murders isn't violating
 
 <h3><a name="the-opportunity"></a>The Opportunity</h3>
 
-<p>Let's see if we can figure this out. Facebook has <a href="https://www.statista.com/statistics/264810/number-of-monthly-active-facebook-users-worldwide/" target="_blank">2.3 billion monthly active users</a> <span class="fa fa-external-link fa_custom"></span>, millions of whom want anything else,
-and <a href="https://medium.com/utopiapress/facebook-lost-15-million-users-in-the-united-states-since-2017-705155060c4f" target="_blank">15 million of their most valuable customers have walked away since 2017</a> <span class="fa fa-external-link fa_custom"></span>. Despite this, Facebook still basked in <a href="https://www.statista.com/statistics/223289/facebooks-quarterly-net-income/" target="_blank">almost seven billion dollars in net income for the final quarter of 2018</a> <span class="fa fa-external-link fa_custom"></span>.
+<p>Let's see if we can figure this out. Facebook has <a href="https://www.statista.com/statistics/264810/number-of-monthly-active-facebook-users-worldwide/" target="_blank">2.3 billion monthly active users<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, millions of whom want anything else,
+and <a href="https://medium.com/utopiapress/facebook-lost-15-million-users-in-the-united-states-since-2017-705155060c4f" target="_blank">15 million of their most valuable customers have walked away since 2017<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Despite this, Facebook still basked in <a href="https://www.statista.com/statistics/223289/facebooks-quarterly-net-income/" target="_blank">almost seven billion dollars in net income for the final quarter of 2018<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 You would think that investors would be drooling at this. Millions of Facebook
 high-value customers are <em>begging</em> for a new market! Even more
-interestingly, there's little barrier to entry into this market.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>
+interestingly, there's little barrier to entry into this market.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript>
 Taking a percentage of Facebook's market share is a huge business opportunity
 but investors don&rsquo;t seem to be biting. Why is that? And can it be
 changed?</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/social-networks.jpg" width="600" alt="An image of a mobile phone showing many social network icons">
-    <figcaption>Guess which one is the 800-pound gorilla? <a href="https://www.pexels.com/photo/apps-blur-button-close-up-267350/" target-"_blank">Source</a> </figcaption>
+        <a href="/static/images/social-networks.jpg" class="enlarge"><img src="/static/images/social-networks.jpg" width="600" alt="An image of a mobile phone showing many social network icons"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Guess which one is the 800-pound gorilla? <a href="https://www.pexels.com/photo/apps-blur-button-close-up-267350/" target-"_blank">Source</a> </figcaption>
 </figure>
 
 
 <p>Well, as it turns out, investors were biting but they were also bitten.
 With seeing so many other social networks getting up, swinging, and missing,
 it's no wonder that investors today are wary. However, once you start diving
-into mess, you find that many otherwise savvy investors have fallen for <a href="https://en.wikipedia.org/wiki/Tulip_mania" target="_blank">tulip mania</a> <span class="fa fa-external-link fa_custom"></span> and
+into mess, you find that many otherwise savvy investors have fallen for <a href="https://en.wikipedia.org/wiki/Tulip_mania" target="_blank">tulip mania<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and
 haven't paid attention to the real issues customers care about. Thus, the
 contenders fail.</p>
 
@@ -363,10 +427,10 @@ long history, we need a lot of backstory to unpack what's going on here.</p>
 
 <p>First, let's distinguish between a General Purpose Social Network, GPSN,
 and a Special Purpose Social Network, SPSN, (though there's a lot of grey area
-here). Many of <a href="https://medium.com/utopiapress/facebook-lost-15-million-users-in-the-united-states-since-2017-705155060c4f" target="_blank">the millions leaving Facebook for Instagram</a> <span class="fa fa-external-link fa_custom"></span>, are leaving a GPSN for a
+here). Many of <a href="https://medium.com/utopiapress/facebook-lost-15-million-users-in-the-united-states-since-2017-705155060c4f" target="_blank">the millions leaving Facebook for Instagram<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, are leaving a GPSN for a
 SPSN. Instagram is for sharing photos and videos.  If you have no photos or
 videos to share, you may not find an Instagram account as appealing, though
-you may have one to follow others.  <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> Twitter is closer to a GPSN, but it's still rather
+you may have one to follow others.  <button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> Twitter is closer to a GPSN, but it's still rather
 limited in its features (that, in itself, is a feature).  Facebook, like
 Myspace, or the now-defunct Google Plus, is a GPSN. It has a wide variety of
 features that appeal to many people. Want to connect but don't want to share
@@ -378,7 +442,7 @@ your friends are doing? Facebook. Facebook has it all.</p>
 <p>GPSNs are more geared towards general-purpose social networking without
 trying to shoehorn you into a particular mode of sharing. While many people
 enjoy a variety of social networks, <a href="https://www.invespcro.com/blog/social-media-engagement/" target="_blank">Facebook
-dominates in terms of daily user engagement</a> <span class="fa fa-external-link fa_custom"></span>, with half of its users
+dominates in terms of daily user engagement<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, with half of its users
 logging on more than once a day.</p>
 
 <p>The distinction between GPSN and SPSN is important because this article is
@@ -400,13 +464,13 @@ connection as their target market</em>. If you can connect to the net and you
 want to be social, Facebook is perfect for you.  Of course, if you say
 "everyone is my target market" to an investor, that&rsquo;s a quick way to get
 them to leave, but given Facebook&rsquo;s 2 billion+ user accounts, we really
-do have a serious "everyone" claim here.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
+do have a serious "everyone" claim here.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/smiling-for-camera.jpg" width="600" alt="An image of three women smiling for a smartphone picture being taken by the man next to them.">
-    <figcaption>We are social by nature. <a href="https://www.pexels.com/photo/three-smiling-women-beside-man-holding-smartphone-1547468/" target-"_blank">Source</a> </figcaption>
+        <a href="/static/images/smiling-for-camera.jpg" class="enlarge"><img src="/static/images/smiling-for-camera.jpg" width="600" alt="An image of three women smiling for a smartphone picture being taken by the man next to them."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>We are social by nature. <a href="https://www.pexels.com/photo/three-smiling-women-beside-man-holding-smartphone-1547468/" target-"_blank">Source</a> </figcaption>
 </figure>
 
 
@@ -419,7 +483,7 @@ technically.</p>
 
 <p>Third, given the fact that the core Facebook product started out rather
 limited, they&rsquo;ve been smart enough to <a href="https://developers.facebook.com/docs" target="_blank">offer APIs to allow others
-to build value for Facebook</a> <span class="fa fa-external-link fa_custom"></span>, something that allows them to offer much
+to build value for Facebook<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, something that allows them to offer much
 more to the public without having to build it themselves. Just look at all of
 those annoying game requests you get to begin to understand whats' happening
 here. Surprisingly, many competitors have ignored this.</p>
@@ -449,66 +513,66 @@ them, but that means I can give you a summary and spare you the worst.</p>
 
 <h3><a name="trust"></a>Trust</h3>
 
-<p>This entire section could simply be about <a href="https://www.theguardian.com/technology/2019/mar/17/the-cambridge-analytica-scandal-changed-the-world-but-it-didnt-change-facebook" target="_blank">the Cambridge Analytica scandal</a> <span class="fa fa-external-link fa_custom"></span>. Facebook essentially allowed Cambridge
+<p>This entire section could simply be about <a href="https://www.theguardian.com/technology/2019/mar/17/the-cambridge-analytica-scandal-changed-the-world-but-it-didnt-change-facebook" target="_blank">the Cambridge Analytica scandal<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Facebook essentially allowed Cambridge
 Analytica to mine Facebook's data to manipulate the US public opinion in the
-2016 presidential election, and <a href="https://www.theguardian.com/commentisfree/2018/jul/11/bbc-downplaying-facebook-brexit-scandal-bias" target="_blank">British public opinion on the Brexit vote</a> <span class="fa fa-external-link fa_custom"></span>.  Or there were <a href="https://www.businessinsider.com/facebook-says-fake-accounts-linked-to-russia-bought-ads-during-us-election-2017-9?IR=T" target="_blank">the Facebook ads purchased by the Russian government to influence the US
-election.</a> <span class="fa fa-external-link fa_custom"></span>, even though <a href="https://edition.cnn.com/2017/07/20/politics/facebook-russia-investigation-senate-intelligence-committee/index.html" target="_blank">Facebook originally said there was no evidence for this and stonewalled US
-Congressional investigations</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+2016 presidential election, and <a href="https://www.theguardian.com/commentisfree/2018/jul/11/bbc-downplaying-facebook-brexit-scandal-bias" target="_blank">British public opinion on the Brexit vote<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.  Or there were <a href="https://www.businessinsider.com/facebook-says-fake-accounts-linked-to-russia-bought-ads-during-us-election-2017-9?IR=T" target="_blank">the Facebook ads purchased by the Russian government to influence the US
+election.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, even though <a href="https://edition.cnn.com/2017/07/20/politics/facebook-russia-investigation-senate-intelligence-committee/index.html" target="_blank">Facebook originally said there was no evidence for this and stonewalled US
+Congressional investigations<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>Or maybe you don't like Facebook, so you don't have an account. Don't
 worry, <a href="https://theconversation.com/shadow-profiles-facebook-knows-about-you-even-if-youre-not-on-facebook-94804" target="_blank">thanks to "shadow profiles", Facebook still probably knows who you
-are</a> <span class="fa fa-external-link fa_custom"></span> and there's nothing you can do about it.</p>
+are<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and there's nothing you can do about it.</p>
 
 <p>Or consider the time when <a href="https://www.theguardian.com/technology/2019/jan/31/apple-facebook-campus-permissions-revoked-teens-access-data-iphone-app" target="_blank">Apple had to revoke a Facebook app's permission because Facebook cheated and
-signed the app with a certificate they weren't allowed to use.</a> <span class="fa fa-external-link fa_custom"></span>. There's
+signed the app with a certificate they weren't allowed to use.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. There's
 no excuse for this, but they cheated for the sole purpose of collecting more
 data about people, including people as young as 13.</p>
 
 <p>And why not consider the incredibly poor security mistakes made when
-"protecting" your data? For example, <a href="https://www.wired.com/story/facebook-passwords-plaintext-change-yours/" target="_blank">Facebook stored millions of passwords in plain text</a> <span class="fa fa-external-link fa_custom"></span>, one of the most
+"protecting" your data? For example, <a href="https://www.wired.com/story/facebook-passwords-plaintext-change-yours/" target="_blank">Facebook stored millions of passwords in plain text<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, one of the most
 basic of security blunders. Or how about discovering that <a href="https://www.telegraph.co.uk/technology/2019/04/03/millions-facebook-user-records-exposed-data-breach/" target="_blank">half a billion user records were publicly available after they were uploaded
-to Amazon Web Services</a> <span class="fa fa-external-link fa_custom"></span>. Facebook could put an end to that by not letting
+to Amazon Web Services<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Facebook could put an end to that by not letting
 this information be collected by third-party applications, but that's not
 going to happen.</p>
 
-<p>As for privacy, as long as Facebook maintains their <a href="https://en.wikipedia.org/wiki/Facebook_real-name_policy_controversy" target="_blank">real-name policy</a> <span class="fa fa-external-link fa_custom"></span>, you will never have strong privacy guarantees. Facebook
-has tried to mitigate some of the issues with this policy, <a href="https://www.eff.org/deeplinks/2015/12/changes-facebooks-real-names-policy-still-dont-fix-problem" target="_blank">but their "fix" raised more problems than the policy itself</a> <span class="fa fa-external-link fa_custom"></span>. Facebook is
-unlikely to address this issue because <a href="https://www.theguardian.com/technology/2012/aug/02/facebook-share-price-slumps-20-dollars" target="_blank">fake names cause the share price to drop</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>As for privacy, as long as Facebook maintains their <a href="https://en.wikipedia.org/wiki/Facebook_real-name_policy_controversy" target="_blank">real-name policy<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, you will never have strong privacy guarantees. Facebook
+has tried to mitigate some of the issues with this policy, <a href="https://www.eff.org/deeplinks/2015/12/changes-facebooks-real-names-policy-still-dont-fix-problem" target="_blank">but their "fix" raised more problems than the policy itself<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Facebook is
+unlikely to address this issue because <a href="https://www.theguardian.com/technology/2012/aug/02/facebook-share-price-slumps-20-dollars" target="_blank">fake names cause the share price to drop<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>The privacy issue hits Facebook again and again and again. For many people,
 it's their number one reason for wanting to find another GPSN. Zuckerberg has
-flipped from <a href="https://www.theguardian.com/technology/2010/jan/11/facebook-privacy" target="_blank">privacy is no longer a "social norm"</a> <span class="fa fa-external-link fa_custom"></span>, to insisting Facebook would become
-a <a href="https://www.theverge.com/2019/4/30/18524188/facebook-f8-keynote-mark-zuckerberg-privacy-future-2019" target="_blank">"privacy-focused communications platform"</a> <span class="fa fa-external-link fa_custom"></span>. Given Zuckerberg's history,
+flipped from <a href="https://www.theguardian.com/technology/2010/jan/11/facebook-privacy" target="_blank">privacy is no longer a "social norm"<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, to insisting Facebook would become
+a <a href="https://www.theverge.com/2019/4/30/18524188/facebook-f8-keynote-mark-zuckerberg-privacy-future-2019" target="_blank">"privacy-focused communications platform"<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Given Zuckerberg's history,
 he's more likely to be known as "the boy who cried privacy."</p>
 
 <p>Of course, given all of the scandals, why doesn't the board simply fire
 Zuckerberg as CEO and move in a new direction? Because they can't. <a href="https://www.cnbc.com/2018/12/05/why-mark-zuckerberg-wont-step-down-as-facebook-chairman.html" target="_blank">Mark Zuckerberg has a majority stake in Facebook and can fire any director,
-at any time, without cause.</a> <span class="fa fa-external-link fa_custom"></span>. The board can't lift a finger against
+at any time, without cause.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. The board can't lift a finger against
 Zuckerberg and he knows it. He has complete control over everything Facebook
 does.</p>
 
 <h3><a name="horror"></a>Horror</h3>
 
 <p><a href="https://www.nytimes.com/2018/10/15/technology/myanmar-facebook-genocide.html" target="_blank">The Myanmar military used Facebook posts to gain support for the genocide
-against Muslims in Myanmar</a> <span class="fa fa-external-link fa_custom"></span>. White nationalists have long used Facebook
-to coordinate activities, but <a href="https://www.nbcnews.com/tech/tech-news/facebook-bans-white-nationalism-after-pressure-civil-rights-groups-n987991" target="_blank">only recently has Facebook started banning those groups</a> <span class="fa fa-external-link fa_custom"></span>. <a href="https://www.bbc.com/news/world-africa-47805113" target="_blank">And a Kenyan
+against Muslims in Myanmar<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. White nationalists have long used Facebook
+to coordinate activities, but <a href="https://www.nbcnews.com/tech/tech-news/facebook-bans-white-nationalism-after-pressure-civil-rights-groups-n987991" target="_blank">only recently has Facebook started banning those groups<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. <a href="https://www.bbc.com/news/world-africa-47805113" target="_blank">And a Kenyan
 vigilante group is using Facebook to murder people suspected of being in
-gangs</a> <span class="fa fa-external-link fa_custom"></span>.  These and many other scandals would be enough to destroy many
+gangs<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.  These and many other scandals would be enough to destroy many
 companies, but "scandal fatigue" has definitely set in. However, this isn't
 where the worst of it is.</p>
 
 <p>Facebook's livestreaming is mostly boring, innocuous, and sometimes
 touching. And every once in a while its mind-numbing horror will turn your
-stomach. <a href="https://www.thesun.co.uk/news/3426352/facebook-live-clips-murder-suicide-shootings-report/" target="_blank">It's incredibly painful to read about.</a> <span class="fa fa-external-link fa_custom"></span> It includes suicides, parents
+stomach. <a href="https://www.thesun.co.uk/news/3426352/facebook-live-clips-murder-suicide-shootings-report/" target="_blank">It's incredibly painful to read about.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> It includes suicides, parents
 murdering their children, parents abusing their children, gang rapes, and
-more.  <a href="https://arstechnica.com/tech-policy/2019/03/facebook-no-one-reported-nz-shooting-video-during-17-minute-livestream/" target="_blank">And do not forget the New Zealand mass murder that was livestreamed.</a> <span class="fa fa-external-link fa_custom"></span>
+more.  <a href="https://arstechnica.com/tech-policy/2019/03/facebook-no-one-reported-nz-shooting-video-during-17-minute-livestream/" target="_blank">And do not forget the New Zealand mass murder that was livestreamed.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 Facebook (read: Zuckerberg) knows this. Despite repeatedly livestreaming
-horrific crimes, Facebook knows they are making a lot of money and <a href="https://www.thewrap.com/mark-zuckerberg-defends-facebook-livestreaming-after-new-zealand-massacre/" target="_blank">Zuckerberg refuses to do anything about it.</a> <span class="fa fa-external-link fa_custom"></span></p>
+horrific crimes, Facebook knows they are making a lot of money and <a href="https://www.thewrap.com/mark-zuckerberg-defends-facebook-livestreaming-after-new-zealand-massacre/" target="_blank">Zuckerberg refuses to do anything about it.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>They've been repeatedly asked to add a time-delay to livestreams, or remove
 them entirely until they can figure out how to stop this.  However, they're
 serious about not delaying livestreams, even if there are brutal crimes
-involved, but they're taking a huge amount of heat over this. <a href="https://techcrunch.com/2019/05/14/facebook-live-streaming-abuse-one-strike-policy/" target="_blank">Their response?</a> <span class="fa fa-external-link fa_custom"></span></p>
+involved, but they're taking a huge amount of heat over this. <a href="https://techcrunch.com/2019/05/14/facebook-live-streaming-abuse-one-strike-policy/" target="_blank">Their response?<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <blockquote>“From now on, anyone who violates our most serious policies will
 be restricted from using Live for set periods of time — for example 30 days —
@@ -525,7 +589,7 @@ Facebook won't delay the livestreaming of rapes and murders.</p>
 <p>This issue seems relatively minor from a "news" point of view, but it
 turns out that it's one of Facebook's biggest problems. From a source inside
 Facebook who cannot be named: "the number one reason people leave Facebook is
-because their mom joins." <a href="https://www.theguardian.com/technology/2013/dec/27/facebook-dead-and-buried-to-teens-research-finds?CMP=fb_us" target="_blank">An independent study confirmed this.</a> <span class="fa fa-external-link fa_custom"></span> There are several things going on,
+because their mom joins." <a href="https://www.theguardian.com/technology/2013/dec/27/facebook-dead-and-buried-to-teens-research-finds?CMP=fb_us" target="_blank">An independent study confirmed this.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> There are several things going on,
 much of what deals with the difference between online and offline social
 interactions. Offline, social interactions are face-to-face. We know who we're
 dealing with and can adjust ourselves accordingly. Online, you're in what I
@@ -534,9 +598,9 @@ with and nobody wants to tell a dirty joke to their grandmother.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/broadcasting.jpg" width="600" alt="An image of a microphone on a laptop">
-    <figcaption>Social media broadcasts whether you like it or not. <a href="https://www.pexels.com/photo/microphone-on-laptop-1212829/" target-"_blank">Source</a> </figcaption>
+        <a href="/static/images/broadcasting.jpg" class="enlarge"><img src="/static/images/broadcasting.jpg" width="600" alt="An image of a microphone on a laptop"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Social media broadcasts whether you like it or not. <a href="https://www.pexels.com/photo/microphone-on-laptop-1212829/" target-"_blank">Source</a> </figcaption>
 </figure>
 
 
@@ -586,8 +650,8 @@ failed in almost comical ways.</p>
 <h3><a name="friendster"></a>Friendster</h3>
 
 <p><a href="https://en.wikipedia.org/wiki/Friendster" target="_blank">Friendster wasn't
-the first social network, but it's probably the best-known early contender.</a> <span class="fa fa-external-link fa_custom"></span> They launched in 2002 and quickly racked up millions of followers, several
-competitors, and a <a href="https://www.nytimes.com/2006/10/15/business/yourmoney/15friend.html" target="_blank">$30 million buyout offer from Google.</a> <span class="fa fa-external-link fa_custom"></span> The founder, Jonathan Abrams,
+the first social network, but it's probably the best-known early contender.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> They launched in 2002 and quickly racked up millions of followers, several
+competitors, and a <a href="https://www.nytimes.com/2006/10/15/business/yourmoney/15friend.html" target="_blank">$30 million buyout offer from Google.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> The founder, Jonathan Abrams,
 turned down that offer and Friendster later failed, slain by MySpace. There
 were many reasons for this failure, but a critical issue was simply poor
 performance. As it grew in popularity, its home page could take almost a
@@ -596,9 +660,9 @@ minute to load.</p>
 <h3><a name="myspace"></a>MySpace</h3>
 
 <p>MySpace, once the most popular Web site in the US, <a href="https://deadline.com/2011/06/myspace-debacle-vindication-for-fired-viacom-ceo-tom-freston-144587/" target="_blank">spectacularly imploded after Rupert Murdoch purchased them for $580
-million.</a> <span class="fa fa-external-link fa_custom"></span>. A large part of this seems to be that Murdoch's NewsCorp just
+million.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. A large part of this seems to be that Murdoch's NewsCorp just
 didn't "get" the internet. You move fast and you react to what your users
-want; post-buyout, <a href="https://web.archive.org/web/20150208035248/http://www.bloomberg.com/bw/magazine/content/11_27/b4235053917570.htm#p3" target="_blank">MySpace moved slowly and built a bunch of buggy, half-thought out features.</a> <span class="fa fa-external-link fa_custom"></span> Seriously, who spends valuable developer time and money building a virtual
+want; post-buyout, <a href="https://web.archive.org/web/20150208035248/http://www.bloomberg.com/bw/magazine/content/11_27/b4235053917570.htm#p3" target="_blank">MySpace moved slowly and built a bunch of buggy, half-thought out features.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Seriously, who spends valuable developer time and money building a virtual
 karaoke machine? Meanwhile, Facebook was opening up their API so that
 third-party companies could build the features <em>for</em> Facebook, allowing
 Facebook to focus on their core products. So again, we see the death of a
@@ -609,13 +673,13 @@ happened.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/orkut.jpg" width="600" alt="A screenshot of the defunct Orkut Social Network">
-    <figcaption>Orkut in all its glory! <a href="https://www.vox.com/2014/6/30/11628448/flashing-back-to-2004-as-orkut-fades-away-a-decade-later" target-"_blank">Source</a> </figcaption>
+        <a href="/static/images/orkut.jpg" class="enlarge"><img src="/static/images/orkut.jpg" width="600" alt="A screenshot of the defunct Orkut Social Network"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Orkut in all its glory! <a href="https://www.vox.com/2014/6/30/11628448/flashing-back-to-2004-as-orkut-fades-away-a-decade-later" target-"_blank">Source</a> </figcaption>
 </figure>
 
 
-<p>Orkut could have become something. It was launched to much fanfare, <a href="https://www.theregister.co.uk/2004/01/23/google_debuts_friendsterclone_orkut/" target="_blank">including this bit from The Register</a> <span class="fa fa-external-link fa_custom"></span> (emphasis mine):</p>
+<p>Orkut could have become something. It was launched to much fanfare, <a href="https://www.theregister.co.uk/2004/01/23/google_debuts_friendsterclone_orkut/" target="_blank">including this bit from The Register<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (emphasis mine):</p>
 
 <blockquote>Undetered by the feeding frenzy around the social networking
 bubble, and rebuffed by Friendster Inc, which it attempted to buy, Google has
@@ -625,7 +689,7 @@ expertise in scalability</strong>, it ought to be more than up to the
 technical challenge.</blockquote>
 
 <p>Except ... <a href="https://techcrunch.com/2010/09/29/marissa-mayer-orkut/" target="_blank">here's
-what Marissa Mayer, then with Google, had to say about Orkut</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+what Marissa Mayer, then with Google, had to say about Orkut<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote>Orkut launched in January of 2004, and as Mayer remembers it, it
 attracted “several million users in a few days“. This caused the network to
@@ -633,7 +697,7 @@ slow down to a crawl, Mayer noted. And that, in turn, turned a lot of users
 away from it — at least in the U.S. “It’s all about speed here,” she
 said.</blockquote>
 
-<p><a href="https://www.vox.com/2014/6/30/11628448/flashing-back-to-2004-as-orkut-fades-away-a-decade-later" target="_blank">Vox has an interesting article about the mess that was Orkut</a> <span class="fa fa-external-link fa_custom"></span>, but it
+<p><a href="https://www.vox.com/2014/6/30/11628448/flashing-back-to-2004-as-orkut-fades-away-a-decade-later" target="_blank">Vox has an interesting article about the mess that was Orkut<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but it
 basically amounts to a part-time project, written by Google employee Orkut
 Büyükkökten, getting co-opted as a Google product, even though it was never
 designed to scale.  What's worse, because it was largely built with Microsoft
@@ -644,15 +708,15 @@ technical limitations which should never have happened.</p>
 
 <h3><a name="hi5"></a>hi5</h3>
 
-<p>Not much to say about <a href="https://en.wikipedia.org/wiki/Hi5" target="_blank">hi5</a> <span class="fa fa-external-link fa_custom"></span>. Launched in 2004, for a few years they were the second or third most
+<p>Not much to say about <a href="https://en.wikipedia.org/wiki/Hi5" target="_blank">hi5<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Launched in 2004, for a few years they were the second or third most
 popular social network in the US. <a href="http://www.speeli.com/articles/view/why-did-hi5-fail" target="_blank">speeli.com
-has an interesting summary of why hi5 went nowhere.</a> <span class="fa fa-external-link fa_custom"></span> Amongst other things,
+has an interesting summary of why hi5 went nowhere.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Amongst other things,
 you could see who viewed your profile and thus had the incredibly creepy
 experience of knowing who your cyber-stalkers were. However, their failure was
 probably due to the fierce competition with MySpace and Facebook, combined
-with poor earnings and a <a href="https://venturebeat.com/2009/03/31/after-a-funding-failure-hi5-kind-of-died-today/" target="_blank">funding collapse</a> <span class="fa fa-external-link fa_custom"></span>. By 2009, <a href="https://everything-pr.com/hi5-social-media/" target="_blank">hi5 was focusing
+with poor earnings and a <a href="https://venturebeat.com/2009/03/31/after-a-funding-failure-hi5-kind-of-died-today/" target="_blank">funding collapse<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. By 2009, <a href="https://everything-pr.com/hi5-social-media/" target="_blank">hi5 was focusing
 heavily on virtual goods for monetization and while Facebook focused on user
-acquisition around the globe.</a> <span class="fa fa-external-link fa_custom"></span> Facebook, of course, had heavy VC funding,
+acquisition around the globe.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Facebook, of course, had heavy VC funding,
 and the hi5 social network never quite seemed as polished. Perhaps if hi5's
 last funding round hadn't collapsed, things would be different today.</p>
 
@@ -664,22 +728,22 @@ social network)</p>
 
 <p>Included only for completeness: Google has a habit of launching various
 social media products, seeing little user engagement, and then dropping them
-again. In the case of <a href="https://en.wikipedia.org/wiki/Google_Buzz" target="_blank">Google Buzz</a> <span class="fa fa-external-link fa_custom"></span>, many
-users didn't understand what it was for, <a href="https://www.pcworld.com/article/189081/google_buzz_criticized_for_disclosing_gmail_contacts.html" target="_blank">it publicly displayed who you most chatted and emailed with</a> <span class="fa fa-external-link fa_custom"></span>, and <a href="http://webarchive.loc.gov/all/20101113200852/http://www.hlrecord.org/news/harvard-law-student-brings-class-action-lawsuit-over-google-buzz-1.1165204" target="_blank">the class action lawsuit probably did little to help.</a> <span class="fa fa-external-link fa_custom"></span>. It lasted only two
+again. In the case of <a href="https://en.wikipedia.org/wiki/Google_Buzz" target="_blank">Google Buzz<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, many
+users didn't understand what it was for, <a href="https://www.pcworld.com/article/189081/google_buzz_criticized_for_disclosing_gmail_contacts.html" target="_blank">it publicly displayed who you most chatted and emailed with<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and <a href="http://webarchive.loc.gov/all/20101113200852/http://www.hlrecord.org/news/harvard-law-student-brings-class-action-lawsuit-over-google-buzz-1.1165204" target="_blank">the class action lawsuit probably did little to help.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. It lasted only two
 years before Google put it out of its misery.</p>
 
 <h3><a name="yahoo-360deg"></a>Yahoo! 360&deg;</h3>
 
-<p>Remember them? Me neither. <a href="https://techcrunch.com/2007/10/23/yang-decides-to-shut-down-yahoo-360%E2%80%94nobody-notices/" target="_blank">Nobody really had any idea what it was for, but it was "social"</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>Remember them? Me neither. <a href="https://techcrunch.com/2007/10/23/yang-decides-to-shut-down-yahoo-360%E2%80%94nobody-notices/" target="_blank">Nobody really had any idea what it was for, but it was "social"<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h3><a name="bebo"></a>Bebo</h3>
 
 <p>Bebo really could have been something. At their height they had over 40
 million users with strong engagement and <a href="http://news.bbc.co.uk/2/hi/business/7294174.stm" target="_blank">sold themselves
-to AOL for a shocking $850 million!</a> <span class="fa fa-external-link fa_custom"></span> AOL, rather than having a sound vision
+to AOL for a shocking $850 million!<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> AOL, rather than having a sound vision
 of where they were going, was trying to use the piles of money they were
 sitting on to buy something popular and stay relevant. Two years later <a href="https://www.nytimes.com/2010/06/18/technology/18aol.html" target="_blank">AOL
-sold Bebo for $10 million.</a> <span class="fa fa-external-link fa_custom"></span></p>
+sold Bebo for $10 million.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p>Oops.</p>
 
@@ -702,15 +766,15 @@ Google killed it.</p>
     <figcaption>Google+ Launch</figcaption>
 </figure>
 
-<p>And then there was <a href="https://en.wikipedia.org/wiki/Google%2B" target="_blank">Google+</a> <span class="fa fa-external-link fa_custom"></span>, arriving at
+<p>And then there was <a href="https://en.wikipedia.org/wiki/Google%2B" target="_blank">Google+<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, arriving at
 a time when many people were already getting sick of Facebook and hoping for a
 decent alternative. And then it launched.</p>
 
 <p>It's hard to be sure exactly what Google was thinking, <a href="https://www.indiatoday.in/technology/features/story/former-google-designer-explains-why-google-s-social-media-play-failed-1370662-2018-10-18" target="_blank">but one designer on the project described an epic tale of fear, politics,
-and siloed development.</a> <span class="fa fa-external-link fa_custom"></span>. Vision? The entire thing was driven by fear of
+and siloed development.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Vision? The entire thing was driven by fear of
 Facebook instead of "what value can we bring to our customers?"</p>
 
-<p>And then there's <a href="https://gist.github.com/chitchcock/1281611" target="_blank">Steve Yegge's infamous Google rant</a> <span class="fa fa-external-link fa_custom"></span>. He meant it to be private, but didn't
+<p>And then there's <a href="https://gist.github.com/chitchcock/1281611" target="_blank">Steve Yegge's infamous Google rant<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. He meant it to be private, but didn't
 understand how to use Google+, so it was posted to the world by accident and
 lovingly copied, again and again, so that it wouldn't be lost if he was
 ordered to take it down. It can be summed up with one delightful
@@ -736,11 +800,11 @@ Hangouts, online photo editing, and a few other nifty features, but the lack
 of an API and a generally "clunky" feel meant that Google+ was off to a bad
 start, despite picking up millions of users.</p>
 
-<p>And then Google said "hey, let's piss off Youtube fans!" <a href="https://web.archive.org/web/20131123061437/http://www.newsday.com/business/technology/silicon-island-1.1521604/youtube-comments-require-google-account-google-faces-uproar-1.6429420" target="_blank">and required a Google+ account to comment on Youtube videos</a> <span class="fa fa-external-link fa_custom"></span>. And yes,
+<p>And then Google said "hey, let's piss off Youtube fans!" <a href="https://web.archive.org/web/20131123061437/http://www.newsday.com/business/technology/silicon-island-1.1521604/youtube-comments-require-google-account-google-faces-uproar-1.6429420" target="_blank">and required a Google+ account to comment on Youtube videos<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. And yes,
 people were furious. Not only were they forced to have a Google+ account to
 use Google services, but the "real name" policy meant that many people,
 including those who have a genuine need to hide their identity, were locked
-out. <a href="https://www.extremetech.com/extreme/210941-google-kills-mandatory-google-plus-identity-policy-rolls-back-youtube-changes" target="_blank">Google finally gave up on these changes a couple of years later</a> <span class="fa fa-external-link fa_custom"></span>. I can't
+out. <a href="https://www.extremetech.com/extreme/210941-google-kills-mandatory-google-plus-identity-policy-rolls-back-youtube-changes" target="_blank">Google finally gave up on these changes a couple of years later<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I can't
 help but wonder who at Google thought that force feeding a social network to
 their customers was really the fastest way to their hearts.</p>
 
@@ -753,12 +817,12 @@ until Google put yet another product out of its misery.</p>
 <p>In the history of social networking, there are still a few other sites
 worth mentioning.</p>
 
-<p>One of the most famous is <a href="https://www.nytimes.com/2010/05/12/nyregion/12about.html" target="_blank">Diaspora</a> <span class="fa fa-external-link fa_custom"></span>, still in existence as <a href="https://diasporafoundation.org/" target="_blank">the Diaspora Foundation</a> <span class="fa fa-external-link fa_custom"></span>.
-They tried to raise $10,000 to compete against Facebook but <a href="https://www.kickstarter.com/projects/mbs348/diaspora-the-personally-controlled-do-it-all-distr" target="_blank">quickly raised over $200,000 dollars</a> <span class="fa fa-external-link fa_custom"></span>, despite not having written a single
+<p>One of the most famous is <a href="https://www.nytimes.com/2010/05/12/nyregion/12about.html" target="_blank">Diaspora<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, still in existence as <a href="https://diasporafoundation.org/" target="_blank">the Diaspora Foundation<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
+They tried to raise $10,000 to compete against Facebook but <a href="https://www.kickstarter.com/projects/mbs348/diaspora-the-personally-controlled-do-it-all-distr" target="_blank">quickly raised over $200,000 dollars<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, despite not having written a single
 line of code. They were known as a "Facebook killer" long before entering that
-search term in Google turned up murderers. Sadly, <a href="https://www.theregister.co.uk/2010/09/16/diaspora_pre_alpha_landmines/" target="_blank">their initial release was riddled with security flaws</a> <span class="fa fa-external-link fa_custom"></span>, helping to stall
+search term in Google turned up murderers. Sadly, <a href="https://www.theregister.co.uk/2010/09/16/diaspora_pre_alpha_landmines/" target="_blank">their initial release was riddled with security flaws<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, helping to stall
 momentum. Another serious issue is that, because it's decentralized, <a href="https://www.theregister.co.uk/2014/08/22/isis_terrorists_iaspora_social_network/" target="_blank">ISIS terrorists have started using it because it's almost impossible to
-censor them there.</a> <span class="fa fa-external-link fa_custom"></span> Diaspora is asking users to inform on other users who
+censor them there.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Diaspora is asking users to inform on other users who
 might be terrorists in an attempt to get larger "pods" to take down suspicious
 accounts.</p>
 
@@ -766,23 +830,23 @@ accounts.</p>
 network" interesting, or they simply didn't understand it. Diaspora was
 doomed.</p>
 
-<p>Another interesting idea was <a href="https://www.minds.com/" target="_blank">minds.com</a> <span class="fa fa-external-link fa_custom"></span>, the <a href="https://libertarianvindicator.com/2018/05/18/exclusive-interview-with-minds-com-ceo-bill-ottman/" target="_blank">Libertarian-leaning</a> <span class="fa fa-external-link fa_custom"></span>, crypto-currency backed social
+<p>Another interesting idea was <a href="https://www.minds.com/" target="_blank">minds.com<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the <a href="https://libertarianvindicator.com/2018/05/18/exclusive-interview-with-minds-com-ceo-bill-ottman/" target="_blank">Libertarian-leaning<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, crypto-currency backed social
 network.</p>
 
 <p>Yes, you read that right. Someone thought that a crypto-currency based
-social network was just what the world needed.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>
+social network was just what the world needed.<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>
 Unsurprisingly, their traffic, never high to begin with, collapsed in the 2018
 cryptocurrency crash. Any money you earned through them became instantly
 worthless. However, <a href="https://github.com/Minds" target="_blank">they are open
-source</a> <span class="fa fa-external-link fa_custom"></span> and should get kudos for that, but it's not enough to save
+source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and should get kudos for that, but it's not enough to save
 them.</p>
 
-<p>If there is one social network I wanted to like, it was <a href="https://mewe.com/" target="_blank">MeWe</a> <span class="fa fa-external-link fa_custom"></span>, a "censorship-free" social network
+<p>If there is one social network I wanted to like, it was <a href="https://mewe.com/" target="_blank">MeWe<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, a "censorship-free" social network
 with none other than <a href="https://en.wikipedia.org/wiki/Tim_Berners-Lee" target="_blank">Tim
-Berners-Lee</a> <span class="fa fa-external-link fa_custom"></span>, the inventor of the Web, as an advisor. But guess what
+Berners-Lee<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the inventor of the Web, as an advisor. But guess what
 happens to sites like Gab, Voat, and MeWe, when they claim they won't censor?
 They attract those being censored. I'm sure Berners-Lee isn't very happy with
-headlines like <a href="https://www.thetimes.co.uk/article/sir-tim-berners-lee-s-app-mewe-is-used-by-neo-nazis-and-perverts-svflhn32s" target="_blank">Sir Tim Berners-Lee’s app MeWe is used by neo-Nazis and perverts</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+headlines like <a href="https://www.thetimes.co.uk/article/sir-tim-berners-lee-s-app-mewe-is-used-by-neo-nazis-and-perverts-svflhn32s" target="_blank">Sir Tim Berners-Lee’s app MeWe is used by neo-Nazis and perverts<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote> Sir Tim Berners-Lee's app MeWe included neo-Nazi posts, upskirt
 “creep ... content, including posts from paedophiles and terrorist
@@ -791,7 +855,7 @@ supporters.</blockquote>
 <p>I went and checked out MeWe myself and found myself in a cesspool of
 white-nationalists, "WeTheSheeple", MAGA-enthusiasts, "Exposing Satanic World
 Government" members, and some, I assume, are good people. It's definitely
-leaning "alt-right" and <a href="https://www.reddit.com/r/plexodus/comments/a1jqsy/mewe_a_trip_report/" target="_blank">this Reddit posts summarizes it very well.</a> <span class="fa fa-external-link fa_custom"></span></p>
+leaning "alt-right" and <a href="https://www.reddit.com/r/plexodus/comments/a1jqsy/mewe_a_trip_report/" target="_blank">this Reddit posts summarizes it very well.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <h2><a name="creating-a-new-social-network"></a>Creating A New Social Network</h2>
 
@@ -815,7 +879,7 @@ reasons.  The reasons that <em>never</em> should have occurred are the cases of
 technical incompetence. Friendster, MySpace (after the NewsCorp acquisition),
 Orkut (the disastrous launch), Diaspora, and others not mentioned. However,
 I've been in this industry for far too long for me to suspect that management
-are going to get better at strategic planning,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> or that
+are going to get better at strategic planning,<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> or that
 software "architects" will learn to go by evidence instead of their gut, or
 software developers will suddenly learn how to write clean, extensible
 code.</p>
@@ -825,12 +889,12 @@ well-thought out and there must be no shortcuts on the path to technical
 excellence. The investors need to understand that building value is more
 important than saving money&mdash;none of this idiotic <a href="/articles/the-tyranny-of-budgets">"we can save money by
 hiring developers for $100 a day!"</a> You don't enter a mature,
-multi-billion dollar market by winging it.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript></p>
+multi-billion dollar market by winging it.<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript></p>
 
 <h3><a name="trust-horror-and-broadcasting"></a>Trust, Horror, and Broadcasting</h3>
 
 <p>As mentioned earlier, <a href="https://www.joelonsoftware.com/2001/03/23/strategy-letter-iv-bloatware-and-the-8020-myth/" target="_blank">many companies have failed to replace Microsoft Word because they offered a
-limited subset of features</a> <span class="fa fa-external-link fa_custom"></span>, ignoring that different users offer different
+limited subset of features<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, ignoring that different users offer different
 subsets. Many of the would-be competitors did a good job of addressing
 <em>some</em> of the core issues of trust, horror, and broadcasting, but no
 one has attempted to address all of them. If you want a GPSN to compete with
@@ -846,9 +910,9 @@ cesspits for racists, conspiracy theorists, and pedophiles.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/voat.png" width="600" alt="A horrifying screenshot of the racism on sites that veto censorship">
-    <figcaption>No, we don't need to host this content. And yes, this is a real screenshot. </figcaption>
+        <a href="/static/images/voat.png" class="enlarge"><img src="/static/images/voat.png" width="600" alt="A horrifying screenshot of the racism on sites that veto censorship"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>No, we don't need to host this content. And yes, this is a real screenshot. </figcaption>
 </figure>
 
 
@@ -860,7 +924,7 @@ the new company should give in to demands from authoritarian countries.</p>
 
 <h3><a name="the-david-to-facebooks-goliath"></a>The David to Facebook's Goliath</h3>
 
-<p>For the sake of having a name, let's call our theoretical company "<a href="https://zu.oxforddictionaries.com/translate/isizulu-english/ubuhle" target="_blank">Ubuhle</a> <span class="fa fa-external-link fa_custom"></span>", the Zulu word for "beauty" or "goodness".<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
+<p>For the sake of having a name, let's call our theoretical company "<a href="https://zu.oxforddictionaries.com/translate/isizulu-english/ubuhle" target="_blank">Ubuhle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>", the Zulu word for "beauty" or "goodness".<button type="button" class="open-dialog js-only" id="open-dialog-7" aria-haspopup="dialog" aria-controls="dialog-7"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 7</span></button><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
 
 <p>Many companies, including powerhouses like Google, have tried and failed to
 take on Facebook. What we need is something radically different, addressing
@@ -868,7 +932,7 @@ take on Facebook. What we need is something radically different, addressing
 for profits and dominance, Ubuhle would be focused on the needs of its users.
 If a social network can be thought of as a public service, the company should
 act in the interests of the public, not shareholders, or Zuckerberg. Part of
-that difference would be creating Ubuhle as a B Corporation. <a href="https://bcorporation.net/" target="_blank">B Corporations are different.</a> <span class="fa fa-external-link fa_custom"></span></p>
+that difference would be creating Ubuhle as a B Corporation. <a href="https://bcorporation.net/" target="_blank">B Corporations are different.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <blockquote>Certified B Corporations are a new kind of business that balances
 purpose and profit. They are legally required to consider the impact of their
@@ -887,7 +951,7 @@ time.</p>
 <h5><a name="open-source"></a>Open Source</h5>
 
 <p>Let's just get this out of the way right now: Ubuhle's software should be
-open source. <a href="https://www.crunchbase.com/hub/open-source-companies#section-overview" target="_blank">There are many successful open source companies</a> <span class="fa fa-external-link fa_custom"></span> and Ubuhle's strength
+open source. <a href="https://www.crunchbase.com/hub/open-source-companies#section-overview" target="_blank">There are many successful open source companies<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and Ubuhle's strength
 would be the service and trust it provides, not just the code. When the code is
 open source, people can look to see if we're building shadow profiles, or
 inappropriately mining data, or using lax security practices.</p>
@@ -895,7 +959,7 @@ inappropriately mining data, or using lax security practices.</p>
 <h5><a name="open-business"></a>Open Business</h5>
 
 <p>Next: open business. Facebook has taken in a lot of money from questionable
-sources, such as Cambridge Analytica and <a href="https://techcrunch.com/2018/05/10/russian-facebook-ads-house-intelligence-full-list/" target="_blank">Russia advertising propaganda campaigns</a> <span class="fa fa-external-link fa_custom"></span> targeting US voters. Ubuhle
+sources, such as Cambridge Analytica and <a href="https://techcrunch.com/2018/05/10/russian-facebook-ads-house-intelligence-full-list/" target="_blank">Russia advertising propaganda campaigns<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> targeting US voters. Ubuhle
 should have a page where users can search for all income sources, along with
 their details. Instead of shrouding everything in secrecy, let it be out in
 the open. The default position of Ubuhle is that people have a right to know
@@ -910,9 +974,9 @@ stalked by an ex and doesn't want to be found. Imagine if someone from Iran is
 gay and doesn't want to be executed. Imagine if someone just doesn't think
 other people need to know their real name. Imagine tons of celebrities who,
 technically, can't use Facebook because their stage name doesn't match their
-real name. Heck, I'm better known as <a href="https://www.google.com/search?q=curtis+poe+ovid&oq=curtis+poe+ovid" target="_blank">"Ovid"</a> <span class="fa fa-external-link fa_custom"></span> in much of the software world, but I
+real name. Heck, I'm better known as <a href="https://www.google.com/search?q=curtis+poe+ovid&oq=curtis+poe+ovid" target="_blank">"Ovid"<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> in much of the software world, but I
 can't use that on Facebook. And trying to enforce a "real name" policy is
-simply fraught with error. <a href="https://en.wikipedia.org/wiki/Facebook_real-name_policy_controversy#Ethnic_groups" target="_blank">Facebook has banned many people for actually using their real names</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+simply fraught with error. <a href="https://en.wikipedia.org/wiki/Facebook_real-name_policy_controversy#Ethnic_groups" target="_blank">Facebook has banned many people for actually using their real names<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h5><a name="community-engagement"></a>Community Engagement</h5>
 
@@ -920,7 +984,7 @@ simply fraught with error. <a href="https://en.wikipedia.org/wiki/Facebook_real-
 and the reasons for them, should be shared with the public immediately.
 Comments should be allowed and Ubuhle should directly engage with its
 customers. There should be no shadowy cabal of management making secret
-decisions controlling the communications of people.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript></p>
+decisions controlling the communications of people.<button type="button" class="open-dialog js-only" id="open-dialog-8" aria-haspopup="dialog" aria-controls="dialog-8"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 8</span></button><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript></p>
 
 <h4><a name="eliminating-horror"></a>Eliminating Horror</h4>
 
@@ -966,7 +1030,7 @@ spoilers.</p>
 content would still need to be banned (child-pornography), you choose your
 experience. This filter could be applied to <em>all</em> content. With the
 default Ubuhle filter, assuming white-supremacist groups are heavily
-downvoted,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> you'd never see them when scrolling
+downvoted,<button type="button" class="open-dialog js-only" id="open-dialog-9" aria-haspopup="dialog" aria-controls="dialog-9"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 9</span></button><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> you'd never see them when scrolling
 through groups.</p>
 
 <p>That's what you read, but what about what you write?</p>
@@ -997,30 +1061,30 @@ categorize text, image, and video content. New content would shoot through a
 pipeline of categorizers which would tag content, but not filter it (aside
 from anything illegal). Would it be perfect? No, you'd still get the
 occasional unwanted content. Would it be better than blasting you with any
-and all content that you may not want? Absolutely. And unlike <a href="https://www.theverge.com/2019/2/25/18229714/cognizant-facebook-content-moderator-interviews-trauma-working-conditions-arizona" target="_blank">Facebook's human moderators</a> <span class="fa fa-external-link fa_custom"></span>, the AI-Pipeline would suffer no PTSD, would
+and all content that you may not want? Absolutely. And unlike <a href="https://www.theverge.com/2019/2/25/18229714/cognizant-facebook-content-moderator-interviews-trauma-working-conditions-arizona" target="_blank">Facebook's human moderators<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the AI-Pipeline would suffer no PTSD, would
 not need frequent breaks from work, would not need to go home to sleep, and
 would be very unlikely to consider a class action lawsuit against its
 employer.</p>
 
-<p>As an added bonus, a quick <a href="https://en.wikipedia.org/wiki/Fermi_problem" target="_blank">Fermi estimate</a> <span class="fa fa-external-link fa_custom"></span>
+<p>As an added bonus, a quick <a href="https://en.wikipedia.org/wiki/Fermi_problem" target="_blank">Fermi estimate<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 suggests that one powerful box running non-stop could replace 100 human
 moderators. Even being off by an order of magnitude, that's a nice financial
-saving.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-10"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript></p>
+saving.<button type="button" class="open-dialog js-only" id="open-dialog-10" aria-haspopup="dialog" aria-controls="dialog-10"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 10</span></button><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript></p>
 
 <h3><a name="profit"></a>Profit?</h3>
 
 <p>So how do you make money off of this? Many of the competitors appear to
 have avoided ads. I think that was a huge mistake. People aren't idiots and
 they know that a social network needs to make money. Advertising has been around
-since before recorded history, <a href="https://www.tintup.com/blog/history-evolution-advertising-marketing/" target="_blank">the first TV ads appeared in 1941</a> <span class="fa fa-external-link fa_custom"></span>, and <a href="https://en.wikipedia.org/wiki/Nielsen_ratings" target="_blank">Nielsen has been
-doing targeted advertising since the 1930s</a> <span class="fa fa-external-link fa_custom"></span>. However, in the internet era,
+since before recorded history, <a href="https://www.tintup.com/blog/history-evolution-advertising-marketing/" target="_blank">the first TV ads appeared in 1941<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and <a href="https://en.wikipedia.org/wiki/Nielsen_ratings" target="_blank">Nielsen has been
+doing targeted advertising since the 1930s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. However, in the internet era,
 that targeted advertising is becoming invasive, with ads following us from
 site to site, to our phones back to our desktops.</p>
 
 <p>And it gets worse. Though I doubt this was intentional on Facebook's part, <a href="https://www.theguardian.com/technology/2019/mar/28/facebook-ads-housing-discrimination-charges-us-government-hud" target="_blank">they've been charged with violating the Fair Housing Act because whether or
 not you could view an ad for housing depended on your race or your skin
-color.</a> <span class="fa fa-external-link fa_custom"></span> Facebook managed to settle the issue by ensuring that anyone <a href="https://www.theverge.com/2019/3/19/18273018/facebook-housing-ads-jobs-discrimination-settlement" target="_blank">"placing housing, job, or credit ads will not be able to target users by age,
-gender, or zip code."</a> <span class="fa fa-external-link fa_custom"></span>. But why does Facebook get to decide that?</p>
+color.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Facebook managed to settle the issue by ensuring that anyone <a href="https://www.theverge.com/2019/3/19/18273018/facebook-housing-ads-jobs-discrimination-settlement" target="_blank">"placing housing, job, or credit ads will not be able to target users by age,
+gender, or zip code."<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. But why does Facebook get to decide that?</p>
 
 <p>Ubuhle should have advertising, with crystal-clear controls over what
 information you do and do not wish to share with advertisers.</p>
@@ -1028,14 +1092,14 @@ information you do and do not wish to share with advertisers.</p>
 <p>You can even <em>opt out</em> of the advertising entirely. That's what
 trust is all about.</p>
 
-<p>But why allow advertising at all? For the final quarter of 2018, <a href="https://martechtoday.com/despite-ongoing-criticism-facebook-generates-16-6-billion-in-ad-revenue-during-q4-up-30-yoy-230261" target="_blank">Facebook&lsquo;s ad revenue was $16.6 <em>billion</em> dollars.</a> <span class="fa fa-external-link fa_custom"></span>, with 93% of
+<p>But why allow advertising at all? For the final quarter of 2018, <a href="https://martechtoday.com/despite-ongoing-criticism-facebook-generates-16-6-billion-in-ad-revenue-during-q4-up-30-yoy-230261" target="_blank">Facebook&lsquo;s ad revenue was $16.6 <em>billion</em> dollars.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, with 93% of
 that coming from mobile advertising.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/mewe-emojis.png" width="600" alt="An advertisement for cartoon-emojis being sold by mewe.com">
-    <figcaption>I </figcaption>
+        <a href="/static/images/mewe-emojis.png" class="enlarge"><img src="/static/images/mewe-emojis.png" width="600" alt="An advertisement for cartoon-emojis being sold by mewe.com"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>I </figcaption>
 </figure>
 
 
@@ -1045,7 +1109,7 @@ selling cartoon icon sets at $4.99 each. You do the math.</p>
 <p>And let's be honest: well-done ads can be brilliant.</p>
 
 <div class="video-responsive">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/V1KiAtVVcOw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	<iframe width="560" height="315" title="Cadbury Dairy Milk Gorilla Advert" src="https://www.youtube.com/embed/V1KiAtVVcOw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 
@@ -1053,17 +1117,17 @@ selling cartoon icon sets at $4.99 each. You do the math.</p>
 What would set Ubuhle apart is giving users total control over that
 advertising.</p>
 
-<p>And if the user wants to use an ad blocker? That's fine. <a href="https://www.vice.com/en_us/article/7xydvx/facebooks-arms-race-with-adblockers-continues-to-escalate" target="_blank">there is no need to waste time or money on an adblocking arms race.</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p>And if the user wants to use an ad blocker? That's fine. <a href="https://www.vice.com/en_us/article/7xydvx/facebooks-arms-race-with-adblockers-continues-to-escalate" target="_blank">there is no need to waste time or money on an adblocking arms race.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h2><a name="can-it-happen"></a>Can It Happen?</h2>
 
 <p>Yes, it can. Frankly, <a href="https://allaroundtheworld.fr/" target="_blank">we
-would love to do it</a> <span class="fa fa-external-link fa_custom"></span>, but we have to be realistic. This would be a
-long-term, cash-intensive project. Between our client work and building <a href="https://taustation.space/" target="_blank">Tau Station</a> <span class="fa fa-external-link fa_custom"></span>, our free narrative
+would love to do it<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but we have to be realistic. This would be a
+long-term, cash-intensive project. Between our client work and building <a href="https://taustation.space/" target="_blank">Tau Station<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, our free narrative
 RPG, we are not in a position to do this without major funding. If we don't do
 this, someone should. Hence, we're putting this information out there.</p>
 
-<p>But as Facebook co-founder Chris Hughes made clear in this <a href="https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html" target="_blank">Time to Break up Facebook</a> <span class="fa fa-external-link fa_custom"></span> article:</p>
+<p>But as Facebook co-founder Chris Hughes made clear in this <a href="https://www.nytimes.com/2019/05/09/opinion/sunday/chris-hughes-facebook-zuckerberg.html" target="_blank">Time to Break up Facebook<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> article:</p>
 
 <blockquote>...would-be competitors can’t raise the money to take on Facebook.
 Investors realize that if a company gets traction, Facebook will copy its
@@ -1079,12 +1143,12 @@ censorship, and no chance. Ubuhle would be establishing a pact with its
 customers: you get full control and, in exchange, we work with you to build a
 community of trust.</p>
 
-<p>Building the business would start with targeting the valuable <a href="https://www.marketplace.org/2019/03/06/tech/exclusive-look-numbers-showing-users-leaving-facebook-by-the-millions/" target="_blank">12 to 35 year old demographic that&lsquo;s leaving Facebook</a> <span class="fa fa-external-link fa_custom"></span>. It would
+<p>Building the business would start with targeting the valuable <a href="https://www.marketplace.org/2019/03/06/tech/exclusive-look-numbers-showing-users-leaving-facebook-by-the-millions/" target="_blank">12 to 35 year old demographic that&lsquo;s leaving Facebook<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. It would
 take a serious marketing campaign, probably combined with an attempt to swing
 "influencers" over to the new GPSN.</p>
 
 <p>Leveraging network effects will also be key. Ubuhle would need a strong
-API, preferably one that is similar to the Facebook API<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-11"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-11" id="footnote-11-return" aria-label="Footnote 11"><sup>[11]</sup></a></noscript> to accommodate those developers already familiar
+API, preferably one that is similar to the Facebook API<button type="button" class="open-dialog js-only" id="open-dialog-11" aria-haspopup="dialog" aria-controls="dialog-11"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 11</span></button><noscript><a href="#footnote-11" id="footnote-11-return" aria-label="Footnote 11"><sup>[11]</sup></a></noscript> to accommodate those developers already familiar
 with Facebook. Being able to add their apps to Ubuhle would help it grow with
 less effort.  Widgets will also be a key part of this. Having tools on your
 web site such as "Login with Ubuhle", "Share on Ubuhle", "Ubuhle profile
@@ -1094,7 +1158,7 @@ badges", and so on.</p>
 this topic, but that's turning to the technical side instead of the business
 side, so that's a different conversation. However, it needs to be well-planned
 because <a href="https://www.synopsys.com/blogs/software-security/cost-to-fix-bugs-during-each-sdlc-phase/" target="_blank">catching bugs in the design phase is one of the best ways to keep costs
-down</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+down<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>None of this is cheap, <a href="/articles/estimating-development-costs-is-almost-useless">but the long-term value is what&lsquo;s important, not the development
 costs.</a>. However, it involves a commitment of years to have the chance to
@@ -1107,7 +1171,7 @@ later, someone's going to take Facebook down. Sooner is better; even the
 co-founders agree.</p>
 
 <p><strong>Update</strong>: <a href="https://onezero.medium.com/why-google-failed-4b9db05b973b" target="_blank">One of the engineers who worked on Google+ offers
-some great insight as to why it failed.</a> <span class="fa fa-external-link fa_custom"></span></p>
+some great insight as to why it failed.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 
 </article>
@@ -1123,16 +1187,22 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -1140,8 +1210,12 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -1152,25 +1226,26 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -1213,8 +1288,8 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -1224,8 +1299,9 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1258,6 +1334,7 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1274,10 +1351,10 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1288,15 +1365,14 @@ some great insight as to why it failed.</a> <span class="fa fa-external-link fa_
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>With the caveat that, as we see later in this article, many
+        <div id="note-body-1">With the caveat that, as we see later in this article, many
 competitors failed because their software wasn&lsquo;t up to the task. People
 keep underestimating what it takes to build software on this scale.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1305,14 +1381,13 @@ keep underestimating what it takes to build software on this scale.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>Quite a few of the
+        <div id="note-body-2">Quite a few of the
 people leaving Facebook are doing so for Instagram, even if they don't
 participate directly. I wonder how many realize that they're actually leaving
 Facebook for Facebook?</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1321,14 +1396,13 @@ Facebook for Facebook?</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>For would-be
+        <div id="note-body-3">For would-be
 investors: initial target market would be the high-value 12-to-35 demographic
 which is leaving Facebook.  They have already demonstrated that they want a
 GPSN, so long as it's not Facebook.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1337,12 +1411,11 @@ GPSN, so long as it's not Facebook.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>Apparently
+        <div id="note-body-4">Apparently
 it was too difficult to base a social network on Dutch tulip bulbs.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1351,14 +1424,13 @@ it was too difficult to base a social network on Dutch tulip bulbs.</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>If you
+        <div id="note-body-5">If you
 struggle in this area, may I recommend you read about <a
 href="https://medium.com/wardleymaps/on-being-lost-2ef5f05eb1ec"
-target="_blank">Wardley Maps</a>? You can thank me later.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+target="_blank">Wardley Maps<span class="visually-hidden"> (opens in new tab)</span></a>? You can thank me later.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1367,13 +1439,12 @@ target="_blank">Wardley Maps</a>? You can thank me later.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div><a
+        <div id="note-body-6"><a
 href="https://www.theregister.co.uk/2019/04/23/hertz_accenture_lawsuit/"
-target="_blank">Or maybe you do</a>.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+target="_blank">Or maybe you do<span class="visually-hidden"> (opens in new tab)</span></a>.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1382,12 +1453,11 @@ target="_blank">Or maybe you do</a>.</div>
         myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
     </script>
       
-            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7" aria-hidden="true">
+            <div id="dialog-7" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-7" aria-describedby="note-body-7" aria-hidden="true">
         <strong id="note-7">Footnote #7</strong>
-        <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>I do not speak Zulu, so my apologies if I have used the
+        <div id="note-body-7">I do not speak Zulu, so my apologies if I have used the
 word in a poor context.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1396,14 +1466,13 @@ word in a poor context.</div>
         myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
     </script>
       
-            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8" aria-hidden="true">
+            <div id="dialog-8" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-8" aria-describedby="note-body-8" aria-hidden="true">
         <strong id="note-8">Footnote #8</strong>
-        <p id="note-description-8" class="sr-only">Note number 8</p>
-	    <div>That's not really fair. The 'shadowy cabal' today is
+        <div id="note-body-8">That's not really fair. The 'shadowy cabal' today is
 Zuckerberg unilaterally making or overriding decisions. As pointed out
 earlier, he has complete control over the decisions regarding much of your
 online communication.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1412,15 +1481,14 @@ online communication.</div>
         myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
     </script>
       
-            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9" aria-hidden="true">
+            <div id="dialog-9" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-9" aria-describedby="note-body-9" aria-hidden="true">
         <strong id="note-9">Footnote #9</strong>
-        <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>Heavy work to prevent vote brigading will be
+        <div id="note-body-9">Heavy work to prevent vote brigading will be
 necessary. If this approach is taken, you can be sure that bigots (and others
 with more nefarious intent) would be working hard to game the system;
 filtering on votes may be impractical, but there would be enough other
 filtering tools to mitigate this.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1429,13 +1497,12 @@ filtering tools to mitigate this.</div>
         myDialog9.addEventListeners('#open-dialog-9', '#close-dialog-9');
     </script>
       
-            <div id="dialog-10" class="dialog" role="dialog" aria-labelledby="note-10" aria-describedby="note-description-10" aria-hidden="true">
+            <div id="dialog-10" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-10" aria-describedby="note-body-10" aria-hidden="true">
         <strong id="note-10">Footnote #10</strong>
-        <p id="note-description-10" class="sr-only">Note number 10</p>
-	    <div>Human moderators, of course, would still be
+        <div id="note-body-10">Human moderators, of course, would still be
 required because AI isn't perfect, but we would likely need far fewer of
 them.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1444,12 +1511,11 @@ them.</div>
         myDialog10.addEventListeners('#open-dialog-10', '#close-dialog-10');
     </script>
       
-            <div id="dialog-11" class="dialog" role="dialog" aria-labelledby="note-11" aria-describedby="note-description-11" aria-hidden="true">
+            <div id="dialog-11" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-11" aria-describedby="note-body-11" aria-hidden="true">
         <strong id="note-11">Footnote #11</strong>
-        <p id="note-description-11" class="sr-only">Note number 11</p>
-	    <div>Without, of course, directly copying the API. Because yes,
+        <div id="note-body-11">Without, of course, directly copying the API. Because yes,
 Facebook will litigate.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-11"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-11"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1506,7 +1572,7 @@ it was too difficult to base a social network on Dutch tulip bulbs.
             If you
 struggle in this area, may I recommend you read about <a
 href="https://medium.com/wardleymaps/on-being-lost-2ef5f05eb1ec"
-target="_blank">Wardley Maps</a>? You can thank me later.
+target="_blank">Wardley Maps<span class="visually-hidden"> (opens in new tab)</span></a>? You can thank me later.
             <a href="#footnote-5-return" aria-label="Return to footnote 5 reference">
               ↩ Return to text
             </a>
@@ -1515,7 +1581,7 @@ target="_blank">Wardley Maps</a>? You can thank me later.
           <li id="footnote-6">
             <a
 href="https://www.theregister.co.uk/2019/04/23/hertz_accenture_lawsuit/"
-target="_blank">Or maybe you do</a>.
+target="_blank">Or maybe you do<span class="visually-hidden"> (opens in new tab)</span></a>.
             <a href="#footnote-6-return" aria-label="Return to footnote 6 reference">
               ↩ Return to text
             </a>

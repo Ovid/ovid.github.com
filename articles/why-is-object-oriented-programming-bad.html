@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2022</span>
-        <span class="dateblock-day"><time datetime="2022-03-05">03.05</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2022</span>
+        <span class="dateblock-day" aria-hidden="true">03.05</span>
+        <time class="visually-hidden" datetime="2022-03-05">5 March 2022</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,20 +266,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/oop">OOP</a> </li>
+        <li><a href="/tags/oop">OOP</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/are-microservices-the-next-phase-of-object-oriented-programming" class="prevPost">&laquo; Are Microservices the Next Phase of Object-Oriented Programming?</a>
@@ -253,27 +296,30 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#whats-an-object">What’s an Object?</a></li>
-    <li class="indent-1"><a href="#generic-experts">Generic Experts</a></li>
-    <li class="indent-1"><a href="#mutability">Mutability</a></li>
-    <li class="indent-1"><a href="#object-relational-mappers">Object-Relational Mappers</a></li>
-    <li class="indent-1"><a href="#teaching-oop">Teaching OOP?</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#whats-an-object">What’s an Object?</a></li>
+<li><a href="#generic-experts">Generic Experts</a></li>
+<li><a href="#mutability">Mutability</a></li>
+<li><a href="#object-relational-mappers">Object-Relational Mappers</a></li>
+<li><a href="#teaching-oop">Teaching OOP?</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <p><strong>Disclaimer</strong>: I’m the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna object-oriented system
-going into the Perl core</a> <span class="fa fa-external-link fa_custom"></span>. I’m probably a bit
+going into the Perl core<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I’m probably a bit
 biased here.</p>
 
 <hr />
 
 <p>It seems like a week can’t go by without another blog entry or video
 explaining <a href="https://www.google.com/search?q=why+is+object+oriented+programming+bad" target="_blank">why object-oriented programming (OOP) is
-bad</a> <span class="fa fa-external-link fa_custom"></span>.
+bad<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 While the content of many of those articles is bad, if you read enough of
 them, some common themes emerge: “mutability” and “genericity.” Both are
 difficult to solve, so it’s worth explaining what’s wrong here. But first,
@@ -282,7 +328,7 @@ what’s an object?</p>
 <h2><a name="whats-an-object"></a>What’s an Object?</h2>
 
 <p>Let’s take an extended quote from my book <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank">Beginning
-Perl</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+Perl<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <blockquote>
   <h2>ÆVAR THE PERSONAL SHOPPER</h2>
@@ -346,17 +392,17 @@ abstraction for yours.</p>
 
 <p>In other words, for <em>generic</em> OOP, it can often be problematic because your
 solution may not be general enough to fit other people’s needs. For Perl, the
-<a href="https://metacpan.org/pod/LWP" target="_blank">LWP</a> <span class="fa fa-external-link fa_custom"></span> objects to handle Web communication tend
+<a href="https://metacpan.org/pod/LWP" target="_blank">LWP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> objects to handle Web communication tend
 to work very well because it’s a well-constrained problem space.</p>
 
 <p>In contrast, my own
-<a href="https://metacpan.org/pod/HTML::TokeParser::Simple" target="_blank">HTML::TokeParser::Simple</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://metacpan.org/pod/HTML::TokeParser::Simple" target="_blank">HTML::TokeParser::Simple<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 module is less generally useful because it fits a particular use case that
 doesn’t map well to many closely-related problem spaces, For example, when you
 need to map out the hierarchical structure of HTML, the stream of tokens my
 module produces aren’t well=suited to this. Thus, you may find yourself using
 a class that kinda works for what you want, but is ill-suited for what you
-need.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+need.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
 
 <p>Another interesting problem is dealing with scale. For example, in a small
 company with maybe 20 to 30 programmers, a well-designed object can be a
@@ -393,7 +439,7 @@ tested earlier.</p>
 <p>As a general rule, sending an object somewhere is sending a reference, not a
 copy. Why is this bad? <a href="https://rjbs.cloud/blog/2011/12/one-more-reason-to-dislike-mutability/" target="_blank">You can read Ricardo Signes' horror story about a bug
 dealing with mutable state in
-objects</a> <span class="fa fa-external-link fa_custom"></span>.
+objects<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 When you’re building a complex system and you cannot depend on the state of
 your objects, you are in for a world of hurt when it bites you because it can
 be a nightmare figuring out what unexpectedly changed the state.</p>
@@ -430,11 +476,11 @@ $customer-&gt;save;
 
 <p>This is <em>real</em> fun when separate parts of the code fetch the same object from
 the database and mutate it at the same time. <a href="https://www.martinfowler.com/eaaCatalog/optimisticOfflineLock.html" target="_blank">Optimistic offline
-locking</a> <span class="fa fa-external-link fa_custom"></span>
+locking<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and similar strategies are your friend here.</p>
 
 <p>Otherwise, you’re passing those around, it’s trivial for something to mutate the
-state and cause you grief. For <a href="https://taustation.space/" target="_blank">Tau Station</a> <span class="fa fa-external-link fa_custom"></span>, we
+state and cause you grief. For <a href="https://taustation.space/" target="_blank">Tau Station<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, we
 (I) learned this the hard way and now we often fetch data from the database
 and simply return a copy of the data structure. It’s faster and safer that
 way.</p>
@@ -456,7 +502,7 @@ instructor, fresh out of college, struggling to explain the different between
 classes and instances. You could tell she knew the difference, but she had
 trouble articulating it in a way that students could understand. But that’s
 <em>class-based</em> OOP. Not all OOP systems are based around classes.
-<a href="https://en.wikipedia.org/wiki/Prototype-based_programming" target="_blank">Prototype-based OOP</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://en.wikipedia.org/wiki/Prototype-based_programming" target="_blank">Prototype-based OOP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 doesn’t have classes.</p>
 
 <p>My second Java instructor had us build a Swing interface to read some records
@@ -491,13 +537,13 @@ that underlying complexity</em>. Pretty cool, huh?</p>
 
 <p>Using objects is great, but building objects? Learning how to do this well
 involves a bewildering array of concepts such as
-<a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
-<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP</a> <span class="fa fa-external-link fa_custom"></span>, the
+<a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
+<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
 <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov substitution
-principle</a> <span class="fa fa-external-link fa_custom"></span>, the
-<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter</a> <span class="fa fa-external-link fa_custom"></span>, not exposing
+principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
+<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, not exposing
 implementation details (also known as <a href="https://www.cs.sjsu.edu/~pearce/modules/lectures/ood/principles/Abstraction.htm" target="_blank">the abstraction
-principle</a> <span class="fa fa-external-link fa_custom"></span>),
+principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>),
 and so on. The last point, I might add, is why I have objected to lvalue
 attribute in Corinna (unless we can also have lvalue methods). You should be
 able to freely convert this:</p>
@@ -527,10 +573,10 @@ implementation just to add a little syntactic sugar.</p>
 
 <blockquote>
   <p>Object-oriented design is confusing enough that my friend <a href="https://twitter.com/bob_the_mighty?lang=en" target="_blank">Bob
-  Gregory</a> <span class="fa fa-external-link fa_custom"></span>, coauthor of the book
+  Gregory<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, coauthor of the book
   <a href="https://www.amazon.com/Architecture-Patterns-Python-Domain-Driven-Microservices-ebook/dp/B085KB31X3" target="_blank">Architecture Patterns with Python: Enabling Test-Driven Development,
   Domain-Driven Design, and Event-Driven
-  Microservices</a> <span class="fa fa-external-link fa_custom"></span>,
+  Microservices<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
   shared an anecdote of how he taught better design to developers. He got fed up
   with seeing classes with names like <code>StartHtml</code> (which would build the start
   of an HTML document), that he mandated classes be named after <em>creatures</em>. He
@@ -562,7 +608,7 @@ easier. I strongly recommend them, but they don’t seem terribly common.</p>
 
 <p>In the research study <a href="https://www.google.com/search?q=%22Productivity+analysis+of+object-oriented+software+developed+in+a+commercial+environment%22" target="_blank">“Productivity Analysis of Object-Oriented Software
 Developed in a Commercial
-Environment”</a> <span class="fa fa-external-link fa_custom"></span>
+Environment”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 (Potok, Vouk, Rindos, 1999), the researchers found that there is very little
 quantitative evidence that OOP improves productivity in <em>commercial</em>
 environments.  On the plus side, there was also little evidence that it
@@ -601,16 +647,22 @@ programming.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -618,8 +670,12 @@ programming.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -630,25 +686,26 @@ programming.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -691,8 +748,8 @@ programming.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -702,8 +759,9 @@ programming.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -736,6 +794,7 @@ programming.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -752,12 +811,12 @@ programming.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -768,14 +827,13 @@ programming.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>More than once I've worked with clients using my code only
+        <div id="note-body-1">More than once I've worked with clients using my code only
 to discover that my code is a not a great choice for them.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

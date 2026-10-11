@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
       <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
   </script>
@@ -131,28 +133,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -172,11 +211,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -188,7 +228,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -220,9 +260,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2023</span>
-        <span class="dateblock-day"><time datetime="2023-09-16">09.16</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2023</span>
+        <span class="dateblock-day" aria-hidden="true">09.16</span>
+        <time class="visually-hidden" datetime="2023-09-16">16 September 2023</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -231,20 +272,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/science">Science</a> </li>
+        <li><a href="/tags/science">Science</a></li>
 
-    <li><a href="/tags/space">Space</a> </li>
+        <li><a href="/tags/space">Space</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/the-documentary-that-took-46-years-to-release" class="prevPost">&laquo; The Documentary That Took 46 Years to Release</a>
@@ -259,16 +302,19 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#the-drake-equation">The Drake Equation</a></li>
-    <li class="indent-1"><a href="#not-detecting-life">(Not) Detecting Life</a></li>
-    <li class="indent-1"><a href="#assembly-theory">Assembly Theory</a></li>
-    <li class="indent-1"><a href="#what-if-we-find-life">What If We Find Life?</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#the-drake-equation">The Drake Equation</a></li>
+<li><a href="#not-detecting-life">(Not) Detecting Life</a></li>
+<li><a href="#assembly-theory">Assembly Theory</a></li>
+<li><a href="#what-if-we-find-life">What If We Find Life?</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="introduction"></a>Introduction</h2>
 
@@ -277,7 +323,7 @@ I’m obsessed with the topic. So obsessed, in fact, that the National Library o
 Finland released an hour-long talk I gave on the subject.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/rjAFqqHR6vc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Searching for extraterrestrial life in our solar system" src="https://www.youtube.com/embed/rjAFqqHR6vc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>I’ve also <a href="/blog/searching-for-extraterrestrial-life-in-our-solar-system">previously written on this
@@ -311,7 +357,7 @@ total number of intelligent civilizations we might detect at any one time.</p>
 
 <p>At the time the equation was created, we didn’t know any of those numbers, but
 <a href="https://www.seti.org/drake-equation-index" target="_blank">Drake himself estimated that $N$ was around
-10,000</a> <span class="fa fa-external-link fa_custom"></span>. Today, we have been slowly
+10,000<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Today, we have been slowly
 knocking those numbers down, one by one. Of those we think we know the what the
 values are, we have:</p>
 
@@ -326,13 +372,13 @@ as $1$, but we already know that <a href="/blog/searching-for-extraterrestrial-l
 life</a>. So we
 could easily have multiple “planets” per system which could support life. We
 think there are between <a href="https://www.space.com/25959-how-many-stars-are-in-the-milky-way.html" target="_blank">100 to 400 <em>billion</em> stars in our
-galaxy</a> <span class="fa fa-external-link fa_custom"></span>,
+galaxy<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 so that could easily lead to over a <em>trillion</em> heavenly bodies which could
 support life in our galaxy alone!</p>
 
 <p>We don’t know how many stars are in our universe, but <a href="https://www.esa.int/Science_Exploration/Space_Science/Herschel/How_many_stars_are_there_in_the_Universe" target="_blank">current estimate suggest
 there might be between $10^{22}$ to $10^{24}$
-stars</a> <span class="fa fa-external-link fa_custom"></span>.
+stars<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 That’s up to 1,000,000,000,000,000,000,000,000 stars!</p>
 
 <p>So what about the number of planets which develop life, have intelligent life,
@@ -346,11 +392,11 @@ matter.</p>
 
 <p>You may have read in the news lately about a new method of detecting life on
 Mars: <a href="https://www.nature.com/articles/s41598-023-42170-6" target="_blank">DNA sequencing at the picogram level to investigate life on Mars and
-Earth</a> <span class="fa fa-external-link fa_custom"></span>. This is remarkable
+Earth<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. This is remarkable
 work, but to point out the obvious—which the authors of the work are certainly
-aware of—what if the alien life doesn’t have DNA?<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> In a paper entitled
+aware of—what if the alien life doesn’t have DNA?<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> In a paper entitled
 <a href="https://www.researchgate.net/publication/8171722_Is_There_a_Common_Chemical_Model_for_Life_in_the_Universe" target="_blank">Is There a Common Chemical Model for Life in the
-Universe?</a> <span class="fa fa-external-link fa_custom"></span>,
+Universe?<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 by Benner, Steven &amp; Ricardo, Alonso and Carrigan, Matthew. (2005), point out
 that most “universal” probes for life target the ribosome, present in virtually
 all life on Earth. Again, what if the life doesn’t have ribosomes? Using this
@@ -370,7 +416,7 @@ might just have been a chemical reaction. We don’t know.</p>
 searching for specific chemicals. They were looking for a <em>biosignature</em>
 indicative of life. Yes, we made assumptions about the “nutrient” solution,
 using <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6445182/" target="_blank">seven molecules found in the Miller-Urey
-experiment</a> <span class="fa fa-external-link fa_custom"></span>, but trying
+experiment<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but trying
 to have an agnostic approach to detecting life was promising. That brings us to
 Assembly Theory.</p>
 
@@ -384,12 +430,12 @@ Assembly Theory.</p>
 </ol>
 
 <p>Assembly Theory was first proposed by <a href="https://en.wikipedia.org/wiki/Leroy_Cronin" target="_blank">Professor Leroy
-Cronin</a> <span class="fa fa-external-link fa_custom"></span>, the Regius Chair of
+Cronin<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the Regius Chair of
 Chemistry in the School of Chemistry at the University of Glasgow. Instead of
 just asking what a molecule <em>is</em>, he asked how it came to be. In other words,
 how was it assembled? He’s established the notion of a “molecular assembly
 index” (MA) which represents the minimum number of steps necessary to assemble a
-given molecule.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+given molecule.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>Consider the word “going.” Imagine that each letter is an atom floating around which can freely attach to other atoms to form words. The MA of a single letter is zero because it already exists. However, when you add the letter “o” to the letter “g”—forming “go”—you have an MA of 1, because one step has occurred.  When you then add the letter “i”—forming “goi”—you have an MA of 2, and so on.  The word “going” therefore has an MA of 4. Of course, by the constraints we’ve listed, all other possible combinations, such as “oin” (MA of 2), “in” (MA of 1), and so on, are floating around in our primordial soup.</p>
 
@@ -404,7 +450,7 @@ and individual atoms don’t form bonds randomly with all other atoms. But you g
 the basic idea.</p>
 
 <p>In the paper, <a href="https://www.nature.com/articles/s41467-021-23258-x" target="_blank">Identifying molecules as biosignatures with assembly theory and
-mass spectrometry</a> <span class="fa fa-external-link fa_custom"></span>,
+mass spectrometry<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 (Marshall, S.M., Mathis, C., Carrick, E. et al.), Professor Cronin and his
 colleagues took the time to:</p>
 
@@ -441,13 +487,13 @@ space. It also has an MA of 3.</p>
 <p>In fact, most complex organic molecules in space have rather low MA numbers and
 it’s not hard to imagine abiotic processes producing them. On the other hand,
 <a href="https://phys.org/news/2023-06-evidence-amino-acid-tryptophan-space.html" target="_blank">we may have detected tryptophan around the IC348 star
-system</a> <span class="fa fa-external-link fa_custom"></span>,
+system<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
 about 1,000 light years away. Tryptophan has an MA of 11.</p>
 
 <p><em>(If you’d like to check these numbers, <a href="https://gist.github.com/Ovid/a2e828965ce3586a83bfedd7e86a8d20" target="_blank">I wrote a script to do that for
-you</a> <span class="fa fa-external-link fa_custom"></span>, but it
+you<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but it
 requires the <a href="http://molecular-assembly.com/query/" target="_blank">Molecular Assembly REST
-API</a> <span class="fa fa-external-link fa_custom"></span>. That doesn’t always seem to return
+API<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. That doesn’t always seem to return
 results. In correspondence with Dr. Cronin, he confirms they’re working on a new
 version)</em></p>
 
@@ -465,7 +511,7 @@ probably not alone in the universe. Of course, that’s a hunch, not science.</p
 
 <p>In the fifth century BCE, the Greek philosopher-scientist <a href="https://bigthink.com/the-past/aliens-greek-philosophers-history/" target="_blank">Anaxagoras speculated
 that there was life on the
-moon</a> <span class="fa fa-external-link fa_custom"></span>. Many
+moon<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Many
 have speculated about this throughout history and certainly in pre-history. That
 we have so many religions asserting non-human intelligences with whom we can
 communicate is part of this longing of ours to know that we’re not alone in the
@@ -482,7 +528,7 @@ universe would be teeming with life.</p>
 a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/7yOiZLHDV3U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Life might be more common in the universe than we thought" src="https://www.youtube.com/embed/7yOiZLHDV3U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 </article>
@@ -498,16 +544,22 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -515,8 +567,12 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -527,25 +583,26 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -588,8 +645,8 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -599,8 +656,9 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -633,6 +691,7 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -649,12 +708,12 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -665,16 +724,15 @@ a video by Sabine Hossenfelder describing our current thinking on the topic.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>As a
+        <div id="note-body-1">As a
 counterargument, the paper points out that "DNA is an "incontrovertible
 biosignature." So while looking for DNA might limit what we can find, it would
 almost certainly be accepted as proof of life if found.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -683,15 +741,14 @@ almost certainly be accepted as proof of life if found.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>Of course, there are <a
+        <div id="note-body-2">Of course, there are <a
 href="https://hectorzenil.medium.com/the-8-fallacies-of-assembly-theory-ba54428b0b45">critics
 of assembly theory</a> and <a
 href="https://colemathis.github.io/blog/2022-10-25-SalientMisunderstandings">critics
 of the critics</a>, but such is science.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -184,7 +224,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2020</span>
-        <span class="dateblock-day"><time datetime="2020-09-15">09.15</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2020</span>
+        <span class="dateblock-day" aria-hidden="true">09.15</span>
+        <time class="visually-hidden" datetime="2020-09-15">15 September 2020</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,20 +268,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/science">Science</a> </li>
+        <li><a href="/tags/science">Science</a></li>
 
-    <li><a href="/tags/space">Space</a> </li>
+        <li><a href="/tags/space">Space</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/dont-defund-the-police" class="prevPost">&laquo; Don&#39;t Defund The Police</a>
@@ -255,21 +298,24 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#introduction">Introduction</a></li>
-    <li class="indent-1"><a href="#astrobiology">Astrobiology</a></li>
-    <li class="indent-1"><a href="#phosphine-on-venus">Phosphine on Venus</a></li>
-    <li class="indent-1"><a href="#implications">Implications</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#astrobiology">Astrobiology</a></li>
+<li><a href="#phosphine-on-venus">Phosphine on Venus</a></li>
+<li><a href="#implications">Implications</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="introduction"></a>Introduction</h2>
 
 <p>By now, if you’re a science geek like me, you’ve probably heard the news that
 <a href="https://www.nature.com/articles/s41550-020-1174-4" target="_blank">Venus shows possible signs of
-life</a> <span class="fa fa-external-link fa_custom"></span>. Yes, hellish Venus,
+life<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Yes, hellish Venus,
 of all places, might harbor life. This is due to the detection of significant
 amounts of PH<sub>3</sub> (phosphine) in the atmosphere. While the original
 paper downplayed the possibility that possibility that this phosphine was
@@ -278,9 +324,9 @@ what it could mean.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/planet-venus.jpg" width="600" alt="The planet Venus.">
-    <figcaption>The planet Venus. </figcaption>
+        <a href="/static/images/planet-venus.jpg" class="enlarge"><img src="/static/images/planet-venus.jpg" width="600" alt="The planet Venus."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The planet Venus. </figcaption>
 </figure></p>
 
 <h2><a name="astrobiology"></a>Astrobiology</h2>
@@ -294,10 +340,10 @@ crushed to death first.</p>
 
 <p>Despite that, the upper atmosphere of Venus is the most Earthlike in the solar
 system, with even <a href="https://sacd.larc.nasa.gov/smab/havoc/" target="_blank">NASA discussing ideas for exploration or
-colonization</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+colonization<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/0az7DEwG68A" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="A way to explore Venus" src="https://www.youtube.com/embed/0az7DEwG68A" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>So what was so interesting about the recent research paper?</p>
@@ -306,7 +352,7 @@ colonization</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 astrobiologists as science fiction writers with advanced degrees in biology.
 They consider the possibility of life elsewhere in the universe, what it might
 be like, and how we can detect it.  One of the things they frequently discuss
-is <a href="https://en.wikipedia.org/wiki/Biosignature" target="_blank">biosignatures</a> <span class="fa fa-external-link fa_custom"></span>. These are
+is <a href="https://en.wikipedia.org/wiki/Biosignature" target="_blank">biosignatures<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. These are
 chemical signatures which, if they exist, suggest some form of unusual
 chemical process that <em>might</em> indicate life. For example, large amounts of
 free O<sub>2</sub> (oxygen) in the atmosphere would be a huge biosignature, as
@@ -319,19 +365,19 @@ warranted.</p>
 
 <p>Methane is another biosignature gas because its existence is usually
 associated with life. <a href="https://www.nasa.gov/feature/jpl/curiosity-detects-unusually-high-methane-levels" target="_blank">We’ve been discovering lots of methane on
-Mars</a> <span class="fa fa-external-link fa_custom"></span>
+Mars<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and we don’t know why. Given that <a href="https://phys.org/news/2016-10-year-old-viking-life-mars.html" target="_blank">the 1976 Viking landers possibly
 detected metabolism on
-Mars</a> <span class="fa fa-external-link fa_custom"></span>, the
+Mars<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
 strange discovery of methane on Mars merits closer investigation. We don’t
 know what’s going on with Mars and life, despite it being very unlikely, could
 easily explain what we’re observing.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars.">
-    <figcaption>The planet Mars. </figcaption>
+        <a href="/static/images/planet-mars.jpg" class="enlarge"><img src="/static/images/planet-mars.jpg" width="600" alt="The planet Mars."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The planet Mars. </figcaption>
 </figure></p>
 
 <p>However, it cannot be stressed enough:</p>
@@ -344,13 +390,13 @@ is working; we’re not searching for fun, we’re searching for truth.</p>
 
 <h2><a name="phosphine-on-venus"></a>Phosphine on Venus</h2>
 
-<p><a href="https://www.nature.com/articles/s41550-020-1174-4" target="_blank">Now, about that paper</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+<p><a href="https://www.nature.com/articles/s41550-020-1174-4" target="_blank">Now, about that paper<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>The paper is fairly easy to follow, even if it’s aimed at a technical
 audience.</p>
 
 <p>The authors of the paper were aware that <a href="https://news.mit.edu/2019/phosphine-aliens-stink-1218" target="_blank">phosphine is known as a powerful
-biosignature</a> <span class="fa fa-external-link fa_custom"></span>. While
+biosignature<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. While
 phosphine can be produced in energetic reducing atmospheres such as Jupiter
 and Saturn (and has been detected there), rocky planets such as Earth and
 Venus shouldn’t have significant phosphine in their atmosphere, though Earth
@@ -402,17 +448,17 @@ from?</p>
 <p>There’s actually been plenty of prior discussion about the possibility of life
 in Venus’ clouds, with Carl Sagan writing about this in the 1960s. <a href="https://www.liebertpub.com/doi/10.1089/ast.2017.1783" target="_blank">Serious
 research articles on the topic appear
-regularly</a> <span class="fa fa-external-link fa_custom"></span> and pop-sci
+regularly<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and pop-sci
 articles love to describe <a href="https://astronomy.com/news/2019/08/mysterious-dark-patches-in-venus-clouds-are-affecting-the-weather-there" target="_blank">scientists pointing out that dark patches in
 Venusian clouds could be
-micro-organisms</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+micro-organisms<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <h2><a name="implications"></a>Implications</h2>
 
 <p>While it’s very unlikely, what does it mean if life is found on Venus? That
 would depend on its origin. If we found that Venusian life had the same DNA or
 RNA as Earth life, that would strongly suggest a common origin. The
-<a href="https://en.wikipedia.org/wiki/Panspermia" target="_blank">panspermia</a> <span class="fa fa-external-link fa_custom"></span> hypothesis, long
+<a href="https://en.wikipedia.org/wiki/Panspermia" target="_blank">panspermia<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> hypothesis, long
 laughed at in science, is looking more and more credible all the time,
 particularly since we find Martian meteorites on Earth. Wouldn’t it be
 fascinating if life originated on Mars and made its way to both Earth and
@@ -432,9 +478,9 @@ we’ve discovered. It would be amazing.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/pioneer-plaque.png" width="600" alt="The Pioneer Plaque">
-    <figcaption>The Pioneer Plaque <a href="https://en.wikipedia.org/wiki/Pioneer_plaque" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/pioneer-plaque.png" class="enlarge"><img src="/static/images/pioneer-plaque.png" width="600" alt="The Pioneer Plaque"><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The Pioneer Plaque <a href="https://en.wikipedia.org/wiki/Pioneer_plaque" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure></p>
 
 <p>As for intelligent life elsewhere, that’s a different story, but if the
@@ -447,9 +493,9 @@ questions humanity faces: are we alone?</p>
 
 <p><strong>Update</strong>: new research indicates that the alleged phosphine detected in
 Venus’s atmosphere is probably sulfur
-dioxide. <a href="https://arxiv.org/abs/2101.09837" target="_blank">Here’s the paper</a> <span class="fa fa-external-link fa_custom"></span> and <a href="https://www.washington.edu/news/2021/01/27/phosphine-venus-so2/" target="_blank">here’s a
+dioxide. <a href="https://arxiv.org/abs/2101.09837" target="_blank">Here’s the paper<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and <a href="https://www.washington.edu/news/2021/01/27/phosphine-venus-so2/" target="_blank">here’s a
 news article about
-it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+it<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 </article>
 
@@ -464,16 +510,22 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -481,8 +533,12 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -493,25 +549,26 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -554,8 +611,8 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -565,8 +622,9 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -599,6 +657,7 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -615,12 +674,12 @@ it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

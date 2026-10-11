@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2020</span>
-        <span class="dateblock-day"><time datetime="2020-04-13">04.13</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2020</span>
+        <span class="dateblock-day" aria-hidden="true">04.13</span>
+        <time class="visually-hidden" datetime="2020-04-13">13 April 2020</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,20 +268,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/business">Business</a> </li>
+        <li><a href="/tags/business">Business</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/making-complex-software-simple" class="prevPost">&laquo; Making Complex Software Simple</a>
@@ -255,25 +298,37 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#quickstart">Quickstart</a></li>
-    <li class="indent-1"><a href="#the-overview">The Overview</a></li>
-    <li class="indent-2"><a href="#git-flow">git-flow</a></li>
-    <li class="indent-1"><a href="#our-git-workflow">Our git Workflow</a></li>
-    <li class="indent-1"><a href="#assumptions">Assumptions</a></li>
-    <li class="indent-2"><a href="#checking-out-a-branch">Checking Out a Branch</a></li>
-    <li class="indent-3"><a href="#caveats">Caveats</a></li>
-    <li class="indent-2"><a href="#refreshing-your-branch">Refreshing Your Branch</a></li>
-    <li class="indent-2"><a href="#merging-into-master">Merging into master</a></li>
-    <li class="indent-1"><a href="#determining-your-primary-branch">Determining Your Primary Branch</a></li>
-    <li class="indent-1"><a href="#merge-conflicts">Merge Conflicts</a></li>
-    <li class="indent-1"><a href="#update">Update</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#quickstart">Quickstart</a></li>
+<li><a href="#the-overview">The Overview</a>
+<ul>
+<li><a href="#git-flow">git-flow</a></li>
+</ul>
+</li>
+<li><a href="#our-git-workflow">Our git Workflow</a></li>
+<li><a href="#assumptions">Assumptions</a>
+<ul>
+<li><a href="#checking-out-a-branch">Checking Out a Branch</a>
+<ul>
+<li><a href="#caveats">Caveats</a></li>
+</ul>
+</li>
+<li><a href="#refreshing-your-branch">Refreshing Your Branch</a></li>
+<li><a href="#merging-into-master">Merging into master</a></li>
+</ul>
+</li>
+<li><a href="#determining-your-primary-branch">Determining Your Primary Branch</a></li>
+<li><a href="#merge-conflicts">Merge Conflicts</a></li>
+<li><a href="#update">Update</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
 
-<p><a href="https://allaroundtheworld.fr/" target="blank" style="color: #eaf2fa">
+<hr>
+
+<p><a href="https://allaroundtheworld.fr/" target="_blank" style="color: #eaf2fa">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img
         src="/static/images/logo-shadow.png" 
@@ -281,7 +336,7 @@
         alt="Company logo for 'All Around the World">
         <figcaption>We say what we do and do what we say.</figcaption>
     </figure>
-</a></p>
+<span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <p><strong>Note</strong>: For historical reasons, we have left the name <code>master</code> in a number
 of places in this document. Many projects prefer that this name be <code>main</code> or
@@ -290,14 +345,14 @@ something different.</p>
 <hr />
 
 <p>One of the things we constantly strive to do at <a href="https://allaroundtheworld.fr" target="_blank">All Around the
-World</a> <span class="fa fa-external-link fa_custom"></span> is apply the <a href="https://en.wikipedia.org/wiki/Pareto_principle" target="_blank">Pareto
-Principle</a> <span class="fa fa-external-link fa_custom"></span>: 80% of your
+World<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> is apply the <a href="https://en.wikipedia.org/wiki/Pareto_principle" target="_blank">Pareto
+Principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>: 80% of your
 results stem from 20% of your actions.  When we go in to solve problems for
 clients; we don’t have the luxury of sitting around for days to debate the
 perfect way of doing things before we start working.  Instead, we strive to
 find the 20% of actions which give us 80% of the results and uncover the rest
 as we go. Today, I’ll talk about our <a href="https://github.com/Ovid/git-workflow" target="_blank">git
-workflow</a> <span class="fa fa-external-link fa_custom"></span> and how three simple commands
+workflow<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and how three simple commands
 make our team collaboration much easier.  <a
 href="mailto:info@allaroundtheworld.fr">Email us</a> to discuss how we can
 build a remote software team for you. A team that delivers, not debates.</p>
@@ -331,9 +386,9 @@ find our workflow very easy.</p>
 
 <p><figure class="image">
     <div class="image-container">
-        <img src="/static/images/typical-git-history.png" width="600" alt="A convoluted map of the London Tube (subway) network.">
-    <figcaption>A typical git history. </figcaption>
+        <a href="/static/images/typical-git-history.png" class="enlarge"><img src="/static/images/typical-git-history.png" width="600" alt="A convoluted map of the London Tube (subway) network."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>A typical git history. </figcaption>
 </figure></p>
 
 <p>For us, the complicated history was the showstopper. We want a clean, linear
@@ -358,20 +413,20 @@ you. We’re not dogmatic.</p>
 <h3><a name="git-flow"></a>git-flow</h3>
 
 <p>As an aside, one popular workflow is
-<a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank">git-flow</a> <span class="fa fa-external-link fa_custom"></span>.  Yet
+<a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank">git-flow<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.  Yet
 <a href="https://www.endoflineblog.com/gitflow-considered-harmful" target="_blank">git-flow has its
-detractors</a> <span class="fa fa-external-link fa_custom"></span>
+detractors<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and it’s easy to find <a href="https://www.google.com/search?client=firefox-b-d&amp;q=what%27s+wrong+with+git-flow" target="_blank">many
-more</a> <span class="fa fa-external-link fa_custom"></span>.
+more<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 We found the convoluted history and strict requirements that things be “just
 so” to not be a good fit for our workflow. It might be the perfect fit for
 yours.</p>
 
 <h2><a name="our-git-workflow"></a>Our git Workflow</h2>
 
-<p>The <a href="https://github.com/Ovid/git-workflow" target="_blank">git workflow tools</a> <span class="fa fa-external-link fa_custom"></span> are open source
+<p>The <a href="https://github.com/Ovid/git-workflow" target="_blank">git workflow tools<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> are open source
 and they contain a simplified subset of the git tools used by <a href="https://allaroundtheworld.fr/" target="_blank">All Around the
-World</a> <span class="fa fa-external-link fa_custom"></span> for our software development. It makes
+World<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> for our software development. It makes
 it dead easy for teams using git (and in our case, github) to work together.</p>
 
 <p>There are only three new commands to remember:</p>
@@ -437,7 +492,7 @@ and the code will exit.</li>
 </ol>
 
 <p>You will also need to install the following modules from the
-<a href="https://metacpan.org/" target="_blank">CPAN</a> <span class="fa fa-external-link fa_custom"></span> if you’ve not already done so.</p>
+<a href="https://metacpan.org/" target="_blank">CPAN<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> if you’ve not already done so.</p>
 
 <ul>
 <li><code>autodie</code></li>
@@ -448,7 +503,7 @@ and the code will exit.</li>
 </ul>
 
 <p>If you’re not familiar with installing CPAN modules, check out
-<a href="https://metacpan.org/pod/App::cpanminus" target="_blank">cpanminus</a> <span class="fa fa-external-link fa_custom"></span>, or you can use the
+<a href="https://metacpan.org/pod/App::cpanminus" target="_blank">cpanminus<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, or you can use the
 <code>cpan</code> command line tool that is standard with Perl.</p>
 
 <h3><a name="refreshing-your-branch"></a>Refreshing Your Branch</h3>
@@ -483,7 +538,7 @@ versions of git installed and while that’s usually perfectly compatible with
 newer versions, we don’t force them to upgrade. Also, internally <code>git-refresh</code>
 does things like <code>git fetch -p</code> to remove references to remote branches which
 no longer exist. This regular “house cleaning” helps to keep git more
-performant. See the <a href="https://git-scm.com/docs/git-fetch#_pruning" target="_blank">Pruning</a> <span class="fa fa-external-link fa_custom"></span>
+performant. See the <a href="https://git-scm.com/docs/git-fetch#_pruning" target="_blank">Pruning<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 documentation for <code>git-fetch</code> for more information.</p>
 
 <p>Note: if this command aborts (such as during a merge conflict), the stashed
@@ -591,7 +646,7 @@ the files which caused the conflict. It saves me a huge amount of time.</p>
 <p>We have renamed <code>git-merge-with-master</code> to <code>git-done</code>. The former still works.</p>
 
 <p>Check out the tools at <a href="https://github.com/Ovid/git-workflow" target="_blank">our github
-repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+repo<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 </article>
 
@@ -606,16 +661,22 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -623,8 +684,12 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -635,25 +700,26 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -696,8 +762,8 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -707,8 +773,9 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -741,6 +808,7 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -757,12 +825,12 @@ repo</a> <span class="fa fa-external-link fa_custom"></span>.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

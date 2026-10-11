@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,15 +69,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -124,28 +126,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -165,11 +204,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -180,7 +220,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -213,9 +253,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2019</span>
-        <span class="dateblock-day"><time datetime="2019-07-17">07.17</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2019</span>
+        <span class="dateblock-day" aria-hidden="true">07.17</span>
+        <time class="visually-hidden" datetime="2019-07-17">17 July 2019</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -224,18 +265,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/business">Business</a> </li>
+        <li><a href="/tags/business">Business</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/project-management-in-three-numbers" class="prevPost">&laquo; Project Management in Three Numbers</a>
@@ -251,37 +294,55 @@
 
 <article id="article">
 
-<nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#building-a-remote-team">Building a Remote Team</a></li>
-    <li class="indent-2"><a href="#hiring">Hiring</a></li>
-    <li class="indent-3"><a href="#the-cv">The CV</a></li>
-    <li class="indent-3"><a href="#the-technical-test">The Technical Test</a></li>
-    <li class="indent-3"><a href="#the-structured-interview">The Structured Interview</a></li>
-    <li class="indent-3"><a href="#people-skills">People Skills</a></li>
-    <li class="indent-1"><a href="#managing-a-remote-team">Managing a Remote Team</a></li>
-    <li class="indent-2"><a href="#supporting-the-team">Supporting the Team</a></li>
-    <li class="indent-3"><a href="#communication-channels">Communication Channels</a></li>
-    <li class="indent-3"><a href="#listening">Listening</a></li>
-    <li class="indent-3"><a href="#politics">Politics</a></li>
-    <li class="indent-3"><a href="#answer-questions-before-theyre-asked">Answer Questions Before They're Asked</a></li>
-    <li class="indent-2"><a href="#daily-stand-ups">Daily "Stand Ups"</a></li>
-    <li class="indent-1"><a href="#building-the-product">Building the Product</a></li>
-    <li class="indent-2"><a href="#understanding-the-company">Understanding the Company</a></li>
-    <li class="indent-2"><a href="#the-architecture">The Architecture</a></li>
-    <li class="indent-2"><a href="#code-reviews">Code Reviews</a></li>
-    <li class="indent-1"><a href="#our-values">Our Values</a></li>
-    </ul>
+
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#building-a-remote-team">Building a Remote Team</a>
+<ul>
+<li><a href="#hiring">Hiring</a>
+<ul>
+<li><a href="#the-cv">The CV</a></li>
+<li><a href="#the-technical-test">The Technical Test</a></li>
+<li><a href="#the-structured-interview">The Structured Interview</a></li>
+<li><a href="#people-skills">People Skills</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#managing-a-remote-team">Managing a Remote Team</a>
+<ul>
+<li><a href="#supporting-the-team">Supporting the Team</a>
+<ul>
+<li><a href="#communication-channels">Communication Channels</a></li>
+<li><a href="#listening">Listening</a></li>
+<li><a href="#politics">Politics</a></li>
+<li><a href="#answer-questions-before-theyre-asked">Answer Questions Before They're Asked</a></li>
+</ul>
+</li>
+<li><a href="#daily-stand-ups">Daily "Stand Ups"</a></li>
+</ul>
+</li>
+<li><a href="#building-the-product">Building the Product</a>
+<ul>
+<li><a href="#understanding-the-company">Understanding the Company</a></li>
+<li><a href="#the-architecture">The Architecture</a></li>
+<li><a href="#code-reviews">Code Reviews</a></li>
+</ul>
+</li>
+<li><a href="#our-values">Our Values</a></li>
+</ul>
 </nav>
+</div>
 <hr>
 
 
-<a href="https://allaroundtheworld.fr/" target="blank">
+<a href="https://allaroundtheworld.fr/" target="_blank">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img width="600" src="/static/images/logo-shadow.png" alt="Company logo for 'All Around the World">
         <figcaption>We say what we do and do what we say.</figcaption>
     </figure>
-</a>
+<span class="visually-hidden"> (opens in new tab)</span></a>
 
 
 <p>Note: this is a long article because this is a complex topic. Assembling
@@ -301,21 +362,21 @@ any developers both willing to learn Perl <em>and</em> work on their old,
 creaky codebase.  After a bit of discussion, it was pretty clear what the
 issues were and what needed to be done to fix them. I've done this enough that I'm
 practically genetically engineered for this role and I was contacted because
-of my deep experience in this area.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> So
+of my deep experience in this area.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> So
 when I received the news that they hired a junior programmer with no Perl
 experience and who failed their language-agnostic programming test, I was a
 bit surprised. He did, however, have a key qualification I lacked.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/borg-ancestors.jpg" width="600" alt="Row after row after row of office workers, sitting at shared desks, working on small laptops.">
-    <figcaption>I do not want to work here. <a href="https://unsplash.com/photos/QBpZGqEMsKg" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/borg-ancestors.jpg" class="enlarge"><img src="/static/images/borg-ancestors.jpg" width="600" alt="Row after row after row of office workers, sitting at shared desks, working on small laptops."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>I do not want to work here. <a href="https://unsplash.com/photos/QBpZGqEMsKg" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
 <p>He was willing to sit in a chair in their offices for eight hours a day. I
-was telecommuting. Oh, and he was probably cheaper.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+was telecommuting. Oh, and he was probably cheaper.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
 
 <p>The situation went about as well as you would suspect and my friend
 eventually left the company when it was clear things weren't getting better.
@@ -354,7 +415,7 @@ thing a company can do.</strong></p>
 <p>That said, we have to identify what you're looking for. What you want in a
 remote team is what you want in a local team: a team that can respond to your
 needs and <em>cares</em> about success. In fact, most of what I say here will
-apply to local teams. Our consulting firm, <a href="https://allaroundtheworld.fr/" target="_blank">All Around the World</a> <span class="fa fa-external-link fa_custom"></span>, has a
+apply to local teams. Our consulting firm, <a href="https://allaroundtheworld.fr/" target="_blank">All Around the World<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, has a
 complete hiring process that focuses on both hard (technical) and soft
 (interpersonal) skills.</p>
 
@@ -362,9 +423,9 @@ complete hiring process that focuses on both hard (technical) and soft
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/remote-work.jpg" width="600" alt="A smiling woman, sitting on a bed with her computer, flashing a peace sign.">
-    <figcaption>Appropriate Working Conditions  <a href="https://www.pexels.com/photo/woman-in-brown-knit-top-1977047/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/remote-work.jpg" class="enlarge"><img src="/static/images/remote-work.jpg" width="600" alt="A smiling woman, sitting on a bed with her computer, flashing a peace sign."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Appropriate Working Conditions  <a href="https://www.pexels.com/photo/woman-in-brown-knit-top-1977047/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -382,8 +443,8 @@ complete hiring process that focuses on both hard (technical) and soft
 filter based on keywords and phrases, but after years of hiring, sometimes in
 recruiting for other companies, I understand why HR firms do that. We don't use such
 software, instead choosing to hand-review every CV. But honestly, CVs are
-often worthless. First, <a href="https://www.inc.com/jt-odonnell/staggering-85-of-job-applicants-lying-on-resumes-.html" target="_blank">many people lie on their CVs</a> <span class="fa fa-external-link fa_custom"></span>. In fact, as I've seen on a number of
-reports, this number appears to be increasing in the past few years.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> Other CVs are terribly dull,
+often worthless. First, <a href="https://www.inc.com/jt-odonnell/staggering-85-of-job-applicants-lying-on-resumes-.html" target="_blank">many people lie on their CVs<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. In fact, as I've seen on a number of
+reports, this number appears to be increasing in the past few years.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript> Other CVs are terribly dull,
 but have great minds behind them.</p>
 
 <p>Thus, many experienced HR people will tell you: just use the CV to screen
@@ -404,9 +465,9 @@ say.</p>
 
 <figure class="captioned-left">
     <div class="image-container">
-        <img src="/static/images/chalkboard-test.jpg" width="600" alt="A chalkboard with the word 'test' written on it.">
-    <figcaption>Don't stress! <a href="https://www.pexels.com/photo/board-chalk-chalkboard-exam-459793/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/chalkboard-test.jpg" class="enlarge"><img src="/static/images/chalkboard-test.jpg" width="600" alt="A chalkboard with the word 'test' written on it."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Don't stress! <a href="https://www.pexels.com/photo/board-chalk-chalkboard-exam-459793/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -437,10 +498,10 @@ something they consider "production ready", but we don't tell them what
 tend to show us what they think "production ready" means.</p>
 
 <p>For us, we're looking for well-structured code, with tests and
-documentation. We're looking for a properly normalized database<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>. We're going to see if you noticed
+documentation. We're looking for a properly normalized database<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>. We're going to see if you noticed
 the data quality issues in the CSV file. We're going to see if your code is
 vulnerable to injection attacks. We're going to see if you've used appropriate
-modules. In short, we check many things.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> and we use a checklist to track our
+modules. In short, we check many things.<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript> and we use a checklist to track our
 findings. We usually won't fail you for missing just a couple of items, but
 very few developers pass this test.</p>
 
@@ -453,15 +514,15 @@ that code review. Many of them have never had one before!</p>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/outdoors-interview.jpg" width="600" alt="A smiling man, sitting in the forest in front of a camera.">
-    <figcaption>Not how we conduct interviews.  <a href="https://www.pexels.com/photo/photo-of-a-man-sitting-in-front-of-a-camera-2531552/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/outdoors-interview.jpg" class="enlarge"><img src="/static/images/outdoors-interview.jpg" width="600" alt="A smiling man, sitting in the forest in front of a camera."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Not how we conduct interviews.  <a href="https://www.pexels.com/photo/photo-of-a-man-sitting-in-front-of-a-camera-2531552/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
 <p>The final part of our individual hiring process is the structured
 interview. Very few people make it this far and this is the part where most
-hiring processes break down. <a href="https://www.theguardian.com/lifeandstyle/2015/nov/22/why-job-interviews-are-pointless" target="_blank">Most interviews are worthless.</a> <span class="fa fa-external-link fa_custom"></span> From the article:</p>
+hiring processes break down. <a href="https://www.theguardian.com/lifeandstyle/2015/nov/22/why-job-interviews-are-pointless" target="_blank">Most interviews are worthless.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> From the article:</p>
 
 <blockquote>Countless studies show that the unstructured 30-minute interview
 is virtually worthless as a predictor of long-term performance by any criteria
@@ -473,7 +534,7 @@ coin.</blockquote>
 unlucky people."</p>
 
 <p>The alternative is the structured interview. <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.218.9107&rep=rep1&type=pdf" target="_blank">Here's a choice quote from a meta-analysis of 200 articles and books spanning
-80 years</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+80 years<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote>In the 80-year history of published research on employment
 interviewing (dating back to Scott, 1915), few conclusions have been more
@@ -491,7 +552,7 @@ evaluate, but here's the short version.</p>
 <p>First, the interview is primarily about assessing soft skills which are
 harder to teach, though we do throw in some technical questions to cover
 potential gaps in the technical test, based on particular client needs. So you
-take stock of what you really need for a candidate to succeed. Our company, <a href="https://allaroundtheworld.fr/" target="_blank">All Around The World</a> <span class="fa fa-external-link fa_custom"></span> starts by
+take stock of what you really need for a candidate to succeed. Our company, <a href="https://allaroundtheworld.fr/" target="_blank">All Around The World<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> starts by
 interviewing the client to find out their work environment. Are there tight
 deadlines? Do you need to work directly with customers? Do you have to
 communicate with non-technical stakeholders? Have you worked with remote
@@ -525,7 +586,7 @@ view of the candidate's abilities in relation to the client's needs.</p>
 <p>You want to have at least two interviewers for every candidate and
 <em>immediately</em> after you're done with the interview, you score the
 candidate (we use 1 to 5) for how well they meet the client's needs for each
-question. And then you just add up the points.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> It works amazing well and
+question. And then you just add up the points.<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript> It works amazing well and
 produces stellar candidates.</p>
 
 <p>A few points about structured interviews are worth noting. First, they're
@@ -533,7 +594,7 @@ not often used simply because most people have never heard of them. Second,
 as previously mentioned, they're a time-consuming hiring process, but it's
 worth taking more time up front to avoid getting a "dud" employee. Third,
 candidates sometimes find it stressful to have you drilling into each question
-in such extreme detail, so be aware of that.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
+in such extreme detail, so be aware of that.<button type="button" class="open-dialog js-only" id="open-dialog-7" aria-haspopup="dialog" aria-controls="dialog-7"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 7</span></button><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
 
 <h4><a name="people-skills"></a>People Skills</h4>
 
@@ -541,15 +602,15 @@ in such extreme detail, so be aware of that.<span aria-label="Open Footnote" cla
 people with good people skills. A destructive personality wrecks teams. I
 don't care how good they are, if they're a jerk, they ruin things for
 everyone. They need to communicate easily, be friendly, challenge without
-arguing, and generally be pleasant to be around. <a href="https://www.freecodecamp.org/news/we-fired-our-top-talent-best-decision-we-ever-made-4c0a99728fde/" target="_blank">Don't hire toxic employees.</a> <span class="fa fa-external-link fa_custom"></span></p>
+arguing, and generally be pleasant to be around. <a href="https://www.freecodecamp.org/news/we-fired-our-top-talent-best-decision-we-ever-made-4c0a99728fde/" target="_blank">Don't hire toxic employees.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></p>
 
 <h2><a name="managing-a-remote-team"></a>Managing a Remote Team</h2>
 
 <figure class="captioned-left">
     <div class="image-container">
-        <img src="/static/images/gratuitous-cat.jpg" width="600" alt="An angry looking cat with crossed paws.">
-    <figcaption>Probably not one of our managers.  <a href="https://www.pexels.com/photo/adorable-angry-animal-animal-portrait-208984/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/gratuitous-cat.jpg" class="enlarge"><img src="/static/images/gratuitous-cat.jpg" width="600" alt="An angry looking cat with crossed paws."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Probably not one of our managers.  <a href="https://www.pexels.com/photo/adorable-angry-animal-animal-portrait-208984/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -599,7 +660,7 @@ that.</p>
 <p>One of the beautiful things about remote work is that you skip the office
 chatter, the constant interruptions, the need to beg IT services to let you
 use a different editor, and so on. I often work with my terminal fullscreen so
-I can engage in <a href="https://medium.com/constraint-drives-creativity/the-6-productivity-strategies-to-integrate-deep-work-into-your-professional-lives-5af06bfab33c" target="_blank">deep work</a> <span class="fa fa-external-link fa_custom"></span> on heavily demanding tasks. But when I need to talk to someone
+I can engage in <a href="https://medium.com/constraint-drives-creativity/the-6-productivity-strategies-to-integrate-deep-work-into-your-professional-lives-5af06bfab33c" target="_blank">deep work<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> on heavily demanding tasks. But when I need to talk to someone
 about something, I need to have quick and easy to use communication channels.
 And email isn't one of them.</p>
 
@@ -615,14 +676,14 @@ session for quickly discussing complicated topics.</p>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/dog-ears.jpg" width="600" alt="A basset hound with ears held aloft.">
-    <figcaption>Listen and listen <em>hard</em>.  <a href="https://unsplash.com/photos/SIZ66vF4FKA" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/dog-ears.jpg" class="enlarge"><img src="/static/images/dog-ears.jpg" width="600" alt="A basset hound with ears held aloft."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Listen and listen <em>hard</em>.  <a href="https://unsplash.com/photos/SIZ66vF4FKA" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
 <p>Agile fans like the term <a href="https://en.wikipedia.org/wiki/Servant_leadership" target="_blank">servant
-leader</a> <span class="fa fa-external-link fa_custom"></span> because it makes it clear that management is there to support the
+leader<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> because it makes it clear that management is there to support the
 team getting things done. Managing remote teams reinforces this. When your
 team needs you, they need you. Yes, you're setting goals, providing direction,
 and often serve as the voice of the business, but when Oliver says "I can't
@@ -644,14 +705,14 @@ what your team is doing.</p>
 sensitivity to office politics. This may seem counter-intuitive because your
 team members aren't standing around the office coffee machine, complaining
 that Martin isn't doing his job; they're working. The problem is that they're
-often anonymous to other teams.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> You need to build bridges to the other teams and bridges
+often anonymous to other teams.<button type="button" class="open-dialog js-only" id="open-dialog-8" aria-haspopup="dialog" aria-controls="dialog-8"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 8</span></button><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript> You need to build bridges to the other teams and bridges
 aren't supported at only one end.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/bridge.jpg" width="600" alt="A white bridge over a river.">
-    <figcaption>Note how the bridge is cleverly supported on both ends.  <a href="https://www.pexels.com/photo/architecture-autumn-blue-blue-sky-208684/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/bridge.jpg" class="enlarge"><img src="/static/images/bridge.jpg" width="600" alt="A white bridge over a river."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Note how the bridge is cleverly supported on both ends.  <a href="https://www.pexels.com/photo/architecture-autumn-blue-blue-sky-208684/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 <p>When different groups have
@@ -670,7 +731,7 @@ foreheads of those who aren't helping you.</p>
 <p>This exchanges a short-term problem for a long-term one.</p>
 
 <p>Senior management doesn't want to step in every time you're struggling and
-this can leave the impression that you can't solve things for yourself.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> As anonymity is a classic
+this can leave the impression that you can't solve things for yourself.<button type="button" class="open-dialog js-only" id="open-dialog-9" aria-haspopup="dialog" aria-controls="dialog-9"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 9</span></button><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> As anonymity is a classic
 driver of politics—you're not human to them until you meet them—fix that and
 other problems will be much easier.</p>
 
@@ -707,9 +768,9 @@ for critical issues, and they'll have fewer distractions from their work.</p>
 
 <figure class="captioned-left">
     <div class="image-container">
-        <img src="/static/images/i-have-a-question.jpg" width="600" alt="A man peeking his head out from behind a curtain.">
-    <figcaption>"Psst! I have a question!"  <a href="https://unsplash.com/photos/vLz1Gy-FLkQ" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/i-have-a-question.jpg" class="enlarge"><img src="/static/images/i-have-a-question.jpg" width="600" alt="A man peeking his head out from behind a curtain."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>"Psst! I have a question!"  <a href="https://unsplash.com/photos/vLz1Gy-FLkQ" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -773,16 +834,16 @@ questions:</p>
 "complete communication" style. The reason is simple. When everyone's in the
 same room and someone's explaining a technical problem at length, you often
 hear the ScrumMaster say "let's take that offline" because it's disrupting the
-flow of the meeting.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-10"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript> Except with
+flow of the meeting.<button type="button" class="open-dialog js-only" id="open-dialog-10" aria-haspopup="dialog" aria-controls="dialog-10"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 10</span></button><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript> Except with
 remote teams, there's no "offline." You can't turn to the person next to you
 and say "hey, let's talk about that problem I had." Even if you do, you're not
 fully sharing the information because not everyone hears about it.</p>
 
 <figure class="captioned">
     <div class="image-container">
-        <img src="/static/images/tightrope.jpg" width="600" alt="A man walking across a canyon on a tightrope.">
-    <figcaption>Working on code you don't understand. <a href="https://unsplash.com/photos/sQIsk1ceA8s" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/tightrope.jpg" class="enlarge"><img src="/static/images/tightrope.jpg" width="600" alt="A man walking across a canyon on a tightrope."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>Working on code you don't understand. <a href="https://unsplash.com/photos/sQIsk1ceA8s" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -851,9 +912,9 @@ realize your foundation can't support the weight of your house.</p>
 
 <figure class="image">
     <div class="image-container">
-        <img src="/static/images/difficult-architecture.jpg" width="600" alt="A confusing image of a curved building.">
-    <figcaption>The architecture of hard problems. <a href="https://www.pexels.com/photo/modern-building-against-sky-in-city-258164/" target="_blank">Source</a> <span class="fa fa-external-link fa_custom"></span></figcaption>
+        <a href="/static/images/difficult-architecture.jpg" class="enlarge"><img src="/static/images/difficult-architecture.jpg" width="600" alt="A confusing image of a curved building."><span class="visually-hidden"> (enlarge image)</span></a>
     </div>
+    <figcaption>The architecture of hard problems. <a href="https://www.pexels.com/photo/modern-building-against-sky-in-city-258164/" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
 </figure>
 
 
@@ -908,12 +969,12 @@ maintenance costs.</p>
 
 <h2><a name="our-values"></a>Our Values</h2>
 
-<a href="https://allaroundtheworld.fr/" target="blank">
+<a href="https://allaroundtheworld.fr/" target="_blank">
     <figure class="captioned-left" style="background-color: black; color: white;">
         <img width="600" src="/static/images/logo-shadow.png" alt="Company logo for 'All Around the World">
         <figcaption>We say what we do and do what we say.</figcaption>
     </figure>
-</a>
+<span class="visually-hidden"> (opens in new tab)</span></a>
 
 
 <p>When working remotely, it's essential that the people you are working with
@@ -943,16 +1004,22 @@ you never had the chance to do before.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -960,8 +1027,12 @@ you never had the chance to do before.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -972,25 +1043,26 @@ you never had the chance to do before.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -1033,8 +1105,8 @@ you never had the chance to do before.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -1044,8 +1116,9 @@ you never had the chance to do before.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -1078,6 +1151,7 @@ you never had the chance to do before.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -1094,10 +1168,10 @@ you never had the chance to do before.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1108,14 +1182,13 @@ you never had the chance to do before.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>And because the
+        <div id="note-body-1">And because the
 manager had worked with me before at the BBC and knew what I could do</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1124,13 +1197,12 @@ manager had worked with me before at the BBC and knew what I could do</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>To be
+        <div id="note-body-2">To be
 fair, though the company agreed on my rate, they stated from the outset they
 wanted me in Brighton regularly.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1139,13 +1211,12 @@ wanted me in Brighton regularly.</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>In fact, I know of one incident candidate who lied and claimed he
+        <div id="note-body-3">In fact, I know of one incident candidate who lied and claimed he
 was a famous, but secretive programmer, not realizing that the hiring manager
 actually knew the programmer in question.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1154,13 +1225,12 @@ actually knew the programmer in question.</div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>Sadly, this is very rare because <a
+        <div id="note-body-4">Sadly, this is very rare because <a
 href="/articles/how-databases-can-hurt-your-startup">most developers
 don&lsquo;t understand databases</a>.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1169,16 +1239,15 @@ don&lsquo;t understand databases</a>.</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>Trivia note for
+        <div id="note-body-5">Trivia note for
 the Perl developers: in the years I've been administering variants of this
 test, I've only had one person submit a modperl solution who passed the test,
 but it's not because I'm docking them for using modperl. There's something
 about developers stuck in the modperl world that means they badly miss the
 other things I'm looking for.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1187,15 +1256,14 @@ other things I'm looking for.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div>It's worth
+        <div id="note-body-6">It's worth
 noting that our '1 to 5' scoring might vary per question. Weighting a
 particular question heavily might be important if it dominates the client
 environment, but don't stress about that too much. An even weighting scale
 across all questions is usually fine.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1204,14 +1272,13 @@ across all questions is usually fine.</div>
         myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
     </script>
       
-            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7" aria-hidden="true">
+            <div id="dialog-7" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-7" aria-describedby="note-body-7" aria-hidden="true">
         <strong id="note-7">Footnote #7</strong>
-        <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>Also, it's
+        <div id="note-body-7">Also, it's
 much harder for candidates to lie their way through a properly conducted
 structured interview because each topic is covered so thoroughly that
 that they're hard to &quot;BS&quot; your way through them.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1220,16 +1287,15 @@ that they're hard to &quot;BS&quot; your way through them.</div>
         myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
     </script>
       
-            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8" aria-hidden="true">
+            <div id="dialog-8" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-8" aria-describedby="note-body-8" aria-hidden="true">
         <strong id="note-8">Footnote #8</strong>
-        <p id="note-description-8" class="sr-only">Note number 8</p>
-	    <div>One of my friends, due to
+        <div id="note-body-8">One of my friends, due to
 a misspelling years ago, has a typically male name. Whenever she emails
 colleagues, she&lsquo;s direct and businesslike. But when she meets them for
 the first time, she often has to deal with their confusion because she&lsquo;s
 a very attractive woman. Sometimes the result is funny and sometimes
 it&lsquo;s not.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1238,12 +1304,11 @@ it&lsquo;s not.</div>
         myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
     </script>
       
-            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9" aria-hidden="true">
+            <div id="dialog-9" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-9" aria-describedby="note-body-9" aria-hidden="true">
         <strong id="note-9">Footnote #9</strong>
-        <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>Though to be honest, sometimes this is the only approach,
+        <div id="note-body-9">Though to be honest, sometimes this is the only approach,
 especially if you&lsquo;re remote yourself.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -1252,16 +1317,15 @@ especially if you&lsquo;re remote yourself.</div>
         myDialog9.addEventListeners('#open-dialog-9', '#close-dialog-9');
     </script>
       
-            <div id="dialog-10" class="dialog" role="dialog" aria-labelledby="note-10" aria-describedby="note-description-10" aria-hidden="true">
+            <div id="dialog-10" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-10" aria-describedby="note-body-10" aria-hidden="true">
         <strong id="note-10">Footnote #10</strong>
-        <p id="note-description-10" class="sr-only">Note number 10</p>
-	    <div>On a bureaucratic note, I've also
+        <div id="note-body-10">On a bureaucratic note, I've also
 found that longer daily meetings work better when people are sitting and that
 often suggests a meeting room. For many organizations, they don't want you
 booking a meeting room for an hour a day every day, or you may simply find it
 hard to find a meeting room. Thus, the 15 minute stand-up nicely sidesteps a
 bureaucratic problem. That's one of the beauties of agile.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

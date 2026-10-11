@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -181,7 +221,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2019</span>
-        <span class="dateblock-day"><time datetime="2019-05-17">05.17</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2019</span>
+        <span class="dateblock-day" aria-hidden="true">05.17</span>
+        <time class="visually-hidden" datetime="2019-05-17">17 May 2019</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,18 +266,20 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/oop">OOP</a> </li>
+        <li><a href="/tags/oop">OOP</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/the-worst-job-offer" class="prevPost">&laquo; The Worst Job Offer</a>
@@ -276,7 +319,7 @@ programming, and haven't looked back.</blockquote>
 is worth watching in its entirety.</p>
 
 <div class="video-responsive">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/oKg1hTOQXoY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	<iframe width="560" height="315" title="Alan Kay at OOPSLA 1997 - The computer revolution hasn’t happened yet" src="https://www.youtube.com/embed/oKg1hTOQXoY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 
@@ -285,7 +328,7 @@ trying to say, many others seemed unaware of Kay's background and acted as if
 he was some grumpy old dude who just graduated from a Rails Bootcamp.</p>
 
 <p>This is <em>Dr. Alan Kay</em> we're talking about! He doesn't have random
-opinions about "objects", <a href="http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html" target="_blank">he <em>invented</em> the word back in the 60s</a> <span class="fa fa-external-link fa_custom"></span>. He saw what was happening in the
+opinions about "objects", <a href="http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html" target="_blank">he <em>invented</em> the word back in the 60s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. He saw what was happening in the
 programming world and was helping to craft many of these ideas, so he created
 a word to make these ideas easier to talk about.</p>
 
@@ -300,7 +343,7 @@ it. <code>class Dog isa Mammal {...}</code> has won.</p>
 
 <p>But for Dr. Kay, he states that <a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank">OOP
 to me means only messaging, local retention and protection and hiding of
-state-process, and extreme late-binding of all things.</a> <span class="fa fa-external-link fa_custom"></span> Why? Well, part of
+state-process, and extreme late-binding of all things.<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> Why? Well, part of
 his background was cell biology and when he did the math on their
 computational power, he realized that while software routinely has trouble
 scaling, cells can easily coordinate and scale by a factor of over a trillion,
@@ -348,16 +391,16 @@ ZeroDivisionError: float division by zero</code></pre>
 antithesis of what Dr. Kay is trying to get us to understand.</p>
 
 <p>If you think of Web browsers and servers as objects, however, we see
-something closer to his vision.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> If your browser crashed every
+something closer to his vision.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> If your browser crashed every
 time a web server crashed or was otherwise unavailable, Microsoft IIS would
 never have reached 2.0.</p>
 
 <p>Now that we sort of understand a core idea of Kay's, Lets take it further.
 Kay points out that from the early days of Arpanet in the 60s, to the time of
 his OOPSLA keynote in 1997, Arpanet had grown roughly 100 million times the
-size of what it was.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-2"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> And it didn't have to be repeatedly taken down for
+size of what it was.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript> And it didn't have to be repeatedly taken down for
 maintenance every time we wanted to extend it. The internet, today, is
-sometimes cited by Kay as the only working example of his OO model.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-3"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
+sometimes cited by Kay as the only working example of his OO model.<button type="button" class="open-dialog js-only" id="open-dialog-3" aria-haspopup="dialog" aria-controls="dialog-3"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 3</span></button><noscript><a href="#footnote-3" id="footnote-3-return" aria-label="Footnote 3"><sup>[3]</sup></a></noscript></p>
 
 <h2><a name="extreme-late-binding"></a>Extreme Late Binding</h2>
 
@@ -383,18 +426,18 @@ checks to ensure that the method exists and can be called.</p>
 compilation problem at all because we don't bind the method to the invocant
 until that code is executed, but you might get a panicked 2AM call that your
 batch process has failed ... because you might have encapsulation, but not
-isolation. Oops.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-4"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>. This is "extreme" late binding with virtually <em>no</em> checks
+isolation. Oops.<button type="button" class="open-dialog js-only" id="open-dialog-4" aria-haspopup="dialog" aria-controls="dialog-4"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 4</span></button><noscript><a href="#footnote-4" id="footnote-4-return" aria-label="Footnote 4"><sup>[4]</sup></a></noscript>. This is "extreme" late binding with virtually <em>no</em> checks
 (other than syntax) performed until runtime.</p>
 
-<P>Binding can also refer to binding a variable type to data.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-5"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript>. While
+<P>Binding can also refer to binding a variable type to data.<button type="button" class="open-dialog js-only" id="open-dialog-5" aria-haspopup="dialog" aria-controls="dialog-5"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 5</span></button><noscript><a href="#footnote-5" id="footnote-5-return" aria-label="Footnote 5"><sup>[5]</sup></a></noscript>. While
 this is a grotesque oversimplification of a complex argument, one way of
 looking at the difference between static and dynamic languages is that static
 languages such as Java often bind the data type to the variable (in other
 words, the named container of the data), meaning that you can never assign a
 different type to that variable, while dynamic languages such as Perl bind the
 data type to the data itself, meaning that the data knows about its type, but
-the variable often does not.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-6"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript>  The latter is late binding because you often
-cannot infer, from static analysis, the data types at compile time.<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-7"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
+the variable often does not.<button type="button" class="open-dialog js-only" id="open-dialog-6" aria-haspopup="dialog" aria-controls="dialog-6"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 6</span></button><noscript><a href="#footnote-6" id="footnote-6-return" aria-label="Footnote 6"><sup>[6]</sup></a></noscript>  The latter is late binding because you often
+cannot infer, from static analysis, the data types at compile time.<button type="button" class="open-dialog js-only" id="open-dialog-7" aria-haspopup="dialog" aria-controls="dialog-7"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 7</span></button><noscript><a href="#footnote-7" id="footnote-7-return" aria-label="Footnote 7"><sup>[7]</sup></a></noscript></p>
 
 <p>Extreme late-binding is important because Kay argues that it permits you to
 not commit too early to the "one true way" of solving an issue (and thus makes
@@ -430,14 +473,14 @@ most are not familiar with, but it's powerful.</p>
 
 <p>There's a lot more to be said about this, but I'll stop and instead direct
 you to this article, written by Alan Kay, about <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/" target="_blank">The Early History
-of Smalltalk</a> <span class="fa fa-external-link fa_custom"></span>. I actually found myself giddy reading that, getting a
+of Smalltalk<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I actually found myself giddy reading that, getting a
 glimpse into the <a href="https://en.wikipedia.org/wiki/Cambrian_explosion" target="_blank">Cambrian
-explosion</a> <span class="fa fa-external-link fa_custom"></span> of computing ideas which happened during the 60s and 70s.
+explosion<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> of computing ideas which happened during the 60s and 70s.
 Sadly, computing, as with evolution, left that explosive era with powerful
 tools, but fewer ideas. Functional programming is slowly gaining more
-converts, logic programming is largely ignored<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-8"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript>, but most programming
+converts, logic programming is largely ignored<button type="button" class="open-dialog js-only" id="open-dialog-8" aria-haspopup="dialog" aria-controls="dialog-8"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 8</span></button><noscript><a href="#footnote-8" id="footnote-8-return" aria-label="Footnote 8"><sup>[8]</sup></a></noscript>, but most programming
 today is procedural or class-based OOP. But Kay's ideas of what he intended
-for OOP are still with us. You can check out <a href="http://www.erlang.org/" target="_blank">Erlang</a> <span class="fa fa-external-link fa_custom"></span> and discover a marvelous
+for OOP are still with us. You can check out <a href="http://www.erlang.org/" target="_blank">Erlang<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and discover a marvelous
 programming language where code is isolated, late-binding, and
 passes messages around. And what do you get for that?</p>
 
@@ -472,8 +515,8 @@ instance, while a student (<code>isa Person</code>) in the back is noticing
 that a bicycle looks an awful lot like a motorcycle and the code she's looking
 at doesn't seem to account for this.</p>
 
-<p>So class-based OO has won, <span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-9"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> even with its limitations, arguments over
-inheritance versus composition, static versus dynamic typing,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-10"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript> and programmers arguing
+<p>So class-based OO has won, <button type="button" class="open-dialog js-only" id="open-dialog-9" aria-haspopup="dialog" aria-controls="dialog-9"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 9</span></button><noscript><a href="#footnote-9" id="footnote-9-return" aria-label="Footnote 9"><sup>[9]</sup></a></noscript> even with its limitations, arguments over
+inheritance versus composition, static versus dynamic typing,<button type="button" class="open-dialog js-only" id="open-dialog-10" aria-haspopup="dialog" aria-controls="dialog-10"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 10</span></button><noscript><a href="#footnote-10" id="footnote-10-return" aria-label="Footnote 10"><sup>[10]</sup></a></noscript> and programmers arguing
 whether "objects" are data with behaviors attached or vice versa. So this
 sometimes puts me in an awkward situation when someone asks me what objects
 are since the myriad disagreements are strong, and valid.</p>
@@ -481,7 +524,7 @@ are since the myriad disagreements are strong, and valid.</p>
 <p>I sort of punt on this, taking a "meta view" of what we're trying to
 accomplish when we write software. So I'll finish up by offering my view on
 objects, with an extended quote from my book <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank">Beginning
-Perl</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+Perl<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <hr>
 
@@ -548,16 +591,22 @@ much easier.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -565,8 +614,12 @@ much easier.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -577,25 +630,26 @@ much easier.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -638,8 +692,8 @@ much easier.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -649,8 +703,9 @@ much easier.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -683,6 +738,7 @@ much easier.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -699,12 +755,12 @@ much easier.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -715,16 +771,15 @@ much easier.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>Dr. Kay would likely take
+        <div id="note-body-1">Dr. Kay would likely take
 exception (ha!) to this because to a large extent, servers send out HTML,
 along with CSS and JavaScript and the browser needs to understand, not data
 and metadata, but a very limited structure.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -733,12 +788,11 @@ and metadata, but a very limited structure.</div>
         myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
     </script>
       
-            <div id="dialog-2" class="dialog" role="dialog" aria-labelledby="note-2" aria-describedby="note-description-2" aria-hidden="true">
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
         <strong id="note-2">Footnote #2</strong>
-        <p id="note-description-2" class="sr-only">Note number 2</p>
-	    <div>And in the early days of the
+        <div id="note-body-2">And in the early days of the
 Internet, no less!</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -747,13 +801,12 @@ Internet, no less!</div>
         myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
     </script>
       
-            <div id="dialog-3" class="dialog" role="dialog" aria-labelledby="note-3" aria-describedby="note-description-3" aria-hidden="true">
+            <div id="dialog-3" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-3" aria-describedby="note-body-3" aria-hidden="true">
         <strong id="note-3">Footnote #3</strong>
-        <p id="note-description-3" class="sr-only">Note number 3</p>
-	    <div>For kids today: the Web is a small subset of the internet and <a href=
+        <div id="note-body-3">For kids today: the Web is a small subset of the internet and <a href=
 "http://www.drdobbs.com/architecture-and-design/interview-with-alan-kay/240003442">is
 described by Kay as "a joke...done by amateurs"</a></div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-3"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -762,14 +815,13 @@ described by Kay as "a joke...done by amateurs"</a></div>
         myDialog3.addEventListeners('#open-dialog-3', '#close-dialog-3');
     </script>
       
-            <div id="dialog-4" class="dialog" role="dialog" aria-labelledby="note-4" aria-describedby="note-description-4" aria-hidden="true">
+            <div id="dialog-4" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-4" aria-describedby="note-body-4" aria-hidden="true">
         <strong id="note-4">Footnote #4</strong>
-        <p id="note-description-4" class="sr-only">Note number 4</p>
-	    <div>Perl, like many other dynamic languages,
+        <div id="note-body-4">Perl, like many other dynamic languages,
 has features which allow the code for that method to be handled at runtime.
 <code>AUTOLOAD</code> magic can handle this case, but that is an article for
 another day</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-4"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -778,12 +830,11 @@ another day</div>
         myDialog4.addEventListeners('#open-dialog-4', '#close-dialog-4');
     </script>
       
-            <div id="dialog-5" class="dialog" role="dialog" aria-labelledby="note-5" aria-describedby="note-description-5" aria-hidden="true">
+            <div id="dialog-5" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-5" aria-describedby="note-body-5" aria-hidden="true">
         <strong id="note-5">Footnote #5</strong>
-        <p id="note-description-5" class="sr-only">Note number 5</p>
-	    <div>This discussion conveniently ignores a large area of
+        <div id="note-body-5">This discussion conveniently ignores a large area of
 comp-sci which asks why data and functions are different. Sue me.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-5"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -792,13 +843,12 @@ comp-sci which asks why data and functions are different. Sue me.</div>
         myDialog5.addEventListeners('#open-dialog-5', '#close-dialog-5');
     </script>
       
-            <div id="dialog-6" class="dialog" role="dialog" aria-labelledby="note-6" aria-describedby="note-description-6" aria-hidden="true">
+            <div id="dialog-6" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-6" aria-describedby="note-body-6" aria-hidden="true">
         <strong id="note-6">Footnote #6</strong>
-        <p id="note-description-6" class="sr-only">Note number 6</p>
-	    <div>You can <code>bless</code> a
+        <div id="note-body-6">You can <code>bless</code> a
 reference in Perl, so that the variable is aware of its type. This is how OO
 is done in Perl.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-6"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -807,13 +857,12 @@ is done in Perl.</div>
         myDialog6.addEventListeners('#open-dialog-6', '#close-dialog-6');
     </script>
       
-            <div id="dialog-7" class="dialog" role="dialog" aria-labelledby="note-7" aria-describedby="note-description-7" aria-hidden="true">
+            <div id="dialog-7" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-7" aria-describedby="note-body-7" aria-hidden="true">
         <strong id="note-7">Footnote #7</strong>
-        <p id="note-description-7" class="sr-only">Note number 7</p>
-	    <div>Dynamic languages have static components and static
+        <div id="note-body-7">Dynamic languages have static components and static
 languages have dynamic components. The two are not mutually exclusive, but I
 cannot possibly begin to cover that here.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-7"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -822,16 +871,15 @@ cannot possibly begin to cover that here.</div>
         myDialog7.addEventListeners('#open-dialog-7', '#close-dialog-7');
     </script>
       
-            <div id="dialog-8" class="dialog" role="dialog" aria-labelledby="note-8" aria-describedby="note-description-8" aria-hidden="true">
+            <div id="dialog-8" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-8" aria-describedby="note-body-8" aria-hidden="true">
         <strong id="note-8">Footnote #8</strong>
-        <p id="note-description-8" class="sr-only">Note number 8</p>
-	    <div>I enjoyed
+        <div id="note-body-8">I enjoyed
 Prolog so much that I wrote <a
 href="https://metacpan.org/pod/AI::Prolog#AUTHOR">a Prolog interpreter in
 Perl</a>. I also started a <a
 href="https://github.com/Ovid/AI-Logic">continuation-based logic programming
 system, but never got around to finishing it</a>.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-8"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -840,13 +888,12 @@ system, but never got around to finishing it</a>.</div>
         myDialog8.addEventListeners('#open-dialog-8', '#close-dialog-8');
     </script>
       
-            <div id="dialog-9" class="dialog" role="dialog" aria-labelledby="note-9" aria-describedby="note-description-9" aria-hidden="true">
+            <div id="dialog-9" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-9" aria-describedby="note-body-9" aria-hidden="true">
         <strong id="note-9">Footnote #9</strong>
-        <p id="note-description-9" class="sr-only">Note number 9</p>
-	    <div>Er ... except for the
+        <div id="note-body-9">Er ... except for the
 prototype-based OO in Javascript, though if you squint, it looks an awful lot
 like single inheritance.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-9"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>
@@ -855,12 +902,11 @@ like single inheritance.</div>
         myDialog9.addEventListeners('#open-dialog-9', '#close-dialog-9');
     </script>
       
-            <div id="dialog-10" class="dialog" role="dialog" aria-labelledby="note-10" aria-describedby="note-description-10" aria-hidden="true">
+            <div id="dialog-10" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-10" aria-describedby="note-body-10" aria-hidden="true">
         <strong id="note-10">Footnote #10</strong>
-        <p id="note-description-10" class="sr-only">Note number 10</p>
-	    <div>There is a delightful irony of class-based OO fans who
+        <div id="note-body-10">There is a delightful irony of class-based OO fans who
 sneer at dynamic typing, but let's not go there.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-10"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

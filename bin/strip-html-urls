@@ -44,16 +44,13 @@ say "Dirty-tree pre-flight: OK";
 # cannot handle, so the operator can either normalize the source or
 # widen the regex.
 my @bad;
-for my $file ( File::Find::Rule->file
-        ->name( '*.tt', '*.tt2markdown' )
-        ->in('root') ) {
+for my $file ( File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in('root') ) {
     my $contents = path($file)->slurp_utf8;
-    if (
-           $contents =~ m{href\s*=\s*'(/[^']*\.html)}
+    if (   $contents =~ m{href\s*=\s*'(/[^']*\.html)}
         || $contents =~ m{href\s{1,}=\s*"(/[^"]*\.html)}
         || $contents =~ m{href=\s{1,}"(/[^"]*\.html)}
-        || $contents =~ m{(Ovid\.(?:link|cite)\(\s*"/[^"]*\.html)}
-    ) {
+        || $contents =~ m{(Ovid\.(?:link|cite)\(\s*"/[^"]*\.html)} )
+    {
         push @bad, "$file: $1";
     }
 }
@@ -68,9 +65,7 @@ say "Quote-form pre-flight: OK";
 my %changed;
 my $total_changes = 0;
 
-for my $file ( File::Find::Rule->file
-        ->name( '*.tt', '*.tt2markdown' )
-        ->in('root') ) {
+for my $file ( File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in('root') ) {
     my $contents = path($file)->slurp_utf8;
 
     # Step A: explicit /index.html → / (homepage form).
@@ -91,8 +86,8 @@ for my $file ( File::Find::Rule->file
     my $n = ( $a_count // 0 ) + ( $b_count // 0 ) + ( $c_count // 0 ) + ( $d_count // 0 ) + ( $e_count // 0 );
     next unless $n;
 
-    $changed{$file}  = $n;
-    $total_changes  += $n;
+    $changed{$file} = $n;
+    $total_changes += $n;
 
     if ($dry_run) {
         say "DRY-RUN $file: $n change(s)";
@@ -104,8 +99,10 @@ for my $file ( File::Find::Rule->file
 }
 
 say "";
-say sprintf( "Total: %d change(s) across %d file(s)%s",
+say sprintf(
+    "Total: %d change(s) across %d file(s)%s",
     $total_changes, scalar keys %changed,
-    $dry_run ? ' (dry-run, no writes)' : '' );
+    $dry_run ? ' (dry-run, no writes)' : ''
+);
 
 exit 0;

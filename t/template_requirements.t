@@ -5,6 +5,7 @@ use lib 'lib';
 use Ovid::Template::File;
 use Less::Boilerplate;
 use File::Find::Rule;
+use Path::Tiny qw(path);
 use Test2::Plugin::UTF8;
 
 my @files = sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in( 'root/blog', 'root/articles' );
@@ -34,5 +35,50 @@ foreach my $file (@files) {
           '... and it should be built on include/wrapper.tt';
     };
 }
+
+# WCAG 2.4.2: a page title must tell pages apart. About once shared Home's
+# title, so both read as "Ovid Among the Machines" in tabs and history.
+subtest 'Page titles are unique' => sub {
+    my %seen;
+    foreach my $file ( sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->maxdepth(1)->in('root'), @files ) {
+        my $title = eval { Ovid::Template::File->new( filename => $file )->title } or next;
+        push $seen{$title}->@*, $file;
+    }
+    my @dupes = map {"'$_': @{ $seen{$_} }"} grep { $seen{$_}->@* > 1 } sort keys %seen;
+    ok !@dupes, 'no two pages share a title' or diag join "\n", @dupes;
+};
+
+# WCAG 4.1.2: an iframe's title is its accessible name. Without one each
+# embed fell back to "YouTube video", so pages with several read as a row of
+# identical frames.
+subtest 'Every YouTube embed is named' => sub {
+    foreach my $file ( sort File::Find::Rule->file->name( '*.tt', '*.tt2markdown' )->in('root') ) {
+        my $code = path($file)->slurp_utf8;
+        while ( $code =~ /Ovid\.youtube\(\s*(['"][^'"]+['"])\s*\)/g ) {
+            fail "$file: Ovid.youtube($1) needs a title argument";
+        }
+    }
+    pass 'all Ovid.youtube() calls checked';
+};
+
+# Landmarks of one type need distinct names, or a screen reader's landmark
+# list shows two identical "Tags navigation" entries. Every article page
+# carries both the post's tag list and the site-wide tag cloud.
+subtest 'Tag navs have distinct names' => sub {
+    my %label = (
+        list  => 'tag-list-label',
+        cloud => 'tag-cloud-heading',
+    );
+    my %file = (
+        list  => 'root/include/tags_for_article.tt',
+        cloud => 'root/include/tag-cloud.tt',
+    );
+    foreach my $nav ( sort keys %file ) {
+        my $id = $label{$nav};
+        ( $label{$nav} ) = path( $file{$nav} )->slurp_utf8 =~ /id="\Q$id\E">([^<]+)</
+          or fail "$file{$nav}: no element with id $id";
+    }
+    isnt lc $label{list}, lc $label{cloud}, "tag list ('$label{list}') and tag cloud ('$label{cloud}') are named apart";
+};
 
 done_testing;

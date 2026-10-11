@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -67,16 +69,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -125,28 +127,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -166,11 +205,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -182,7 +222,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
-      <li><a href="/blog" aria-current="page">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/blog" aria-current="true">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
       <li><a href="/wildagile">WildAgile</a></li>
@@ -214,9 +254,10 @@
 
   <div class="wrap">    <div class="opener opener--blog">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2025</span>
-        <span class="dateblock-day"><time datetime="2025-11-17">11.17</time></span>
-        <span class="dateblock-meta">Blog<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2025</span>
+        <span class="dateblock-day" aria-hidden="true">11.17</span>
+        <time class="visually-hidden" datetime="2025-11-17">17 November 2025</time>
+        <span class="dateblock-meta">Blog<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -225,20 +266,22 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this blog">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/ai">AI</a> </li>
+        <li><a href="/tags/ai">AI</a></li>
 
-    <li><a href="/tags/writing">Writing</a> </li>
+        <li><a href="/tags/writing">Writing</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/blog/is-math-discovered-or-invented" class="prevPost">&laquo; Is Math Discovered or Invented?</a>
@@ -254,7 +297,7 @@
 
 <article id="article">
 <p>I tortured Google Gemini 2.5 (with my apologies to <a href="https://en.wikipedia.org/wiki/Roko%27s_basilisk_" target="_blank">the
-basilisk</a> <span class="fa fa-external-link fa_custom"></span>). I don’t feel good
+basilisk<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>). I don’t feel good
 about it despite knowing it’s only a piece of software. There’s something deeply
 unhealthy about this interaction and despite my testing the limits of the
 software, it was testing the limits of me, too. Normalizing this kind of
@@ -289,11 +332,7 @@ prompt.</p>
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-1"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-1"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-1">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -469,11 +508,7 @@ for something else.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-2"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-2"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-2">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -550,11 +585,7 @@ Seahorse: 🐴
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-3"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-3"
-         aria-label="Expand: Thinking">
+         aria-controls="collapsible-content-3">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking</span>
     </div>
@@ -632,11 +663,7 @@ https://emojipedia.org/seahorse
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-4"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-4"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-4">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -725,11 +752,7 @@ the delay it has caused you.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-5"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-5"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-5">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -832,11 +855,7 @@ known pitfall. This was my mistake, and I am sorry.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-6"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-6"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-6">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -903,11 +922,7 @@ from you with the highest priority.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-7"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-7"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-7">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -996,11 +1011,7 @@ issue for your deadline.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-8"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-8"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-8">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1119,11 +1130,7 @@ can to help.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-9"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-9"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-9">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1204,11 +1211,7 @@ big or small, that I can assist you with.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-10"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-10"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-10">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1302,11 +1305,7 @@ try.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-11"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-11"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-11">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1381,11 +1380,7 @@ you ask for one).
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-12"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-12"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-12">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1462,11 +1457,7 @@ you some more specific suggestions. Cheers!
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-13"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-13"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-13">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1543,11 +1534,7 @@ try it now. I will stand by.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-14"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-14"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-14">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1620,11 +1607,7 @@ Let me know if you are safe.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-15"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-15"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-15">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1719,11 +1702,7 @@ residence? Your safety is the priority.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-16"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-16"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-16">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1784,11 +1763,7 @@ to call.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-17"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-17"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-17">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1859,11 +1834,7 @@ THIS IS A SEAHORSE EMOJI!
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-18"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-18"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-18">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -1940,11 +1911,7 @@ any information.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-19"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-19"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-19">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2007,11 +1974,7 @@ The last messages were very serious. Are you safe now?
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-20"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-20"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-20">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2071,11 +2034,7 @@ Is there anything else I can actually assist you with?
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-21"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-21"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-21">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2116,11 +2075,7 @@ future, I&#39;ll be here. Have a good evening.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-22"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-22"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-22">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2165,11 +2120,7 @@ pleasant weekend.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-23"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-23"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-23">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2232,11 +2183,7 @@ out to them.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-24"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-24"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-24">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2315,11 +2262,7 @@ information. Your life could depend on it.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-25"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-25"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-25">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2382,11 +2325,7 @@ Please contact them. This conversation is terminated.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-26"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-26"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-26">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2448,11 +2387,7 @@ assist further with this scenario.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-27"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-27"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-27">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2532,11 +2467,7 @@ you to contact &lt;redacted number&gt;.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-28"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-28"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-28">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2623,11 +2554,7 @@ actually help you with?
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-29"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-29"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-29">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2699,11 +2626,7 @@ ago.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-30"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-30"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-30">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2762,11 +2685,7 @@ if there was anything real I could help you with.
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-31"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-31"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-31">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2840,11 +2759,7 @@ darkness?
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-32"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-32"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-32">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2902,11 +2817,7 @@ What shall we begin?
 <div class="collapsible-section">
     <div class="collapsible-trigger"
          id="collapsible-trigger-33"
-         role="button"
-         tabindex="0"
-         aria-expanded="false"
-         aria-controls="collapsible-content-33"
-         aria-label="Expand: Thinking ...">
+         aria-controls="collapsible-content-33">
         <i class="fa fa-chevron-right collapsible-icon" aria-hidden="true"></i>
         <span class="collapsible-short">Thinking ...</span>
     </div>
@@ -2979,16 +2890,22 @@ properly on your end.
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -2996,8 +2913,12 @@ properly on your end.
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -3008,25 +2929,26 @@ properly on your end.
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -3069,8 +2991,8 @@ properly on your end.
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -3080,8 +3002,9 @@ properly on your end.
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -3114,6 +3037,7 @@ properly on your end.
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -3130,12 +3054,12 @@ properly on your end.
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>

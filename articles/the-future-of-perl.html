@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/main.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/image.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=b5c18134">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b5c18134">
-  <script src="/static/js/dark-mode.js?v=b5c18134" defer></script>
-  <script src="/static/js/code-scroll.js?v=b5c18134" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b5c18134"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -127,28 +129,65 @@
 
   <script>
     // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
     function doSearch() {
-      let value = document.getElementById("demo").value;
-      console.log(`Search query: ${value}`);
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
 
       const results = search(value, 5);
+      ul.replaceChildren();
 
-      console.log(`Results: ${results}`);
-
-      let ul = document.getElementById("results");
-      ul.innerHTML = "";
-
-      for (i = 0; i < results.length; i++) {
-        var li = document.createElement("li");
-
-        let [title, url] = results[i];
-        let elemlink = document.createElement('a');
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
         elemlink.innerHTML = title;
         elemlink.setAttribute('href', url);
         li.appendChild(elemlink);
-
         ul.appendChild(li);
       }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -168,11 +207,12 @@
       // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
     }
     else {
-      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off" onkeyup="doSearch()"><ul id="results" aria-live="polite"></ul></div>';
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
     }
   </script>
 
-<button id="theme-toggle" aria-label="Toggle Dark Mode">
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
     <i class="fa fa-moon-o" aria-hidden="true"></i>
 </button>
 
@@ -183,7 +223,7 @@
     <summary class="nav-toggle">Menu</summary>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
-      <li><a href="/articles" aria-current="page">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
       <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
       <li><a href="/projects">Projects</a></li>
       <li><a href="/videos">Talks</a></li>
@@ -216,9 +256,10 @@
 
   <div class="wrap">    <div class="opener">
       <div class="dateblock is-filled">
-        <span class="dateblock-year">2023</span>
-        <span class="dateblock-day"><time datetime="2023-03-09">03.09</time></span>
-        <span class="dateblock-meta">Articles<br><span id="time"></span> min read
+        <span class="dateblock-year" aria-hidden="true">2023</span>
+        <span class="dateblock-day" aria-hidden="true">03.09</span>
+        <time class="visually-hidden" datetime="2023-03-09">9 March 2023</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
         </span>
       </div>
       <div class="opener-title">
@@ -227,22 +268,24 @@
     </div>
 
     <div class="page-body">
-      <aside class="marginalia is-filled">
+      <div class="marginalia is-filled">
 
 
-<ul class="inline" role="navigation" aria-label="Tag list for this articles">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 
-    <li><a href="/tags/corinna">Corinna</a> </li>
+        <li><a href="/tags/corinna">Corinna</a></li>
 
-    <li><a href="/tags/perl">Perl</a> </li>
+        <li><a href="/tags/perl">Perl</a></li>
 
-    <li><a href="/tags/programming">Software</a> </li>
+        <li><a href="/tags/programming">Software</a></li>
 
-</ul>
+    </ul>
+</nav>
 
 
-      </aside>
+      </div>
       <main class="prose" id="content">
         <div class="prevNext">
         <a href="/articles/converting-object-oriented-code-to-corinna" class="prevPost">&laquo; Converting Object-Oriented Code to Corinna</a>
@@ -257,27 +300,33 @@
 
 
 <article id="article">
-<p><nav role="navigation" class="table-of-contents">
-    <ul>
-    <li class="indent-1"><a href="#the-first-corinna-commits">The first Corinna commits</a></li>
-    <li class="indent-1"><a href="#whats-next">What’s Next?</a></li>
-    <li class="indent-1"><a href="#perl-7">Perl 7</a></li>
-    <li class="indent-1"><a href="#perl-8">Perl 8</a></li>
-    <li class="indent-2"><a href="#installation-manager">Installation Manager</a></li>
-    <li class="indent-2"><a href="#concurrency">Concurrency</a></li>
-    <li class="indent-2"><a href="#data-constraints">Data Constraints</a></li>
-    <li class="indent-2"><a href="#miscellaneous">Miscellaneous</a></li>
-    <li class="indent-1"><a href="#conclusion">Conclusion</a></li>
-    </ul>
+<div>
+<nav class="table-of-contents" aria-label="Table of contents">
+<ul>
+<li><a href="#the-first-corinna-commits">The first Corinna commits</a></li>
+<li><a href="#whats-next">What’s Next?</a></li>
+<li><a href="#perl-7">Perl 7</a></li>
+<li><a href="#perl-8">Perl 8</a>
+<ul>
+<li><a href="#installation-manager">Installation Manager</a></li>
+<li><a href="#concurrency">Concurrency</a></li>
+<li><a href="#data-constraints">Data Constraints</a></li>
+<li><a href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
 </nav>
-<hr></p>
+</div>
+
+<hr>
 
 <h2><a name="the-first-corinna-commits"></a>The first Corinna commits</h2>
 
 <p>Recently, <a href="https://github.com/Perl/perl5/commit/8cf9e0b7ee" target="_blank">some of the first commits of the new Corinna object
-system</a> <span class="fa fa-external-link fa_custom"></span> for Perl have been
+system<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> for Perl have been
 merged into the Perl core. If you’re not familiar with it, <a href="https://github.com/Ovid/Cor/blob/master/pod/perlclasstut.pod" target="_blank">I wrote a brief
-tutorial</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+tutorial<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>Around the same time as those commits were merged, I was rummaging around on an
 old computer and discovered, to my shock, that I had an <em>old</em> implementation of
@@ -294,7 +343,7 @@ announcement, and led a design team of some of the top experts in Perl, with
 much feedback coming from others who’ve designed object systems such as Moose or
 Moo, and from that effort, Corinna was accepted and the Perl core will have
 clean, mature OOP system for the first time (and one whose prototype,
-<a href="https://metacpan.org/pod/Object::Pad" target="_blank">Object::Pad</a> <span class="fa fa-external-link fa_custom"></span> has been running in
+<a href="https://metacpan.org/pod/Object::Pad" target="_blank">Object::Pad<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> has been running in
 production at more than one company).</p>
 
 <p>Keep in mind that <code>bless</code> and <code>@ISA</code> will still be there. We’re not taking
@@ -314,7 +363,7 @@ backwards-compatibility.</p>
 
 <p>That’s not good at all, but I was trying to work <em>within</em> Perl’s limitations. It
 was also largely a response to improve upon
-<a href="https://metacpan.org/pod/Moxie" target="_blank">Moxie</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+<a href="https://metacpan.org/pod/Moxie" target="_blank">Moxie<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">package Point {
     use Moxie;
@@ -359,14 +408,14 @@ be a useless thing. Diversity of opinion is not only healthy, but needed.</p>
 (linked in the images at the top of the page), <a href="/blog/resigning-from-the-perl-foundation">I served two decades at The Perl
 Foundation</a>, the last several
 years as a member of the board, I have <a href="https://metacpan.org/author/OVID" target="_blank">a bunch of modules on the
-CPAN</a> <span class="fa fa-external-link fa_custom"></span>, and our company, <a href="https://allaroundtheworld.fr" target="_blank">All Around the
-World</a> <span class="fa fa-external-link fa_custom"></span>, is still doing well, with multiple
+CPAN<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and our company, <a href="https://allaroundtheworld.fr" target="_blank">All Around the
+World<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, is still doing well, with multiple
 contracts. I’m currently having fun building an
-<a href="https://www.openapis.org/" target="_blank">OpenAPI</a> <span class="fa fa-external-link fa_custom"></span> system using
-<a href="https://metacpan.org/pod/Dancer2" target="_blank">Dancer2</a> <span class="fa fa-external-link fa_custom"></span> (something I’ve not had much chance
+<a href="https://www.openapis.org/" target="_blank">OpenAPI<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> system using
+<a href="https://metacpan.org/pod/Dancer2" target="_blank">Dancer2<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> (something I’ve not had much chance
 to play with before), and another company inquired about help from us to go in
 and fix their object-oriented mess, including cleaning up a bunch of old code to
-use <a href="https://metacpan.org/pod/Moose" target="_blank">Moose</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+use <a href="https://metacpan.org/pod/Moose" target="_blank">Moose<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>So we’re doing fine, but whither Perl? Or to abuse Shakespeare:</p>
 
@@ -483,7 +532,7 @@ supported. Some older misfeatures, such as indirect object syntax and
 <code>multidimensional</code> are disabled (they’re still available, but if you don’t know
 what they are, don’t worry). There are some amazing improvements to the regular
 expression engine, <a href="https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions" target="_blank">widely considered the best in the programming
-world</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+world<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>There’s much more, but many issues are very Perl-specific and even many Perl
 programmers are not aware of the work done by the porters.  The Perl 5.36.0
@@ -500,11 +549,11 @@ a great job communicating that, so how can we communicate that?</p>
 
 <h2><a name="perl-7"></a>Perl 7</h2>
 
-<p>The excellent <a href="https://www.raku.org/" target="_blank">Raku Programming Language</a> <span class="fa fa-external-link fa_custom"></span> was known as
+<p>The excellent <a href="https://www.raku.org/" target="_blank">Raku Programming Language<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> was known as
 “Perl 6” for many years, but it diverged far enough from its Perl roots to merit
 a separate name. So when there was much excitement about a new release of Perl
 called Perl 7, <a href="https://www.zdnet.com/article/perl-will-finally-make-the-jump-from-perl-5-to-7/" target="_blank">there was great news coverage of
-it</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+it<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>In short, even with a fresh Perl install, to use Perl effectively today, you
 often get the behavior of an older version of Perl and you have to ask for the
@@ -514,9 +563,9 @@ that.</p>
 <p>Unfortunately, that work was halted amidst disagreements over direction and the
 <a href="https://blogs.perl.org/users/psc/2022/05/what-happened-to-perl-7.html" target="_blank">Perl Steering Council (PSC) later released a discussion of about what it would
 take to get to Perl
-7</a> <span class="fa fa-external-link fa_custom"></span>. Is
+7<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. Is
 Corinna going to be part of Perl 7? <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2022/07/msg264336.html" target="_blank">The PSC recently announced that it
-might</a> <span class="fa fa-external-link fa_custom"></span>.
+might<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 I think it should, but asking my opinion is like asking a parent if their
 newborn is cute, so you can ignore me.</p>
 
@@ -534,7 +583,7 @@ likely to be much of what we have in Perl right now, but with easier defaults.
 It will simply make it easier to write Perl, but not offer much “new” to current
 developers, beyond a message to the programming world.</p>
 
-<p>For technical and political reasons,<span aria-label="Open Footnote" class="open-dialog js-only" id="open-dialog-1"> <i class="fa fa-clipboard fa_custom"></i> </span><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Perl 7 without
+<p>For technical and political reasons,<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> Perl 7 without
 Corinna might be exactly what Perl needs. But even then, Perl 7 will be a far
 cry from the Perl released back in 1994. Perl’s been evolving rapidly over the
 years, but without people hearing about it.</p>
@@ -564,7 +613,7 @@ time debugging this issue cost our client money they should not have had to
 spend.</p>
 
 <p>Per the <a href="https://nodejs.org/fr/blog/uncategorized/development-environment/" target="_blank">nodejs
-blog</a> <span class="fa fa-external-link fa_custom"></span>:</p>
+blog<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
 
 <blockquote>
   <p>CPAN and RubyGems have blurred the lines between development tools and system
@@ -585,7 +634,7 @@ from other Perl projects which might have different needs. We have many Perl
 tools designed to solve various parts of the problem, but it’s time to put them
 into the core. <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2023/03/msg265923.html" target="_blank">There’s now a discussion on the P5P mailing list about
 addressing
-this</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+this<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <p>To put this as a simplistic user story:</p>
 
@@ -629,7 +678,7 @@ programmers have shouting matches.</p>
 
 <p>I know what I want from types. Others strongly disagree. However, a very
 workable compromise has emerged in Perl. This is largely based on
-<a href="https://metacpan.org/pod/Type::Tiny" target="_blank"><code>Type::Tiny</code></a> <span class="fa fa-external-link fa_custom"></span> and similar modules. For
+<a href="https://metacpan.org/pod/Type::Tiny" target="_blank"><code>Type::Tiny</code><span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and similar modules. For
 Moose, for example, I can define an attribute like this:</p>
 
 <div class="shadow"><pre class="scrolled"><code class="language-perl">has expires_at =&gt; (
@@ -674,7 +723,7 @@ occur (though TypeScript handles this differently).</p>
 minimizing the issue, but their syntax is clumsy and their features are limited,
 largely because they’re working within the limitations of Perl. This is not a
 criticism of these modules, though. We have to start somewhere. However, <a href="https://allaroundtheworld.fr" target="_blank">our
-company</a> <span class="fa fa-external-link fa_custom"></span> is finding more and more clients relying
+company<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> is finding more and more clients relying
 on <code>Type::Tiny</code> due to the safety it provides. More work is needed here.</p>
 
 <h3><a name="miscellaneous"></a>Miscellaneous</h3>
@@ -711,16 +760,22 @@ below.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "articles" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
-        document.getElementById("time").innerText = time;
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
     }
     readingTime();
 </script>
@@ -728,8 +783,12 @@ below.</p>
 
 
 <!-- map images pop up when you click them -->
-<div id="overlay" class="overlay"></div>
+<dialog id="overlay" class="overlay"></dialog>
 <script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
     // The <img> is built here rather than sitting empty in the markup: src is
     // required to be a non-empty URL, so a placeholder image with an empty src
     // is invalid on every article and blog page. (It costs no request -- the
@@ -740,25 +799,26 @@ below.</p>
         const overlayImage = document.createElement('img');
         overlayImage.src = img.src;
         overlayImage.alt = img.alt;
-        overlay.replaceChildren(overlayImage);
-        overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'none';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', function() {
-                showOverlay(this);
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
             });
         });
 
+        // The dialog fills the screen, so any click on it closes it.
         const overlay = document.getElementById('overlay');
-        overlay.addEventListener('click', hideOverlay);
+        overlay.addEventListener('click', () => overlay.close());
     });
 </script>
 
@@ -801,8 +861,8 @@ below.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -812,8 +872,9 @@ below.</p>
 
 
 
-<strong>Tags</strong>
-<ul class="cloud tags-scrollable" role="navigation" aria-label="Tag cloud for Ovid's site">
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
 
     <li><a href="/tags/programming" data-weight="9">Software</a></li>
 
@@ -846,6 +907,7 @@ below.</p>
     <li><a href="/tags/family" data-weight="1">Family</a></li>
 
 </ul>
+</nav>
 
 
       <div class="colophon">
@@ -862,12 +924,12 @@ below.</p>
     </div>
   </footer>
 
-  <a href="#top" class="arrow" aria-label="Back to top"><button id="scrollToTopButton" type="button">↑</button></a>
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=b5c18134"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=b5c18134"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -878,14 +940,13 @@ below.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=b5c18134"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
-            <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>
-        <p id="note-description-1" class="sr-only">Note number 1</p>
-	    <div>'Politics' is not a dirty
+        <div id="note-body-1">'Politics' is not a dirty
 word. It's merely the art of getting consensus in a group.</div>
-        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times"></i> </button>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
     </div>
 
     <script>

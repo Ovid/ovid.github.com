@@ -3,20 +3,36 @@
     display: inline-block;
     margin: 10px;
 }
+/* figcaption must be a direct child of <figure> (1.3.1), so it sits after
+   the container now. These keep it where it sat inside: on the image's 10px
+   inset, with the container's bottom margin and inline-block line gap taken
+   back out of the space above it. */
+.image-container { vertical-align: top; }
+.image-container + figcaption {
+    margin: calc(.7rem - 10px) 10px 0;
+}
+.image-container a.enlarge {
+    display: block;
+    cursor: zoom-in;
+}
 .image-container img {
-    cursor: pointer;
     height: auto;
 }
+/* A modal <dialog> (see include/footer.tt) that fills the screen. Never set
+   display here: it would override the UA's dialog:not([open]) hiding. */
 .overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-out;
+}
+.overlay::backdrop {
     background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    cursor: pointer;
 }
 .overlay img {
     position: absolute;
@@ -25,4 +41,15 @@
     transform: translate(-50%, -50%);
     max-width: 90%;
     max-height: 90%;
+}
+/* Skeleton's bare button is transparent with grey text, unreadable on the
+   dark backdrop. */
+.overlay-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--rule);
 }
