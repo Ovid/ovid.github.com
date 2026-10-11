@@ -901,7 +901,9 @@ ul.inline {
     gap: .1rem;
 }
 ul.inline > li { margin: 0; text-align: right; }
-ul.inline > li:first-child {
+/* The "Tags" label sits outside the list, as the <nav>'s visible name. */
+.tag-list-label {
+    text-align: right;
     font-size: .7rem;
     font-weight: 600;
     letter-spacing: .16em;
@@ -914,6 +916,16 @@ ul.inline a {
     text-decoration: none;
 }
 ul.inline a:hover { color: var(--accent); }
+
+/* An <h2> for the outline, styled as the plain bold label it replaced. */
+.tag-cloud-heading {
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: inherit;
+    text-transform: none;
+    color: inherit;
+    margin: 0;
+}
 
 ul.cloud {
     list-style: none;
@@ -1150,7 +1162,14 @@ a.arrow:hover {
         gap: .75rem;
     }
     ul.inline > li { text-align: left; }
-    ul.inline > li:first-child { margin-bottom: 0; }
+    /* Label and tags share one wrapping row, as when the label was an <li>. */
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: .75rem;
+    }
+    .tag-list-label { text-align: left; margin-bottom: 0; }
     .prose { max-width: none; }
     .opener { padding-top: 3rem; }
     .opener h1 { font-size: 2.9rem; max-width: none; }

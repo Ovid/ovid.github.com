@@ -5,10 +5,12 @@
     tags    = tag_plugin.tags_for_url(tag_key);
 %]
 [% IF tags.size %]
-<ul class="inline" role="navigation" aria-label="Tag list for this [% type %]">
-    <li>Tags:</li>
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
 [% FOREACH tag IN tags %]
-    <li><a href="/tags/[% tag %]">[% tag_plugin.name_for_tag(tag) %]</a> </li>
+        <li><a href="/tags/[% tag %]">[% tag_plugin.name_for_tag(tag) %]</a></li>
 [% END %]
-</ul>
+    </ul>
+</nav>
 [% END %]
