@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,16 +71,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/main.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/image.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=2604dac4">
-  <script src="/static/js/dark-mode.js?v=2604dac4" defer></script>
-  <script src="/static/js/code-scroll.js?v=2604dac4" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=2604dac4"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=10b6c38f"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -182,6 +184,10 @@
       box.addEventListener("focusout", (e) => {
         if (!box.contains(e.relatedTarget)) clearSearch();
       });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -474,7 +480,7 @@ position of seeing our odds of dying on a spaceflight lower than our odds of
 dying in a car crash?</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" title="YouTube video" src="https://www.youtube.com/embed/mhpFpHLCuEA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="An astronaut’s guide to risk taking - Chris Hadfield - Big Think" src="https://www.youtube.com/embed/mhpFpHLCuEA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>Today, no astronauts have died since <a href="https://www.britannica.com/event/Columbia-disaster" target="_blank">the 2003 Columbia space shuttle
@@ -727,7 +733,7 @@ and society, so will the new space industry. But like the internet, we don’t
 know what that impact will be.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" title="YouTube video" src="https://www.youtube.com/embed/-Oox2w5sMcA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Video on what the new space industry could bring" src="https://www.youtube.com/embed/-Oox2w5sMcA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <h3><a name="new-industries"></a>New Industries</h3>
@@ -772,7 +778,7 @@ presentations<span class="fa fa-external-link fa_custom" aria-hidden="true"></sp
 start at the correct spot, jump to 50:13):</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" title="YouTube video" src="https://www.youtube.com/embed/UmLwYLSmTSs?t=3027s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="“Modeling a Universe” - Curtis Poe" src="https://www.youtube.com/embed/UmLwYLSmTSs?t=3027s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <blockquote>
@@ -931,14 +937,18 @@ daughter will. So will your children. So will many of you who read this.</p>
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
         // The whole phrase is written here so no-JS readers never see a
         // bare " min read" with no number.
@@ -1094,9 +1104,9 @@ daughter will. So will your children. So will many of you who read this.</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=2604dac4"></script>
+    <script src="/static/js/prism.js?v=10b6c38f"></script>
     
-    <script src="/static/js/collapsible.js?v=2604dac4"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -1107,7 +1117,7 @@ daughter will. So will your children. So will many of you who read this.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=2604dac4"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=10b6c38f"></script>
 	  
             <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>

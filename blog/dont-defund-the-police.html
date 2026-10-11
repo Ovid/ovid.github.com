@@ -6,7 +6,9 @@
   <script>
     // Immediate theme application to prevent flash of white
     (function() {
-      const theme = localStorage.getItem('theme') || 
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -69,15 +71,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/main.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/image.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=2604dac4">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=2604dac4">
-  <script src="/static/js/dark-mode.js?v=2604dac4" defer></script>
-  <script src="/static/js/code-scroll.js?v=2604dac4" defer></script>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/main.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/image.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=10b6c38f">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=10b6c38f">
+  <script src="/static/js/dark-mode.js?v=10b6c38f" defer></script>
+  <script src="/static/js/code-scroll.js?v=10b6c38f" defer></script>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -181,6 +183,10 @@
       box.addEventListener("focusout", (e) => {
         if (!box.contains(e.relatedTarget)) clearSearch();
       });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
     }
 	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
 	const wasm_supported = (() => {
@@ -439,7 +445,7 @@ forever and will be working with other police officers again. For many, this
 can be an impossible situation.</p>
 
 <div class="video-responsive">
-    <iframe width="560" height="315" title="YouTube video" src="https://www.youtube.com/embed/wKF0Xtc_aec" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" title="Should Cops be Allowed to use Steroids?" src="https://www.youtube.com/embed/wKF0Xtc_aec" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 <p>What I find appealing about this solution is that the IA officers don’t lose
@@ -470,14 +476,18 @@ an effective compromise. It won’t fix the problems, but it could be a start.</
     // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
 
     function readingTime() {
-        const text  = document.getElementById("article").innerText;
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
 
         // The average eighth grader in the US reads about 250 words a minute, but your average
         // university student reads at almost twice that speed. However, my technical articles
         // are more in-depth and can take some time to think about, so be fair to the reader
         // and assume they'll take a bit longer for that.
         const wpm   = "blog" === "articles" ? 250 : 350;
-        const words = text.trim().split(/\s+/).length;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
         const time  = Math.ceil(words / wpm);
         // The whole phrase is written here so no-JS readers never see a
         // bare " min read" with no number.
@@ -633,7 +643,7 @@ an effective compromise. It won’t fix the problems, but it could be a start.</
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/collapsible.js?v=2604dac4"></script>
+    <script src="/static/js/collapsible.js?v=10b6c38f"></script>
 	
 </body>
 </html>
