@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/main.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/image.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=aca1d5ba">
-  <script src="/static/js/dark-mode.js?v=aca1d5ba" defer></script>
-  <script src="/static/js/code-scroll.js?v=aca1d5ba" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=aca1d5ba"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/main.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/image.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=431ba94b">
+  <script src="/static/js/dark-mode.js?v=431ba94b" defer></script>
+  <script src="/static/js/code-scroll.js?v=431ba94b" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=431ba94b"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -280,7 +280,7 @@ sometimes that’s too restrictive. For example, if you’re writing a caching
 class, having an immutable cache may not be what you want.</p>
 
 <p>This, it turns out, is relevant to the
-<a href="https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268377.html" target="_blank">Corinna :writer</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268377.html" target="_blank">Corinna :writer<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 discussion being had on the Perl 5 Porter’s mailing list.</p>
 
 <h2><a name="a-simple-mutable-class"></a>A Simple Mutable Class</h2>
@@ -289,7 +289,7 @@ discussion being had on the Perl 5 Porter’s mailing list.</p>
 from the database and cache that, and the underlying list doesn’t change. Fine.
 However, there’s one type of cache which pretty much has to be mutable. For
 cache replacement policies, the <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU" target="_blank">least recently
-used</a> <span class="fa fa-external-link fa_custom"></span> approach is
+used<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> approach is
 easy to implement. You simply eject the least recently used items from the
 cache. This approach is not viable if cache hits are uniform, but if you have a
 subset of data much more likely to be needed than others, it’s a good approach.
@@ -340,7 +340,7 @@ attribute:</p>
 
 <p>And that’s when Chris Prather surprised everyone—including me—by <a href="https://www.nntp.perl.org/group/perl.perl5.porters/2024/07/msg268387.html" target="_blank">suggesting
 that we don’t want to support <code>:writer</code> at
-all</a> <span class="fa fa-external-link fa_custom"></span>!
+all<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>!
 I’m very sympathetic to Chris' point of view, though I suspect we’ll get
 <code>:writer</code> after all.</p>
 
@@ -380,7 +380,7 @@ method _data_printer () {
 
 <p>In the above, I can create a <code>UserAccount</code> object to some other bit of code and
 it cannot read the password. For debugging, they can dump the object with
-<a href="https://metacpan.org/pod/Data::Printer" target="_blank">Data::Printer</a> <span class="fa fa-external-link fa_custom"></span>, but still can’t see the
+<a href="https://metacpan.org/pod/Data::Printer" target="_blank">Data::Printer<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, but still can’t see the
 password.</p>
 
 <p>And then someone does this:</p>
@@ -531,10 +531,10 @@ at the same time.</p>
 <h2><a name="moosexextended"></a>MooseX::Extended</h2>
 
 <p>This approach is powerful enough that my
-<a href="https://metacpan.org/pod/MooseX::Extended" target="_blank">MooseX::Extended</a> <span class="fa fa-external-link fa_custom"></span> module makes all
+<a href="https://metacpan.org/pod/MooseX::Extended" target="_blank">MooseX::Extended<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> module makes all
 attributes private by default. However, since the values are mutable, we’ll use
 the special <code>is =&gt; 'rwp'</code> syntax stolen from
-<a href="https://metacpan.org/pod/Moo" target="_blank">Moo</a> <span class="fa fa-external-link fa_custom"></span>. From the docs:</p>
+<a href="https://metacpan.org/pod/Moo" target="_blank">Moo<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. From the docs:</p>
 
 <blockquote>
   <p><code>rwp</code> stands for “read-write protected” and generates a reader like <code>ro</code>, but
@@ -725,8 +725,8 @@ Corinna, either. Why I don’t is an exercise for the reader (heh).</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -789,9 +789,9 @@ Corinna, either. Why I don’t is an exercise for the reader (heh).</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=aca1d5ba"></script>
+    <script src="/static/js/prism.js?v=431ba94b"></script>
     
-    <script src="/static/js/collapsible.js?v=aca1d5ba"></script>
+    <script src="/static/js/collapsible.js?v=431ba94b"></script>
 	
 </body>
 </html>

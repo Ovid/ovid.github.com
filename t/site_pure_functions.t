@@ -138,6 +138,7 @@ subtest '_html_to_text extracts title and article text' => sub {
                 <h1>Heading</h1>
                 <p>First paragraph.</p>
                 <p>Second   paragraph.</p>
+                <p><a href="https://x.test" target="_blank">Link<span class="visually-hidden"> (opens in new tab)</span></a></p>
             </article>
             <footer>Ignored footer text</footer>
         </body>
@@ -151,6 +152,8 @@ subtest '_html_to_text extracts title and article text' => sub {
     like $text,   qr/Second paragraph\./,'whitespace collapsed in second paragraph';
     unlike $text, qr/Ignored header text/,'header text excluded (outside article)';
     unlike $text, qr/Ignored footer text/,'footer text excluded (outside article)';
+    like $text,   qr/Link/,             'link text included';
+    unlike $text, qr/opens in new tab/, 'screen-reader-only text excluded from search';
 };
 
 subtest '_html_to_text falls back to <div class="...article..."> when no <article> tag' => sub {

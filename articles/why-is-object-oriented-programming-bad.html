@@ -67,16 +67,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/css/normalize.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/skeleton.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/main.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/dialog.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/image.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/collapsible.css?v=aca1d5ba">
-  <link rel="stylesheet" href="/static/css/dark-mode.css?v=aca1d5ba">
-  <script src="/static/js/dark-mode.js?v=aca1d5ba" defer></script>
-  <script src="/static/js/code-scroll.js?v=aca1d5ba" defer></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=aca1d5ba"/>
+  <link rel="stylesheet" href="/static/css/normalize.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/main.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/image.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=431ba94b">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=431ba94b">
+  <script src="/static/js/dark-mode.js?v=431ba94b" defer></script>
+  <script src="/static/js/code-scroll.js?v=431ba94b" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=431ba94b"/>
     
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -269,14 +269,14 @@
 <hr>
 
 <p><strong>Disclaimer</strong>: I’m the lead designer of the <a href="https://github.com/Ovid/Cor" target="_blank">Corinna object-oriented system
-going into the Perl core</a> <span class="fa fa-external-link fa_custom"></span>. I’m probably a bit
+going into the Perl core<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. I’m probably a bit
 biased here.</p>
 
 <hr />
 
 <p>It seems like a week can’t go by without another blog entry or video
 explaining <a href="https://www.google.com/search?q=why+is+object+oriented+programming+bad" target="_blank">why object-oriented programming (OOP) is
-bad</a> <span class="fa fa-external-link fa_custom"></span>.
+bad<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 While the content of many of those articles is bad, if you read enough of
 them, some common themes emerge: “mutability” and “genericity.” Both are
 difficult to solve, so it’s worth explaining what’s wrong here. But first,
@@ -285,7 +285,7 @@ what’s an object?</p>
 <h2><a name="whats-an-object"></a>What’s an Object?</h2>
 
 <p>Let’s take an extended quote from my book <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank">Beginning
-Perl</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+Perl<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
 
 <blockquote>
   <h2>ÆVAR THE PERSONAL SHOPPER</h2>
@@ -349,11 +349,11 @@ abstraction for yours.</p>
 
 <p>In other words, for <em>generic</em> OOP, it can often be problematic because your
 solution may not be general enough to fit other people’s needs. For Perl, the
-<a href="https://metacpan.org/pod/LWP" target="_blank">LWP</a> <span class="fa fa-external-link fa_custom"></span> objects to handle Web communication tend
+<a href="https://metacpan.org/pod/LWP" target="_blank">LWP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> objects to handle Web communication tend
 to work very well because it’s a well-constrained problem space.</p>
 
 <p>In contrast, my own
-<a href="https://metacpan.org/pod/HTML::TokeParser::Simple" target="_blank">HTML::TokeParser::Simple</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://metacpan.org/pod/HTML::TokeParser::Simple" target="_blank">HTML::TokeParser::Simple<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 module is less generally useful because it fits a particular use case that
 doesn’t map well to many closely-related problem spaces, For example, when you
 need to map out the hierarchical structure of HTML, the stream of tokens my
@@ -396,7 +396,7 @@ tested earlier.</p>
 <p>As a general rule, sending an object somewhere is sending a reference, not a
 copy. Why is this bad? <a href="https://rjbs.cloud/blog/2011/12/one-more-reason-to-dislike-mutability/" target="_blank">You can read Ricardo Signes' horror story about a bug
 dealing with mutable state in
-objects</a> <span class="fa fa-external-link fa_custom"></span>.
+objects<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
 When you’re building a complex system and you cannot depend on the state of
 your objects, you are in for a world of hurt when it bites you because it can
 be a nightmare figuring out what unexpectedly changed the state.</p>
@@ -433,11 +433,11 @@ $customer-&gt;save;
 
 <p>This is <em>real</em> fun when separate parts of the code fetch the same object from
 the database and mutate it at the same time. <a href="https://www.martinfowler.com/eaaCatalog/optimisticOfflineLock.html" target="_blank">Optimistic offline
-locking</a> <span class="fa fa-external-link fa_custom"></span>
+locking<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 and similar strategies are your friend here.</p>
 
 <p>Otherwise, you’re passing those around, it’s trivial for something to mutate the
-state and cause you grief. For <a href="https://taustation.space/" target="_blank">Tau Station</a> <span class="fa fa-external-link fa_custom"></span>, we
+state and cause you grief. For <a href="https://taustation.space/" target="_blank">Tau Station<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, we
 (I) learned this the hard way and now we often fetch data from the database
 and simply return a copy of the data structure. It’s faster and safer that
 way.</p>
@@ -459,7 +459,7 @@ instructor, fresh out of college, struggling to explain the different between
 classes and instances. You could tell she knew the difference, but she had
 trouble articulating it in a way that students could understand. But that’s
 <em>class-based</em> OOP. Not all OOP systems are based around classes.
-<a href="https://en.wikipedia.org/wiki/Prototype-based_programming" target="_blank">Prototype-based OOP</a> <span class="fa fa-external-link fa_custom"></span>
+<a href="https://en.wikipedia.org/wiki/Prototype-based_programming" target="_blank">Prototype-based OOP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 doesn’t have classes.</p>
 
 <p>My second Java instructor had us build a Swing interface to read some records
@@ -494,13 +494,13 @@ that underlying complexity</em>. Pretty cool, huh?</p>
 
 <p>Using objects is great, but building objects? Learning how to do this well
 involves a bewildering array of concepts such as
-<a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> <span class="fa fa-external-link fa_custom"></span>,
-<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP</a> <span class="fa fa-external-link fa_custom"></span>, the
+<a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
+<a href="https://en.wikipedia.org/wiki/GRASP_(object-oriented_design)" target="_blank">GRASP<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
 <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle" target="_blank">Liskov substitution
-principle</a> <span class="fa fa-external-link fa_custom"></span>, the
-<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter</a> <span class="fa fa-external-link fa_custom"></span>, not exposing
+principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, the
+<a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank">Law of Demeter<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, not exposing
 implementation details (also known as <a href="https://www.cs.sjsu.edu/~pearce/modules/lectures/ood/principles/Abstraction.htm" target="_blank">the abstraction
-principle</a> <span class="fa fa-external-link fa_custom"></span>),
+principle<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>),
 and so on. The last point, I might add, is why I have objected to lvalue
 attribute in Corinna (unless we can also have lvalue methods). You should be
 able to freely convert this:</p>
@@ -530,10 +530,10 @@ implementation just to add a little syntactic sugar.</p>
 
 <blockquote>
   <p>Object-oriented design is confusing enough that my friend <a href="https://twitter.com/bob_the_mighty?lang=en" target="_blank">Bob
-  Gregory</a> <span class="fa fa-external-link fa_custom"></span>, coauthor of the book
+  Gregory<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, coauthor of the book
   <a href="https://www.amazon.com/Architecture-Patterns-Python-Domain-Driven-Microservices-ebook/dp/B085KB31X3" target="_blank">Architecture Patterns with Python: Enabling Test-Driven Development,
   Domain-Driven Design, and Event-Driven
-  Microservices</a> <span class="fa fa-external-link fa_custom"></span>,
+  Microservices<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
   shared an anecdote of how he taught better design to developers. He got fed up
   with seeing classes with names like <code>StartHtml</code> (which would build the start
   of an HTML document), that he mandated classes be named after <em>creatures</em>. He
@@ -565,7 +565,7 @@ easier. I strongly recommend them, but they don’t seem terribly common.</p>
 
 <p>In the research study <a href="https://www.google.com/search?q=%22Productivity+analysis+of+object-oriented+software+developed+in+a+commercial+environment%22" target="_blank">“Productivity Analysis of Object-Oriented Software
 Developed in a Commercial
-Environment”</a> <span class="fa fa-external-link fa_custom"></span>
+Environment”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
 (Potok, Vouk, Rindos, 1999), the researchers found that there is very little
 quantitative evidence that OOP improves productivity in <em>commercial</em>
 environments.  On the plus side, there was also little evidence that it
@@ -694,8 +694,8 @@ programming.</p>
   <footer class="site-footer">
     <div class="wrap">
       <div class="shelf">
-        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"></a>
-        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"></a>
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
         <p class="shelf-note">
           <b>About the author</b>
           Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
@@ -758,9 +758,9 @@ programming.</p>
   <a href="#top" class="arrow" aria-label="Back to top">↑</a>
 
     
-    <script src="/static/js/prism.js?v=aca1d5ba"></script>
+    <script src="/static/js/prism.js?v=431ba94b"></script>
     
-    <script src="/static/js/collapsible.js?v=aca1d5ba"></script>
+    <script src="/static/js/collapsible.js?v=431ba94b"></script>
 	
     <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
     
@@ -771,7 +771,7 @@ programming.</p>
     
     <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
     
-    <script type="text/javascript" src="/static/js/Dialog.js?v=aca1d5ba"></script>
+    <script type="text/javascript" src="/static/js/Dialog.js?v=431ba94b"></script>
 	  
             <div id="dialog-1" class="dialog" role="dialog" aria-labelledby="note-1" aria-describedby="note-description-1" aria-hidden="true">
         <strong id="note-1">Footnote #1</strong>

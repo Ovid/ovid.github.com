@@ -63,7 +63,7 @@ my $ovid = Template::Plugin::Ovid->new(undef);
 
 # Test cite() - external links
 is $ovid->cite( '/example.html', 'link name' ),
-  '<a href="/example.html" target="_blank">link name</a> <span class="fa fa-external-link fa_custom"></span>',
+  '<a href="/example.html" target="_blank">link name<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>',
   'We should be able to cite an external link with an external link span';
 
 # Test link() - internal links

@@ -37,7 +37,7 @@ subtest 'basic' => sub {
     $expected = <<~'END';
     <p>This is <a href="/to/some/path">link one</a>.</p>
 
-    <p>This is <a href="http://www.example.com/to/some/path" target="_blank">link two</a> <span class="fa fa-external-link fa_custom"></span>.</p>
+    <p>This is <a href="http://www.example.com/to/some/path" target="_blank">link two<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
     END
     is_html $html, $expected, 'URLs with domains should open a new tab';
 };

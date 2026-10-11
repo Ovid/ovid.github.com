@@ -975,6 +975,10 @@ END
     sub _html_to_text ( $self, $file ) {
         my $html = slurp($file);    # This handles UTF8 correctly
 
+        # Screen-reader-only text ("(opens in new tab)", "Footnote 3") would
+        # make every page match those words in search.
+        $html =~ s{<span class="visually-hidden">[^<]*</span>}{}g;
+
         my $title = $self->_extract_title($html);
 
         # Modern pages use <article id="article"> via include/wrapper.tt.

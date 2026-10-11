@@ -33,7 +33,10 @@ sub image_type ( $self, $image ) {
 }
 
 sub cite ( $self, $path, $name ) {
-    return sprintf '<a href="%s" target="_blank">%s</a> <span class="fa fa-external-link fa_custom"></span>' => $path,
+    return
+      sprintf
+      '<a href="%s" target="_blank">%s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>'
+      => $path,
       $name;
 }
 

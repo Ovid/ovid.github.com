@@ -152,10 +152,13 @@ sub _GenerateAnchor (
         $result .= qq{ title="$title"};
     }
 
-    $result .= "$attributes>$link_text</a>";
-    if ($external) {
-        $result .= qq' <span class="fa fa-external-link $FA_CUSTOM"></span>';
-    }
+    # The icon and the new-tab warning sit inside the link, so they are part
+    # of its accessible name (WCAG G201); the icon itself is decorative.
+    my $new_tab
+      = $external
+      ? qq'<span class="fa fa-external-link $FA_CUSTOM" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span>'
+      : '';
+    $result .= "$attributes>$link_text$new_tab</a>";
 
     return $result;
 }
