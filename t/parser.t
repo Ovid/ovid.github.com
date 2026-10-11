@@ -166,7 +166,7 @@ subtest 'Table of contents nests lists by heading level' => sub {
 END
     my $parser    = Ovid::Template::File->new( filename => 'dummy', _code => $code );
     my $rewritten = $parser->rewrite( 'test', {} );
-    my ($toc) = $rewritten =~ m{(<div>\n<nav.*?</nav>\n</div>)}s;
+    my ($toc)     = $rewritten =~ m{(<div>\n<nav.*?</nav>\n</div>)}s;
 
     ok $toc, 'An indented {{TOC}} marker should still be replaced';
     eq_or_diff $toc, <<'END' =~ s/\n\z//r, '... with lists nested by heading level';
@@ -186,6 +186,17 @@ END
 END
 };
 
+subtest 'An indented {{TAGS}} marker is collected and stripped' => sub {
+
+    # The TAGS regexes once read ^s* (a literal "s") where ^[ \t]* was meant,
+    # so indented tags were neither collected nor removed.
+    my $parser = Ovid::Template::File->new( filename => 'dummy', _code => "x" );
+    my ( $rewritten, $tags )
+      = $parser->_preprocess_macros("[% WRAPPER include/wrapper blogdown=1 %]\n  {{TAGS perl oop}}\nBody\n[% END %]\n");
+    eq_or_diff $tags, [qw(oop perl)], 'An indented {{TAGS}} line should be collected';
+    unlike $rewritten, qr/\{\{TAGS/, '... and removed from the output';
+};
+
 subtest 'Files already starting below h1 are left alone' => sub {
 
     # Downward only: a file whose shallowest heading is h2 is already correct,
@@ -202,7 +213,7 @@ END
 
     like $rewritten,   qr{<h2><a name="middle"></a>Middle</h2>}, 'An h2 should stay an h2';
     like $rewritten,   qr{<h3><a name="bottom"></a>Bottom</h3>}, '... and an h3 an h3';
-    unlike $rewritten, qr{</?h1}, '... with nothing promoted into the gap';
+    unlike $rewritten, qr{</?h1},                                '... with nothing promoted into the gap';
 };
 
 subtest 'Demotion preserves heading attributes' => sub {

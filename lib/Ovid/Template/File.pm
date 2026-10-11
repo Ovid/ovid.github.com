@@ -281,9 +281,9 @@ TOC
 
         # XXX This should probably be used in the tag map and pushed into the
         # template layer.
-        if ( $rewritten =~ /^s*\{\{TAGS(.*)?\}\}/m ) {
+        if ( $rewritten =~ /^[ \t]*\{\{TAGS(.*)?\}\}/m ) {
             @tags = sort grep {/\w/} split /\s+/ => $1;
-            $rewritten =~ s/^s*\{\{TAGS.*?\}\}\s*$//m;
+            $rewritten =~ s/^[ \t]*\{\{TAGS.*?\}\}\s*$//m;
         }
 
         return ( $rewritten, \@tags );
