@@ -61,4 +61,24 @@ subtest 'Every YouTube embed is named' => sub {
     pass 'all Ovid.youtube() calls checked';
 };
 
+# Landmarks of one type need distinct names, or a screen reader's landmark
+# list shows two identical "Tags navigation" entries. Every article page
+# carries both the post's tag list and the site-wide tag cloud.
+subtest 'Tag navs have distinct names' => sub {
+    my %label = (
+        list  => 'tag-list-label',
+        cloud => 'tag-cloud-heading',
+    );
+    my %file = (
+        list  => 'root/include/tags_for_article.tt',
+        cloud => 'root/include/tag-cloud.tt',
+    );
+    foreach my $nav ( sort keys %file ) {
+        my $id = $label{$nav};
+        ( $label{$nav} ) = path( $file{$nav} )->slurp_utf8 =~ /id="\Q$id\E">([^<]+)</
+          or fail "$file{$nav}: no element with id $id";
+    }
+    isnt lc $label{list}, lc $label{cloud}, "tag list ('$label{list}') and tag cloud ('$label{cloud}') are named apart";
+};
+
 done_testing;
