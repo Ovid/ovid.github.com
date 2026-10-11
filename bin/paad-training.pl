@@ -35,8 +35,7 @@ $html =~ s{(<head[^>]*>)}{$1\n$gtag}
 
 # The course is authored standalone, so it has no way back to the site. Add a
 # link above the PAAD wordmark in the sidebar, plus the style it needs.
-my $home_link
-  = qq{<a class="brand-home" href="/">\x{2190} Curtis \x{201C}Ovid\x{201D} Poe</a>\n    };
+my $home_link = qq{<a class="brand-home" href="/">\x{2190} Curtis \x{201C}Ovid\x{201D} Poe</a>\n    };
 $html =~ s{(?=<div class="brand-mark">)}{$home_link}
   or die "Could not find sidebar brand mark in $source to inject the home link\n";
 
