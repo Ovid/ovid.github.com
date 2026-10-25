@@ -210,7 +210,7 @@ sub _render_preview($file) {
     # We capture output to prevent log spam, but we should check for errors
     my ( $stdout, $stderr ) = capture {
         eval {
-            my $site = Ovid::Site->new( file => $rel_path->stringify );
+            my $site = Ovid::Site->new( file => $rel_path->stringify, wait_for_lock => 0 );
             $site->build;
         };
     };
@@ -313,6 +313,10 @@ The endpoint maps the source path (e.g., C<root/blog/post.tt>) to its
 generated output (e.g., C<blog/post.html>) and returns the HTML content.
 
 Returns HTTP 400 if no file is specified or the file cannot be found.
+
+If another build (such as C<bin/rebuild>) is running, the preview does not wait
+for it. It shows the error "Another build is running; try again when it
+finishes" instead. Save again once that build is done.
 
 =head2 POST /api/save
 

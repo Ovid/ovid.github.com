@@ -20,6 +20,7 @@ package Ovid::Site {
     use DateTime::Format::SQLite;
     use DateTime;
     use Digest::MD5    ();
+    use Fcntl          qw(:flock);
     use File::Basename qw(dirname basename);
     use File::Which    qw(which);
     use File::Copy;
@@ -82,13 +83,37 @@ package Ovid::Site {
         required => 0,
     );
 
+    # The live editor sets this false: its build output is captured, so a
+    # silent wait would just hang the preview. Better to say so at once.
+    has wait_for_lock => (
+        is      => 'ro',
+        isa     => 'Bool',
+        default => 1,
+    );
+
     has dbh => (
         is      => 'ro',
         lazy    => 1,
         default => sub { Less::Script::dbh() },
     );
 
+    # Every build wipes and refills the shared tmp/ directory, so two
+    # overlapping builds (bin/rebuild and a live-editor preview, say) delete
+    # each other's files. The lock lives outside tmp/ because tmp/ is wiped.
+    use constant BUILD_LOCK => '.rebuild.lock';
+
+    sub _lock_build ( $wait = 1 ) {
+        open my $fh, '>>', BUILD_LOCK;
+        unless ( flock $fh, LOCK_EX | LOCK_NB ) {
+            croak("Another build is running; try again when it finishes") unless $wait;
+            say STDERR "Waiting for another build to finish ...";
+            flock $fh, LOCK_EX;
+        }
+        return $fh;    # held until $fh is closed or goes out of scope
+    }
+
     sub build ($self) {
+        my $lock = _lock_build( $self->wait_for_lock );
         say STDERR "Preprocessing files ...";
         if ( $self->file ) {
             return $self->_build_single_file;
@@ -1244,5 +1269,15 @@ Executes the site build pipeline. If C<file> is set, performs a single-file
 rebuild. Otherwise, runs the full build sequence: preprocessing, tag
 generation, RSS feeds, pagination, C<ttree> processing, and sitemap
 generation (plus search engine indexing if C<release> is true).
+
+Every build wipes and refills the shared F<tmp/> directory, so C<build> first
+takes an exclusive C<flock> on F<.rebuild.lock>. A second build, such as a
+live-editor preview during C<bin/rebuild>, prints "Waiting for another build to
+finish ..." and blocks until the first is done. The operating system releases
+the lock when the process exits, however it exits.
+
+Pass C<< wait_for_lock => 0 >> to C<new> to die at once with "Another build is
+running" instead of waiting. The live editor does this, because it captures
+build output and a silent wait would just hang its preview.
 
 =cut

@@ -5,6 +5,7 @@ use HTTP::Request::Common;
 use Path::Tiny;
 use Cwd qw(getcwd);
 use Test::MockModule;
+use Capture::Tiny qw(capture_stderr);
 
 # Setup test environment before loading app
 my $cwd      = getcwd();
@@ -63,6 +64,25 @@ subtest 'Preview route' => sub {
     ok $res->is_success, 'Preview route successful';
     like $res->content, qr/Generated HTML Content/, 'Preview shows generated HTML';
     ok $build_called, 'Ovid::Site->build was called';
+};
+
+subtest 'Preview reports a failed rebuild' => sub {
+    $site_mock->mock( 'build', sub { die "Another build is running\n" } );
+    my $res;
+    my $log = capture_stderr { $res = $test->request( GET '/preview' ) };
+    like $log, qr/Rebuild failed: Another build is running/, 'The failure is logged to the console';
+    like $res->content, qr/Error rebuilding file: Another build is running/,
+      'The rebuild error is shown in the preview';
+    unlike $res->content, qr/Generated HTML Content/, '... instead of the stale page';
+    $site_mock->mock( 'build', sub { $build_called++; return } );
+};
+
+subtest 'Preview does not wait for another build' => sub {
+    my %args;
+    $site_mock->mock( 'build', sub ($self) { %args = ( wait_for_lock => $self->wait_for_lock ) } );
+    $test->request( GET '/preview' );
+    is $args{wait_for_lock}, 0, 'The editor asks for a build that fails fast if another holds the lock';
+    $site_mock->mock( 'build', sub { $build_called++; return } );
 };
 
 subtest 'Static files' => sub {
