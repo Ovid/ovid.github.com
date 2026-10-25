@@ -5,6 +5,7 @@ use HTTP::Request::Common;
 use Path::Tiny;
 use Cwd qw(getcwd);
 use Test::MockModule;
+use Capture::Tiny qw(capture_stderr);
 
 # Setup test environment before loading app
 my $cwd      = getcwd();
@@ -67,7 +68,9 @@ subtest 'Preview route' => sub {
 
 subtest 'Preview reports a failed rebuild' => sub {
     $site_mock->mock( 'build', sub { die "Another build is running\n" } );
-    my $res = $test->request( GET '/preview' );
+    my $res;
+    my $log = capture_stderr { $res = $test->request( GET '/preview' ) };
+    like $log, qr/Rebuild failed: Another build is running/, 'The failure is logged to the console';
     like $res->content, qr/Error rebuilding file: Another build is running/,
       'The rebuild error is shown in the preview';
     unlike $res->content, qr/Generated HTML Content/, '... instead of the stale page';

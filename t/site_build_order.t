@@ -17,6 +17,7 @@ use Test::Most;
 use lib 'lib';
 use Less::Boilerplate;
 use Ovid::Site;
+use Capture::Tiny qw(capture_stderr);
 
 my @writes;
 
@@ -34,14 +35,14 @@ my @writes;
     local *Ovid::Site::_write_sitemap    = sub { };
     local *Ovid::Site::_assert_tt_config = sub { };
 
-    Ovid::Site->new->build;
+    capture_stderr { Ovid::Site->new->build };    # discard build chatter
 }
 
 my $snapshot = 0;
 $snapshot++ until $snapshot > $#writes || '<<snapshot>>' eq $writes[$snapshot];
 ok $snapshot <= $#writes, 'build() takes the tmp/ snapshot';
 
-my @late = grep { m{^root/} } @writes[ $snapshot + 1 .. $#writes ];
+my @late = grep {m{^root/}} @writes[ $snapshot + 1 .. $#writes ];
 is_deeply \@late, [],
   'nothing under root/ is written after the tmp/ snapshot';
 

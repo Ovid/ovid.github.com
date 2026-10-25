@@ -26,7 +26,7 @@ subtest 'build() holds the lock while it runs' => sub {
     {
         no warnings 'redefine';
         local *Ovid::Site::_build_single_file = sub ($) { $held = !lock_is_free() };
-        Ovid::Site->new( file => 'root/whatever.tt' )->build;
+        capture_stderr { Ovid::Site->new( file => 'root/whatever.tt' )->build };
     }
     ok $held,          'The lock is held during the build';
     ok lock_is_free(), '... and released afterwards';
