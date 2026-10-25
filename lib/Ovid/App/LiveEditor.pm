@@ -8,6 +8,7 @@ use Ovid::Site;
 use Capture::Tiny qw(capture);
 use Less::Config  ();
 use Ovid::Util::Image;
+use Ovid::Util::URLPath qw(url_to_file);
 
 our $VERSION = '0.1';
 
@@ -247,15 +248,18 @@ sub _render_preview($file) {
       . "Expected a source file (e.g., root/blog/post.tt), but got:\n$path_str";
 }
 
-get '/static/**' => sub {
-    my ($path) = splat;
-    my $file = path('.')->child( 'static', @$path );
-    if ( $file->exists && -f $file ) {
-        send_file $file->absolute->stringify, system_path => 1;
-    }
-    else {
-        pass;
-    }
+# Serve the generated site, so links clicked in the preview (e.g.
+# /tags/trench) work. Must stay the last route: it matches everything.
+get '/**' => sub {
+    my ($segments) = splat;
+    my ( $file, $status ) = url_to_file( path('.')->realpath, @$segments );
+    return send_file( "$file", system_path => 1 ) if 200 == $status;
+
+    status $status;
+    return '403 - Forbidden' if 403 == $status;
+
+    my $custom = path('404.html');
+    return -f $custom ? $custom->slurp_utf8 : '404 - Not Found: ' . $file->relative( path('.')->realpath );
 };
 
 true;
@@ -355,8 +359,11 @@ directory, sorted alphabetically. Paths are relative to C<root/>.
 Returns a JSON health check response with C<ok>, the current C<file> being
 edited, and a C<timestamp>.
 
-=head2 GET /static/**
+=head2 GET /**
 
-Serves static files from the C<static/> directory in the project root.
+Serves the generated site from the project root, resolved by
+L<Ovid::Util::URLPath>, so links clicked in the preview (such as
+C</tags/trench>) and C</static/> assets both work. A missing page returns 404
+with the site's F<404.html> when it exists.
 
 =cut

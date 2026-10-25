@@ -7,7 +7,7 @@ use Cwd qw(getcwd);
 use Test::MockModule;
 
 # Setup test environment before loading app
-my $cwd = getcwd();
+my $cwd      = getcwd();
 my $temp_dir = Path::Tiny->tempdir;
 chdir $temp_dir;
 
@@ -36,89 +36,114 @@ use Ovid::App::LiveEditor;
 # Mock Ovid::Site to avoid full rebuild in tests
 # Immutable Moose classes make Test::MockModule warn; no modifiers here to miss.
 Ovid::Site->meta->make_mutable;
-my $site_mock = Test::MockModule->new('Ovid::Site');
+my $site_mock    = Test::MockModule->new('Ovid::Site');
 my $build_called = 0;
-$site_mock->mock('build', sub {
-    $build_called++;
-    return;
-});
+$site_mock->mock(
+    'build',
+    sub {
+        $build_called++;
+        return;
+    }
+);
 
-my $app = Ovid::App::LiveEditor->to_app;
+my $app  = Ovid::App::LiveEditor->to_app;
 my $test = Plack::Test->create($app);
 
 pass("Module loaded and app created");
 
 subtest 'Root route' => sub {
-    my $res = $test->request(GET '/');
+    my $res = $test->request( GET '/' );
     ok $res->is_success, 'Root route successful';
-    like $res->content, qr/Editor: Source Content/, 'Editor shows source content';
+    like $res->content, qr/Editor: Source Content/,          'Editor shows source content';
     like $res->content, qr/Iframe: <iframe src="\/preview"/, 'Preview iframe found';
 };
 
 subtest 'Preview route' => sub {
-    my $res = $test->request(GET '/preview');
+    my $res = $test->request( GET '/preview' );
     ok $res->is_success, 'Preview route successful';
     like $res->content, qr/Generated HTML Content/, 'Preview shows generated HTML';
     ok $build_called, 'Ovid::Site->build was called';
 };
 
 subtest 'Static files' => sub {
-    my $res = $test->request(GET '/static/css/style.css');
+    my $res = $test->request( GET '/static/css/style.css' );
     ok $res->is_success, 'Static file served';
     is $res->content, 'body { color: red; }', 'Static file content matches';
 };
 
+subtest 'Generated site pages' => sub {
+
+    # Links in the preview point at the rest of the site, e.g. /tags/trench.
+    $temp_dir->child('tags/trench.html')->touchpath->spew_utf8('Trench tag page');
+    my $res = $test->request( GET '/tags/trench' );
+    ok $res->is_success, 'Extensionless page URL served';
+    is $res->content, 'Trench tag page', '... from its generated .html file';
+
+    $res = $test->request( GET '/tags/nope' );
+    is $res->code, 404, 'Missing page returns 404';
+
+    $temp_dir->child('404.html')->spew_utf8('Custom 404 page');
+    $res = $test->request( GET '/tags/nope' );
+    is $res->code,    404,               '... still a 404 with a custom page';
+    is $res->content, 'Custom 404 page', '... using the site 404 page';
+
+    $res = $test->request( GET '/.git/HEAD' );
+    is $res->code, 403, 'Dot-prefixed segments are forbidden';
+};
+
 subtest 'Save endpoint' => sub {
     my $new_content = "Updated Content";
-    my $res = $test->request(POST '/api/save', [ content => $new_content ]);
+    my $res         = $test->request( POST '/api/save', [ content => $new_content ] );
     ok $res->is_success, 'Save request successful';
     is $source_file->slurp_utf8, $new_content, 'File on disk updated';
-    
+
     # Test missing content
-    $res = $test->request(POST '/api/save', []);
+    $res = $test->request( POST '/api/save', [] );
     ok !$res->is_success, 'Save request without content fails';
     is $res->code, 400, 'Returns 400 Bad Request';
 };
 
 subtest 'File Switching' => sub {
+
     # Create another file
     my $other_file = $temp_dir->child('root/other.tt');
     $other_file->spew_utf8("Other Content");
-    
+
     # Test GET / with file param
-    my $res = $test->request(GET '/?file=' . $other_file->absolute->stringify);
+    my $res = $test->request( GET '/?file=' . $other_file->absolute->stringify );
     ok $res->is_success, 'Switch file successful';
     like $res->content, qr/Editor: Other Content/, 'Editor shows other file content';
-    
+
     # Test Save with file param
     my $new_other_content = "New Other Content";
-    $res = $test->request(POST '/api/save', [ content => $new_other_content, file => $other_file->absolute->stringify ]);
+    $res
+      = $test->request( POST '/api/save', [ content => $new_other_content, file => $other_file->absolute->stringify ] );
     ok $res->is_success, 'Save other file successful';
     is $other_file->slurp_utf8, $new_other_content, 'Other file on disk updated';
-    
+
     # Test Security
     my $outside_file = Path::Tiny->tempfile;
-    $res = $test->request(GET '/?file=' . $outside_file->absolute->stringify);
+    $res = $test->request( GET '/?file=' . $outside_file->absolute->stringify );
     ok !$res->is_success, 'Accessing outside file fails';
     like $res->content, qr/Security Error/, 'Security error message';
-    
+
     # Test Security: File in project root but not in root/ directory
     my $lib_file = $temp_dir->child('lib/Test.pm');
     $lib_file->parent->mkpath;
     $lib_file->spew_utf8("package Test;");
-    $res = $test->request(GET '/?file=' . $lib_file->absolute->stringify);
+    $res = $test->request( GET '/?file=' . $lib_file->absolute->stringify );
     ok !$res->is_success, 'Accessing file outside root/ fails';
     like $res->content, qr/Security Error/, 'Security error message for non-root/ file';
 };
 
 subtest 'File Listing' => sub {
-    my $res = $test->request(GET '/api/files');
+    my $res = $test->request( GET '/api/files' );
     ok $res->is_success, 'File listing successful';
     my $json = $res->content;
-    like $json, qr/test\.tt/, 'Contains test.tt';
-    like $json, qr/other\.tt/, 'Contains other.tt';
-    like $json, qr/editor\.tt/, 'Contains editor.tt';
-    unlike $json, qr/Test\.pm/, 'Does not contain lib files';
+    like $json,   qr/test\.tt/,   'Contains test.tt';
+    like $json,   qr/other\.tt/,  'Contains other.tt';
+    like $json,   qr/editor\.tt/, 'Contains editor.tt';
+    unlike $json, qr/Test\.pm/,   'Does not contain lib files';
 };
 
 # Cleanup

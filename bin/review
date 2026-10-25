@@ -7,6 +7,8 @@ use Encode       ();
 use Time::HiRes  qw(sleep);
 use Getopt::Long qw(GetOptions);
 use Pod::Usage   qw(pod2usage);
+use lib 'lib';
+use Ovid::Util::URLPath qw(url_to_file);
 use open ':std', ':encoding(UTF-8)';
 
 use constant DEFAULT_PORT => 7007;
@@ -220,73 +222,17 @@ post '/api/launch-editor' => sub {
 # Serve static files
 get '/**' => sub {
     my ($splat) = splat;
-    my @segments = @$splat;
+    my ( $file, $status ) = url_to_file( $PROJECT_ROOT, @$splat );
 
-    # Reject any segment starting with '.' (covers '..', '.git', '.env',
-    # editor swapfiles, etc.) before any filesystem touch.
-    if ( grep {/^\./} @segments ) {
-        status 'forbidden';
-        return '403 - Forbidden';
-    }
-
-    # Empty splat means GET / (handled here, no redirect).
-    my $path_str = join( '/', @segments ) || 'index.html';
-
-    # URL → filesystem resolution. Three shapes:
-    #   - Trailing slash, e.g. /projects/extraction/  → serve
-    #     <path>/index.html
-    #   - Extensionless final segment, e.g. /blog/foo → serve
-    #     <path>/index.html if <path> is a directory; otherwise
-    #     <path>.html (so /blog → blog.html, /projects/extraction →
-    #     projects/extraction/index.html).
-    #   - Anything with an extension is passed through unchanged.
-    my $final_segment = $segments[-1] // '';
-    if ( $final_segment eq '' ) {
-        $path_str .= 'index.html';
-    }
-    elsif ( $final_segment !~ /\./ ) {
-
-        # Prefer <path>.html when it exists (so /blog continues to
-        # serve blog.html even though blog/ is also a directory).
-        # Fall back to <path>/index.html when the directory carries
-        # one — that's how /projects/extraction resolves.
-        if ( -f path("$path_str.html") ) {
-            $path_str .= '.html';
-        }
-        elsif ( -f path("$path_str/index.html") ) {
-            $path_str .= '/index.html';
-        }
-        else {
-            # Neither target exists; keep the .html shape so the 404
-            # path below reports a familiar resource name.
-            $path_str .= '.html';
-        }
-    }
-
-    my $file = path($path_str)->absolute;
-
-    # Return file if it exists
-    if ( $file->exists && -f $file ) {
-
-        # Defense in depth: confirm the realpath still lies inside the
-        # project root (catches symlink trickery).
-        my $resolved = eval { $file->realpath };
-        if (  !defined $resolved
-            || index( "$resolved", "$PROJECT_ROOT/" ) != 0 )
-        {
-            status 'forbidden';
-            return '403 - Forbidden';
-        }
+    if ( 200 == $status ) {
 
         # For HTML files, read and return content directly to allow hook injection
-        if ( $path_str =~ /\.html?$/i ) {
-            return _slurp_html($file);
-        }
-
-        # For other files, use send_file
-        else {
-            send_file( $file->stringify, system_path => 1 );
-        }
+        return _slurp_html($file) if $file =~ /\.html?$/i;
+        send_file( $file->stringify, system_path => 1 );
+    }
+    elsif ( 403 == $status ) {
+        status 'forbidden';
+        return '403 - Forbidden';
     }
     else {
         status 'not_found';
@@ -296,7 +242,7 @@ get '/**' => sub {
         }
 
         # Falls back to plaintext when 404.html hasn't been built yet (fresh checkout).
-        return "404 - Not Found: $path_str";
+        return '404 - Not Found: ' . $file->relative($PROJECT_ROOT);
     }
 };
 
