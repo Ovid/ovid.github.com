@@ -65,6 +65,23 @@ subtest 'Preview route' => sub {
     ok $build_called, 'Ovid::Site->build was called';
 };
 
+subtest 'Preview reports a failed rebuild' => sub {
+    $site_mock->mock( 'build', sub { die "Another build is running\n" } );
+    my $res = $test->request( GET '/preview' );
+    like $res->content, qr/Error rebuilding file: Another build is running/,
+      'The rebuild error is shown in the preview';
+    unlike $res->content, qr/Generated HTML Content/, '... instead of the stale page';
+    $site_mock->mock( 'build', sub { $build_called++; return } );
+};
+
+subtest 'Preview does not wait for another build' => sub {
+    my %args;
+    $site_mock->mock( 'build', sub ($self) { %args = ( wait_for_lock => $self->wait_for_lock ) } );
+    $test->request( GET '/preview' );
+    is $args{wait_for_lock}, 0, 'The editor asks for a build that fails fast if another holds the lock';
+    $site_mock->mock( 'build', sub { $build_called++; return } );
+};
+
 subtest 'Static files' => sub {
     my $res = $test->request( GET '/static/css/style.css' );
     ok $res->is_success, 'Static file served';
