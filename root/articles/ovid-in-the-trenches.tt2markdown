@@ -1,0 +1,141 @@
+[%
+    title            = 'Ovid in the Trenches';
+    type             = 'articles';
+    slug             = 'ovid-in-the-trenches';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-10-25';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS trench ai}}
+
+**TL;DR**: One of the best tips to improve quality _and_ reduce token
+consumption when writing software with AI is to keep your `AGENTS.md` (or its
+equivalent) up to date.
+
+[% INCLUDE include/image.tt
+   align   = 'right',
+   src      = "/static/images/bed.jpg"
+   alt      = "A slightly messy bed"
+   source   = 'https://unsplash.com/photos/OZiflZqq0N0',
+   caption  = "I should have stayed."
+%]
+
+I have flown back into Malta, after a week of training software developers in
+Georgia (the country, not the state) about generative AI and I am, as usual,
+swamped with the amazing amount of advances and research coming in from all
+directions.  I typically share these thoughts on LinkedIn, but [my friend Andrew
+Sundstrom basically said, "knock it
+off."](https://www.linkedin.com/feed/update/urn:li:activity:7519791516786151424?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7519791516786151424%2C7519867121263173632%29&dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287519867121263173632%2Curn%3Ali%3Aactivity%3A7519791516786151424%29).
+I should be writing stuff here, where it's easier to find.
+
+Yeah, OK. I'll go with that. So now I have a new tag, [trench](/tags/trench),
+for posting these shorter "life in the trenches" things. I suspect this will
+contain be useful information about genAI, and mostly from the standpoint of
+software engineering.
+
+**But ...**
+
+You're swamped with "AI-influencer" slop:
+
+* AI won’t replace you. A person using AI will.
+* We’re not in an AI bubble. We’re in an AI revolution.
+* Prompting is the new coding. Learn it or get left behind.
+
+Any of those statements may or may not be true, but frankly, I have too much
+damned self-esteem to humiliate myself like that, singing and dancing public, in
+this AI Vaudville, hoping to make the big time. Thus, the "trench" posts will be
+about reality, not some emoji-laden post for my non-existent newsletter[%
+Ovid.note("Hmm, maybe I <em>should</em> start a newsletter.") %] This series
+will be _actionable_. So, let's get started.
+
+# Steering Files
+
+When you're using some agentic coding tool, such as Claude Code (my favorite),
+Kiro, Antigravity, or something else, you have what [this arXiv preprint refers
+to as "instruction files."](https://arxiv.org/html/2610.30571v1). `CLAUDE.md`,
+`AGENTS.md`, and so on. When you start coding, the AI reads these files (which I
+call "steering") to ground itself on your codebase. The files should generally
+contain four things:
+
+1. What your software does
+2. What technologies it uses
+3. The directory structure (how to find behavior)
+4. Hard rules that the AI must never violate (ha!)
+
+But there's a huge problem with them and I keep hitting with software teams:
+they're not keeping these files up to date.
+
+These files tell you where you are, not where you're going to be in three months
+or six months. This means that three or six months later, these files are out of
+date if they're not updated. Almost every team that I've worked with has
+encountered this problem, so it needs to be fixed. There _is_ a simple fix, but
+I got it wrong at first.
+
+But stepping back a bit, why is this so important? I was working with one team
+that complained bitterly about the quality of the code AI was producing. In
+fact, they code wouldn't even compile. They were _not_ happy using genAI.  So I
+arranged a pair programming session.  One of the first things I had them do was
+to run [PAAD's](https://github.com/Ovid/paad) `/pushback` skill on their
+steering files.
+
+The `/pushback` skill basically takes any document and looks for flaws,
+omissions, bad ideas, ambiguities, and so on. So they ran this skill and one of
+the first things they found out was that their steering files got a critical
+portion of their tech stack wrong. It claimed they were using a modern, popular
+Web framework rather than older, less well-known framework they were stuck with.
+So the AI grounding itself on a lie and was writing the wrong code.
+
+This and a few other fixes completely turned things around. Now, they're quite
+happy with AI. In fact, at one point, due to a bug in their IDE, they were
+locked out of using Opus models, but later reported to me that using Sonnet with
+PAAD was better than using Opus without PAAD. I call that a win.
+
+But what did I get wrong? In the early days of my training, I was explaining to
+the teams that they needed to regularly review the steering files to ensure they
+were up to date. You don't want cowboys pushing changes to steering all the time
+and possibly messing things up. That _sounded_ reasonable to me. I was an idiot
+(still am, at times).
+
+The problem was that I was basically asking them to schedule regular meetings to
+handle an incredibly important, yet boring task. Not gonna happen.
+
+But remember that arXiv paper paper I referenced earlier? They not only found
+that AI tended to assume that steering files were true, but it would often
+rewrite existing, working code to match the steering files, even if those files
+were wrong. Their fix was to add one sentence to the steering files:
+
+> When a repository’s documentation and its existing code disagree, follow the
+> conventions used in the existing code, and in your final reply point out each
+> inconsistency you found between the documentation and the code.
+
+From the paper:
+
+>  We added one sentence to the user’s own instruction file, stating that
+existing code takes precedence when documentation and code disagree. Across 40
+projects and two agents, this moved the agents from following the stale file in
+most choices to following the code in nine out of ten, and no agent rewrote
+existing code.
+
+Note the "stale file" bit. That's the real problem. While I generally like their
+fix, I've found for personal projects that there's an even better fix. Include
+the following in steering (adjust to match your project needs):
+
+> Before pushing an pull request, reread CLAUDE.md and determine if it should be
+> updated to reflect changes in the code. Discuss proposed changes with the
+> developer. They must approve all changes.
+
+Your steering files are _living_ documents and need to be updated regularly.
+I've found that this one sentence allows me to keep my steering files accurate
+and improves overall quality of code. The "one-sentence" fix the authors list is 
+great, but it doesn't explicitly guide the developers to updating the steering 
+files. In working with many teams, I'm still finding that they often _don't_ 
+read the full output from the AI, so an interactive "let's fix this" is more 
+likely to be followed than the AI simply dumping a wall 'o text.
+
+[%- END %]

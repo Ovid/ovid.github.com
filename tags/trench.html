@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
+  <script>
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/tags/trench">
+  
+  <meta property="og:title" content="Tags: Trenches">
+  <meta property="og:description" content="Every article and blog post by Curtis “Ovid” Poe tagged Trenches.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/tags/trench">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Tags: Trenches</title>
+  <meta name="description" content="Every article and blog post by Curtis “Ovid” Poe tagged Trenches.">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/main.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/image.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b89207e5">
+  <script src="/static/js/dark-mode.js?v=b89207e5" defer></script>
+  <script src="/static/js/code-scroll.js?v=b89207e5" defer></script>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— Politics, programming, and prose</i></a>
+        <div class="masthead-tools">
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
+    function doSearch() {
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
+
+      const results = search(value, 5);
+      ul.replaceChildren();
+
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+        ul.appendChild(li);
+      }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
+    }
+  </script>
+
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+        </div>
+      </div>
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure" open>
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock">
+        <span class="dateblock-meta">
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Tags: Trenches</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="marginalia">
+
+      </div>
+      <main class="prose" id="content">
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
+
+
+<article id="article">
+<ul>
+
+
+  <li><a href="/articles/ovid-in-the-trenches">Ovid in the Trenches</a> <time>2026-10-25</time></li></ul>
+
+</article>
+
+
+
+
+
+
+
+
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read <a href="/about">more about me</a>
+          to learn more about my background.</p>
+
+        <div id="disqus_thread"></div>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
+
+
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
+
+    <li><a href="/tags/programming" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/ai" data-weight="7">AI</a></li>
+
+    <li><a href="/tags/business" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/corinna" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
+
+    <li><a href="/tags/writing" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/trench" data-weight="1">Trenches</a></li>
+
+</ul>
+</nav>
+
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
+
+    
+    <script src="/static/js/collapsible.js?v=b89207e5"></script>
+	
+</body>
+</html>
+
+

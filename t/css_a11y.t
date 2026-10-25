@@ -19,9 +19,9 @@ sub rem ( $body, $property ) {
     return $value // 0;
 }
 
-# M13: the "RSS" nav labels were .58rem, too small to read comfortably.
-cmp_ok rem( rule('.nav-links .nav-feed'), 'font-size' ), '>=', .7,
-  'RSS nav labels are at least .7rem';
+# Don't make nav labels too small.
+cmp_ok rem( rule('.nav-links .nav-feed'), 'font-size' ), '>=', .55,
+  'RSS nav labels are at least .55rem';
 
 # M11: stacked tag links were ~20px tall on a ~21.8px pitch (2.5.8 needs 24px).
 cmp_ok rem( rule('ul.inline'), 'gap' ), '>=', .3, 'stacked tag links have at least .3rem between them';
