@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
+  <script>
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/ovid-in-the-trenches">
+  
+  <meta property="og:title" content="Ovid in the Trenches">
+  <meta property="og:description" content="The new &quot;trenches&quot; articles will be shorter (maybe) articles focused exclusively on real-life situations. This is the first.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/ovid-in-the-trenches">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Ovid in the Trenches</title>
+  <meta name="description" content="The new &quot;trenches&quot; articles will be shorter (maybe) articles focused exclusively on real-life situations. This is the first.">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/main.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/image.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b89207e5">
+  <script src="/static/js/dark-mode.js?v=b89207e5" defer></script>
+  <script src="/static/js/code-scroll.js?v=b89207e5" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b89207e5"/>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— Politics, programming, and prose</i></a>
+        <div class="masthead-tools">
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
+    function doSearch() {
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
+
+      const results = search(value, 5);
+      ul.replaceChildren();
+
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+        ul.appendChild(li);
+      }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
+    }
+  </script>
+
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+        </div>
+      </div>
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure" open>
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year" aria-hidden="true">2026</span>
+        <span class="dateblock-day" aria-hidden="true">10.25</span>
+        <time class="visually-hidden" datetime="2026-10-25">25 October 2026</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Ovid in the Trenches</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="marginalia is-filled">
+
+
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
+
+        <li><a href="/tags/ai">AI</a></li>
+
+        <li><a href="/tags/trench">Trenches</a></li>
+
+    </ul>
+</nav>
+
+
+      </div>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/paad-v2-is-released" class="prevPost">&laquo; PAAD v2 is Released!</a>
+    </div>
+
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
+
+
+<article id="article">
+<p><strong>TL;DR</strong>: One of the best tips to improve quality <em>and</em> reduce token
+consumption when writing software with AI is to keep your <code>AGENTS.md</code> (or its
+equivalent) up to date.</p>
+
+<hr />
+
+<p>I have flown back into Malta, after a week of training multiple software teams
+in Georgia (the country, not the state) about generative AI and I am, as usual,
+swamped with the amazing amount of advances and research coming in from all
+directions.  I typically share these thoughts on LinkedIn, but <a href="https://www.linkedin.com/feed/update/urn:li:activity:7519791516786151424?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7519791516786151424%2C7519867121263173632%29&amp;dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287519867121263173632%2Curn%3Ali%3Aactivity%3A7519791516786151424%29" target="_blank">my friend Andrew
+Sundstrom basically said, “knock it
+off.”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.
+I should be writing stuff here, where it’s easier to find.</p>
+
+<p><figure class="captioned">
+    <div class="image-container">
+        <a href="/static/images/bed.jpg" class="enlarge"><img src="/static/images/bed.jpg" width="600" alt="A slightly messy bed"><span class="visually-hidden"> (enlarge image)</span></a>
+    </div>
+    <figcaption>I should have stayed. <a href="https://unsplash.com/photos/OZiflZqq0N0" target="_blank">Source<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a></figcaption>
+</figure></p>
+
+<p>Yeah, OK. I’ll go with that. So now I have a new tag, <a href="/tags/trench">trench</a>,
+for posting these shorter “life in the trenches” things. I suspect this will
+contain be useful information about genAI, and mostly from the standpoint of
+software engineering. So I slimed out of bed this morning and started writing.</p>
+
+<p><strong>But ...</strong></p>
+
+<p>You’re swamped with “AI-influencer” slop:</p>
+
+<ul>
+<li>“AI won’t replace you. A person using AI will.”</li>
+<li>“We’re not in an AI bubble. We’re in an AI revolution.”</li>
+<li>“Prompting is the new coding. Learn it or get left behind.”</li>
+</ul>
+
+<p>Any of those statements may or may not be true, but none are actionable. Frankly, I have too much
+damned self-esteem to humiliate myself like that, singing and dancing publicly in
+this AI Vaudville, hoping to make the big time. Thus, the “trench” posts will be
+about reality, not some emoji-laden post for my non-existent newsletter.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript> So my rule of
+thumb for “trenches” articles is clear: if the article isn’t actionable, it
+doesn’t get written.</p>
+
+<h2><a name="steering-files"></a>Steering Files</h2>
+
+<p>When you’re using some agentic coding tool, such as Claude Code (my favorite),
+Kiro, Antigravity, or something else, you have what <a href="https://arxiv.org/html/2610.30571v1" target="_blank">this arXiv preprint refers
+to as “instruction files.”<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>. <code>CLAUDE.md</code>,
+<code>AGENTS.md</code>, and so on. When you start coding, the AI reads these files (which I
+call “steering”) to ground itself on your codebase. The files should generally
+contain four things:</p>
+
+<ol>
+<li>What your software does</li>
+<li>What technologies it uses</li>
+<li>The directory structure (how to find behavior)</li>
+<li>Hard rules that the AI will never violate (stop laughing)</li>
+</ol>
+
+<p>But there’s a huge problem with them and I keep hitting this with software teams:
+they’re not keeping these files up to date.</p>
+
+<p>These files tell you where you are, not where you’re going to be in three months
+or six months. This means that three or six months later, these files are out of
+date if they’re ignored, and I’m finding that they are almost always ignored.
+There <em>is</em> a simple fix, but I got it wrong at first.</p>
+
+<p>But stepping back a bit, why is this so important? I was working with one team
+that complained bitterly about the quality of the code AI was producing. In
+fact, the code often wouldn’t even compile. They were <em>not</em> happy using genAI.
+So I arranged a pair programming session.  One of the first things I had them do
+was to run <a href="https://github.com/Ovid/paad" target="_blank">PAAD’s<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> <code>/pushback</code> skill on their
+steering files.</p>
+
+<p>The <code>/pushback</code> skill basically takes any document and looks for flaws,
+omissions, bad ideas, ambiguities, and so on. So they ran this skill and one of
+the first things they found was that their steering files got a critical
+portion of their tech stack wrong. It claimed they were using a modern, popular
+Web framework rather than the older, less well-known framework they were using.
+So the AI was grounding itself on a lie and was writing the wrong code.<button type="button" class="open-dialog js-only" id="open-dialog-2" aria-haspopup="dialog" aria-controls="dialog-2"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 2</span></button><noscript><a href="#footnote-2" id="footnote-2-return" aria-label="Footnote 2"><sup>[2]</sup></a></noscript></p>
+
+<p>This and a few other fixes completely turned things around. Now they’re quite
+happy with AI. In fact, at one point, due to a bug in their IDE, they were
+locked out of using Opus models, but later reported to me that using Sonnet with
+PAAD was better than using Opus without PAAD. I call that a win.</p>
+
+<p>But what did I get wrong? In the early days of my training, I was explaining to
+the teams that they needed to regularly review the steering files to ensure they
+were up to date. You don’t want cowboys pushing changes to steering all the time
+and possibly messing things up. That <em>sounded</em> reasonable to me. I was an idiot
+(still am, at times).</p>
+
+<p>The problem was that I was basically asking them to schedule regular meetings to
+handle an incredibly important, yet boring task. Not gonna happen.</p>
+
+<p>But remember that arXiv paper paper I referenced earlier? They not only found
+that AI tended to assume that steering files were true, but it would often
+rewrite existing, working code to match the steering files, even if those files
+were wrong. Their fix was to add one sentence to the steering files:</p>
+
+<blockquote>
+  <p>When a repository’s documentation and its existing code disagree, follow the
+  conventions used in the existing code, and in your final reply point out each
+  inconsistency you found between the documentation and the code.</p>
+</blockquote>
+
+<p>From the paper:</p>
+
+<blockquote>
+  <p>We added one sentence to the user’s own instruction file, stating that
+  existing code takes precedence when documentation and code disagree. Across 40
+  projects and two agents, this moved the agents from following the stale file in
+  most choices to following the code in nine out of ten, and no agent rewrote
+  existing code.</p>
+</blockquote>
+
+<p>Note the “stale file” bit. That’s the real problem. While I generally like their
+fix, I’ve found for personal projects that there’s an even better fix. Include
+the following in steering (adjust to match your project needs):</p>
+
+<blockquote>
+  <p>Before pushing an pull request, reread CLAUDE.md and determine if it should be
+  updated to reflect changes in the code. Discuss proposed changes with the
+  developer. They must approve all changes.</p>
+</blockquote>
+
+<p>Your steering files are <em>living</em> documents and need to be updated regularly.
+I’ve found that this one sentence allows me to keep my steering files accurate
+and improves overall quality of code. The “one-sentence” fix the authors list is
+great, but it doesn’t explicitly guide the developers to updating the steering
+files. In working with many teams, I’m still finding that they often <em>don’t</em>
+read the full output from the AI, so an interactive “let’s fix this” is more
+likely to be followed than the AI simply dumping a wall ‘o text.</p>
+
+<p>So keeping your steering files up to date not only gives you better quality
+code, it also reduces your token usage. Instead of hunting for answers to common
+questions—and sometimes getting that answer wrong—you hand the AI the answers on
+a silver platter.</p>
+
+<p>When you’re getting software teams up to speed on using agentic tools to write
+software, fixing your steering files <em>must</em> be your first step.</p>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
+        const time  = Math.ceil(words / wpm);
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
+    }
+    readingTime();
+</script>
+
+
+
+<!-- map images pop up when you click them -->
+<dialog id="overlay" class="overlay"></dialog>
+<script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.createElement('img');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
+            });
+        });
+
+        // The dialog fills the screen, so any click on it closes it.
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', () => overlay.close());
+    });
+</script>
+
+
+
+<hr>
+        <div class="prevNext">
+        <a href="/articles/paad-v2-is-released" class="prevPost">&laquo; PAAD v2 is Released!</a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read <a href="/about">more about me</a>
+          to learn more about my background.</p>
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/ovid-in-the-trenches.html";
+            this.page.identifier = "articles/ovid-in-the-trenches";
+            this.page.title      = "Ovid in the Trenches";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
+
+
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
+
+    <li><a href="/tags/programming" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/ai" data-weight="7">AI</a></li>
+
+    <li><a href="/tags/business" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/corinna" data-weight="4">Corinna</a></li>
+
+    <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
+
+    <li><a href="/tags/writing" data-weight="4">Writing</a></li>
+
+    <li><a href="/tags/personal" data-weight="3">Personal</a></li>
+
+    <li><a href="/tags/politics" data-weight="3">Politics</a></li>
+
+    <li><a href="/tags/space" data-weight="3">Space</a></li>
+
+    <li><a href="/tags/databases" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/family" data-weight="2">Family</a></li>
+
+    <li><a href="/tags/math" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/science" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/expat" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/trench" data-weight="1">Trenches</a></li>
+
+</ul>
+</nav>
+
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
+
+    
+    <script src="/static/js/prism.js?v=b89207e5"></script>
+    
+    <script src="/static/js/collapsible.js?v=b89207e5"></script>
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js?v=b89207e5"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
+        <strong id="note-1">Footnote #1</strong>
+        <div id="note-body-1">Hmm, maybe I <em>should</em> start a newsletter.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+            <div id="dialog-2" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-2" aria-describedby="note-body-2" aria-hidden="true">
+        <strong id="note-2">Footnote #2</strong>
+        <div id="note-body-2">This is likely related to a well-known problem with genAI: it often
+suggests <em>popular</em> technologies, regardless of whether they are
+appropriate.. See also <a href="https://arxiv.org/abs/2503.17181"
+target="_blank">this paper</a>
+on the topic.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-2"> <i class="fa fa-times" aria-hidden="true"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog2 = new Dialog(document.querySelector('#dialog-2'), dialogOverlay);
+        myDialog2.addEventListeners('#open-dialog-2', '#close-dialog-2');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Hmm, maybe I <em>should</em> start a newsletter.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+          <li id="footnote-2">
+            This is likely related to a well-known problem with genAI: it often
+suggests <em>popular</em> technologies, regardless of whether they are
+appropriate.. See also <a href="https://arxiv.org/abs/2503.17181"
+target="_blank">this paper</a>
+on the topic.
+            <a href="#footnote-2-return" aria-label="Return to footnote 2 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
+</body>
+</html>
+
+

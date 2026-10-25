@@ -154,7 +154,7 @@ subtest 'Table of contents nests lists by heading level' => sub {
     # and the level-2 entry joins the level-3 list rather than opening one.
     my $code = <<'END';
 [% WRAPPER include/wrapper blogdown=1 %]
-  {{TOC}}
+{{TOC}}
 # One
 
 ### Three
@@ -168,7 +168,7 @@ END
     my $rewritten = $parser->rewrite( 'test', {} );
     my ($toc)     = $rewritten =~ m{(<div>\n<nav.*?</nav>\n</div>)}s;
 
-    ok $toc, 'An indented {{TOC}} marker should still be replaced';
+    ok $toc, 'The {{TOC}} marker should be replaced';
     eq_or_diff $toc, <<'END' =~ s/\n\z//r, '... with lists nested by heading level';
 <div>
 <nav class="table-of-contents" aria-label="Table of contents">
@@ -186,15 +186,59 @@ END
 END
 };
 
-subtest 'An indented {{TAGS}} marker is collected and stripped' => sub {
+subtest 'An indented directive is fatal' => sub {
 
-    # The TAGS regexes once read ^s* (a literal "s") where ^[ \t]* was meant,
-    # so indented tags were neither collected nor removed.
+    # Directives start in column 0. An indented one dies rather than being
+    # silently printed as text.
     my $parser = Ovid::Template::File->new( filename => 'dummy', _code => "x" );
-    my ( $rewritten, $tags )
-      = $parser->_preprocess_macros("[% WRAPPER include/wrapper blogdown=1 %]\n  {{TAGS perl oop}}\nBody\n[% END %]\n");
-    eq_or_diff $tags, [qw(oop perl)], 'An indented {{TAGS}} line should be collected';
-    unlike $rewritten, qr/\{\{TAGS/, '... and removed from the output';
+    foreach my $directive ( '  {{TAGS perl oop}}', "\t{{TOC}}" ) {
+        throws_ok {
+            $parser->_preprocess_macros("[% WRAPPER include/wrapper blogdown=1 %]\n$directive\nBody\n[% END %]\n")
+        }
+        qr/Directives must start in column 0 in 'dummy'/, "'$directive' should be fatal";
+    }
+};
+
+subtest 'Directive lines outside code must be known and well formed' => sub {
+    my $preprocess = sub ($body) {
+        my $parser = Ovid::Template::File->new(
+            filename => 'dummy',
+            _code    => "[% WRAPPER include/wrapper blogdown=1 %]\n$body\n[% END %]\n",
+        );
+        return $parser->_preprocess_macros( $parser->_rewrite_code_blocks );
+    };
+
+    throws_ok { $preprocess->("{{trench AI}}\nBody") }
+    qr/Unknown directive '\{\{trench\}\}' in 'dummy'/,
+      'An unknown directive should be fatal';
+    throws_ok { $preprocess->("{{TAGS perl oop}\nBody") }
+    qr/Malformed directive in 'dummy'/,
+      'A line starting with {{ that is not a directive should be fatal';
+    throws_ok { $preprocess->("{{TOC please}}\nBody") }
+    qr/\{\{TOC\}\} takes no arguments/,
+      '{{TOC}} should reject arguments';
+    throws_ok { $preprocess->("{{TAGS perl}}\n{{TAGS oop}}\nBody") }
+    qr/Duplicate directive '\{\{TAGS\}\}'/,
+      'A repeated directive should be fatal';
+
+    my ( $rewritten, $tags ) = $preprocess->(<<'END');
+```
+{{TAGS example only}}
+{{TOC}}
+{{anything goes}}
+```
+
+{{TAGS perl}}
+
+Prose may mention {{handlebars}} mid-line.
+
+# Heading
+END
+    eq_or_diff $tags, ['perl'], 'Only the TAGS line outside the code block should be collected';
+    like $rewritten, qr/^\{\{TAGS example only\}\}$/m, '... directives in code blocks are left alone';
+    like $rewritten, qr/^\{\{anything goes\}\}$/m,     '... including unknown ones';
+    like $rewritten, qr/^\{\{TOC\}\}$/m,               '... and {{TOC}} is not expanded there';
+    like $rewritten, qr/mention \{\{handlebars\}\}/,   'A {{...}} mid-line is prose, not a directive';
 };
 
 subtest 'Files already starting below h1 are left alone' => sub {
