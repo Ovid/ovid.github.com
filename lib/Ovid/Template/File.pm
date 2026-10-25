@@ -273,20 +273,42 @@ $links</nav>
 <hr>
 TOC
 
-        # rewrite the table of contents
-        $rewritten =~ s/^[ \t]*\{\{TOC\}\}\s*$/$toc/m;
+        return _expand_directives( $file, $rewritten, $toc );
+    }
 
-        # remove the tags
-        my @tags;
+    # A directive is a line that starts with {{ in column 0 outside a code
+    # block. It must be a known one, or we die rather than silently publish
+    # the typo. An indented one dies too, so it can't slip through as text. A
+    # {{ inside a code block, or mid-line, is content and left alone.
+    sub _expand_directives ( $file, $contents, $toc ) {
+        my $code = Ovid::Template::File::FindCode->new( filename => $file );
+        my ( @lines, @tags, %seen );
+        foreach my $line ( split /\n/ => $contents, -1 ) {
+            $code->parse($line);
+            if ( $code->is_in_code || $line !~ /^[ \t]*\{\{/ ) {
+                push @lines => $line;
+                next;
+            }
+            croak("Directives must start in column 0 in '$file': $line") if $line =~ /^[ \t]/;
+            my ( $name, $args ) = $line =~ /^\{\{(\w+)([^}]*)\}\}\s*$/
+              or croak("Malformed directive in '$file': $line");
+            croak("Duplicate directive '{{$name}}' in '$file'") if $seen{$name}++;
 
-        # XXX This should probably be used in the tag map and pushed into the
-        # template layer.
-        if ( $rewritten =~ /^[ \t]*\{\{TAGS(.*)?\}\}/m ) {
-            @tags = sort grep {/\w/} split /\s+/ => $1;
-            $rewritten =~ s/^[ \t]*\{\{TAGS.*?\}\}\s*$//m;
+            if ( 'TOC' eq $name ) {
+                croak("{{TOC}} takes no arguments in '$file': $line") if $args =~ /\S/;
+                push @lines => $toc;
+            }
+            elsif ( 'TAGS' eq $name ) {
+
+                # XXX This should probably be used in the tag map and pushed
+                # into the template layer.
+                @tags = sort grep {/\w/} split /\s+/ => $args;
+            }
+            else {
+                croak("Unknown directive '{{$name}}' in '$file' (known: {{TOC}}, {{TAGS ...}}): $line");
+            }
         }
-
-        return ( $rewritten, \@tags );
+        return ( join( "\n" => @lines ), \@tags );
     }
 
     sub _is_template_directive ($title) {
@@ -477,6 +499,11 @@ C<{{TOC}}> marker.
 
 =item * Extracts C<{{TAGS tag1 tag2 ...}}> declarations and populates the
 provided C<$tagmap> hashref with tag metadata including file URLs and titles.
+
+=item * Dies on any other line starting with C<{{> outside a code block: an
+unknown, malformed, repeated, or indented directive is a typo, not content.
+Directives start in column 0. A C<{{> inside a code block or mid-line is left
+untouched.
 
 =back
 
