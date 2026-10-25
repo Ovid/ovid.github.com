@@ -66,6 +66,13 @@ perl bin/launch root/articles/my-article.tt
 perl bin/launch --port=3001 root/blog/my-post.tt
 ```
 
+**Proofread before publishing:** Before committing, pushing, or otherwise
+publishing a new or changed article or blog post (`root/articles/`,
+`root/blog/`), read it for typos, repeated words, grammar slips, and broken
+directives (e.g., `{{trench AI}}` for `{{TAGS trench ai}}`). Warn Ovid with a
+list of line numbers and suggested fixes. Do not edit the prose yourself unless
+asked.
+
 ### Testing
 ```bash
 # Run all tests
