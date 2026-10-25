@@ -25,7 +25,7 @@ in Georgia (the country, not the state) about generative AI and I am, as usual,
 swamped with the amazing amount of advances and research coming in from all
 directions.  I typically share these thoughts on LinkedIn, but [my friend Andrew
 Sundstrom basically said, "knock it
-off."](https://www.linkedin.com/feed/update/urn:li:activity:7519791516786151424?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7519791516786151424%2C7519867121263173632%29&dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287519867121263173632%2Curn%3Ali%3Aactivity%3A7519791516786151424%29).
+off"](https://www.linkedin.com/feed/update/urn:li:activity:7519791516786151424?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7519791516786151424%2C7519867121263173632%29&dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287519867121263173632%2Curn%3Ali%3Aactivity%3A7519791516786151424%29).
 I should be writing stuff here, where it's easier to find.
 
 [% INCLUDE include/image.tt
@@ -38,7 +38,7 @@ I should be writing stuff here, where it's easier to find.
 
 Yeah, OK. I'll go with that. So now I have a new tag, [trench](/tags/trench),
 for posting these shorter "life in the trenches" things. I suspect this will
-contain be useful information about genAI, and mostly from the standpoint of
+contain useful information about genAI, and mostly from the standpoint of
 software engineering. So I crawled out of bed this morning and started writing.
 
 **But ...**
@@ -51,7 +51,7 @@ You're swamped with "AI-influencer" slop:
 
 Any of those statements may or may not be true, but none are actionable. Frankly, I have too much
 damned self-esteem to humiliate myself like that, singing and dancing publicly in
-this AI Vaudeville, hoping to make the big time. Thus, the "trench" posts will
+this AI vaudeville, hoping to make the big time. Thus, the "trench" posts will
 be
 about reality, not some emoji-laden post for my non-existent newsletter.[%
 Ovid.note("Hmm, maybe I <em>should</em> start a newsletter.") %] So my rule of
@@ -62,9 +62,9 @@ doesn't get written.
 
 When you're using some agentic coding tool, such as Claude Code (my favorite),
 Kiro, Antigravity, or something else, you have what [this arXiv preprint refers
-to as "instruction files."](https://arxiv.org/html/2610.30571v1). `CLAUDE.md`,
+to as "instruction files"](https://arxiv.org/html/2610.30571v1): `CLAUDE.md`,
 `AGENTS.md`, and so on. When you start coding, the AI reads these files (which I
-call "steering") to ground itself on your codebase. The files should generally
+call "steering") to ground itself in your codebase. The files should generally
 contain four things:
 
 1. What your software does
@@ -89,13 +89,14 @@ steering files.
 
 The `/pushback` skill basically takes any document and looks for flaws,
 omissions, bad ideas, ambiguities, and so on. So they ran this skill and one of
-the first things they found was that their steering files got a critical
-portion of their tech stack wrong. It claimed they were using a modern, popular
+the first things they found was that their steering files had a critical
+portion of their tech stack wrong. They claimed they were using a modern,
+popular
 Web framework rather than the older, less well-known framework they were using.
-So the AI was grounding itself on a lie and was writing the wrong code.[%
+So the AI was grounding itself in a lie and was writing the wrong code.[%
 Ovid.note('This is likely related to a well-known problem with genAI: it often
 suggests <em>popular</em> technologies, regardless of whether they are
-appropriate.. See also <a href="https://arxiv.org/abs/2503.17181"
+appropriate. See also <a href="https://arxiv.org/abs/2503.17181"
 target="_blank">this paper</a>
 on the topic.') %]
 
@@ -111,10 +112,10 @@ and possibly messing things up. That _sounded_ reasonable to me. I was an idiot
 (still am, at times).
 
 The problem was that I was basically asking them to schedule regular meetings to
-handle an incredibly important, yet boring task. Not gonna happen.
+handle an incredibly important yet boring task. Not gonna happen.
 
-But remember that arXiv paper paper I referenced earlier? They not only found
-that AI tended to assume that steering files were true, but it would often
+But remember that arXiv paper I referenced earlier? They found not only
+that AI tended to assume that steering files were true, but also that it would often
 rewrite existing, working code to match the steering files, even if those files
 were wrong. Their fix was to add one sentence to the steering files:
 
@@ -134,7 +135,7 @@ Note the "stale file" bit. That's the real problem. While I generally like their
 fix, I've found for personal projects that there's an even better fix. Include
 the following in steering (adjust to match your project needs):
 
-> Before pushing an pull request, reread CLAUDE.md and determine if it should be
+> Before pushing a pull request, reread CLAUDE.md and determine if it should be
 > updated to reflect changes in the code. Discuss proposed changes with the
 > developer. They must approve all changes.
 
@@ -146,11 +147,11 @@ great, but it doesn't explicitly guide the developers towards updating the
 steering
 files. In working with many teams, I'm still finding that they often _don't_
 read the full output from the AI, so an interactive "let's fix this" is more
-likely to be followed than the AI simply dumping a wall 'o text.
+likely to be followed than the AI simply dumping a wall o' text.
 
-So keeping your steering files up to date not only gives you better quality
+So keeping your steering files up to date not only gives you better-quality
 code, it also reduces your token usage. Instead of hunting for answers to common
-questions—and sometimes getting that answer wrong—you hand the AI the answers on
+questions—and sometimes getting the answers wrong—you hand the AI the answers on
 a silver platter.
 
 When you're getting software teams up to speed on using agentic tools to write
