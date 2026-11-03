@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // Immediate theme application to prevent flash of white
+    (function() {
+      let saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}  // throws when site data is blocked
+      const theme = saved ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev browsing doesn't skew stats -->
+  <script>
+    if (location.hostname === 'curtispoe.org' || location.hostname.endsWith('.curtispoe.org')) {
+      const gaTag = document.createElement('script');
+      gaTag.async = true;
+      gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-BVDP76N9NB';
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BVDP76N9NB');
+    }
+  </script>
+  
+  <!-- Facebook -->
+
+  <meta property="fb:app_id" content="329861788447703">
+  
+  <meta property="og:image" content="https://curtispoe.org/static/images/facebook/ovid-facebook.jpg">
+  <meta property="og:image:alt" content="A black and white image of the author, Curtis “Ovid” Poe.">
+  
+  <meta property="og:type" content="article">
+  
+  <meta property="og:url" content="https://curtispoe.org/articles/should-we-review-ai-generated-code">
+  
+  <meta property="og:title" content="Should We Review AI-Generated Code?">
+  <meta property="og:description" content="Obviously, we should review AI-generted code. The real question is whether or not we can.">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://curtispoe.org/articles/should-we-review-ai-generated-code">
+  
+
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Should We Review AI-Generated Code?</title>
+  <meta name="description" content="Obviously, we should review AI-generted code. The real question is whether or not we can.">
+  <meta name="author" content="Curtis Poe">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my technical blog" href="https://curtispoe.org/article.rss">
+  <link rel="alternate" type="application/rss+xml" title="Subscribe to my personal blog" href="https://curtispoe.org/blog.rss">
+
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/normalize.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/skeleton.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/main.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dialog.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/image.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/collapsible.css?v=b89207e5">
+  <link rel="stylesheet" href="/static/css/dark-mode.css?v=b89207e5">
+  <script src="/static/js/dark-mode.js?v=b89207e5" defer></script>
+  <script src="/static/js/code-scroll.js?v=b89207e5" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/prism.css?v=b89207e5"/>
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="masthead-row">
+        <a class="wordmark" href="/">Curtis “Ovid” Poe <i>— Politics, programming, and prose</i></a>
+        <div class="masthead-tools">
+  <span id="wasm_search"></span>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    // import { search, default as init } from './tinysearch_engine.js';
+    import { search, default as init } from '/static/js/search/tinysearch_engine.js';
+    window.search = search;
+
+    async function run() {
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
+      //
+      // Note that instead of a string here you can also pass in an instance
+      // of `WebAssembly.Module` which allows you to compile your own module.
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init({ module_or_path: '/static/js/search/tinysearch_engine_bg.wasm' });
+    }
+
+    run();
+  </script>
+
+  <script>
+    // And afterwards we can use all the functionality defined in wasm.
+    //
+    // The result count goes to a role="status" region rather than making the
+    // <ul> live: rebuilding a live list announces noise, and zero results
+    // announced nothing at all (WCAG 4.1.3).
+    function clearSearch() {
+      document.getElementById("results").replaceChildren();
+      document.getElementById("search-status").textContent = "";
+    }
+
+    function doSearch() {
+      const value = document.getElementById("demo").value.trim();
+      const ul = document.getElementById("results");
+      const status = document.getElementById("search-status");
+      if (value === "") {
+        clearSearch();
+        return;
+      }
+
+      const results = search(value, 5);
+      ul.replaceChildren();
+
+      for (const [title, url] of results) {
+        const li = document.createElement("li");
+        const elemlink = document.createElement('a');
+        elemlink.innerHTML = title;
+        elemlink.setAttribute('href', url);
+        li.appendChild(elemlink);
+        ul.appendChild(li);
+      }
+      if (results.length === 0) {
+        const li = document.createElement("li");
+        li.className = "no-results";
+        li.textContent = "No results";
+        ul.appendChild(li);
+      }
+      status.textContent = results.length === 0 ? "No results"
+                         : results.length === 1 ? "1 result"
+                         : `${results.length} results`;
+    }
+
+    function wireSearch() {
+      const box = document.getElementById("search");
+      const input = document.getElementById("demo");
+      input.addEventListener("input", doSearch);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          clearSearch();
+        }
+      });
+      // Close the panel once focus leaves the search box and its results,
+      // so it cannot sit over whatever the user tabs to next (WCAG 2.4.11).
+      box.addEventListener("focusout", (e) => {
+        if (!box.contains(e.relatedTarget)) clearSearch();
+      });
+      // Safari does not focus a link on mousedown, so the input would blur
+      // with no relatedTarget and the list would vanish before the click
+      // lands. Keeping focus in the input lets the click navigate.
+      document.getElementById("results").addEventListener("mousedown", (e) => e.preventDefault());
+    }
+	// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly#:~:text=There%20are%20a%20few%20ways,js).
+	const wasm_supported = (() => {
+		try {
+			if (typeof WebAssembly === "object"
+				&& typeof WebAssembly.instantiate === "function") {
+				const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+				if (module instanceof WebAssembly.Module)
+					return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+			}
+		} catch (e) {
+		}
+		return false;
+	})();
+    if (!wasm_supported) {
+      // don't even show them the search box if they don't have web assembly
+      // document.getElementById("wasm_search").innerHTML = "Your browser does not support WebAssembly. Please use a modern browser.";
+    }
+    else {
+      document.getElementById("wasm_search").innerHTML = '<div id="search"><label class="visually-hidden" for="demo">Search this site</label><input type="search" id="demo" placeholder="Search" autocomplete="off"><ul id="results"></ul><p id="search-status" class="visually-hidden" role="status"></p></div>';
+      wireSearch();
+    }
+  </script>
+
+<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>
+
+        </div>
+      </div>
+<nav class="site-nav" aria-label="Main">
+  <details class="nav-disclosure" open>
+    <summary class="nav-toggle">Menu</summary>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/articles" aria-current="true">Articles</a><a class="nav-feed" href="/article.rss" aria-label="Articles RSS feed">RSS</a></li>
+      <li><a href="/blog">Blog</a><a class="nav-feed" href="/blog.rss" aria-label="Blog RSS feed">RSS</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/videos">Talks</a></li>
+      <li><a href="/wildagile">WildAgile</a></li>
+      <li><a href="/paad/">Learn PAAD</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </details>
+</nav>
+<script>
+  // The list starts open so the links are visible even where CSS cannot force
+  // a closed <details> open: Firefox gives a closed one's children no frames at
+  // all, and ::details-content only arrived in Firefox 141 -- 140 is the
+  // current ESR, so Debian stable and Tor Browser land on the wrong side of it.
+  // This collapses it back to the disclosure on narrow screens. Inline, and
+  // immediately after the element, so it runs before first paint; a deferred
+  // file would flash the whole menu open on mobile. No JS means an expanded
+  // nav at every width -- readable, not broken.
+  (function() {
+    const nav  = document.querySelector('.nav-disclosure');
+    const wide = matchMedia('(min-width: 60em)');
+    const sync = e => { nav.open = e.matches; };
+    sync(wide);
+    wide.addEventListener('change', sync);
+  })();
+</script>
+
+    </div>
+  </header>
+
+  <div class="wrap">    <div class="opener">
+      <div class="dateblock is-filled">
+        <span class="dateblock-year" aria-hidden="true">2026</span>
+        <span class="dateblock-day" aria-hidden="true">11.03</span>
+        <time class="visually-hidden" datetime="2026-11-03">3 November 2026</time>
+        <span class="dateblock-meta">Articles<br><span id="time"></span>
+        </span>
+      </div>
+      <div class="opener-title">
+        <h1>Should We Review AI-Generated Code?</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="marginalia is-filled">
+
+
+<nav class="tag-list" aria-labelledby="tag-list-label">
+    <p class="tag-list-label" id="tag-list-label">Tags</p>
+    <ul class="inline">
+
+        <li><a href="/tags/ai">AI</a></li>
+
+        <li><a href="/tags/trench">Trenches</a></li>
+
+    </ul>
+</nav>
+
+
+      </div>
+      <main class="prose" id="content">
+        <div class="prevNext">
+        <a href="/articles/i-keep-accidentally-finding-zero-day-exploits" class="prevPost">&laquo; I Keep Accidentally Finding Zero-Day Exploits</a>
+    </div>
+
+<hr>
+
+<aside class="global-message">
+  <p>Read <a href="/paad/">the new tutorial on writing <em>production-quality</em> software with AI</a>.</p>
+</aside>
+
+
+<article id="article">
+<p>Yet another short post from the <a href="/tags/trench">trenches</a>!</p>
+
+<p>Asking if we should review AI code looks like a clickbait title. It is not.</p>
+
+<p>By now, you’ve doubtless heard about the problem. AI is generating so much code
+that humans don’t have the time to review it. In <a href="https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/" target="_blank">a popular Ars Technica
+article<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>
+which has been making the rounds, they discuss a
+<a href="https://jellyfish.co/" target="_blank">Jellyfish<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> study and they argue (emphasis mine):</p>
+
+<blockquote>
+  <p>The introduction of AI coding agents at a firm leads to a 30 percent increase
+  in total lines of code generated, a 20 percent rise in the number of total
+  commits, and a 23 percent increase in pull requests on average, the researchers
+  write. But all <strong>that extra code doesn’t translate directly into improved
+  software output on the firm level</strong>.</p>
+</blockquote>
+
+<p>And they later write, “the researchers found a 14 percent increase in the share
+of workers performing code reviews after AI agents’ introduction.”</p>
+
+<p>In other words, we’re outputting more code, getting bogged down in review, but
+not producing more value. Also, <a href="https://lucumr.pocoo.org/2026/9/7/astra-why/" target="_blank">the code itself is often
+rubbish<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
+
+<p>Anyone else, like myself, who is in the trenches is finding this to be
+directionally true. So if productivity gains are offset by time in reviews, what
+are we to do?</p>
+
+<p>More than one of the teams I work with has expressed this concern and it’s a
+serious one.</p>
+
+<p>So what are reviews for? Developers think “finding bugs,” but in reality, <a href="https://zenodo.org/records/1401198" target="_blank">it’s
+about knowledge sharing<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>, and, uh,
+<a href="https://research.google/pubs/modern-code-review-a-case-study-at-google/" target="_blank">knowledge
+sharing<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
+and, again, <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/rigby2013convergent.pdf" target="_blank">knowledge
+sharing<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>,
+and I’ll throw in a 2015 <em>pre-AI</em> Microsoft position paper arguing that <a href="https://microsoft.com/en-us/research/wp-content/uploads/2015/05/PID3556473.pdf" target="_blank">code
+review does not find
+bugs<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>.</p>
+
+<p>And, to be brutally honest, I’m finding that some effective software teams had
+been failing to do code reviews <em>before</em> they started to use AI. That gives me a
+lot of pause because I’ve long been a huge advocate of code reviews.</p>
+
+<p>All of this came to a head when a developer asked why <a href="https://github.com/Ovid/paad#the-skills" target="_blank">PAAD’s
+<code>/agentic-review</code><span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> skill can’t be used
+in lieu of the code reviews which are already either not being done, or are not
+great at finding bugs.<button type="button" class="open-dialog js-only" id="open-dialog-1" aria-haspopup="dialog" aria-controls="dialog-1"><i class="fa fa-clipboard fa_custom" aria-hidden="true"></i><span class="visually-hidden">Footnote 1</span></button><noscript><a href="#footnote-1" id="footnote-1-return" aria-label="Footnote 1"><sup>[1]</sup></a></noscript></p>
+
+<p>Well, I <em>am</em> instituting a new CI/CD process to test out automated code review
+via <code>/agentic-review</code>, and if there are teams which do little to no code
+reviews, we have <em>something</em> which is better, right? Right?</p>
+
+<p>If (and this is a big “if”) the main benefit of code review is actually teaching
+developers about the codebase, could the steering files (<code>AGENTS.md</code>,
+<code>CLAUDE.md</code>, <code>.kiro/steering/*.md</code>, etc.) be kept updated and serve that role?
+When you’re stuck figuring out what to do with <code>GET
+/legacy/api/v2/customer/{id}</code>, you often just need a high-level overview of the
+code before you dig in. Can the steering files provide that and use the AI to
+dig deeper when needed? Is that where we’re going? (I think the answer is
+“yes, that’s where we’re going.” I don’t know whether or not this is where
+we <em>should</em> be going.)</p>
+
+<p>Of course, that requires the steering files to be regularly updated and that’s
+yet another task I’m working with teams on.</p>
+
+<p>I honestly don’t have the answer for this. We have a problem and we need to find
+solutions. Short of abandoning AI (which some developers might be happy
+with), we need creative people thinking <em>hard</em> about this problem. It’s not
+going to go away, so we need to tackle it head-on.</p>
+
+<p>So I’m working on this now. It will be interesting to see where it goes.</p>
+
+<p>For tangentially related fun, you can watch this video with Dex Horthy of
+<a href="https://www.humanlayer.com/" target="_blank">HumanLayer<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a> and Vaibhav Gupta of
+<a href="https://boundaryml.com/" target="_blank">Boundary<span class="fa fa-external-link fa_custom" aria-hidden="true"></span><span class="visually-hidden"> (opens in new tab)</span></a>:</p>
+
+<div class="video-responsive">
+    <iframe width="560" height="315" title="Why Opus Medium Beats X-High at Writing Maintainable Code" src="https://www.youtube.com/embed/VLonoD9m4VY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+</article>
+
+
+
+          <p><strong>Please leave a comment below!</strong></p>
+
+
+
+<script type="text/javascript">
+    // estimated reading time
+    // via https://dev.to/michaelburrows/calculate-the-estimated-reading-time-of-an-article-using-javascript-2k9l
+
+    function readingTime() {
+        const article = document.getElementById("article");
+        const count   = s => s.trim() === "" ? 0 : s.trim().split(/\s+/).length;
+
+        // The average eighth grader in the US reads about 250 words a minute, but your average
+        // university student reads at almost twice that speed. However, my technical articles
+        // are more in-depth and can take some time to think about, so be fair to the reader
+        // and assume they'll take a bit longer for that.
+        const wpm   = "articles" === "articles" ? 250 : 350;
+        // innerText includes clipped screen-reader cues such as "(opens in
+        // new tab)", which nobody reads on screen, so take them back out.
+        let words = count(article.innerText);
+        article.querySelectorAll(".visually-hidden").forEach(el => words -= count(el.textContent));
+        const time  = Math.ceil(words / wpm);
+        // The whole phrase is written here so no-JS readers never see a
+        // bare " min read" with no number.
+        document.getElementById("time").innerText = `${time} min read`;
+    }
+    readingTime();
+</script>
+
+
+
+<!-- map images pop up when you click them -->
+<dialog id="overlay" class="overlay"></dialog>
+<script>
+    // A modal <dialog> gives Escape, a focus trap, an inert page and focus
+    // return to the image link for free. The link itself points at the image,
+    // so without JS it still opens the full-size file.
+    //
+    // The <img> is built here rather than sitting empty in the markup: src is
+    // required to be a non-empty URL, so a placeholder image with an empty src
+    // is invalid on every article and blog page. (It costs no request -- the
+    // image loading algorithm aborts on an empty src rather than resolving it
+    // against the document URL, whatever older browsers used to do.)
+    function showOverlay(img) {
+        const overlay = document.getElementById('overlay');
+        const overlayImage = document.createElement('img');
+        overlayImage.src = img.src;
+        overlayImage.alt = img.alt;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'overlay-close';
+        close.textContent = 'Close';
+        overlay.setAttribute('aria-label', img.alt);
+        overlay.replaceChildren(close, overlayImage);
+        overlay.showModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.image-container a.enlarge').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                showOverlay(this.querySelector('img'));
+            });
+        });
+
+        // The dialog fills the screen, so any click on it closes it.
+        const overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', () => overlay.close());
+    });
+</script>
+
+
+
+<hr>
+        <div class="prevNext">
+        <a href="/articles/i-keep-accidentally-finding-zero-day-exploits" class="prevPost">&laquo; I Keep Accidentally Finding Zero-Day Exploits</a>
+    </div>
+
+<hr>
+
+          <p>If you'd like top-notch consulting or training, <a
+          href="mailto:curtis.poe@gmail.com">email me</a> and let's discuss
+          how I can help you. Read <a href="/about">more about me</a>
+          to learn more about my background.</p>
+
+        <div id="disqus_thread"></div>
+      
+        <script>
+        var disqus_config = function () {
+            this.page.url        = "https://curtispoe.org/articles/should-we-review-ai-generated-code.html";
+            this.page.identifier = "articles/should-we-review-ai-generated-code";
+            this.page.title      = "Should We Review AI-Generated Code?";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://https-ovid-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      
+      </main><!-- /.prose -->
+    </div><!-- /.page-body -->
+  </div><!-- /.wrap -->
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="shelf">
+        <a href="https://www.amazon.com/Perl-Hacks-Programming-Debugging-Surviving/dp/0596526741/" target="_blank"><img src="/static/images/perl-hacks.jpg" alt="The cover of the “Perl Hacks” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <a href="https://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840/" target="_blank"><img src="/static/images/beginning-perl.jpg" alt="The cover of the “Beginning Perl” book"><span class="visually-hidden"> (opens in new tab)</span></a>
+        <p class="shelf-note">
+          <b>About the author</b>
+          Curtis “Ovid” Poe wrote <em>Beginning Perl</em> and co-wrote <em>Perl Hacks</em>.
+          Available for consulting and training — <a href="/about">read more about me</a>.
+        </p>
+      </div>
+
+
+
+<nav class="tag-cloud" aria-labelledby="tag-cloud-heading">
+<h2 class="tag-cloud-heading" id="tag-cloud-heading"><a name="all-tags"></a>All tags</h2>
+<ul class="cloud tags-scrollable">
+
+    <li><a href="/tags/programming" data-weight="9">Software</a></li>
+
+    <li><a href="/tags/ai" data-weight="7">AI</a></li>
+
+    <li><a href="/tags/business" data-weight="7">Business</a></li>
+
+    <li><a href="/tags/oop" data-weight="4">OOP</a></li>
+
+    <li><a href="/tags/perl" data-weight="4">Perl</a></li>
+
+    <li><a href="/tags/corinna" data-weight="3">Corinna</a></li>
+
+    <li><a href="/tags/writing" data-weight="3">Writing</a></li>
+
+    <li><a href="/tags/databases" data-weight="2">Databases</a></li>
+
+    <li><a href="/tags/math" data-weight="2">Math</a></li>
+
+    <li><a href="/tags/personal" data-weight="2">Personal</a></li>
+
+    <li><a href="/tags/politics" data-weight="2">Politics</a></li>
+
+    <li><a href="/tags/science" data-weight="2">Science</a></li>
+
+    <li><a href="/tags/space" data-weight="2">Space</a></li>
+
+    <li><a href="/tags/expat" data-weight="1">Moving Abroad</a></li>
+
+    <li><a href="/tags/family" data-weight="1">Family</a></li>
+
+    <li><a href="/tags/trench" data-weight="1">Trenches</a></li>
+
+</ul>
+</nav>
+
+
+      <div class="colophon">
+        <span>© 2018–2026 Curtis “Ovid” Poe</span>
+        <span class="colophon-links">
+          <a href="https://www.linkedin.com/in/curtispoe/">LinkedIn</a>
+          <a href="https://github.com/Ovid/">GitHub</a>
+          <a href="https://fosstodon.org/@ovid" rel="me">Mastodon</a>
+          <a href="https://bsky.app/profile/ovid.bsky.social">Bluesky</a>
+          <a href="/article.rss">Articles RSS</a>
+          <a href="/blog.rss">Blog RSS</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="arrow" aria-label="Back to top">↑</a>
+
+    
+    <script src="/static/js/prism.js?v=b89207e5"></script>
+    
+    <script src="/static/js/collapsible.js?v=b89207e5"></script>
+	
+    <!-- footnotes https://bitsofco.de/accessible-modal-dialog/ -->
+    
+    <!-- Show JS-only elements when JavaScript is enabled (Feature 002) -->
+    <script>
+        document.write('<style>.js-only { display: inline; }</style>');
+    </script>
+    
+    <div class="dialog-overlay" tabindex="-1" aria-hidden="true"></div>
+    
+    <script type="text/javascript" src="/static/js/Dialog.js?v=b89207e5"></script>
+	  
+            <div id="dialog-1" class="dialog" role="dialog" aria-modal="true" aria-labelledby="note-1" aria-describedby="note-body-1" aria-hidden="true">
+        <strong id="note-1">Footnote #1</strong>
+        <div id="note-body-1">Anecdotally, code reviews over a 400-line diff are where
+human ability to review breaks down.</div>
+        <button type="button" aria-label="Close footnote" class="close-dialog" id="close-dialog-1"> <i class="fa fa-times" aria-hidden="true"></i> </button>
+    </div>
+
+    <script>
+        var dialogOverlay = document.querySelector('.dialog-overlay');
+        var myDialog1 = new Dialog(document.querySelector('#dialog-1'), dialogOverlay);
+        myDialog1.addEventListeners('#open-dialog-1', '#close-dialog-1');
+    </script>
+      
+    
+    <!-- NoScript fallback for footnotes (Feature 002-footnote-noscript-fallback) -->
+    <noscript>
+      <aside class="footnotes" id="footnotes-section" aria-label="Footnotes">
+        <h2><a name="footnotes"></a>Footnotes</h2>
+        <ol>
+          
+          <li id="footnote-1">
+            Anecdotally, code reviews over a 400-line diff are where
+human ability to review breaks down.
+            <a href="#footnote-1-return" aria-label="Return to footnote 1 reference">
+              ↩ Return to text
+            </a>
+          </li>
+          
+        </ol>
+      </aside>
+    </noscript>
+    
+</body>
+</html>
+
+
