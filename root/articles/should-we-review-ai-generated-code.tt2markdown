@@ -1,0 +1,95 @@
+[%
+    title            = 'Should We Review AI-Generated Code?';
+    type             = 'articles';
+    slug             = 'should-we-review-ai-generated-code';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-11-03';
+    mathjax          = 0;
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS trench ai}}
+
+Yet another short post from the [trenches](/tags/trench)!
+
+Asking if we should review AI code looks like a clickbait title. It is not.
+
+By now, you've doubtless heard about the problem. AI is generating so much code
+that humans don't have the time to review it. In [a popular Ars Technica
+article](https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/)
+which has been making the rounds, they discuss a
+[Jellyfish](https://jellyfish.co/) study and they argue (emphasis mine):
+
+> The introduction of AI coding agents at a firm leads to a 30 percent increase
+in total lines of code generated, a 20 percent rise in the number of total
+commits, and a 23 percent increase in pull requests on average, the researchers
+write. But all **that extra code doesn’t translate directly into improved
+software output on the firm level**.
+
+And they later write, "the researchers found a 14 percent increase in the share
+of workers performing code reviews after AI agents’ introduction."
+
+In other words, we're outputting more code, getting bogged down in review, but
+not producing more value. Also, [the code itself is often
+rubbish](https://lucumr.pocoo.org/2026/9/7/astra-why/).
+
+Anyone else, like myself, who is in the trenches is finding this to be
+directionally true. So if productivity gains are offset by time in reviews, what
+are we to do?
+
+More than one of the teams I work with has expressed this concern and it's a
+serious one.
+
+So what are reviews for? Developers think "finding bugs," but in reality, [it's
+about knowledge sharing](https://zenodo.org/records/1401198), and, uh,
+[knowledge
+sharing](https://research.google/pubs/modern-code-review-a-case-study-at-google/),
+and, again, [knowledge
+sharing](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/rigby2013convergent.pdf),
+and I'll throw in a 2015 _pre-AI_ Microsoft position paper arguing that [code
+review does not find
+bugs](https://microsoft.com/en-us/research/wp-content/uploads/2015/05/PID3556473.pdf).
+
+And, to be brutally honest, I'm finding that some effective software teams had
+been failing to do code reviews _before_ they started to use AI. That gives me a
+lot of pause because I've long been a huge advocate of code reviews.
+
+All of this came to a head when a developer asked why [PAAD's
+`/agentic-review`](https://github.com/Ovid/paad#the-skills) skill can't be used
+in lieu of the code reviews which are already either not being done, or are not
+great at finding bugs.[% Ovid.note("Anecdotally, code reviews over a 400-line diff are where
+human ability to review breaks down.") %]
+
+Well, I _am_ instituting a new CI/CD process to test out automated code review
+via `/agentic-review`, and if there are teams which do little to no code
+reviews, we have _something_ which is better, right? Right?
+
+If (and this is a big "if") the main benefit of code review is actually teaching
+developers about the codebase, could the steering files (`AGENTS.md`,
+`CLAUDE.md`, `.kiro/steering/*.md`, etc.) be kept updated and serve that role?
+When you're stuck figuring out what to do with `GET
+/legacy/api/v2/customer/{id}`, you often just need a high-level overview of the
+code before you dig in. Can the steering files provide that and use the AI to
+dig deeper when needed? Is that where we're going? (I think the answer is
+"yes, that's where we're going." I don't know whether or not this is where
+we _should_ be going.)
+
+Of course, that requires the steering files to be regularly updated and that's
+yet another task I'm working with teams on.
+
+I honestly don't have the answer for this. We have a problem and we need to find
+solutions. Short of abandoning AI (which some developers might be happy
+with), we need creative people thinking _hard_ about this problem. It's not
+going to go away, so we need to tackle it head-on.
+
+So I'm working on this now. It will be interesting to see where it goes.
+
+For tangentially related fun, you can watch this video with Dex Horthy of
+[HumanLayer](https://www.humanlayer.com/) and Vaibhav Gupta of
+[Boundary](https://boundaryml.com/):
+
+[% Ovid.youtube('VLonoD9m4VY', 'Why Opus Medium Beats X-High at Writing Maintainable Code') %]
+
+[%- END %]
