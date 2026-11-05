@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
 
-# The PAAD training course at /paad/ is a hand-authored static page deployed
-# by bin/paad-training.pl, so it does not go through root/include/header.tt
-# and gets no Google Analytics tag from the build. The tag is injected at
-# deploy time; this test catches a redeploy that loses it.
+# The PAAD training course at /paad/ is a hand-maintained static page
+# (paad/index.html is the source), so it does not go through root/include/header.tt
+# and gets no Google Analytics tag from the build. The tag lives in the page itself;
+# this test catches an edit that loses it.
 
 use Test::Most;
 use lib 'lib';
