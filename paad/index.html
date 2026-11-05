@@ -246,6 +246,10 @@ hr{border:0; border-top:1px solid var(--border-soft); margin:38px 0}
 .pill.loopy{background:var(--violet-soft); color:var(--violet); border-color:transparent}
 .pill.fresh{background:var(--teal-soft); color:var(--teal); border-color:transparent}
 .pill.you{background:var(--accent-soft); color:var(--accent); border-color:transparent}
+/* PAAD diagrams have opaque white backgrounds: frame them as a light card in both themes */
+.fig{margin:22px 0; padding:14px; background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+.fig img{display:block; width:100%; height:auto}
+.fig figcaption{margin-top:10px; font-size:14px; line-height:1.5; color:#4e5665; text-align:center}
 
 /* ---------- Reveal (before/after) ---------- */
 .reveal{
@@ -401,7 +405,7 @@ hr{border:0; border-top:1px solid var(--border-soft); margin:38px 0}
 <aside class="sidebar" id="sidebar" aria-label="Course navigation">
   <div class="brand">
     <a class="brand-home" href="/">← Return to Homepage</a>
-    <div class="brand-mark"><b>P<span>AA</span>D</b><span class="brand-tag">v1.24.1</span></div>
+    <div class="brand-mark"><b>P<span>AA</span>D</b><span class="brand-tag">v2.1.0</span></div>
     <div class="brand-sub">Defense-in-depth for AI-assisted development. An interactive course for developers new to working with AI coding agents.</div>
   </div>
   <div class="prog-wrap">
@@ -479,7 +483,6 @@ hr{border:0; border-top:1px solid var(--border-soft); margin:38px 0}
     <p>Staying in the driver's seat is the point, and it is also the cost. PAAD gives you visibility and control, not autopilot. If what you want is for the assistant to think for you, this is the wrong toolkit — every skill in it ends with a human decision rather than a merge. The README states the consequence plainly: a report you ignore is worse than no report at all.</p>
   </div>
 
-  <blockquote>AI coding assistants can compress that process dramatically, but they do not reliably challenge weak requirements, detect drift from the plan, or protect long-term code quality on their own.<cite>PAAD README</cite></blockquote>
 
   <h2>What PAAD is</h2>
 
@@ -488,7 +491,7 @@ hr{border:0; border-top:1px solid var(--border-soft); margin:38px 0}
   <div class="note">
     <span class="note-t">What a "skill" is, since the word is used in a specific way here</span>
     <p>A <strong>skill</strong> is a markdown instruction file — conventionally <code>SKILL.md</code> — that your coding assistant loads on demand and follows. It is not code, and it is not a model. It is a written procedure: <em>when the user asks for this, here is how to do it, here is what to check, here is how to report back.</em> Most modern assistants support some version of the format.</p>
-    <p style="margin-top:11px">PAAD is roughly a dozen of them. Throughout this course, a skill written in <code>lowercase</code> means the skill itself — <code>pushback</code>, <code>alignment</code> — and the same word with a leading slash, <code>/pushback</code>, means typing it to your assistant. You can also just ask in plain English. <strong>Module 11 covers installing them and the three ways to invoke them</strong>; until then, treat the names as labels rather than instructions.</p>
+    <p style="margin-top:11px">PAAD is fifteen of them, as of v2. Throughout this course, a skill written in <code>lowercase</code> means the skill itself — <code>pushback</code>, <code>alignment</code> — and the same word with a leading slash, <code>/pushback</code>, means typing it to your assistant. You can also just ask in plain English. <strong>Module 11 covers installing them and the three ways to invoke them</strong>; until then, treat the names as labels rather than instructions.</p>
   </div>
 
   <div class="letters">
@@ -817,7 +820,7 @@ Use plan mode for changes under `src/billing/`.</code></pre>
     <p style="margin-top:11px">Which is why PAAD's README treats the two as compatible rather than as alternatives — its exact words are "You like Superpowers? Use it with PAAD." What PAAD adds that Superpowers does not is aimed upstream and outward: <code>pushback</code> arguing with the design document before anything is built from it, <code>alignment</code> checking coverage in both directions, and <code>agentic-architecture</code> examining accumulated structure across the whole repository rather than one branch. If Superpowers is already your workflow, <code>pushback</code> is the cheapest place to begin — it needs no branch and no test infrastructure. Treat that as an order of adoption rather than a ranking: the overlap between the two toolkits is smaller in practice than the feature lists suggest, and running both review passes is a deliberate choice rather than a wasted one.</p>
   </div>
 
-  <p>PAAD is deliberately agnostic about which toolkit produced the documents. Its auto-detection scans <code>.kiro/</code>, <code>specs/</code>, <code>docs/plans/</code> and <code>docs/specs/</code>, and it will also review a plain markdown file — or the conversation you have just had — if that is what you have. Pick whichever SDD tool suits your team. The gates attach either way.</p>
+  <p>PAAD is deliberately agnostic about which toolkit produced the documents. <code>alignment</code>'s auto-detection scans <code>.kiro/</code>, <code>specs/</code>, <code>docs/plans/</code> and <code>docs/specs/</code>, and PAAD's skills will also review a plain markdown file — or the conversation you have just had — if that is what you have. Pick whichever SDD tool suits your team. The gates attach either way.</p>
 
   <div class="note violet">
     <span class="note-t">The one-sentence version</span>
@@ -892,9 +895,17 @@ Use plan mode for changes under `src/billing/`.</code></pre>
 
   <p>They are also loaded into context on every single session, which makes length a real cost rather than a style preference. Claude Code's own documentation suggests keeping each file under 200 lines, on the grounds that longer files consume more context <em>and</em> get followed less reliably — a useful rule of thumb whichever tool you use. Write instructions concrete enough to verify: "run <code>npm test</code> before committing" beats "test your changes."</p>
 
+  <p>A steering file describes where the project <em>is</em>, not where it will be in six months, so it goes stale. That matters more than it sounds. A recent <a href="https://arxiv.org/html/2610.30571v1" target="_blank" rel="noopener">arXiv preprint</a> found that agents tend to trust instruction files even when they are stale, and will often rewrite existing, working code to match them. Its fix is a single sentence in the instruction file: when the documentation and the existing code disagree, follow the code, and point out each inconsistency.</p>
+
+  <p>On the author's own projects, a stronger fix has worked: make keeping the file current part of every pull request, with a human approving each change.</p>
+
+  <blockquote>Before pushing a pull request, reread CLAUDE.md and determine if it should be updated to reflect changes in the code. Discuss proposed changes with the developer. They must approve all changes.<cite><a href="https://curtispoe.org/articles/ovid-in-the-trenches" target="_blank" rel="noopener">"Ovid in the Trenches"</a></cite></blockquote>
+
+  <p>That is the author's experience on personal projects, not a measured result from teams. It is still the recommendation for teams, for a reason specific to steering: a scheduled steering review is a chore with no owner, so it slips; a prompt at PR time can't be skipped.</p>
+
   <div class="note">
     <span class="note-t">Practical test</span>
-    <p>Open your steering file and ask, line by line: is this still true? Steering files go out of date faster than code, because nothing fails when they do. That silence is exactly what makes them dangerous.</p>
+    <p>Open your steering file and ask, line by line: is this still true? Steering files go out of date faster than code, because nothing fails when they do. That silence is exactly what makes them dangerous. Then run <code>/pushback</code> on the steering file: on one team the author worked with, it found the file named a modern, popular Web framework rather than the older one the project actually used, so the agent had been grounding every answer in a falsehood.</p>
   </div>
 
   <h2>2. Context management</h2>
@@ -927,7 +938,14 @@ Use plan mode for changes under `src/billing/`.</code></pre>
 
   <div class="note rose">
     <span class="note-t">Coverage is not the goal</span>
-    <p>A line can be "covered" by a test that asserts nothing — green forever, catching nothing. PAAD includes an experimental <code>test-roadmap</code> skill built entirely around this problem: every test phase must name the bug it would catch, and the skill proves each test works by injecting that bug in a throwaway <code>git worktree</code> and confirming the test goes red. A high coverage number with assertion-free tests is worse than a low one, because it buys false confidence.</p>
+    <p>A line can be "covered" by a test that asserts nothing — green forever, catching nothing. PAAD includes a <code>test-roadmap</code> skill built entirely around this problem: every test phase must name the bug it would catch, and the skill proves each test works by injecting that bug in a throwaway <code>git worktree</code> and confirming the test goes red. A high coverage number with assertion-free tests is worse than a low one, because it buys false confidence.</p>
+    <p>Using it is simple: keep running <code>/test-roadmap</code> in fresh sessions until it's done. The finish line is the roadmap's phases being complete, not a coverage number. In the author's runs, finished roadmaps have landed around 85% statement coverage — an observation, not a target.</p>
+  </div>
+
+  <div class="note rose">
+    <span class="note-t">It will find security holes</span>
+    <p>Rigorous tests surface real vulnerabilities — the author <a href="https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits" target="_blank" rel="noopener">keeps finding them by accident</a>. Since 2.0, PAAD writes the description of each one to <code>paad/security/</code>, which git ignores. But the test that pins the hole is committed with the rest of its phase, and it still reproduces the hole. On a public repository, don't push those commits until the hole is fixed.</p>
+    <p>That fix is the one exception to "pin, don't fix", and <code>test-roadmap</code> won't make it for you. On code without a solid suite a security fix can easily ripple, so make it once the tests around that code are in place. Because <code>test-roadmap</code> commits every phase to the working branch, plan for the gap: if the fix is more than a phase or two away, make the repository private, or move the roadmap to a private fork, until it lands; if you can't, write the tests around that code next and fix it straight after. Since 2.1.0, <code>test-roadmap</code> and <code>fix-architecture</code> lead their final reply with a push warning when they commit such a test — that warning is your prompt to act.</p>
   </div>
 
   <h2>4. A consistent way to run your checks</h2>
@@ -957,11 +975,11 @@ Use plan mode for changes under `src/billing/`.</code></pre>
 /pushback                                 # auto-detect from the
                                           # conversation or common paths</code></pre>
 
-  <p>With no argument it resolves the spec in order: an explicit path, then a spec in the conversation history (it will confirm with you first), then a scan of <code>docs/plans/</code>, <code>docs/specs/</code>, and files named <code>requirements.md</code>, <code>PRD.md</code>, <code>spec.md</code>. If it finds nothing it asks. Notably, <code>pushback</code> does <em>not</em> ask for a fresh session — the conversation you have just had may itself be the spec.</p>
+  <p>With no argument it resolves the spec in order: an explicit path, then a spec in the conversation history (it will confirm with you first), then a scan for recently changed candidates: <code>docs/plans/</code>, <code>docs/specs/</code>, and files named <code>requirements.md</code>, <code>PRD.md</code>, <code>spec.md</code>; steering files (<code>CLAUDE.md</code>, <code>AGENTS.md</code>, <code>.cursorrules</code>, <code>.kiro/steering/</code>, Copilot instructions); and <code>paad/*-reviews/</code> reports. If it finds several it lists them and asks; if it finds nothing it asks. Notably, <code>pushback</code> does <em>not</em> ask for a fresh session — the conversation you have just had may itself be the spec.</p>
 
   <h2>Phase 1 — the reality check</h2>
 
-  <p>Before it reads a single requirement, <code>pushback</code> looks at your git history: <code>git log --oneline -50 --since="2 weeks ago"</code>, reading commit messages and diffing anything relevant. It is asking one question — <em>does this spec assume things about the codebase that are no longer true?</em></p>
+  <p>Before it reads a single requirement, <code>pushback</code> looks at your git history: <code>git log --oneline -50</code> — the last 50 commits, not a date window — reading commit messages and diffing anything relevant. It is asking one question — <em>does this spec assume things about the codebase that are no longer true?</em></p>
 
   <p>Conflicts are presented upfront, before any other analysis, with what the spec assumes, what actually changed (SHA and date), why it matters, and options. The reasoning is direct: a spec that assumes deleted infrastructure is wrong before the analysis even starts. If your project is not a git repo, this phase is skipped.</p>
 
@@ -1031,7 +1049,7 @@ Users who forget their password should be able to reset it.
 
   <p>This detail matters more than it appears to. Findings are ranked by severity — critical, serious, moderate, minor — and presented <strong>one at a time</strong>. For each: state the problem, give concrete options from best to worst with a recommendation and a short explanation for each, then <em>wait for your response</em> before moving to the next.</p>
 
-  <p>You can say "good enough" or "stop" at any point, and the remaining issues are recorded under an Unresolved Issues heading rather than lost. At the end, <code>pushback</code> asks whether to update the spec in place or write a separate report to <code>paad/pushback-reviews/</code>.</p>
+  <p>You can say "good enough" or "stop" at any point, and the remaining issues are recorded under an Unresolved Issues heading rather than lost. At the end, <code>pushback</code> offers to update the spec in place, write a report to <code>paad/pushback-reviews/</code>, or both. It writes no report unless issues remain unresolved or you ask for one.</p>
 
   <div class="note">
     <span class="note-t">Why one at a time</span>
@@ -1168,7 +1186,7 @@ TASKS
     <tr><td>Security &amp; Code Quality</td><td>Auth, secrets, dead code, test coverage. Finds security-as-afterthought, unused dependencies, missing coverage, hard-coded credentials.</td></tr>
   </table>
 
-  <p>Between them they cover <strong>34 flaw and risk types</strong> and <strong>14 strength categories</strong>, with a coverage checklist ensuring every category is actually assessed. The report — written to <code>paad/architecture-reviews/</code> — includes strengths as well as flaws, plus a hotspots list of the files and directories most worth your attention.</p>
+  <p>Between them they cover <strong>34 flaw and risk types</strong> and <strong>14 strength categories</strong>, with a coverage checklist ensuring every category is actually assessed. The report — written to <code>paad/architecture-reviews/</code> — includes strengths as well as flaws, plus a hotspots list of the files and directories most worth your attention. Security flaws are the exception: they go only to <code>paad/security/</code>, and the report keeps a single count line where they would have been.</p>
 
   <div class="note">
     <span class="note-t">It reports strengths on purpose</span>
@@ -1179,11 +1197,11 @@ TASKS
 
   <h2><code>/fix-architecture</code> — the treatment</h2>
 
-  <p>Fixing is a separate skill that takes an architecture report as its input and works through findings one at a time, test-first. It requires a feature branch — not <code>main</code> or <code>master</code> — and an existing report.</p>
+  <p>Fixing is a separate skill that takes an architecture report as its input and works through findings one at a time, test-first. It requires a feature branch — it refuses the repository's default branch (<code>origin/HEAD</code>, else <code>main</code>, <code>master</code> or <code>trunk</code>) — and an existing report. Along with the report it loads the security flaws <code>agentic-architecture</code> routed to <code>paad/security/</code>.</p>
 
   <p>Before starting it runs pre-flight checks: branch protection, report staleness detection, test infrastructure verification, and a baseline test run. Then it has a conversation with you about how you want to work — solo or team, batch size, auto-commit or manual, how to sort flaws by priority — before confirming a plan.</p>
 
-  <p>Each fix validates that the flaw still exists, writes safety-net tests where needed, proposes options with trade-offs, and executes red/green/refactor. Outcomes are recorded in the report itself: <em>Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted.</em> That status tracking is what makes the work resumable across sessions.</p>
+  <p>Before any fix begins, it validates every flaw in the batch and writes and commits all the safety-net tests up front — that gate is non-negotiable. Then, one flaw at a time, it proposes options with trade-offs and executes red/green/refactor. Outcomes are recorded in the report itself: <em>Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted.</em> That status tracking is what makes the work resumable across sessions.</p>
 
   <div class="note violet">
     <span class="note-t">Why fixes are sequential, not parallel</span>
@@ -1205,7 +1223,7 @@ TASKS
 
   <h2><code>/agentic-review</code> — the pre-merge gate</h2>
 
-  <pre><code>/agentic-review                   # diff against main
+  <pre><code>/agentic-review                   # diff against the default branch
 /agentic-review develop           # diff against a different base
 /agentic-review main src/auth/    # scoped to a directory</code></pre>
 
@@ -1230,15 +1248,15 @@ TASKS
   <table class="tbl">
     <tr><th>Category</th><th>Meaning</th><th>What happens to it</th></tr>
     <tr><td>In-scope</td><td>Your branch caused the bug, or worsened it — made it more likely to be triggered, expanded its blast radius, removed a guard that was masking it, or added a new caller into broken code.</td><td>Fix before merge.</td></tr>
-    <tr><td>Out-of-scope (bug)</td><td>A bug that already existed, and that your branch does not reach in any new way, even if it lives in a file you touched.</td><td>Persisted to <code>paad/code-reviews/backlog.md</code> so it is not lost.</td></tr>
+    <tr><td>Out-of-scope (bug)</td><td>A bug that already existed, and that your branch does not reach in any new way, even if it lives in a file you touched.</td><td>Persisted to <code>paad/code-reviews/backlog.md</code> — or <code>paad/security/backlog.md</code> when it is security-related — so it is not lost.</td></tr>
     <tr><td>Out-of-scope addition</td><td>Code your branch added that the spec never promised.</td><td>A per-PR decision: keep, split out, or revert. Never goes to the backlog.</td></tr>
   </table>
 
-  <p>That middle category is the forgiving one. Without it, every review of a legacy file mixes problems you did not cause into the list of things blocking your merge. With it, each one gets a stable ID and a single backlog entry — later reviews re-confirm that entry rather than creating a duplicate, and the finding is set aside in the report's out-of-scope section instead of blocking your PR. The backlog is explicit-removal only: <code>agentic-review</code> never auto-resolves an entry, so you or a later agent deletes it when the work is actually done.</p>
+  <p>That middle category is the forgiving one. Without it, every review of a legacy file mixes problems you did not cause into the list of things blocking your merge. With it, each one gets a stable ID and a single backlog entry — later reviews re-confirm that entry rather than creating a duplicate, and the finding is set aside in the report's out-of-scope section instead of blocking your PR. The backlog is explicit-removal only: <code>agentic-review</code> never auto-resolves an entry. <code>/backlog clean</code> re-checks each entry against the current code and removes the ones that are fixed or gone.</p>
 
   <div class="note teal">
     <span class="note-t">Pre-flight checks that will stop you</span>
-    <p><code>agentic-review</code> refuses to run on <code>main</code> or <code>master</code>, refuses to run against an empty diff, asks what to do about uncommitted changes rather than guessing, and — notably — tells you to start a fresh session if your conversation already has substantive history. That last one is context management enforced by the tool rather than left to your memory.</p>
+    <p><code>agentic-review</code> diffs against the repository's default branch (<code>origin/HEAD</code>, else <code>main</code>, <code>master</code> or <code>trunk</code>) and refuses to run on it, refuses to run against an empty diff, asks what to do about uncommitted changes rather than guessing, and — notably — tells you to start a fresh session if your conversation already has substantive history. That last one is context management enforced by the tool rather than left to your memory.</p>
   </div>
 
   <p>Run it more than once. The README is explicit that repeated runs are valuable, and equally explicit that this is a stronger automated safety net, <em>not</em> a replacement for human review.</p>
@@ -1256,7 +1274,7 @@ TASKS
 
   <div class="note rose">
     <span class="note-t">Stated limitation</span>
-    <p>The skill's own documentation says this plainly: it will help substantially, but human accessibility review of your application is still required. Accessibility is important, and hard. Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.</p>
+    <p>PAAD's README says this plainly: it will help substantially, but human accessibility review of your application is still required. Accessibility is important, and hard. Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.</p>
   </div>
 
   <h2><code>/vibe</code> — speed without recklessness</h2>
@@ -1283,14 +1301,27 @@ TASKS
 </section>
 
 <!-- ══════════════════ 10. THE LOOP ══════════════════ -->
-<section class="section" id="s-loop" data-title="The per-feature loop" data-group="Putting it together">
+<section class="section" id="s-loop" data-title="The two loops" data-group="Putting it together">
   <div class="hero">
     <div class="eyebrow">Putting it together · Module 10</div>
-    <h1>The per-feature loop</h1>
-    <p class="lede">Four letters, one repeatable cycle. Click any stage to see what it does, what it catches, and when to run it twice.</p>
+    <h1>The two loops</h1>
+    <p class="lede">Stop bad code from merging, and pay down the debt that gets through anyway.</p>
   </div>
 
-  <p>This is the loop the article prescribes for each feature. Several stages are marked <span class="pill loopy">may repeat</span> — that is not a sign of doubt; it is the design. Pushback and alignment are often worth running more than once, especially when a spec evolves or a plan changes mid-execution.</p>
+  <p>The skills only work on solid ground. Module 5 covers the groundwork: steering files that tell the truth about the project, and a test suite that catches real regressions. Neither is glamorous, and both are covered in more depth in two articles: <a href="https://curtispoe.org/articles/ovid-in-the-trenches" target="_blank" rel="noopener">steering</a> and <a href="https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits" target="_blank" rel="noopener">the test suite</a>.</p>
+
+  <p>With that in place, run two loops rigorously. The first stops bad code from merging: every feature passes through review gates before it reaches your primary branch. The second aggressively pays down technical debt: the structural problems that slip past per-feature review, found and fixed on a schedule you set.</p>
+
+  <p>In the author's experience, a team that does this often writes better code than developers who don't use AI at all. We have tight deadlines to meet, or it's Friday evening and we want to go home, or we have developers who don't understand how to write maintainable code. For these and many other reasons, a disciplined AI approach can often win.</p>
+
+  <h2>Loop 1: stop bad code from merging</h2>
+
+  <figure class="fig">
+    <img src="/paad/images/pushback.png" width="1800" height="1420" loading="lazy" alt="PAAD per-feature loop: write the spec, then /pushback on it; develop the task list, then /pushback and /alignment on it; execute the tasks, then /agentic-review the result; human PR approval and merge">
+    <figcaption>The per-feature loop: review gates on the spec, the task list and the code, then a human decides whether it merges.</figcaption>
+  </figure>
+
+  <p>This is the 8-step loop the PAAD README describes for each feature. Click any stage below to see what it does, what it catches, and when to run it twice. Several stages are marked <span class="pill loopy">may repeat</span> — that is not a sign of doubt; it is the design. Pushback and alignment are often worth running more than once, especially when a spec evolves or a plan changes mid-execution.</p>
 
   <div class="loop" id="loopDiagram"></div>
 
@@ -1303,19 +1334,28 @@ TASKS
     <p>Conversely, a pass that returns one or two minor points is evidence you are close to done. The practical rule: <strong>re-run whenever you have materially changed the artefact, re-run when the last pass found a lot, and stop when a pass returns nothing you did not already know.</strong> That stopping condition matters — without it, non-determinism means you can always find one more thing, and the loop never closes.</p>
   </div>
 
-  <div class="note">
-    <span class="note-t">Two versions, and the difference matters</span>
-    <p>The README describes a six-step workflow: spec → pushback → plan → alignment → implement → agentic-review. The article describes the seven-step loop above, which adds a second <code>pushback</code> pass on the <em>task list</em>. The article's version is the more thorough one — the task list is a document too, and it can be ambiguous, infeasible, or silently omit things just as a spec can. If you are starting out, run the README version until it becomes a habit, then add the second pushback pass.</p>
-  </div>
+  <p>AI is now good enough that, with <code>pushback</code> alone, fewer issues reach the later stages of the loop. But the loop only protects the current feature. It cannot see the structure of the project as a whole, and that is where debt accumulates.</p>
+
+  <h2>Loop 2: pay down technical debt aggressively</h2>
+
+  <figure class="fig">
+    <img src="/paad/images/architecture.png" width="2400" height="1493" loading="lazy" alt="PAAD technical debt loop in two steps. Step 1: /agentic-architecture generates an architecture report, and /pushback checks its findings. Step 2: on a new branch, /fix-architecture clarifies scope, you choose the fixes, and the skill fixes the code and updates the report; then /agentic-review and a pull request. After approval, repeat for the next chosen fixes. If the report is out of date, the skill suggests a refresh; if you agree, rerun /agentic-architecture. Stop when the fixes you want are complete.">
+    <figcaption>The maintenance loop: diagnose, check the diagnosis, then fix in reviewed batches until the fixes you want are done.</figcaption>
+  </figure>
+
+  <p>Step one is diagnosis. <code>/agentic-architecture</code> generates the architecture report, and <code>/pushback</code> checks its findings before you act on any of them — the report is a document, and it can be wrong like any other.</p>
+
+  <p>Step two is the fixing. On a new branch, run <code>/fix-architecture</code>: it clarifies the scope with you, you choose which fixes to make, and the skill fixes the code and updates the report to record what was done. Run <code>/agentic-review</code> on the result and open a PR. After approval, repeat for the next fixes you choose. If the report has gone out of date by then, the skill suggests a refresh; if you agree, rerun <code>/agentic-architecture</code>. Stop when the fixes you want are complete.</p>
+
+  <p>The cadence is the part teams get wrong. Reserve calendar time for this loop; "when we get to it" means never. The appendix &ldquo;Teaching this to your team&rdquo; explains why that time is easier to reserve in advance than to find afterwards.</p>
 
   <h2>Where the other skills fit</h2>
 
   <table class="tbl">
     <tr><th>Skill</th><th>How often</th><th>Trigger</th></tr>
-    <tr><td><code>agentic-architecture</code></td><td>Periodic</td><td>Before a major refactor, when onboarding to an unfamiliar repo, after rapid growth, or when planning a redesign.</td></tr>
-    <tr><td><code>fix-architecture</code></td><td>Across sessions</td><td>After an architecture report exists and you have a feature branch.</td></tr>
     <tr><td><code>agentic-a11y</code></td><td>Per UI change</td><td>Any UI work, or accessibility-sensitive changes.</td></tr>
     <tr><td><code>vibe</code></td><td>Instead of the loop</td><td>Small fixes — 1–3 files, one module — that do not justify a spec.</td></tr>
+    <tr><td><code>rethink</code></td><td>When a recommendation is on the table</td><td>Options or a chosen approach rest on reasoning nobody has checked — cited docs, remembered behaviour, unverified premises.</td></tr>
   </table>
 
   <h2>The rhythm underneath</h2>
@@ -1344,33 +1384,30 @@ TASKS
 
   <p>The install command opens the plugin's details rather than installing immediately — you pick a scope there: install for you (user scope), for all collaborators on the repository (project scope), or for you in this repo only (local scope). Then run <code>/reload-plugins</code> to activate the skills in the session you are already in.</p>
 
-  <p>After that, start with <code>/paad:help</code> to see the available skills and when to use each. Every skill announces its own name and version on invocation — <code>Running paad:vibe v1.24.1</code> — which is how you see what version you are running.</p>
+  <p><strong>In the Claude desktop app</strong>, <code>/plugin marketplace add</code> only opens <strong>Settings → Plugins</strong> and adds nothing. Add PAAD from there instead: <strong>+ Add → Add marketplace → Add from a repository</strong>, enter <code>Ovid/paad</code>, click <strong>Sync</strong>, then <strong>Add to this computer</strong> (<a href="https://github.com/Ovid/paad/issues/25" target="_blank" rel="noopener">details</a>).</p>
+
+  <p>After that, start with <code>/paad-help</code> to see the available skills and when to use each. Every skill announces its own name and version on invocation — <code>Running paad:vibe v2.1.0</code> — which is how you see what version you are running.</p>
 
   <div class="note">
-    <span class="note-t">Why does this skill look different?</span> <p>Most skills are shown without the <code>paad:</code> prefix, but you can run them like that if you want: <code>/paad:pushback</code>. However, <code>/help</code> is a common enough command in AI coding tools that we recommend the fully-qualified <code>/paad:help</code> to ensure the agent reads the correct skill.</p>
+    <span class="note-t">Why does this skill look different?</span> <p>Every other skill is named for what it does: <code>/pushback</code>, <code>/vibe</code>. The help skill is <code>/paad-help</code> rather than <code>/help</code> because <code>/help</code> is Claude Code's own built-in command, and the two collided.</p>
   </div>
 
   <div class="note teal">
     <span class="note-t">Keeping it up to date</span>
     <p>New skills and fixes do not arrive on their own. Claude Code disables auto-update for third-party marketplaces by default, and PAAD is one, so you install updates yourself: open <code>/plugin</code>, go to the <strong>Installed</strong> tab, select <strong>paad</strong>, and choose <strong>Update now</strong>. Then run <code>/reload-plugins</code>. That single action refreshes the marketplace catalog from GitHub before it looks for a new version, and no session restart is required.</p>
     <p style="margin-top:11px">To confirm which version you are on, run any skill and read the banner, then compare it against <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/.claude-plugin/plugin.json" target="_blank" rel="noopener"><code>plugin.json</code></a> in the repository. If a skill described here is missing entirely, you are on an older release.</p>
-    <p style="margin-top:11px"><strong>A note on how long this course stays accurate.</strong> An earlier version of this page flagged a discrepancy between PAAD's README and Claude Code's plugin documentation. The README has since been corrected, and the discrepancy is gone — so the criticism outlived the problem, which is its own small lesson. Treat any version-specific detail here as needing a check against the repository. That applies to this page exactly as it applies to a steering file.</p>
   </div>
 
-  <h2>Install — Cursor, Kiro, Antigravity</h2>
+  <h2>Install — other agents</h2>
 
-  <p>PAAD skills use the same <code>SKILL.md</code> format Cursor skills expect, so installation is a copy:</p>
+  <p>One command installs PAAD into 70+ other agents, including Cursor, Kiro, Antigravity, Codex, GitHub Copilot and Gemini CLI. It needs <code>npx</code>, which comes with Node.js.</p>
 
-  <pre><code># Cursor
-cp -r kiro_and_antigravity/skills/.kiro/skills/* .cursor/skills/
+  <pre><code>npx skills@latest add Ovid/paad</code></pre>
 
-# Kiro
-cp -r kiro_and_antigravity/skills/.kiro/skills/* .kiro/skills/
-
-# Antigravity — the .agent files are wrappers pointing at the .kiro files,
-#                so copy both directories
-cp -r kiro_and_antigravity/skills/.kiro/skills/*  .kiro/skills/
-cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
+  <div class="note">
+    <span class="note-t">Three things to know about this route</span>
+    <p>The analysis agent that Claude Code uses to withhold editing tools from PAAD's helper agents does not ship with this route, so run analysis skills on a clean branch you can throw away. On agents without helper agents, a single agent does every pass itself, so <code>test-roadmap</code>'s blinded proof step and <code>backlog fix</code>'s independent check cannot be trusted. And the version a skill announces identifies Claude Code installs, not npx ones: npx tracks <code>main</code>. The README's <a href="https://github.com/Ovid/paad#installation" target="_blank" rel="noopener">"Three things worth knowing before you run it"</a> has the details.</p>
+  </div>
 
   <h2>Invoking skills</h2>
 
@@ -1383,7 +1420,25 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
     <tr><td>Fully qualified</td><td><code>/paad:pushback</code> — always works. The namespace exists to disambiguate when two plugins provide a skill with the same name.</td></tr>
   </table>
 
-  <p>One caveat worth flagging: the <a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noopener">Claude Code plugin documentation</a> describes plugin skills as <em>always</em> namespaced, which does not fit well with the README's claim that the prefix can be omitted. If the bare form does not resolve for you, use the qualified one — it works either way.</p>
+  <h2>Making PAAD's defaults yours</h2>
+
+  <p>If you keep typing the same extra instructions after a slash command, or have written a wrapper skill just to add them, put them in a file instead. Every PAAD skill reads <code>paad/config/paad.md</code>, and each skill also reads <code>paad/config/&lt;skill&gt;.md</code> for its own name — <code>paad/config/agentic-review.md</code>, say. Both are optional. There is no schema: write plain instructions, as you would have typed them. For example, <code>paad/config/agentic-architecture.md</code>:</p>
+
+  <pre><code>- All output must be in simplified technical English.
+- Add one more subagent that looks for over-engineering.
+- Keep a log in `paad/logs/agentic-architecture.md` of every finding an
+  agent raised that the verifier discarded.</code></pre>
+
+  <p>A skill that followed a config file says so: its final answer opens with a line naming each file, such as:</p>
+
+  <pre><code>Config: paad/config/paad.md, paad/config/agentic-architecture.md</code></pre>
+
+  <p>Check for it — no such line means nothing in the run came from your config.</p>
+
+  <div class="note rose">
+    <span class="note-t">Experimental, and two warnings</span>
+    <p>Configuration is experimental and may change in any release. Use it to add, not to remove: a config line can tell a skill to skip its own safety checks, and the skill may comply. And a <code>paad/config/</code> in a repository you cloned was written by someone else, so read it before you run anything there. <a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" target="_blank" rel="noopener">CONFIG.md</a> has the full details.</p>
+  </div>
 
   <h2>Starting on an existing codebase</h2>
 
@@ -1398,12 +1453,15 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
 
   <p>Specs, plans, architecture reports, test roadmaps, review backlogs. Commit them, on the same branch as the code they describe, by default.</p>
 
-  <p>PAAD's own outputs make that a single decision rather than a running one: everything it writes lands under one top-level <code>paad/</code> directory in your repository — <code>paad/pushback-reviews/</code>, <code>paad/alignment-reviews/</code>, <code>paad/architecture-reviews/</code>, <code>paad/code-reviews/</code>, <code>paad/test-roadmap/</code>, <code>paad/dedup-reviews/</code>, <code>paad/a11y-reviews/</code>. One directory to add, one convention to explain to the team.</p>
+  <p>PAAD's own outputs make that a single decision rather than a running one: every report it writes lands under one top-level <code>paad/</code> directory in your repository. Each path there is one of three kinds:</p>
 
-  <div class="note violet">
-    <span class="note-t">Check where <em>your</em> install writes</span>
-    <p>The <code>paad/</code> layout is the Claude Code plugin's. The Kiro and Antigravity packages are a separate port and still write to <code>.reviews/</code> instead — <code>.reviews/code/</code>, <code>.reviews/architecture/</code>, <code>.reviews/test-roadmap/</code> and so on. The directory names may also be standardised further in a future release. So confirm where your version actually writes before you commit to a path in a <code>.gitignore</code> rule, a CI job, or a steering file — this is exactly the kind of version-specific detail the note above asks you to check against the repository rather than against this page.</p>
-  </div>
+  <ul>
+    <li><strong>Reports and roadmaps</strong> — <code>paad/pushback-reviews/</code>, <code>paad/alignment-reviews/</code>, <code>paad/architecture-reviews/</code>, <code>paad/code-reviews/</code>, <code>paad/test-roadmap/</code>, <code>paad/dedup-reviews/</code>, <code>paad/a11y-reviews/</code>. Commit them.</li>
+    <li><strong><code>paad/security/</code></strong> — findings that would help an attacker. It ignores itself and is scratch: never committed.</li>
+    <li><strong><code>paad/config/</code></strong> — where <em>you</em> write instructions for PAAD; it never writes there. Commit it, and review it like code.</li>
+  </ul>
+
+  <p>The one output outside <code>paad/</code> is <code>handoff</code>'s <code>handoff.md</code>, at the repository root: gitignore it, as the skill suggests.</p>
 
   <p>The first reason is mechanical: PAAD's long-running skills keep their memory on disk, so an uncommitted artefact is a skill that has to start over. <code>test-roadmap</code> resumes from <code>paad/test-roadmap/test-roadmap.md</code> — across unrelated commits, squash merges, fresh clones and sessions that remember nothing about the last one. <code>fix-architecture</code> writes its outcomes back into the architecture report and is designed to be picked up again in a later session against that same file. <code>agentic-review</code> gives each out-of-scope finding a stable ID in <code>paad/code-reviews/backlog.md</code> so that later runs re-confirm the entry instead of raising a duplicate. None of that survives a file that only ever existed in one person's working tree.</p>
 
@@ -1412,7 +1470,8 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
   <div class="note">
     <span class="note-t">A strong default, not an absolute</span>
     <p>Two cases are worth knowing before you make this a team rule.</p>
-    <p style="margin-top:11px">The first is named by PAAD itself. <code>agentic-review</code> commits <code>paad/code-reviews/backlog.md</code> by default, and when a run adds security entries to it the skill stops and tells you so — because a backlog of unfixed security findings in a public repository is a disclosure. Its own warning is worth reading in full: <code>.gitignore</code> after the fact does not remove anything already in history, so that decision is cheapest before the first push.</p>
+    <p style="margin-top:11px">The first is named by PAAD itself. Six skills — <code>agentic-review</code>, <code>agentic-architecture</code>, <code>agentic-owasp</code>, <code>agentic-dedup</code>, <code>pushback</code> and <code>test-roadmap</code> — write any finding that would help an attacker only to <code>paad/security/</code>, which carries its own <code>.gitignore</code> and so ignores itself from the moment it exists. Add it to your own <code>.gitignore</code> as well, and treat it as scratch: it lives on one machine, and <code>git clean -x</code> deletes it. The tests that pin those findings are committed, though; Module 5 covers when to hold the push.</p>
+    <p style="margin-top:11px">Upgrading from 1.x? Security entries already committed to <code>paad/code-reviews/backlog.md</code> or to an OWASP report stay where they are. <code>agentic-review</code> copies any it finds again into <code>paad/security/backlog.md</code>, you move the rest by hand, and <code>/backlog clean</code> removes the committed copies. Git history keeps them, so on a shared or public repository treat them as disclosed: fix them, or rotate what they expose.</p>
     <p style="margin-top:11px">The second is a position rather than an accident. Module 3 describes HumanLayer treating specs as deliberately disposable — <em>"I edit my specs and then the code drifts"</em> — which is a coherent choice when the artefact's whole job is to get one change written and the codebase is small enough to re-read. Brownfield is the case where it does not apply: re-reading is exactly what you cannot afford, and resumability is the thing you are buying. So keep the default, and put the burden on whoever wants a particular artefact untracked to say why.</p>
   </div>
 
@@ -1426,37 +1485,34 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
 
   <div class="note teal">
     <span class="note-t">pushback is a more general critic than its description says</span>
-    <p><code>pushback</code>'s stated scope names "a spec, PRD, requirements doc, or design plan". In practice it reviews AI-produced artefacts of most kinds effectively — steering files and architecture reports included — and work is under way to refine the skill and its description to match. So point it at your steering file, and at the report in step 4. Two caveats stand while that work lands: the description is the contract the semver promise covers, so behaviour on other inputs can change; and most steering claims are only testable against the code, so a document review complements the check the skills already run rather than replacing it.</p>
+    <p><code>pushback</code>'s stated scope names "a spec, PRD, requirements doc, or design plan". In practice it reviews AI-produced artefacts of most kinds effectively — steering files and architecture reports included. Run with no file named, it offers recently changed steering files and <code>paad/*-reviews/</code> reports as candidates (since 1.30). So point it at your steering file, and at the report in step 4. Two caveats stand: the description is the contract the semver promise covers, so behaviour on other inputs can change; and most steering claims are only testable against the code, so a document review complements the check the skills already run rather than replacing it.</p>
   </div>
 
   <h3>3. Build a test suite that pins current behaviour</h3>
 
-  <p>PAAD's own README puts this bluntly: <em>"PAAD is risky to use with codebases without a strong test suite."</em> Every skill that changes code — <code>fix-architecture</code>, <code>vibe</code> — works test-first, and test-first on untested legacy code means the tests get written under time pressure, one flaw at a time, by whoever happens to be fixing that flaw. Doing it deliberately first is the same work in a better order.</p>
+  <p>PAAD's own README puts this bluntly: <em>"PAAD is risky to use with codebases without a strong test suite."</em> Every skill that changes code — <code>fix-architecture</code>, <code>vibe</code>, <code>backlog fix</code> — works test-first, and test-first on untested legacy code means the tests get written under time pressure, one flaw at a time, by whoever happens to be fixing that flaw. Doing it deliberately first is the same work in a better order.</p>
 
   <p>Module 5 gives the rule that makes this survivable, and it is the most counter-intuitive instruction in the methodology: <strong>your goal is not to fix bugs.</strong> You will find them. Assert the current behaviour, write the bug down, move on. The suite's job right now is to be an alarm that sounds when something changes, not a statement of what ought to be true.</p>
 
-  <p>The experimental <code>test-roadmap</code> skill exists for exactly this step, and there is one thing people get wrong about it often enough that the README calls it out. It is not a single command. The first run detects your stack, grades the tests you already have, and writes a phased plan — <em>and writes no tests at all</em>. Every run after that writes one phase, proves each test catches the bug it claims to by injecting that bug in a throwaway <code>git worktree</code>, commits the phase, and tells you where you are. A fourteen-phase roadmap is fifteen invocations. Teams run it once, read the plan, feel informed, and stop with zero tests written.</p>
+  <p>The <code>test-roadmap</code> skill exists for exactly this step, and there is one thing people get wrong about it often enough that the README calls it out. It is not a single command. The first run detects your stack, grades the tests you already have, and writes a phased plan — <em>and writes no tests at all</em>. Every run after that writes one phase, proves each test catches the bug it claims to by injecting that bug in a throwaway <code>git worktree</code> (a proof that cannot be trusted on agents without helper agents — see the note under &ldquo;Install — other agents&rdquo;), commits the phase, and tells you where you are. A fourteen-phase roadmap is fifteen invocations. Teams run it once, read the plan, feel informed, and stop with zero tests written.</p>
 
-  <div class="note">
-    <span class="note-t">Experimental, and load-bearing</span>
-    <p><code>test-roadmap</code> is one of the experimental skills, so its arguments, output paths and behaviour can change in any release including a patch. That is an argument for pinning your plugin version if you are part-way through a roadmap, not for skipping the step — the step is the safety net, and it is required whether a skill builds it or you do.</p>
-  </div>
+  <p><code>test-roadmap</code> has been stable since 2.0, so there is no need to pin a version mid-roadmap.</p>
 
   <h3>4. Take an architecture baseline — then argue with it</h3>
 
-  <p><code>agentic-architecture</code> is diagnosis only: five specialists, 34 flaw types, 14 strength categories, a verification phase that filters false positives by reading the code and checking git history, and a report written to <code>paad/architecture-reviews/</code>. On a codebase you inherited, that report is the first honest description of the thing you are responsible for.</p>
+  <p><code>agentic-architecture</code> is diagnosis only: five specialists, 34 flaw types, 14 strength categories, a verification phase that filters false positives by reading the code and checking git history, and a report written to <code>paad/architecture-reviews/</code>. Security flaws go only to <code>paad/security/</code>, leaving a count line in the report. On a codebase you inherited, that report is the first honest description of the thing you are responsible for.</p>
 
-  <p>It is also a document produced by an AI, which puts it under the same rule as every other document produced by an AI in this course: something other than the thing that made it should review it before anything is built on it. Run <code>pushback</code> on the report.</p>
+  <p>It is also a document produced by an AI, which puts it under the same rule as every other document produced by an AI in this course: something other than the thing that made it should review it before anything is built on it. Run <code>pushback</code> on the report. It reviews only what is in the report, so the security flaws in <code>paad/security/</code> need your own read.</p>
 
-  <p><strong>The larger the codebase, the more that pass earns its place</strong>, and the reason is in the skill's own design. Specialists report only findings they hold at 60% confidence or above, and cap a finding at 79 where confirming it would require changing code — so the report is calibrated, not certain. Past roughly 500 source files the skill partitions the files across two instances of each specialist, which means that on a large repository no single reviewer saw the whole thing. That is the right engineering trade-off and it has a predictable consequence: the findings that get missed or mis-weighted are the ones whose evidence is spread across the partition. A cross-cutting flaw looks small from inside either half.</p>
+  <p><strong>The larger the codebase, the more that pass earns its place</strong>, and the reason is in the skill's own design. Specialists report only findings they hold at 60% confidence or above, and the verifier drops any finding that could only be confirmed by changing code — so the report is filtered, not certain. Past roughly 500 source files the skill partitions the files across two instances of each specialist, which means that on a large repository no single reviewer saw the whole thing. That is the right engineering trade-off and it has a predictable consequence: the findings that get missed or mis-weighted are the ones whose evidence is spread across the partition. A cross-cutting flaw looks small from inside either half.</p>
 
   <p>What you are checking is not whether each individual finding is real — the verification phase already did that, against the code. You are checking the list: what is not on it that you know is true, which severities do not match the risk as you understand it, and which findings are technically correct and practically irrelevant to this system.</p>
 
   <h3>5. Now the report is a rescue roadmap</h3>
 
-  <p>A reviewed, prioritised architecture report with a test suite underneath it is the thing this whole sequence was for. <code>fix-architecture</code> works through it one flaw at a time, test-first, on a feature branch, recording an outcome against each finding — Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted — so the work resumes cleanly across sessions. It detects when fixing one flaw resolves others, which is also why it refuses to parallelise: merging several structural refactors back together is a reliable way to introduce new bugs.</p>
+  <p>A reviewed, prioritised architecture report with a test suite underneath it is the thing this whole sequence was for. <code>fix-architecture</code> works through it — and the security flaws routed to <code>paad/security/</code> — one flaw at a time, test-first, on a feature branch, recording an outcome against each finding — Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted — so the work resumes cleanly across sessions. It detects when fixing one flaw resolves others, which is also why it refuses to parallelise: merging several structural refactors back together is a reliable way to introduce new bugs.</p>
 
-  <p>It will write safety-net tests where a flaw sits in untested code. You do not want that to be how your test suite gets built. Discovering the absence of tests one flaw at a time, mid-refactor, is the slowest and least deliberate version of step 3 — which is the whole reason step 3 comes first.</p>
+  <p>It will write safety-net tests where a flaw sits in untested code. You do not want that to be how your test suite gets built. Discovering the absence of tests batch by batch, just before each refactor, is the slowest and least deliberate version of step 3 — which is the whole reason step 3 comes first.</p>
 
   <p>Module 8 is careful to say <code>agentic-architecture</code> is a periodic diagnosis rather than a gate, and Module 11's two-week table says to run it once the rest feels routine. Both hold for a codebase you already understand. On an inherited one the first pass is a different thing: it is what tells you whether the codebase can carry the rest of the method, and how much work stands between you and that. Sequence it early, and give the work that follows it a date before you run it — the appendix on teaching this to your team explains why finding that time afterwards is harder than reserving it in advance.</p>
 
@@ -1483,7 +1539,7 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
 
   <table class="tbl">
     <tr><th>When</th><th>Do this</th><th>Because</th></tr>
-    <tr><td>Day 1</td><td>Install, then run <code>/paad:help</code> to see what is available.</td><td>Zero risk. Read what each skill claims to do before you need one.</td></tr>
+    <tr><td>Day 1</td><td>Install, then run <code>/paad-help</code> to see what is available.</td><td>Zero risk. Read what each skill claims to do before you need one.</td></tr>
     <tr><td>Day 2</td><td>Run <code>/pushback</code> on a spec you have already written and are happy with.</td><td>This is the moment that convinces people. Use a spec you believe in — the point is to find out what it misses.</td></tr>
     <tr><td>Week 1</td><td>Add <code>/agentic-review</code> before every merge.</td><td>The highest value for the smallest change to your habits. Fits your existing workflow without changing how you plan.</td></tr>
     <tr><td>Week 2</td><td>Add <code>/alignment</code> between spec and implementation.</td><td>Once pushback is habit, alignment is the natural next gate — and it gives you TDD-formatted tasks.</td></tr>
@@ -1498,7 +1554,7 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
   <h2>Reference card</h2>
 
   <div class="cheat">
-    <div class="cheat-row"><div><code>/paad:help [skill-name]</code></div><div>Overview of all skills, or detailed help for one.</div></div>
+    <div class="cheat-row"><div><code>/paad-help [skill-name]</code></div><div>Overview of all skills, or detailed help for one.</div></div>
     <div class="cheat-row"><div><code>/pushback [spec-file]</code></div><div>Critically review a spec, PRD, or design plan before implementation. Six categories, severity-ordered, one issue at a time.</div></div>
     <div class="cheat-row"><div><code>/alignment [files…]</code></div><div>Check requirements against plans in both directions, then rewrite tasks as red/green/refactor.</div></div>
     <div class="cheat-row"><div><code>/agentic-architecture [path…]</code></div><div>Five specialists, 34 flaw types, 14 strength categories. Diagnosis only — proposes no fixes.</div></div>
@@ -1507,22 +1563,26 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
     <div class="cheat-row"><div><code>/agentic-a11y [path]</code></div><div>WCAG 2.2 AA review by disability category, across web, mobile, desktop, CLI, and games.</div></div>
     <div class="cheat-row"><div><code>/vibe [task description]</code></div><div>Small changes with guardrails: pre-flight checks plus mandatory red/green/refactor.</div></div>
     <div class="cheat-row"><div><code>/makefile</code></div><div>Creates or updates a project <code>Makefile</code>, so developers and agents run the same checks through the same commands.</div></div>
+    <div class="cheat-row"><div><code>/handoff [save|resume]</code></div><div>Writes a <code>handoff.md</code> so a fresh session can continue this one's work, and reads it back on the other side.</div></div>
+    <div class="cheat-row"><div><code>paad/config/</code></div><div>Your own instructions for every skill (<code>paad.md</code>) or one skill (<code>&lt;skill&gt;.md</code>). Experimental. Check for the <code>Config:</code> line.</div></div>
     <div class="cheat-row"><div><code>/agentic-dedup [scope]</code> <span class="pill">experimental</span></div><div>Hunts <em>semantic</em> duplication — code that means the same thing behind different names and control flow. Reports only; never refactors.</div></div>
-    <div class="cheat-row"><div><code>/rethink [topic]</code> <span class="pill">experimental</span></div><div>Argues with an answer rather than a spec — including one of <code>pushback</code>'s. Checks whether the assumptions a chosen option rests on are actually true.</div></div>
-    <div class="cheat-row"><div><code>/test-roadmap</code> <span class="pill">experimental</span></div><div>Builds a suite that pins current behaviour, proving each test works by injecting the bug it claims to catch. The only PAAD skill that writes and commits code.</div></div>
+    <div class="cheat-row"><div><code>/agentic-owasp [scope]</code> <span class="pill">experimental</span></div><div>Reviews code against the OWASP Top 10:2025. Findings go only to <code>paad/security/</code>. Reports only.</div></div>
+    <div class="cheat-row"><div><code>/backlog [clean|fix]</code> <span class="pill">experimental</span></div><div>Clean drops review-backlog entries that are fixed or gone; fix picks the next entry and fixes it, test-first. Never commits.</div></div>
+    <div class="cheat-row"><div><code>/rethink [topic]</code></div><div>Argues with an answer rather than a spec — including one of <code>pushback</code>'s. Checks whether the assumptions a chosen option rests on are actually true.</div></div>
+    <div class="cheat-row"><div><code>/test-roadmap</code></div><div>Builds a suite that pins current behaviour, proving each test works by injecting the bug it claims to catch. Run it repeatedly, one phase per run.</div></div>
   </div>
 
   <div class="note">
     <span class="note-t">On the experimental skills</span>
-    <p>PAAD versions itself with <strong>semantic versioning</strong> — the <code>1.24.1</code> scheme, where the first number changes only on a breaking change, the second on a new feature, and the third on a fix. For the stable skills that is a promise: their names, arguments and output locations will not change within a major version. The experimental ones are explicitly exempt. Their arguments, output paths, and behaviour may change — or the skill may be withdrawn — in any release, including a patch release. If you build a workflow on one, pin your plugin version.</p>
-    <p style="margin-top:11px">Which skills sit in this category also changes between releases: <code>rethink</code> is a recent arrival that did not exist a few versions ago. Check the README's skill table rather than trusting a list you memorised. PAAD also provides a package for <a href="https://pi.dev" target="_blank" rel="noopener">Pi</a> — a terminal-based coding agent, separate from everything else named on this page, with its own package manager — installable with <code>pi install git:github.com/Ovid/paad</code>. That package is experimental as a whole, so the caveat above applies to all of it rather than to individual skills within it. If you are not a Pi user, nothing here changes for you.</p>
+    <p>PAAD versions itself with <strong>semantic versioning</strong> — the <code>2.1.0</code> scheme, where the first number changes only on a breaking change, the second on a new feature, and the third on a fix. For the stable skills that is a promise: their names, arguments and output locations will not change within a major version. The experimental ones are explicitly exempt. Their arguments, output paths, and behaviour may change — or the skill may be withdrawn — in any release, including a patch release. As of v2.1.0 they are <code>agentic-dedup</code>, <code>agentic-owasp</code> and <code>backlog</code>. Claude Code leaves auto-update off by default for third-party marketplaces, so each update is your decision point: read the <a href="https://github.com/Ovid/paad/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG</a> before you take it.</p>
+    <p style="margin-top:11px">Which skills sit in this category also changes between releases — <code>rethink</code>, <code>test-roadmap</code> and <code>handoff</code> left it in 2.0. Check the README's skill table rather than trusting a list you memorised. PAAD also provides a package for <a href="https://pi.dev" target="_blank" rel="noopener">Pi</a> — a terminal-based coding agent, separate from everything else named on this page, with its own package manager — installable with <code>pi install git:github.com/Ovid/paad</code>. That package is experimental as a whole, so the caveat above applies to all of it rather than to individual skills within it. If you are not a Pi user, nothing here changes for you.</p>
   </div>
 
   <h2>Sources</h2>
 
   <h3>Primary</h3>
   <ul>
-    <li><a href="https://github.com/ovid/paad" target="_blank" rel="noopener">github.com/ovid/paad</a> — repository, README, and skill definitions (v1.24.1, MIT licensed)</li>
+    <li><a href="https://github.com/ovid/paad" target="_blank" rel="noopener">github.com/ovid/paad</a> — repository, README, and skill definitions (v2.1.0, MIT licensed)</li>
     <li><a href="https://curtispoe.org/articles/watching-claude-sonnet-outperform-opus" target="_blank" rel="noopener">"Watching Claude Sonnet Outperform Opus"</a> — Curtis Poe's article introducing the methodology</li>
     <li><a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener">Claude Code — Discover and install plugins</a> and <a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noopener">Create plugins</a></li>
     <li><a href="https://github.com/obra/superpowers/" target="_blank" rel="noopener">Superpowers</a> — a complementary toolkit PAAD's README names as compatible with it, and a spec-driven workflow in its own right (see Module 3)</li>
@@ -2182,14 +2242,14 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
 
   <p>It is worth knowing where PAAD does check it, because it does. <code>agentic-review</code>, <code>agentic-architecture</code> and <code>agentic-a11y</code> all read the steering files before dispatching their specialists, and every specialist prompt carries the same instruction:</p>
 
-  <blockquote>Steering files (CLAUDE.md, etc.) describe conventions but may be stale. If you find a contradiction between steering files and actual code, flag it as a finding.<cite><a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/agentic-review/SKILL.md" target="_blank" rel="noopener"><code>agentic-review</code>, v1.24.1</a> — the same caveat appears word for word in <code>agentic-architecture</code> and <code>agentic-a11y</code>, and in paraphrase in <code>agentic-dedup</code></cite></blockquote>
+  <blockquote>Steering files (CLAUDE.md, etc.) describe conventions but may be stale. If you find a contradiction between steering files and actual code, flag it as a finding.<cite><a href="https://github.com/Ovid/paad/blob/main/plugins/paad/skills/agentic-review/SKILL.md" target="_blank" rel="noopener"><code>agentic-review</code>, v2.1.0</a> — the same caveat appears word for word in <code>agentic-architecture</code> and <code>agentic-a11y</code>, and in paraphrase in <code>agentic-dedup</code></cite></blockquote>
 
-  <p>That is a check against the codebase, which is the only place most steering claims can be tested at all: &ldquo;we use dependency injection here&rdquo; is true or false relative to the code, and reviewing the document with nothing to compare it against would be guessing. So the placement is sensible. What no skill's stated scope covers is a review of a steering file <em>as a document</em>, before anyone relies on it — <code>pushback</code>'s description names &ldquo;a spec, PRD, requirements doc, or design plan&rdquo;, and steering is not in that list. Nothing stops you from pointing <code>pushback</code> at one; that is your judgement rather than the skill's stated scope.</p>
+  <p>That is a check against the codebase, which is the only place most steering claims can be tested at all: &ldquo;we use dependency injection here&rdquo; is true or false relative to the code, and reviewing the document with nothing to compare it against would be guessing. So the placement is sensible. Module 5 also has you run <code>pushback</code> on the steering file as a document. Its description names only &ldquo;a spec, PRD, requirements doc, or design plan&rdquo;, so its behaviour on other inputs can change between releases, and a document review complements the check against the code that the skills already run rather than replacing it.</p>
 
   <p>Two things follow, and both need an owner:</p>
 
   <ul>
-    <li><strong>Read the steering files yourself, on a fixed date.</strong> Module 5 gives the test: line by line, is this still true. Do it before the first spec, then put the next pass in the calendar, because nothing else will remind you. A steering file that has gone out of date still loads without complaint.</li>
+    <li><strong>Put the PR-time prompt in the steering file, and run <code>pushback</code> on it once.</strong> Module 5 gives the prompt: before each pull request, the agent rereads <code>CLAUDE.md</code> and proposes updates, and the developer approves every change. That comes from the author's own projects; it is the recommendation for teams because the alternative, a scheduled steering review, reliably slips. A steering file that has gone out of date still loads without complaint.</li>
     <li><strong>Treat a steering contradiction reported by <code>agentic-review</code> as a finding about the steering file.</strong> It arrives inside a report about a branch, which makes it easy to read as noise attached to somebody's diff. It is the cheapest correction PAAD will hand you: one edit, and everything written afterwards starts from the corrected version.</li>
   </ul>
 
@@ -2217,7 +2277,7 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
   <p>Two smaller items in that sequence also need somebody to decide them once, for everyone:</p>
 
   <ul>
-    <li><strong>Whether AI artefacts are committed.</strong> Module 11 makes this a strong default rather than an absolute, which means it is a decision, which means it needs to be made deliberately rather than by whoever creates the first report. Agree it once, write it in the steering file, and settle the one exception PAAD names for itself — security entries in a review backlog on a repository that is public or shared outside the team — before the first push rather than after.</li>
+    <li><strong>Whether AI artefacts are committed.</strong> Module 11 makes this a strong default rather than an absolute, which means it is a decision, which means it needs to be made deliberately rather than by whoever creates the first report. Agree it once and write it in the steering file. Security findings are not part of that decision: they go to <code>paad/security/</code>, which ignores itself and is scratch, never committed. The tests that pin those findings are committed, though — Module 5 covers when to hold the push.</li>
     <li><strong>Who reads the architecture report.</strong> Step 4 asks you to run <code>pushback</code> on it and then bring what the tooling could not see: the outage behind the retry loop, the constraint that made a class ugly on purpose. That is not a review anybody can do from the report alone. It wants the person with the longest memory of the system, and an hour of their time booked in advance.</li>
   </ul>
 
@@ -2228,12 +2288,12 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
   <table class="tbl">
     <tr><th>Work</th><th>Who</th><th>When</th><th>What it costs, and why it is worth it</th></tr>
     <tr><td>Choose the canonical steering document; point the other locations at it</td><td>One person, once</td><td>Before the team starts, not after</td><td>About half a day. Prevents two documents that quietly disagree, which is expensive to correct later because nothing fails when it happens.</td></tr>
-    <tr><td>Read the steering files line by line and edit them</td><td>Whoever knows the project best</td><td>Before the first spec, then on a repeating date</td><td>An hour or two per pass. Everything written afterwards starts from this document.</td></tr>
+    <tr><td>Run <code>pushback</code> on the steering files, fix what it finds, and add the PR-time prompt</td><td>Whoever knows the project best</td><td>Before the first spec</td><td>An hour or two, once. Everything written afterwards starts from this document, and the prompt keeps it current at every pull request, where a scheduled review would slip.</td></tr>
     <tr><td>One shared <code>pushback</code> session on a real spec</td><td>The whole team</td><td>Week 1</td><td>About an hour. This is the session people remember.</td></tr>
     <tr><td>Put one review into the merge checklist</td><td>Whoever owns the pull request template</td><td>Week 1</td><td>Minutes of work, and it is what makes the review survive a deadline.</td></tr>
     <tr><td>Pair on the first live runs</td><td>The engineers who picked it up quickly, with everyone else</td><td>Weeks 1&ndash;3</td><td>About an hour each. This and the shared session are what build the habit; the other rows only protect it.</td></tr>
     <tr><td>Book <code>agentic-architecture</code> <em>and</em> the work that follows it</td><td>Whoever owns the roadmap</td><td>A named date, attached to a cycle you already have</td><td>The pass itself is cheap. Acting on it is not, which is why the time has to be reserved in advance rather than found afterwards.</td></tr>
-    <tr><td>Agree whether AI artefacts are committed, and write it in the steering file</td><td>One person, once</td><td>Before the first report exists</td><td>Minutes. Left undecided it is settled by whoever generates the first report, and a security backlog in a public repo is expensive to un-commit.</td></tr>
+    <tr><td>Agree whether AI artefacts are committed, and write it in the steering file</td><td>One person, once</td><td>Before the first report exists</td><td>Minutes. Left undecided it is settled by whoever generates the first report. Security findings stay out of it, in a directory that ignores itself, but the tests that pin them are committed (Module 5).</td></tr>
     <tr><td>Work the <code>test-roadmap</code> to the end, with the phase count visible <span class="pill">brownfield</span></td><td>A named owner, not the whole team</td><td>Before any structural fix</td><td>Weeks, on a real codebase. It is the least demonstrable work in the sequence and the only thing that makes the rest of it safe.</td></tr>
     <tr><td>Read the architecture report against what is not in the repository <span class="pill">brownfield</span></td><td>Whoever has the longest memory of the system</td><td>The week the report lands</td><td>An hour or two. It is the only step that can supply the reasons the code is the way it is, and it cannot be done later by someone else.</td></tr>
   </table>
@@ -2263,23 +2323,29 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
     <tr><td><code>agentic-a11y</code></td><td>Accessibility review skill. Scans a UI for barriers, organised by who they affect, against WCAG 2.2 AA. "a11y" is the standard abbreviation for "accessibility" — eleven letters between the <em>a</em> and the <em>y</em>. <em>Module 9.</em></td></tr>
     <tr><td><code>agentic-architecture</code></td><td>Structural diagnosis of a whole codebase. Five specialists, 34 flaw types, then a verification pass. Reports; proposes no fixes. Run periodically, not per feature. <em>Module 8.</em></td></tr>
     <tr><td><code>agentic-dedup</code></td><td>Experimental. Hunts semantic duplication — code that means the same thing behind different names. Reports only. <em>Module 11.</em></td></tr>
+    <tr><td><code>agentic-owasp</code></td><td>Experimental. Reviews code against the OWASP Top 10:2025. Its findings go only to <code>paad/security/</code>. Reports only. <em>Module 11.</em></td></tr>
     <tr><td><code>agentic-review</code></td><td>Pre-merge gate. Six specialists on your branch diff, then verification, then findings sorted into three categories. <em>Module 9.</em></td></tr>
     <tr><td><code>alignment</code></td><td>Checks an intent document against an action document in both directions, then rewrites the tasks into red/green/refactor form. The second <strong>A</strong>. <em>Module 7.</em></td></tr>
+    <tr><td><code>backlog</code></td><td>Experimental. Works the out-of-scope backlog <code>agentic-review</code> writes: <code>clean</code> drops entries that are fixed or gone, <code>fix</code> fixes the next one test-first. Never commits. <em>Modules 9 and 11.</em></td></tr>
     <tr><td>Defense in depth</td><td>Layered protection, so that no single check has to catch everything. The organising metaphor of the whole toolkit — and the reason PAAD is a set of gates rather than one clever pass. <em>Module 2.</em></td></tr>
     <tr><td>Discipline</td><td>The <strong>D</strong>. Not a technique but the habit of applying the other three every time, including when the change is small and the deadline is close. <em>Module 9.</em></td></tr>
     <tr><td>Engineering-driven AI</td><td>PAAD's tagline and its whole proposition: you see what the AI is about to do while you can still change it. The inverse of AI-driven engineering, where the assistant sets the pace and you find out what it decided when the code lands. <em>Module 1.</em></td></tr>
-    <tr><td>Experimental skill</td><td>A skill exempt from PAAD's versioning promise. Arguments, output paths and behaviour can change in any release, including a patch. Currently <code>agentic-dedup</code>, <code>rethink</code> and <code>test-roadmap</code> — but which skills sit here changes too. <em>Module 11.</em></td></tr>
+    <tr><td>Experimental skill</td><td>A skill exempt from PAAD's versioning promise. Arguments, output paths and behaviour can change in any release, including a patch. Currently <code>agentic-dedup</code>, <code>agentic-owasp</code> and <code>backlog</code> — but which skills sit here changes too, so read the CHANGELOG before you update. <em>Module 11.</em></td></tr>
     <tr><td><code>fix-architecture</code></td><td>The treatment to <code>agentic-architecture</code>'s diagnosis. Consumes a report and works through findings one at a time, test-first, on a feature branch. <em>Module 8.</em></td></tr>
+    <tr><td><code>handoff</code></td><td>Writes a <code>handoff.md</code> so a fresh session can continue this one's work, and reads it back on the other side. Gitignore the file. <em>Module 11.</em></td></tr>
     <tr><td>In-scope / out-of-scope</td><td>How <code>agentic-review</code> decides what is yours to fix. In-scope: your branch caused or worsened it. Out-of-scope bug: pre-existing, goes to a backlog rather than blocking your merge. Out-of-scope addition: something your branch added that no spec promised. <em>Module 9.</em></td></tr>
+    <tr><td>Maintenance loop</td><td>The second of the two loops, for technical debt: <code>agentic-architecture</code> → <code>pushback</code> on the report → <code>fix-architecture</code> on a new branch → <code>agentic-review</code> → PR, repeated per batch of chosen fixes on time you reserve. <em>Module 10.</em></td></tr>
     <tr><td><code>makefile</code></td><td>Generates a project Makefile so developers and agents run the same checks through the same commands. <em>Module 5.</em></td></tr>
     <tr><td>PAAD</td><td>Pushback, Alignment, Architecture, Discipline — four common failure modes in AI-assisted development, and the skills that address each. Pronounced "pad". Open source, MIT-licensed, by Curtis "Ovid" Poe. <em>Module 1.</em></td></tr>
-    <tr><td><code>paad/</code></td><td>The directory the Claude Code plugin writes its reports into, inside your repository — <code>paad/pushback-reviews/</code>, <code>paad/architecture-reviews/</code>, <code>paad/code-reviews/</code>, <code>paad/test-roadmap/</code>. Reports are files you keep, not chat output you lose. The Kiro and Antigravity port writes to <code>.reviews/</code> instead, and the names may be standardised further in a later release. <em>Modules 6–9, 11.</em></td></tr>
-    <tr><td>Per-feature loop</td><td>The seven-step cycle that assembles the four letters into a repeatable rhythm: spec → pushback → tasks → pushback → alignment → implement → agentic-review. <em>Module 10.</em></td></tr>
+    <tr><td><code>paad/</code></td><td>The directory the Claude Code plugin writes its reports into, inside your repository — <code>paad/pushback-reviews/</code>, <code>paad/architecture-reviews/</code>, <code>paad/code-reviews/</code>, <code>paad/test-roadmap/</code>. Reports are files you keep, not chat output you lose. Two subdirectories are different: <code>paad/security/</code> holds findings that would help an attacker, ignores itself and is scratch; <code>paad/config/</code> holds your own instructions for PAAD. <em>Modules 6–9, 11.</em></td></tr>
+    <tr><td><code>paad/config/</code></td><td>Optional per-project instructions: <code>paad.md</code> for every skill, <code>&lt;skill&gt;.md</code> for one. Plain prose, no schema. Experimental. A skill that follows one names it in a <code>Config:</code> line. Commit it and review it like code. <em>Module 11.</em></td></tr>
+    <tr><td><code>paad-help</code></td><td>Lists the skills, or explains one: <code>/paad-help [skill-name]</code>. Named so because <code>/help</code> is Claude Code's built-in. <em>Module 11.</em></td></tr>
+    <tr><td>Per-feature loop</td><td>The 8-step cycle that assembles the four letters into a repeatable rhythm: spec → pushback → tasks → pushback → alignment → implement → agentic-review → human PR approval and merge. The first of the two loops. <em>Module 10.</em></td></tr>
     <tr><td><code>pushback</code></td><td>Critically reviews a spec before anything is built from it. Six categories, one issue at a time, worst first, each with options. The <strong>P</strong>, and the recommended first skill to adopt. <em>Module 6.</em></td></tr>
-    <tr><td><code>rethink</code></td><td>Experimental. Argues with an answer rather than a spec — including one of <code>pushback</code>'s — by testing whether the assumptions a chosen option rests on are actually true. <em>Module 11.</em></td></tr>
-    <tr><td>Skill</td><td>A markdown instruction file, conventionally <code>SKILL.md</code>, that a coding assistant loads on demand and follows. Not code and not a model — a written procedure. PAAD is about a dozen of them. <em>Module 1; installing and invoking, Module 11.</em></td></tr>
+    <tr><td><code>rethink</code></td><td>Argues with an answer rather than a spec — including one of <code>pushback</code>'s — by testing whether the assumptions a chosen option rests on are actually true. <em>Module 11.</em></td></tr>
+    <tr><td>Skill</td><td>A markdown instruction file, conventionally <code>SKILL.md</code>, that a coding assistant loads on demand and follows. Not code and not a model — a written procedure. PAAD is fifteen of them, as of v2. <em>Module 1; installing and invoking, Module 11.</em></td></tr>
     <tr><td>Specialist</td><td>A sub-agent given one narrow brief — security, coupling, error handling — and run in parallel with others, so that problems cannot hide in a single reviewer's blind spot. <em>Module 2; in detail, Modules 8 and 9.</em></td></tr>
-    <tr><td><code>test-roadmap</code></td><td>Experimental. Builds a suite that pins current behaviour, proving each test works by injecting the bug it claims to catch. The only PAAD skill that writes and commits code. <em>Module 5.</em></td></tr>
+    <tr><td><code>test-roadmap</code></td><td>Builds a suite that pins current behaviour, proving each test works by injecting the bug it claims to catch. Run it repeatedly, one phase per run. <em>Module 5.</em></td></tr>
     <tr><td>Verification pass</td><td>A second, separate stage that takes raw findings and tries to disprove them, reading the actual code and git history to discard what it cannot substantiate. The thing that makes automated review usable rather than noise. <em>Module 2; the evidence for it, "How good is the evidence?"</em></td></tr>
     <tr><td><code>vibe</code></td><td>Guardrails without heavy process, for small changes — roughly one to three files in one module. Pre-flight checks, then mandatory red/green/refactor. Not to be confused with vibe coding, which is what it exists to make safer. <em>Module 9.</em></td></tr>
   </table>
@@ -2289,7 +2355,7 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
   <table class="tbl">
     <tr><th>Term</th><th>What it means</th></tr>
     <tr><td><a href="https://agents.md/" target="_blank" rel="noopener"><code>AGENTS.md</code></a></td><td>An open, tool-neutral steering file format read natively by many coding agents. Stewarded by the Agentic AI Foundation under the Linux Foundation. Claude Code does <em>not</em> read it directly — import or symlink it from <code>CLAUDE.md</code>. <em>Module 3.</em></td></tr>
-    <tr><td>Antigravity</td><td>Google's agentic development platform, and one of the environments PAAD provides skills for alongside Claude Code, Cursor and Kiro. Installing for it copies two directories into your project: <code>.agent/skills/</code>, which Antigravity discovers, and <code>.kiro/skills/</code>, which holds the content those files point at. <em>Module 11.</em></td></tr>
+    <tr><td>Antigravity</td><td>Google's agentic development platform, and one of the environments PAAD provides skills for alongside Claude Code, Cursor and Kiro. Install with <code>npx skills@latest add Ovid/paad</code>. <em>Module 11.</em></td></tr>
     <tr><td><code>CLAUDE.md</code></td><td>Claude Code's steering file, at the repository root or in <code>.claude/</code>. Personal preferences go in <code>~/.claude/CLAUDE.md</code>; gitignored notes in <code>CLAUDE.local.md</code>. <em>Module 3.</em></td></tr>
     <tr><td>Constitution</td><td>Spec Kit's near-relative of a steering file. A steering file mostly records facts (this is the stack); a constitution records principles (this is a trade-off we have already settled). <em>Module 3.</em></td></tr>
     <tr><td>Context clash</td><td>Two things in the context window contradict each other and the model has no reliable way to know which wins. One of four long-context failure modes. <em>Module 5.</em></td></tr>
@@ -2300,7 +2366,7 @@ cp -r kiro_and_antigravity/skills/.agent/skills/* .agent/skills/</code></pre>
     <tr><td>Plugin / marketplace</td><td>How Claude Code distributes and installs bundles of skills. PAAD is a third-party marketplace, which means auto-update is off by default and you install updates yourself. <em>Module 11.</em></td></tr>
     <tr><td>Poisoning</td><td>Something false enters the context — a hallucinated function name, an uncorrected assumption — and is treated as fact for the rest of the session. A long-context failure mode. <em>Module 5.</em></td></tr>
     <tr><td>Quadratic slowdown</td><td>Each new token is compared against every token already in the window, so the cost of generating one grows roughly in proportion to the context length — and the total for a long session with its square. A full window is slower as well as worse. <em>Module 5.</em></td></tr>
-    <tr><td>Semantic versioning</td><td>The <code>1.24.1</code> scheme: first number for a breaking change, second for a feature, third for a fix. PAAD's stable skills honour it; the experimental ones are exempt. <em>Module 11.</em></td></tr>
+    <tr><td>Semantic versioning</td><td>The <code>2.1.0</code> scheme: first number for a breaking change, second for a feature, third for a fix. PAAD's stable skills honour it; the experimental ones are exempt. <em>Module 11.</em></td></tr>
     <tr><td>Slash command</td><td>Typing a skill's name with a leading slash — <code>/pushback</code>. The fully-qualified form <code>/paad:pushback</code> always works; the bare form works when no other installed skill shares the name. Plain English works too. <em>Module 11.</em></td></tr>
     <tr><td>Steering file</td><td>A document your assistant loads at the start of every session, holding what is true for the project rather than for one feature. Projects usually have more than one. Sits above specs in the cost hierarchy, so an error in it is inherited by everything. <em>Named in Module 2; what to put in one, Module 5.</em></td></tr>
     <tr><td>Sub-agent</td><td>A separate agent instance dispatched to do one scoped piece of work with its own fresh context, reporting back. How PAAD runs specialists in parallel. <em>Module 2.</em></td></tr>
@@ -2405,8 +2471,7 @@ const LOOP = [
     body:`<p>Generate the implementation plan from the spec, using whatever SDD method you have chosen. This is the translation step where intent becomes action — and translation is where meaning gets lost.</p>` },
   { n:4, t:"Run <code>/pushback</code> on the task list", tag:"loopy", tagl:"may repeat",
     sub:"The task list is a document too",
-    body:`<p>A task list can be ambiguous, infeasible, or quietly omit things exactly as a spec can. "Add caching" is as vague in a task as it is in a requirement.</p>
-          <p><b>Note:</b> this step appears in the article's loop but not the README's shorter workflow. It is the more thorough version — worth adding once the basic loop is a habit.</p>` },
+    body:`<p>A task list can be ambiguous, infeasible, or quietly omit things exactly as a spec can. "Add caching" is as vague in a task as it is in a requirement.</p>` },
   { n:5, t:"Run <code>/alignment</code> on the task list", tag:"loopy", tagl:"may repeat",
     sub:"Three checks, dependency-ordered, then a TDD rewrite",
     body:`<p>Requirements coverage catches what you forgot. Scope compliance catches what got added without being asked for. Design alignment catches tasks that quietly bypass the design.</p>
@@ -2418,8 +2483,13 @@ const LOOP = [
   { n:7, t:"Run <code>/agentic-review</code> on the result", tag:"loopy", tagl:"may repeat",
     sub:"Six specialists, verified, deduplicated, severity-ranked",
     body:`<p>Logic, error handling, contracts, concurrency, security, and spec compliance — in parallel, then verified against the actual code to drop false positives. Findings are sorted into in-scope, out-of-scope bugs (which go to a persistent backlog), and out-of-scope additions (a per-PR keep/split/revert decision).</p>
-          <p><b>Why repeat:</b> the README says running it more than once is valuable. It is a stronger automated safety net than typical AI review — not a replacement for a human reviewer.</p>` }
+          <p><b>Why repeat:</b> the README says running it more than once is valuable. It is a stronger automated safety net than typical AI review — not a replacement for a human reviewer.</p>` },
+  { n:8, t:"Human PR approval and merge", tag:"you", tagl:"you decide",
+    sub:"Repeat for the next feature",
+    body:`<p>This is the one gate PAAD never automates. Every skill ends in a human decision rather than a merge: a person reads the PR and decides whether it goes into the primary branch.</p>
+          <p>Then start again at step 1 for the next feature. Structural debt that crosses features is not this loop's job; it belongs to Loop 2, below.</p>` }
 ];
+
 
 /* ═══════════════ DATA: quizzes ═══════════════ */
 const QUIZ = {
@@ -2427,9 +2497,9 @@ const QUIZ = {
     { q:"Your team runs PAAD in both Claude Code and Cursor. Where should the project's steering live?",
       o:["One canonical file, with the other locations importing or symlinking it","A copy in each editor's format, kept synchronised by hand","Only in the editor most of the team uses","In the spec, so that pushback reviews it"],
       a:0, why:"Copies drift, and nothing fails when they do, so the divergence is silent. AGENTS.md is the sensible canonical choice because it is tool-neutral \u2014 but Claude Code does not read it directly, so CLAUDE.md has to import or symlink it rather than hold a second copy." },
-    { q:"PAAD does check your steering files. Where, and against what?",
+    { q:"Which PAAD skills check your steering files automatically, and against what?",
       o:["pushback reviews them as documents, before implementation begins","agentic-review, agentic-architecture and agentic-a11y check them against the actual code and flag contradictions as findings","alignment compares them with the task list in both directions","Nowhere \u2014 steering sits outside every skill's scope"],
-      a:1, why:"All three read the steering files before dispatching their specialists, and every specialist prompt carries an instruction to flag any contradiction between steering and code. That is a check against the codebase, which is the only place most steering claims can be tested. Reviewing the document before anyone relies on it is still the human read Module 5 describes." },
+      a:1, why:"All three read the steering files before dispatching their specialists, and every specialist prompt carries an instruction to flag any contradiction between steering and code. That is a check against the codebase, which is the only place most steering claims can be tested. pushback can review steering as a document too — Module 5 asks you to run it once — but only when you point it at the file; nothing runs it automatically." },
     { q:"A team agrees the gates are worth running, then skips them the first time a deadline gets close. Which response is most likely to work?",
       o:["Explain the cost of skipping them again","Put the gate into the checklist the team already uses, so skipping it is visible","Add a line to the steering file requiring it","Wait until the team has more time and revisit it then"],
       a:1, why:"Under pressure people do what is already automatic, so strengthening the intention is the weakest lever available. Removing the decision is the strong one: Module 5 asks for one documented command so that developers and agents run the same checks the same way, and the same reasoning applies one level up, to the list a merge has to satisfy." },
@@ -2563,7 +2633,7 @@ const QUIZ = {
       a:3, why:"The suite's job at this stage is to be an alarm that sounds when something changes, not a statement of what ought to be true. Fixing as you go means never finishing the safety net." },
     { q:"Why is a high coverage number not proof of a good test suite?",
       o:["A line can be covered by a test that asserts nothing","Coverage tools are generally poorly calibrated","Coverage counts only unit tests, never integration","High coverage makes continuous integration slower"],
-      a:0, why:"This is why the experimental test-roadmap skill makes every phase name the bug it would catch, then proves it by injecting that bug in a throwaway worktree." },
+      a:0, why:"This is why the test-roadmap skill makes every phase name the bug it would catch, then proves it by injecting that bug in a throwaway worktree." },
     { q:"Which is NOT one of the three test layers the article describes?",
       o:["Integration tests validating component communication","End-to-end tests covering critical user journeys","Performance tests measuring throughput under load","Unit tests exercising components in isolation"],
       a:2, why:"Unit, integration, and end-to-end are the three named layers. Performance testing matters, but it is not part of the behaviour-pinning safety net described here." }
@@ -2614,7 +2684,7 @@ const QUIZ = {
       a:0, why:"Worktrees would avoid file collisions, but merging several structural refactors together reliably introduces new bugs. Parallelism is not free just because the tooling supports it." },
     { q:"What does fix-architecture require before it will run?",
       o:["A test suite with total statement coverage","A linear git history with no merge commits","An empty out-of-scope backlog file","A feature branch and an existing report"],
-      a:3, why:"It refuses to run on main or master, and additionally checks report staleness, test infrastructure, and a baseline test run before proposing a plan." }
+      a:3, why:"It refuses to run on the repository's default branch (origin/HEAD, else main, master or trunk), and additionally checks report staleness, test infrastructure, and a baseline test run before proposing a plan." }
   ],
   disc:[
     { q:"A review finds a bug in a file your branch edited. The bug predates your work, and nothing you changed makes it more likely to fire. What happens to it?",
@@ -2624,22 +2694,22 @@ const QUIZ = {
       o:["An addition — you decide to keep, split, or revert it","An out-of-scope bug — it goes to the backlog","In-scope — it has to be resolved before merge","Nothing — unrequested additions are not reported"],
       a:0, why:"Surfaced by the Spec Compliance specialist. It might be a legitimate \"while I'm here\" fix or scope creep for a separate PR, so it is a decision rather than a verdict." },
     { q:"You are on main, with uncommitted changes and a conversation that already has substantive history. What does agentic-review do?",
-      o:["It runs anyway, printing a warning first","It commits your work and switches branch for you","It stops before reviewing anything: three separate pre-flight checks fail","It reviews only the changes you have not committed"],
-      a:2, why:"It refuses to run on main or master, it tells you to start a fresh session when the conversation already has substantive history, and it asks what to do about uncommitted changes rather than guessing. That last one matters: it will not make the decision on your behalf." },
+      o:["It runs anyway, printing a warning first","It commits your work and switches branch for you","It stops before reviewing anything, starting with its fresh-session check","It reviews only the changes you have not committed"],
+      a:2, why:"Its first pre-flight check tells you to start a fresh session when the conversation already has substantive history, and stops there. Had you got past it, it would refuse to run on the repository's default branch (origin/HEAD, else main, master or trunk), and it asks what to do about uncommitted changes rather than guessing. That last one matters: it will not make the decision on your behalf." },
     { q:"At what point does vibe warn that a change may be too big for it?",
       o:["Any change that also touches a test file","Two or more files, whatever the module","Ten or more files in a single commit","Four or more files, or crossing modules"],
       a:3, why:"One to three files in the same module is good vibe territory. Beyond that it suggests a more structured approach — which means the loop." },
     { q:"A conceptually simple vibe task turns out to require a great deal of work. What does the vibe skill do?",
       o:["Continue anyway, since the task is simple in principle","Stop and look for deeper structural problems","Split the work into several smaller vibe tasks","Skip the tests to keep the change moving"],
       a:1, why:"This is the architecture-smell check — encoding \"this simple thing is taking far too long\" as a stopping condition is how Discipline feeds back into Architecture." },
-    { q:"What does agentic-a11y's own documentation say about its limits?",
+    { q:"What does PAAD's README say about agentic-a11y's limits?",
       o:["Human accessibility review is still required","It fully replaces manual accessibility testing","It supports web applications and nothing else","It checks only colour contrast ratios"],
       a:0, why:"Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable." }
   ],
   loop:[
-    { q:"In the article's loop, what sits between generating the task list and executing it?",
+    { q:"In the per-feature loop, what sits between generating the task list and executing it?",
       o:["Nothing — the tasks are executed immediately","An alignment check on the task list, and nothing else","Pushback on the task list, then alignment on it","A full agentic-review of the not-yet-written code"],
-      a:2, why:"The task list is a document too, and can be ambiguous or infeasible exactly as a spec can. The README's shorter workflow omits the second pushback pass." },
+      a:2, why:"The task list is a document too, and can be ambiguous or infeasible exactly as a spec can. That is why the 8-step loop runs pushback on the task list as well as on the spec, before alignment checks it." },
     { q:"Why does the loop specify executing tasks in new sessions?",
       o:["Long contexts degrade, and generation slows down","Each new session is assigned a different model","Shorter sessions cost measurably less to run","It keeps the resulting git history easier to read"],
       a:0, why:"A session running for hours reasons measurably worse than a fresh one, even though nothing visibly broke. This is the best-evidenced claim in the whole course." },
@@ -2659,7 +2729,7 @@ const QUIZ = {
       a:2, why:"It is cheapest to run, needs no branch or test infrastructure, sits highest in the cost hierarchy, and produces the moment that drives adoption." },
     { q:"Where does PAAD sit relative to the spec-driven development toolkit you already use?",
       o:["It replaces spec-kit, Kiro, and OpenSpec with its own spec format","It reviews the artefacts your toolkit produces, whichever one you use","It works only alongside GitHub's Spec Kit","It removes the need to write a specification at all"],
-      a:1, why:"Every SDD toolkit generates a spec, a plan and a task list, then hands them over without reviewing any of them. PAAD is agnostic about which produced the documents — its auto-detection scans .kiro/, specs/, docs/plans/ and docs/specs/, and it will also review a plain markdown file." },
+      a:1, why:"Every SDD toolkit generates a spec, a plan and a task list, then hands them over without reviewing any of them. PAAD is agnostic about which produced the documents — alignment's auto-detection scans .kiro/, specs/, docs/plans/ and docs/specs/, and the skills will also review a plain markdown file." },
     { q:"Which is NOT one of agentic-review's six specialists?",
       o:["Accessibility","Security","Spec Compliance","Concurrency & State"],
       a:0, why:"Accessibility is its own skill. The six are Logic & Correctness, Error Handling & Edge Cases, Contract & Integration, Concurrency & State, Security, and Spec Compliance." },
@@ -2676,11 +2746,11 @@ const QUIZ = {
       o:["Assert the current behaviour and note the bug","Fix it before writing any more of the suite","Delete the affected code path entirely","Skip that area and test something else"],
       a:0, why:"The suite's job is to be an alarm that sounds when something changes. Fixing as you go means never finishing the safety net." },
     { q:"Which skills are currently marked experimental?",
-      o:["agentic-dedup, rethink, and test-roadmap","pushback and alignment","vibe, makefile, and agentic-a11y","fix-architecture and agentic-review"],
-      a:0, why:"Their arguments, output paths, and behaviour can change or be withdrawn in any release, including a patch release. Pin your version if you build on them — and note that the membership of this list changes between releases, so check it rather than memorising it." },
+      o:["agentic-dedup, agentic-owasp, and backlog","agentic-dedup, rethink, and test-roadmap","vibe, makefile, and agentic-a11y","fix-architecture and agentic-review"],
+      a:0, why:"As of v2.1.0. Their arguments, output paths, and behaviour can change or be withdrawn in any release, including a patch release, so read the CHANGELOG before you take an update. The second option was the list in 1.24 — membership changes between releases, so check it rather than memorising it." },
     { q:"Which statement about PAAD skills writing code is accurate?",
       o:["No PAAD skill modifies any file in your repository","Every skill commits its own changes automatically","vibe writes code but leaves committing entirely to you","Only agentic-review is allowed to alter source files"],
-      a:2, why:"Read this one critically. The README says test-roadmap is \"the only PAAD skill that writes and commits code\" — but fix-architecture also commits, one commit per fix, when you pick auto-commit mode. vibe writes code and never commits. The README's claim is an overstatement, and noticing that is exactly the habit PAAD is trying to build." },
+      a:2, why:"Several skills write code, and they differ on committing. fix-architecture always commits its safety-net tests, and its fixes too in auto-commit mode; test-roadmap commits each phase; vibe and /backlog fix edit code and leave the commit to you. Knowing which is which tells you what to check in git status after a run." },
     { q:"What distinguishes engineering-driven AI from AI-driven engineering?",
       o:["The engineer writes the code and the AI reviews it","The AI is restricted to smaller, lower-risk tasks","The engineer sees each decision while it can still be changed","The AI is given a more detailed specification up front"],
       a:2, why:"Same speed, opposite direction. Under AI-driven engineering the assistant sets the pace and the engineers are downstream of decisions they never saw being made. A more detailed spec does not fix that on its own — an unchallenged spec is still an unchallenged spec." },

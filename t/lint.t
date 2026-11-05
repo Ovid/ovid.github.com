@@ -169,6 +169,7 @@ sub _validate_image ($image) {
             my $size = -s $src;
             if (   $size > $MAX_IMAGE_SIZE
                 && $src !~ /ukraine-war/    # make an exception because this is important. Later, we can clean this up
+                && $src !~ m{^paad/images/} # byte-identical copies of PAAD's diagrams, so they can be re-copied
               )
             {
                 push @errors =>
