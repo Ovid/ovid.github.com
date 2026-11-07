@@ -1,0 +1,116 @@
+id: alignment
+title: A — Alignment
+group: The four letters
+---
+[% WRAPPER hero eyebrow="$group · Module $num · A" h1='Alignment' %]
+A good spec and a good plan can still be two different products. `alignment` checks them against each other before code gets written.
+[% END %]
+
+Where `pushback` asks "is this spec any good?", `alignment` asks "does the planned work actually match it?" It needs two things: an **intent document** (requirements, spec, PRD) and an **action document** (plan, tasks, implementation steps). It classifies whichever documents it finds into those two categories and compares them.
+
+<pre><code>/alignment                            # auto-detect
+/alignment requirements.md plan.md    # specific files
+/alignment docs/specs/ docs/plans/    # directories</code></pre>
+
+Auto-detection scans `.kiro/`, `specs/` (spec-kit), `docs/plans/`, `docs/specs/`, and common filenames. Like `pushback`, it opens with a source-control reality check against recent history.
+
+## The three checks
+
+[% WRAPPER table %]
+| Check | Direction | What it catches |
+| Requirements coverage | Intent → action | Requirements with no task at all, and requirements only *partially* covered — the happy path (the case where nothing goes wrong) has a task but error handling does not. |
+| Scope compliance | Action → intent | Tasks that trace back to no stated requirement: scope creep and gold-plating (building more than was asked for). Also tasks addressing implied but unstated requirements, which may be legitimate — it asks. |
+| Design alignment | Both, if design docs exist | Design decisions not reflected in tasks, and tasks that contradict or quietly bypass the design. |
+[% END %]
+
+The two-directional structure is the point. Coverage alone catches what you forgot. Scope compliance catches what the assistant added on its own initiative — and that second category is where AI-assisted projects drift, because an assistant that adds a caching layer nobody asked for is being helpful in a way that costs you a maintenance burden.
+
+## Issues arrive dependency-ordered
+
+Unlike `pushback`'s severity ordering, `alignment` presents issues in **dependency order**, root causes before symptoms:
+
+1. **Missing or unclear requirements first.** A missing requirement explains why there is no task for it and no design for it.
+2. **Design gaps second**, where design docs exist — a design gap may explain why tasks are missing or wrong.
+3. **Missing, orphaned, or out-of-scope tasks last.** These often resolve themselves once the upstream issues are fixed.
+
+Severity is Critical / Important / Minor, and as with `pushback` you get one issue at a time with options best to worst, and you can stop whenever you like.
+
+<div class="reveal" data-reveal="align1">
+  <div class="rv-head">
+    <div class="rv-kicker">Intent: requirements.md  ·  Action: tasks.md</div>
+    <div class="rv-spec">REQUIREMENTS
+R1. Users can export their data as CSV.
+R2. Exports must be rate-limited to 3 per hour per user.
+R3. Large exports (&gt;50k rows) run in the background
+    and email a download link.
+
+TASKS
+T1. Add /export endpoint returning CSV.
+T2. Add a background job for exports over 50k rows.
+T3. Send email with signed download link.
+T4. Add a Redis cache layer for export queries.
+T5. Build an admin dashboard showing export history.</div>
+  </div>
+  <button class="rv-btn" data-rv="align1">▸ Reveal four issues alignment might raise</button>
+  <div class="rv-body" id="rv-align1">
+    <div class="finding"><span class="f-cat contradiction">Coverage</span><div class="f-txt"><b>R2 has no task at all.</b> Rate limiting is a stated requirement with zero corresponding action item. This is the classic silent gap — it ships, nobody notices until someone writes a script that calls the endpoint repeatedly. <em>Presented first: it is a root cause.</em></div></div>
+    <div class="finding"><span class="f-cat omission">Coverage</span><div class="f-txt"><b>R1 is only partially covered.</b> T1 handles the happy path. Nothing addresses what happens when a user with no data exports, when the CSV generation fails midway, or when a user requests an export while one is already running.</div></div>
+    <div class="finding"><span class="f-cat scope">Scope</span><div class="f-txt"><b>T4 traces to no requirement.</b> A Redis cache layer is a real engineering decision with real operational cost. It may be justified — but it was not asked for, and it needs to be either promoted to a requirement or dropped. This is exactly the drift the check exists to catch.</div></div>
+    <div class="finding"><span class="f-cat scope">Scope</span><div class="f-txt"><b>T5 is a separate feature.</b> An admin dashboard is not part of &quot;users can export their data.&quot; It has its own UI, its own permissions model, and its own testing burden. It belongs in its own spec.</div></div>
+  </div>
+</div>
+
+## The mandatory TDD rewrite
+
+This is the part people are surprised by. Once alignment is confirmed, `alignment` rewrites your tasks into red/green/refactor format. It skips this only if the tasks are already in that format, or if they do not involve code — infrastructure provisioning, documentation, design work, data migrations, manual processes.
+
+Each rewritten task names the requirement it addresses and then specifies three steps:
+
+[% WRAPPER table %]
+| Step | Why it produces better AI output |
+| RED — write a failing test | Defines expected behaviour before any code exists. Occasionally the test passes immediately, which tells you the feature already exists or your assumptions are wrong. More often it fails in an *unexpected* way, surfacing an unknown issue in the codebase. Both outcomes are information you would otherwise never get. |
+| GREEN — minimal code to pass | Forces simpler solutions. The assistant addresses the problem directly instead of over-engineering. Less speculative code means less low-quality code to clean up later. |
+| REFACTOR — clean up what you just wrote | **The step AI almost never does unless explicitly told to.** Catches duplicated logic that should be extracted, hard-coded values that belong in config, and inconsistent patterns that should be consolidated — the small things that compound into architectural debt. |
+[% END %]
+
+<div class="note violet">
+  <span class="note-t">The insight hiding in RED</span>
+  <p>Most descriptions of TDD present the failing test as proof that the test works. In an AI context there is a second benefit: <em>the way</em> it fails is diagnostic. A test that fails with a missing-import error tells you something different from one that fails on an assertion, and different again from one that unexpectedly passes.</p>
+</div>
+
+[% WRAPPER quiz %]
+Q: Which two kinds of document does alignment compare?
+- The current code and its accompanying test suite
++ Intent documents and action documents
+- Two successive revisions of the same specification
+- The specification and the repository's git history
+Why: Intent means requirements, specs, PRDs; action means plans, tasks, implementation steps. Checking code against a spec is a different job.
+
+Q: Your plan adds a Redis cache. No requirement mentions caching, and the project has no design document. Which check catches it?
+- Requirements coverage
+- Design alignment
++ Scope compliance
+- The source-control reality check
+Why: Scope compliance runs action → intent, asking whether each task traces to a stated requirement. Design alignment only runs when intermediate design docs exist — which is why the question rules one out. Had a design document existed and been silent on caching, both checks could legitimately have flagged it; the three checks overlap at the edges.
+
+Q: Why does alignment order issues by dependency rather than severity?
+- Severity cannot be assessed for alignment issues
+- Dependency order is cheaper to compute than severity
+- It matches the order the documents were written in
++ Fixing root causes often dissolves the symptoms
+Why: Missing requirements come first, then design gaps, then orphaned tasks. A missing requirement explains why there is no task and no design for it.
+
+Q: Which step of red/green/refactor does the skill single out as the one AI skips?
+- RED — writing the failing test first
+- GREEN — the minimal code that passes
++ REFACTOR — cleaning up what was just written
+- All three are skipped at about the same rate
+Why: REFACTOR is where duplication gets extracted and hard-coded values move to config — the small things that compound into architectural debt.
+
+Q: Beyond proving the test works, what makes the RED step valuable?
++ How it fails is itself diagnostic information
+- It produces the coverage number CI requires
+- It is mandated by most continuous integration systems
+- It makes the subsequent GREEN step run faster
+Why: An unexpected pass means the feature exists or your assumptions are wrong; an unexpected failure mode reveals an unknown issue. The template asks you to predict both in advance.
+[% END %]

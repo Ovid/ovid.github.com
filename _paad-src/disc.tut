@@ -1,0 +1,127 @@
+id: disc
+title: D — Discipline
+group: The four letters
+---
+[% WRAPPER hero eyebrow="$group · Module $num · D" h1='Discipline' %]
+Code quality rarely degrades in one dramatic change. It slips through a series of small decisions that each seem reasonable in isolation.
+[% END %]
+
+Discipline is the letter that is not a technique. The other three describe things to *do*; this one describes doing them *every time*, including the Friday afternoon when the change is small and the deadline is Monday. The skills grouped under it are the ones that make consistency cheap enough to sustain.
+
+## `/agentic-review` — the pre-merge gate
+
+<pre><code>/agentic-review                   # diff against the default branch
+/agentic-review develop           # diff against a different base
+/agentic-review main src/auth/    # scoped to a directory</code></pre>
+
+Six specialists examine your branch in parallel. Where typical AI review features give shallow, unsystematic feedback, this is designed as a deliberate quality gate: parallel analysis, then a verification pass that reads the actual code to drop false positives, assigns severity, merges duplicates, and classifies what is yours to fix.
+
+[% WRAPPER table %]
+| Specialist | Hunting for |
+| Logic &amp; Correctness | Wrong conditions, off-by-one errors, null paths, bad state transitions, new code paths that skip validation or cleanup that sibling paths perform. |
+| Error Handling &amp; Edge Cases | Missing catches, swallowed exceptions, boundary validation, silent failures. |
+| Contract &amp; Integration | Signature versus callers, type mismatches, broken API contracts, data-shape drift, duplicated logic. |
+| Concurrency &amp; State | Race conditions, shared mutable state, cache invalidation, ordering assumptions. |
+| Security | Injection, auth gaps, data exposure, OWASP Top 10. |
+| Spec Compliance | Missing features, deviations from intent, out-of-scope additions — pulling intent from the PR description, plan and design docs, recent commit messages, or the branch name. |
+[% END %]
+
+Findings are ranked **Critical / Important / Suggestion** and the report is written to `paad/code-reviews/`.
+
+### The three categories
+
+What makes this more than a linter is how it decides what is *yours* to fix:
+
+[% WRAPPER table %]
+| Category | Meaning | What happens to it |
+| In-scope | Your branch caused the bug, or worsened it — made it more likely to be triggered, expanded its blast radius, removed a guard that was masking it, or added a new caller into broken code. | Fix before merge. |
+| Out-of-scope (bug) | A bug that already existed, and that your branch does not reach in any new way, even if it lives in a file you touched. | Persisted to `paad/code-reviews/backlog.md` — or `paad/security/backlog.md` when it is security-related — so it is not lost. |
+| Out-of-scope addition | Code your branch added that the spec never promised. | A per-PR decision: keep, split out, or revert. Never goes to the backlog. |
+[% END %]
+
+That middle category is the forgiving one. Without it, every review of a legacy file mixes problems you did not cause into the list of things blocking your merge. With it, each one gets a stable ID and a single backlog entry — later reviews re-confirm that entry rather than creating a duplicate, and the finding is set aside in the report's out-of-scope section instead of blocking your PR. The backlog is explicit-removal only: `agentic-review` never auto-resolves an entry. `/backlog clean` re-checks each entry against the current code and removes the ones that are fixed or gone.
+
+<div class="note teal">
+  <span class="note-t">Pre-flight checks that will stop you</span>
+  <p><code>agentic-review</code> diffs against the repository&#39;s default branch (<code>origin/HEAD</code>, else <code>main</code>, <code>master</code> or <code>trunk</code>) and refuses to run on it, refuses to run against an empty diff, asks what to do about uncommitted changes rather than guessing, and — notably — tells you to start a fresh session if your conversation already has substantive history. That last one is context management enforced by the tool rather than left to your memory.</p>
+</div>
+
+Run it more than once. The README is explicit that repeated runs are valuable, and equally explicit that this is a stronger automated safety net, *not* a replacement for human review.
+
+<div class="note teal">
+  <span class="note-t">What the pre-flight checks leave to <code>pushback</code></span>
+  <p>Notice what is not on that list: how <em>large</em> the diff is. Both the human reviewer and the six specialists get worse as the input grows — but a pre-merge gate is the wrong place to enforce that, because the code already exists by the time it runs. PAAD checks size where acting on it is still cheap: <code>pushback</code>&#39;s phase 1.5, on the spec. The appendix “Why small specs” has the evidence and the decomposition procedure.</p>
+</div>
+
+## `/agentic-a11y` — accessibility as a default
+
+Discipline also means accessibility is not an afterthought. This skill scans for meaningful accessibility barriers and organises them by who they affect, with dedicated specialists for screen reader usage, visual and colour contrast, keyboard and motor interaction, cognitive load, and multimedia.
+
+It supports web, iOS, Android, React Native, Flutter, desktop, CLI, and games, detecting the platform automatically. It evaluates against WCAG 2.2 AA — applied through WCAG2ICT for non-web platforms — with AAA noted as bonus recommendations, and draws on platform guidance such as the Apple HIG, Material Design, and the Xbox Accessibility Guidelines. Output includes an impact summary by user group and the five highest-impact, lowest-effort quick wins.
+
+<div class="note rose">
+  <span class="note-t">Stated limitation</span>
+  <p>PAAD&#39;s README says this plainly: it will help substantially, but human accessibility review of your application is still required. Accessibility is important, and hard. Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.</p>
+</div>
+
+## `/vibe` — speed without recklessness
+
+Not every change deserves a spec. `vibe` exists for the small fix that still benefits from guardrails — roughly one to three files in the same module.
+
+Its pre-flight checks are where the value sits:
+
+- **Test infrastructure.** If there is no test framework, it says so and asks whether to set one up or proceed without TDD. If you proceed, it still does GREEN and REFACTOR — it just skips RED.
+- **Scope check.** One to three files in the same module is good vibe territory. **Four or more files, or crossing module boundaries, and it warns you** that this may want a more structured approach.
+- **Architecture smell.** If a conceptually simple task — "only admin users can download finance reports" — turns out to require a great deal of work, it *stops* and investigates whether deeper structural issues are making it harder than it should be.
+- **Reusable components.** Before building a toast notification (the small message that appears briefly and then disappears), a modal, a validator, or a permission check from scratch, it searches the codebase for existing utilities, half-finished implementations, and established patterns.
+
+Then red/green/refactor is mandatory. If the test passes when it should fail, or fails in an unexpected way, it stops and reassesses rather than continuing. Note what it does *not* do: vibe writes code, but staging and committing stay with you.
+
+<div class="note violet">
+  <span class="note-t">The architecture-smell check is the clever one</span>
+  <p>&quot;This simple thing is taking far too long&quot; is a signal every experienced developer recognises and most tools ignore. Encoding it as a stopping condition turns a vague feeling into a decision point — and it is the mechanism by which the Discipline letter feeds back into the Architecture letter.</p>
+</div>
+
+[% WRAPPER quiz %]
+Q: A review finds a bug in a file your branch edited. The bug predates your work, and nothing you changed makes it more likely to fire. What happens to it?
+- It blocks the merge until you fix it
++ It is recorded in a project-wide backlog file
+- It is fixed automatically before the report is written
+- It is dropped and never reported to you
+Why: It becomes an out-of-scope bug with a stable ID in the backlog, quarantined in the report's out-of-scope section rather than blocking your PR. Later reviews re-confirm that entry instead of creating a duplicate.
+
+Q: Your branch added a small improvement the spec never asked for. What happens?
++ An addition — you decide to keep, split, or revert it
+- An out-of-scope bug — it goes to the backlog
+- In-scope — it has to be resolved before merge
+- Nothing — unrequested additions are not reported
+Why: Surfaced by the Spec Compliance specialist. It might be a legitimate "while I'm here" fix or scope creep for a separate PR, so it is a decision rather than a verdict.
+
+Q: You are on main, with uncommitted changes and a conversation that already has substantive history. What does agentic-review do?
+- It runs anyway, printing a warning first
+- It commits your work and switches branch for you
++ It stops before reviewing anything, starting with its fresh-session check
+- It reviews only the changes you have not committed
+Why: Its first pre-flight check tells you to start a fresh session when the conversation already has substantive history, and stops there. Had you got past it, it would refuse to run on the repository's default branch (origin/HEAD, else main, master or trunk), and it asks what to do about uncommitted changes rather than guessing. That last one matters: it will not make the decision on your behalf.
+
+Q: At what point does vibe warn that a change may be too big for it?
+- Any change that also touches a test file
+- Two or more files, whatever the module
+- Ten or more files in a single commit
++ Four or more files, or crossing modules
+Why: One to three files in the same module is good vibe territory. Beyond that it suggests a more structured approach — which means the loop.
+
+Q: A conceptually simple vibe task turns out to require a great deal of work. What does the vibe skill do?
+- Continue anyway, since the task is simple in principle
++ Stop and look for deeper structural problems
+- Split the work into several smaller vibe tasks
+- Skip the tests to keep the change moving
+Why: This is the architecture-smell check — encoding "this simple thing is taking far too long" as a stopping condition is how Discipline feeds back into Architecture.
+
+Q: What does PAAD's README say about agentic-a11y's limits?
++ Human accessibility review is still required
+- It fully replaces manual accessibility testing
+- It supports web applications and nothing else
+- It checks only colour contrast ratios
+Why: Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.
+[% END %]

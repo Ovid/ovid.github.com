@@ -1,0 +1,147 @@
+id: loop
+title: The two loops
+group: Putting it together
+---
+[% WRAPPER hero %]
+Stop bad code from merging, and pay down the debt that gets through anyway.
+[% END %]
+
+The skills only work on solid ground. [% module('ground') %] covers the groundwork: steering files that tell the truth about the project, and a test suite that catches real regressions. Neither is glamorous, and both are covered in more depth in two articles: [steering](https://curtispoe.org/articles/ovid-in-the-trenches) and [the test suite](https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits).
+
+With that in place, run two loops rigorously. The first stops bad code from merging: every feature passes through review gates before it reaches your primary branch. The second aggressively pays down technical debt: the structural problems that slip past per-feature review, found and fixed on a schedule you set.
+
+In the author's experience, a team that does this often writes better code than developers who don't use AI at all. We have tight deadlines to meet, or it's Friday evening and we want to go home, or we have developers who don't understand how to write maintainable code. For these and many other reasons, a disciplined AI approach can often win.
+
+## Loop 1: stop bad code from merging
+
+<figure class="fig">
+  <img alt="PAAD per-feature loop: write the spec, then /pushback on it; develop the task list, then /pushback and /alignment on it; execute the tasks, then /agentic-review the result; human PR approval and merge" height="1420" loading="lazy" src="/paad/images/pushback.png" width="1800">
+  <figcaption>The per-feature loop: review gates on the spec, the task list and the code, then a human decides whether it merges.</figcaption>
+</figure>
+
+This is the 8-step loop the PAAD README describes for each feature. Click any stage below to see what it does, what it catches, and when to run it twice. Several stages are marked <span class="pill loopy">may repeat</span> — that is not a sign of doubt; it is the design. Pushback and alignment are often worth running more than once, especially when a spec evolves or a plan changes mid-execution.
+
+[% WRAPPER steps %]
+Step: Create the spec
+Tag: you | you write it
+Sub: Whatever SDD method you already use
+Describe what you are building and why, in enough detail that someone else could argue with it. PAAD is agnostic about format — Superpowers, spec-kit, Kiro specs, OpenSpec, a markdown file in `docs/specs/`, or the conversation you just had with your assistant all work. [% module('sdd') %] covers the options if you do not yet have one.
+
+The spec does not need to be good yet. That is what step 2 is for. What it needs to be is *specific enough to be wrong* — a spec too vague to critique is a spec too vague to implement.
+
+Step: Run `/pushback` on the spec
+Tag: loopy | may repeat
+Sub: Six categories, severity-ordered, one issue at a time
+The reality check runs first: does the spec assume things about the codebase that recent commits have made untrue? Then contradictions, feasibility, scope imbalance, omissions, ambiguity, and security — presented one at a time, worst first, each with options and a recommendation.
+
+<b>Why repeat:</b> resolving a serious issue changes the spec, and the changed spec has never been reviewed. The article reports never running it on a spec without it raising something previously unconsidered — a strong claim, and one you can test cheaply on your own work.
+
+Step: Develop your task list
+Tag: you | you or the agent
+Sub: Break the reviewed spec into implementable work
+Generate the implementation plan from the spec, using whatever SDD method you have chosen. This is the translation step where intent becomes action — and translation is where meaning gets lost.
+
+Step: Run `/pushback` on the task list
+Tag: loopy | may repeat
+Sub: The task list is a document too
+A task list can be ambiguous, infeasible, or quietly omit things exactly as a spec can. "Add caching" is as vague in a task as it is in a requirement.
+
+Step: Run `/alignment` on the task list
+Tag: loopy | may repeat
+Sub: Three checks, dependency-ordered, then a TDD rewrite
+Requirements coverage catches what you forgot. Scope compliance catches what got added without being asked for. Design alignment catches tasks that quietly bypass the design.
+
+Issues arrive root-cause first, because fixing a missing requirement often makes the missing task and missing design disappear with it. Then tasks get rewritten as red/green/refactor — including the REFACTOR step that AI almost never does unless told.
+
+Step: Execute the tasks
+Tag: fresh | new session each
+Sub: Fresh sessions to preserve context
+Run tasks in new sessions rather than one long one. Long contexts degrade through poisoning, distraction, confusion, and context clash, with a quadratic slowdown as the window fills. The article aims to keep context under 30% on a 1M-token window; the independent research behind this is in the appendix “How good is the evidence?”.
+
+This is the step where the earlier work pays off: an agent given a TDD-formatted task derived from an aligned plan derived from a reviewed spec has very little room to drift.
+
+Step: Run `/agentic-review` on the result
+Tag: loopy | may repeat
+Sub: Six specialists, verified, deduplicated, severity-ranked
+Logic, error handling, contracts, concurrency, security, and spec compliance — in parallel, then verified against the actual code to drop false positives. Findings are sorted into in-scope, out-of-scope bugs (which go to a persistent backlog), and out-of-scope additions (a per-PR keep/split/revert decision).
+
+<b>Why repeat:</b> the README says running it more than once is valuable. It is a stronger automated safety net than typical AI review — not a replacement for a human reviewer.
+
+Step: Human PR approval and merge
+Tag: you | you decide
+Sub: Repeat for the next feature
+This is the one gate PAAD never automates. Every skill ends in a human decision rather than a merge: a person reads the PR and decides whether it goes into the primary branch.
+
+Then start again at step 1 for the next feature. Structural debt that crosses features is not this loop's job; it belongs to Loop 2, below.
+[% END %]
+
+<div class="note violet">
+  <span class="note-t">Why &quot;may repeat&quot; is the important part</span>
+  <p>Newcomers read the repeat markers as a sign of doubt — as if the skills were unreliable and you run them twice to be safe. They are there for two independent reasons, and both are structural.</p>
+  <p><strong>The artefact changes underneath you.</strong> A review is a critique of a specific document. The moment you accept a finding and edit the spec, the thing that was reviewed no longer exists — you now have a <em>different</em> spec that has never been reviewed. Fixing an ambiguity often exposes an omission that was hidden behind it, and resolving a contradiction can invalidate requirements elsewhere. The second pass is not a retry of the first; it is the first review of a new document.</p>
+  <p><strong>The reviewer is non-deterministic.</strong> Two runs over the identical input will not produce identical findings. This is a genuine weakness, and the honest way to work with it is to treat any single pass as a sample rather than a complete enumeration. Running twice does not guarantee completeness either — it just widens the sample.</p>
+  <p><strong>Use the size of the finding list as your signal.</strong> A pass that returns a long list of issues is telling you two things: this artefact needs work, and you have almost certainly not found all of the problems yet. Reviews reveal what is most visible first, and a document with ten problems tends to have had several of them masking others. Fix that batch and run again — the second pass on a heavily-revised document routinely finds things the first could not have reached.</p>
+  <p>Conversely, a pass that returns one or two minor points is evidence you are close to done. The practical rule: <strong>re-run whenever you have materially changed the artefact, re-run when the last pass found a lot, and stop when a pass returns nothing you did not already know.</strong> That stopping condition matters — without it, non-determinism means you can always find one more thing, and the loop never closes.</p>
+</div>
+
+AI is now good enough that, with `pushback` alone, fewer issues reach the later stages of the loop. But the loop only protects the current feature. It cannot see the structure of the project as a whole, and that is where debt accumulates.
+
+## Loop 2: pay down technical debt aggressively
+
+<figure class="fig">
+  <img alt="PAAD technical debt loop in two steps. Step 1: /agentic-architecture generates an architecture report, and /pushback checks its findings. Step 2: on a new branch, /fix-architecture clarifies scope, you choose the fixes, and the skill fixes the code and updates the report; then /agentic-review and a pull request. After approval, repeat for the next chosen fixes. If the report is out of date, the skill suggests a refresh; if you agree, rerun /agentic-architecture. Stop when the fixes you want are complete." height="1493" loading="lazy" src="/paad/images/architecture.png" width="2400">
+  <figcaption>The maintenance loop: diagnose, check the diagnosis, then fix in reviewed batches until the fixes you want are done.</figcaption>
+</figure>
+
+Step one is diagnosis. `/agentic-architecture` generates the architecture report, and `/pushback` checks its findings before you act on any of them — the report is a document, and it can be wrong like any other.
+
+Step two is the fixing. On a new branch, run `/fix-architecture`: it clarifies the scope with you, you choose which fixes to make, and the skill fixes the code and updates the report to record what was done. Run `/agentic-review` on the result and open a PR. After approval, repeat for the next fixes you choose. If the report has gone out of date by then, the skill suggests a refresh; if you agree, rerun `/agentic-architecture`. Stop when the fixes you want are complete.
+
+The cadence is the part teams get wrong. Reserve calendar time for this loop; "when we get to it" means never. The appendix “Teaching this to your team” explains why that time is easier to reserve in advance than to find afterwards.
+
+## Where the other skills fit
+
+[% WRAPPER table %]
+| Skill | How often | Trigger |
+| `agentic-a11y` | Per UI change | Any UI work, or accessibility-sensitive changes. |
+| `vibe` | Instead of the loop | Small fixes — 1–3 files, one module — that do not justify a spec. |
+| `rethink` | When a recommendation is on the table | Options or a chosen approach rest on reasoning nobody has checked — cited docs, remembered behaviour, unverified premises. |
+[% END %]
+
+## The rhythm underneath
+
+Strip away the skill names and the loop has a simple shape: **every artefact gets reviewed by something other than the thing that produced it, before anything downstream is built on it.** The spec is reviewed before tasks are generated. The tasks are reviewed before code is written. The code is reviewed before it merges.
+
+That is not an AI insight — it is how engineering organisations have worked for decades. What is new is that each of those review passes now costs minutes instead of days, which changes which ones are worth doing. The reason PAAD reviews the spec is not that specs got worse; it is that reviewing them got cheap.
+
+Which is the whole tagline, stated mechanically. Engineering-driven AI is not a new philosophy of software; it is the ordinary review discipline you already believe in, running at a cadence that can keep up with a machine. The loop is what that looks like in day-to-day work.
+
+[% WRAPPER quiz %]
+Q: In the per-feature loop, what sits between generating the task list and executing it?
+- Nothing — the tasks are executed immediately
+- An alignment check on the task list, and nothing else
++ Pushback on the task list, then alignment on it
+- A full agentic-review of the not-yet-written code
+Why: The task list is a document too, and can be ambiguous or infeasible exactly as a spec can. That is why the 8-step loop runs pushback on the task list as well as on the spec, before alignment checks it.
+
+Q: Why does the loop specify executing tasks in new sessions?
++ Long contexts degrade, and generation slows down
+- Each new session is assigned a different model
+- Shorter sessions cost measurably less to run
+- It keeps the resulting git history easier to read
+Why: A session running for hours reasons measurably worse than a fresh one, even though nothing visibly broke. This is the best-evidenced claim in the whole course.
+
+Q: Several stages are marked "may repeat." What does that reflect?
+- The skills are unreliable and often need retrying
+- There is uncertainty about whether the skills work
+- The token budget limits how much runs at once
++ Fixing one issue changes the artefact being reviewed
+Why: A resolved issue produces a different document, and the different document deserves a fresh pass. Non-determinism is a second, independent reason. A useful signal: a pass that returns many findings usually means more remain hidden behind them, so run it again.
+
+Q: Stripped of its skill names, what is the loop's underlying principle?
+- Documentation must always precede implementation
++ Every artefact is reviewed before anything builds on it
+- The assistant should write all of the production code
+- Tests must be written before any other artefact
+Why: That is not an AI insight — it is how engineering organisations have worked for decades. What changed is that each review pass now costs minutes instead of days.
+[% END %]

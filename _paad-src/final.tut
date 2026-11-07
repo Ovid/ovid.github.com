@@ -1,0 +1,113 @@
+id: final
+title: Final assessment
+group: Putting it together
+---
+[% WRAPPER hero %]
+Fourteen questions across the whole course. Answer them all to see your score.
+[% END %]
+
+[% WRAPPER quiz final=1 %]
+Q: Which letter of PAAD addresses drift between what you asked for and what is about to be built?
+- Pushback
++ Alignment
+- Architecture
+- Discipline
+Why: Alignment compares intent against action in both directions, catching uncovered requirements and unrequested tasks alike.
+
+Q: You have written a spec you are happy with. What is the highest-value first move?
+- Run an architecture analysis across the whole repo
+- Begin implementing and review once it is working
++ Run pushback against the spec before anything else
+- Write the full test suite before the spec is final
+Why: It is cheapest to run, needs no branch or test infrastructure, sits highest in the cost hierarchy, and produces the moment that drives adoption.
+
+Q: Where does PAAD sit relative to the spec-driven development toolkit you already use?
+- It replaces spec-kit, Kiro, and OpenSpec with its own spec format
++ It reviews the artefacts your toolkit produces, whichever one you use
+- It works only alongside GitHub's Spec Kit
+- It removes the need to write a specification at all
+Why: Every SDD toolkit generates a spec, a plan and a task list, then hands them over without reviewing any of them. PAAD is agnostic about which produced the documents — alignment's auto-detection scans .kiro/, specs/, docs/plans/ and docs/specs/, and the skills will also review a plain markdown file.
+
+Q: Which is NOT one of agentic-review's six specialists?
++ Accessibility
+- Security
+- Spec Compliance
+- Concurrency &amp; State
+Why: Accessibility is its own skill. The six are Logic &amp; Correctness, Error Handling &amp; Edge Cases, Contract &amp; Integration, Concurrency &amp; State, Security, and Spec Compliance.
+
+Q: Which severity scale does agentic-review use?
+- Blocker / Regression / Nitpick
+- Severe / Moderate / Advisory
++ Critical / Important / Suggestion
+- Must-fix / Should-fix / Optional
+Why: Worth knowing that the scales differ between skills: agentic-review uses Critical / Important / Suggestion, alignment uses Critical / Important / Minor, and pushback uses critical / serious / moderate / minor.
+
+Q: You are adding a null check to one file. Which skill fits?
+- The full per-feature loop, spec included
++ vibe, with its pre-flight checks and TDD
+- An architecture analysis of that module
+- fix-architecture against a fresh report
+Why: One to three files in one module is exactly vibe's territory — guardrails without the overhead of a spec.
+
+Q: Why does pushback read the codebase rather than the spec alone?
+- To estimate how long implementation will take
+- To generate the task list directly from the code
+- To measure how much of the code tests cover
++ Feasibility can only be judged against real code
+Why: "Critiquing the spec without checking the codebase" is the first entry in its common-mistakes table. "This contradicts what already shipped" outranks every stylistic concern.
+
+Q: You find a bug while writing tests to pin legacy behaviour. What should you do?
++ Assert the current behaviour and note the bug
+- Fix it before writing any more of the suite
+- Delete the affected code path entirely
+- Skip that area and test something else
+Why: The suite's job is to be an alarm that sounds when something changes. Fixing as you go means never finishing the safety net.
+
+Q: Which skills are currently marked experimental?
++ agentic-dedup, agentic-owasp, and backlog
+- agentic-dedup, rethink, and test-roadmap
+- vibe, makefile, and agentic-a11y
+- fix-architecture and agentic-review
+Why: As of v2.1.0. Their arguments, output paths, and behaviour can change or be withdrawn in any release, including a patch release, so read the CHANGELOG before you take an update. The second option was the list in 1.24 — membership changes between releases, so check it rather than memorising it.
+
+Q: Which statement about PAAD skills writing code is accurate?
+- No PAAD skill modifies any file in your repository
+- Every skill commits its own changes automatically
++ vibe writes code but leaves committing entirely to you
+- Only agentic-review is allowed to alter source files
+Why: Several skills write code, and they differ on committing. fix-architecture always commits its safety-net tests, and its fixes too in auto-commit mode; test-roadmap commits each phase; vibe and /backlog fix edit code and leave the commit to you. Knowing which is which tells you what to check in git status after a run.
+
+Q: What distinguishes engineering-driven AI from AI-driven engineering?
+- The engineer writes the code and the AI reviews it
+- The AI is restricted to smaller, lower-risk tasks
++ The engineer sees each decision while it can still be changed
+- The AI is given a more detailed specification up front
+Why: Same speed, opposite direction. Under AI-driven engineering the assistant sets the pace and the engineers are downstream of decisions they never saw being made. A more detailed spec does not fix that on its own — an unchallenged spec is still an unchallenged spec.
+
+Q: A PAAD review of a legacy module comes back with no findings. What does that tell you?
+- The module has no problems and needs no attention
++ No problems were found in what the review could see
+- The review was misconfigured and should be re-run
+- The module is safe to refactor without a test suite
+Why: The expensive facts often live outside the repository — the outage nobody documented, the partner feed that is malformed, the amount of traffic arriving next quarter. Only a person can say how much of the decision lived there.
+
+Q: You are bringing PAAD to a large codebase you inherited, with no tests. Which order is right?
+- Architecture baseline, then tests, then steering
++ Steering, then tests, then architecture baseline
+- Tests, then architecture baseline, then steering
+- Architecture baseline, then steering, then tests
+Why: Each step makes the next one safe. Bad steering is inherited by everything written afterwards, so it is cheapest to fix first. Without a suite that pins current behaviour, nothing on an architecture report is safe to act on — which is why the baseline comes last of the three, and why running it first is the reordering teams most often make.
+
+Q: What is the most defensible summary of PAAD's core argument?
+- Larger models make process discipline unnecessary
++ Discipline matters because AI does not challenge inputs
+- Specifications should take the place of code review
+- AI now writes better code than experienced humans
+Why: The Fortran analogy sits underneath it: compilers were once worse than hand-written assembler and are now better. The discipline is the part you supply while the gap closes.
+[% END %]
+
+<div class="note teal">
+  <span class="note-t">Optional appendices follow</span>
+  <p>This is the end of the course itself. Everything after this point is optional reference material, and none of the questions above depend on any of it.</p>
+  <p style="margin-top:11px"><strong>“How good is the evidence?”</strong> checks the whole argument against the independent research literature — read it if you would rather not take the methodology on trust, or if you need to make the case to someone who won&#39;t. <strong>“What the Fable review found”</strong> opens up the case study [% module('debt') %] summarised in a table: the four High-severity flaws in detail, the other twenty-nine listed, and the seventeen strengths the same report recorded. It is the closest thing here to seeing what one of these reviews actually produces. <strong>“Why small specs”</strong> is prescriptive rather than descriptive: it argues that every review gate in this course is only as good as the amount of material you point it at, and ends with a procedure for cutting a spec down without cutting it in the wrong place. <strong>“Teaching this to your team”</strong> is prescriptive too, and is written for whoever has to introduce this to other engineers: it names the four things teams run into once the material is understood — habit, steering spread across more than one editor, steering nobody has reviewed, and an architecture pass with no date on it — and sets out who has to own each one. <strong>“Terminology”</strong> is a glossary of every term the course uses, with a pointer to the module where each one is introduced; it is meant to be consulted rather than read straight through, and it is a reasonable place to send a colleague who is joining halfway.</p>
+</div>

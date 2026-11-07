@@ -1,0 +1,129 @@
+id: intro
+title: Who is driving?
+group: Orientation
+---
+[% WRAPPER hero %]
+AI is not magic pixie dust you sprinkle on a problem. It is a tool, and it works best when your engineering judgement drives it rather than the other way around. [PAAD](https://github.com/ovid/paad) is a toolkit for keeping the arrangement pointing in that direction. The section "What PAAD is", two sections below, explains it in full.
+[% END %]
+
+Developers who use AI coding tools extensively – but don't carefully review their code – discover something unpleasant. The first day feels like magic. The first month is productive. But over time, they notice that the codebase has become a place they no longer recognise. Three different ways of handling errors, a config value hard-coded in two places, tests that pass without asserting anything, and a feature that technically does what they asked but not what they meant.
+
+Nothing went dramatically wrong. That is the whole problem. Code quality rarely degrades in one dramatic change; it slips through a series of small decisions that each seemed reasonable in isolation. The assistant did what they asked, every time, and the sum of all those reasonable answers is a codebase carrying debt they never chose to accept.
+
+## Two arrangements
+
+What went wrong there is not really a code-quality problem. It is a question of who was making the decisions. The developer told the assistant what to do and hoped it would take charge. The assistant did as it was told — it always does — and the developer found out what it had decided only once the code was written.
+
+That is **AI-driven engineering**: the assistant sets the pace, and the engineers are downstream of decisions they never saw being made. PAAD — an open-source project for AI coding assistants, explained in full in the next section — proposes the inverse, and its README puts it as a tagline:
+
+[% WRAPPER quote cite='PAAD README' %]
+Engineering-driven AI, not AI-driven engineering.
+[% END %]
+
+Same speed, opposite direction. You see what the AI is about to do while you can still change it, and you make the decisions. Concretely, that means something different happens at each stage of the work. The names in the right-hand column are PAAD's four core *skills* — things you invoke by name, each with a module of its own later:
+
+[% WRAPPER table %]
+|  | AI-driven engineering | Engineering-driven AI |
+| **The spec** | Whatever you typed, unchallenged | `pushback` argues with it before anyone builds it |
+| **The plan** | Assumed to match the spec | `alignment` checks both directions |
+| **The code** | A green CI run | `agentic-review` assigns six specialist reviewers to the PR |
+| **The structure** | Discovered later, expensively | `agentic-architecture` finds it while it is cheap |
+| **The decisions** | The model's | Yours, on the record |
+[% END %]
+
+Read the right-hand column downward and you have the shape of the rest of this course. Each module covers one row.
+
+[% WRAPPER note title='What the tagline is not promising' %]
+Staying in the driver's seat is the point, and it is also the cost. PAAD gives you visibility and control, not autopilot. If what you want is for the assistant to think for you, this is the wrong toolkit — every skill in it ends with a human decision rather than a merge. The README states the consequence plainly: a report you ignore is worse than no report at all.
+[% END %]
+
+## What PAAD is
+
+**PAAD** (pronounced "pad") is an open-source system of AI agent skills — [MIT-licensed, on GitHub](https://github.com/ovid/paad), created by Curtis "Ovid" Poe. It does not replace your AI-assisted development tools — it complements them, and its README names [Superpowers](https://github.com/obra/superpowers/), a separate open-source workflow toolkit for coding agents, as an example of something you can keep using alongside it. [% module('sdd') %] introduces Superpowers with the other toolkits. The four letters name four common failure modes, and each failure mode has skills that address it.
+
+[% WRAPPER note title='What a "skill" is, since the word is used in a specific way here' %]
+A **skill** is a markdown instruction file — conventionally `SKILL.md` — that your coding assistant loads on demand and follows. It is not code, and it is not a model. It is a written procedure: *when the user asks for this, here is how to do it, here is what to check, here is how to report back.* Most modern assistants support some version of the format.
+
+PAAD is fifteen of them, as of v2. Throughout this course, a skill written in `lowercase` means the skill itself — `pushback`, `alignment` — and the same word with a leading slash, `/pushback`, means typing it to your assistant. You can also just ask in plain English. **[% module('start') %] covers installing them and the three ways to invoke them**; until then, treat the names as labels rather than instructions.
+[% END %]
+
+<div class="letters">
+  <div class="letter" style="--c:var(--accent)">
+    <div class="big">P</div><div class="nm">Pushback</div>
+    <div class="ds">Weak specs, hidden assumptions, vague requirements, and risky omissions — caught before implementation begins.</div>
+  </div>
+  <div class="letter" style="--c:var(--teal)">
+    <div class="big">A</div><div class="nm">Alignment</div>
+    <div class="ds">Gaps between requirements, design, implementation plans, and the work that is actually about to happen.</div>
+  </div>
+  <div class="letter" style="--c:var(--violet)">
+    <div class="big">A</div><div class="nm">Architecture</div>
+    <div class="ds">Structural issues that make code harder to extend, reason about, and maintain over time.</div>
+  </div>
+  <div class="letter" style="--c:var(--rose)">
+    <div class="big">D</div><div class="nm">Discipline</div>
+    <div class="ds">Consistently applying review, testing, and quality checks instead of skipping them under time pressure.</div>
+  </div>
+</div>
+
+## The analogy that makes the idea clear
+
+The [article introducing the methodology](https://curtispoe.org/articles/watching-claude-sonnet-outperform-opus) draws a historical parallel worth noting. When Fortran was introduced in the 1950s, IBM knew developers would object, because a compiler could not produce assembler as efficient as hand-written assembler. So the marketing focused on saving *developer time*, while noting the generated code was *almost* as fast.
+
+[% WRAPPER quote cite='Curtis Poe, "Watching Claude Sonnet Outperform Opus"' %]
+It was decades before compilers routinely wrote assembly that ran faster than human-written assembly. Today, very few humans can write assembly code that outperforms a compiler. This is where we are with AI.
+[% END %]
+
+The claim is not that AI writes better code than you. The claim is that with discipline — the D in PAAD — it produces code that is *almost* as good as what you would have written, and produces it in a fraction of the time it would have taken you. The analogy is about how quickly the code gets written, not how quickly it runs. And as with compilers, the quality gap is expected to narrow.
+
+It is a good analogy, and like all good analogies it should be checked rather than admired. The appendix “How good is the evidence?” does exactly that.
+
+[% WRAPPER note title='The headline result' %]
+The founding article is titled "Watching Claude Sonnet Outperform Opus." The finding is exactly that: a smaller, cheaper model (Sonnet) running the PAAD process produced better outcomes than a larger, more capable model (Opus) running without it. Methodology beat model capability.
+
+It is also a single team's field report, relayed second-hand, with no control condition — and the Sonnet/Opus contrast was accidental rather than designed, arising because an IDE bug temporarily locked the team out of Opus. The article's own verdict is the right one: "a 'boots on the ground' report from one team, not a benchmark." Keep that in mind. The appendix “How good is the evidence?” sets it against the independent research.
+[% END %]
+
+## What this course covers
+
+You will work through the four letters in order, then assemble them into the per-feature loop that ties them together. Two modules do something other than advance that argument. [% module('sdd') %] is prerequisite rather than PAAD-specific: it explains **spec-driven development**, the practice PAAD assumes you are already following — skip it if you run spec-kit, Kiro, or OpenSpec today and know why. [% module('context') %] stops to ask what the model cannot see no matter how carefully you review its output. Along the way there are knowledge checks — they are not graded, they exist because reading about a review process and being able to run one are different skills. There is a final assessment at the end.
+
+After the assessment there are **optional appendices**. One of them, “How good is the evidence?”, tests the whole argument against the independent research literature. Nothing in the course depends on any of them and no assessment question draws on them — take the methodology on trust if you prefer, and go there when you want to know which parts of the case are actually well evidenced. Another, “What the Fable review found”, prints the findings behind the case study in [% module('debt') %], so you can judge them yourself instead of taking a count on trust. Another, “Why small specs”, argues that all of these gates work far better on small artefacts than large ones — read it when you are writing your first spec rather than after.
+
+No prior experience with PAAD is assumed. Some familiarity with an AI coding assistant — Claude Code, Cursor, Kiro, Antigravity — will help, but the ideas transfer to any of them.
+
+<div class="note teal">
+  <span class="note-t">A caveat worth stating early</span>
+  <p>PAAD uses more tokens than a lightweight &quot;just build it&quot; workflow, and the project is explicit about this: it optimises for better decisions and fewer avoidable mistakes, not for minimum token consumption.</p>
+  <p style="margin-top:11px">Concretely: a single feature will cost you more tokens because you are paying to review the spec, review the plan, and review the code — on top of writing it. The bet is that this is cheaper than shipping the wrong thing and rebuilding it. That bet is usually right for production software you will maintain for years. It is a bad bet for a prototype you plan to throw away, a spike (a short throwaway experiment that answers one question), or a script nobody but you will ever run. Match the methodology to the stakes — to how much is actually at risk.</p>
+</div>
+
+[% WRAPPER quiz %]
+Q: What does the acronym PAAD stand for?
+- Plan, Analyse, Assess, Deploy
+- Prompt, Assert, Audit, Debug
++ Pushback, Alignment, Architecture, Discipline
+- Pushback, Assessment, Automation, Delivery
+Why: Each letter names a failure mode: weak specs, drift between intent and action, structural decay, and skipped checks under time pressure.
+
+Q: What was the headline finding behind "Watching Claude Sonnet Outperform Opus"?
++ A smaller model with the process beat a larger model without it
+- Larger models produce more technical debt than smaller ones
+- Model choice matters more than the process built around it
+- Smaller models are inherently better at writing code
+Why: It is an argument about process, not about which model is better — the same discipline would presumably lift the larger model too. It is also one developer's observation, not a controlled comparison.
+
+Q: How does PAAD position itself against the AI tooling you already use?
+- It is a model rather than a set of agent skills
+- It replaces the AI-assisted development tools you use
+- It suits teams not yet using AI assistants at all
++ It complements existing tools, adding safeguards they lack
+Why: The README is explicit about this: PAAD complements your existing tools rather than replacing them, and it names Superpowers as an example of something you can keep using alongside it.
+
+Q: Which cost does the project openly acknowledge?
+- It requires a paid licence for commercial use
++ It uses more tokens than a lightweight workflow
+- It works with a single editor and no others
+- It slows down the code it produces at runtime
+Why: The stated trade-off is better decisions and fewer avoidable mistakes, not minimum token consumption. If what actually limits you is cost per task rather than cost of rework, weigh that deliberately.
+[% END %]

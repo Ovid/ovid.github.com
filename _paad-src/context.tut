@@ -1,0 +1,81 @@
+id: context
+title: What the AI can't see
+group: Orientation
+---
+[% WRAPPER hero h1='The AI sees all of your code and none of your context' %]
+The strongest argument for keeping engineers in charge is not about craft or morale. It is that the model is working from a partial input, and the engineer is holding the rest.
+[% END %]
+
+The model reads your repository faster and more patiently than any human will. That part is real, and it is why PAAD works at all. But the expensive decisions in software rarely depend on what is in the repository. They depend on what is not in it.
+
+[% WRAPPER table %]
+| The model sees | The engineer knows |
+| Every line, in seconds | Which lines everything else depends on, and why |
+| That the retry logic is duplicated | That the gateway already retries, so this layer is the bug |
+| That a validation check looks redundant | That it was added after the outage nobody documented |
+| That the design is internally consistent | That next quarter's traffic breaks it |
+| That two modules should be merged | That they belong to two teams and three separate release schedules |
+| That the data handling is convoluted | That the partner feed is malformed and the fix is a phone call |
+[% END %]
+
+None of the facts in the right-hand column are in the codebase. Most were never written down anywhere. They live in the people who were there — which is what experience actually is, once you stop treating it as a personality trait.
+
+<div class="note rose">
+  <span class="note-t">The failure mode is not silence. It is confidence.</span>
+  <p>An assistant missing the right-hand column does not stop and say it lacks context. It produces a thorough, well-reasoned, entirely plausible recommendation about the half it can see. It will tidy the retry logic instead of deleting it. It will remove the check that prevented the outage. It will hand you a well-judged list of improvements to an architecture that should be thrown away.</p>
+  <p>That advice is not obviously wrong. It is <em>the same shape as the good advice</em>, which is exactly why it survives review by anyone who does not already know better.</p>
+</div>
+
+## Why this matters to whoever is paying for it
+
+The argument for keeping engineers in charge is usually made on feelings — trust, craft, morale. Here it is simpler than that, and it is closer to measurable.
+
+**Seniority is not nostalgia. It is an input the model does not have.** The engineer who remembers the outage is not being sentimental; they are supplying a fact that is absent from every file the AI just read. Remove them from the decision and you have not made the process leaner. You have deleted a critical input and added confident output.
+
+[% WRAPPER note title='The line worth remembering when the reports look clean' %]
+**"The AI found no problems" is not the same as "there are no problems."** It means the AI found no problems *in what it could see*. Whether that is reassuring depends entirely on how much of the decision lived outside the repository — and only a person can answer that.
+[% END %]
+
+This is why every PAAD skill reports rather than decides, and why each one ends in a human choice rather than a merge. Not because the model is untrustworthy in some abstract way, but because it is working from a partial input while the engineer holds the rest. Engineering-driven AI is the arrangement where those two halves actually meet. AI-driven engineering is the one where the half that happened to be written down wins by default.
+
+<div class="note violet">
+  <span class="note-t">Where this argument has limits</span>
+  <p>Two honest qualifications. First, the right-hand column is a claim about experienced engineers on a codebase they know — it is much weaker for someone onboarding to an unfamiliar repository, where the model may genuinely hold more context than the human does. Second, &quot;the engineer knows&quot; is an argument for keeping people in the decision, not proof that any given person&#39;s recollection is correct. Institutional memory is also how a workaround from 2019 survives for a decade. The frame says the human input is <em>missing</em> from the model, not that it is always right.</p>
+</div>
+
+[% WRAPPER quiz %]
+Q: What is the failure mode when the model lacks context the engineer has?
+- It stops and says it does not have enough information
++ It produces confident, plausible advice about the half it can see
+- It returns visibly incoherent recommendations
+- It defers the decision back to the human automatically
+Why: Silence would be easy to catch. Confidence is not — the advice is the same shape as good advice, which is exactly why it survives review by anyone who does not already know better.
+
+Q: A review flags duplicated retry logic in a service. What might the engineer know that the model does not?
+- That the duplication is stylistically intentional
+- That the code is scheduled for deletion next sprint
++ That the gateway already retries, so this layer is the bug
+- That the team prefers a different naming convention
+Why: That fact is not in the repository. The recommendation to tidy the duplication is reasonable and wrong, because the correct action is to delete the layer rather than clean it.
+
+Q: How should you read a PAAD report that comes back clean?
+- As evidence the code is ready to merge
+- As a reason to skip human review this time
+- As grounds for reducing review effort in future
++ As meaning no problems were found in what it could see
+Why: "The AI found no problems" is not the same as "there are no problems." Whether a clean report is reassuring depends on how much of the decision lived outside the repository, and only a person can answer that.
+
+Q: What is the business case for keeping senior engineers in the decision?
++ They supply an input that is absent from every file the AI read
+- Their morale affects retention across the wider team
+- They write code the model cannot yet match in quality
+- They are needed to operate the tooling correctly
+Why: The argument is not sentimental. Remove them and you have not made the process leaner — you have deleted a critical input and added confident output.
+
+Q: Where is this argument weakest?
+- On codebases with unusually good documentation
++ When onboarding to a repository nobody on the team knows
+- In regulated industries with formal review requirements
+- On any project with more than one active contributor
+Why: The right-hand column assumes experienced engineers on code they know. Onboarding inverts it — the model may genuinely hold more context than the human does. It is also worth remembering that institutional memory is how a workaround from 2019 survives for a decade: the claim is that the human input is missing from the model, not that it is always correct.
+[% END %]

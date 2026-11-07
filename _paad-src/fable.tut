@@ -1,0 +1,191 @@
+id: fable
+title: What the Fable review found
+group: Optional appendix
+optional: yes
+---
+[% WRAPPER hero %]
+[% module('debt') %] compressed fifty findings into a table with two rows. This appendix opens that table: what was reviewed, the four High-severity flaws in full, a reference list of the other twenty-nine, and the seventeen strengths the same report recorded.
+[% END %]
+
+<div class="note teal">
+  <span class="note-t">Optional — and it is one report about one codebase</span>
+  <p>Nothing in the course depends on this page and no assessment question draws on it. It exists because a two-row table is easy to quote and hard to check, and because the findings themselves teach more than the count does. The full report is public: <a href="https://gist.github.com/Ovid/7938d58e58558dd553e18b83e7add975" rel="noopener" target="_blank">Architecture Report</a>, 18 July 2026 — the project name is redacted in the report itself. Throughout this appendix, <strong>Fable is the AI system that built the code</strong>, not the codebase under review.</p>
+  <p style="margin-top:11px">Everything below is drawn from that report. Where a finding is summarised rather than quoted, the summary is ours; the finding titles are the report&#39;s own.</p>
+</div>
+
+## What was reviewed
+
+The subject is a browser application built around a deterministic simulation, with a React and three.js interface. Its central design idea is that the save file *is* the history: the simulation records every action taken, and rebuilds the current state by replaying that list from the beginning. The report calls one replay a **rewalk**, and the promise the whole design rests on is that a rewalk produces exactly the state that live play produced.
+
+[% WRAPPER table %]
+| Property | Value |
+| Size | About 10,500 lines across roughly 65 source files. |
+| History | 31 commits. Reviewed at commit `06a5cf9`. |
+| Written documentation | `CLAUDE.md`, a design document, and 16 architecture decision records. |
+| Structure | Three layers with a stated dependency direction: simulation → state → interface. |
+| Tests | 154, all of them in the simulation layer. |
+[% END %]
+
+<div class="note violet">
+  <span class="note-t">The specification was reviewed. The implementation was not.</span>
+  <p>This is the detail that changes how you should read the numbers. The specification was written using Superpowers and PAAD, deliberately, to make sure the model was working from a good brief. PAAD was then left out of the implementation on purpose, to find out what the model produces natively when nothing checks the work between the brief and the merge.</p>
+  <p style="margin-top:11px">So this is not a picture of AI-assisted development with no process at all. It is a picture of what one model produced from a specification that had already been through a review gate — which makes 33 verified flaws a more interesting number than it would otherwise be, not a less interesting one.</p>
+</div>
+
+## How the review was run
+
+The report is the output of `/agentic-architecture`: five specialists working in parallel, each with one narrow brief, then a separate verification pass that reads the actual code and the git history and discards what it cannot substantiate. **[% module('arch') %] names the five specialists and what each one looks for.**
+
+The specialists produced **79 raw findings** between them. Verification brought that to **50**: 33 flaws and 17 strengths. Most of the 29 that went were the same problem found by more than one specialist and merged into a single entry; a smaller number were false positives dropped after the verifier read the code.
+
+## The four High-severity flaws
+
+Read the four together before reading them separately, because the shape of the group is the most useful thing in the report. **Three of the four are about the save file. The fourth is that the layer holding the save file has no tests.** These are not four unrelated defects; they are one untested area and the three problems that grew in it.
+
+### F1 — Replay can produce a different result from live play
+
+When two events can legally resolve at the same moment, the code resolves them in the order the two blocks happen to be written in, rather than in the order the events occurred. Playing forward in small time steps reaches one of them first. Loading a save, or using a "skip" control, jumps the clock in a single step and reaches the other first. The two paths then produce different outcomes — a different result, recorded at a different time, with different consequences downstream.
+
+The report locates this in the `settle()` function, where one block runs ahead of the other, and in the load path, which sets the clock forward and then advances by zero — which is what routes a load through the same branch a skip uses. The verifier confirmed it by replaying the scenario from beginning to end rather than by reading alone.
+
+**Why it is High:** it contradicts the invariant the architecture is built on. It also contradicts the project's own architecture decision record, which specifies resolution in time order. One of the two is wrong, and nothing in the codebase notices the disagreement.
+
+### F2 — The version number covers the envelope, not the contents
+
+The save file carries a version number, which has never been incremented, while the set of recorded action types grew from eight to sixteen. The deeper problem is that the real format is larger than the file. Because loading means replaying, every recorded action is re-checked against *today's* tuning constants and content rules. Adjust a balance value — which the project's own steering file describes as "a data change" rather than a code change — and actions that were legal when they were recorded are no longer legal, so the replay fails.
+
+**Why it is High:** a routine content change invalidates existing saves, and the version number, which is the one mechanism that exists to detect exactly this, does not move.
+
+### F3 — A save that fails to load is discarded, then overwritten
+
+The load path wraps everything in a single catch that returns nothing. The code underneath it produces genuinely useful diagnostics — unknown save version, delta log epochs must be non-decreasing — and every one of them is thrown away at that boundary. Nothing is logged, copied aside, or quarantined. A fresh session is created instead, and the automatic save, which runs every 30 seconds, writes over the unreadable file under the same key.
+
+**Why it is High:** put F2 and F3 together and the mechanism is complete. A balance change makes the save unreplayable, the error explaining why is swallowed, and the file is overwritten within half a minute. The user's data is gone, and no signal was produced at any point in that sequence.
+
+### F4 — The layer where the first three live has no tests
+
+All 154 tests are in the simulation layer, where they reach roughly 92% of statements. The state layer — save, load, skip, automatic save, and the code that runs when the module is first imported — has none. F1's trigger and F3's swallowed error both live there.
+
+**Why it is High:** on its own this is not a defect at all; it is the reason the other three could exist without anyone noticing. The suite is thorough about the layer that is pleasant to test, which is the layer that was already deterministic and already correct.
+
+## The other twenty-nine
+
+Listed by the report's own titles, grouped by severity. They are worth skimming rather than studying: the point is the texture of what accumulates, not any individual entry.
+
+### Seventeen Medium
+
+[% WRAPPER finding cat="omission" label='F5' %]No error boundary or global error handler; a render exception leaves a blank page.[% END %]
+
+[% WRAPPER finding cat="omission" label='F6' %]Six interface components bypass the state mirror and read the live simulation during render.[% END %]
+
+[% WRAPPER finding cat="omission" label='F7' %]Shotgun surgery: every new mechanic touches six to ten files across three separate dispatch sites.[% END %]
+
+[% WRAPPER finding cat="omission" label='F8' %]`scenario.ts` is the unstable hub and an emerging god object — 1,225 lines, 21 imports, changed by every feature.[% END %]
+
+[% WRAPPER finding cat="omission" label='F9' %]The whole mirror is rebuilt every animation frame, including while paused, with no memoisation.[% END %]
+
+[% WRAPPER finding cat="omission" label='F10' %]Inconsistent catch discipline: most store actions wrap the simulation call, three do not.[% END %]
+
+[% WRAPPER finding cat="omission" label='F11' %]A cost formula is re-derived in the interface instead of imported from the simulation.[% END %]
+
+[% WRAPPER finding cat="omission" label='F12' %]A readiness rule is re-implemented in the interface, including its comparison tolerance.[% END %]
+
+[% WRAPPER finding cat="omission" label='F13' %]The state hash omits the very field F1's divergence appears in, so equal hashes do not certify equal state.[% END %]
+
+[% WRAPPER finding cat="omission" label='F14' %]The state hash is documented as save verification but is never used on the save or load path.[% END %]
+
+[% WRAPPER finding cat="omission" label='F15' %]The save is parsed with a blind type cast; only the version field is inspected, nothing else is validated.[% END %]
+
+[% WRAPPER finding cat="omission" label='F16' %]An exception inside the animation frame stops the loop permanently and silently.[% END %]
+
+[% WRAPPER finding cat="omission" label='F17' %]The apply-then-save-then-mirror sequence is hand-copied about fifteen times; two skips leave a step out.[% END %]
+
+[% WRAPPER finding cat="omission" label='F18' %]Low cohesion in the main interface component: 708 lines mixing simulation data, layout and seven error slots.[% END %]
+
+[% WRAPPER finding cat="omission" label='F19' %]The scenario is constructed and storage is read as a side effect of importing the module.[% END %]
+
+[% WRAPPER finding cat="omission" label='F20' %]Save failures are entirely silent, while the event log grows without limit toward the storage quota that causes them.[% END %]
+
+[% WRAPPER finding cat="omission" label='F21' %]A documented ephemeris test claim is not met: the barycenter branch is never exercised.[% END %]
+
+### Twelve Low
+
+[% WRAPPER finding cat="feasibility" label='F22' %]Placement availability diverges between interface and simulation, so a button can enable and then throw on click.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F23' %]Two bare string literals gate two findings, with no named constants and no test on the copy.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F24' %]A lag formula is reimplemented at least four times, once in the interface.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F25' %]The save module reaches into simulation internals directly on load; no restore API exists.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F26' %]An unused runtime dependency.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F27' %]An unused development dependency that downloads browser binaries.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F28' %]A simulation-layer test imports the state layer, contradicting the documented dependency direction.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F29' %]Zero tests for the interface directory, including two pure modules that would be easy wins.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F30' %]No automated check that the generated data file still matches the raw data it is baked from.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F31' %]The same undocumented tolerance value is duplicated about ten times across simulation and interface.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F32' %]Two limits are enforced only as slider attributes in the interface, making them unnamed business rules.[% END %]
+
+[% WRAPPER finding cat="feasibility" label='F33' %]An untracked directory containing one empty stale lock file.[% END %]
+
+Read down the list and the same few kinds keep appearing. Simulation rules copied into the interface, where they can drift apart silently: F11, F12, F22, F24, F32. Missing coverage: F21, F29, and F4 above. Unexplained literal values: F23, F31. Structural growth pressure on one or two files: F7, F8, F18. None of these names is invented for the occasion — they are categories from the 34 flaw types the architecture specialists work through, which is why the report can be compared against the next one rather than read as an essay.
+
+## What the same review found working
+
+The report records strengths as well, and deliberately so — [% module('arch') %] explains why. Omitting them here would misrepresent a report whose verdict was mixed rather than damning.
+
+[% WRAPPER table %]
+| Strength | Impact |
+| S1 | Event-sourced domain model with the action log as a single seam. *High.* |
+| S2 | The three-layer dependency direction holds in production code. *High.* |
+| S3 | Single-writer discipline on the write path, enforced end to end. *High.* |
+| S4 | The simulation core is a textbook acyclic graph with pure leaf modules. *High.* |
+| S5 | Half-written saves are structurally impossible. *High.* |
+| S6 | A deterministic headless test seam, with replay-hash assertions. *High.* |
+| S7 | Subsystem cohesion: one mechanic, one file, one test. *High.* |
+| S8 | Randomness discipline: no wall-clock time and no unseeded randomness. *Medium-high.* |
+| S9 | Data-pipeline provenance, with reference-vector testing. *Medium.* |
+| S10 | Errors are surfaced consistently, in the language of the product. *Medium.* |
+| S11 | Fail-fast guards and corruption detection at the simulation's edges. *Medium.* |
+| S12 | No injection or network attack surface. *Medium.* |
+| S13 | Pragmatic abstractions, with their limits written down. *Medium.* |
+| S14 | A lean dependency footprint. *Medium.* |
+| S15 | A single constants file as the source of truth; the interface imports rather than copies. *Medium.* |
+| S16 | A versioned save with a migration switch, present since the first milestone. *Medium.* |
+| S17 | Coverage tooling wired up and correctly gitignored. *Low.* |
+[% END %]
+
+Two of those are worth holding next to the flaw list. **S11** says the simulation fails fast and detects corruption at its edges — and F3 is the load boundary throwing those detections away. **S16** credits the versioned save with its migration switch — and F2 is that version number not covering what actually varies. In both cases the mechanism was built. What was missing was the check that it still did the job.
+
+## Where the risk concentrated
+
+Every architecture report ends with a hotspots list, which is the part to read first if you only read one. This one names three.
+
+[% WRAPPER table %]
+| Area | Why |
+| The state layer | The least tested and highest risk code in the repository. The save and load paths where data is lost, the import-time boot side effect, and the skip logic that triggers F1. |
+| `scenario.ts` | The hub everything routes through. Holds F1's ordering, the incomplete state hash of F13, and the per-feature growth that drives F7. |
+| The main interface component | Where copied simulation rules collect (F11, F12, F22, F32), along with the mirror-bypass reads of F6 and the per-feature growth of F18. |
+[% END %]
+
+## What to take from this
+
+**None of the 33 is "the program does not work."** The article is explicit that the model "had no significant problems in creating the software in a few hours." What the review found is inherited risk: things that are fine today and expensive at the point where somebody changes a balance value, or adds the seventeenth mechanic, or resumes a save on a second device.
+
+**The flaws cluster where the tests are not.** That is the single most reusable observation in the report, and you can check it against your own codebase this afternoon without running anything: find the layer with no tests, and it will be the layer where the model was least constrained and least often corrected.
+
+**The report ends in questions, not patches.** Its last section is five questions for the author — is the F1 scenario reachable in normal play; should a rebalance break old saves or not; is direct access to the live simulation sanctioned or not. That is `agentic-architecture` being diagnosis only, which [% module('arch') %] covers: several of these are decisions somebody has to make, and a tool that quietly picked one would be removing the choice rather than surfacing it.
+
+**Two of the four High flaws are contract questions.** What does a version number promise? What does a save guarantee about a future release? Those are answerable in a paragraph before any code exists, and they are exactly the kind of question `pushback` asks of a specification. By the time they appear as F2 and F3 they are a load path, an automatic save timer, and a data-loss sequence — which is [% module('debt') %]'s cost gradient, visible in one codebase.
+
+<div class="note rose">
+  <span class="note-t">Read this critically</span>
+  <p>One report, one codebase, produced by the author of the methodology this course teaches. There is no control condition, and no comparable review of a human-written codebase of the same age and size to set beside it — so nothing here establishes that 33 flaws in 10,500 lines is a high number. It might be an ordinary one.</p>
+  <p style="margin-top:11px">What the report does have is a stated method, a verification pass, and findings specific enough to disagree with individually — which is more than most of what gets quoted in this area. Treat it as a worked example of what the review produces, not as a measurement of what AI-assisted code is like. The appendix “How good is the evidence?” is where the wider literature sits.</p>
+</div>

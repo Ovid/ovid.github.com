@@ -1,0 +1,141 @@
+id: adoption
+title: Teaching this to your team
+group: Optional appendix
+optional: yes
+---
+[% WRAPPER hero %]
+The preamble explains why a document cannot do everything a live session can. This appendix is about the step after that one, which is the step people underestimate: the work between a team understanding PAAD and a team actually running it under a deadline. That work is ordinary and it is not large. It also does not happen on its own. If you are the person who will introduce this to other engineers, this is the part to plan for.
+[% END %]
+
+<div class="note teal">
+  <span class="note-t">Optional — written for whoever introduces this</span>
+  <p>Nothing in the course depends on this page and no assessment question draws on it. Like “Why small specs”, it is prescriptive rather than descriptive: it names five things teams run into after the material is understood, and says what to do about each.</p>
+  <p style="margin-top:11px">The short version, in one line: <strong>the explanation is rarely what is missing. What is missing is repetition on real work, one agreed steering file, and dates in a calendar.</strong></p>
+</div>
+
+The teams I have run this material with rate the sessions highly. That is worth saying plainly, because it makes the first explanation anyone offers — that the material was unclear — an unlikely one. It also cannot settle the question. A rating collected at the end of a session measures how the session felt, not what anyone can still do a month later, and the evidence appendix is sceptical of self-reports for exactly that reason. What I see when I go back is not confusion about the method. It is that people returned to the deadlines they already had, and a method you understand is not yet a method you can perform.
+
+The preamble names the organisational reasons adoption stalls: mismatched expectations, unclear ownership, a senior engineer who is not yet convinced. Those are real. This appendix is about a cause that sits underneath them and is easier to fix — the practice has simply not been performed enough times to be available under pressure. Engineers know this about every other skill they have. Nobody expects to read a debugger's manual and then use it well. It is easy to forget here, because the material is easy to read, and material that is easy to read feels finished.
+
+## 1. Understanding it and being able to do it are different things
+
+This is what stops teams most often, and it is the hardest thing to see from the inside. A new practice competes with an old habit at the worst possible moment: the point where the work is late and there is the least room to stop and think. At that moment people do what they can already do without having to decide. Reading that you should argue with an agent's plan is one skill. Doing it on a feature that is already late is a different skill, and it is built the way skills are always built — by repetition, on real work, with someone watching the first few attempts.
+
+**So do not try to strengthen anyone's intention. Remove the decision instead.** [% module('ground') %] asks for one documented command for testing, one for linting and one for coverage, and it is explicit that the value is not the tool: it is that developers and agents run the same quality checks through the same commands. The same reasoning applies one level up. Put `agentic-review` into whatever your team already treats as the list of things that must happen before a merge — the pull request template, the review checklist, the list that a team agrees describes finished work. The aim is not to make skipping the review impossible. The aim is to make skipping it a visible act rather than a silent one.
+
+**Then practise once, before it matters.** [% module('start') %] sets out a first two weeks for one person. The team version of day 2 is worth doing together: take a spec somebody on the team wrote and is happy with, run `pushback` on it in a shared session, and read the findings aloud. The findings are not the point. The point is that everyone has watched a colleague disagree with an agent, once, with other people in the room, before they have to do it alone under time pressure.
+
+<div class="note violet">
+  <span class="note-t">This is obvious to some people within an hour, and not to others</span>
+  <p>Most teams contain both. It is tempting to read that difference as one of ability. More often it is a difference in existing habit: the engineers who adopt PAAD quickly are usually the ones who already argued with plans before an agent was involved.</p>
+  <p style="margin-top:11px">Treat those engineers as pair-programming partners, not as evidence that everyone else is not trying. Somebody who has done this once alongside a colleague is in a very different position from somebody who has only read about it, and an hour of pairing is the cheapest item on this page.</p>
+</div>
+
+## 2. One project truth, more than one place to keep it
+
+[% module('sdd') %] sets out where each tool keeps its project context — `CLAUDE.md`, `.cursor/rules/`, `.kiro/steering/`, `.github/copilot-instructions.md`, a Spec Kit constitution — and gives the documented fix for the commonest collision: Claude Code does not read `AGENTS.md`, so `CLAUDE.md` imports it with a single `@AGENTS.md` line, or is a symlink to it. PAAD adds no steering format of its own; it reads whatever your tool already reads.
+
+That fix is a paragraph in [% module('sdd') %] and a decision nobody makes. It is worth making deliberately, because the number of places project context can live grows quietly: a second editor, a colleague who prefers Cursor, a Copilot user, a bot in CI. Each arrival is reasonable on its own, and each one can bring a second document describing what the project is. [% module('sdd') %] names the real problem exactly — two steering files that slowly start contradicting each other — and [% module('ground') %] gives the cost: a wrong statement in a steering file is inherited by every single piece of work that follows. Two files that disagree is that cost, plus the question of which one is wrong. Nothing will tell you. The divergence makes no noise, which is the same reason [% module('ground') %] asks you to read each line and check whether it is still true.
+
+**So choose one canonical document and make every other location point at it rather than repeat it.** `AGENTS.md` is the reasonable default: it is tool-neutral, read natively by around 25 coding agents, and [% module('sdd') %] gives both patterns for connecting Claude Code to it. Then check occasionally that the pointers are still pointers. A copy made once, just for now, becomes invisible the moment it is committed.
+
+None of this is a PAAD decision. It is a decision about your repository, and it needs somebody to make it rather than being settled by whoever configured their editor first. It is also the arrangement PAAD's own skills look for: `agentic-review` and `agentic-architecture` both scan for `CLAUDE.md` and `AGENTS.md` by name before they dispatch anything.
+
+## 3. Nobody has reviewed your steering file
+
+Steering sits above specs in the cost hierarchy, so getting it right pays off across everything written afterwards. In most teams I have worked with it is also the document nobody has reviewed: written once during setup, by one person, and relied on by everybody since.
+
+It is worth knowing where PAAD does check it, because it does. `agentic-review`, `agentic-architecture` and `agentic-a11y` all read the steering files before dispatching their specialists, and every specialist prompt carries the same instruction:
+
+[% WRAPPER quote cite='[`agentic-review`, v2.1.0](https://github.com/Ovid/paad/blob/main/plugins/paad/skills/agentic-review/SKILL.md) — the same caveat appears word for word in `agentic-architecture` and `agentic-a11y`, and in paraphrase in `agentic-dedup`' %]
+Steering files (CLAUDE.md, etc.) describe conventions but may be stale. If you find a contradiction between steering files and actual code, flag it as a finding.
+[% END %]
+
+That is a check against the codebase, which is the only place most steering claims can be tested at all: “we use dependency injection here” is true or false relative to the code, and reviewing the document with nothing to compare it against would be guessing. So the placement is sensible. [% module('ground') %] also has you run `pushback` on the steering file as a document. Its description names only “a spec, PRD, requirements doc, or design plan”, so its behaviour on other inputs can change between releases, and a document review complements the check against the code that the skills already run rather than replacing it.
+
+Two things follow, and both need an owner:
+
+- **Put the PR-time prompt in the steering file, and run `pushback` on it once.** [% module('ground') %] gives the prompt: before each pull request, the agent rereads `CLAUDE.md` and proposes updates, and the developer approves every change. That comes from the author's own projects; it is the recommendation for teams because the alternative, a scheduled steering review, reliably slips. A steering file that has gone out of date still loads without complaint.
+- **Treat a steering contradiction reported by `agentic-review` as a finding about the steering file.** It arrives inside a report about a branch, which makes it easy to read as noise attached to somebody's diff. It is the cheapest correction PAAD will hand you: one edit, and everything written afterwards starts from the corrected version.
+
+## 4. The architecture pass that is scheduled for “later”
+
+[% module('arch') %] is careful to say that `agentic-architecture` is not a gate: it is a diagnosis you run periodically, rather than something every feature passes through. [% module('start') %] adds when to start — once the rest feels routine, and only when you are ready to act on the results, because a report you ignore is worse than no report. Both statements are right, and together they are the sentence teams use to postpone the pass indefinitely. “Later” is a plan only once it has a date.
+
+Postponing it is different in kind from skipping a gate, and the difference is worth stating. `pushback`, `alignment` and `agentic-review` all act at or before the moment code arrives, so they slow down how quickly new debt accumulates. `agentic-architecture` is the step that gives an experienced developer a way to manage the debt that is *already* in the codebase. Leave it out indefinitely and you keep the part of PAAD that slows new debt while losing the part that addresses what is already there — which is usually the part that made an established team interested in the first place.
+
+**Attach the pass to something that already recurs** — a release, a quarter, whatever planning cycle you have — so that running it does not depend on one person arguing for it each time. Decide before you run it who owns the report and how much time is set aside to act on it, and reserve that time in the same conversation. `fix-architecture` works one flaw at a time, test-first, on a feature branch, and is resumable across sessions ([% module('arch') %]). That is a body of work rather than an afternoon, and the time for it is much harder to find once the report already exists than before.
+
+<div class="note violet">
+  <span class="note-t">On a codebase you inherited, this one moves</span>
+  <p>[% module('start') %]&#39;s brownfield sequence puts the architecture pass early rather than late, because on an inherited codebase the first report is not a periodic health check — it is what tells you whether the codebase can carry the rest of the method. That changes when you run it. It does not change the sentence above: what needs a date is the <em>work after</em> the report, and that is just as easy to postpone when the report arrived in week three as when it arrived in month six.</p>
+</div>
+
+## 5. On an inherited codebase, the order is what slips
+
+[% module('start') %] gives a six-step sequence for bringing PAAD to a codebase that already exists: commit the artefacts, validate the steering, build a suite that pins current behaviour, take an architecture baseline and argue with it, work the resulting roadmap, and supply the judgment none of it can. Most teams that adopt PAAD are adopting it into a codebase like this. The sequence is not difficult and it is not controversial. What happens to it is that the order changes.
+
+It changes in a predictable direction. `agentic-architecture` is the interesting step — it produces a document, it produces it quickly, and it makes visible something everybody already suspected about the codebase. Step 3 is the opposite of interesting: it is weeks of writing tests that assert behaviour you know to be wrong, producing nothing anyone can demo. So the baseline gets run first, the report exists, the report is right, and now there is a prioritised list of structural fixes and no safety net to make any of them on. At that point the team either stops, or starts refactoring without tests — which is the failure this whole method was assembled to prevent.
+
+**So make the safety net the visible thing.** `test-roadmap` is unusually well suited to being tracked in public, because it reports where it is at the end of every run — *Phase 8 of 14 — 7 done, 6 to go* — and each phase lands as its own commit. Put that fraction wherever your team already looks at progress. A number that moves every few days survives a planning conversation; "we are writing tests" does not.
+
+Two smaller items in that sequence also need somebody to decide them once, for everyone:
+
+- **Whether AI artefacts are committed.** [% module('start') %] makes this a strong default rather than an absolute, which means it is a decision, which means it needs to be made deliberately rather than by whoever creates the first report. Agree it once and write it in the steering file. Security findings are not part of that decision: they go to `paad/security/`, which ignores itself and is scratch, never committed. The tests that pin those findings are committed, though — [% module('ground') %] covers when to hold the push.
+- **Who reads the architecture report.** Step 4 asks you to run `pushback` on it and then bring what the tooling could not see: the outage behind the retry loop, the constraint that made a class ugly on purpose. That is not a review anybody can do from the report alone. It wants the person with the longest memory of the system, and an hour of their time booked in advance.
+
+## What the extra work actually is
+
+Written out, the whole of it is smaller than most teams expect. That is an argument for planning it rather than for skipping it: work this small is exactly the kind that never acquires an owner. The times below are my own rough estimates from doing this with teams, not measurements.
+
+[% WRAPPER table %]
+| Work | Who | When | What it costs, and why it is worth it |
+| Choose the canonical steering document; point the other locations at it | One person, once | Before the team starts, not after | About half a day. Prevents two documents that quietly disagree, which is expensive to correct later because nothing fails when it happens. |
+| Run `pushback` on the steering files, fix what it finds, and add the PR-time prompt | Whoever knows the project best | Before the first spec | An hour or two, once. Everything written afterwards starts from this document, and the prompt keeps it current at every pull request, where a scheduled review would slip. |
+| One shared `pushback` session on a real spec | The whole team | Week 1 | About an hour. This is the session people remember. |
+| Put one review into the merge checklist | Whoever owns the pull request template | Week 1 | Minutes of work, and it is what makes the review survive a deadline. |
+| Pair on the first live runs | The engineers who picked it up quickly, with everyone else | Weeks 1–3 | About an hour each. This and the shared session are what build the habit; the other rows only protect it. |
+| Book `agentic-architecture` *and* the work that follows it | Whoever owns the roadmap | A named date, attached to a cycle you already have | The pass itself is cheap. Acting on it is not, which is why the time has to be reserved in advance rather than found afterwards. |
+| Agree whether AI artefacts are committed, and write it in the steering file | One person, once | Before the first report exists | Minutes. Left undecided it is settled by whoever generates the first report. Security findings stay out of it, in a directory that ignores itself, but the tests that pin them are committed ([% module('ground') %]). |
+| Work the `test-roadmap` to the end, with the phase count visible <span class="pill">brownfield</span> | A named owner, not the whole team | Before any structural fix | Weeks, on a real codebase. It is the least demonstrable work in the sequence and the only thing that makes the rest of it safe. |
+| Read the architecture report against what is not in the repository <span class="pill">brownfield</span> | Whoever has the longest memory of the system | The week the report lands | An hour or two. It is the only step that can supply the reasons the code is the way it is, and it cannot be done later by someone else. |
+[% END %]
+
+None of that is difficult and none of it is surprising once it is written down. The reason to write it down is that every line of it is work with no default owner, and a method with no owner stays in the training material. If you would rather not do it alone, the preamble says where to find me. If you would rather do it yourself, everything on this page is something you can run without me — the only real failure is assuming it will happen without anybody doing it.
+
+[% WRAPPER quiz %]
+Q: Your team runs PAAD in both Claude Code and Cursor. Where should the project's steering live?
++ One canonical file, with the other locations importing or symlinking it
+- A copy in each editor's format, kept synchronised by hand
+- Only in the editor most of the team uses
+- In the spec, so that pushback reviews it
+Why: Copies drift, and nothing fails when they do, so the divergence is silent. AGENTS.md is the sensible canonical choice because it is tool-neutral — but Claude Code does not read it directly, so CLAUDE.md has to import or symlink it rather than hold a second copy.
+
+Q: Which PAAD skills check your steering files automatically, and against what?
+- pushback reviews them as documents, before implementation begins
++ agentic-review, agentic-architecture and agentic-a11y check them against the actual code and flag contradictions as findings
+- alignment compares them with the task list in both directions
+- Nowhere — steering sits outside every skill's scope
+Why: All three read the steering files before dispatching their specialists, and every specialist prompt carries an instruction to flag any contradiction between steering and code. That is a check against the codebase, which is the only place most steering claims can be tested. pushback can review steering as a document too — [% module('ground') %] asks you to run it once — but only when you point it at the file; nothing runs it automatically.
+
+Q: A team agrees the gates are worth running, then skips them the first time a deadline gets close. Which response is most likely to work?
+- Explain the cost of skipping them again
++ Put the gate into the checklist the team already uses, so skipping it is visible
+- Add a line to the steering file requiring it
+- Wait until the team has more time and revisit it then
+Why: Under pressure people do what is already automatic, so strengthening the intention is the weakest lever available. Removing the decision is the strong one: [% module('ground') %] asks for one documented command so that developers and agents run the same checks the same way, and the same reasoning applies one level up, to the list a merge has to satisfy.
+
+Q: Why is postponing agentic-architecture different in kind from skipping a review gate?
+- It is the slowest of the skills to run
+- It is the only skill that writes and commits code
++ The gates slow down new debt; the architecture pass addresses the debt already in the codebase
+- It is experimental, so it could be withdrawn in any release
+Why: [% module('arch') %] is explicit that agentic-architecture is a periodic diagnosis rather than a gate each feature passes through. pushback, alignment and agentic-review all act at or before the moment code arrives, so they slow new debt; the architecture pass is what gives an experienced developer a way to handle what has already accumulated — usually the reason an established team was interested in the first place.
+
+Q: A team adopting PAAD on a legacy codebase runs the architecture baseline in week one and gets a good report. What is the most likely problem?
+- The report will be stale before anyone can act on it
++ There is no test suite yet, so none of the fixes are safe to make
+- Steering files were not read, so the specialists had no context
+- The codebase is too large for five specialists to cover
+Why: This is the reordering that actually happens, because the baseline is the interesting step and pinning legacy behaviour with tests is the dull one. The result is a correct, prioritised list of structural fixes and no safety net to make any of them on — so the team either stops, or refactors untested code, which is the failure the method exists to prevent.
+[% END %]
