@@ -1,0 +1,60 @@
+[%
+    title            = 'An agentic harness for POCs';
+    type             = 'articles';
+    slug             = 'an-agentic-harness-for-pocs';
+    include_comments = 1;
+    syntax_highlight = 1;
+    date             = '2026-11-08';
+    mathjax          = 0;
+    # facebook         = 'babylon.jpg'; # 1,200 x 628 pixels recommended, but can be smaller
+    # facebook_alt     = 'A cuneiform tablet with Babylonian numbers inscribed on it.';
+    USE Ovid;
+%]
+[% WRAPPER include/wrapper.tt blogdown=1 -%]
+
+{{TAGS ai trench}}
+
+Yeah, I have been thinking about building an open source agentic harness,
+similar to Devin or Lovable. Maybe call it Devable. It all started from a
+misunderstanding.
+
+I was asked to help with the problem of many product people vibe coding proofs
+of concept (POCs) and wanting to share tools that are useful on the surface,
+but are a disaster under the hood. Making them "production ready" would be, um,
+challenging. Not auth/authz, tests, no logging, audit trails, monitoring,
+observability, and the code itself is generally a disaster. I often just see a
+pile of Python scripts in a top-level directory. No structure whatsoever.
+
+I was being asked to train them, but initially misunderstood the brief as
+"build something for them."
+
+[% INCLUDE include/image.tt
+   align    = 'left'
+   src      = "/static/images/paad.png"
+   alt      = "The logo for PAAD"
+   caption  = "Engineering-led AI"
+%]
+I thought about the [PAAD](https://github.com/ovid/paad) loops and realized
+that for a *POC*, I don't need great. I need "decent". Something that can be
+handed to a development team with the note, "make this production ready" and
+they can easily take over. That's not what I'm seeing now.
+
+The problem is that with vibe coding, tech debt accumulates fast. With
+spec-driven development, it accumulates slower. I can easily automate enough
+PAAD to make this straightforward, but we still get tech debt. Last night, I
+had an epiphany about how to fix that. Ensure we have solid e2e tests on
+critical workflows (plus unit and integration tests) and periodically run
+/agentic-architecture *in the background* and auto-fix issues, with notes to
+the user about needing to retest the application.
+
+With this and a few other ideas I have, I can create a harness that would run
+in a web browser and make it easy for product to create POCs that are good
+enough to hand to engineers. They won't necessarily have all of the logging,
+auth/authz, etc, but they'd expose seams for it.
+
+And it would be opinionated. In the first pass, enforce TypeScript and React,
+with Python for the backend.
+
+So why am I not doing this? Time. That's the one thing I don't have right now.
+
+[%- END %]
