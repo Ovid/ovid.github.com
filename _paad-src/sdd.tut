@@ -1,12 +1,13 @@
 id: sdd
 title: Spec-driven development
-group: Orientation
 ---
 [% WRAPPER hero %]
-PAAD is not an alternative to spec-driven development. It is a set of review gates added to whichever version of it you already run — which makes SDD the one prerequisite this course actually has.
-[% END %]
 
-The previous module put three approaches in a table and handed one of them an acronym without explaining it. This module explains it. If you already run Superpowers, spec-kit, Kiro, or OpenSpec and know why, you can skip to the last two headings — the criticism, and where PAAD attaches.
+PAAD is not an alternative to spec-driven development (SDD). It is just a set of review
+gates to catch problems early. If you use an approach other than SDD, PAAD
+will still add value.
+
+[% END %]
 
 ## The two ways to ask for code
 
@@ -22,10 +23,9 @@ Writing a "spec" before writing code with AI ("documentation first"). The spec b
 
 That is the whole idea. Everything else — the toolkits, the directory layouts, the slash commands — is machinery for making it convenient. GitHub frames the same shift as treating specifications as *"living, executable artifacts that evolve with the project,"* and the underlying justification is a claim about what models are for: they excel at *"pattern completion, but not at mind reading."* A spec is how you stop asking for mind reading.
 
-<div class="note teal">
-  <span class="note-t">The distinction that matters</span>
-  <p>SDD separates the <strong>stable &quot;what&quot;</strong> from the <strong>flexible &quot;how.&quot;</strong> That separation is why a spec is not just a longer prompt. You can throw away an implementation, or generate three of them and compare, without throwing away the thinking that specified it. A prompt cannot be reused that way, because a prompt does not survive the conversation it was typed into.</p>
-</div>
+[% WRAPPER note kind="tip" title='Specs are reusable' %]
+SDD separates the **stable "what"** from the **flexible "how."** That separation is why a spec is not just a longer prompt. You can throw away an implementation, or generate three of them and compare, without throwing away the thinking that specified it. A prompt cannot be reused that way, because a prompt does not survive the conversation it was typed into.
+[% END %]
 
 ## Three levels of ambition
 
@@ -48,11 +48,6 @@ Two phrases in that table are doing more work than they look. **"Kept and update
 
 The gap between the top two levels is narrower than it sounds and larger in practice. Spec-anchored keeps a maintained spec beside code that humans still edit. Spec-as-source makes the code an artefact nobody opens, the way nobody opens a compiled binary. That is why Böckeler reaches for the model-driven development comparison: it is the same bet the 2000s made, minus the parseable spec language and the elaborate code generators — and the price for dropping those, in her words, is "LLMs' non-determinism."
 
-<div class="note rose">
-  <span class="note-t">Be honest about how far up you climbed</span>
-  <p>PAAD does not pick a level for you. Its gates fire at the spec-first moment — before the code is written — and they work identically whether or not you maintain that spec afterwards. What PAAD does not do is help you <em>stay</em> anchored, and nothing else in this course does either. Spec-first has a built-in expiry date: the moment the code merges, the spec becomes a historical document and drift starts. If you need the spec to stay true, that is a discipline you add on top, and it is the one part of SDD nobody has convincingly solved.</p>
-</div>
-
 ## The shape most toolkits share
 
 The tools differ in vocabulary and file layout far more than in structure. Most of them run some version of this basic sequence:
@@ -68,12 +63,13 @@ The tools differ in vocabulary and file layout far more than in structure. Most 
 
 Hold that table next to the per-feature loop in [% module('loop') %] and the relationship becomes obvious. PAAD does not replace any of these stages. It inserts a review gate between them.
 
-<div class="note teal">
-  <span class="note-t">Stages 1 and 2 are where they disagree</span>
-  <p>Treat the middle of that table as a range rather than a fixed sequence, because the toolkits divide it differently. Spec Kit keeps <code>specify</code>, <code>plan</code> and <code>tasks</code> as three separate commands. Kiro uses requirements, design and tasks. <a href="https://github.com/obra/superpowers/" rel="noopener" target="_blank">Superpowers</a> merges requirements and design into a single document you sign off on, then generates the implementation plan from it — two artefacts where the others have three.</p>
-  <blockquote style="margin:13px 0 11px;font-size:16px">After you&#39;ve signed off on the design, your agent puts together an implementation plan that&#39;s clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow.<cite>Superpowers README</cite></blockquote>
-  <p>Fewer artefacts does not mean less rigour. It means design decisions live inside the document you already reviewed rather than in one of their own. It does change what <code>alignment</code> has to work with, though: it needs an <em>intent</em> document and an <em>action</em> document, and it only runs its third check, design alignment, where a design document sits <em>between</em> the requirements and the plan rather than serving as the requirements. On a merged workflow you are comparing two documents rather than cross-checking three.</p>
-</div>
+[% WRAPPER note kind="tip" title="Stages 1 and 2 are where they disagree" %]
+Treat the middle of that table as a range rather than a fixed sequence, because the toolkits divide it differently. Spec Kit keeps `specify`, `plan` and `tasks` as three separate commands. Kiro uses requirements, design and tasks. [Superpowers](https://github.com/obra/superpowers/) merges requirements and design into a single document you sign off on, then generates the implementation plan from it — two artefacts where the others have three.
+
+[% WRAPPER quote cite="Superpowers README" %]After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow.[% END %]
+
+Fewer artefacts does not mean less rigour. It means design decisions live inside the document you already reviewed rather than in one of their own. It does change what `alignment` has to work with, though: it needs an *intent* document and an *action* document, and it only runs its third check, design alignment, where a design document sits *between* the requirements and the plan rather than serving as the requirements. On a merged workflow you are comparing two documents rather than cross-checking three.
+[% END %]
 
 ## Stage zero: steering files
 
@@ -92,21 +88,21 @@ The naming has not converged, but it is starting to. [`AGENTS.md`](https://agent
 | PAAD | None of its own. PAAD reads whatever your tool already reads and adds no steering format. |
 [% END %]
 
-<div class="note">
-  <span class="note-t">Claude Code does not read AGENTS.md</span>
-  <p>This causes confusion, so it is worth stating plainly: <a href="https://code.claude.com/docs/en/memory" rel="noopener" target="_blank">Claude Code reads <code>CLAUDE.md</code>, not <code>AGENTS.md</code></a>. If your repository already has an <code>AGENTS.md</code> for other agents, the documented fix is a one-line import, which also leaves room for anything Claude-specific:</p>
-  <pre><code># CLAUDE.md
+[% WRAPPER note title="Claude Code does not read AGENTS.md" %]
+This causes confusion. [Claude Code reads `CLAUDE.md`, not `AGENTS.md`](https://code.claude.com/docs/en/memory). If your repository already has an `AGENTS.md` for other agents, the documented fix is a one-line import, which also leaves room for anything Claude-specific:
+
+<pre><code># CLAUDE.md
 @AGENTS.md
 
 ## Claude Code
 Use plan mode for changes under `src/billing/`.</code></pre>
-  <p>A symlink works too, if there is nothing tool-specific to add: <code>ln -s AGENTS.md CLAUDE.md</code>. On Windows that needs Administrator rights or Developer Mode, so prefer the import there. Either way you avoid the real problem, which is two steering files that slowly start contradicting each other.</p>
-</div>
 
-<div class="note violet">
-  <span class="note-t">A constitution is not quite a steering file</span>
-  <p>Spec Kit&#39;s constitution is closely related but not the same thing. A steering file mostly records <em>facts</em> — this is the stack, this is the layout. A constitution records <em>principles</em> — what this project will and will not do, which trade-offs are already settled. In practice most teams end up wanting both, and it does not much matter which file they live in as long as they are true. Which is [% module('ground') %]&#39;s subject.</p>
-</div>
+A symlink works too, if there is nothing tool-specific to add: `ln -s AGENTS.md CLAUDE.md`. Either way you avoid the real problem, which is two steering files that slowly start contradicting each other.
+[% END %]
+
+[% WRAPPER note kind="insight" title='A constitution is not quite a steering file' %]
+Spec Kit's constitution is closely related but not the same thing. A steering file mostly records *facts* — this is the stack, this is the layout. A constitution records *principles* — what this project will and will not do, which trade-offs are already settled. In practice most teams end up wanting both, and it does not much matter which file they live in as long as they are true. Which is [% module('ground') %]'s subject.
+[% END %]
 
 ## The toolkits
 
@@ -121,16 +117,15 @@ Five are worth knowing. They are more alike than their documentation suggests, w
 | [Tessl](https://tessl.io/) | one spec file per code file, with generated code marked do-not-edit | The only one of the three Böckeler reviewed that explicitly aspires to spec-anchored, and the only one exploring spec-as-source. It was in closed beta at the time of Böckeler's review, and Tessl has since repositioned around agent skills: as of August 2026 the spec framework no longer appears in Tessl's documentation at all, which now covers a registry, governance, evals, observability, inventory and an agent. The level of abstraction is low enough that you are arguably still writing code, just in prose. |
 [% END %]
 
-<div class="note rose">
-  <span class="note-t">This table will go out of date quickly</span>
-  <p>These projects move fast and their command names have already changed at least once — Spec Kit&#39;s commands acquired the <code>speckit.</code> prefix, and OpenSpec&#39;s documentation shows both <code>/openspec:…</code> and the shorter <code>/opsx:…</code> forms depending on where you look. Read the project&#39;s own README before typing anything from this page. The same warning applies to this course that applies to a steering file: nothing fails when it goes stale.</p>
-</div>
+[% WRAPPER note kind="warning" title='This table will go out of date quickly' %]
+These projects move fast and their command names have already changed at least once — Spec Kit's commands acquired the `speckit.` prefix, and OpenSpec's documentation shows both `/openspec:…` and the shorter `/opsx:…` forms depending on where you look. Read the project's own README before typing anything from this page. The same warning applies to this course that applies to a steering file: nothing fails when it goes stale.
+[% END %]
 
-<div class="note violet">
-  <span class="note-t">The influential dissent: HumanLayer</span>
-  <p><a href="https://www.humanlayer.dev/" rel="noopener" target="_blank">HumanLayer</a> is missing from that table on purpose. The company does not use the phrase &quot;spec-driven development&quot; anywhere in its writing — and since co-founder Dex Horthy coined the term <em>context engineering</em>, the omission is a position rather than an oversight. Their workflow, published in 2025 as <strong>RPI</strong> — research → plan → implement — and since expanded to six phases, <strong>questions → research → design → structure → plan → implement</strong>, inverts the order every toolkit above shares. Research comes <em>first</em>: the agent establishes facts about the existing codebase before anyone writes down what they want. The argument is that a requirements document is an opinion about a system nobody has read yet, and in a brownfield codebase that is the wrong end to start from. Their artefacts are deliberately disposable, too — <em>&quot;I edit my specs and then the code drifts&quot;</em> — which puts them on the spec-first rung of the ladder above by choice rather than by neglect.</p>
-  <p style="margin-top:11px">It earns a place in this course for one line on their home page: <em>&quot;Do not outsource the thinking. Every phase is a place to push back.&quot;</em> That is this course&#39;s argument, arrived at independently by a team that does not call what it does SDD.</p>
-</div>
+[% WRAPPER note kind="insight" title='The influential dissent: HumanLayer' %]
+[HumanLayer](https://www.humanlayer.dev/) is missing from that table on purpose. The company does not use the phrase "spec-driven development" anywhere in its writing — and since co-founder Dex Horthy coined the term *context engineering*, the omission is a position rather than an oversight. Their workflow, published in 2025 as **RPI** — research → plan → implement — and since expanded to six phases, **questions → research → design → structure → plan → implement**, inverts the order every toolkit above shares. Research comes *first*: the agent establishes facts about the existing codebase before anyone writes down what they want. The argument is that a requirements document is an opinion about a system nobody has read yet, and in a brownfield codebase that is the wrong end to start from. Their artefacts are deliberately disposable, too — *"I edit my specs and then the code drifts"* — which puts them on the spec-first rung of the ladder above by choice rather than by neglect.
+
+It earns a place in this course for one line on their home page: *"Do not outsource the thinking. Every phase is a place to push back."* That is this course's argument, arrived at independently by a team that does not call what it does SDD.
+[% END %]
 
 ## Why SDD is generally preferred
 
@@ -143,10 +138,9 @@ Four reasons, in rough order of how much they matter.
 
 And the debt claim from [% module('debt') %], restated now that it means something: *vibe coding rapidly accumulates technical debt while spec-driven development slowly accumulates technical debt.* Slowly, not never. Treat that as an experienced practitioner's observation rather than a measured result — the appendix “How good is the evidence?” is where the measurements are, and they are messier than the slogan.
 
-<div class="note teal">
-  <span class="note-t">Vibe coding is not a sin</span>
-  <p>For a prototype you will delete, a spike run to answer one question, or a script nobody else will ever run, the process overhead costs more than it saves. This is the same &quot;match the methodology to the stakes&quot; point [% module('intro') %] made about tokens, and it is why PAAD includes a <code>vibe</code> skill at all: small changes deserve guardrails, not a specification.</p>
-</div>
+[% WRAPPER note kind="tip" title='Vibe coding is not a sin' %]
+For a prototype you will delete, a spike run to answer one question, or a script nobody else will ever run, the process overhead costs more than it saves. This is the same "match the methodology to the stakes" point [% module('intro') %] made about tokens, and it is why PAAD includes a `vibe` skill at all: small changes deserve guardrails, not a specification.
+[% END %]
 
 ## Where SDD has weaknesses
 
@@ -188,18 +182,17 @@ That gap is the entire premise of this course.
 | Feature after feature | …the structure underneath is still sound | `agentic-architecture` |
 [% END %]
 
-<div class="note rose">
-  <span class="note-t">Superpowers is the honest exception</span>
-  <p>Worth stating plainly, because the table above would otherwise oversell PAAD. Superpowers is not a document generator with a hole where the review should be. It includes <code>requesting-code-review</code> and <code>receiving-code-review</code> skills, puts each subagent&#39;s work through a two-stage check — spec compliance first, then code quality — enforces red/green/refactor, and ends with a <code>verification-before-completion</code> pass. It already fills several of the gates in that table.</p>
-  <p style="margin-top:11px">Which is why PAAD&#39;s README treats the two as compatible rather than as alternatives — its exact words are &quot;You like Superpowers? Use it with PAAD.&quot; What PAAD adds that Superpowers does not is aimed upstream and outward: <code>pushback</code> arguing with the design document before anything is built from it, <code>alignment</code> checking coverage in both directions, and <code>agentic-architecture</code> examining accumulated structure across the whole repository rather than one branch. If Superpowers is already your workflow, <code>pushback</code> is the cheapest place to begin — it needs no branch and no test infrastructure. Treat that as an order of adoption rather than a ranking: the overlap between the two toolkits is smaller in practice than the feature lists suggest, and running both review passes is a deliberate choice rather than a wasted one.</p>
-</div>
+[% WRAPPER note kind="warning" title='Superpowers is the honest exception' %]
+Worth stating plainly, because the table above would otherwise oversell PAAD. Superpowers is not a document generator with a hole where the review should be. It includes `requesting-code-review` and `receiving-code-review` skills, puts each subagent's work through a two-stage check — spec compliance first, then code quality — enforces red/green/refactor, and ends with a `verification-before-completion` pass. It already fills several of the gates in that table.
+
+Which is why PAAD's README treats the two as compatible rather than as alternatives — its exact words are "You like Superpowers? Use it with PAAD." What PAAD adds that Superpowers does not is aimed upstream and outward: `pushback` arguing with the design document before anything is built from it, `alignment` checking coverage in both directions, and `agentic-architecture` examining accumulated structure across the whole repository rather than one branch. If Superpowers is already your workflow, `pushback` is the cheapest place to begin — it needs no branch and no test infrastructure. Treat that as an order of adoption rather than a ranking: the overlap between the two toolkits is smaller in practice than the feature lists suggest, and running both review passes is a deliberate choice rather than a wasted one.
+[% END %]
 
 PAAD is deliberately agnostic about which toolkit produced the documents. `alignment`'s auto-detection scans `.kiro/`, `specs/`, `docs/plans/` and `docs/specs/`, and PAAD's skills will also review a plain markdown file — or the conversation you have just had — if that is what you have. Pick whichever SDD tool suits your team. The gates attach either way.
 
-<div class="note violet">
-  <span class="note-t">The one-sentence version</span>
-  <p>Spec-driven development gets your intent written down. PAAD is what interrogates that intent once it has been written down.</p>
-</div>
+[% WRAPPER note kind="insight" title='The one-sentence version' %]
+Spec-driven development gets your intent written down. PAAD is what interrogates that intent once it has been written down.
+[% END %]
 
 [% WRAPPER quiz %]
 Q: What does spec-driven development mean, in Böckeler's definition?
@@ -244,10 +237,4 @@ Q: What does a spec-driven workflow leave undone that PAAD is designed to add?
 - It provides no way to store project-wide conventions
 Why: The pipeline produces a spec and a task list — and, in some toolkits, a design document in between — then hands them over. Nothing in it argues with the spec, and nothing checks that the tasks actually cover it. That gap is pushback and alignment.
 
-Q: Your team already runs Superpowers, which includes its own code-review, TDD and verification skills. Where does PAAD add the most on top of that?
-- Nowhere — the two toolkits do the same job, so pick one
-+ Reviewing the design document before anything is built from it, and checking coverage in both directions
-- Replacing its red/green/refactor cycle with a stricter one
-- Generating the specification, which Superpowers cannot do
-Why: Superpowers already fills several of the gates: two-stage subagent review, requesting-code-review, verification-before-completion. PAAD's README treats the two as compatible rather than as alternatives. What remains distinctly PAAD's is aimed upstream and outward — pushback on the design document, alignment's bidirectional coverage check, and agentic-architecture across the whole repository rather than one branch.
 [% END %]

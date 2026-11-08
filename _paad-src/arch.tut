@@ -1,6 +1,5 @@
 id: arch
 title: A — Architecture
-group: The four letters
 ---
 [% WRAPPER hero eyebrow="$group · Module $num · A" h1='Architecture' %]
 AI can build quickly on weak foundations. This is the letter that goes looking for the foundations.
@@ -31,7 +30,9 @@ Between them they cover **34 flaw and risk types** and **14 strength categories*
 A review that only lists problems is easy to dismiss and hard to act on — you cannot tell whether the reviewer understood the codebase or just pattern-matched complaints. Naming what is working is evidence of comprehension, and it stops you from "fixing" the parts that were deliberate.
 [% END %]
 
-<p class="note rose"><span class="note-t">Diagnosis only</span>This skill does not propose fixes. That is a deliberate separation — mixing &quot;here is what is wrong&quot; with &quot;here is what I changed&quot; makes it impossible to review either one properly.</p>
+[% WRAPPER note kind="warning" title="Diagnosis only" %]
+This skill does not propose fixes. That is a deliberate separation — mixing "here is what is wrong" with "here is what I changed" makes it impossible to review either one properly.
+[% END %]
 
 ## `/fix-architecture` — the treatment
 
@@ -41,10 +42,9 @@ Before starting it runs pre-flight checks: branch protection, report staleness d
 
 Before any fix begins, it validates every flaw in the batch and writes and commits all the safety-net tests up front — that gate is non-negotiable. Then, one flaw at a time, it proposes options with trade-offs and executes red/green/refactor. Outcomes are recorded in the report itself: *Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted.* That status tracking is what makes the work resumable across sessions.
 
-<div class="note violet">
-  <span class="note-t">Why fixes are sequential, not parallel</span>
-  <p>This is one of the most instructive design decisions in PAAD. Fixing one structural flaw can resolve others, and that dependency can only be discovered sequentially. Worktree-based parallelism would avoid file collisions — but merging several structural refactors back together is a reliable way to introduce new bugs. Parallelism is not free just because the tooling supports it.</p>
-</div>
+[% WRAPPER note kind="insight" title='Why fixes are sequential, not parallel' %]
+This is one of the most instructive design decisions in PAAD. Fixing one structural flaw can resolve others, and that dependency can only be discovered sequentially. Worktree-based parallelism would avoid file collisions — but merging several structural refactors back together is a reliable way to introduce new bugs. Parallelism is not free just because the tooling supports it.
+[% END %]
 
 [% WRAPPER quiz %]
 Q: What does agentic-architecture deliberately NOT do?

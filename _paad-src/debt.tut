@@ -1,9 +1,10 @@
 id: debt
 title: Why AI-assisted code rots
-group: Orientation
 ---
 [% WRAPPER hero %]
-Understanding the failure mode is what makes the skills feel necessary rather than bureaucratic. There are three mechanisms, and they compound.
+Understanding the failure mode is what makes the skills feel necessary rather
+than bureaucratic. There are three mechanisms and when combined, they make the
+problem even worse.
 [% END %]
 
 ## Mechanism one: the assistant is a yes man
@@ -12,21 +13,52 @@ Understanding the failure mode is what makes the skills feel necessary rather th
 AI is a "yes man." It does what you ask it to do, focusing on what you asked it to do. It ignores the big picture unless you *explicitly* tell it to look at it.
 [% END %]
 
-This is not a bug that will be patched. Instruction-following is what LLMs are designed to do. An assistant that pushed back on every third request would be exhausting and would mostly be wrong. But the consequence is that the quality ceiling of your output is set by the quality of your input — and nothing in the default loop inspects your input.
+This is not a bug that will be patched any time soon. Instruction-following is
+what LLMs are designed to do. An assistant that pushed back on every third
+request would be exhausting and would mostly be wrong. But this means that the
+quality the output is set by the quality of your input.  Nothing in the
+default loop challenges your input.
 
-It is worth being precise about what "your input" means, because most people read it as "your prompt." It is not. Your input is the prompt *plus the codebase the assistant is reading to answer it*, and the second part usually matters more.
+Your input is more than just your prompt.  Your input is the prompt *plus the
+codebase the assistant is reading to answer it*, and the second part usually
+matters more.
 
-<div class="note rose">
-  <span class="note-t">Your codebase shapes the answers you get</span>
-  <p>An assistant infers what good looks like from what it finds around it. Ask for a new endpoint in a codebase where the existing three endpoints each validate input differently, and you will get a fourth way. Ask for error handling where half the code swallows exceptions, and it will swallow exceptions — consistently with its neighbours, which is exactly what you would want if the neighbours were right.</p>
-  <p>This is the compounding mechanism, and it runs in both directions. Debt attracts debt, because every new piece of work is pattern-matched against the debt already there. A clean codebase is not just nicer to work in; it is a better prompt. That is why <code>agentic-architecture</code> exists as a repeated check rather than a single cleanup done once, and it is why &quot;the assistant keeps writing bad code&quot; is often better read as &quot;the assistant is accurately reproducing what my codebase taught it.&quot;</p>
-</div>
+[% WRAPPER note title='Your codebase guides the answers you get' %]
 
-A human senior engineer handed a flawed spec says "wait, what happens when two people do this at once?" The assistant handed the same spec writes the code. Both are behaving correctly given their incentives. Only one of them saves you two weeks of work. This is the mechanical reason AI-driven engineering fails: nothing in the default arrangement asks the assistant to question the instruction, so nothing is checking direction. The capacity is there — an assistant will argue with a spec if you tell it to, which is exactly what `pushback` is — but it is a step you have to add, not one you get for free.
+An assistant infers what good looks like from what it finds around it. Ask for
+a new endpoint in a codebase where the existing three endpoints each validate
+input differently, and you will get a fourth way. Ask for error handling where
+half the code swallows exceptions, and it will swallow exceptions,
+consistently with its neighbours, which is exactly what you would want if the
+neighbours were right.
+
+This is the compounding mechanism, and it runs in both directions. Debt
+attracts debt, because every new piece of work is pattern-matched against the
+debt already there. A clean codebase is not just nicer to work in; it is a
+better prompt. That is why <code>agentic-architecture</code> exists as a
+repeated check rather than a single cleanup done once, and it is why &quot;the
+assistant keeps writing bad code&quot; is often better read as &quot;the
+assistant is accurately reproducing what my codebase taught it.&quot;
+
+[% END %]
+
+A human senior engineer handed a flawed spec says "wait, what happens when two
+people do this at once?" The assistant handed the same spec writes the code.
+Both are behaving correctly given their incentives. Only one of them saves you
+two weeks of work. This is the mechanical reason AI-driven engineering fails:
+nothing asks the assistant to question the instruction, so nothing is checking
+direction. The capacity is there — an assistant will argue with a spec if you
+tell it to, which is exactly what `pushback` is — but you have to ask for it;
+you don't get it for free.
 
 ## Mechanism two: debt accumulates at the speed of development
 
-The article's formulation is compact: **vibe coding rapidly accumulates technical debt while spec-driven development slowly accumulates technical debt.** Note that neither number is zero. Spec-driven development is better, not sufficient. The reason is that acceleration and debt are coupled — if you ship five times as much code in a week, you also ship five times as many small structural compromises, and you have one fifth as long to notice each one.
+The article's formulation is compact: **vibe coding rapidly accumulates
+technical debt while spec-driven development slowly accumulates technical
+debt.** Note that neither number is zero. Spec-driven development is better,
+not sufficient. The reason is that acceleration and debt are coupled — if you
+ship five times as much code in a week, you also ship five times as many small
+structural compromises, and you have one fifth as long to notice each one.
 
 [% WRAPPER table %]
 | Approach | What it looks like | Debt trajectory |
@@ -35,11 +67,16 @@ The article's formulation is compact: **vibe coding rapidly accumulates technica
 | SDD + PAAD | The same, with review gates at spec, plan, and pre-merge. | Debt is brought into the open and decided on rather than absorbed silently. |
 [% END %]
 
-That middle row is the one everything else in this course is built on top of, and it deserves more than a table cell. **[% module('sdd') %] covers what spec-driven development actually is** — what a spec is, what the toolkits do, and where the practice has weaknesses. If SDD is already how you work, treat that module as optional.
+That middle row is the one everything else in this course is built on top of,
+and it deserves more than a table cell. **[% module('sdd') %] covers what
+spec-driven development actually is** — what a spec is, what the toolkits do,
+and where the practice has weaknesses. If SDD is already how you work, treat
+that module as optional.
 
-## Mechanism three: errors are cheapest at the earliest layer
+## Mechanism three: fixing errors early is cheaper than fixing in production
 
-This is the oldest idea in software engineering and PAAD's central organising principle, and the article puts the cost gradient in terms of blast radius:
+This is the oldest idea in software engineering and PAAD's central organising
+principle.
 
 [% WRAPPER quote cite='"Watching Claude Sonnet Outperform Opus"' %]
 If you have a bad ticket, you write some bad code. If you have a bad spec, you have lots of bad tickets. If you have bad steering, every spec you ever create is impacted.
@@ -53,14 +90,19 @@ A **steering file** is a document your assistant loads at the start of every ses
 
 Read that as a hierarchy. Steering files sit above specs; specs sit above plans; plans sit above code. A defect at any level is inherited by everything beneath it. Which tells you immediately where review effort has the most value: **as far up that stack as you can get it.**
 
-<div class="note violet">
-  <span class="note-t">Why &quot;defense in depth&quot;</span>
-  <p>Modern teams already run layered protection: specs, tests, code review, CI, QA, UAT, incident response. Those layers exist because humans are stochastic — they do not behave identically twice — and make different mistakes at different stages. AI is stochastic as well. PAAD&#39;s argument is not that AI needs <em>special</em> safeguards — it is that AI needs <em>the same</em> safeguards, applied at machine speed to match machine output.</p>
-</div>
+[% WRAPPER note kind="insight" title='Why "defense in depth"' %]
+Modern teams already run layered protection: specs, tests, code review, CI, QA, UAT, incident response. Those layers exist because humans are stochastic — they do not behave identically twice — and make different mistakes at different stages. AI is stochastic as well. PAAD's argument is not that AI needs *special* safeguards — it is that AI needs *the same* safeguards, applied at machine speed to match machine output.
+[% END %]
 
 ## What the evidence looked like
 
-The article reports an architecture analysis of a codebase of roughly 10,000 lines, built in a few hours by **Fable** — the most powerful model released at the time of the analysis — working from specifications that were themselves produced with Superpowers, PAAD and Ponytail — but with PAAD deliberately withheld from the implementation, to see what the model builds natively from high-quality input. Five specialist agents produced 79 raw findings, which an adversarial verification pass reduced to 50.
+The article reports an architecture analysis of a codebase of roughly 10,000
+lines, built in a few hours by **Fable** — the most powerful model released at
+the time of the analysis — working from a carefully detailed specification
+that was created with Superpowers and PAAD — but with PAAD deliberately
+withheld from the implementation, to see what the model builds natively from
+high-quality input. Five specialist agents produced 79 raw findings, which an
+adversarial verification pass reduced to 50.
 
 Those 50 verified findings break down like this:
 
@@ -72,16 +114,22 @@ Those 50 verified findings break down like this:
 
 Thirty-three verified flaws in 10K lines written in an afternoon. The point is not that Fable struggled — it "had no significant problems in creating the software in a few hours." The point is what it produced along the way. The conclusion is blunt: Fable "can brute force past architectural challenges, but without clear and explicit guidance, it creates the same technical debt that less powerful models create." Raw capability did not substitute for guidance.
 
-[% WRAPPER note title='How that analysis was run, in one paragraph' %]
+[% WRAPPER note title='How that analysis was run' %]
 Two mechanisms in that description — five specialist agents, one verification pass — recur throughout PAAD, so they are worth naming now. A **specialist** is a sub-agent given one narrow brief — security, or coupling, or error handling — and run in parallel with the others, on the reasoning that a single reviewer looking for everything reliably misses things in its own blind spots. A **verification pass** is a second, separate stage that takes those raw findings and tries to disprove them: it reads the actual code and the git history and discards anything it cannot substantiate. That is the step that removed 29 of the original 79.
 
-The pattern matters because unverified automated review is mostly false positives — the appendix “How good is the evidence?” has the industrial numbers. **[% module('arch') %] covers the five architecture specialists in detail, and [% module('disc') %] the six review specialists.** The appendix “What the Fable review found” opens the report itself: the four High-severity flaws in full, the other twenty-nine listed, and the seventeen strengths alongside them.
+The pattern matters because unverified automated review is mostly false
+positives — the appendix “How good is the evidence?” has the industrial
+numbers. **[% module('arch') %] covers the five architecture specialists in
+detail, and [% module('disc') %] the six review specialists.** The appendix
+“What the Fable review found” covers the report itself: the four High-severity
+flaws in full, the other twenty-nine listed, and the seventeen strengths
+alongside them.
+
 [% END %]
 
-<div class="note rose">
-  <span class="note-t">Read this critically</span>
-  <p>Worth noting what this is and is not. It is a single case study, with no control condition and no baseline for what 33 flaws in 10,000 lines would represent for human-written code of comparable age. That does not make it uninformative — the method is described, the findings were verified, and the numbers are specific enough to argue with. It does mean it is one data point rather than a general result. Two appendices let you check it: “What the Fable review found” gives the findings themselves, so you can judge them one at a time, and “How good is the evidence?” sets the case alongside the wider research literature.</p>
-</div>
+[% WRAPPER note kind="warning" title='Read this critically' %]
+Worth noting what this is and is not. It is a single case study, with no control condition and no baseline for what 33 flaws in 10,000 lines would represent for human-written code of comparable age. That does not make it uninformative — the method is described, the findings were verified, and the numbers are specific enough to argue with. It does mean it is one data point rather than a general result. Two appendices let you check it: “What the Fable review found” gives the findings themselves, so you can judge them one at a time, and “How good is the evidence?” sets the case alongside the wider research literature.
+[% END %]
 
 [% WRAPPER quiz %]
 Q: What does the "yes man" description of AI assistants refer to?

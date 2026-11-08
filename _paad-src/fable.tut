@@ -1,17 +1,16 @@
 id: fable
 title: What the Fable review found
-group: Optional appendix
 optional: yes
 ---
 [% WRAPPER hero %]
 [% module('debt') %] compressed fifty findings into a table with two rows. This appendix opens that table: what was reviewed, the four High-severity flaws in full, a reference list of the other twenty-nine, and the seventeen strengths the same report recorded.
 [% END %]
 
-<div class="note teal">
-  <span class="note-t">Optional — and it is one report about one codebase</span>
-  <p>Nothing in the course depends on this page and no assessment question draws on it. It exists because a two-row table is easy to quote and hard to check, and because the findings themselves teach more than the count does. The full report is public: <a href="https://gist.github.com/Ovid/7938d58e58558dd553e18b83e7add975" rel="noopener" target="_blank">Architecture Report</a>, 18 July 2026 — the project name is redacted in the report itself. Throughout this appendix, <strong>Fable is the AI system that built the code</strong>, not the codebase under review.</p>
-  <p style="margin-top:11px">Everything below is drawn from that report. Where a finding is summarised rather than quoted, the summary is ours; the finding titles are the report&#39;s own.</p>
-</div>
+[% WRAPPER note kind="tip" title='Optional — and it is one report about one codebase' %]
+Nothing in the course depends on this page and no assessment question draws on it. It exists because a two-row table is easy to quote and hard to check, and because the findings themselves teach more than the count does. The full report is public: [Architecture Report](https://gist.github.com/Ovid/7938d58e58558dd553e18b83e7add975), 18 July 2026 — the project name is redacted in the report itself. Throughout this appendix, **Fable is the AI system that built the code**, not the codebase under review.
+
+Everything below is drawn from that report. Where a finding is summarised rather than quoted, the summary is ours; the finding titles are the report's own.
+[% END %]
 
 ## What was reviewed
 
@@ -26,11 +25,11 @@ The subject is a browser application built around a deterministic simulation, wi
 | Tests | 154, all of them in the simulation layer. |
 [% END %]
 
-<div class="note violet">
-  <span class="note-t">The specification was reviewed. The implementation was not.</span>
-  <p>This is the detail that changes how you should read the numbers. The specification was written using Superpowers and PAAD, deliberately, to make sure the model was working from a good brief. PAAD was then left out of the implementation on purpose, to find out what the model produces natively when nothing checks the work between the brief and the merge.</p>
-  <p style="margin-top:11px">So this is not a picture of AI-assisted development with no process at all. It is a picture of what one model produced from a specification that had already been through a review gate — which makes 33 verified flaws a more interesting number than it would otherwise be, not a less interesting one.</p>
-</div>
+[% WRAPPER note kind="insight" title='The specification was reviewed. The implementation was not.' %]
+This is the detail that changes how you should read the numbers. The specification was written using Superpowers and PAAD, deliberately, to make sure the model was working from a good brief. PAAD was then left out of the implementation on purpose, to find out what the model produces natively when nothing checks the work between the brief and the merge.
+
+So this is not a picture of AI-assisted development with no process at all. It is a picture of what one model produced from a specification that had already been through a review gate — which makes 33 verified flaws a more interesting number than it would otherwise be, not a less interesting one.
+[% END %]
 
 ## How the review was run
 
@@ -184,8 +183,8 @@ Every architecture report ends with a hotspots list, which is the part to read f
 
 **Two of the four High flaws are contract questions.** What does a version number promise? What does a save guarantee about a future release? Those are answerable in a paragraph before any code exists, and they are exactly the kind of question `pushback` asks of a specification. By the time they appear as F2 and F3 they are a load path, an automatic save timer, and a data-loss sequence — which is [% module('debt') %]'s cost gradient, visible in one codebase.
 
-<div class="note rose">
-  <span class="note-t">Read this critically</span>
-  <p>One report, one codebase, produced by the author of the methodology this course teaches. There is no control condition, and no comparable review of a human-written codebase of the same age and size to set beside it — so nothing here establishes that 33 flaws in 10,500 lines is a high number. It might be an ordinary one.</p>
-  <p style="margin-top:11px">What the report does have is a stated method, a verification pass, and findings specific enough to disagree with individually — which is more than most of what gets quoted in this area. Treat it as a worked example of what the review produces, not as a measurement of what AI-assisted code is like. The appendix “How good is the evidence?” is where the wider literature sits.</p>
-</div>
+[% WRAPPER note kind="warning" title='Read this critically' %]
+One report, one codebase, produced by the author of the methodology this course teaches. There is no control condition, and no comparable review of a human-written codebase of the same age and size to set beside it — so nothing here establishes that 33 flaws in 10,500 lines is a high number. It might be an ordinary one.
+
+What the report does have is a stated method, a verification pass, and findings specific enough to disagree with individually — which is more than most of what gets quoted in this area. Treat it as a worked example of what the review produces, not as a measurement of what AI-assisted code is like. The appendix “How good is the evidence?” is where the wider literature sits.
+[% END %]

@@ -1,6 +1,5 @@
 id: start
 title: Getting started
-group: Putting it together
 ---
 [% WRAPPER hero %]
 Installation, the order to work in on a codebase you inherited, a first-week plan, and the reference card.
@@ -21,11 +20,11 @@ After that, start with `/paad-help` to see the available skills and when to use 
 Every other skill is named for what it does: `/pushback`, `/vibe`. The help skill is `/paad-help` rather than `/help` because `/help` is Claude Code's own built-in command, and the two collided.
 [% END %]
 
-<div class="note teal">
-  <span class="note-t">Keeping it up to date</span>
-  <p>New skills and fixes do not arrive on their own. Claude Code disables auto-update for third-party marketplaces by default, and PAAD is one, so you install updates yourself: open <code>/plugin</code>, go to the <strong>Installed</strong> tab, select <strong>paad</strong>, and choose <strong>Update now</strong>. Then run <code>/reload-plugins</code>. That single action refreshes the marketplace catalog from GitHub before it looks for a new version, and no session restart is required.</p>
-  <p style="margin-top:11px">To confirm which version you are on, run any skill and read the banner, then compare it against <a href="https://github.com/Ovid/paad/blob/main/plugins/paad/.claude-plugin/plugin.json" rel="noopener" target="_blank"><code>plugin.json</code></a> in the repository. If a skill described here is missing entirely, you are on an older release.</p>
-</div>
+[% WRAPPER note kind="tip" title='Keeping it up to date' %]
+New skills and fixes do not arrive on their own. Claude Code disables auto-update for third-party marketplaces by default, and PAAD is one, so you install updates yourself: open `/plugin`, go to the **Installed** tab, select **paad**, and choose **Update now**. Then run `/reload-plugins`. That single action refreshes the marketplace catalog from GitHub before it looks for a new version, and no session restart is required.
+
+To confirm which version you are on, run any skill and read the banner, then compare it against [`plugin.json`](https://github.com/Ovid/paad/blob/main/plugins/paad/.claude-plugin/plugin.json) in the repository. If a skill described here is missing entirely, you are on an older release.
+[% END %]
 
 ## Install — other agents
 
@@ -63,19 +62,17 @@ A skill that followed a config file says so: its final answer opens with a line 
 
 Check for it — no such line means nothing in the run came from your config.
 
-<div class="note rose">
-  <span class="note-t">Experimental, and two warnings</span>
-  <p>Configuration is experimental and may change in any release. Use it to add, not to remove: a config line can tell a skill to skip its own safety checks, and the skill may comply. And a <code>paad/config/</code> in a repository you cloned was written by someone else, so read it before you run anything there. <a href="https://github.com/Ovid/paad/blob/main/CONFIG.md" rel="noopener" target="_blank">CONFIG.md</a> has the full details.</p>
-</div>
+[% WRAPPER note kind="warning" title='Experimental, and two warnings' %]
+Configuration is experimental and may change in any release. Use it to add, not to remove: a config line can tell a skill to skip its own safety checks, and the skill may comply. And a `paad/config/` in a repository you cloned was written by someone else, so read it before you run anything there. [CONFIG.md](https://github.com/Ovid/paad/blob/main/CONFIG.md) has the full details.
+[% END %]
 
 ## Starting on an existing codebase
 
 The two-week plan further down was written for a new project, or for one that already has a test suite you trust. Brownfield work is a different problem and wants a different order. The codebase is large, nobody currently on the team wrote all of it, and the safety net you would need before changing anything is the thing you do not have. If that describes your situation, follow the sequence below instead — in order, because each step is what makes the next one safe.
 
-<div class="note rose">
-  <span class="note-t">The order is the content</span>
-  <p>All six steps are available on day one and every one of them is tempting to skip. The sequence is what makes them work: bad steering corrupts everything written afterwards, missing tests make the architecture report unusable, and an unread report is a document rather than a plan. Taken out of order these are six good ideas. Taken in order they are how a legacy codebase gets to the state the rest of this course assumes.</p>
-</div>
+[% WRAPPER note kind="warning" title='The order is the content' %]
+All six steps are available on day one and every one of them is tempting to skip. The sequence is what makes them work: bad steering corrupts everything written afterwards, missing tests make the architecture report unusable, and an unread report is a document rather than a plan. Taken out of order these are six good ideas. Taken in order they are how a legacy codebase gets to the state the rest of this course assumes.
+[% END %]
 
 ### 1. Everything the AI produces goes into source control
 
@@ -111,10 +108,9 @@ Do the [% module('sdd') %] decision at the same time, once, deliberately: pick a
 
 Bad steering does not fail loudly. It produces confident, plausible, wrong work at every layer beneath it, which is the most expensive failure mode in the whole method and the one you can eliminate in an afternoon.
 
-<div class="note teal">
-  <span class="note-t">pushback is a more general critic than its description says</span>
-  <p><code>pushback</code>&#39;s stated scope names &quot;a spec, PRD, requirements doc, or design plan&quot;. In practice it reviews AI-produced artefacts of most kinds effectively — steering files and architecture reports included. Run with no file named, it offers recently changed steering files and <code>paad/*-reviews/</code> reports as candidates (since 1.30). So point it at your steering file, and at the report in step 4. Two caveats stand: the description is the contract the semver promise covers, so behaviour on other inputs can change; and most steering claims are only testable against the code, so a document review complements the check the skills already run rather than replacing it.</p>
-</div>
+[% WRAPPER note kind="tip" title='pushback is a more general critic than its description says' %]
+`pushback`'s stated scope names "a spec, PRD, requirements doc, or design plan". In practice it reviews AI-produced artefacts of most kinds effectively — steering files and architecture reports included. Run with no file named, it offers recently changed steering files and `paad/*-reviews/` reports as candidates (since 1.30). So point it at your steering file, and at the report in step 4. Two caveats stand: the description is the contract the semver promise covers, so behaviour on other inputs can change; and most steering claims are only testable against the code, so a document review complements the check the skills already run rather than replacing it.
+[% END %]
 
 ### 3. Build a test suite that pins current behaviour
 
@@ -173,10 +169,9 @@ This is the gentler on-ramp, and it assumes something: that the codebase either 
 | Once it feels routine | Run `/agentic-architecture` on your main codebase. | Do this when you are ready to act on the results. A report you ignore is worse than no report. |
 [% END %]
 
-<div class="note teal">
-  <span class="note-t">Start with pushback</span>
-  <p>If you adopt exactly one skill, make it <code>pushback</code>. It is the cheapest to run, needs no branch or test infrastructure, sits highest in the cost hierarchy, and produces the most visible &quot;oh — I hadn&#39;t thought of that&quot; moment. Adoption follows from that moment, not from an argument.</p>
-</div>
+[% WRAPPER note kind="tip" title='Start with pushback' %]
+If you adopt exactly one skill, make it `pushback`. It is the cheapest to run, needs no branch or test infrastructure, sits highest in the cost hierarchy, and produces the most visible "oh — I hadn't thought of that" moment. Adoption follows from that moment, not from an argument.
+[% END %]
 
 ## Reference card
 

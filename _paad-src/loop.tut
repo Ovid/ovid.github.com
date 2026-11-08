@@ -1,6 +1,5 @@
 id: loop
 title: The two loops
-group: Putting it together
 ---
 [% WRAPPER hero %]
 Stop bad code from merging, and pay down the debt that gets through anyway.
@@ -75,14 +74,17 @@ This is the one gate PAAD never automates. Every skill ends in a human decision 
 Then start again at step 1 for the next feature. Structural debt that crosses features is not this loop's job; it belongs to Loop 2, below.
 [% END %]
 
-<div class="note violet">
-  <span class="note-t">Why &quot;may repeat&quot; is the important part</span>
-  <p>Newcomers read the repeat markers as a sign of doubt — as if the skills were unreliable and you run them twice to be safe. They are there for two independent reasons, and both are structural.</p>
-  <p><strong>The artefact changes underneath you.</strong> A review is a critique of a specific document. The moment you accept a finding and edit the spec, the thing that was reviewed no longer exists — you now have a <em>different</em> spec that has never been reviewed. Fixing an ambiguity often exposes an omission that was hidden behind it, and resolving a contradiction can invalidate requirements elsewhere. The second pass is not a retry of the first; it is the first review of a new document.</p>
-  <p><strong>The reviewer is non-deterministic.</strong> Two runs over the identical input will not produce identical findings. This is a genuine weakness, and the honest way to work with it is to treat any single pass as a sample rather than a complete enumeration. Running twice does not guarantee completeness either — it just widens the sample.</p>
-  <p><strong>Use the size of the finding list as your signal.</strong> A pass that returns a long list of issues is telling you two things: this artefact needs work, and you have almost certainly not found all of the problems yet. Reviews reveal what is most visible first, and a document with ten problems tends to have had several of them masking others. Fix that batch and run again — the second pass on a heavily-revised document routinely finds things the first could not have reached.</p>
-  <p>Conversely, a pass that returns one or two minor points is evidence you are close to done. The practical rule: <strong>re-run whenever you have materially changed the artefact, re-run when the last pass found a lot, and stop when a pass returns nothing you did not already know.</strong> That stopping condition matters — without it, non-determinism means you can always find one more thing, and the loop never closes.</p>
-</div>
+[% WRAPPER note kind="insight" title='Why "may repeat" is the important part' %]
+Newcomers read the repeat markers as a sign of doubt — as if the skills were unreliable and you run them twice to be safe. They are there for two independent reasons, and both are structural.
+
+**The artefact changes underneath you.** A review is a critique of a specific document. The moment you accept a finding and edit the spec, the thing that was reviewed no longer exists — you now have a *different* spec that has never been reviewed. Fixing an ambiguity often exposes an omission that was hidden behind it, and resolving a contradiction can invalidate requirements elsewhere. The second pass is not a retry of the first; it is the first review of a new document.
+
+**The reviewer is non-deterministic.** Two runs over the identical input will not produce identical findings. This is a genuine weakness, and the honest way to work with it is to treat any single pass as a sample rather than a complete enumeration. Running twice does not guarantee completeness either — it just widens the sample.
+
+**Use the size of the finding list as your signal.** A pass that returns a long list of issues is telling you two things: this artefact needs work, and you have almost certainly not found all of the problems yet. Reviews reveal what is most visible first, and a document with ten problems tends to have had several of them masking others. Fix that batch and run again — the second pass on a heavily-revised document routinely finds things the first could not have reached.
+
+Conversely, a pass that returns one or two minor points is evidence you are close to done. The practical rule: **re-run whenever you have materially changed the artefact, re-run when the last pass found a lot, and stop when a pass returns nothing you did not already know.** That stopping condition matters — without it, non-determinism means you can always find one more thing, and the loop never closes.
+[% END %]
 
 AI is now good enough that, with `pushback` alone, fewer issues reach the later stages of the loop. But the loop only protects the current feature. It cannot see the structure of the project as a whole, and that is where debt accumulates.
 

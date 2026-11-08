@@ -1,6 +1,5 @@
 id: ground
 title: Groundwork before the skills
-group: Orientation
 ---
 [% WRAPPER hero %]
 Four things that are not PAAD skills but that PAAD assumes. Skip them and the skills work at a fraction of their value.
@@ -60,17 +59,17 @@ This is the single most counter-intuitive instruction in the whole methodology, 
 
 Three layers are expected: **unit tests** for isolated components, **integration tests** validating that components communicate correctly, and **end-to-end tests** for critical user journeys. The article targets 95%+ coverage when working with AI, against a traditional 80% baseline — the reasoning being that AI makes writing tests cheap enough that the old cost/benefit line moves. Treat that number as a heuristic rather than a target to optimise: as the next paragraph explains, coverage is famously easy to inflate without improving anything.
 
-<div class="note rose">
-  <span class="note-t">Coverage is not the goal</span>
-  <p>A line can be &quot;covered&quot; by a test that asserts nothing — green forever, catching nothing. PAAD includes a <code>test-roadmap</code> skill built entirely around this problem: every test phase must name the bug it would catch, and the skill proves each test works by injecting that bug in a throwaway <code>git worktree</code> and confirming the test goes red. A high coverage number with assertion-free tests is worse than a low one, because it buys false confidence.</p>
-  <p>Using it is simple: keep running <code>/test-roadmap</code> in fresh sessions until it&#39;s done. The finish line is the roadmap&#39;s phases being complete, not a coverage number. In the author&#39;s runs, finished roadmaps have landed around 85% statement coverage — an observation, not a target.</p>
-</div>
+[% WRAPPER note kind="warning" title='Coverage is not the goal' %]
+A line can be "covered" by a test that asserts nothing — green forever, catching nothing. PAAD includes a `test-roadmap` skill built entirely around this problem: every test phase must name the bug it would catch, and the skill proves each test works by injecting that bug in a throwaway `git worktree` and confirming the test goes red. A high coverage number with assertion-free tests is worse than a low one, because it buys false confidence.
 
-<div class="note rose">
-  <span class="note-t">It will find security holes</span>
-  <p>Rigorous tests surface real vulnerabilities — the author <a href="https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits" rel="noopener" target="_blank">keeps finding them by accident</a>. Since 2.0, PAAD writes the description of each one to <code>paad/security/</code>, which git ignores. But the test that pins the hole is committed with the rest of its phase, and it still reproduces the hole. On a public repository, don&#39;t push those commits until the hole is fixed.</p>
-  <p>That fix is the one exception to &quot;pin, don&#39;t fix&quot;, and <code>test-roadmap</code> won&#39;t make it for you. On code without a solid suite a security fix can easily ripple, so make it once the tests around that code are in place. Because <code>test-roadmap</code> commits every phase to the working branch, plan for the gap: if the fix is more than a phase or two away, make the repository private, or move the roadmap to a private fork, until it lands; if you can&#39;t, write the tests around that code next and fix it straight after. Since 2.1.0, <code>test-roadmap</code> and <code>fix-architecture</code> lead their final reply with a push warning when they commit such a test — that warning is your prompt to act.</p>
-</div>
+Using it is simple: keep running `/test-roadmap` in fresh sessions until it's done. The finish line is the roadmap's phases being complete, not a coverage number. In the author's runs, finished roadmaps have landed around 85% statement coverage — an observation, not a target.
+[% END %]
+
+[% WRAPPER note kind="warning" title='It will find security holes' %]
+Rigorous tests surface real vulnerabilities — the author [keeps finding them by accident](https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits). Since 2.0, PAAD writes the description of each one to `paad/security/`, which git ignores. But the test that pins the hole is committed with the rest of its phase, and it still reproduces the hole. On a public repository, don't push those commits until the hole is fixed.
+
+That fix is the one exception to "pin, don't fix", and `test-roadmap` won't make it for you. On code without a solid suite a security fix can easily ripple, so make it once the tests around that code are in place. Because `test-roadmap` commits every phase to the working branch, plan for the gap: if the fix is more than a phase or two away, make the repository private, or move the roadmap to a private fork, until it lands; if you can't, write the tests around that code next and fix it straight after. Since 2.1.0, `test-roadmap` and `fix-architecture` lead their final reply with a push warning when they commit such a test — that warning is your prompt to act.
+[% END %]
 
 ## 4. A consistent way to run your checks
 

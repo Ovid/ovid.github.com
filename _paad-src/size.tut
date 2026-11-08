@@ -1,17 +1,16 @@
 id: size
 title: Why small specs
-group: Optional appendix
 optional: yes
 ---
 [% WRAPPER hero %]
 A 50-line diff is not just easier to review than a 5,000-line diff. It is easier to review *reliably* — and that is a different claim, with different evidence behind it. This appendix makes the case for keeping specs small, and then argues about where you are allowed to cut.
 [% END %]
 
-<div class="note teal">
-  <span class="note-t">Optional — but this one changes how you write specs</span>
-  <p>Nothing in the course depends on this page and no assessment question draws on it. Unlike the evidence appendix, though, this one is prescriptive: it ends with a decomposition procedure you can apply to the next spec you write.</p>
-  <p style="margin-top:11px">The short version, if you only want one line: <strong>review quality falls off with size for humans and for models, for unrelated reasons that compound — but size is the alarm, not the place to cut.</strong> You slice a spec on independent value, never on length.</p>
-</div>
+[% WRAPPER note kind="tip" title='Optional — but this one changes how you write specs' %]
+Nothing in the course depends on this page and no assessment question draws on it. Unlike the evidence appendix, though, this one is prescriptive: it ends with a decomposition procedure you can apply to the next spec you write.
+
+The short version, if you only want one line: **review quality falls off with size for humans and for models, for unrelated reasons that compound — but size is the alarm, not the place to cut.** You slice a spec on independent value, never on length.
+[% END %]
 
 Everything else in this course is about putting a review gate somewhere. This page is about the one variable that decides whether the gate works at all: how much you ask it to look at.
 
@@ -37,11 +36,11 @@ The second source is the largest study of lightweight code review ever run: Smar
 | Session length | "Total review time should be less than 60 minutes, not to exceed 90. Defect detection rates plummet after that time." |
 [% END %]
 
-<div class="note rose">
-  <span class="note-t">Two caveats before you quote these to a colleague</span>
-  <p>Neither source is a randomised trial. Wiegers is a practitioner paper summarising the inspection literature of its day; the Cisco study is a vendor case study published by the company selling the review tool, with no control condition. Both are credible and widely used, and neither would survive being described as &quot;the research shows.&quot;</p>
-  <p style="margin-top:11px">There is also an arithmetic trap in the headline finding. <strong>Defects <em>per thousand lines</em> falls as the review grows partly because the denominator is growing.</strong> Part of that curve is caused by the arithmetic, not by reviewers paying less attention. What the arithmetic does not explain away is the reading-rate result — reviewers who go faster find fewer defects <em>in absolute terms</em> — and that is the finding the size limit actually rests on.</p>
-</div>
+[% WRAPPER note kind="warning" title='Two caveats before you quote these to a colleague' %]
+Neither source is a randomised trial. Wiegers is a practitioner paper summarising the inspection literature of its day; the Cisco study is a vendor case study published by the company selling the review tool, with no control condition. Both are credible and widely used, and neither would survive being described as "the research shows."
+
+There is also an arithmetic trap in the headline finding. **Defects *per thousand lines* falls as the review grows partly because the denominator is growing.** Part of that curve is caused by the arithmetic, not by reviewers paying less attention. What the arithmetic does not explain away is the reading-rate result — reviewers who go faster find fewer defects *in absolute terms* — and that is the finding the size limit actually rests on.
+[% END %]
 
 ## What contemporary practice converged on
 
@@ -94,17 +93,17 @@ Model review degrades with size too, through three mechanisms that compound:
 
 The first two combine in a particularly damaging way. Suppose a review pass catches any given defect with probability *p*, and your branch contains *n* of them. You expect to miss *(1 − p) × n*. Doubling the size of the change roughly doubles *n* — and, because the input got longer, lowers *p* at the same time. **A big diff fails twice over: more to find, and a worse chance of finding each one.** That is the whole argument in one line, and it applies to the human reviewer and the model reviewer alike.
 
-<div class="note violet">
-  <span class="note-t">This is now an industry-scale problem, not a personal-habit problem</span>
-  <p>A July 2026 preprint from Meta describing their internal AI review system puts the trend plainly: <em>&quot;Diffs are growing larger as agents produce multi-file changes in a single session, and external data shows that the vast majority of large code changes now ship without any formal review.&quot;</em> Their framing is that <em>&quot;AI coding agents are generating code at volumes that exceed the capacity of traditional peer review.&quot;</em></p>
-  <p style="margin-top:11px">The same paper is a caution against treating the AI reviewer as the answer: in their comparison, security concerns appeared in <strong>2.0% of AI review comments against 19.1% of human ones</strong>, and AI reviewers &quot;over-index on low-signal suggestions.&quot; Read that alongside the finding in “How good is the evidence?” that AI assistance degrades your judgement of your own work, and the conclusion is uncomfortable but clear: <strong>the thing generating the large diffs is not the thing that can be trusted to review them.</strong> The size discipline has to come from you. <em>(Maddila et al., <a href="https://arxiv.org/abs/2607.29516" rel="noopener" target="_blank">arXiv:2607.29516</a>, 2026 — a preprint, not peer-reviewed.)</em></p>
-</div>
+[% WRAPPER note kind="insight" title='This is now an industry-scale problem, not a personal-habit problem' %]
+A July 2026 preprint from Meta describing their internal AI review system puts the trend plainly: *"Diffs are growing larger as agents produce multi-file changes in a single session, and external data shows that the vast majority of large code changes now ship without any formal review."* Their framing is that *"AI coding agents are generating code at volumes that exceed the capacity of traditional peer review."*
 
-<div class="note teal">
-  <span class="note-t">Where PAAD puts the size control, and why it is there</span>
-  <p><code>agentic-review</code>&#39;s pre-flight checks look at your session context, your branch, and your uncommitted changes. They do not look at how large the diff is — and that is the right place for them not to look. By the time a pre-merge gate runs, the code exists and the size is already settled. A gate cannot shrink what it has been handed.</p>
-  <p style="margin-top:11px">So PAAD puts the size control where it can still change the outcome: <strong>phase 1.5 of <code>pushback</code></strong>, which checks cohesion and then size on the spec, before a line is written. <code>vibe</code> carries the same instinct for work too small to spec, warning at four files or a module boundary. The lever exists — it sits at the top of the stack rather than the bottom, which is exactly where the rest of this course keeps pointing.</p>
-</div>
+The same paper is a caution against treating the AI reviewer as the answer: in their comparison, security concerns appeared in **2.0% of AI review comments against 19.1% of human ones**, and AI reviewers "over-index on low-signal suggestions." Read that alongside the finding in “How good is the evidence?” that AI assistance degrades your judgement of your own work, and the conclusion is uncomfortable but clear: **the thing generating the large diffs is not the thing that can be trusted to review them.** The size discipline has to come from you. *(Maddila et al., [arXiv:2607.29516](https://arxiv.org/abs/2607.29516), 2026 — a preprint, not peer-reviewed.)*
+[% END %]
+
+[% WRAPPER note kind="tip" title='Where PAAD puts the size control, and why it is there' %]
+`agentic-review`'s pre-flight checks look at your session context, your branch, and your uncommitted changes. They do not look at how large the diff is — and that is the right place for them not to look. By the time a pre-merge gate runs, the code exists and the size is already settled. A gate cannot shrink what it has been handed.
+
+So PAAD puts the size control where it can still change the outcome: **phase 1.5 of `pushback`**, which checks cohesion and then size on the spec, before a line is written. `vibe` carries the same instinct for work too small to spec, warning at four files or a module boundary. The lever exists — it sits at the top of the stack rather than the bottom, which is exactly where the rest of this course keeps pointing.
+[% END %]
 
 ## Which is why this is a spec problem
 
@@ -141,11 +140,11 @@ That rule is correct and this appendix does not overturn it. The two fit togethe
 
 Cut a long spec at an arbitrary point and you do not get two reviewable specs. You get two specs that cannot be understood or shipped without each other, which is worse than one long one: you have hidden the coupling instead of removing it, and now two review passes each see half a picture. **Length tells you to go looking for a seam. It never tells you where the seam is.**
 
-<div class="note teal">
-  <span class="note-t">The honest version of the rule</span>
-  <p><strong>A spec that is too long and has no seam is a legitimate outcome.</strong> Some features are genuinely indivisible — a protocol change, a data migration that must be transactional, a security fix that is incoherent in pieces. <code>pushback</code>&#39;s designed behaviour there is to flag the size, explain why splitting is not practical, and move on. That is the right answer, not a failure.</p>
-  <p style="margin-top:11px">What it should not be is silent. If you write down <em>why</em> it cannot be split, you have converted an invisible risk into a stated one — and you know to compensate downstream, which is the last section of this page.</p>
-</div>
+[% WRAPPER note kind="tip" title='The honest version of the rule' %]
+**A spec that is too long and has no seam is a legitimate outcome.** Some features are genuinely indivisible — a protocol change, a data migration that must be transactional, a security fix that is incoherent in pieces. `pushback`'s designed behaviour there is to flag the size, explain why splitting is not practical, and move on. That is the right answer, not a failure.
+
+What it should not be is silent. If you write down *why* it cannot be split, you have converted an invisible risk into a stated one — and you know to compensate downstream, which is the last section of this page.
+[% END %]
 
 ## Where the seams actually are
 

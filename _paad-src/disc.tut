@@ -1,6 +1,5 @@
 id: disc
 title: D — Discipline
-group: The four letters
 ---
 [% WRAPPER hero eyebrow="$group · Module $num · D" h1='Discipline' %]
 Code quality rarely degrades in one dramatic change. It slips through a series of small decisions that each seem reasonable in isolation.
@@ -41,17 +40,15 @@ What makes this more than a linter is how it decides what is *yours* to fix:
 
 That middle category is the forgiving one. Without it, every review of a legacy file mixes problems you did not cause into the list of things blocking your merge. With it, each one gets a stable ID and a single backlog entry — later reviews re-confirm that entry rather than creating a duplicate, and the finding is set aside in the report's out-of-scope section instead of blocking your PR. The backlog is explicit-removal only: `agentic-review` never auto-resolves an entry. `/backlog clean` re-checks each entry against the current code and removes the ones that are fixed or gone.
 
-<div class="note teal">
-  <span class="note-t">Pre-flight checks that will stop you</span>
-  <p><code>agentic-review</code> diffs against the repository&#39;s default branch (<code>origin/HEAD</code>, else <code>main</code>, <code>master</code> or <code>trunk</code>) and refuses to run on it, refuses to run against an empty diff, asks what to do about uncommitted changes rather than guessing, and — notably — tells you to start a fresh session if your conversation already has substantive history. That last one is context management enforced by the tool rather than left to your memory.</p>
-</div>
+[% WRAPPER note kind="tip" title='Pre-flight checks that will stop you' %]
+`agentic-review` diffs against the repository's default branch (`origin/HEAD`, else `main`, `master` or `trunk`) and refuses to run on it, refuses to run against an empty diff, asks what to do about uncommitted changes rather than guessing, and — notably — tells you to start a fresh session if your conversation already has substantive history. That last one is context management enforced by the tool rather than left to your memory.
+[% END %]
 
 Run it more than once. The README is explicit that repeated runs are valuable, and equally explicit that this is a stronger automated safety net, *not* a replacement for human review.
 
-<div class="note teal">
-  <span class="note-t">What the pre-flight checks leave to <code>pushback</code></span>
-  <p>Notice what is not on that list: how <em>large</em> the diff is. Both the human reviewer and the six specialists get worse as the input grows — but a pre-merge gate is the wrong place to enforce that, because the code already exists by the time it runs. PAAD checks size where acting on it is still cheap: <code>pushback</code>&#39;s phase 1.5, on the spec. The appendix “Why small specs” has the evidence and the decomposition procedure.</p>
-</div>
+[% WRAPPER note kind="tip" title='What the pre-flight checks leave to `pushback`' %]
+Notice what is not on that list: how *large* the diff is. Both the human reviewer and the six specialists get worse as the input grows — but a pre-merge gate is the wrong place to enforce that, because the code already exists by the time it runs. PAAD checks size where acting on it is still cheap: `pushback`'s phase 1.5, on the spec. The appendix “Why small specs” has the evidence and the decomposition procedure.
+[% END %]
 
 ## `/agentic-a11y` — accessibility as a default
 
@@ -59,10 +56,9 @@ Discipline also means accessibility is not an afterthought. This skill scans for
 
 It supports web, iOS, Android, React Native, Flutter, desktop, CLI, and games, detecting the platform automatically. It evaluates against WCAG 2.2 AA — applied through WCAG2ICT for non-web platforms — with AAA noted as bonus recommendations, and draws on platform guidance such as the Apple HIG, Material Design, and the Xbox Accessibility Guidelines. Output includes an impact summary by user group and the five highest-impact, lowest-effort quick wins.
 
-<div class="note rose">
-  <span class="note-t">Stated limitation</span>
-  <p>PAAD&#39;s README says this plainly: it will help substantially, but human accessibility review of your application is still required. Accessibility is important, and hard. Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.</p>
-</div>
+[% WRAPPER note kind="warning" title='Stated limitation' %]
+PAAD's README says this plainly: it will help substantially, but human accessibility review of your application is still required. Accessibility is important, and hard. Automated tooling finds missing labels; it does not find an interface that is technically conformant and practically unusable.
+[% END %]
 
 ## `/vibe` — speed without recklessness
 
@@ -77,10 +73,9 @@ Its pre-flight checks are where the value sits:
 
 Then red/green/refactor is mandatory. If the test passes when it should fail, or fails in an unexpected way, it stops and reassesses rather than continuing. Note what it does *not* do: vibe writes code, but staging and committing stay with you.
 
-<div class="note violet">
-  <span class="note-t">The architecture-smell check is the clever one</span>
-  <p>&quot;This simple thing is taking far too long&quot; is a signal every experienced developer recognises and most tools ignore. Encoding it as a stopping condition turns a vague feeling into a decision point — and it is the mechanism by which the Discipline letter feeds back into the Architecture letter.</p>
-</div>
+[% WRAPPER note kind="insight" title='The architecture-smell check is the clever one' %]
+"This simple thing is taking far too long" is a signal every experienced developer recognises and most tools ignore. Encoding it as a stopping condition turns a vague feeling into a decision point — and it is the mechanism by which the Discipline letter feeds back into the Architecture letter.
+[% END %]
 
 [% WRAPPER quiz %]
 Q: A review finds a bug in a file your branch edited. The bug predates your work, and nothing you changed makes it more likely to fire. What happens to it?

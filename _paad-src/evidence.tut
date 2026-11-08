@@ -1,17 +1,16 @@
 id: evidence
 title: How good is the evidence?
-group: Optional appendix
 optional: yes
 ---
 [% WRAPPER hero %]
 The course itself argued from a single primary source. This appendix sets that case against the independent research literature — what is well established, what is still open, and what you should be careful about repeating.
 [% END %]
 
-<div class="note teal">
-  <span class="note-t">Optional — read it or take the course on trust</span>
-  <p>Nothing in the course depends on this page, and no assessment question draws on it. The four letters, the loop, and the final assessment all stand on their own. This is here for readers who would rather not take the argument on faith, and for anyone who needs to defend the methodology to a sceptical colleague, or the person who has to approve the spend.</p>
-  <p style="margin-top:11px">The short version, if you only want one line: the security and self-assessment findings are solid, the technical-debt numbers everyone quotes are not, and the case for review gates does not rest on the shaky half.</p>
-</div>
+[% WRAPPER note kind="tip" title='Optional — read it or take the course on trust' %]
+Nothing in the course depends on this page, and no assessment question draws on it. The four letters, the loop, and the final assessment all stand on their own. This is here for readers who would rather not take the argument on faith, and for anyone who needs to defend the methodology to a sceptical colleague, or the person who has to approve the spend.
+
+The short version, if you only want one line: the security and self-assessment findings are solid, the technical-debt numbers everyone quotes are not, and the case for review gates does not rest on the shaky half.
+[% END %]
 
 Any methodology is worth checking against evidence gathered by people who were not involved in building it. That is not scepticism about the methodology; it is how you find out which parts of the argument the rest depends on.
 
@@ -47,11 +46,11 @@ You will see it stated frequently that AI-assisted development is driving code d
 
 Two things are worth knowing before you repeat them. First, the analysis has no control group and its central metric is proprietary, so it establishes a correlation over calendar time rather than a cause. Second, the one rigorous within-repository comparison that exists — [Mao et al. (2026)](https://arxiv.org/html/2603.27130v2), matching 19,816 AI-generated files against 36,467 human files from the same repositories — found the opposite direction: **duplicated lines at 18.69% for AI code against 25.89% for human code**. What it did find is that AI duplication is more *fragmented*, at 0.679 clone instances per file against 0.534.
 
-<div class="note rose">
-  <span class="note-t">Why it feels better evidenced than it is</span>
-  <p>A <a href="https://arxiv.org/html/2606.14796v1" rel="noopener" target="_blank">2026 Drexel University literature review</a> surveyed 104 sources on technical debt in LLM-assisted development and found only 31 were peer-reviewed; 73 were grey literature, 38 of them company blogs. Much of what looks like a body of corroborating research is the same commercial dataset cited onward through blog posts. The review&#39;s own conclusion is that for these emerging debt categories &quot;no standardized benchmarks or LLM-specific metrics yet exist, leaving an important gap.&quot;</p>
-  <p>This matters practically: if you make the duplication argument to a sceptical colleague, expect it to be challenged. The security argument will not be.</p>
-</div>
+[% WRAPPER note kind="warning" title='Why it feels better evidenced than it is' %]
+A [2026 Drexel University literature review](https://arxiv.org/html/2606.14796v1) surveyed 104 sources on technical debt in LLM-assisted development and found only 31 were peer-reviewed; 73 were grey literature, 38 of them company blogs. Much of what looks like a body of corroborating research is the same commercial dataset cited onward through blog posts. The review's own conclusion is that for these emerging debt categories "no standardized benchmarks or LLM-specific metrics yet exist, leaving an important gap."
+
+This matters practically: if you make the duplication argument to a sceptical colleague, expect it to be challenged. The security argument will not be.
+[% END %]
 
 ## Does AI adoption accumulate debt over time?
 
@@ -74,11 +73,11 @@ This is the most contested question in the field, and the honest answer is that 
 
 [METR has since qualified its own result](https://metr.org/blog/2026-02-24-uplift-update/), warning that selection effects likely cause it to understate true speedup, and is redesigning the experiment. So the fair reading is not "AI makes developers slower." It is that **task type and codebase familiarity dominate the direction of the effect**, and that perceived speedup is an unreliable guide in either direction.
 
-<div class="note violet">
-  <span class="note-t">The finding that matters most for PAAD</span>
-  <p>METR found developers believed they were 20% faster while being 19% slower. Independently, <a href="https://arxiv.org/abs/2211.03622" rel="noopener" target="_blank">Perry et al. (2023)</a> found participants with an AI assistant wrote <em>less</em> secure code while being <em>more</em> confident it was secure. Two teams, two different outcome variables, the same structural result: AI assistance degrades your ability to assess your own output.</p>
-  <p>This is the strongest single argument for external review gates, and it is stronger than any claim about code-quality metrics. If you cannot trust your own judgement of the work, you need a check that does not depend on it.</p>
-</div>
+[% WRAPPER note kind="insight" title='The finding that matters most for PAAD' %]
+METR found developers believed they were 20% faster while being 19% slower. Independently, [Perry et al. (2023)](https://arxiv.org/abs/2211.03622) found participants with an AI assistant wrote *less* secure code while being *more* confident it was secure. Two teams, two different outcome variables, the same structural result: AI assistance degrades your ability to assess your own output.
+
+This is the strongest single argument for external review gates, and it is stronger than any claim about code-quality metrics. If you cannot trust your own judgement of the work, you need a check that does not depend on it.
+[% END %]
 
 ## Two claims to handle carefully
 
@@ -92,10 +91,9 @@ Use the directional claim, which is sound and sufficient for PAAD's argument. Av
 
 [Bacchelli and Bird (ICSE 2013)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/ICSE202013-codereview.pdf) found that although 44% of programmers ranked defect-finding as their top motivation for review, only **14% of 570 analysed review comments were defect-related**. [Sadowski et al. (ICSE-SEIP 2018)](https://sback.it/publications/icse2018seip.pdf) report that at Google, review expectations centre on readability, maintainability, and education rather than problem-solving.
 
-<div class="note teal">
-  <span class="note-t">This strengthens the case for automated review rather than weakening it</span>
-  <p>Human review&#39;s dominant value turns out to be knowledge transfer and shared standards — things an AI reviewer cannot supply, and a good reason not to replace human review. But it also means the defect-hunting job is being done less thoroughly than most teams assume. A pass that looks specifically for logic errors, edge cases, and security holes is filling a real gap rather than duplicating work already happening.</p>
-</div>
+[% WRAPPER note kind="tip" title='This strengthens the case for automated review rather than weakening it' %]
+Human review's dominant value turns out to be knowledge transfer and shared standards — things an AI reviewer cannot supply, and a good reason not to replace human review. But it also means the defect-hunting job is being done less thoroughly than most teams assume. A pass that looks specifically for logic errors, edge cases, and security holes is filling a real gap rather than duplicating work already happening.
+[% END %]
 
 ## Requirements defects are a real failure source
 

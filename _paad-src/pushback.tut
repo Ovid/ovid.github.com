@@ -1,6 +1,5 @@
 id: pushback
 title: P — Pushback
-group: The four letters
 ---
 [% WRAPPER hero eyebrow="$group · Module $num · P" h1='Pushback' %]
 If English is the source code, `pushback` is the code review.
@@ -34,11 +33,11 @@ Two structural checks, in this order:
 
 **Spec size.** Heuristic signals — multiple unrelated system areas, a very long document, an implementation that would touch many modules. Note what is deliberately *not* a signal: the skill's own words are "requirement count is not a signal — estimate the diff instead. A spec can list a dozen requirements that are all facets of one small change." But size alone is never the argument. If a meaningful split exists where each piece delivers independent value, it suggests the split. If the features are genuinely interdependent, it flags the size and explains why splitting is not practical, then moves on.
 
-<div class="note teal">
-  <span class="note-t">Why cohesion runs before size</span>
-  <p>If unrelated features get split out first, the size problem often resolves itself. Order matters in review processes for the same reason it matters in debugging: fix the root cause and the symptoms disappear.</p>
-  <p style="margin-top:11px">Note what this rule does <em>not</em> say: it does not say size is unimportant. It says size is the alarm rather than the place to cut. The appendix “Why small specs” has the evidence for why the alarm is worth having, and what to do when a long spec turns out to have no seam — no natural place to divide it.</p>
-</div>
+[% WRAPPER note kind="tip" title='Why cohesion runs before size' %]
+If unrelated features get split out first, the size problem often resolves itself. Order matters in review processes for the same reason it matters in debugging: fix the root cause and the symptoms disappear.
+
+Note what this rule does *not* say: it does not say size is unimportant. It says size is the alarm rather than the place to cut. The appendix “Why small specs” has the evidence for why the alarm is worth having, and what to do when a long spec turns out to have no seam — no natural place to divide it.
+[% END %]
 
 ## Phase 2 — the six categories
 
@@ -56,10 +55,9 @@ Two structural checks, in this order:
 
 Here is a spec that looks entirely reasonable. Read it, decide what you would flag, then reveal the findings.
 
-<div class="note violet">
-  <span class="note-t">Why &quot;might,&quot; not &quot;would&quot;</span>
-  <p>These are plausible findings, not a transcript. Language models are non-deterministic: run <code>pushback</code> on the same spec twice and you will get overlapping but not identical results — different wording, different ordering, sometimes an issue one run raises and the other misses. That variability is a real limitation, and it is one of the reasons the loop suggests you run these skills more than once for important work.</p>
-</div>
+[% WRAPPER note kind="insight" title='Why "might," not "would"' %]
+These are plausible findings, not a transcript. Language models are non-deterministic: run `pushback` on the same spec twice and you will get overlapping but not identical results — different wording, different ordering, sometimes an issue one run raises and the other misses. That variability is a real limitation, and it is one of the reasons the loop suggests you run these skills more than once for important work.
+[% END %]
 
 <div class="reveal" data-reveal="spec1">
   <div class="rv-head">
@@ -106,10 +104,9 @@ Twenty findings presented at once get skimmed and dismissed. One finding with th
 - **Softening findings to seem agreeable.** The entire value is saying what a reviewer would say before the code exists. Criticism that has been softened is worse than no criticism at all.
 - **Rewriting the spec instead of critiquing it.** A silent rewrite replaces your judgement with the model's.
 
-<div class="note teal">
-  <span class="note-t">When not to use it</span>
-  <p>If you want the spec implemented rather than criticised, the skill is instructed to say what it would push back on in a line or two and then continue with the work. A full critique nobody asked for is its own kind of failure.</p>
-</div>
+[% WRAPPER note kind="tip" title='When not to use it' %]
+If you want the spec implemented rather than criticised, the skill is instructed to say what it would push back on in a line or two and then continue with the work. A full critique nobody asked for is its own kind of failure.
+[% END %]
 
 [% WRAPPER quiz %]
 Q: What runs first when you invoke pushback in a git repository?
