@@ -1,0 +1,278 @@
+id: size
+title: Why small specs
+optional: yes
+---
+[% WRAPPER hero %]
+A 50-line diff is not just easier to review than a 5,000-line diff. It is easier to review *reliably* — and that is a different claim, with different evidence behind it. This appendix makes the case for keeping specs small, and then argues about where you are allowed to cut.
+[% END %]
+
+[% WRAPPER note kind="tip" title='Optional — but this one changes how you write specs' %]
+Nothing in the course depends on this page and no assessment question draws on it. Unlike the evidence appendix, though, this one is prescriptive: it ends with a decomposition procedure you can apply to the next spec you write.
+
+The short version, if you only want one line: **review quality falls off with size for humans and for models, for unrelated reasons that compound — but size is the alarm, not the place to cut.** You slice a spec on independent value, never on length.
+[% END %]
+
+Everything else in this course is about putting a review gate somewhere. This page is about the one variable that decides whether the gate works at all: how much you ask it to look at.
+
+## The number you half-remember is real
+
+Most engineers have absorbed a rule of thumb along the lines of *"review quality collapses somewhere past a few hundred lines."* Almost nobody can cite it. It comes from two places, and they agree with each other more closely than you would expect.
+
+The first is Karl Wiegers' 1995 write-up of inspection practice, which converts a reading-rate finding into a size limit:
+
+[% WRAPPER quote cite='Karl Wiegers, ["Improving Quality Through Software Inspections"](https://www.processimpact.com/articles/inspects.pdf), *Software Development*, April 1995' %]
+Data in the software literature indicates that slowing the preparation and inspection rates increases the number of bugs found, with the optimum balance around 150–200 lines of code per hour. \[…\] This rule limits the quantity of material that can be covered in a single inspection to about 8–12 pages of design or text documents, or 300–400 lines of source code.
+[% END %]
+
+Note the second half of that sentence, because it is the part this appendix is actually about: the same constraint that caps a code review at 300–400 lines caps a *document* review at 8–12 pages. The limit was never specific to code. It is a limit on how much material a reviewer can hold in mind at one time, and a specification is material.
+
+The second source is the largest study of lightweight code review ever run: SmartBear's case study at Cisco Systems, covering **2,500 reviews of 3.2 million lines of code by 50 developers over ten months** ending in May 2006. Its findings on size:
+
+[% WRAPPER table %]
+| Finding | What the study says |
+| Defect density by size | "Reviewers are most effective at reviewing small amounts of code. Anything below 200 lines produces a relatively high rate of defects." Above that it falls away: "no review larger than 250 lines produced more than 37 defects per 1000 lines." |
+| Recommended batch | "Review between 100 and 300 lines of code at a time and spend 30–60 minutes to review it." |
+| Reading speed | "Inspection rates less than 300 LOC/hour result in best defect detection. Rates under 500 are still good" — and detection degrades sharply above that. |
+| Session length | "Total review time should be less than 60 minutes, not to exceed 90. Defect detection rates plummet after that time." |
+[% END %]
+
+[% WRAPPER note kind="warning" title='Two caveats before you quote these to a colleague' %]
+Neither source is a randomised trial. Wiegers is a practitioner paper summarising the inspection literature of its day; the Cisco study is a vendor case study published by the company selling the review tool, with no control condition. Both are credible and widely used, and neither would survive being described as "the research shows."
+
+There is also an arithmetic trap in the headline finding. **Defects *per thousand lines* falls as the review grows partly because the denominator is growing.** Part of that curve is caused by the arithmetic, not by reviewers paying less attention. What the arithmetic does not explain away is the reading-rate result — reviewers who go faster find fewer defects *in absolute terms* — and that is the finding the size limit actually rests on.
+[% END %]
+
+## What contemporary practice converged on
+
+The stronger evidence is not a threshold study at all. It is the observation that when many independent organisations moved from formal inspection to lightweight review, they all converged on roughly the same size — without coordinating, and without citing Wiegers.
+
+Rigby and Bird measured this across open-source projects and industrial ones, and the medians are startling if your mental model of a code review is a big pull request:
+
+[% WRAPPER table %]
+| Project | Median lines changed per review |
+| Apache | 25 |
+| Linux | 32 |
+| Android | 44 |
+| AMD | 44 |
+| Chrome | 78 (median 5 files) |
+| Lucent — traditional formal inspection, for contrast | 263 |
+[% END %]
+
+Their reading of it is the useful part: *"By creating smaller changes, developers can work in shorter intervals,"* and the distributions are left-skewed, meaning "the majority of changes are small" was the norm rather than the exception. Only 23% of Chrome changes were as large as a *median* Lucent inspection.
+
+A CL, or "changelist", is Google's term for one reviewable change — their equivalent of a pull request. Google's published guidance says the same thing prescriptively, and adds the dimension that a line count misses:
+
+[% WRAPPER quote cite='[Google Engineering Practices — Small CLs](https://google.github.io/eng-practices/review/developer/small-cls.html)' %]
+Small, simple CLs are: Reviewed more quickly. \[…\] Reviewed more thoroughly. \[…\] Less likely to introduce bugs.
+[% END %]
+
+[% WRAPPER quote cite='Google Engineering Practices' %]
+There are no hard and fast rules about how large is "too large." 100 lines is usually a reasonable size for a CL, and 1000 lines is usually too large, but it's up to the judgment of your reviewer. \[…\] A 200-line change in one file might be okay, but spread across 50 files it would usually be too large.
+[% END %]
+
+Note that Google refuses the thing this appendix is doing — it will not treat a line count as a threshold, only as a prompt for a reviewer's judgement. That is the honest reading, and it is compatible with the argument here: what follows is a ceiling past which the evidence says review degrades, not a number to enforce.
+
+[% WRAPPER note title='So where does 400 actually sit?' %]
+It is a *ceiling*, not a target — the point past which the practitioner literature says review stops working, not the size you should be aiming for. The working medians of teams that review well are an order of magnitude below it: **25 to 80 lines.** If your specs routinely produce 400-line branches you are at the edge of what a careful human reviewer can do, not comfortably inside it.
+
+And spread matters as much as volume. PAAD's `vibe` skill already encodes this: it warns at **four or more files, or crossing module boundaries**, regardless of how few lines are involved. Same instinct, different unit.
+[% END %]
+
+## The automated reviewer has the same problem, for different reasons
+
+The obvious hope is that `agentic-review` escapes all of this. It does not get tired, it does not skim, and it will read the ten-thousandth line as carefully as the first. Two of those three are true, and the third is the one that matters.
+
+Model review degrades with size too, through three mechanisms that compound:
+
+[% WRAPPER table %]
+| Mechanism | What it does to a large diff |
+| Context degradation | Retrieval and reasoning quality fall as the input grows, non-uniformly and well before the window is full. The appendix “How good is the evidence?” has the studies — *Lost in the Middle*, *NoLiMa*, and Chroma's *Context Rot* — and [% module('ground') %] has what to do about it. |
+| Non-determinism | Any single review pass is a *sample* of the findings, not an enumeration of them. [% module('loop') %] makes this point about re-running reviews; it applies with more force the more there is to find. |
+| Attention dilution across specialists | Six specialists each holding a whole large branch is six diluted reviews, not one thorough one. Scoping `agentic-review` to a directory is the same intervention as splitting the spec, applied too late. |
+[% END %]
+
+The first two combine in a particularly damaging way. Suppose a review pass catches any given defect with probability *p*, and your branch contains *n* of them. You expect to miss *(1 − p) × n*. Doubling the size of the change roughly doubles *n* — and, because the input got longer, lowers *p* at the same time. **A big diff fails twice over: more to find, and a worse chance of finding each one.** That is the whole argument in one line, and it applies to the human reviewer and the model reviewer alike.
+
+[% WRAPPER note kind="insight" title='This is now an industry-scale problem, not a personal-habit problem' %]
+A July 2026 preprint from Meta describing their internal AI review system puts the trend plainly: *"Diffs are growing larger as agents produce multi-file changes in a single session, and external data shows that the vast majority of large code changes now ship without any formal review."* Their framing is that *"AI coding agents are generating code at volumes that exceed the capacity of traditional peer review."*
+
+The same paper is a caution against treating the AI reviewer as the answer: in their comparison, security concerns appeared in **2.0% of AI review comments against 19.1% of human ones**, and AI reviewers "over-index on low-signal suggestions." Read that alongside the finding in “How good is the evidence?” that AI assistance degrades your judgement of your own work, and the conclusion is uncomfortable but clear: **the thing generating the large diffs is not the thing that can be trusted to review them.** The size discipline has to come from you. *(Maddila et al., [arXiv:2607.29516](https://arxiv.org/abs/2607.29516), 2026 — a preprint, not peer-reviewed.)*
+[% END %]
+
+[% WRAPPER note kind="tip" title='Where PAAD puts the size control, and why it is there' %]
+`agentic-review`'s pre-flight checks look at your session context, your branch, and your uncommitted changes. They do not look at how large the diff is — and that is the right place for them not to look. By the time a pre-merge gate runs, the code exists and the size is already settled. A gate cannot shrink what it has been handed.
+
+So PAAD puts the size control where it can still change the outcome: **phase 1.5 of `pushback`**, which checks cohesion and then size on the spec, before a line is written. `vibe` carries the same instinct for work too small to spec, warning at four files or a module boundary. The lever exists — it sits at the top of the stack rather than the bottom, which is exactly where the rest of this course keeps pointing.
+[% END %]
+
+## Which is why this is a spec problem
+
+Diff size is not something you decide at review time. By the time you are running `agentic-review` you cannot shrink the thing you are reviewing; you can only scope the review and compensate. Diff size is decided much earlier, and mostly by one document.
+
+[% module('debt') %]'s blast-radius hierarchy, restated in units of review load:
+
+[% WRAPPER table %]
+| Layer | What its size determines |
+| Steering | How much boilerplate every spec inherits. |
+| **Spec** | **How many tasks get generated, and therefore how large the branch gets.** |
+| Task list | How much work arrives in a single session — and how much one `alignment` pass has to hold. |
+| Branch | What the human and the six specialists actually have to review. |
+[% END %]
+
+An oversized spec is not a documentation problem. It is a commitment, made before any code exists, to a review you will not be able to perform properly. That is the cheapest possible moment to fix it and the last moment at which fixing it is free.
+
+## But size is the alarm, not the place to cut
+
+Here is where this appendix has to argue with itself, because PAAD's own `pushback` skill contains a rule that looks like a direct contradiction of everything above. From [% module('pushback') %]:
+
+[% WRAPPER quote cite="${module('pushback')}, on `pushback`'s phase 1.5" %]
+Size alone is never the argument. If a meaningful split exists where each piece delivers independent value, it suggests the split. If the features are genuinely interdependent, it flags the size and explains why splitting is not practical, then moves on.
+[% END %]
+
+That rule is correct and this appendix does not overturn it. The two fit together once you separate *detection* from *decomposition*:
+
+[% WRAPPER table %]
+|  | Length | Independent value |
+| What it is good for | Noticing that something needs looking at. | Deciding where the boundary goes. |
+| What it is useless for | Telling you where to cut. | Telling you to look in the first place. |
+| In the skill | Phase 1.5's size heuristics — multiple unrelated areas, a very long document, an implementation touching many modules. Requirement count is explicitly not one of them. | Phase 1.5's cohesion check, which runs *first* for exactly this reason. |
+[% END %]
+
+Cut a long spec at an arbitrary point and you do not get two reviewable specs. You get two specs that cannot be understood or shipped without each other, which is worse than one long one: you have hidden the coupling instead of removing it, and now two review passes each see half a picture. **Length tells you to go looking for a seam. It never tells you where the seam is.**
+
+[% WRAPPER note kind="tip" title='The honest version of the rule' %]
+**A spec that is too long and has no seam is a legitimate outcome.** Some features are genuinely indivisible — a protocol change, a data migration that must be transactional, a security fix that is incoherent in pieces. `pushback`'s designed behaviour there is to flag the size, explain why splitting is not practical, and move on. That is the right answer, not a failure.
+
+What it should not be is silent. If you write down *why* it cannot be split, you have converted an invisible risk into a stated one — and you know to compensate downstream, which is the last section of this page.
+[% END %]
+
+## Where the seams actually are
+
+Four decomposition strategies, in rough order of how often they work.
+
+[% WRAPPER table %]
+| Seam | How to find it | Test that you found it |
+| **Independent value** (vertical slice) | Ask what the smallest thing is that a user could actually use. Then what the next one is. | Each spec could ship on its own and someone would be better off. If piece two is worthless without piece three, they are one piece. |
+| **Capability** | Group by the capability being changed rather than the feature being requested — OpenSpec organises specs this way natively. | Each spec names one thing the system can now do that it could not before. |
+| **Risk isolation** | Pull the one genuinely dangerous part — the auth change, the migration, the concurrency — into its own spec. | The risky spec is small enough to review at 150 lines/hour, and small enough that a second person can review it too. The rest stops being blocked behind it. |
+| **Layer, with stubs** | Google's "horizontal split": introduce shared code or placeholder implementations (stubs) so a lower layer can be merged and reviewed before the layer above exists. | Use this one last. It frequently produces pieces with no independent value — which is exactly the failure mode above under a more respectable label. |
+[% END %]
+
+### Order the pieces, do not just pile them up
+
+A split spec is a **chain**, not a heap. Each piece should name the piece it depends on, and they should be built in that order — the same principle `alignment` applies when it presents issues root-cause first, and the same reason `fix-architecture` refuses to parallelise structural fixes. Dependencies you do not write down get discovered during integration, which is the expensive place to discover them.
+
+Google's *stacked CLs* pattern is the mechanical version: write one small change, send it for review, and immediately start the next one based on it. Specs stack the same way.
+
+### A worked example
+
+Take the data-export feature from [% module('alignment') %] — the one with the Redis cache nobody asked for. As a single spec it is three requirements, a background worker, an email path, and a rate limiter: comfortably past the point where one review pass will see all of it.
+
+<div class="reveal" data-reveal="chain1">
+  <div class="rv-head">
+    <div class="rv-kicker">One spec → a dependency-ordered chain of three</div>
+    <div class="rv-spec">ORIGINAL — one spec
+R1. Users can export their data as CSV.
+R2. Exports must be rate-limited to 3 per hour per user.
+R3. Large exports (&gt;50k rows) run in the background
+    and email a download link.</div>
+  </div>
+  <button class="rv-btn" data-rv="chain1">▸ Reveal the chain, and why it cuts there</button>
+  <div class="rv-body" id="rv-chain1">
+    <div class="finding"><span class="f-cat scope">Spec 1</span><div class="f-txt"><b>Synchronous CSV export, with an explicit row cap.</b> Depends on nothing. Ships on its own: users who want their data can get it today. The cap is a stated product decision rather than an accident — which is a requirement the original spec never had, surfaced by the act of splitting.</div></div>
+    <div class="finding"><span class="f-cat security">Spec 2</span><div class="f-txt"><b>Rate limiting on the export endpoint.</b> Depends on Spec 1 existing. Ships on its own: it makes a live endpoint safe. Note that it is also the security-relevant piece — isolating it means it gets its own review rather than being finding number nine in a long list.</div></div>
+    <div class="finding"><span class="f-cat feasibility">Spec 3</span><div class="f-txt"><b>Background worker and emailed download link, lifting the cap.</b> Depends on Specs 1 and 2. Ships on its own: it raises a limit users are already hitting. This is the piece with the queue, the worker, the email template and the signed URL — by far the largest, and now reviewed alone rather than buried behind the easy two-thirds.</div></div>
+    <p style="font-size:14px;color:var(--text-faint);margin:14px 0 4px;border-top:1px solid var(--border-soft);padding-top:13px">Every cut is on independent value, not on length — and the smaller line count was a result of that, not the reason for it. Notice also what the exercise produced: an explicit row cap that nobody had thought to specify. Decomposition is itself a review technique.</p>
+  </div>
+</div>
+
+### Three splits that look right and are not
+
+- **Splitting by line count.** "This is 900 lines, so it becomes two 450-line specs." You have not reduced anything; you have made one artefact into two halves that only make sense together.
+- **Splitting by file or layer with no shippable middle.** "Spec 1: the migration. Spec 2: the endpoint." Neither delivers value alone, so neither can really be reviewed alone — the reviewer of Spec 1 has to imagine Spec 2 to judge it.
+- **Splitting phases of one coherent feature into separate specs.** `pushback`'s own documentation warns against mistaking sequenced phases of a single feature for bundled unrelated features. Phases are a task-list structure. They are not independent value.
+
+## When it genuinely cannot be split
+
+Then compensate downstream, deliberately and in writing:
+
+- **Say so in the spec.** One paragraph naming why the pieces are inseparable. This is the thing a reviewer most needs and least often gets.
+- **Scope the reviews.** `agentic-review` takes a path: `/agentic-review main src/auth/`. Several scoped passes over a large branch beat one pass over all of it, for exactly the context reasons above.
+- **Run more passes.** [% module('loop') %]'s rule applies with more force here: a pass returning many findings means more remain hidden behind them. On a large branch, expect to need three passes where you would normally run one.
+- **Stage the branch even though the spec is whole.** An unsplittable spec does not always imply an unsplittable branch. Stacked commits, reviewed in order, recover most of the benefit.
+- **Insist on the human pass.** This is precisely the case where the automated safety net is weakest and where "the AI found no problems" carries the least information.
+
+[% WRAPPER note title='A working rule of thumb, offered as a starting point rather than a law' %]
+When a spec implies a branch of more than a few hundred lines, or work spread across more than a couple of modules, **go looking for a seam**. If you find one that gives each piece independent value, take it. If you do not, write down why in the spec itself and pick up the compensations above. What you should not do is notice the size and then do nothing about it, which is the outcome this page exists to prevent.
+[% END %]
+
+## The counter-argument, which is real
+
+Splitting is not free, and a page that only argued one side would be the kind of unchallenged input this whole course is against.
+
+[% WRAPPER table %]
+| Cost of splitting | What it looks like |
+| Fixed overhead multiplies | Every spec carries fixed overhead — context, review passes, a plan, a branch. Five specs pay it five times. Böckeler's *"I'd rather review code than all these markdown files"* applies more strongly to five documents than to one. |
+| The chain can drift | Specs written up front and implemented over weeks go stale against each other. Spec-first SDD has no mechanism to keep them consistent — that is the spec-anchored problem from [% module('sdd') %], now multiplied. |
+| Integration risk moves rather than disappears | Three separately reviewed pieces can each be correct and still not work together. Nothing in this page's argument catches that; only the human holding the whole picture does. |
+| Half-features can ship | Independent value is a design constraint, and sometimes it forces a product decision — the row cap in the worked example — that nobody wanted to make yet. |
+[% END %]
+
+Which is why the rule is a search for a seam rather than an instruction to split. The claim is not "smaller is always better." It is that **past a certain size your review stops being reliable, and you should know that you have crossed the line rather than find out afterwards.**
+
+## How good is *this* evidence?
+
+[% WRAPPER table %]
+| Claim | Evidence |
+| Contemporary teams converged independently on small changes | **Good.** Rigby &amp; Bird measured it across unrelated open-source and industrial projects; Google's published guidance agrees prescriptively. Convergence across independent organisations is decent evidence even without a trial. |
+| Reviewers who read faster find fewer defects | **Reasonable.** Consistent across the inspection literature and the Cisco data — but that literature is practitioner-generated rather than experimental. |
+| Human review degrades past roughly 300–400 lines | **Moderate.** Two independent sources land on the same range. Neither is peer-reviewed, and part of the defect-density curve is an effect of the growing denominator. |
+| Long inputs degrade model output | **Strong,** but measured on retrieval and question-answering rather than code review. See “How good is the evidence?”. |
+| Therefore AI review recall falls as diffs grow | **Inference, not measurement.** No study directly measures agentic review recall as a function of diff size. It follows from two measured things; treat it as a well-motivated expectation, and notice that Meta's engineers are designing around the same expectation. |
+[% END %]
+
+The practical conclusion survives all of those caveats intact, because it does not depend on the threshold being exactly 400. It depends only on the direction — *reliability falls as size rises, for both reviewers you have* — and on the observation that the cheapest place to act on that is the document you write before any code exists.
+
+[% WRAPPER quiz %]
+Q: Wiegers' inspection-rate rule caps a single code inspection at 300–400 lines. What does the same rule cap for documents?
++ 8–12 pages of design or text
+- A single page per reviewer
+- 50 pages, since prose reads faster
+- Documents are not covered by the rule
+Why: The limit was never specific to code. It is a limit on how much material a reviewer can hold in mind at once, and a specification is material — which is what makes it a spec-sizing rule rather than a code-review rule.
+
+Q: Teams whose review practice is considered good — Apache, Linux, Android, Chrome — have median review sizes closest to which range?
++ 25–80 lines
+- 200–300 lines
+- Around 400 lines
+- Around 1,000 lines
+Why: Rigby and Bird measured medians of 25 (Apache), 32 (Linux), 44 (Android) and 78 (Chrome) lines. 300–400 is the ceiling past which review stops working, not the target — the working medians are an order of magnitude below it.
+
+Q: Why does doubling the size of a diff more than double what the review misses?
+- Reviewers spend proportionally less time per line
++ There are more defects to find, and a lower chance of finding each one
+- Larger diffs contain a higher density of defects
+- Automated tools skip files beyond a size threshold
+Why: If a pass catches each defect with probability p and the branch holds n of them, you miss (1−p)×n. A bigger change raises n, and the longer input lowers p at the same time. A large diff fails twice over.
+
+Q: Your spec is long, and every requirement genuinely depends on the others. What is pushback's designed behaviour?
+- Split it anyway, since length is the deciding factor
+- Refuse to review it until you split it yourself
++ Flag the size, explain why splitting is not practical, and move on
+- Silently rewrite it into several smaller specs
+Why: Size alone is never the argument. An unsplittable spec is a legitimate outcome — what it should not be is silent. Write down why it cannot be split, then compensate downstream: scope the reviews, run more passes, insist on the human one.
+
+Q: Which of these is a legitimate seam for splitting a spec?
+- A line count, so each piece is under the threshold
+- The layer boundary, so the migration is its own spec
+- The phases of one coherent feature
++ Independent value — each piece is worth shipping alone
+Why: Length tells you to go looking for a seam; it never tells you where the seam is. Cut arbitrarily and you get two specs that cannot be understood without each other — you have hidden the coupling rather than removed it. Layer splits and phase splits usually produce pieces with no independent value.
+
+Q: Both the human reviewer and the six specialists degrade as a diff grows. Where does PAAD act on that?
+- In agentic-review's pre-flight checks, before it reads the branch
++ In pushback's phase 1.5, on the spec, before any code exists
+- In alignment's scope-compliance check on the task list
+- Nowhere — it is left to the reviewer's judgement
+Why: A pre-merge gate cannot shrink what it has been handed — by the time agentic-review runs, the size is already settled. So the size checks sit upstream: cohesion and then size on the spec in pushback, and the four-files-or-a-module warning in vibe. If you want a smaller review, you get it by writing a smaller spec.
+[% END %]

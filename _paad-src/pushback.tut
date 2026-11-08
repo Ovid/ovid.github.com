@@ -1,0 +1,146 @@
+id: pushback
+title: P — Pushback
+---
+[% WRAPPER hero eyebrow="$group · Module $num · P" h1='Pushback' %]
+If English is the source code, `pushback` is the code review.
+[% END %]
+
+AI assistants rarely tell you your spec has problems. `pushback` does. It critically reviews specs, PRDs, requirements documents, and design plans *before* work begins, so you do not build on flawed assumptions.
+
+[% WRAPPER quote cite='A PAAD user, quoted in the README' %]
+I'm using it for every non-trivial change, and so far, I think I've argued with 2 of maybe 40 recommendations. It has improved EVERY SINGLE spec I've fed it so far.
+[% END %]
+
+## How to run it
+
+<pre><code>/pushback docs/specs/checkout-rework.md   # review a specific file
+/pushback                                 # auto-detect from the
+                                          # conversation or common paths</code></pre>
+
+With no argument it resolves the spec in order: an explicit path, then a spec in the conversation history (it will confirm with you first), then a scan for recently changed candidates: `docs/plans/`, `docs/specs/`, and files named `requirements.md`, `PRD.md`, `spec.md`; steering files (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.kiro/steering/`, Copilot instructions); and `paad/*-reviews/` reports. If it finds several it lists them and asks; if it finds nothing it asks. Notably, `pushback` does *not* ask for a fresh session — the conversation you have just had may itself be the spec.
+
+## Phase 1 — the reality check
+
+Before it reads a single requirement, `pushback` looks at your git history: `git log --oneline -50` — the last 50 commits, not a date window — reading commit messages and diffing anything relevant. It is asking one question — *does this spec assume things about the codebase that are no longer true?*
+
+Conflicts are presented upfront, before any other analysis, with what the spec assumes, what actually changed (SHA and date), why it matters, and options. The reasoning is direct: a spec that assumes deleted infrastructure is wrong before the analysis even starts. If your project is not a git repo, this phase is skipped.
+
+## Phase 1.5 — scope shape
+
+Two structural checks, in this order:
+
+**Feature cohesion.** Do the features in this spec serve different user goals? If it bundles things that would naturally be separate PRs, it identifies the groups and asks whether you want to split before continuing.
+
+**Spec size.** Heuristic signals — multiple unrelated system areas, a very long document, an implementation that would touch many modules. Note what is deliberately *not* a signal: the skill's own words are "requirement count is not a signal — estimate the diff instead. A spec can list a dozen requirements that are all facets of one small change." But size alone is never the argument. If a meaningful split exists where each piece delivers independent value, it suggests the split. If the features are genuinely interdependent, it flags the size and explains why splitting is not practical, then moves on.
+
+[% WRAPPER note kind="tip" title='Why cohesion runs before size' %]
+If unrelated features get split out first, the size problem often resolves itself. Order matters in review processes for the same reason it matters in debugging: fix the root cause and the symptoms disappear.
+
+Note what this rule does *not* say: it does not say size is unimportant. It says size is the alarm rather than the place to cut. The appendix “Why small specs” has the evidence for why the alarm is worth having, and what to do when a long spec turns out to have no seam — no natural place to divide it.
+[% END %]
+
+## Phase 2 — the six categories
+
+[% WRAPPER table %]
+| Category | What it looks for |
+| Contradictions | Requirements that conflict with each other, or with the current state of the codebase. |
+| Feasibility | Requirements that are difficult or impossible given the codebase as it exists today — missing infrastructure, incompatible architecture, dependencies that cannot support the requirement. |
+| Scope imbalance | Requirements wildly disproportionate in effort — one bullet point that is a two-week project sitting next to two-hour tasks. |
+| Omissions | Missing requirements that are implied or necessary — error handling, edge cases, migration paths, rollback plans, monitoring, permissions. |
+| Ambiguity | Requirements open to multiple interpretations — vague success criteria, undefined terms, unclear scope boundaries. |
+| Security concerns | Requirements that introduce or ignore risk — auth gaps, data exposure, injection surfaces, missing rate limits, privilege escalation. |
+[% END %]
+
+## See it work
+
+Here is a spec that looks entirely reasonable. Read it, decide what you would flag, then reveal the findings.
+
+[% WRAPPER note kind="insight" title='Why "might," not "would"' %]
+These are plausible findings, not a transcript. Language models are non-deterministic: run `pushback` on the same spec twice and you will get overlapping but not identical results — different wording, different ordering, sometimes an issue one run raises and the other misses. That variability is a real limitation, and it is one of the reasons the loop suggests you run these skills more than once for important work.
+[% END %]
+
+<div class="reveal" data-reveal="spec1">
+  <div class="rv-head">
+    <div class="rv-kicker">docs/specs/password-reset.md</div>
+    <div class="rv-spec"># Password Reset
+
+Users who forget their password should be able to reset it.
+
+- Add a &quot;Forgot password?&quot; link on the login page.
+- User enters their email address and receives a reset link.
+- Clicking the link takes them to a page where they set a new password.
+- The new password must be secure.
+- Show a confirmation message when the reset succeeds.
+- Reset links should expire after a reasonable time.</div>
+  </div>
+  <button class="rv-btn" data-rv="spec1">▸ Reveal seven issues pushback might raise</button>
+  <div class="rv-body" id="rv-spec1">
+    <div class="finding"><span class="f-cat security">Security</span><div class="f-txt"><b>No rate limiting.</b> Nothing stops an attacker submitting thousands of reset requests, which makes your mail provider send a flood of unwanted mail to an address of the attacker&#39;s choosing and may get your sending domain blocked.</div></div>
+    <div class="finding"><span class="f-cat security">Security</span><div class="f-txt"><b>Account enumeration.</b> &quot;User enters their email and receives a reset link&quot; implies a different response for known and unknown addresses. That difference is a free list of who has an account. The response must be identical either way.</div></div>
+    <div class="finding"><span class="f-cat security">Security</span><div class="f-txt"><b>Token properties are unspecified.</b> Single-use or reusable? Invalidated when a new one is issued? Invalidated after a successful reset? Cryptographically random, or derived from something guessable? Every one of these has been a real CVE in somebody&#39;s product.</div></div>
+    <div class="finding"><span class="f-cat ambiguity">Ambiguity</span><div class="f-txt"><b>&quot;Must be secure&quot; is not a requirement.</b> Minimum length? Character classes? Checked against a breached-password list? Can it match the previous password? Without a number, three developers will implement three different rules.</div></div>
+    <div class="finding"><span class="f-cat ambiguity">Ambiguity</span><div class="f-txt"><b>&quot;A reasonable time&quot; is not a duration.</b> Fifteen minutes and twenty-four hours are both defensible; they are not the same product. Pick one and write it down.</div></div>
+    <div class="finding"><span class="f-cat omission">Omission</span><div class="f-txt"><b>No session handling.</b> Should resetting a password log out the user&#39;s other active sessions? If the reason for the reset is that the account was compromised, the answer has to be yes — and that is a requirement nobody wrote down.</div></div>
+    <div class="finding"><span class="f-cat omission">Omission</span><div class="f-txt"><b>No failure paths.</b> What does the user see when the token is expired, already used, or malformed? What happens if the email fails to send? Every one of these is a screen somebody has to build, and if the spec is silent the developer will invent something.</div></div>
+    <p style="font-size:14px;color:var(--text-faint);margin:14px 0 4px;border-top:1px solid var(--border-soft);padding-top:13px">Notice that none of these are stylistic. Each one would have surfaced in code review, in QA, or in a security incident — just later, and more expensively.</p>
+  </div>
+</div>
+
+## How findings are presented
+
+This detail matters more than it appears to. Findings are ranked by severity — critical, serious, moderate, minor — and presented **one at a time**. For each: state the problem, give concrete options from best to worst with a recommendation and a short explanation for each, then *wait for your response* before moving to the next.
+
+You can say "good enough" or "stop" at any point, and the remaining issues are recorded under an Unresolved Issues heading rather than lost. At the end, `pushback` offers to update the spec in place, write a report to `paad/pushback-reviews/`, or both. It writes no report unless issues remain unresolved or you ask for one.
+
+[% WRAPPER note title='Why one at a time' %]
+Twenty findings presented at once get skimmed and dismissed. One finding with three options and a recommendation gets a decision. The skill's own "common mistakes" table lists "listing every issue at once" as a failure mode — the format is part of the method, not presentation polish.
+[% END %]
+
+### What good pushback avoids
+
+- **Critiquing without reading the codebase.** "This contradicts what already shipped" outranks every stylistic concern, which is why the reality check runs first.
+- **Raising a problem without options.** "This is ambiguous" is an observation. "This says 'fast response times' — do you mean under 200ms for 99% of requests? Under a second? That determines whether you need caching" is pushback.
+- **Manufacturing issues to fill all six categories.** Not every spec has security concerns. Saying a category is clean and moving on is the correct behaviour.
+- **Softening findings to seem agreeable.** The entire value is saying what a reviewer would say before the code exists. Criticism that has been softened is worse than no criticism at all.
+- **Rewriting the spec instead of critiquing it.** A silent rewrite replaces your judgement with the model's.
+
+[% WRAPPER note kind="tip" title='When not to use it' %]
+If you want the spec implemented rather than criticised, the skill is instructed to say what it would push back on in a line or two and then continue with the work. A full critique nobody asked for is its own kind of failure.
+[% END %]
+
+[% WRAPPER quiz %]
+Q: What runs first when you invoke pushback in a git repository?
+- The six spec-critique analysis categories
+- The rewrite of tasks into red/green/refactor
+- A dependency scan of third-party packages
++ A source-control check against recent commits
+Why: A spec that assumes deleted infrastructure is wrong before the analysis even starts, so conflicts are presented upfront. The TDD rewrite belongs to alignment, not pushback.
+
+Q: Which of these is NOT one of pushback's six analysis categories?
++ Code style and naming conventions
+- Scope imbalance between requirements
+- Feasibility given the current codebase
+- Ambiguity in the success criteria
+Why: The six are contradictions, feasibility, scope imbalance, omissions, ambiguity, and security. The skill is explicitly told not to nitpick wording.
+
+Q: Why does pushback present findings one at a time rather than as a list?
+- The model can hold only one finding at a time
+- It keeps the total token cost of a review lower
+- It makes the review take longer, which aids recall
++ Twenty findings at once get skimmed; one gets a decision
+Why: "Listing every issue at once" appears in the skill's own common-mistakes table. Each issue arrives with options ranked best to worst, then waits for you.
+
+Q: When is splitting a spec justified?
+- Whenever the document runs past a certain length
++ Only when each piece delivers value on its own
+- Whenever it contains more than five requirements
+- Never — splitting is always the author's decision
+Why: Length is not the test. The skill separately warns against mistaking sequenced phases of one coherent feature for bundled unrelated features.
+
+Q: A spec requires "fast response times." What does good pushback look like?
++ Ask whether that means under 200ms for 99% of requests, or under a second
+- Flag it as ambiguous and move to the next issue
+- Rewrite the spec with a sensible number chosen
+- Ignore it, since it is a non-functional detail
+Why: Options need consequences attached — the answer determines whether you need caching. Silently rewriting is also listed as a mistake: it replaces your judgement with the model's.
+[% END %]

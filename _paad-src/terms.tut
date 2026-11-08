@@ -1,0 +1,144 @@
+id: terms
+title: Terminology
+optional: yes
+---
+[% WRAPPER hero %]
+Every term the course relies on, in one place, with the module that introduces it. Not meant to be read straight through — meant to be the page you turn to when a word arrives before its explanation does.
+[% END %]
+
+[% WRAPPER note kind="tip" title='How to use this page' %]
+Nothing here is new material; it is the course's vocabulary pulled out of its narrative order. Each entry names the module where the idea is actually developed, so if a one-line definition is not enough you know where to go. Terms are grouped by kind and alphabetical within each group.
+
+If you are joining a team that already uses PAAD and want the shortest possible orientation, read the first two tables and skip the rest.
+[% END %]
+
+## PAAD itself
+
+[% WRAPPER table %]
+| Term | What it means |
+| `agentic-a11y` | Accessibility review skill. Scans a UI for barriers, organised by who they affect, against WCAG 2.2 AA. "a11y" is the standard abbreviation for "accessibility" — eleven letters between the *a* and the *y*. *[% module('disc') %].* |
+| `agentic-architecture` | Structural diagnosis of a whole codebase. Five specialists, 34 flaw types, then a verification pass. Reports; proposes no fixes. Run periodically, not per feature. *[% module('arch') %].* |
+| `agentic-dedup` | Experimental. Hunts semantic duplication — code that means the same thing behind different names. Reports only. *[% module('start') %].* |
+| `agentic-owasp` | Experimental. Reviews code against the OWASP Top 10:2025. Its findings go only to `paad/security/`. Reports only. *[% module('start') %].* |
+| `agentic-review` | Pre-merge gate. Six specialists on your branch diff, then verification, then findings sorted into three categories. *[% module('disc') %].* |
+| `alignment` | Checks an intent document against an action document in both directions, then rewrites the tasks into red/green/refactor form. The second **A**. *[% module('alignment') %].* |
+| `backlog` | Experimental. Works the out-of-scope backlog `agentic-review` writes: `clean` drops entries that are fixed or gone, `fix` fixes the next one test-first. Never commits. *Modules [% num('disc') %] and [% num('start') %].* |
+| Defense in depth | Layered protection, so that no single check has to catch everything. The organising metaphor of the whole toolkit — and the reason PAAD is a set of gates rather than one clever pass. *[% module('debt') %].* |
+| Discipline | The **D**. Not a technique but the habit of applying the other three every time, including when the change is small and the deadline is close. *[% module('disc') %].* |
+| Engineering-driven AI | PAAD's tagline and its whole proposition: you see what the AI is about to do while you can still change it. The inverse of AI-driven engineering, where the assistant sets the pace and you find out what it decided when the code lands. *[% module('intro') %].* |
+| Experimental skill | A skill exempt from PAAD's versioning promise. Arguments, output paths and behaviour can change in any release, including a patch. Currently `agentic-dedup`, `agentic-owasp` and `backlog` — but which skills sit here changes too, so read the CHANGELOG before you update. *[% module('start') %].* |
+| `fix-architecture` | The treatment to `agentic-architecture`'s diagnosis. Consumes a report and works through findings one at a time, test-first, on a feature branch. *[% module('arch') %].* |
+| `handoff` | Writes a `handoff.md` so a fresh session can continue this one's work, and reads it back on the other side. Gitignore the file. *[% module('start') %].* |
+| In-scope / out-of-scope | How `agentic-review` decides what is yours to fix. In-scope: your branch caused or worsened it. Out-of-scope bug: pre-existing, goes to a backlog rather than blocking your merge. Out-of-scope addition: something your branch added that no spec promised. *[% module('disc') %].* |
+| Maintenance loop | The second of the two loops, for technical debt: `agentic-architecture` → `pushback` on the report → `fix-architecture` on a new branch → `agentic-review` → PR, repeated per batch of chosen fixes on time you reserve. *[% module('loop') %].* |
+| `makefile` | Generates a project Makefile so developers and agents run the same checks through the same commands. *[% module('ground') %].* |
+| PAAD | Pushback, Alignment, Architecture, Discipline — four common failure modes in AI-assisted development, and the skills that address each. Pronounced "pad". Open source, MIT-licensed, by Curtis "Ovid" Poe. *[% module('intro') %].* |
+| `paad/` | The directory the Claude Code plugin writes its reports into, inside your repository — `paad/pushback-reviews/`, `paad/architecture-reviews/`, `paad/code-reviews/`, `paad/test-roadmap/`. Reports are files you keep, not chat output you lose. Two subdirectories are different: `paad/security/` holds findings that would help an attacker, ignores itself and is scratch; `paad/config/` holds your own instructions for PAAD. *Modules [% num('pushback') %]–[% num('disc') %], [% num('start') %].* |
+| `paad/config/` | Optional per-project instructions: `paad.md` for every skill, `<skill>.md` for one. Plain prose, no schema. Experimental. A skill that follows one names it in a `Config:` line. Commit it and review it like code. *[% module('start') %].* |
+| `paad-help` | Lists the skills, or explains one: `/paad-help [skill-name]`. Named so because `/help` is Claude Code's built-in. *[% module('start') %].* |
+| Per-feature loop | The 8-step cycle that assembles the four letters into a repeatable rhythm: spec → pushback → tasks → pushback → alignment → implement → agentic-review → human PR approval and merge. The first of the two loops. *[% module('loop') %].* |
+| `pushback` | Critically reviews a spec before anything is built from it. Six categories, one issue at a time, worst first, each with options. The **P**, and the recommended first skill to adopt. *[% module('pushback') %].* |
+| `rethink` | Argues with an answer rather than a spec — including one of `pushback`'s — by testing whether the assumptions a chosen option rests on are actually true. *[% module('start') %].* |
+| Skill | A markdown instruction file, conventionally `SKILL.md`, that a coding assistant loads on demand and follows. Not code and not a model — a written procedure. PAAD is fifteen of them, as of v2. *[% module('intro') %]; installing and invoking, [% module('start') %].* |
+| Specialist | A sub-agent given one narrow brief — security, coupling, error handling — and run in parallel with others, so that problems cannot hide in a single reviewer's blind spot. *[% module('debt') %]; in detail, Modules [% num('arch') %] and [% num('disc') %].* |
+| `test-roadmap` | Builds a suite that pins current behaviour, proving each test works by injecting the bug it claims to catch. Run it repeatedly, one phase per run. *[% module('ground') %].* |
+| Verification pass | A second, separate stage that takes raw findings and tries to disprove them, reading the actual code and git history to discard what it cannot substantiate. The thing that makes automated review usable rather than noise. *[% module('debt') %]; the evidence for it, "How good is the evidence?"* |
+| `vibe` | Guardrails without heavy process, for small changes — roughly one to three files in one module. Pre-flight checks, then mandatory red/green/refactor. Not to be confused with vibe coding, which is what it exists to make safer. *[% module('disc') %].* |
+[% END %]
+
+## Working with coding agents
+
+[% WRAPPER table %]
+| Term | What it means |
+| [`AGENTS.md`](https://agents.md/) | An open, tool-neutral steering file format read natively by many coding agents. Stewarded by the Agentic AI Foundation under the Linux Foundation. Claude Code does *not* read it directly — import or symlink it from `CLAUDE.md`. *[% module('sdd') %].* |
+| Antigravity | Google's agentic development platform, and one of the environments PAAD provides skills for alongside Claude Code, Cursor and Kiro. Install with `npx skills@latest add Ovid/paad`, which needs Node.js. *[% module('start') %].* |
+| `CLAUDE.md` | Claude Code's steering file, at the repository root or in `.claude/`. Personal preferences go in `~/.claude/CLAUDE.md`; gitignored notes in `CLAUDE.local.md`. *[% module('sdd') %].* |
+| Constitution | Spec Kit's near-relative of a steering file. A steering file mostly records facts (this is the stack); a constitution records principles (this is a trade-off we have already settled). *[% module('sdd') %].* |
+| Context clash | Two things in the context window contradict each other and the model has no reliable way to know which wins. One of four long-context failure modes. *[% module('ground') %].* |
+| Context window | Everything the model can see at once — your prompt, the conversation so far, and whatever files have been read into it. Measured in tokens; 200K and 1M are common sizes. Quality degrades well before it is full. *[% module('ground') %].* |
+| Distraction | So much accumulated history that the model relies on it instead of reasoning about the current problem. A long-context failure mode. *[% module('ground') %].* |
+| Non-determinism | Run the same skill on the same document twice and you get overlapping but not identical findings. A real limitation, and the reason the loop tells you to run reviews more than once on work that matters. *Modules [% num('pushback') %] and [% num('loop') %].* |
+| [Pi](https://pi.dev) | A terminal-based coding agent with its own package manager, unrelated to the other tools named in the course. PAAD provides an experimental package for it. *[% module('start') %].* |
+| Plugin / marketplace | How Claude Code distributes and installs bundles of skills. PAAD is a third-party marketplace, which means auto-update is off by default and you install updates yourself. *[% module('start') %].* |
+| Poisoning | Something false enters the context — a hallucinated function name, an uncorrected assumption — and is treated as fact for the rest of the session. A long-context failure mode. *[% module('ground') %].* |
+| Quadratic slowdown | Each new token is compared against every token already in the window, so the cost of generating one grows roughly in proportion to the context length — and the total for a long session with its square. A full window is slower as well as worse. *[% module('ground') %].* |
+| Semantic versioning | The `2.1.0` scheme: first number for a breaking change, second for a feature, third for a fix. PAAD's stable skills honour it; the experimental ones are exempt. *[% module('start') %].* |
+| Slash command | Typing a skill's name with a leading slash — `/pushback`. The fully-qualified form `/paad:pushback` always works; the bare form works when no other installed skill shares the name. Plain English works too. *[% module('start') %].* |
+| Steering file | A document your assistant loads at the start of every session, holding what is true for the project rather than for one feature. Projects usually have more than one. Sits above specs in the cost hierarchy, so an error in it is inherited by everything. *Named in [% module('debt') %]; what to put in one, [% module('ground') %].* |
+| Sub-agent | A separate agent instance dispatched to do one scoped piece of work with its own fresh context, reporting back. How PAAD runs specialists in parallel. *[% module('debt') %].* |
+| Token | The unit models read and write in — roughly three-quarters of a word. Both the billing unit and the unit context windows are measured in, which is why the course treats context as a budget. *[% module('intro') %].* |
+| Yes man | The course's shorthand for the default behaviour of an assistant: it does what you ask, focused on what you asked, and does not challenge the request. Not a bug — instruction-following is the design. *[% module('debt') %].* |
+[% END %]
+
+## Spec-driven development
+
+[% WRAPPER table %]
+| Term | What it means |
+| [Kiro](https://kiro.dev/docs/steering/) | AWS's SDD toolkit. Three markdown documents per feature — requirements, design, tasks — plus a steering directory. The easiest of the five to hold in your head. *[% module('sdd') %].* |
+| MDD | Model-driven development. The 2000s-era idea that you write a model and generate the system from it. Failed because of inflexibility, and it is the historical warning Böckeler aims at SDD. *[% module('sdd') %].* |
+| [OpenSpec](https://openspec.dev/) | An SDD toolkit organising specs by domain and expressing each change as a spec delta, so a reviewer can read what changed without reading the code. *[% module('sdd') %].* |
+| PRD | Product requirements document. One of the artefact names `pushback` recognises, alongside spec, requirements and design plan. *[% module('pushback') %].* |
+| SDD | Spec-driven development. Writing a spec before writing code with AI, and treating that spec as the source of truth for both human and model. The practice PAAD assumes you are already following. *[% module('sdd') %].* |
+| Spec-anchored | The middle rung: spec-first *plus* keeping the spec updated after the feature ships, so the next change starts from the spec rather than from the code. Rarely sustained. *[% module('sdd') %].* |
+| Spec-as-source | The top rung: spec-anchored *plus* humans editing only the spec and never the code, which becomes generated output. Tessl is exploring it. *[% module('sdd') %].* |
+| Spec delta | OpenSpec's unit of change — a description of what this change does to the spec, rather than a rewritten spec. *[% module('sdd') %].* |
+| Spec-first | The bottom rung, and the one every SDD approach reaches: a considered spec is written before the code and drives that piece of work. Stopping here — as most teams do, and as PAAD's gates assume — means drift starts the moment you merge. *[% module('sdd') %].* |
+| [Spec Kit](https://github.com/github/spec-kit) | GitHub's SDD toolkit. Constitution, specify, plan, tasks, implement, with optional gates. The most customisable of the five. Commands are namespaced: `/speckit.specify`. *[% module('sdd') %].* |
+| [Superpowers](https://github.com/obra/superpowers/) | A separate open-source methodology for coding agents — brainstorm, design, plan, execute — and the one PAAD's README names as compatible with it. It includes its own review, TDD and verification skills, and the two are designed to be used together rather than chosen between. *[% module('sdd') %].* |
+| [Tessl](https://tessl.io/) | The only toolkit Böckeler found explicitly aspiring to spec-anchored, and the only one exploring spec-as-source: one spec file per code file, generated code marked do-not-edit. *[% module('sdd') %].* |
+| Vibe coding | Describing what you want in chat, accepting the diff, and moving on — a term Andrej Karpathy coined in early 2025. Fine for a prototype you will delete; expensive by month two on anything you keep. *Modules [% num('debt') %] and [% num('sdd') %].* |
+[% END %]
+
+## Software-engineering terms the course assumes
+
+[% WRAPPER table %]
+| Term | What it means |
+| ADR | Architecture decision record. A short document recording one decision, the alternatives considered, and why this one was chosen — kept in the repository so the reasoning outlives the people who were in the room. *Appendix “What the Fable review found”.* |
+| Blast radius | How far the consequences of one defect spread. A bad ticket costs you some bad code; bad steering costs you every spec you ever write. The reason review effort is worth most at the top of the stack. *[% module('debt') %].* |
+| Boilerplate | Standard wording or code repeated in many places because the format requires it, not because it says anything new. In a steering file it is the background every spec inherits whether it needs it or not. *Appendix “Why small specs”.* |
+| Chatty calls | A design that makes many small network round-trips where one larger call would do. Cheap in a diagram, expensive in production. *[% module('arch') %].* |
+| CL (changelist) | Google's term for one self-contained change submitted for review — their equivalent of a pull request. The "small CLs" guidance quoted in the appendix is about the size of a single one. *Appendix “Why small specs”.* |
+| Code smell | Something that is not a bug but suggests a deeper design problem — an over-long function, a class doing three jobs. The dominant category of issue in AI-authored code, according to the largest study of real production code. *[% module('arch') %]; the evidence, "How good is the evidence?"* |
+| CVE / CWE | A CVE is one specific publicly catalogued vulnerability in one product. A CWE is the *class* it belongs to — SQL injection, hard-coded credentials. Security research counts CWEs; incident reports cite CVEs. *Modules [% num('pushback') %] and the evidence appendix.* |
+| Distributed monolith | Services split apart on paper but so tightly coupled that they must be deployed together. The cost of microservices without the benefit. *[% module('arch') %].* |
+| Event sourcing | Storing a system's history as the list of actions taken, and rebuilding the current state by replaying that list, rather than storing the state itself. Powerful, and it makes replay-produces-the-same-answer an invariant the whole design then depends on. *Appendix “What the Fable review found”.* |
+| Fable | The AI coding system whose unassisted output the course's case study examines — *not* the name of the codebase reviewed, which the published report redacts. It built roughly 10,000 lines in a few hours from specifications that were themselves prepared with PAAD; PAAD was deliberately withheld from the implementation. *[% module('debt') %]; appendix “What the Fable review found”.* |
+| God object | A class or module that has accumulated responsibility for everything, so every change touches it and nothing can be tested in isolation. *[% module('arch') %].* |
+| Gold-plating | Building more than was asked for — an extra option, a cache, a more general design — because it seemed like an improvement. `alignment`'s scope-compliance check exists to find it. *[% module('alignment') %].* |
+| Happy path | The route through a feature where nothing goes wrong: valid input, no errors, no unusual timing. Specs describe it and forget the rest, which is why partial coverage is a category of its own. *[% module('alignment') %].* |
+| Idempotency | The property that doing something twice has the same effect as doing it once. Its absence is why a retried payment can charge twice. *[% module('arch') %].* |
+| Inspection rate | How fast a reviewer reads the material under review. The inspection literature puts the optimum around 150–200 lines per hour, which is where the 300–400 lines (or 8–12 pages) per session limit comes from. *Appendix “Why small specs”.* |
+| Leaky abstraction | An interface that forces callers to know how it works internally, so it never actually provides the isolation it promised. *[% module('arch') %].* |
+| Magic number | A bare literal value in the code with no name or explanation — `if (retries > 3)` — so nobody later knows whether 3 was measured, guessed, or copied from somewhere else. *[% module('arch') %].* |
+| OWASP Top 10 | The Open Worldwide Application Security Project's periodically updated list of the most critical web application security risks. The checklist `agentic-review`'s security specialist works from. *[% module('disc') %].* |
+| Red/green/refactor | The TDD cycle. RED: write a failing test. GREEN: the minimal code to pass it. REFACTOR: clean up what you just wrote. The third step is the one AI almost never does unless told. *Named in [% module('sdd') %]; explained in [% module('alignment') %].* |
+| Ship | To release something to real users. "It ships on its own" means a piece of work is useful as soon as it is released, without waiting for the rest. *Throughout; the appendix “Why small specs” relies on it most.* |
+| Shotgun surgery | When one conceptual change requires edits scattered across many files. A symptom of responsibility being in the wrong place. *[% module('arch') %].* |
+| Spec chain / stacked specs | What a split spec should become: an ordered sequence where each piece names the piece it depends on, rather than an unordered pile. The document-level equivalent of Google's stacked CLs. *Appendix “Why small specs”.* |
+| Spike | A short, throwaway piece of work run to answer one question — can this library do X, how slow is this approach — rather than to produce code you keep. One of the cases where the full loop costs more than it saves. *Modules [% num('intro') %] and [% num('sdd') %].* |
+| TDD | Test-driven development. Writing the test before the code. `alignment` rewrites your tasks into this form, and `vibe` enforces it. *[% module('alignment') %].* |
+| Technical debt | Structural compromises that make future work slower. The course's core claim is not that AI creates it but that it creates it at the speed of development, which is faster than anyone reviews. *[% module('debt') %].* |
+| Temporal coupling | When two operations must happen in a particular order but nothing in the code says so, and nothing stops you getting it wrong. *[% module('arch') %].* |
+| UAT | User acceptance testing. The layer where real users confirm the thing does what they needed — one of the human review layers the defense-in-depth argument draws its analogy from. *[% module('debt') %].* |
+| Vertical slice | A cut through every layer of the system thin enough to ship on its own — the seam that makes a split spec reviewable, as opposed to a horizontal cut by layer, which usually leaves pieces with no independent value. *Appendix “Why small specs”.* |
+| WCAG 2.2 AA | The Web Content Accessibility Guidelines, at the middle of three conformance levels. The standard `agentic-a11y` evaluates against; WCAG2ICT is the adaptation that applies the same criteria to non-web software. *[% module('disc') %].* |
+| Worktree | A git feature giving you a second working directory on the same repository, checked out to a different branch. It lets an agent work in isolation, or a test be proved by breaking the code somewhere disposable. *Modules [% num('sdd') %] and [% num('ground') %].* |
+[% END %]
+
+## Research terms, used only in the evidence appendix
+
+[% WRAPPER table %]
+| Term | What it means |
+| Control group / baseline | The comparison a study needs before "AI code has N problems" means anything. Its absence is the single most common weakness in the AI-and-quality literature, including in PAAD's own founding case study. |
+| Difference-in-differences | A method for extracting causation from natural experiments: compare how a treated group changed against how an untreated group changed over the same period. What makes the Tilburg Copilot study the strongest causal evidence available. |
+| DORA | The long-running State of DevOps research programme. Its 2024 and 2025 reports disagree with each other on whether AI adoption helps throughput, which is itself informative. |
+| False positive | A finding that is not real. One industrial study at Tencent put static analysis at 76%, rising above 90% once incomplete-context cases are counted; Google's threshold for a tool developers will keep using is under 10%. That gap is the entire justification for PAAD's verification passes. *Appendix “How good is the evidence?”.* |
+| GitClear | A commercial code-analytics vendor whose duplication figures are the most widely repeated claim in this space — and the one with the weakest independent support. |
+| Grey literature | Material published outside peer review: company blogs, vendor reports, conference talks. Not worthless, but a 2026 review found 73 of 104 sources on AI technical debt fell into this category, much of it recycling one dataset. |
+| METR | The research organisation behind the 2025 randomised controlled trial in which experienced maintainers took 19% longer with AI tools while believing they were 20% faster. METR has since qualified the result itself. |
+| RCT | Randomised controlled trial. Participants are assigned to conditions at random, which is what allows a causal claim rather than a correlation. |
+[% END %]
+
+[% WRAPPER note title='A term that is missing from here' %]
+If you hit a word in this course that is not on this page and not explained where it appears, that is a defect in the course rather than a gap in your knowledge. The same standard the methodology applies to a spec — ambiguity is the author's problem, not the reader's — applies to the training.
+[% END %]

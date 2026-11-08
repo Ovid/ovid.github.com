@@ -1,0 +1,115 @@
+id: ground
+title: Groundwork before the skills
+---
+[% WRAPPER hero %]
+Four things that are not PAAD skills but that PAAD assumes. Skip them and the skills work at a fraction of their value.
+[% END %]
+
+## 1. Steering files
+
+[% module('sdd') %] covered where these live in each tool — `CLAUDE.md`, `AGENTS.md`, `.kiro/steering/`, `.specify/memory/constitution.md` and the rest. This section is about what to put in one. A steering file typically describes what your project is, what technologies it uses, where to find relevant code, and the practices your codebase follows.
+
+Good steering files more than repay their cost, in two ways. They reduce confidently wrong answers, and they *save tokens*, because the assistant stops searching the repo to rediscover facts you could have simply told it. Bad steering files are worse than none: a wrong statement in a steering file is inherited by every single piece of work that follows.
+
+They are also loaded into context on every single session, which makes length a real cost rather than a style preference. Claude Code's own documentation suggests keeping each file under 200 lines, on the grounds that longer files consume more context *and* get followed less reliably — a useful rule of thumb whichever tool you use. Write instructions concrete enough to verify: "run `npm test` before committing" beats "test your changes."
+
+A steering file describes where the project *is*, not where it will be in six months, so it goes stale. That matters more than it sounds. A recent [arXiv preprint](https://arxiv.org/html/2610.30571v1) found that agents tend to trust instruction files even when they are stale, and will often rewrite existing, working code to match them. Its fix is a single sentence in the instruction file: when the documentation and the existing code disagree, follow the code, and point out each inconsistency.
+
+On the author's own projects, a stronger fix has worked: make keeping the file current part of every pull request, with a human approving each change.
+
+[% WRAPPER quote cite='["Ovid in the Trenches"](https://curtispoe.org/articles/ovid-in-the-trenches)' %]
+Before pushing a pull request, reread CLAUDE.md and determine if it should be updated to reflect changes in the code. Discuss proposed changes with the developer. They must approve all changes.
+[% END %]
+
+That is the author's experience on personal projects, not a measured result from teams. It is still the recommendation for teams, for a reason specific to steering: a scheduled steering review is a chore with no owner, so it slips; a prompt at PR time can't be skipped.
+
+[% WRAPPER note title='Practical test' %]
+Open your steering file and ask, line by line: is this still true? Steering files go out of date faster than code, because nothing fails when they do. That silence is exactly what makes them dangerous. Then run `/pushback` on the steering file: on one team the author worked with, it found the file named a modern, popular Web framework rather than the older one the project actually used, so the agent had been grounding every answer in a falsehood.
+[% END %]
+
+## 2. Context management
+
+Long contexts degrade. The four failure modes have names, and each is worth recognising when it happens to you:
+
+[% WRAPPER table %]
+| Failure mode | What it looks like in a session |
+| Poisoning | Something false enters the context — a hallucinated function name, a wrong assumption you did not correct — and gets treated as established fact for the rest of the session. |
+| Distraction | So much accumulated history that the model relies on it instead of reasoning about the current problem, repeating earlier approaches rather than choosing the right one. |
+| Confusion | Material that is present but irrelevant influences the answer — a file you pasted an hour ago for a different reason shaping the code you get now. |
+| Context clash | Two things in the window contradict each other — an old plan and its revision, say — and the model has no reliable way to know which one wins. |
+[% END %]
+
+Generation additionally suffers a **quadratic slowdown**: because each new token is compared against every token already in the window, the cost of producing one grows roughly in proportion to the context length — and the total cost of a long session grows with its square. A full window is slower as well as worse. The practical consequence is that a session which has been running for hours is measurably worse at reasoning than a fresh one, even though nothing visibly broke.
+
+[% WRAPPER quote cite='"Watching Claude Sonnet Outperform Opus," on a 1M-token context window' %]
+I try to keep my context under 30%. I get much higher quality work out of this.
+[% END %]
+
+The article notes there is no hard-and-fast rule. It reports hearing others put the ceiling at 40–50% on smaller windows, while allowing that on a 200K window you sometimes have no choice but to spend a large share of it just guiding the model's reasoning. The number matters less than the habit: **treat a fresh session as a resource you spend deliberately.** This is why the per-feature loop tells you to execute tasks in new sessions, and why `agentic-review` has a pre-flight check that stops and asks you to start a fresh session if your conversation already has substantive history.
+
+## 3. A test suite that pins current behaviour
+
+If you are bringing PAAD to an existing codebase, tests come first — but not the kind of testing you may be imagining.
+
+[% WRAPPER quote cite='"Watching Claude Sonnet Outperform Opus"' %]
+Your goal is not to fix bugs. Your goal is simply to lock down current behavior to ensure that you haven't unexpectedly changed things.
+[% END %]
+
+This is the single most counter-intuitive instruction in the whole methodology, and the most important. When you write tests against a legacy codebase you will find bugs. Do not fix them. Write a test that asserts the buggy behaviour, note the bug, and move on. The suite's job right now is to be an alarm that sounds when something changes — not a statement of what ought to be true. With legacy codebases you often encounter so many bugs that trying to fix them all will overwhelm you before the safety net exists.
+
+Three layers are expected: **unit tests** for isolated components, **integration tests** validating that components communicate correctly, and **end-to-end tests** for critical user journeys. The article targets 95%+ coverage when working with AI, against a traditional 80% baseline — the reasoning being that AI makes writing tests cheap enough that the old cost/benefit line moves. Treat that number as a heuristic rather than a target to optimise: as the next paragraph explains, coverage is famously easy to inflate without improving anything.
+
+[% WRAPPER note kind="warning" title='Coverage is not the goal' %]
+A line can be "covered" by a test that asserts nothing — green forever, catching nothing. PAAD includes a `test-roadmap` skill built entirely around this problem: every test phase must name the bug it would catch, and the skill proves each test works by injecting that bug in a throwaway `git worktree` and confirming the test goes red. A high coverage number with assertion-free tests is worse than a low one, because it buys false confidence.
+
+Using it is simple: keep running `/test-roadmap` in fresh sessions until it's done. The finish line is the roadmap's phases being complete, not a coverage number. In the author's runs, finished roadmaps have landed around 85% statement coverage — an observation, not a target.
+[% END %]
+
+[% WRAPPER note kind="warning" title='It will find security holes' %]
+Rigorous tests surface real vulnerabilities — the author [keeps finding them by accident](https://curtispoe.org/articles/i-keep-accidentally-finding-zero-day-exploits). Since 2.0, PAAD writes the description of each one to `paad/security/`, which git ignores. But the test that pins the hole is committed with the rest of its phase, and it still reproduces the hole. On a public repository, don't push those commits until the hole is fixed.
+
+That fix is the one exception to "pin, don't fix", and `test-roadmap` won't make it for you. On code without a solid suite a security fix can easily ripple, so make it once the tests around that code are in place. Because `test-roadmap` commits every phase to the working branch, plan for the gap: if the fix is more than a phase or two away, make the repository private, or move the roadmap to a private fork, until it lands; if you can't, write the tests around that code next and fix it straight after. Since 2.1.0, `test-roadmap` and `fix-architecture` lead their final reply with a push warning when they commit such a test — that warning is your prompt to act.
+[% END %]
+
+## 4. A consistent way to run your checks
+
+Whatever your project uses — a `Makefile`, npm scripts, a `justfile`, a shell script — agents work far better when there is one documented command for testing, one for linting, and one for coverage. PAAD includes a `makefile` skill that will generate these for you, though Makefiles are less popular than they once were and this may not suit your stack.
+
+The value is not the tool. It is that developers and agents run the same quality checks through the same commands. An agent that knows how to run your tests does not have to guess whether this project uses pytest, jest, or cargo — and a steering file naming those commands does most of the same work.
+
+[% WRAPPER quiz %]
+Q: Why can a bad steering file be worse than having none at all?
+- They consume context the code itself needs
++ A wrong statement is inherited by all later work
+- They cannot be tracked properly in version control
+- They interfere with the assistant's code formatting
+Why: They also rot silently — nothing fails when a steering file goes stale, which is exactly what makes them dangerous.
+
+Q: What context-window target does the article suggest for a 1M-token window?
+- Under 10% of the available window
+- Roughly 60% of the available window
++ Under 30% of the available window
+- As close to full as the task allows
+Why: The article reports others putting the ceiling at 40–50% on smaller windows, and notes there is no hard rule. The habit matters more than the number.
+
+Q: When writing tests against an existing codebase, what is the stated goal?
+- Fix every bug you encounter along the way
+- Reach full coverage before asserting anything
+- Rewrite the code to be more testable first
++ Pin current behaviour, including the buggy parts
+Why: The suite's job at this stage is to be an alarm that sounds when something changes, not a statement of what ought to be true. Fixing as you go means never finishing the safety net.
+
+Q: Why is a high coverage number not proof of a good test suite?
++ A line can be covered by a test that asserts nothing
+- Coverage tools are generally poorly calibrated
+- Coverage counts only unit tests, never integration
+- High coverage makes continuous integration slower
+Why: This is why the test-roadmap skill makes every phase name the bug it would catch, then proves it by injecting that bug in a throwaway worktree.
+
+Q: Which is NOT one of the three test layers the article describes?
+- Integration tests validating component communication
+- End-to-end tests covering critical user journeys
++ Performance tests measuring throughput under load
+- Unit tests exercising components in isolation
+Why: Unit, integration, and end-to-end are the three named layers. Performance testing matters, but it is not part of the behaviour-pinning safety net described here.
+[% END %]

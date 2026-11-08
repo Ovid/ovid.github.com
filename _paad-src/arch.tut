@@ -1,0 +1,77 @@
+id: arch
+title: A — Architecture
+---
+[% WRAPPER hero eyebrow="$group · Module $num · A" h1='Architecture' %]
+AI can build quickly on weak foundations. This is the letter that goes looking for the foundations.
+[% END %]
+
+Pushback and alignment operate on documents. Architecture operates on the codebase you already have — and unlike the other two, it is a diagnosis you run periodically rather than a gate you pass through per feature.
+
+## `/agentic-architecture` — the diagnosis
+
+<pre><code>/agentic-architecture                              # whole repo
+/agentic-architecture src/                         # scoped
+/agentic-architecture packages/api/ packages/shared/</code></pre>
+
+Five specialists analyse the codebase in parallel, each from a different angle so that problems cannot hide behind a single reviewer's blind spots. A verification phase then filters false positives by reading actual code and checking git history.
+
+[% WRAPPER table %]
+| Specialist | Looks at |
+| Structure &amp; Boundaries | Module organisation, responsibility distribution, domain modelling. Finds god objects, shotgun surgery, low cohesion, catch-all utility modules. |
+| Coupling &amp; Dependencies | How components connect, abstraction quality, dependency direction. Finds tight coupling, circular dependencies, leaky abstractions, over-abstraction, temporal coupling. |
+| Integration &amp; Data | Service communication, data ownership, API contracts, resilience. Finds distributed monoliths, chatty calls, shared databases, missing idempotency. |
+| Error Handling &amp; Observability | Error strategies, logging, config, side effects, business-logic placement. Finds hidden side effects, config sprawl, business logic in the UI, magic numbers (unexplained literal values). |
+| Security &amp; Code Quality | Auth, secrets, dead code, test coverage. Finds security-as-afterthought, unused dependencies, missing coverage, hard-coded credentials. |
+[% END %]
+
+Between them they cover **34 flaw and risk types** and **14 strength categories**, with a coverage checklist ensuring every category is actually assessed. The report — written to `paad/architecture-reviews/` — includes strengths as well as flaws, plus a hotspots list of the files and directories most worth your attention. Security flaws are the exception: they go only to `paad/security/`, and the report keeps a single count line where they would have been.
+
+[% WRAPPER note title='It reports strengths on purpose' %]
+A review that only lists problems is easy to dismiss and hard to act on — you cannot tell whether the reviewer understood the codebase or just pattern-matched complaints. Naming what is working is evidence of comprehension, and it stops you from "fixing" the parts that were deliberate.
+[% END %]
+
+[% WRAPPER note kind="warning" title="Diagnosis only" %]
+This skill does not propose fixes. That is a deliberate separation — mixing "here is what is wrong" with "here is what I changed" makes it impossible to review either one properly.
+[% END %]
+
+## `/fix-architecture` — the treatment
+
+Fixing is a separate skill that takes an architecture report as its input and works through findings one at a time, test-first. It requires a feature branch — it refuses the repository's default branch (`origin/HEAD`, else `main`, `master` or `trunk`) — and an existing report. Along with the report it loads the security flaws `agentic-architecture` routed to `paad/security/`.
+
+Before starting it runs pre-flight checks: branch protection, report staleness detection, test infrastructure verification, and a baseline test run. Then it has a conversation with you about how you want to work — solo or team, batch size, auto-commit or manual, how to sort flaws by priority — before confirming a plan.
+
+Before any fix begins, it validates every flaw in the batch and writes and commits all the safety-net tests up front — that gate is non-negotiable. Then, one flaw at a time, it proposes options with trade-offs and executes red/green/refactor. Outcomes are recorded in the report itself: *Fixed, Won't fix, Partially fixed, Skipped, Fixed (pre-existing), Attempted/reverted.* That status tracking is what makes the work resumable across sessions.
+
+[% WRAPPER note kind="insight" title='Why fixes are sequential, not parallel' %]
+This is one of the most instructive design decisions in PAAD. Fixing one structural flaw can resolve others, and that dependency can only be discovered sequentially. Worktree-based parallelism would avoid file collisions — but merging several structural refactors back together is a reliable way to introduce new bugs. Parallelism is not free just because the tooling supports it.
+[% END %]
+
+[% WRAPPER quiz %]
+Q: What does agentic-architecture deliberately NOT do?
+- Report the codebase's structural strengths
++ Propose fixes for the problems it finds
+- Check git history during its verification pass
+- Limit its analysis to a given directory
+Why: Diagnosis only. Mixing "here is what is wrong" with "here is what I changed" makes it impossible to review either properly.
+
+Q: Why does the architecture report list strengths as well as flaws?
+- To soften criticism that might otherwise cause offence
+- Because the report template demands an equal balance
+- To bring the report up to a more respectable length
++ It shows comprehension and protects deliberate choices
+Why: A review that only lists problems is easy to dismiss — you cannot tell whether it understood the code or pattern-matched complaints. It covers 14 strength categories against 34 flaw types.
+
+Q: Why does fix-architecture work through findings sequentially?
++ Fixing one flaw can resolve others downstream
+- Running agents in parallel is not technically possible
+- Sequential fixes complete faster than parallel ones
+- Git worktrees are unable to run a project's tests
+Why: Worktrees would avoid file collisions, but merging several structural refactors together reliably introduces new bugs. Parallelism is not free just because the tooling supports it.
+
+Q: What does fix-architecture require before it will run?
+- A test suite with total statement coverage
+- A linear git history with no merge commits
+- An empty out-of-scope backlog file
++ A feature branch and an existing report
+Why: It refuses to run on the repository's default branch (origin/HEAD, else main, master or trunk), and additionally checks report staleness, test infrastructure, and a baseline test run before proposing a plan.
+[% END %]

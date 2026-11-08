@@ -1,6 +1,6 @@
 # Makefile for website project
 
-.PHONY: all test cover lint format loc build release clean help
+.PHONY: all test cover lint format loc build release clean paad help
 
 all: lint format test release ## Lint, format, test, then release build
 
@@ -27,6 +27,11 @@ format: ## Format Perl source with perltidy (bin/ is filtered to files with a Pe
 
 loc: ## Count lines of our own code (lib/, bin/, t/)
 	cloc lib bin t
+
+EASY_TUTORIALS ?= $(HOME)/projects/easy-tutorials
+
+paad: ## Check _paad-src/ and rebuild paad/index.html (needs easy-tutorials; override EASY_TUTORIALS=path)
+	perl -I$(EASY_TUTORIALS)/lib $(EASY_TUTORIALS)/bin/build-tutorial -o paad/index.html _paad-src
 
 clean: ## Remove coverage database and report
 	cover -delete

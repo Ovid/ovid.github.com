@@ -1,0 +1,182 @@
+id: evidence
+title: How good is the evidence?
+optional: yes
+---
+[% WRAPPER hero %]
+The course itself argued from a single primary source. This appendix sets that case against the independent research literature — what is well established, what is still open, and what you should be careful about repeating.
+[% END %]
+
+[% WRAPPER note kind="tip" title='Optional — read it or take the course on trust' %]
+Nothing in the course depends on this page, and no assessment question draws on it. The four letters, the loop, and the final assessment all stand on their own. This is here for readers who would rather not take the argument on faith, and for anyone who needs to defend the methodology to a sceptical colleague, or the person who has to approve the spend.
+
+The short version, if you only want one line: the security and self-assessment findings are solid, the technical-debt numbers everyone quotes are not, and the case for review gates does not rest on the shaky half.
+[% END %]
+
+Any methodology is worth checking against evidence gathered by people who were not involved in building it. That is not scepticism about the methodology; it is how you find out which parts of the argument the rest depends on.
+
+The short version: **the strongest evidence supports the parts of PAAD concerned with security and correctness review.** Some of the more commonly repeated industry claims about AI and technical debt are, on close inspection, less settled than they appear — but the case for review gates does not depend on them.
+
+## AI-generated code contains more security defects
+
+This is the best-established claim in the field, and it comes from multiple independent teams using different methods.
+
+[% WRAPPER table %]
+| Study | Finding |
+| [Pearce et al., IEEE S&amp;P 2022](https://arxiv.org/abs/2108.09293) | The foundational study. Across 89 scenarios and 1,689 generated programs, roughly **40% contained a security weakness**. |
+| [Fu et al., ACM TOSEM](https://dl.acm.org/doi/10.1145/3716848) | Replication on *real* repositories rather than synthetic scenarios: **27.3% of 733 snippets** contained weaknesses, spanning 43 distinct CWE types. |
+| [Cotroneo et al., ISSRE 2025](https://arxiv.org/abs/2508.21634) | A direct head-to-head across 507,044 samples: vulnerable Java samples ran **3.0% for human code against 6.1–19.6% across the AI models tested**, with AI worse on high-risk classes such as command injection and hard-coded secrets. |
+| [Schreiber &amp; Tippe, Springer 2025](https://arxiv.org/abs/2510.26103) | A moderating result worth knowing: across 7,703 files, **87.9% had no CWE-mapped vulnerability**, and rates varied sharply by language (Python 16–18.5%, TypeScript 2.5–7.1%). |
+[% END %]
+
+Rates vary widely with methodology, and the moderating study is a genuine caution against quoting the scariest number. But the direction is robust across peer-reviewed venues and independent groups. **If you adopt only one thing from PAAD, the security specialist in `agentic-review` and the security category in `pushback` are the parts with the firmest evidence behind them.**
+
+## AI-generated code carries a different defect profile
+
+Here the picture is more interesting than "AI code is worse." The largest study of real production code, [Liu et al. (2026)](https://arxiv.org/html/2603.28592v1), examined 304,362 verified AI-authored commits across 6,275 repositories. Of 484,606 issues found, **89.1% were code smells** rather than runtime bugs or security problems. More than 15% of commits from every assistant introduced at least one issue, and **24.2% of those issues survived to the latest revision** — which is the accumulation mechanism, documented directly.
+
+[% WRAPPER note title='The limitation the authors state themselves' %]
+That study has no human baseline. It measures how much debt AI-authored commits carry and how long it persists; it cannot tell you whether that is more or less than human commits would have carried. Two other studies with controls point the other way: [Cotroneo et al.](https://arxiv.org/abs/2508.21634) found human code had the higher concentration of maintainability issues, and [Sawada et al.](https://arxiv.org/abs/2605.06464) found AI-authored files received fewer bug-fix commits over six months.
+[% END %]
+
+The honest synthesis is that AI code has a *different* failure profile rather than a uniformly worse one: more unused constructs, broader exception handling, more verbosity, more shadowing (inner names hiding outer ones) — and materially more security weaknesses. That is a profile a targeted review pass is well suited to catch, which is more or less what PAAD's specialists are organised around.
+
+## The duplication question is still open
+
+You will see it stated frequently that AI-assisted development is driving code duplication up and refactoring down. The source is almost always [GitClear's analyses](https://www.gitclear.com/the_ai_code_quality_maintainability_gap), which report duplication rising to 15.7% of changed lines while refactoring fell to 3.8%. Those are striking numbers and they may well be right.
+
+Two things are worth knowing before you repeat them. First, the analysis has no control group and its central metric is proprietary, so it establishes a correlation over calendar time rather than a cause. Second, the one rigorous within-repository comparison that exists — [Mao et al. (2026)](https://arxiv.org/html/2603.27130v2), matching 19,816 AI-generated files against 36,467 human files from the same repositories — found the opposite direction: **duplicated lines at 18.69% for AI code against 25.89% for human code**. What it did find is that AI duplication is more *fragmented*, at 0.679 clone instances per file against 0.534.
+
+[% WRAPPER note kind="warning" title='Why it feels better evidenced than it is' %]
+A [2026 Drexel University literature review](https://arxiv.org/html/2606.14796v1) surveyed 104 sources on technical debt in LLM-assisted development and found only 31 were peer-reviewed; 73 were grey literature, 38 of them company blogs. Much of what looks like a body of corroborating research is the same commercial dataset cited onward through blog posts. The review's own conclusion is that for these emerging debt categories "no standardized benchmarks or LLM-specific metrics yet exist, leaving an important gap."
+
+This matters practically: if you make the duplication argument to a sceptical colleague, expect it to be challenged. The security argument will not be.
+[% END %]
+
+## Does AI adoption accumulate debt over time?
+
+The strongest causal evidence is not GitClear but a [Tilburg University difference-in-differences study](https://arxiv.org/pdf/2510.10165) that exploits a natural experiment: when GitHub Copilot launched in preview it supported some languages and not others, giving genuine treatment and control groups across 2,755 repositories and 1,699 contributors over 24 months.
+
+It found more output — 17.7% more lines, 4.1% more commits — and **2.4% more pull-request revisions** controlling for volume. Note that effect size: real, measurable, and modest. The more striking finding was distributional. Peripheral contributors committed 43.5% more, while core contributors committed 19% less and absorbed **6.5% more review burden**. More work arrived, and the reviewing of it concentrated on fewer people.
+
+That fits PAAD's actual proposition closely. The problem is less that AI writes bad code and more that it shifts effort from writing to reviewing — and reviewing is the part that does not scale by adding another assistant.
+
+## Does AI make developers faster?
+
+This is the most contested question in the field, and the honest answer is that it depends heavily on the task.
+
+[% WRAPPER table %]
+| Study | Finding |
+| [METR RCT (2025)](https://arxiv.org/abs/2507.09089) | Experienced maintainers working on their own repositories took **19% longer** with AI tools — while both they and expert forecasters predicted a speedup. |
+| [Peng et al. (2023)](https://arxiv.org/abs/2302.06590) | Developers using Copilot completed a task building a new HTTP server from scratch **55.8% faster**. The opposite result, on a very different task. |
+| [DORA 2024](https://dora.dev/research/2024/dora-report/) → [2025](https://cloud.google.com/blog/products/ai-machine-learning/announcing-the-2025-dora-report) | 2024 associated AI adoption with reduced throughput and stability. 2025 reversed the throughput finding to positive, but the **negative association with delivery stability persisted**. |
+[% END %]
+
+[METR has since qualified its own result](https://metr.org/blog/2026-02-24-uplift-update/), warning that selection effects likely cause it to understate true speedup, and is redesigning the experiment. So the fair reading is not "AI makes developers slower." It is that **task type and codebase familiarity dominate the direction of the effect**, and that perceived speedup is an unreliable guide in either direction.
+
+[% WRAPPER note kind="insight" title='The finding that matters most for PAAD' %]
+METR found developers believed they were 20% faster while being 19% slower. Independently, [Perry et al. (2023)](https://arxiv.org/abs/2211.03622) found participants with an AI assistant wrote *less* secure code while being *more* confident it was secure. Two teams, two different outcome variables, the same structural result: AI assistance degrades your ability to assess your own output.
+
+This is the strongest single argument for external review gates, and it is stronger than any claim about code-quality metrics. If you cannot trust your own judgement of the work, you need a check that does not depend on it.
+[% END %]
+
+## Two claims to handle carefully
+
+### Defects are cheaper to fix earlier
+
+The direction is well supported. The famous magnitude is not. [Boehm and Basili (2001)](https://www.cs.umd.edu/projects/SoftEng/ESEG/papers/82.78.pdf) is the usual source for "100 times more expensive after delivery" — but the same sentence qualifies that the ratio is *"more like 5:1"* for smaller, non-critical systems. The exponential version has been [credibly challenged](https://www.techwell.com/techwell-insights/2013/10/what-does-it-really-cost-fix-software-defect) as resting on evidence that does not support it, and it originates in 1970s projects with expensive release cycles that continuous delivery has largely shortened.
+
+Use the directional claim, which is sound and sufficient for PAAD's argument. Avoid the 100:1 figure.
+
+### Code review catches defects
+
+[Bacchelli and Bird (ICSE 2013)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/ICSE202013-codereview.pdf) found that although 44% of programmers ranked defect-finding as their top motivation for review, only **14% of 570 analysed review comments were defect-related**. [Sadowski et al. (ICSE-SEIP 2018)](https://sback.it/publications/icse2018seip.pdf) report that at Google, review expectations centre on readability, maintainability, and education rather than problem-solving.
+
+[% WRAPPER note kind="tip" title='This strengthens the case for automated review rather than weakening it' %]
+Human review's dominant value turns out to be knowledge transfer and shared standards — things an AI reviewer cannot supply, and a good reason not to replace human review. But it also means the defect-hunting job is being done less thoroughly than most teams assume. A pass that looks specifically for logic errors, edge cases, and security holes is filling a real gap rather than duplicating work already happening.
+[% END %]
+
+## Requirements defects are a real failure source
+
+["Naming the Pain in Requirements Engineering"](https://link.springer.com/article/10.1007/s10664-016-9451-7) surveyed 228 companies across 10 countries: 48% cited incomplete or hidden requirements as a critical problem, and 39% of those linked it directly to project failure. Boehm and Basili separately estimate projects spend **40–50% of effort on avoidable rework**. This is the empirical backing for putting a review gate at the spec, where `pushback` sits.
+
+## Automated review needs a verification pass
+
+An [ICSE-SEIP 2026 industrial study at Tencent](https://arxiv.org/abs/2601.18844) found that of 433 verified static-analysis alarms, **328 were false positives** — a 76% rate, rising above 90% once incomplete-context cases are included. Meanwhile Google requires code-review checks to produce [fewer than 10% effective false positives](https://research.google/pubs/pub46576/), on the reasoning that developers abandon tools they cannot trust.
+
+Real-world false-positive rates run roughly an order of magnitude above the level at which a tool stays usable. That gap is the whole justification for PAAD's verification phases — `agentic-review` and `agentic-architecture` both dispatch specialists and then run a separate pass that reads the actual code to drop false positives. The same Tencent study found LLM-based filtering removed **94–98% of false positives at about 93% accuracy**. The verification step is not empty process; it is the difference between a tool people use and one they turn off.
+
+## Long contexts degrade model output
+
+This one is well established, and it is the evidence behind the context-management advice in [% module('ground') %].
+
+- ["Lost in the Middle" (Liu et al., TACL 2024)](https://aclanthology.org/2024.tacl-1.9/) — performance is highest when relevant information sits at the start or end of the context, and degrades significantly for information in the middle, even in models built for long contexts.
+- [NoLiMa (Modarressi et al., ICML 2025)](https://proceedings.mlr.press/v267/modarressi25a.html) — when literal keyword overlap is removed so retrieval requires inference, **11 of 13 models fell below half their short-context baseline at 32K tokens**.
+- ["Context Rot" (Chroma, 2025)](https://www.trychroma.com/research/context-rot) — across 18 models, performance degrades non-uniformly as input grows, even on trivially simple tasks.
+
+One qualification: these measure retrieval and question-answering, not coding. Extending them to "long agent coding sessions produce worse code" is a reasonable inference rather than a measured result. **[% module('ground') %], "Groundwork before the skills," covers what to do about it.**
+
+## Where this leaves you
+
+[% WRAPPER table %]
+| Claim | Evidence |
+| AI-generated code has more security defects | **Strong.** Multiple peer-reviewed studies, independent teams, converging direction. |
+| Long contexts degrade output | **Strong.** Peer-reviewed and replicated, though measured on retrieval rather than code. |
+| AI degrades your judgement of your own work | **Good.** Two independent teams, two outcome variables, same structural finding. |
+| Requirements defects drive failure | **Reasonable.** Large multi-country survey; self-reported. |
+| Automated review needs verification | **Reasonable.** Industrial data on both the problem and the remedy. |
+| AI shifts burden from writing to reviewing | **Moderate.** One well-designed natural experiment; modest effect size. |
+| AI code carries more smells overall | **Contested.** Large studies without baselines; controlled comparisons split. |
+| AI raises duplication in real codebases | **Open.** Widely repeated, but the best controlled measurement points the other way. |
+| AI makes developers faster or slower | **Contested.** Rigorous studies point both directions depending on the task. |
+| Defects cost 100× more to fix late | **Overstated.** The direction holds; the multiplier does not. |
+[% END %]
+
+Read down that table and a pattern emerges. The claims that hold up best — more security defects, degraded self-assessment, degraded long-context reasoning, review burden concentrating on fewer people — are all arguments for *putting a check between the model's output and your codebase*. That is precisely what PAAD is. The claims that are shakier are mostly about the *size* of the quality problem, not about whether a review gate helps.
+
+Worth noticing *which way* the good evidence points. The best-supported findings are not about the model's code being bad. They are about the human losing the ability to judge it — believing you were faster while being slower, believing the code was secure while it was less so, absorbing more review burden as more work arrives. Those are findings about the arrangement rather than the tool, which makes them the empirical case for engineering-driven AI specifically, not a general case for being careful.
+
+Which points at the right way to decide: **run `pushback` on a spec you already believe in and see what comes back.** One such result on your own work will tell you more than this entire page.
+
+[% WRAPPER quiz %]
+Q: Which claim about AI-generated code has the firmest peer-reviewed support?
++ It contains more security defects than human code
+- It is duplicated far more heavily than human code
+- It reliably takes longer for a team to maintain
+- It scores worse on every maintainability metric
+Why: Four independent teams across IEEE S&amp;P, ACM TOSEM, ISSRE and Springer venues converge on the direction, even though the rates vary widely. Duplication and overall maintainability are much less settled.
+
+Q: What did the METR randomised controlled trial find in 2025?
+- Developers finished their tasks 20% faster with AI
+- Developers and forecasters both predicted a slowdown
++ Developers took longer, yet expected to be faster
+- There was no measurable effect in either direction
+Why: Experienced maintainers took 19% longer while predicting a 20% speedup. METR has since qualified the result and is redesigning the study, but the perception gap is the durable finding.
+
+Q: Why should you be careful repeating the claim that AI is driving code duplication up?
+- Duplication has never been measured in any codebase
++ The best controlled comparison points the other way
+- Duplication is not actually a form of technical debt
+- The claim originates from academic work, not industry
+Why: Matching AI against human files from the same repositories, Mao et al. found 18.69% duplicated lines for AI against 25.89% for human code. What AI duplication does show is more fragmentation — 0.679 clone instances per file against 0.534.
+
+Q: What does modern empirical research say human code review is mostly good for?
+- Catching the large majority of defects before they ship
++ Knowledge transfer, maintainability, and shared norms
+- Reducing the number of reviewers each change requires
+- Replacing automated testing for low-risk changes
+Why: Only 14% of analysed review comments at Microsoft were defect-related. That is a reason to add an automated defect-hunting pass alongside human review, not to drop the human one.
+
+Q: The Tilburg natural experiment found what happened to core contributors?
+- They committed far more code than before adoption
+- They left their projects at a measurably higher rate
+- Their work was unaffected by the tool's introduction
++ They committed less and absorbed more review burden
+Why: Core contributors committed 19% less and took on 6.5% more review burden while peripheral contributors committed 43.5% more. AI shifted effort from writing to reviewing — and reviewing does not scale by adding another assistant.
+
+Q: What is the strongest single argument for putting a review gate between the model and your codebase?
+- AI-written code is uniformly worse than human code
++ AI assistance degrades your judgement of your own work
+- Automated review is cheaper than employing reviewers
+- Specifications are more reliable than working software
+Why: METR found developers thought they were faster while being slower; Perry et al. found them more confident their code was secure while it was less secure. If you cannot trust your own assessment, you need a check that does not rely on it.
+[% END %]
